@@ -41,7 +41,7 @@ ex_in_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "test_jdftx_in_files"
 
 ex_infile1_fname = ex_in_files_dir / "CO.in"
 ex_infile1_knowns = {
-    "dump-name": "$VAR",
+    "dump-name": {"format": "$VAR"},
     "initial-state": "$VAR",
     "elec-ex-corr": "gga",
     "van-der-waals": "D3",

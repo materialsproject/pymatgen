@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import asdict
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -19,13 +18,13 @@ from pymatgen.symmetry.analyzer import (
     iterative_symmetrize,
 )
 from pymatgen.symmetry.structure import SymmetrizedStructure
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/symmetry/analyzer"
 
 
-class TestSpacegroupAnalyzer(PymatgenTest):
-    def setUp(self):
+class TestSpacegroupAnalyzer(MatSciTest):
+    def setup_method(self):
         # FePO4
         self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.sg = SpacegroupAnalyzer(self.structure, 0.001)
@@ -59,7 +58,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert self.disordered_sg.is_laue()
 
     def test_magnetic(self):
-        lfp = PymatgenTest.get_structure("LiFePO4")
+        lfp = MatSciTest.get_structure("LiFePO4")
         sg = SpacegroupAnalyzer(lfp, 0.1)
         assert sg.get_space_group_symbol() == "Pnma"
         magmoms = [0] * len(lfp)
@@ -380,6 +379,23 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         conventional = spga.get_conventional_standard_structure(keep_site_properties=False)
         assert conventional.site_properties.get("magmom") is None
 
+        mono_struct = Structure(
+            lattice=np.array(
+                [
+                    [-0.00000000e00, -0.00000000e00, -6.43473000e00],
+                    [3.78586000e00, 6.30170000e00, -0.00000000e00],
+                    [3.78586000e00, -6.30170000e00, -1.77635684e-15],
+                ]
+            ),
+            species=["O"] * 3,
+            coords=np.array([[0.5, 0.5, 0.66666667], [0.5, 0.0, 0.0], [0.5, 0.0, 0.33333333]]),
+        )
+        sga = SpacegroupAnalyzer(mono_struct)
+        assert abs(np.linalg.det(sga.get_symmetry_dataset().primitive_lattice)) == approx(307.03126)
+        assert abs(np.linalg.det(sga.get_primitive_standard_structure().lattice.matrix)) == approx(307.03126)
+        assert abs(np.linalg.det(sga.get_conventional_standard_structure().lattice.matrix)) == approx(307.03126)
+        assert abs(np.linalg.det(sga.get_refined_structure().lattice.matrix)) == approx(307.03126)
+
     def test_get_primitive_standard_structure(self):
         for file_name, expected_angles, expected_abc in [
             ("bcc_1927.cif", [109.47122063400001] * 3, [7.9657251015812145] * 3),
@@ -454,8 +470,8 @@ class TestSpacegroupAnalyzer(PymatgenTest):
             SpacegroupAnalyzer(struct, 0.1)
 
 
-class TestSpacegroup(TestCase):
-    def setUp(self):
+class TestSpacegroup:
+    def setup_method(self):
         self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.sg1 = SpacegroupAnalyzer(self.structure, 0.001).get_space_group_operations()
 
@@ -547,7 +563,7 @@ PF6 = Molecule(
 )
 
 
-class TestPointGroupAnalyzer(PymatgenTest):
+class TestPointGroupAnalyzer(MatSciTest):
     def test_spherical(self):
         pg_analyzer = PointGroupAnalyzer(CH4)
         assert pg_analyzer.sch_symbol == "Td"
@@ -681,7 +697,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
 
     def test_get_kpoint_weights(self):
         for name in ("SrTiO3", "LiFePO4", "Graphite"):
-            struct = PymatgenTest.get_structure(name)
+            struct = MatSciTest.get_structure(name)
             spga = SpacegroupAnalyzer(struct)
             ir_mesh = spga.get_ir_reciprocal_mesh((4, 4, 4))
             weights = [i[1] for i in ir_mesh]
@@ -690,7 +706,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
                 assert weight == approx(expected)
 
         for name in ("SrTiO3", "LiFePO4", "Graphite"):
-            struct = PymatgenTest.get_structure(name)
+            struct = MatSciTest.get_structure(name)
             spga = SpacegroupAnalyzer(struct)
             ir_mesh = spga.get_ir_reciprocal_mesh((1, 2, 3))
             weights = [i[1] for i in ir_mesh]
@@ -713,7 +729,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
             spga.get_kpoint_weights(kpts)
 
 
-class TestFunc(TestCase):
+class TestFunc:
     def test_cluster_sites(self):
         site, cluster = cluster_sites(CH4, 0.1)
         assert isinstance(site, Site)

@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.sites import Site
-    from pymatgen.core.structure import SiteCollection
+    from pymatgen.core.structure import IStructure, SiteCollection
 
 __author__ = "Kiran Mathew, Zhi Deng, Tingzheng Hou"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -849,7 +849,7 @@ class LammpsData(MSONable):
     @classmethod
     def from_structure(
         cls,
-        structure: Structure,
+        structure: Structure | IStructure,
         ff_elements: Sequence[str] | None = None,
         atom_style: Literal["atomic", "charge"] = "charge",
         is_sort: bool = False,

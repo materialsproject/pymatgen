@@ -5,12 +5,12 @@ from pytest import approx
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.atat import Mcsqs
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/atat/mcsqs"
 
 
-class TestAtat(PymatgenTest):
+class TestAtat(MatSciTest):
     def test_mcsqs_import(self):
         test_str = """1.000000 0.000000 0.000000
 0.000000 1.000000 0.000000

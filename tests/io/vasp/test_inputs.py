@@ -1,21 +1,19 @@
 from __future__ import annotations
 
 import copy
-import json
 import os
 import pickle
 import re
 import warnings
 from shutil import copyfile
-from unittest import TestCase
 from unittest.mock import patch
 
 import numpy as np
+import orjson
 import pytest
 import scipy.constants as const
 from monty.io import zopen
 from monty.serialization import loadfn
-from monty.tempfile import ScratchDir
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -38,7 +36,7 @@ from pymatgen.io.vasp.inputs import (
     VaspInput,
     _gen_potcar_summary_stats,
 )
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
 # Filter some expected warnings
 warnings.filterwarnings(
@@ -72,7 +70,7 @@ def _mock_complete_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None
 @pytest.mark.filterwarnings(
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
 )
-class TestPoscar(PymatgenTest):
+class TestPoscar(MatSciTest):
     def test_init(self):
         comp = Structure.from_file(f"{VASP_IN_DIR}/POSCAR").composition
         assert comp == Composition("Fe4P4O16")
@@ -649,8 +647,8 @@ Cartesian
         assert poscar.structure.formula == "Li4 Fe4 P4 O16"
 
 
-class TestIncar(PymatgenTest):
-    def setUp(self):
+class TestIncar(MatSciTest):
+    def setup_method(self):
         self.incar = Incar.from_file(f"{VASP_IN_DIR}/INCAR")
 
     def test_init(self):
@@ -659,6 +657,28 @@ class TestIncar(PymatgenTest):
         assert incar["ALGO"] == "Damped", "Wrong Algo"
         assert float(incar["EDIFF"]) == approx(1e-4), "Wrong EDIFF"
         assert isinstance(incar["LORBIT"], int)
+
+    def test_lattice_constaints(self):
+        incar_str = """
+        ALGO = Fast
+EDIFF = 0.00045000000000000004
+ENCUT = 520.0
+IBRION = 2
+ISIF = 3
+ISMEAR = -5
+ISPIN = 2
+LASPH = True
+LATTICE_CONSTRAINTS = False False True
+LORBIT = 11
+LREAL = Auto
+LWAVE = False
+MAGMOM = 9*0.6
+NELM = 100
+NSW = 99
+PREC = Accurate
+SIGMA = 0.05"""
+        incar = Incar.from_str(incar_str)
+        assert incar["LATTICE_CONSTRAINTS"] == [False, False, True]
 
     def test_check_for_duplicate(self):
         incar_str: str = """encut = 400
@@ -845,11 +865,10 @@ class TestIncar(PymatgenTest):
         SYSTEM = This should NOT BE capitalized
         """
 
-        with ScratchDir("."):
-            with open("INCAR", "w", encoding="utf-8") as f:
-                f.write(incar_str)
+        with open("INCAR", "w", encoding="utf-8") as f:
+            f.write(incar_str)
 
-            incar_from_file = Incar.from_file("INCAR")
+        incar_from_file = Incar.from_file("INCAR")
 
         # Make sure int/float is cast to correct type when init from dict
         assert incar_from_dict["GGA"] == "Ps"
@@ -1205,7 +1224,7 @@ Cartesian
         kpts = Kpoints.from_file(file_name)
         dct = kpts.as_dict()
 
-        json.dumps(dct)
+        assert orjson.dumps(dct).decode()
         # This doesn't work
         k2 = Kpoints.from_dict(dct)
         assert kpts.kpts == k2.kpts
@@ -1308,8 +1327,8 @@ direct
 @pytest.mark.filterwarnings(
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
 )
-class TestPotcarSingle(TestCase):
-    def setUp(self):
+class TestPotcarSingle:
+    def setup_method(self):
         self.psingle_Mn_pv = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Mn_pv.gz")
         self.psingle_Fe = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Fe.gz")
         self.psingle_Fe_54 = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz")
@@ -1663,8 +1682,8 @@ class TestPotcarSingle(TestCase):
 @pytest.mark.filterwarnings(
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
 )
-class TestPotcar(PymatgenTest):
-    def setUp(self):
+class TestPotcar(MatSciTest):
+    def setup_method(self):
         SETTINGS.setdefault("PMG_VASP_PSP_DIR", str(TEST_FILES_DIR))
         self.filepath = f"{FAKE_POTCAR_DIR}/POTCAR.gz"
         self.potcar = Potcar.from_file(self.filepath)
@@ -1755,8 +1774,8 @@ class TestPotcar(PymatgenTest):
 @pytest.mark.filterwarnings(
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
 )
-class TestVaspInput(PymatgenTest):
-    def setUp(self):
+class TestVaspInput(MatSciTest):
+    def setup_method(self):
         filepath = f"{VASP_IN_DIR}/INCAR"
         incar = Incar.from_file(filepath)
         filepath = f"{VASP_IN_DIR}/POSCAR"

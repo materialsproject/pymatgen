@@ -13,11 +13,11 @@ from pytest import approx
 
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.core.composition import ChemicalPotential, CompositionError, reduce_formula
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestComposition(PymatgenTest):
-    def setUp(self):
+class TestComposition(MatSciTest):
+    def setup_method(self):
         self.comps = [
             Composition("Li3Fe2(PO4)3"),
             Composition("Li3Fe(PO4)O"),
@@ -427,7 +427,7 @@ class TestComposition(PymatgenTest):
 
     def test_to_from_weight_dict(self):
         for comp in self.comps:
-            c2 = Composition().from_weight_dict(comp.to_weight_dict)
+            c2 = Composition().from_weight_dict(comp.as_weight_dict())
             comp.almost_equals(c2)
 
     def test_composition_from_weights(self):
@@ -473,7 +473,7 @@ class TestComposition(PymatgenTest):
         assert dct["Fe"] == correct_dict["Fe"]
         assert dct["O"] == correct_dict["O"]
         correct_dict = {"Fe": 2.0, "O": 3.0}
-        dct = comp.to_reduced_dict
+        dct = comp.as_reduced_dict()
         assert isinstance(dct, dict)
         assert dct["Fe"] == correct_dict["Fe"]
         assert dct["O"] == correct_dict["O"]
@@ -481,11 +481,11 @@ class TestComposition(PymatgenTest):
     def test_pickle(self):
         for comp in self.comps:
             self.serialize_with_pickle(comp)
-            self.serialize_with_pickle(comp.to_data_dict)
+            self.serialize_with_pickle(comp.as_data_dict())
 
-    def test_to_data_dict(self):
+    def test_as_data_dict(self):
         comp = Composition("Fe0.00009Ni0.99991")
-        dct = comp.to_data_dict
+        dct = comp.as_data_dict()
         assert dct["reduced_cell_composition"]["Fe"] == approx(9e-5)
 
     def test_add(self):

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from unittest import TestCase
 
 from monty.json import MontyDecoder
 from pytest import approx
@@ -13,8 +12,8 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
 
 
-class TestConversionElectrode(TestCase):
-    def setUp(self):
+class TestConversionElectrode:
+    def setup_method(self):
         self.formulas = ["LiCoO2", "FeF3", "MnO2"]
         self.conversion_electrodes = {}
         for formula in self.formulas:
@@ -124,7 +123,7 @@ class TestConversionElectrode(TestCase):
             dct = pair.as_dict()
             pair2 = ConversionVoltagePair.from_dict(dct)
             for prop in ["voltage", "mass_charge", "mass_discharge"]:
-                assert getattr(pair, prop) == getattr(pair2, prop), 2
+                assert getattr(pair, prop) == getattr(pair2, prop)  # 2
 
             # try to create an electrode from a dict and test methods
             dct = conv_electrode.as_dict()

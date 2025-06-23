@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import json
 import os
-from unittest import TestCase
 
 import numpy as np
+import orjson
 import pandas as pd
 from numpy.testing import assert_allclose, assert_array_equal
 
@@ -14,9 +13,9 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 
-class TestLammpsDump(TestCase):
+class TestLammpsDump:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         with open(f"{TEST_DIR}/dump.rdx_wc.100", encoding="utf-8") as file:
             rdx_str = file.read()
         cls.rdx = LammpsDump.from_str(string=rdx_str)
@@ -45,8 +44,8 @@ class TestLammpsDump(TestCase):
         assert_allclose(tatb_data, tatb_data_target)
 
     def test_json_dict(self):
-        encoded = json.dumps(self.rdx.as_dict())
-        decoded = json.loads(encoded)
+        encoded = orjson.dumps(self.rdx.as_dict()).decode()
+        decoded = orjson.loads(encoded)
         rdx = LammpsDump.from_dict(decoded)
         assert rdx.timestep == 100
         assert rdx.natoms == 21
@@ -54,7 +53,7 @@ class TestLammpsDump(TestCase):
         pd.testing.assert_frame_equal(rdx.data, self.rdx.data)
 
 
-class TestFunc(TestCase):
+class TestFunc:
     def test_parse_lammps_dumps(self):
         # gzipped
         rdx_10_pattern = f"{TEST_DIR}/dump.rdx.gz"

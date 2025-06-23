@@ -71,7 +71,8 @@ class LDos(MSONable):
             begin = 0
 
             with zopen(pot_inp, mode="rt", encoding="utf-8") as potfile:
-                for line in potfile:
+                line: str
+                for line in potfile:  # type:ignore[assignment]
                     if len(pot_read_end.findall(line)) > 0:
                         break
 
@@ -144,7 +145,7 @@ class LDos(MSONable):
         _t_dos: dict = {Spin.up: t_dos}
 
         dos = Dos(e_fermi, dos_energies, _t_dos)
-        complete_dos = CompleteDos(structure, dos, pdoss)
+        complete_dos = CompleteDos(structure, dos, pdoss)  # type:ignore[arg-type]
         charge_transfer = LDos.charge_transfer_from_file(feff_inp_file, ldos_file)
         return cls(complete_dos, charge_transfer)
 

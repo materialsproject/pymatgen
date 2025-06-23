@@ -21,7 +21,7 @@ Python Materials Genomics is a robust materials analysis code that defines core 
 and molecules with support for many electronic structure codes. It is currently the core analysis code powering the
 Materials Project (https://materialsproject.org)."""
 readme = "README.md"
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.10"
 keywords = [
     "ABINIT",
     "VASP",
@@ -48,20 +48,25 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Chemistry",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Scientific/Engineering :: Physics",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
+    "bibtexparser>=1.4.0",
     "joblib>=1",
     "matplotlib>=3.8",
     "monty>=2025.1.9",
-    "networkx>=2.7",  # PR4116
+    "networkx>=2.7", # PR4116
+    # NumPy documentation suggests pinning the current major version as the C API is used
+    # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
+    "numpy>=1.25.0,<3",
+    "orjson>=3.10,<4",
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=5.0.0",
-    "pybtex>=0.24.0",
     "requests>=2.32",
     "ruamel.yaml>=0.17.0",
     "scipy>=1.13.0",
@@ -69,15 +74,12 @@ dependencies = [
     # https://github.com/scipy/scipy/issues/21052
     "scipy>=1.14.1; platform_system == 'Windows'",
     "spglib>=2.5",
-    "sympy>=1.3",  # PR #4116
+    "sympy>=1.3", # PR #4116
     "tabulate>=0.9",
     "tqdm>=4.60",
     "uncertainties>=3.1.4",
-    # NumPy documentation suggests pinning the current major version as the C API is used
-    # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
-    "numpy>=1.25.0,<3",
 ]
-version = "2025.3.10"
+version = "2025.6.14"
 
 [project.urls]
 Homepage = "https://pymatgen.org"
@@ -89,34 +91,41 @@ Pypi = "https://pypi.org/project/pymatgen"
 [project.optional-dependencies]
 abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.23.0"]
-ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8", "pymatgen[symmetry]"]
-docs = ["invoke", "sphinx", "sphinx_markdown_builder", "sphinx_rtd_theme"]
+ci = [
+    "pytest>=8.3.5",
+    "pytest-cov>=6.0.0",
+    "pytest-split>=0.10.0",
+]
 electronic_structure = ["fdint>=2.0.2"]
-mlp = ["chgnet>=0.3.8", "matgl>=1.1.3"]
+matcalc = [
+    "matcalc>=0.4.0; python_version<'3.13'",
+    "matgl>=1.2.7; python_version<'3.13'",
+]
+mlp = ["matgl>=1.2.7 ; python_version<'3.13'"]
 numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
-zeopp = ["pyzeo"]  # Note: requires voro++ and zeo++ to be installed as binaries
 optional = [
-    "pymatgen[abinit,ase,mlp,tblite]",
+    "pymatgen[abinit,ase,mlp,tblite,matcalc]",
     "beautifulsoup4",
-    # BoltzTraP2 build fails on Windows GitHub runners
-    "BoltzTraP2>=24.9.4 ; platform_system != 'Windows'",
+    # PR4347: BoltzTraP2 needs to bump cmake version for spglib build
+    # "BoltzTraP2>=24.9.4",
     "chemview>=0.6",
     "f90nml>=1.1.2",
     "galore>=0.6.1",
     "h5py>=3.11.0",
     "hiphive>=1.3.1",
     "jarvis-tools>=2020.7.14",
-    "matplotlib>=3.8",
     "phonopy>=2.33.3",
     "seekpath>=2.0.1",
 ]
+prototypes = ["pyxtal>=1.0", "pymatgen[symmetry]"]
 # moyopy[interface] includes ase
 symmetry = ["moyopy[interface]>=0.3", "spglib>=2.5"]
 # tblite only support Python 3.12+ through conda-forge
 # https://github.com/tblite/tblite/issues/175
-tblite = [ "tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'"]
+tblite = ["tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'"]
 vis = ["vtk>=6.0.0"]
+zeopp = ["pyzeo"]  # Note: requires Voro++ and Zeo++ to be installed
 
 [project.scripts]
 pmg = "pymatgen.cli.pmg:main"
@@ -141,9 +150,10 @@ include = ["pymatgen", "pymatgen.*"]
 "pymatgen.analysis.structure_prediction" = ["*.yaml", "data/*.json"]
 "pymatgen.analysis.diffraction" = ["*.json"]
 "pymatgen.analysis.magnetism" = ["default_magmoms.yaml"]
+"pymatgen.analysis.prototypes" = ["*.json.gz"]
 "pymatgen.analysis.solar" = ["am1.5G.dat"]
 "pymatgen.entries" = ["*.json.gz", "*.yaml", "data/*.json"]
-"pymatgen.core" = ["*.json"]
+"pymatgen.core" = ["*.json", "*.json.gz"]
 "pymatgen" = ["py.typed"]
 "pymatgen.io.vasp" = ["*.json", "*.json.bz2", "*.json.gz", "*.yaml"]
 "pymatgen.io.feff" = ["*.yaml"]
@@ -168,7 +178,6 @@ before-all = "ln -s /usr/lib64/libgfortran.so.5 /usr/lib64/libgfortran.so.3"
 repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel} --ignore-missing-dependencies"
 
 [tool.ruff]
-target-version = "py310"
 line-length = 120
 output-format = "concise"
 
@@ -182,27 +191,27 @@ ignore = [
     "C90", # Check for functions with a high McCabe complexity
     "COM", # flake8-commas (conflict with line wrapper)
     "CPY", # Missing copyright notice at top of file (need preview mode)
-    "EM",  # Format nice error messages
+    "EM", # Format nice error messages
     "ERA", # Check for commented-out code
     "FIX", # Check for FIXME, TODO and other developer notes
-    "G",   # Validate logging format strings
+    "G", # Validate logging format strings
     "INP", # Ban PEP-420 implicit namespace packages
-    "N",   # PEP8-naming (many var/arg names are intended)
+    "N", # PEP8-naming (many var/arg names are intended)
     "PTH", # Prefer pathlib over os.path
     "SLF", # Access "private" class members
     "T20", # Check for print/pprint
-    "TD",  # TODO tags related
+    "TD", # TODO tags related
 
     # Single rules
-    "B023",    # Function definition does not bind loop variable
-    "B904",    # Within an except clause, raise exceptions with ...
-    "C408",    # unnecessary-collection-call
-    "D105",    # Missing docstring in magic method
-    "D205",    # One blank line required between summary line and description
-    "D212",    # Multi-line docstring summary should start at the first line
-    "FBT001",  # Boolean-typed positional argument in function definition
-    "FBT002",  # Boolean default positional argument in function
-    "PD011",   # (A lot of false positive on non-Pandas objects)
+    "B023", # Function definition does not bind loop variable
+    "B904", # Within an except clause, raise exceptions with ...
+    "C408", # unnecessary-collection-call
+    "D105", # Missing docstring in magic method
+    "D205", # One blank line required between summary line and description
+    "D212", # Multi-line docstring summary should start at the first line
+    "FBT001", # Boolean-typed positional argument in function definition
+    "FBT002", # Boolean default positional argument in function
+    "PD011", # (A lot of false positive on non-Pandas objects)
     "PERF203", # Use of try-except in for/while loop
     "PERF401", # Replace "for" loops with list comprehension
     "PLR0911", # Too many return statements
@@ -212,17 +221,18 @@ ignore = [
     "PLR1702", # Too many nested blocks
     "PLR2004", # Magic-value-comparison TODO: fix these
     "PLW2901", # Outer for loop variable overwritten by inner assignment target
-    "PT013",   # Incorrect import of pytest
-    "S110",    # Log for try-except-pass
-    "S112",    # Log for try-except-continue
-    "S311",    # Use random module for cryptographic purposes
-    "S314",    # Replace xml with defusedxml to avoid XML attacks
-    "S603",    # Check source for use of "subprocess" call
-    "S607",    # Start process with relative path
-    "SIM105",  # Use contextlib.suppress() instead of try-except-pass
-    "TRY003",  # Avoid specifying long messages outside the exception class
-    "TRY300",  # Check for return statements in try blocks
-    "TRY301",  # Check for raise statements within try blocks
+    "PT013", # Incorrect import of pytest
+    "S110", # Log for try-except-pass
+    "S112", # Log for try-except-continue
+    "S311", # Use random module for cryptographic purposes
+    "S314", # Replace xml with defusedxml to avoid XML attacks
+    "S603", # Check source for use of "subprocess" call
+    "S607", # Start process with relative path
+    "SIM105", # Use contextlib.suppress() instead of try-except-pass
+    "SIM905", # Split static strings
+    "TRY003", # Avoid specifying long messages outside the exception class
+    "TRY300", # Check for return statements in try blocks
+    "TRY301", # Check for raise statements within try blocks
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
@@ -235,12 +245,12 @@ docstring-code-format = true
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"] # unused-import
 "tests/**" = [
-    "ANN201",  # missing-return-type-undocumented-public-function
-    "D",       # pydocstyle
+    "ANN201", # missing-return-type-undocumented-public-function
+    "D", # pydocstyle
     "PLR0124", # comparison-with-itself
     "PLR2004", # magic-value-comparison
     "PLR6301", # no-self-use
-    "S101",    # Use of "assert"
+    "S101", # Use of "assert"
 ]
 "src/pymatgen/analysis/*" = ["D"]
 "src/pymatgen/io/*" = ["D"]
@@ -253,14 +263,9 @@ docstring-code-format = true
 addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
     # NOTE: the LAST matching option would be used
-    "ignore::UserWarning",                                              # Ignore UserWarning
-    "error:We strongly encourage explicit `encoding`:EncodingWarning",  # Mark `zopen` EncodingWarning as error
-    # TODO: remove the following filter once `monty.io` dropped custom EncodingWarning
+    "ignore::UserWarning", # Ignore UserWarning
+    # TODO: remove the following filter once `monty.io` dropped custom EncodingWarning (python 3.10+ only)
     "error:We strongly encourage explicit `encoding`:monty.io.EncodingWarning",
-    # TODO: pybtex (perhaps some others) emits the following warnings
-    'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
-    'ignore:distutils Version classes are deprecated:DeprecationWarning',
-    'ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning',
 ]
 
 [tool.coverage.run]
@@ -289,17 +294,18 @@ exclude_also = [
 [tool.mypy]
 ignore_missing_imports = true
 namespace_packages = true
-explicit_package_bases = true
 no_implicit_optional = false
-disable_error_code = ["annotation-unchecked", "override"]
+disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "misc", "call-overload", "index"]
+exclude = ['src/pymatgen/analysis', 'src/pymatgen/io/cp2k', 'src/pymatgen/io/lammps']
+plugins = ["numpy.typing.mypy_plugin"]
 
 [[tool.mypy.overrides]]
-module = ["requests.*", "tabulate.*"]
+module = ["requests.*", "tabulate.*", "monty.*", "matplotlib.*"]
 ignore_missing_imports = true
 
 [tool.codespell]
 # TODO: un-ignore "ist/nd/ot/ontop/CoO" once support file-level ignore with pattern
-ignore-words-list = """Nd, Te, titel, Mater,
+ignore-words-list = """Nd, Te, titel, Mater, nax,
 Hart, Lew, Rute, atomate,
 ist, nd, ot, ontop, CoO
 """
@@ -319,3 +325,22 @@ reportMissingImports = false
 reportMissingModuleSource = false
 reportInvalidTypeForm = false
 exclude = ["**/tests"]
+
+[dependency-groups]
+dev = [
+    "invoke>=2.2.0",
+    "jupyter>=1.1.1",
+    "pre-commit>=4.2.0",
+    "pytest>=8.3.5",
+    "pytest-cov>=6.0.0",
+    "pytest-split>=0.10.0",
+    "ruff>=0.11.3",
+    "sphinx>=8.1.3",
+    "sphinx-markdown-builder>=0.6.8",
+    "sphinx-rtd-theme>=3.0.2",
+]
+lint = [
+    "mypy>=1.15.0",
+    "pyright>=1.1.398",
+    "ruff>=0.11.2",
+]

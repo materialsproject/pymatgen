@@ -228,8 +228,7 @@ class MultipleSubstitutionTransformation:
                 cbt = ChargeBalanceTransformation(self.charge_balance_species)
                 dummy_structure = cbt.apply_transformation(dummy_structure)
             if self.order:
-                trans = OrderDisorderedStructureTransformation()
-                dummy_structure = trans.apply_transformation(dummy_structure)
+                dummy_structure = OrderDisorderedStructureTransformation().apply_transformation(dummy_structure)  # type:ignore[assignment]
 
             for el in el_list:
                 sign = "+" if charge > 0 else "-"
@@ -405,7 +404,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         original_latt = structure.lattice
         inv_latt = np.linalg.inv(original_latt.matrix)
         ewald_matrices = {}
-        m3gnet_model = None
+        m3gnet_model: Relaxer | M3GNetCalculator | None = None
 
         if not callable(self.sort_criteria) and self.sort_criteria.startswith("m3gnet"):
             import matgl
@@ -990,7 +989,7 @@ class DopingTransformation(AbstractTransformation):
         self,
         structure: Structure,
         return_ranked_list: bool | int = False,
-    ) -> list[dict[Literal["structure", "energy"], Structure | float]] | Structure:
+    ) -> list[dict[str, Any]] | Structure:
         """
         Args:
             structure (Structure): Input structure to dope.
@@ -1700,7 +1699,7 @@ class AddAdsorbateTransformation(AbstractTransformation):
             Slab: with adsorbate
         """
         site_finder = AdsorbateSiteFinder(
-            structure,
+            structure,  # type:ignore[arg-type]
             selective_dynamics=self.selective_dynamics,
             height=self.height,
             mi_vec=self.mi_vec,
@@ -1855,7 +1854,7 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
             list[dict]: each dict has key 'structure' which is a Slab with sites substituted
         """
         site_finder = AdsorbateSiteFinder(
-            structure,
+            structure,  # type:ignore[arg-type]
             selective_dynamics=self.selective_dynamics,
             height=self.height,
             mi_vec=self.mi_vec,
@@ -2200,14 +2199,11 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         """
         self.rattle_std = rattle_std
         self.min_distance = min_distance
-        self.seed = seed
+        self.seed = seed if seed else np.random.default_rng().integers(1, 1000000000)
+        # if seed is None, use a random RandomState seed but make sure
+        # we store that the original seed was None
 
-        if not seed:
-            # if seed is None, use a random RandomState seed but make sure
-            # we store that the original seed was None
-            seed = np.random.default_rng().integers(1, 1000000000)
-
-        self.random_state = np.random.RandomState(seed)
+        self.random_state = np.random.RandomState(self.seed)
         self.kwargs = kwargs
 
     def __repr__(self):

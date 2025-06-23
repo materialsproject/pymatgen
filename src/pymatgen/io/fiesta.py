@@ -25,7 +25,6 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.util.typing import Tuple3Ints
 
 __author__ = "ndardenne"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -108,7 +107,7 @@ class FiestaRun(MSONable):
     def __init__(
         self,
         folder: str | None = None,
-        grid: Tuple3Ints = (2, 2, 2),
+        grid: tuple[int, int, int] = (2, 2, 2),
         log_file: str = "log",
     ) -> None:
         """
@@ -534,7 +533,7 @@ $geometry
             filename: Filename.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]
 
     def as_dict(self):
         """MSONable dict."""
@@ -566,7 +565,7 @@ $geometry
         )
 
     @classmethod
-    def from_str(cls, string_input: str) -> Self:
+    def from_str(cls, string_input: str) -> FiestaInput:
         """
         Read an FiestaInput from a string. Currently tested to work with
         files generated from this class itself.
@@ -701,7 +700,7 @@ $geometry
         )
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> Self:
+    def from_file(cls, filename: str | Path) -> FiestaInput:
         """
         Read an Fiesta input from a file. Currently tested to work with
         files generated from this class itself.
@@ -713,7 +712,7 @@ $geometry
             FiestaInput object
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
 
 class FiestaOutput:

@@ -4,21 +4,22 @@ import gzip
 import json
 import os
 import sys
+import xml
 from io import StringIO
 from pathlib import Path
 from shutil import copyfile, copyfileobj
-from xml.etree import ElementTree as ET
 
 import numpy as np
 import pytest
 from monty.io import zopen
+from monty.shutil import decompress_file
 from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core import Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine
 from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spin
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
@@ -42,9 +43,10 @@ from pymatgen.io.vasp.outputs import (
     Wavecar,
     Waveder,
     Xdatcar,
+    get_band_structure_from_vasp_multiple_branches,
 )
 from pymatgen.io.wannier90 import Unk
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
 try:
     import h5py
@@ -54,7 +56,7 @@ except ImportError:
 TEST_DIR = f"{TEST_FILES_DIR}/io/vasp"
 
 
-class TestVasprun(PymatgenTest):
+class TestVasprun(MatSciTest):
     def test_vasprun_soc(self):
         # Test that SOC vaspruns are parsed appropriately, giving just Spin.Up tdos, idos and pdos
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.int_Te_SOC.xml.gz")
@@ -141,7 +143,7 @@ class TestVasprun(PymatgenTest):
             assert "unlabelled" in vr.dielectric_data
 
     def test_bad_vasprun(self):
-        with pytest.raises(ET.ParseError):
+        with pytest.raises(xml.etree.ElementTree.ParseError):
             Vasprun(f"{VASP_OUT_DIR}/vasprun.bad.xml.gz")
 
         with pytest.warns(
@@ -299,6 +301,7 @@ class TestVasprun(PymatgenTest):
         assert isinstance(vasp_run.kpoints, Kpoints), f"{vasp_run.kpoints=}"
         assert isinstance(vasp_run.actual_kpoints, list), f"{vasp_run.actual_kpoints=}"
         assert isinstance(vasp_run.actual_kpoints_weights, list), f"{vasp_run.actual_kpoints_weights=}"
+        assert isinstance(vasp_run.actual_kpoints_weights[0], float), f"{vasp_run.actual_kpoints_weights[0]=}"
         for atom_doses in vasp_run.pdos:
             for orbital_dos in atom_doses:
                 assert isinstance(orbital_dos, Orbital), f"{orbital_dos=}"
@@ -851,9 +854,19 @@ class TestVasprun(PymatgenTest):
                 assert vrun.potcar_spec[ipot]["summary_stats"] == potcar[ipot]._summary_stats
 
 
-class TestOutcar(PymatgenTest):
-    def test_init(self):
-        outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
+class TestOutcar:
+    @pytest.mark.parametrize("compressed", [True, False])
+    def test_init(self, compressed: bool):
+        """Test from both compressed and uncompressed versions,
+        as there was a bug in monty causing different behaviours.
+        """
+        if compressed:
+            outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
+        else:
+            copyfile(f"{VASP_OUT_DIR}/OUTCAR.gz", "./OUTCAR.gz")
+            decompress_file("./OUTCAR.gz")
+            outcar = Outcar("./OUTCAR")
+
         expected_mag = (
             {"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005},
             {"d": 0.798, "p": 0.008, "s": 0.007, "tot": 0.813},
@@ -1458,7 +1471,7 @@ class TestOutcar(PymatgenTest):
             )
 
 
-class TestBSVasprun(PymatgenTest):
+class TestBSVasprun(MatSciTest):
     def test_get_band_structure(self):
         filepath = f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz"
         vasprun = BSVasprun(filepath, parse_potcar_file=False)
@@ -1514,23 +1527,50 @@ class TestBSVasprun(PymatgenTest):
         assert {*vrun_dct["output"]} >= {"eigenvalues", "eigenvalues_kpoints_opt"}
 
 
-class TestOszicar(PymatgenTest):
+class TestOszicar(MatSciTest):
     def test_init(self):
         fpath = f"{VASP_OUT_DIR}/OSZICAR"
         oszicar = Oszicar(fpath)
         assert len(oszicar.electronic_steps) == len(oszicar.ionic_steps)
         assert len(oszicar.all_energies) == 60
         assert oszicar.final_energy == approx(-526.63928)
-        assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
+        assert set(oszicar.ionic_steps[-1]) == {"F", "E0", "dE", "mag"}
 
     def test_static(self):
         fpath = f"{TEST_DIR}/fixtures/static_silicon/OSZICAR"
         oszicar = Oszicar(fpath)
         assert oszicar.final_energy == approx(-10.645278)
-        assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
+        assert set(oszicar.ionic_steps[-1]) == {"F", "E0", "dE", "mag"}
 
 
-class TestLocpot(PymatgenTest):
+class TestGetBandStructureFromVaspMultipleBranches:
+    def test_read_multi_branches(self):
+        """TODO: This functionality still needs a test."""
+
+    def test_missing_vasprun_in_branch_dir(self):
+        """Test vasprun.xml missing from branch_*."""
+        os.makedirs("no_vasp/branch_0", exist_ok=False)
+
+        with pytest.raises(FileNotFoundError, match="cannot find vasprun.xml in directory"):
+            get_band_structure_from_vasp_multiple_branches("no_vasp")
+
+    def test_no_branch_head(self):
+        """Test branch_0 is missing and read dir_name/vasprun.xml directly."""
+
+        copyfile(f"{VASP_OUT_DIR}/vasprun.force_hybrid_like_calc.xml.gz", "./vasprun.xml.gz")
+        decompress_file("./vasprun.xml.gz")
+
+        with pytest.warns(DeprecationWarning, match="no branch dir found, reading directly from"):
+            bs = get_band_structure_from_vasp_multiple_branches(".")
+        assert isinstance(bs, BandStructure)
+
+    def test_cannot_read_anything(self):
+        """Test no branch_0/, no dir_name/vasprun.xml, no vasprun.xml at all."""
+        with pytest.raises(FileNotFoundError, match="failed to find any vasprun.xml in selected"):
+            get_band_structure_from_vasp_multiple_branches(".")
+
+
+class TestLocpot(MatSciTest):
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/LOCPOT.gz"
         locpot = Locpot.from_file(filepath)
@@ -1551,9 +1591,9 @@ class TestLocpot(PymatgenTest):
         assert {str(ele) for ele in locpot.structure.composition} == {"Mg", "Si"}
 
 
-class TestChgcar(PymatgenTest):
+class TestChgcar(MatSciTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         filepath = f"{VASP_OUT_DIR}/CHGCAR.nospin.gz"
         cls.chgcar_no_spin = Chgcar.from_file(filepath)
 
@@ -1571,6 +1611,9 @@ class TestChgcar(PymatgenTest):
         assert self.chgcar_spin.get_integrated_diff(0, 1)[0, 1] == approx(-0.0043896932237534022)
         # test sum
         chgcar = self.chgcar_spin + self.chgcar_spin
+        assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(-0.0043896932237534022 * 2)
+
+        chgcar = sum([self.chgcar_spin, self.chgcar_spin])
         assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(-0.0043896932237534022 * 2)
 
         chgcar = self.chgcar_spin - self.chgcar_spin
@@ -1675,7 +1718,7 @@ class TestChgcar(PymatgenTest):
         )
 
 
-class TestAeccars(PymatgenTest):
+class TestAeccars(MatSciTest):
     # https://github.com/materialsproject/pymatgen/pull/3343
     def test_read_write_file(self):
         aeccar0_test = Chgcar.from_file(f"{TEST_FILES_DIR}/command_line/bader/AECCAR0.gz")
@@ -1691,7 +1734,7 @@ class TestAeccars(PymatgenTest):
         assert_allclose(aeccar2.data["total"], aeccar2_read.data["total"])
 
 
-class TestElfcar(PymatgenTest):
+class TestElfcar(MatSciTest):
     def test_init(self):
         elfcar = Elfcar.from_file(f"{VASP_OUT_DIR}/ELFCAR.gz")
         assert np.mean(elfcar.data["total"]) == approx(0.19076207645194002)
@@ -1711,7 +1754,7 @@ class TestElfcar(PymatgenTest):
         assert len(elfcar.linear_slice([0.0, 0.0, 0.0], [1.0, 1.0, 1.0])) == 100
 
 
-class TestProcar(PymatgenTest):
+class TestProcar(MatSciTest):
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/PROCAR.simple"
         procar = Procar(filepath)
@@ -1836,7 +1879,18 @@ class TestXdatcar:
 
         xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR_monatomic.gz")
         assert len(xdatcar.structures) == 10
+        assert len(xdatcar) == len(xdatcar.structures)
+
+        idxs = [1, 2, 3]
+        assert xdatcar[idxs] == [xdatcar.structures[i] for i in idxs]
+        assert all(isinstance(struct, Structure) for struct in xdatcar)
+
         assert all(len(structure.composition) == 1 for structure in xdatcar.structures)
+
+    def test_bad_format(self):
+        # ensure XDATCAR can be read even when formatting is poor
+        xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.bad_fmt.gz")
+        assert isinstance(xdatcar, Xdatcar)
 
 
 class TestDynmat:
@@ -1854,8 +1908,8 @@ class TestDynmat:
         # TODO: test get_phonon_frequencies once cross-checked
 
 
-class TestWavecar(PymatgenTest):
-    def setUp(self):
+class TestWavecar(MatSciTest):
+    def setup_method(self):
         latt_mat = np.array(np.eye(3) * 10, dtype=float)  # lattice vectors
         self.vol = np.dot(latt_mat[0, :], np.cross(latt_mat[1, :], latt_mat[2, :]))  # unit cell volume
         # reciprocal lattice vectors
@@ -2132,7 +2186,7 @@ class TestWavecar(PymatgenTest):
         assert unk == unk_ncl
 
 
-class TestEigenval(PymatgenTest):
+class TestEigenval(MatSciTest):
     def test_init(self):
         eig = Eigenval(f"{VASP_OUT_DIR}/EIGENVAL.gz")
         assert eig.ispin == 1
@@ -2172,8 +2226,8 @@ class TestEigenval(PymatgenTest):
         assert props[3][1]
 
 
-class TestWaveder(PymatgenTest):
-    def setUp(self):
+class TestWaveder(MatSciTest):
+    def setup_method(self):
         wder = Waveder.from_binary(f"{VASP_OUT_DIR}/WAVEDER", "float64")
         assert wder.nbands == 36
         assert wder.nkpoints == 56
@@ -2205,8 +2259,8 @@ class TestWaveder(PymatgenTest):
         _check(wderf)
 
 
-class TestWSWQ(PymatgenTest):
-    def setUp(self):
+class TestWSWQ(MatSciTest):
+    def setup_method(self):
         self.wswq = WSWQ.from_file(f"{VASP_OUT_DIR}/WSWQ.gz")
 
     def test_consistency(self):
@@ -2229,8 +2283,8 @@ except ImportError:
 
 
 @pytest.mark.skipif(condition=h5py is None, reason="h5py must be installed to use the .Vaspout class.")
-class TestVaspout(PymatgenTest):
-    def setUp(self):
+class TestVaspout(MatSciTest):
+    def setup_method(self):
         self.vaspout = Vaspout(f"{VASP_OUT_DIR}/vaspout.line_mode_band_structure.h5.gz")
         self.vaspout_kpoints_opt = Vaspout(f"{VASP_OUT_DIR}/vaspout.kpoints_opt.h5.gz")
 

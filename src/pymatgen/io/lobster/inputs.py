@@ -35,7 +35,8 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.composition import Composition
-    from pymatgen.util.typing import PathLike, Tuple3Ints
+    from pymatgen.core.structure import IStructure
+    from pymatgen.util.typing import PathLike
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -358,7 +359,7 @@ class Lobsterin(UserDict, MSONable):
 
     @staticmethod
     def get_basis(
-        structure: Structure,
+        structure: Structure | IStructure,
         potcar_symbols: list[str],
         address_basis_file: PathLike | None = None,
     ) -> list[str]:
@@ -395,7 +396,7 @@ class Lobsterin(UserDict, MSONable):
 
     @staticmethod
     def get_all_possible_basis_functions(
-        structure: Structure,
+        structure: Structure | IStructure,
         potcar_symbols: list[str],
         address_basis_file_min: PathLike | None = None,
         address_basis_file_max: PathLike | None = None,
@@ -458,7 +459,7 @@ class Lobsterin(UserDict, MSONable):
         reciprocal_density: int = 100,
         isym: Literal[-1, 0] = 0,
         from_grid: bool = False,
-        input_grid: Tuple3Ints = (5, 5, 5),
+        input_grid: tuple[int, int, int] = (5, 5, 5),
         line_mode: bool = True,
         kpoints_line_density: int = 20,
         symprec: float = 0.01,
@@ -511,7 +512,7 @@ class Lobsterin(UserDict, MSONable):
         # For now, we are setting MAGMOM to zero. (Taken from INCAR class)
         cell = matrix, positions, zs, magmoms
         # TODO: what about this shift?
-        mapping, grid = spglib.get_ir_reciprocal_mesh(mesh, cell, is_shift=[0, 0, 0])
+        mapping, grid = spglib.get_ir_reciprocal_mesh(mesh, cell, is_shift=[0, 0, 0])  # type:ignore[arg-type]
 
         # Get the KPOINTS for the grid
         if isym == -1:
@@ -529,7 +530,7 @@ class Lobsterin(UserDict, MSONable):
             weights = []
             all_labels = []
             newlist = [list(gp) for gp in list(grid)]
-            mapping = []
+            mapping = []  # type:ignore[assignment]
             for gp in newlist:
                 minus_gp = [-k for k in gp]
                 if minus_gp in newlist and minus_gp != [0, 0, 0]:
@@ -589,7 +590,7 @@ class Lobsterin(UserDict, MSONable):
             Lobsterin object
         """
         with zopen(lobsterin, mode="rt", encoding="utf-8") as file:
-            lines = file.read().split("\n")
+            lines: list[str] = file.read().split("\n")  # type:ignore[arg-type,assignment]
         if not lines:
             raise RuntimeError("lobsterin file contains no data.")
 
@@ -639,7 +640,7 @@ class Lobsterin(UserDict, MSONable):
         Returns:
             list[str]: names of the species
         """
-        potcar = Potcar.from_file(POTCAR_input)
+        potcar = Potcar.from_file(POTCAR_input)  # type:ignore[arg-type]
         for pot in potcar:
             if pot.potential_type != "PAW":
                 raise ValueError("Lobster only works with PAW! Use different POTCARs")

@@ -6,7 +6,6 @@ of single sites in molecules and structures.
 
 from __future__ import annotations
 
-import json
 import math
 import os
 import warnings
@@ -18,6 +17,7 @@ from itertools import pairwise
 from typing import TYPE_CHECKING, Literal, NamedTuple, cast, get_args, overload
 
 import numpy as np
+import orjson
 from monty.dev import deprecated, requires
 from monty.serialization import loadfn
 from ruamel.yaml import YAML
@@ -40,7 +40,6 @@ if TYPE_CHECKING:
 
     from pymatgen.analysis.graphs import MoleculeGraph
     from pymatgen.core.composition import SpeciesLike
-    from pymatgen.util.typing import Tuple3Ints
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman, "
@@ -54,16 +53,16 @@ __date__ = "August 17, 2017"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-with open(f"{MODULE_DIR}/op_params.yaml", encoding="utf-8") as file:
-    DEFAULT_OP_PARAMS: dict[str, dict[str | int, float] | None] = YAML().load(file)
+with open(f"{MODULE_DIR}/op_params.yaml", encoding="utf-8") as _file:
+    DEFAULT_OP_PARAMS: dict[str, dict[str | int, float] | None] = YAML().load(_file)
 default_op_params = DEFAULT_OP_PARAMS  # needed externally
 
-with open(f"{MODULE_DIR}/cn_opt_params.yaml", encoding="utf-8") as file:
-    CN_OPT_PARAMS: dict[int, dict[str, list[str | dict[str, float]]]] = YAML().load(file)
+with open(f"{MODULE_DIR}/cn_opt_params.yaml", encoding="utf-8") as _file:
+    CN_OPT_PARAMS: dict[int, dict[str, list[str | dict[str, float]]]] = YAML().load(_file)
 cn_opt_params = CN_OPT_PARAMS  # needed externally
 
-with open(f"{MODULE_DIR}/ionic_radii.json", encoding="utf-8") as file:
-    _ION_RADII = json.load(file)
+with open(f"{MODULE_DIR}/ionic_radii.json", "rb") as file:
+    _ION_RADII = orjson.loads(file.read())
 
 
 class ValenceIonicRadiusEvaluator:
@@ -563,7 +562,7 @@ class NearNeighbors:
         return list(all_sites.values())
 
     @staticmethod
-    def _get_image(structure: Structure, site: Site) -> Tuple3Ints:
+    def _get_image(structure: Structure, site: Site) -> tuple[int, int, int]:
         """Private convenience method for get_nn_info,
         gives lattice image from provided PeriodicSite and Structure.
 
@@ -676,9 +675,9 @@ class NearNeighbors:
             types: list[str] = []
             params: list[dict[str, float] | None] = []
             for name in names:
-                types.append(cast(str, CN_OPT_PARAMS[cn][name][0]))
+                types.append(cast("str", CN_OPT_PARAMS[cn][name][0]))
                 tmp: dict[str, float] | None = (
-                    cast(dict[str, float], CN_OPT_PARAMS[cn][name][1]) if len(CN_OPT_PARAMS[cn][name]) > 1 else None
+                    cast("dict[str, float]", CN_OPT_PARAMS[cn][name][1]) if len(CN_OPT_PARAMS[cn][name]) > 1 else None
                 )
                 params.append(tmp)
             lsops = LocalStructOrderParams(types, parameters=params)
@@ -1235,8 +1234,8 @@ class JmolNN(NearNeighbors):
         self.min_bond_distance = min_bond_distance
 
         # Load elemental radii table
-        with open(f"{MODULE_DIR}/bonds_jmol_ob.yaml", encoding="utf-8") as file:
-            self.el_radius = YAML().load(file)
+        with open(f"{MODULE_DIR}/bonds_jmol_ob.yaml", encoding="utf-8") as _file:
+            self.el_radius = YAML().load(_file)
 
         # Update any user preference elemental radii
         if el_radius_updates:

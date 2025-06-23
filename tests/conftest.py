@@ -1,7 +1,17 @@
-"""Test fixes for pymatgen."""
-
 from __future__ import annotations
 
-from pathlib import Path
+import os
+import tempfile
+import typing
 
-TEST_DIR = Path(__file__).absolute().parent
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def setup_teardown() -> typing.Generator:
+    """Use tempdir for all tests."""
+    cwd = os.getcwd()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        os.chdir(tmpdir)
+        yield tmpdir
+        os.chdir(cwd)

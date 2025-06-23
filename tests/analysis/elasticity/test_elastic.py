@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import json
 import warnings
 from copy import deepcopy
 
 import numpy as np
+import orjson
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -27,13 +27,13 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.core.units import FloatWithUnit
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/elasticity"
 
 
-class TestElasticTensor(PymatgenTest):
-    def setUp(self):
+class TestElasticTensor(MatSciTest):
+    def setup_method(self):
         self.voigt_1 = [
             [59.33, 28.08, 28.08, 0, 0, 0],
             [28.08, 59.31, 28.07, 0, 0, 0],
@@ -67,10 +67,10 @@ class TestElasticTensor(PymatgenTest):
 
         self.elastic_tensor_1 = ElasticTensor(self.ft)
         filepath = f"{TEST_DIR}/Sn_def_stress.json"
-        with open(filepath, encoding="utf-8") as file:
-            self.def_stress_dict = json.load(file)
-        with open(f"{TEST_DIR}/test_toec_data.json", encoding="utf-8") as file:
-            self.toec_dict = json.load(file)
+        with open(filepath, "rb") as file:
+            self.def_stress_dict = orjson.loads(file.read())
+        with open(f"{TEST_DIR}/test_toec_data.json", "rb") as file:
+            self.toec_dict = orjson.loads(file.read())
         self.structure = self.get_structure("Sn")
 
         warnings.simplefilter("always")
@@ -263,10 +263,10 @@ class TestElasticTensor(PymatgenTest):
         )
 
 
-class TestElasticTensorExpansion(PymatgenTest):
-    def setUp(self):
-        with open(f"{TEST_DIR}/test_toec_data.json", encoding="utf-8") as file:
-            self.data_dict = json.load(file)
+class TestElasticTensorExpansion(MatSciTest):
+    def setup_method(self):
+        with open(f"{TEST_DIR}/test_toec_data.json", "rb") as file:
+            self.data_dict = orjson.loads(file.read())
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
         self.c2 = self.data_dict["C2_raw"]
@@ -364,10 +364,10 @@ class TestElasticTensorExpansion(PymatgenTest):
         self.exp_cu_4.get_yield_stress([1, 0, 0])
 
 
-class TestNthOrderElasticTensor(PymatgenTest):
-    def setUp(self):
-        with open(f"{TEST_DIR}/test_toec_data.json", encoding="utf-8") as file:
-            self.data_dict = json.load(file)
+class TestNthOrderElasticTensor(MatSciTest):
+    def setup_method(self):
+        with open(f"{TEST_DIR}/test_toec_data.json", "rb") as file:
+            self.data_dict = orjson.loads(file.read())
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
         self.c2 = NthOrderElasticTensor.from_voigt(self.data_dict["C2_raw"])
@@ -401,12 +401,12 @@ class TestNthOrderElasticTensor(PymatgenTest):
         self.c3.energy_density(self.strains[0])
 
 
-class TestDiffFit(PymatgenTest):
+class TestDiffFit(MatSciTest):
     """Test various functions related to diff fitting."""
 
-    def setUp(self):
-        with open(f"{TEST_DIR}/test_toec_data.json", encoding="utf-8") as file:
-            self.data_dict = json.load(file)
+    def setup_method(self):
+        with open(f"{TEST_DIR}/test_toec_data.json", "rb") as file:
+            self.data_dict = orjson.loads(file.read())
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
 

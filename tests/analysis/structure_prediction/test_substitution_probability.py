@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import json
-from unittest import TestCase
-
+import orjson
 from pytest import approx
 
 from pymatgen.analysis.structure_prediction.substitution_probability import (
@@ -22,11 +20,11 @@ def get_table():
     default lambda table.
     """
     json_path = f"{TEST_DIR}/test_lambda.json"
-    with open(json_path, encoding="utf-8") as file:
-        return json.load(file)
+    with open(json_path, "rb") as file:
+        return orjson.loads(file.read())
 
 
-class TestSubstitutionProbability(TestCase):
+class TestSubstitutionProbability:
     def test_full_lambda_table(self):
         """Check specific values in the data folder. If the
         JSON is updated, these tests will have to be as well.
@@ -57,7 +55,7 @@ class TestSubstitutionProbability(TestCase):
         assert prob == approx(0.00102673915742, abs=1e-5), "probability isn't correct"
 
 
-class TestSubstitutionPredictor(TestCase):
+class TestSubstitutionPredictor:
     def test_prediction(self):
         sp = SubstitutionPredictor(threshold=8e-3)
         result = sp.list_prediction(["Na+", "Cl-"], to_this_composition=True)[5]

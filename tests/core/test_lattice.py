@@ -9,11 +9,11 @@ from pytest import approx
 
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestLattice(PymatgenTest):
-    def setUp(self):
+class TestLattice(MatSciTest):
+    def setup_method(self):
         self.lattice = Lattice.cubic(10.0)
         self.cubic = self.lattice
         self.tetragonal = Lattice.tetragonal(10, 20)
@@ -148,7 +148,6 @@ class TestLattice(PymatgenTest):
         assert lattice.angles == approx(expected_angles)
 
     def test_attributes(self):
-        """Docstring for test_attributes."""
         lattice = Lattice.cubic(10.0)
         assert lattice.a == approx(10)
         assert lattice.b == approx(10)

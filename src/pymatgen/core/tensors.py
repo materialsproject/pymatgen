@@ -64,23 +64,23 @@ class Tensor(np.ndarray, MSONable):
                 Defaults to None.
         """
         obj = np.asarray(input_array).view(cls)
-        obj.rank = len(obj.shape)
+        rank = len(obj.shape)
 
-        if check_rank and check_rank != obj.rank:
+        if check_rank and check_rank != rank:
             raise ValueError(f"{type(obj).__name__} input must be rank {check_rank}")
 
-        vshape = tuple([3] * (obj.rank % 2) + [6] * (obj.rank // 2))
-        obj._vscale = np.ones(vshape)
-        if vscale is not None:
-            obj._vscale = vscale
-        if obj._vscale.shape != vshape:
+        vshape = tuple([3] * (rank % 2) + [6] * (rank // 2))
+        vscale = vscale if vscale is not None else np.ones(vshape)
+        if vscale.shape != vshape:
             raise ValueError("Voigt scaling matrix must be the shape of the Voigt notation matrix or vector.")
         if any(dim != 3 for dim in obj.shape):
             raise ValueError(
                 "Pymatgen only supports 3-dimensional tensors, and default tensor constructor uses standard "
                 f"notation. To construct from Voigt notation, use {type(obj).__name__}.from_voigt"
             )
-        return obj
+        obj.rank = rank  # type: ignore[attr-defined]
+        obj._vscale = vscale  # type: ignore[attr-defined]
+        return obj  # type:ignore[return-value]
 
     def __array_finalize__(self, obj):
         if obj is None:
@@ -97,7 +97,7 @@ class Tensor(np.ndarray, MSONable):
             return obj[()]
         return np.ndarray.__array_wrap__(self, obj)
 
-    def __hash__(self) -> int:
+    def __hash__(self) -> int:  # type:ignore[override]
         """Define a hash function, since numpy arrays have their own __eq__ method."""
         return hash(self.tostring())
 
@@ -134,13 +134,18 @@ class Tensor(np.ndarray, MSONable):
 
     def einsum_sequence(
         self,
-        other_arrays: NDArray,
+        other_arrays: list[NDArray[np.float64]],
         einsum_string: str | None = None,
-    ) -> NDArray:
-        """Calculate the result of an einstein summation expression."""
-        if not isinstance(other_arrays, list):
-            raise TypeError("other tensors must be list of tensors or tensor input")
+    ) -> NDArray[np.float64]:
+        """
+        Performs a tensor contraction using the Einstein summation convention. The function either uses a provided
+        Einstein summation notation (``einsum_string``) or generates one based on the dimensions of the arrays involved.
 
+        :param other_arrays: A sequence of NumPy arrays to be included in the Einstein summation operation.
+        :param einsum_string: An optional string representing the Einstein summation notation. If not provided,
+            it will be auto-generated based on the ranks of the involved arrays.
+        :return: Resultant NumPy array after performing the Einstein summation operation.
+        """
         other_arrays = [np.array(a) for a in other_arrays]
         if not einsum_string:
             lc = string.ascii_lowercase
@@ -154,7 +159,7 @@ class Tensor(np.ndarray, MSONable):
         einsum_args = [self, *other_arrays]
         return np.einsum(einsum_string, *einsum_args)
 
-    def project(self, n: NDArray) -> Self:
+    def project(self, n: NDArray[np.float64]) -> NDArray[np.float64]:
         """Project a tensor into a vector. Returns the tensor
         dotted into a unit vector along the input n.
 
@@ -166,7 +171,7 @@ class Tensor(np.ndarray, MSONable):
                 the tensor into the vector
         """
         unit_vec = get_uvec(n)
-        return self.einsum_sequence([unit_vec] * self.rank)
+        return self.einsum_sequence(np.array([unit_vec] * self.rank))  # type:ignore[arg-type]
 
     def average_over_unit_sphere(self, quad: dict | None = None) -> Self:
         """Average the tensor projection over the unit with option for custom quadrature.
@@ -228,7 +233,7 @@ class Tensor(np.ndarray, MSONable):
         voigt: bool = True,
         zero_index: bool = False,
         **kwargs,
-    ) -> dict[str, NDArray]:
+    ) -> dict[str, NDArray[np.float64]]:
         """Create a summary dict for tensor with associated symbol.
 
         Args:
@@ -263,7 +268,7 @@ class Tensor(np.ndarray, MSONable):
                 dct[sym_string] = array[indices[0]]
         return dct
 
-    def round(self, decimals: int = 0) -> Self:
+    def round(self, decimals: int = 0) -> Self:  # type: ignore[override]
         """Wrapper around numpy.round to ensure object
         of same type is returned.
 
@@ -275,7 +280,7 @@ class Tensor(np.ndarray, MSONable):
         Returns:
             Tensor: rounded tensor of same type
         """
-        return type(self)(np.round(self, decimals=decimals))
+        return type(self)(np.round(self, decimals=decimals))  # type: ignore[arg-type]
 
     @property
     def symmetrized(self) -> Self:
@@ -284,7 +289,7 @@ class Tensor(np.ndarray, MSONable):
         possible permutations of indices.
         """
         perms = list(itertools.permutations(range(self.rank)))
-        return sum(np.transpose(self, ind) for ind in perms) / len(perms)
+        return sum(np.transpose(self, ind) for ind in perms) / len(perms)  # type:ignore[return-value]
 
     @property
     def voigt_symmetrized(self) -> Self:
@@ -297,7 +302,7 @@ class Tensor(np.ndarray, MSONable):
         v = self.voigt
         perms = list(itertools.permutations(range(len(v.shape))))
         new_v = sum(np.transpose(v, ind) for ind in perms) / len(perms)
-        return type(self).from_voigt(new_v)
+        return type(self).from_voigt(new_v)  # type:ignore[arg-type]
 
     def is_symmetric(self, tol: float = 1e-5) -> bool:
         """Test whether a tensor is symmetric or not based on the residual
@@ -339,7 +344,7 @@ class Tensor(np.ndarray, MSONable):
         return np.allclose(self, self.fit_to_structure(structure), atol=tol, rtol=0)
 
     @property
-    def voigt(self) -> NDArray:
+    def voigt(self) -> NDArray[np.float64]:
         """The tensor in Voigt notation."""
         v_matrix = np.zeros(self._vscale.shape, dtype=self.dtype)
         this_voigt_map = self.get_voigt_dict(self.rank)
@@ -385,7 +390,7 @@ class Tensor(np.ndarray, MSONable):
         return voigt_dict
 
     @classmethod
-    def from_voigt(cls, voigt_input: NDArray) -> Self:
+    def from_voigt(cls, voigt_input: NDArray[np.float64]) -> Self:
         """Constructor based on the voigt notation vector or matrix.
 
         Args:
@@ -431,7 +436,7 @@ class Tensor(np.ndarray, MSONable):
 
         # IEEE rules: a,b,c || x1,x2,x3
         if xtal_sys == "cubic":
-            rotation = [vecs[i] / lengths[i] for i in range(3)]
+            rotation = np.array([vecs[i] / lengths[i] for i in range(3)])
 
         # IEEE rules: a=b in length; c,a || x3, x1
         elif xtal_sys == "tetragonal":
@@ -444,8 +449,7 @@ class Tensor(np.ndarray, MSONable):
 
         # IEEE rules: c<a<b; c,a || x3,x1
         elif xtal_sys == "orthorhombic":
-            rotation = [vec / mag for (mag, vec) in sorted(zip(lengths, vecs, strict=True))]
-            rotation = np.roll(rotation, 2, axis=0)
+            rotation = np.roll([vec / mag for (mag, vec) in sorted(zip(lengths, vecs, strict=True))], 2, axis=0)
 
         # IEEE rules: c,a || x3,x1, c is threefold axis
         # Note this also includes rhombohedral crystal systems
@@ -470,7 +474,7 @@ class Tensor(np.ndarray, MSONable):
 
         # IEEE rules: c || x3, x2 normal to ac plane
         elif xtal_sys == "triclinic":
-            rotation = [vec / mag for (mag, vec) in sorted(zip(lengths, vecs, strict=True))]
+            rotation = np.array([vec / mag for (mag, vec) in sorted(zip(lengths, vecs, strict=True))])
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
             rotation[0] = np.cross(rotation[1], rotation[2])
 
@@ -809,7 +813,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         return all(tensor.is_fit_to_structure(structure, tol) for tensor in self)
 
     @property
-    def voigt(self) -> list[NDArray]:
+    def voigt(self) -> list[NDArray[np.float64]]:
         """TensorCollection where all tensors are in Voigt form."""
         return [tensor.voigt for tensor in self]
 
@@ -920,8 +924,8 @@ class SquareTensor(Tensor):
 
     def __new__(
         cls,
-        input_array: NDArray,
-        vscale: NDArray | None = None,
+        input_array: NDArray[np.float64],
+        vscale: NDArray[np.float64] | None = None,
     ) -> Self:
         """Create a SquareTensor object. Note that the constructor uses __new__ rather than
         __init__ according to the standard method of subclassing numpy ndarrays. Error
@@ -934,7 +938,7 @@ class SquareTensor(Tensor):
                 Voigt-notation vector with the tensor entries
         """
         obj = super().__new__(cls, input_array, vscale, check_rank=2)
-        return obj.view(cls)
+        return obj.view(cls)  # type: ignore[return-value]
 
     @property
     def trans(self) -> Self:
@@ -991,7 +995,7 @@ class SquareTensor(Tensor):
         # Get a projection on y
         new_y = y - np.dot(new_x, y) * new_x
         new_z = np.cross(new_x, new_y)
-        return type(self)([new_x, new_y, new_z])
+        return type(self)(np.array([new_x, new_y, new_z]))
 
     def get_scaled(self, scale_factor: float) -> Self:
         """Scales the tensor by a certain multiplicative scale factor.
@@ -1015,7 +1019,7 @@ class SquareTensor(Tensor):
         return polar(self, side=side)
 
 
-def get_uvec(vec: NDArray) -> NDArray:
+def get_uvec(vec: NDArray[np.float64]) -> NDArray[np.float64]:
     """Get a unit vector parallel to input vector."""
     norm = np.linalg.norm(vec)
     return vec if norm < 1e-8 else vec / norm

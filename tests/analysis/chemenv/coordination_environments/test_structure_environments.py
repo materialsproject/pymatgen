@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import json
 import os
 
 import numpy as np
+import orjson
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
@@ -17,17 +17,17 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
     StructureEnvironments,
 )
 from pymatgen.core import Species, Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "waroquiers"
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments"
 
 
-class TestStructureEnvironments(PymatgenTest):
+class TestStructureEnvironments(MatSciTest):
     def test_structure_environments(self):
-        with open(f"{TEST_DIR}/se_mp-7000.json", encoding="utf-8") as file:
-            dct = json.load(file)
+        with open(f"{TEST_DIR}/se_mp-7000.json", "rb") as file:
+            dct = orjson.loads(file.read())
 
         struct_envs = StructureEnvironments.from_dict(dct)
         isite = 6
@@ -101,7 +101,7 @@ class TestStructureEnvironments(PymatgenTest):
 
         ce = struct_envs.ce_list[isite][4][0]
 
-        assert len(ce), 4
+        assert len(ce) == 4
 
         symbol, min_geometry = ce.minimum_geometry(symmetry_measure_type="csm_wocs_ctwocc")
         assert symbol == "T:4"
@@ -143,8 +143,8 @@ class TestStructureEnvironments(PymatgenTest):
         assert ce != ce2
 
     def test_light_structure_environments(self):
-        with open(f"{TEST_DIR}/se_mp-7000.json", encoding="utf-8") as file:
-            dct = json.load(file)
+        with open(f"{TEST_DIR}/se_mp-7000.json", "rb") as file:
+            dct = orjson.loads(file.read())
 
         struct_envs = StructureEnvironments.from_dict(dct)
 

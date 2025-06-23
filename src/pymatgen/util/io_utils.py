@@ -10,9 +10,8 @@ from monty.io import zopen
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
+    from pathlib import Path
     from typing import Any
-
-    from pymatgen.util.typing import PathLike
 
 __author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo, Ioannis Petousis"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -52,7 +51,7 @@ def clean_lines(
 
 
 def micro_pyawk(
-    filename: PathLike,
+    filename: str | Path,
     search: list[tuple[re.Pattern | str, Callable, Callable]],
     results: Any | None = None,
     debug: Callable | None = None,
