@@ -14,33 +14,35 @@ import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from string import Template
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen.core import Structure
+from pymatgen.core import Lattice, Molecule, Structure
 from pymatgen.io.core import InputGenerator
-from pymatgen.io.lammps.data import CombinedData, LammpsData
+from pymatgen.io.lammps.data import CombinedData, LammpsBox, LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile
 from pymatgen.io.lammps.sets import LammpsInputSet
 from pymatgen.util.typing import PathLike
 
+if TYPE_CHECKING:
+    from typing import Literal
+
+    from numpy.typing import ArrayLike
+
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = f"{MODULE_DIR}/templates"
-_BASE_LAMMPS_SETTINGS = {
-    "units": "metal",
-    "atom_style": "atomic",
+
+_COMMON_LAMMPS_SETTINGS = {
     "dimension": 3,
-    "boundary": ("p", "p", "p"),
     "pair_style": "lj/cut 10.0",
     "thermo": 100,
-    "start_temp": 300,
-    "end_temp": 300,
-    "start_pressure": 0,
-    "end_pressure": 0,
-    "timestep": 0.001,
-    "friction": 0.1,
+    "start_temp": 300.0,
+    "end_temp": 300.0,
+    "start_pressure": 0.0,
+    "end_pressure": 0.0,
     "log_interval": 100,
     "traj_interval": 100,
     "ensemble": "nvt",
@@ -51,6 +53,26 @@ _BASE_LAMMPS_SETTINGS = {
     "tol": 1e-6,
     "min_style": "cg",
 }
+
+_BASE_LAMMPS_SETTINGS = {
+    "periodic": _COMMON_LAMMPS_SETTINGS
+    | {
+        "units": "metal",
+        "atom_style": "atomic",
+        "boundary": ("p", "p", "p"),
+        "timestep": 0.001,
+        "friction": 0.1,
+    },
+    "molecular": _COMMON_LAMMPS_SETTINGS
+    | {
+        "units": "real",
+        "atom_style": "full",
+        "boundary": ("f", "f", "f"),
+        "timestep": 1,
+        "friction": 100,
+    },
+}
+
 
 FF_STYLE_KEYS = ["pair_style", "bond_style", "angle_style", "dihedral_style", "improper_style", "kspace_style"]
 FF_COEFF_KEYS = ["pair_coeff", "bond_coeff", "angle_coeff", "dihedral_coeff", "improper_coeff", "kspace_coeff"]
@@ -104,9 +126,10 @@ class LammpsSettings(MSONable):
     end_pressure : float | list | np.ndarray
         Final pressure. Default is 0 atm. Can be a single value or a list for anisotropic pressure.
     timestep : float
-        Simulation timestep. Default is 0.001 ps.
+        Simulation timestep. Default is 0.001 ps for periodic solids and 1fs for molecular systems.
     friction : float
-        Thermostat/Barostat friction coefficient. Default is 0.1 ps^-1.
+        Thermostat/Barostat friction coefficient. Default is 0.1 ps^-1 for periodic solids
+        and 100 fs^-1 for molecular systems.
     log_interval : int
         Interval for logging thermodynamic data (energy, temperature, pressure, volume).
         Default is 100 steps.
@@ -124,33 +147,7 @@ class LammpsSettings(MSONable):
         steps for minimization simulations.
     """
 
-    ''' units : Literal["metal", "lj", "real", "si", "cgs", "electron", "micro", "nano"] = "metal"
-    atom_style : Literal[
-        "atomic", "angle", "body", "bond", "charge", "electron", "full", "molecular"
-    ] = "atomic"
-    dimension : int = 3
-    boundary : tuple[str,str,str] = ("p", "p", "p")
-    pair_style : str = "lj/cut 10.0"
-    bond_style : str = None
-    angle_style : str = None
-    dihedral_style : str = None
-    start_temp : float = 300.
-    end_temp : float = 300.
-    start_pressure : float | list | np.ndarray = 0.
-    end_pressure : float | list | np.ndarray = 0.
-    timestep : float = 0.001
-    friction : float = 0.1
-    log_interval : int = 100
-    traj_interval : int = 100
-    ensemble : Literal["nve","nvt","npt","nph","minimize"] = "nvt"
-    thermostat : Literal["nose-hoover", "langevin", None] = "nose-hoover"
-    barostat : Literal["nose-hoover", "berendsen", "langevin", None] = "nose-hoover"
-    nsteps : int = 1000
-    restart : str = None
-    tol : float = 1e-6
-    min_style : Literal["cg", "sd", "fire", "hftn", "quickmin", "spin"] = "cg"'''
-
-    validate_params: bool = field(default=True)
+    validate_params: bool = field(default=False)
 
     def __init__(self, validate_params: bool = True, **kwargs):
         for key, value in kwargs.items():
@@ -231,7 +228,8 @@ class BaseLammpsSetGenerator(InputGenerator):
 
     inputfile: LammpsInputFile | str | PathLike = field(default=None)
     settings: dict | LammpsSettings = field(default_factory=dict)
-    force_field: Path | dict = field(default=None)
+    force_field: Path | dict | None = field(default=None)
+    data_type: Literal["periodic", "molecular"] = field(default="periodic")
     calc_type: str = field(default="lammps")
     include_defaults: bool = field(default=True)
     validate_params: bool = field(default=True)
@@ -269,11 +267,11 @@ class BaseLammpsSetGenerator(InputGenerator):
         if isinstance(self.settings, dict):
             settings = self.settings.copy()
             if self.include_defaults:
-                base_settings = _BASE_LAMMPS_SETTINGS.copy()
+                base_settings = _BASE_LAMMPS_SETTINGS[self.data_type].copy()
                 settings = base_settings | settings
             self.settings = LammpsSettings(validate_params=self.validate_params, **settings)
 
-    def update_settings(self, updates: dict):
+    def update_settings(self, updates: dict, validate_params: bool = True) -> None:
         """
         Update the settings for the LammpsSettings object.
         Args:
@@ -284,23 +282,33 @@ class BaseLammpsSetGenerator(InputGenerator):
             present_settings = self.settings.dict
             for k, v in updates.items():
                 present_settings.update({k: v})
-            self.settings = LammpsSettings(validate_params=self.validate_params, **present_settings)
+            self.settings = LammpsSettings(validate_params=validate_params, **present_settings)
         else:
             self.settings.update(updates)
 
     def get_input_set(
         self,
-        data: Structure | LammpsData | CombinedData,
+        data: Structure | Molecule | LammpsData | CombinedData,
         additional_data: LammpsData | CombinedData | None = None,
+        box_or_lattice: Lattice | LammpsBox | ArrayLike | None = None,
         **kwargs,
     ) -> LammpsInputSet:
         """
         Generate a LAMMPS input set.
         Args:
-            structure : Structure | LammpsData
-                Structure or LammpsData object for the simulation.
+            data : Structure | Molecule | LammpsData | CombinedData
+                Structure, Molecule, LammpsData or CombinedData object containing the atomic structure
+                to be simulated.
+            additional_data : LammpsData | CombinedData | None
+                Additional data to be written to the input set, such as extra data files.
+                Default is None.
+            data_type : Literal["periodic", "molecular"]
+                Type of data provided. Used to determine the atom style and other settings.
+                Default is "periodic". If a Molecule is provided, this will be set to "molecular".
+            box_or_lattice : Lattice | LammpsBox | ArrayLike | None
+                Optional arg needed when data is a Molecule object.
             **kwargs : dict
-                Additional keyword arguments to pass to the InputSet from pmg.
+                Additional keyword arguments to be passed to the LammpsInputSet constructor.
         """
 
         if not self.force_field:
@@ -323,6 +331,11 @@ class BaseLammpsSetGenerator(InputGenerator):
                         "nor a string repr of the inputfile. Please check your inputs!"
                     )
 
+        data_type = "molecular" if isinstance(data, Molecule) else "periodic"
+        if data_type != self.data_type and self.include_defaults:
+            molecule_updates = _BASE_LAMMPS_SETTINGS[data_type].copy()
+            self.update_settings(molecule_updates, validate_params=self.validate_params)
+
         settings_dict = self.settings.dict.copy() if isinstance(self.settings, LammpsSettings) else self.settings
         atom_style = settings_dict.get("atom_style", "full")
         print(f"Generating LAMMPS input set with settings: {settings_dict}")
@@ -341,10 +354,13 @@ class BaseLammpsSetGenerator(InputGenerator):
                 raise ValueError(f"Data file {data} not recognized. Please check the format.")
 
         species = ""
-        if isinstance(data, Structure):
+        if isinstance(data, Structure | Molecule):
             species = " ".join({s.symbol for s in data.species})
-            data = LammpsData.from_structure(data, atom_style=atom_style)
-            warnings.warn("Structure provided, converting to LammpsData object.", stacklevel=2)
+            warnings.warn("Structure or Molecule provided, converting to LammpsData object.", stacklevel=2)
+            if isinstance(data, Structure):
+                data = LammpsData.from_structure(data, atom_style=atom_style)
+            elif isinstance(data, Molecule):
+                data = LammpsData.from_molecule(data, atom_style=atom_style, box_or_lattice=box_or_lattice)
 
         # Housekeeping to fill up the default settings for the MD template
         settings_dict.update({f"{sys}_flag": "###" for sys in ["nve", "nvt", "npt", "nph", "restart", "extra_data"]})
