@@ -58,7 +58,7 @@ electronic-minimize  \
 	fdTest               no
 exchange-regularization WignerSeitzTruncated
 fluid None
-fluid-ex-corr (null) lda-PZ
+fluid-ex-corr lda-TF lda-PZ
 fluid-gummel-loop 10 1.000000e-05
 fluid-minimize  \
 	dirUpdateScheme      PolakRibiere \
@@ -1239,7 +1239,7 @@ electronic-minimize  \
 	fdTest               no
 exchange-regularization WignerSeitzTruncated
 fluid None
-fluid-ex-corr (null) lda-PZ
+fluid-ex-corr lda-TF lda-PZ
 fluid-gummel-loop 10 1.000000e-05
 fluid-minimize  \
 	dirUpdateScheme      PolakRibiere \
@@ -1981,7 +1981,7 @@ electronic-minimize  \
 	fdTest               no
 exchange-regularization WignerSeitzTruncated
 fluid None
-fluid-ex-corr (null) lda-PZ
+fluid-ex-corr lda-TF lda-PZ
 fluid-gummel-loop 10 1.000000e-05
 fluid-minimize  \
 	dirUpdateScheme      PolakRibiere \
@@ -2754,7 +2754,7 @@ electronic-minimize  \
 	fdTest               no
 exchange-regularization WignerSeitzTruncated
 fluid None
-fluid-ex-corr (null) lda-PZ
+fluid-ex-corr lda-TF lda-PZ
 fluid-gummel-loop 10 1.000000e-05
 fluid-minimize  \
 	dirUpdateScheme      PolakRibiere \
@@ -3936,7 +3936,7 @@ electronic-minimize  \
 	fdTest               no
 exchange-regularization WignerSeitzTruncated
 fluid None
-fluid-ex-corr (null) lda-PZ
+fluid-ex-corr lda-TF lda-PZ
 fluid-gummel-loop 10 1.000000e-05
 fluid-minimize  \
 	dirUpdateScheme      PolakRibiere \
@@ -4678,7 +4678,7 @@ electronic-minimize  \
 	fdTest               no
 exchange-regularization WignerSeitzTruncated
 fluid None
-fluid-ex-corr (null) lda-PZ
+fluid-ex-corr lda-TF lda-PZ
 fluid-gummel-loop 10 1.000000e-05
 fluid-minimize  \
 	dirUpdateScheme      PolakRibiere \
@@ -5452,7 +5452,7 @@ electronic-minimize  \
 	fdTest               no
 exchange-regularization WignerSeitzTruncated
 fluid None
-fluid-ex-corr (null) lda-PZ
+fluid-ex-corr lda-TF lda-PZ
 fluid-gummel-loop 10 1.000000e-05
 fluid-minimize  \
 	dirUpdateScheme      PolakRibiere \

@@ -14,8 +14,10 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
+    from numpy.typing import ArrayLike
     from typing_extensions import Self
 
+    from pymatgen.core import IStructure
     from pymatgen.symmetry.analyzer import SpacegroupOperations
     from pymatgen.util.typing import PathLike
 
@@ -33,9 +35,9 @@ class SymmetrizedStructure(Structure):
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         spacegroup: SpacegroupOperations,
-        equivalent_positions: Sequence[int],
+        equivalent_positions: ArrayLike,
         wyckoff_letters: Sequence[str],
     ) -> None:
         """

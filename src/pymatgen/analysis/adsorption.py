@@ -57,7 +57,7 @@ class AdsorbateSiteFinder:
 
     def __init__(
         self,
-        slab: Slab,
+        slab: Slab | Structure,
         selective_dynamics: bool = False,
         height: float = 0.9,
         mi_vec: ArrayLike | None = None,
@@ -613,8 +613,7 @@ def get_rot(slab: Slab) -> SymmOp:
     new_y = np.cross(new_z, new_x)
     x, y, z = np.eye(3)
     rot_matrix = np.array([np.dot(*el) for el in itertools.product([x, y, z], [new_x, new_y, new_z])]).reshape(3, 3)
-    rot_matrix = np.transpose(rot_matrix)
-    return SymmOp.from_rotation_and_translation(rot_matrix)
+    return SymmOp.from_rotation_and_translation(np.transpose(rot_matrix))
 
 
 def put_coord_inside(lattice, cart_coordinate):

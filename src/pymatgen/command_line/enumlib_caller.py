@@ -47,6 +47,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 if TYPE_CHECKING:
     from typing import ClassVar
 
+    from pymatgen.core.structure import IStructure
+
 logger = logging.getLogger(__name__)
 
 # Favor the use of the newer "enum.x" by Gus Hart over "multienum.x"
@@ -56,7 +58,7 @@ MAKESTR_CMD = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 
 
 @requires(
-    ENUM_CMD and MAKESTR_CMD,
+    ENUM_CMD and MAKESTR_CMD,  # type: ignore[arg-type]
     "EnumlibAdaptor requires the executables 'enum.x' or 'multienum.x' "
     "and 'makestr.x' or 'makeStr.py' to be in the path. Please download the "
     "library at https://github.com/msg-byu/enumlib and follow the instructions "
@@ -73,7 +75,7 @@ class EnumlibAdaptor:
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         min_cell_size: int = 1,
         max_cell_size: int = 1,
         symm_prec: float = 0.1,
@@ -118,7 +120,7 @@ class EnumlibAdaptor:
             finder = SpacegroupAnalyzer(structure, symm_prec)
             self.structure = finder.get_refined_structure()
         else:
-            self.structure = structure
+            self.structure = structure  # type: ignore[assignment]
 
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
@@ -363,14 +365,15 @@ class EnumlibAdaptor:
             )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
         else:
-            ordered_structure = inv_org_latt = None
+            ordered_structure = None  # type: ignore[assignment]
+            inv_org_latt = None  # type: ignore[assignment]
 
         for file in glob("vasp.*"):
             with open(file, encoding="utf-8") as _file:
                 data = _file.read()
                 data = re.sub(r"scale factor", "1", data)
                 data = re.sub(r"(\d+)-(\d+)", r"\1 -\2", data)
-                poscar = Poscar.from_str(data, self.index_species)
+                poscar = Poscar.from_str(data, self.index_species)  # type: ignore[arg-type]
                 sub_structure = poscar.structure
                 # Enumeration may have resulted in a super lattice. We need to
                 # find the mapping from the new lattice to the old lattice, and
@@ -380,7 +383,7 @@ class EnumlibAdaptor:
                 sites = []
 
                 if len(self.ordered_sites) > 0:
-                    transformation = np.dot(new_latt.matrix, inv_org_latt)
+                    transformation = np.dot(new_latt.matrix, inv_org_latt)  # type:ignore[arg-type]
                     transformation = [[round(cell) for cell in row] for row in transformation]
                     logger.debug(f"Supercell matrix: {transformation}")
                     struct = ordered_structure * transformation

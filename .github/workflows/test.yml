@@ -5,10 +5,10 @@ name: test
 on:
   push:
     branches: [master]
-    paths: ["src/**/*.*", "tests/**/*.*"]
+    paths: ["src/**/*.*", "tests/**/*.*", ".github/workflows/*" ,"pyproject.toml", "setup.py"]
   pull_request:
     branches: [master]
-    paths: ["src/**/*.*", "tests/**/*.*"]
+    paths: ["src/**/*.*", "tests/**/*.*", ".github/workflows/*", "pyproject.toml", "setup.py" ]
   workflow_dispatch:
   workflow_call: # make this workflow reusable by release.yml
 
@@ -139,3 +139,10 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/materialsproject/atomate2/dispatches \
             -d '{"event_type": "pymatgen-ci-trigger", "client_payload": {"pymatgen_ref": "${{ github.sha }}"}}'
+
+  all_pass:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo
+        run: echo "All tests pass"

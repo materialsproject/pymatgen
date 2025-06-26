@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-import json
 import os
 import pickle
 import re
@@ -10,11 +9,11 @@ from shutil import copyfile
 from unittest.mock import patch
 
 import numpy as np
+import orjson
 import pytest
 import scipy.constants as const
 from monty.io import zopen
 from monty.serialization import loadfn
-from monty.tempfile import ScratchDir
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -659,6 +658,28 @@ class TestIncar(MatSciTest):
         assert float(incar["EDIFF"]) == approx(1e-4), "Wrong EDIFF"
         assert isinstance(incar["LORBIT"], int)
 
+    def test_lattice_constaints(self):
+        incar_str = """
+        ALGO = Fast
+EDIFF = 0.00045000000000000004
+ENCUT = 520.0
+IBRION = 2
+ISIF = 3
+ISMEAR = -5
+ISPIN = 2
+LASPH = True
+LATTICE_CONSTRAINTS = False False True
+LORBIT = 11
+LREAL = Auto
+LWAVE = False
+MAGMOM = 9*0.6
+NELM = 100
+NSW = 99
+PREC = Accurate
+SIGMA = 0.05"""
+        incar = Incar.from_str(incar_str)
+        assert incar["LATTICE_CONSTRAINTS"] == [False, False, True]
+
     def test_check_for_duplicate(self):
         incar_str: str = """encut = 400
         ENCUT = 500
@@ -844,11 +865,10 @@ class TestIncar(MatSciTest):
         SYSTEM = This should NOT BE capitalized
         """
 
-        with ScratchDir("."):
-            with open("INCAR", "w", encoding="utf-8") as f:
-                f.write(incar_str)
+        with open("INCAR", "w", encoding="utf-8") as f:
+            f.write(incar_str)
 
-            incar_from_file = Incar.from_file("INCAR")
+        incar_from_file = Incar.from_file("INCAR")
 
         # Make sure int/float is cast to correct type when init from dict
         assert incar_from_dict["GGA"] == "Ps"
@@ -1204,7 +1224,7 @@ Cartesian
         kpts = Kpoints.from_file(file_name)
         dct = kpts.as_dict()
 
-        json.dumps(dct)
+        assert orjson.dumps(dct).decode()
         # This doesn't work
         k2 = Kpoints.from_dict(dct)
         assert kpts.kpts == k2.kpts

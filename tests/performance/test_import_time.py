@@ -14,13 +14,13 @@ macOS:   3 CPU (M1)
 
 from __future__ import annotations
 
-import json
 import os
 import subprocess
 import time
 import warnings
 from typing import TYPE_CHECKING
 
+import orjson
 import pytest
 
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -74,7 +74,7 @@ def test_get_ref_import_time() -> None:
 
     # Print a copyable JSON format for easy reference updating
     print("\nCopyable import time JSON:")
-    print(json.dumps(import_times, indent=4))
+    print(orjson.dumps(import_times, option=orjson.OPT_INDENT_2).decode())
 
     pytest.fail("Reference import times generated. Copy from output to update JSON file.")
 
@@ -90,8 +90,8 @@ def test_import_time(grace_percent: float = 0.5, hard_percent: float = 1.0) -> N
             before the test fails.
     """
 
-    with open(REF_FILE, encoding="utf-8") as file:
-        ref_import_times: dict[str, float] = json.load(file)
+    with open(REF_FILE, "rb") as file:
+        ref_import_times: dict[str, float] = orjson.loads(file.read())
 
     for module_import_cmd, ref_time in ref_import_times.items():
         current_time: float = _measure_import_time_in_ms(module_import_cmd)

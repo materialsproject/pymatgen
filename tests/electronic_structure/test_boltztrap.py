@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import json
 from shutil import which
 
+import orjson
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
@@ -32,10 +32,8 @@ class TestBoltztrapAnalyzer:
         cls.bz_dw = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/dos_dw/", dos_spin=-1)
         cls.bz_fermi = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/fermi/")
 
-        with open(
-            f"{TEST_FILES_DIR}/electronic_structure/bandstructure/Cu2O_361_bandstructure.json", encoding="utf-8"
-        ) as file:
-            dct = json.load(file)
+        with open(f"{TEST_FILES_DIR}/electronic_structure/bandstructure/Cu2O_361_bandstructure.json", "rb") as file:
+            dct = orjson.loads(file.read())
             cls.bs = BandStructure.from_dict(dct)
             cls.btr = BoltztrapRunner(cls.bs, 1)
 
@@ -252,6 +250,6 @@ class TestBoltztrapAnalyzer:
 
     def test_as_from_dict(self):
         btr_dict = self.btr.as_dict()
-        json_str = json.dumps(btr_dict)
+        json_str = orjson.dumps(btr_dict).decode()
         assert json_str is not None
         assert btr_dict["bs"] is not None

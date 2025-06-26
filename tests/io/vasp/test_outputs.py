@@ -4,23 +4,22 @@ import gzip
 import json
 import os
 import sys
+import xml
 from io import StringIO
 from pathlib import Path
 from shutil import copyfile, copyfileobj
-from xml.etree import ElementTree as ET
 
 import numpy as np
 import pytest
 from monty.io import zopen
 from monty.shutil import decompress_file
-from monty.tempfile import ScratchDir
 from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core import Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine
 from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spin
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
@@ -44,6 +43,7 @@ from pymatgen.io.vasp.outputs import (
     Wavecar,
     Waveder,
     Xdatcar,
+    get_band_structure_from_vasp_multiple_branches,
 )
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
@@ -143,7 +143,7 @@ class TestVasprun(MatSciTest):
             assert "unlabelled" in vr.dielectric_data
 
     def test_bad_vasprun(self):
-        with pytest.raises(ET.ParseError):
+        with pytest.raises(xml.etree.ElementTree.ParseError):
             Vasprun(f"{VASP_OUT_DIR}/vasprun.bad.xml.gz")
 
         with pytest.warns(
@@ -860,13 +860,12 @@ class TestOutcar:
         """Test from both compressed and uncompressed versions,
         as there was a bug in monty causing different behaviours.
         """
-        with ScratchDir("."):
-            if compressed:
-                outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
-            else:
-                copyfile(f"{VASP_OUT_DIR}/OUTCAR.gz", "./OUTCAR.gz")
-                decompress_file("./OUTCAR.gz")
-                outcar = Outcar("./OUTCAR")
+        if compressed:
+            outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
+        else:
+            copyfile(f"{VASP_OUT_DIR}/OUTCAR.gz", "./OUTCAR.gz")
+            decompress_file("./OUTCAR.gz")
+            outcar = Outcar("./OUTCAR")
 
         expected_mag = (
             {"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005},
@@ -1535,13 +1534,40 @@ class TestOszicar(MatSciTest):
         assert len(oszicar.electronic_steps) == len(oszicar.ionic_steps)
         assert len(oszicar.all_energies) == 60
         assert oszicar.final_energy == approx(-526.63928)
-        assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
+        assert set(oszicar.ionic_steps[-1]) == {"F", "E0", "dE", "mag"}
 
     def test_static(self):
         fpath = f"{TEST_DIR}/fixtures/static_silicon/OSZICAR"
         oszicar = Oszicar(fpath)
         assert oszicar.final_energy == approx(-10.645278)
-        assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
+        assert set(oszicar.ionic_steps[-1]) == {"F", "E0", "dE", "mag"}
+
+
+class TestGetBandStructureFromVaspMultipleBranches:
+    def test_read_multi_branches(self):
+        """TODO: This functionality still needs a test."""
+
+    def test_missing_vasprun_in_branch_dir(self):
+        """Test vasprun.xml missing from branch_*."""
+        os.makedirs("no_vasp/branch_0", exist_ok=False)
+
+        with pytest.raises(FileNotFoundError, match="cannot find vasprun.xml in directory"):
+            get_band_structure_from_vasp_multiple_branches("no_vasp")
+
+    def test_no_branch_head(self):
+        """Test branch_0 is missing and read dir_name/vasprun.xml directly."""
+
+        copyfile(f"{VASP_OUT_DIR}/vasprun.force_hybrid_like_calc.xml.gz", "./vasprun.xml.gz")
+        decompress_file("./vasprun.xml.gz")
+
+        with pytest.warns(DeprecationWarning, match="no branch dir found, reading directly from"):
+            bs = get_band_structure_from_vasp_multiple_branches(".")
+        assert isinstance(bs, BandStructure)
+
+    def test_cannot_read_anything(self):
+        """Test no branch_0/, no dir_name/vasprun.xml, no vasprun.xml at all."""
+        with pytest.raises(FileNotFoundError, match="failed to find any vasprun.xml in selected"):
+            get_band_structure_from_vasp_multiple_branches(".")
 
 
 class TestLocpot(MatSciTest):
@@ -1585,6 +1611,9 @@ class TestChgcar(MatSciTest):
         assert self.chgcar_spin.get_integrated_diff(0, 1)[0, 1] == approx(-0.0043896932237534022)
         # test sum
         chgcar = self.chgcar_spin + self.chgcar_spin
+        assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(-0.0043896932237534022 * 2)
+
+        chgcar = sum([self.chgcar_spin, self.chgcar_spin])
         assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(-0.0043896932237534022 * 2)
 
         chgcar = self.chgcar_spin - self.chgcar_spin

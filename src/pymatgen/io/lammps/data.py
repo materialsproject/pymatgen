@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.sites import Site
-    from pymatgen.core.structure import SiteCollection
+    from pymatgen.core.structure import IStructure, SiteCollection
 
 __author__ = "Kiran Mathew, Zhi Deng, Tingzheng Hou"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -849,7 +849,7 @@ class LammpsData(MSONable):
     @classmethod
     def from_structure(
         cls,
-        structure: Structure,
+        structure: Structure | IStructure,
         ff_elements: Sequence[str] | None = None,
         atom_style: Literal["atomic", "charge"] = "charge",
         is_sort: bool = False,
@@ -1299,7 +1299,7 @@ class CombinedData(LammpsData):
         self._coordinates.index = self._coordinates.index.map(int)
         max_xyz = self._coordinates[["x", "y", "z"]].max().max()
         min_xyz = self._coordinates[["x", "y", "z"]].min().min()
-        self.box = LammpsBox(np.array(3 * [[min_xyz - 0.5, max_xyz + 0.5]]))
+        self.box = LammpsBox(3 * [[min_xyz - 0.5, max_xyz + 0.5]])
         self.atom_style = atom_style
         self.n = sum(self._list_of_numbers)
         self.names = []

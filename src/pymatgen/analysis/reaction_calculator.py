@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, overload
 import numpy as np
 from monty.fractions import gcd_float
 from monty.json import MontyDecoder, MSONable
-from uncertainties import ufloat
+from uncertainties import UFloat, ufloat
 
 from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
@@ -100,7 +100,7 @@ class BalancedReaction(MSONable):
     __repr__ = __str__
 
     @overload
-    def calculate_energy(self, energies: dict[Composition, ufloat]) -> ufloat:
+    def calculate_energy(self, energies: dict[Composition, ufloat]) -> UFloat:
         pass
 
     @overload
@@ -485,10 +485,15 @@ class ComputedReaction(Reaction):
 
         for entry in self._reactant_entries + self._product_entries:
             comp, factor = entry.composition.get_reduced_composition_and_factor()
-            energy_ufloat = ufloat(entry.energy, entry.correction_uncertainty)
+            energy_ufloat = (
+                ufloat(entry.energy, entry.correction_uncertainty)
+                if entry.correction_uncertainty and not np.isnan(entry.correction_uncertainty)
+                else entry.energy
+            )
             calc_energies[comp] = min(calc_energies.get(comp, float("inf")), energy_ufloat / factor)
 
-        return self.calculate_energy(calc_energies).std_dev
+        ufloat_reaction_energy = self.calculate_energy(calc_energies)
+        return ufloat_reaction_energy.std_dev if isinstance(ufloat_reaction_energy, UFloat) else np.nan
 
     def as_dict(self) -> dict:
         """

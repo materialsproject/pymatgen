@@ -43,7 +43,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 if TYPE_CHECKING:
     from typing import Any, Literal
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
@@ -64,7 +64,7 @@ class BoltztrapRunner(MSONable):
     """This class is used to run BoltzTraP on a band structure object."""
 
     @requires(
-        which("x_trans"),
+        which("x_trans"),  # type: ignore[arg-type]
         "BoltztrapRunner requires the executables 'x_trans' to be in PATH. Please download "
         "BoltzTraP at https://www.tuwien.at/en/tch/tc/theoretical-materials-chemistry/boltztrap "
         "and follow the instructions in the README to compile BoltzTraP accordingly. "
@@ -860,7 +860,7 @@ class BoltztrapAnalyzer:
 
             _idx_list: list[tuple[int, ArrayLike]] = []
             for idx, kp in enumerate(kpt_line):
-                w: list[bool] = []
+                w: NDArray[np.int_] | list = []
                 prec = 1e-5
                 while len(w) == 0:
                     w = np.where(np.all(np.abs(kp - self._bz_kpoints) < [prec] * 3, axis=1))[0]

@@ -4,7 +4,9 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from pymatgen.io.jdftx.outputs import JDFTXOutfile
+from pymatgen.io.jdftx._output_utils import read_outfile_slices
+from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
+from pymatgen.io.jdftx.outputs import JDFTXOutfile, _jof_atr_from_last_slice
 
 from .outputs_test_utils import (
     etot_etype_outfile_known_simple,
@@ -27,6 +29,7 @@ from .outputs_test_utils import (
     problem2_outfile_known_simple,
     problem2_outfile_path,
 )
+from .shared_test_utils import assert_same_value
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -71,3 +74,23 @@ def test_JDFTXOutfile_default_struc_inheritance(filename: Path, latknown: dict):
     for i in range(3):
         for j in range(3):
             assert pytest.approx(lattice[i][j]) == latknown[f"{i}{j}"]
+
+
+# Make sure all possible exceptions are caught when none_on_error is True
+@pytest.mark.parametrize(("ex_outfile_path"), [(partial_lattice_init_outfile_path)])
+def test_none_on_partial(ex_outfile_path: Path):
+    texts = read_outfile_slices(str(ex_outfile_path))
+    texts0 = texts[:-1]
+
+    slices = [
+        JDFTXOutfileSlice._from_out_slice(text, is_bgw=False, none_on_error=False) for i, text in enumerate(texts0)
+    ]
+    outfile1 = JDFTXOutfile(slices=slices)
+    slices.append(None)
+    outfile2 = JDFTXOutfile(slices=slices)
+    assert isinstance(outfile2, JDFTXOutfile)
+    for var in _jof_atr_from_last_slice:
+        assert_same_value(
+            getattr(outfile1, var),
+            getattr(outfile2, var),
+        )

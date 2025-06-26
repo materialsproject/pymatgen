@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import itertools
-import json
 import logging
 import math
 import os
@@ -15,6 +14,7 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
+import orjson
 import plotly.graph_objects as go
 from matplotlib import cm
 from matplotlib.cm import ScalarMappable
@@ -47,9 +47,9 @@ logger = logging.getLogger(__name__)
 
 with open(
     os.path.join(os.path.dirname(__file__), "..", "util", "plotly_pd_layouts.json"),
-    encoding="utf-8",
+    "rb",
 ) as file:
-    plotly_layouts = json.load(file)
+    plotly_layouts = orjson.loads(file.read())
 
 
 class PDEntry(Entry):

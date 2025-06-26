@@ -374,7 +374,7 @@ class QCInput(InputFile):
             filename (str): Name of the file to write.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(QCInput.multi_job_string(job_list))
+            file.write(QCInput.multi_job_string(job_list))  # type:ignore[arg-type]
 
     @classmethod
     def from_file(cls, filename: str | Path) -> Self:
@@ -388,7 +388,7 @@ class QCInput(InputFile):
             QcInput
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
     @classmethod
     def from_multi_jobs_file(cls, filename: str) -> list[Self]:
@@ -403,9 +403,9 @@ class QCInput(InputFile):
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
             # the delimiter between QChem jobs is @@@
-            multi_job_strings = file.read().split("@@@")
+            multi_job_strings = file.read().split("@@@")  # type:ignore[arg-type]
             # list of individual QChem jobs
-            return [cls.from_str(i) for i in multi_job_strings]
+            return [cls.from_str(i) for i in multi_job_strings]  # type:ignore[arg-type]
 
     @staticmethod
     def molecule_template(molecule: Molecule | list[Molecule] | Literal["read"]) -> str:

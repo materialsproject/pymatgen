@@ -112,7 +112,7 @@ class XYZ:
             XYZ object
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
     def as_dataframe(self):
         """Generate a coordinates data frame with columns: atom, x, y, and z
@@ -152,4 +152,4 @@ class XYZ:
             filename (str): File name of output file.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]

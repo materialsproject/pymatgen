@@ -20,15 +20,16 @@ from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from os import PathLike
     from typing import Any, Literal
 
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
+    from numpy.typing import ArrayLike
 
     from pymatgen.core import Structure
     from pymatgen.phonon.dos import PhononDos
     from pymatgen.phonon.gruneisen import GruneisenParameter
+    from pymatgen.util.typing import PathLike
 
 logger = logging.getLogger(__name__)
 
@@ -219,7 +220,7 @@ class PhononDosPlotter:
             if self.stack:
                 ax.fill(xs, ys, color=color, label=str(key), **kwargs)
             else:
-                ax.plot(xs, ys, color=color, label=str(key), linewidth=linewidth, **kwargs)
+                ax.plot(xs, ys, color=color, label=str(key), linewidth=linewidth, **kwargs)  # type:ignore[arg-type]
 
         if xlim:
             ax.set_xlim(xlim)
@@ -260,7 +261,7 @@ class PhononDosPlotter:
 
     def save_plot(
         self,
-        filename: str | PathLike,
+        filename: PathLike,
         img_format: str = "eps",
         xlim: float | None = None,
         ylim: float | None = None,
@@ -529,15 +530,15 @@ class PhononBSPlotter:
             seg[:, :, 1] = self._bs.bands[:, d - 1 : d + 1] * u.factor
             seg[:, 0, 0] = k_dist[d - 1]
             seg[:, 1, 0] = k_dist[d]
-            ls = LineCollection(seg, colors=colors, linestyles="-", linewidths=2.5)
+            ls = LineCollection(seg, colors=colors, linestyles="-", linewidths=2.5)  # type:ignore[arg-type]
             ax.add_collection(ls)
         if ylim is None:
             y_max: float = max(max(band) for band in self._bs.bands) * u.factor
             y_min: float = min(min(band) for band in self._bs.bands) * u.factor
             y_margin = (y_max - y_min) * 0.05
             ylim = (y_min - y_margin, y_max + y_margin)
-        ax.set_ylim(ylim)
-        xlim = [min(k_dist), max(k_dist)]
+        ax.set_ylim(ylim)  # type:ignore[arg-type]
+        xlim = (min(k_dist), max(k_dist))
         ax.set_xlim(xlim)
         ax.set_xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=28)
         ylabel = rf"$\mathrm{{Frequencies\ ({u.label})}}$"
@@ -576,7 +577,7 @@ class PhononBSPlotter:
 
     def save_plot(
         self,
-        filename: str | PathLike,
+        filename: PathLike,
         ylim: float | None = None,
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
     ) -> None:
@@ -664,7 +665,7 @@ class PhononBSPlotter:
         on_incompatible: Literal["raise", "warn", "ignore"] = "raise",
         other_kwargs: dict | None = None,
         **kwargs,
-    ) -> Axes:
+    ) -> Axes | None:
         """Plot two band structure for comparison. self in blue, others in red, green, ...
         The band structures need to be defined on the same symmetry lines!
         The distance between symmetry lines is determined by the band structure used to
@@ -722,7 +723,7 @@ class PhononBSPlotter:
                     raise ValueError("The two band structures are not compatible.")
                 if on_incompatible == "warn":
                     logger.warning("The two band structures are not compatible.")
-                return None  # ignore/warn
+                return None
 
             color = colors[idx + 1] if colors else _colors[1 + idx % len(_colors)]
             _kwargs = kwargs.copy()  # Don't set the color in kwargs, or every band will be red
@@ -794,7 +795,7 @@ class ThermoPlotter:
     def _plot_thermo(
         self,
         func: Callable[[float, Structure | None], float],
-        temperatures: Sequence[float],
+        temperatures: ArrayLike,
         factor: float = 1,
         ax: Axes = None,
         ylabel: str | None = None,
@@ -824,7 +825,7 @@ class ThermoPlotter:
         values = []
 
         for temp in temperatures:
-            values.append(func(temp, self.structure) * factor)
+            values.append(func(temp, self.structure) * factor)  # type:ignore[arg-type]
 
         ax.plot(temperatures, values, label=label, **kwargs)
 
@@ -1055,7 +1056,7 @@ class GruneisenPlotter:
 
     def save_plot(
         self,
-        filename: str | PathLike,
+        filename: PathLike,
         img_format: str = "pdf",
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
     ) -> None:
@@ -1238,7 +1239,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
 
     def save_plot_gs(
         self,
-        filename: str | PathLike,
+        filename: PathLike,
         img_format: str = "eps",
         ylim: float | None = None,
         plot_ph_bs_with_gruneisen: bool = False,

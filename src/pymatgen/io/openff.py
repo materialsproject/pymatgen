@@ -244,7 +244,7 @@ def assign_partial_charges(
     # TODO: test this
     # assign partial charges
     if partial_charges is not None:
-        partial_charges = np.array(partial_charges)
+        partial_charges = np.array(partial_charges)  # type:ignore[assignment]
         chargs = partial_charges[list(atom_map.values())]  # type: ignore[index, call-overload]
         openff_mol.partial_charges = chargs * unit.elementary_charge
     elif openff_mol.n_atoms == 1:
@@ -284,18 +284,18 @@ def create_openff_mol(
         tk.Molecule: The created OpenFF Molecule.
     """
     if isinstance(geometry, str | Path):
-        geometry = Molecule.from_file(str(geometry))
+        geometry = Molecule.from_file(str(geometry))  # type:ignore[assignment]
 
     if partial_charges is not None:
         if geometry is None:
             raise ValueError("geometries must be set if partial_charges is set")
-        if len(partial_charges) != len(geometry):
+        if len(partial_charges) != len(geometry):  # type:ignore[arg-type]
             raise ValueError("partial charges must have same length & order as geometry")
 
     openff_mol = tk.Molecule.from_smiles(smile, allow_undefined_stereo=True)
 
     # add conformer
-    openff_mol, atom_map = add_conformer(openff_mol, geometry)
+    openff_mol, atom_map = add_conformer(openff_mol, geometry)  # type:ignore[arg-type]
     # assign partial charges
     openff_mol = assign_partial_charges(
         openff_mol,
