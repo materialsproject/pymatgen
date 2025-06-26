@@ -36,10 +36,11 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Literal
 
+    from numpy.typing import ArrayLike
     from typing_extensions import Self
 
     from pymatgen.core.sites import Site
-    from pymatgen.core.structure import IStructure, SiteCollection
+    from pymatgen.core.structure import IMolecule, IStructure, SiteCollection
 
 __author__ = "Kiran Mathew, Zhi Deng, Tingzheng Hou"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -851,7 +852,7 @@ class LammpsData(MSONable):
         cls,
         structure: Structure | IStructure,
         ff_elements: Sequence[str] | None = None,
-        atom_style: Literal["atomic", "charge"] = "charge",
+        atom_style: Literal["atomic", "charge", "full"] = "charge",
         is_sort: bool = False,
     ) -> Self:
         """Simple constructor building LammpsData from a structure without
@@ -863,7 +864,7 @@ class LammpsData(MSONable):
                 be present due to force field settings but not
                 necessarily in the structure. Default to None.
             atom_style (str): Choose between "atomic" (neutral) and
-                "charge" (charged). Default to "charge".
+                "charge" (charged) and "full". Default to "charge".
             is_sort (bool): whether to sort sites
         """
         struct = structure.get_sorted_structure() if is_sort else structure.copy()
@@ -891,6 +892,48 @@ class LammpsData(MSONable):
         ff = ForceField(mass_info)
         topo = Topology(boxed_s)
         return cls.from_ff_and_topologies(box=box, ff=ff, topologies=[topo], atom_style=atom_style)
+
+    @classmethod
+    def from_molecule(
+        cls, molecule: Molecule | IMolecule, box_or_lattice: LammpsBox | Lattice | ArrayLike, **kwargs
+    ) -> Self:
+        """Simple constructor building LammpsData from a molecule and a Lattice without
+        force field parameters. When dealing with molecules however, it is RECOMMENDED to
+        define a LammpsData object from a ForceField object and a Topology object
+        instead, which allows for more flexibility in defining force field parameters and
+        topologies. This implementation is mainly for convenience, and does not assign
+        "bonds" and "angles" sections in the topology!
+
+        Args:
+            molecule (Molecule): Input molecule.
+            box_or_lattice (LammpsBox or Lattice or ArrayLike): Simulation box or lattice.
+            ff_elements ([str]): List of strings of elements that must
+                be present due to force field settings but not
+                necessarily in the molecule. Default to None.
+            atom_style (str): Choose between "atomic" (neutral) and
+                "charge" (charged) and "full". Default to "charge".
+        """
+
+        if isinstance(box_or_lattice, LammpsBox):
+            box_or_lattice = box_or_lattice.to_lattice()
+
+        box_or_lattice.pbc = (False, False, False)
+
+        structure = Structure(
+            lattice=box_or_lattice,
+            species=molecule.species,
+            coords=molecule.cart_coords,
+            site_properties=molecule.site_properties if hasattr(molecule, "site_properties") else {},
+            charge=molecule.charge if hasattr(molecule, "charge") else 0,
+            coords_are_cartesian=True,
+            labels=molecule.labels if hasattr(molecule, "labels") else None,
+            properties=molecule.properties if hasattr(molecule, "properties") else {},
+        )
+
+        return cls.from_structure(
+            structure=structure,
+            **kwargs,
+        )
 
     def set_charge_atom(self, charges: dict[int, float]) -> None:
         """Set the charges of specific atoms of the data.
