@@ -297,7 +297,6 @@ namespace_packages = true
 no_implicit_optional = false
 disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "misc", "call-overload", "index"]
 exclude = ['src/pymatgen/analysis', 'src/pymatgen/io/cp2k', 'src/pymatgen/io/lammps']
-plugins = ["numpy.typing.mypy_plugin"]
 
 [[tool.mypy.overrides]]
 module = ["requests.*", "tabulate.*", "monty.*", "matplotlib.*"]
