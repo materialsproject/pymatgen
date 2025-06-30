@@ -224,6 +224,7 @@ class TestCp2kInput(MatSciTest):
         assert (
             self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["CUTOFF"].description == "Cutoff in [Ry] for finest level of the MG."
         )
+        assert self.ci["FORCE_EVAL"]["METHOD"].description is None
 
     def test_odd_file(self):
         scramble = ""

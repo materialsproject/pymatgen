@@ -151,7 +151,7 @@ class Keyword(MSONable):
         )
 
     @classmethod
-    def from_str(cls, s: str, description: str | None = None) -> Self:
+    def from_str(cls, s: str, description: str | None) -> Self:
         """
         Initialize from a string.
 
@@ -745,7 +745,8 @@ class Cp2kInput(Section):
                 current = f"{current}/{alias or name}"
 
             else:
-                kwd = Keyword.from_str(line, description)
+                kwd = Keyword.from_str(line, (description or None))
+
                 if tmp := self.by_path(current).get(kwd.name):
                     if isinstance(tmp, KeywordList):
                         self.by_path(current).get(kwd.name).append(kwd)
