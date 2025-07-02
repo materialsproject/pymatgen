@@ -1,1 +1,0 @@
-{"xc": "pbe", "relativistic": "atomic_zora scalar", "relax_geometry": "trm 1.000000e-03", "relax_unit_cell": "full", "species_dir": "/home/purcellt/git/pymatgen/tests/io/aims/species_directory/light", "k_grid": [12, 12, 12]}
