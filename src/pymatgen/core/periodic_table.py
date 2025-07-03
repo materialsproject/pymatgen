@@ -1088,15 +1088,17 @@ class Species(MSONable, Stringify):
         return f"Species {self}"
 
     def __str__(self) -> str:
-        output = self.name if hasattr(self, "name") else self.symbol
-        if self.oxi_state is not None:
-            abs_charge = formula_double_format(abs(self.oxi_state))
+        name = getattr(self, "name", None)
+        output = name or self.symbol
+        oxi_state = self.oxi_state
+        if oxi_state is not None:
+            abs_charge = formula_double_format(abs(oxi_state))
             if isinstance(abs_charge, float):
                 abs_charge = f"{abs_charge:.2f}"  # type: ignore[assignment]
-            output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
+            output += f"{abs_charge}{'+' if oxi_state >= 0 else '-'}"
 
-        if self._spin is not None:
-            spin = self._spin
+        spin = self._spin
+        if spin is not None:
             output += f",{spin=}"
         return output
 
@@ -1484,10 +1486,11 @@ class DummySpecies(Species):
 
     def __str__(self) -> str:
         output = self.symbol
-        if self.oxi_state is not None:
-            output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
-        if self._spin is not None:
-            spin = self._spin
+        oxi_state = self.oxi_state
+        if oxi_state is not None:
+            output += f"{formula_double_format(abs(oxi_state))}{'+' if oxi_state >= 0 else '-'}"
+        spin = self._spin
+        if spin is not None:
             output += f",{spin=}"
         return output
 
