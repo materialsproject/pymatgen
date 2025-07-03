@@ -1111,12 +1111,12 @@ class Lobsterout(MSONable):
                 version_number = 0.0
             if version_number < 5.1:
                 self.has_cohpcar = (
-                    "writing COOPCAR.lobster and ICOOPLIST.lobster..." in lines
-                    and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in lines
-                )
-                self.has_coopcar = (
                     "writing COHPCAR.lobster and ICOHPLIST.lobster..." in lines
                     and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in lines
+                )
+                self.has_coopcar = (
+                    "writing COOPCAR.lobster and ICOOPLIST.lobster..." in lines
+                    and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in lines
                 )
                 self.has_cobicar = (
                     "writing COBICAR.lobster and ICOBILIST.lobster..." in lines
@@ -1124,13 +1124,13 @@ class Lobsterout(MSONable):
                 )
             else:
                 self.has_cohpcar = (
-                    "writing COOPCAR.lobster..." in lines and "SKIPPING writing COOPCAR.lobster..." not in lines
-                )
-                self.has_coopcar = (
                     "writing COHPCAR.lobster..." in lines and "SKIPPING writing COHPCAR.lobster..." not in lines
                 )
+                self.has_coopcar = (
+                    "writing COOPCAR.lobster..." in lines and "SKIPPING writing COOPCAR.lobster..." not in lines
+                )
                 self.has_cobicar = (
-                    "writing COBICAR.lobster..." in lines and "SKIPPING writing COBICAR.lobster..." not in lines
+                    ("writing COBICAR.lobster..." in lines or "Writing COBICAR.lobster, ICOBILIST.lobster and NcICOBILIST.lobster..." in lines) and "SKIPPING writing COBICAR.lobster..." not in lines
                 )
 
             self.has_cobicar_lcfo = "writing COBICAR.LCFO.lobster..." in lines
