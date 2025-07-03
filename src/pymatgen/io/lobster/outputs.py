@@ -1130,10 +1130,9 @@ class Lobsterout(MSONable):
                     "writing COOPCAR.lobster..." in lines and "SKIPPING writing COOPCAR.lobster..." not in lines
                 )
                 self.has_cobicar = (
-                    ("writing COBICAR.lobster..." in lines
-                     or "Writing COBICAR.lobster, ICOBILIST.lobster and NcICOBILIST.lobster..." in lines)
-                    and "SKIPPING writing COBICAR.lobster..." not in lines
-                )
+                    "writing COBICAR.lobster..." in lines
+                    or "Writing COBICAR.lobster, ICOBILIST.lobster and NcICOBILIST.lobster..." in lines
+                ) and "SKIPPING writing COBICAR.lobster..." not in lines
 
             self.has_cobicar_lcfo = "writing COBICAR.LCFO.lobster..." in lines
             self.has_cohpcar_lcfo = "writing COHPCAR.LCFO.lobster..." in lines
