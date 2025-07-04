@@ -57,7 +57,7 @@ due.cite(
 
 def _get_lines(filename) -> list[str]:
     with zopen(filename, mode="rt", encoding="utf-8") as file:
-        return file.read().splitlines()
+        return cast("list[str]", file.read().splitlines())
 
 
 class Cohpcar:
@@ -406,7 +406,7 @@ class Icohplist(MSONable):
 
         if self._icohpcollection is None:
             with zopen(self._filename, mode="rt", encoding="utf-8") as file:
-                all_lines: list[str] = file.read().splitlines()
+                all_lines: list[str] = cast("list[str]", file.read().splitlines())
 
                 # --- detect header length robustly ---
                 header_len = 0
@@ -1447,9 +1447,7 @@ class Fatband:
             for name in os.listdir(filenames):
                 if fnmatch.fnmatch(name, "FATBAND_*.lobster"):
                     filenames_new.append(os.path.join(filenames, name))
-            filenames = filenames_new
-
-        filenames = cast("list[PathLike]", filenames)
+            filenames = cast("list[PathLike]", filenames_new)
 
         if len(filenames) == 0:
             raise ValueError("No FATBAND files in folder or given")
@@ -1595,7 +1593,7 @@ class Fatband:
             lattice=self.lattice,
             efermi=self.efermi,  # type: ignore[arg-type]
             labels_dict=self.label_dict,
-            structure=self.structure,
+            structure=self.structure,  # type: ignore[arg-type]
             projections=self.p_eigenvals,
         )
 
@@ -2300,7 +2298,7 @@ class LobsterMatrices:
 
         self._filename = str(filename)
         with zopen(self._filename, mode="rt", encoding="utf-8") as file:
-            lines: list[str] = file.readlines()
+            lines: list[str] = cast("list[str]", file.readlines())
         if len(lines) == 0:
             raise RuntimeError("Please check provided input file, it seems to be empty")
 
