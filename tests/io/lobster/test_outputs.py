@@ -645,16 +645,11 @@ class TestCharge(MatSciTest):
         self.charge_lcfo = Charge(filename=f"{TEST_DIR}/CHARGE.LCFO.lobster.ALN.gz", is_lcfo=True)
 
     def test_attributes(self):
-        charge_Loewdin = [-1.25, 1.25]
-        charge_Mulliken = [-1.30, 1.30]
-        atomlist = ["O1", "Mn2"]
-        types = ["O", "Mn"]
-        num_atoms = 2
-        assert charge_Mulliken == self.charge2.mulliken
-        assert charge_Loewdin == self.charge2.loewdin
-        assert atomlist == self.charge2.atomlist
-        assert types == self.charge2.types
-        assert num_atoms == self.charge2.num_atoms
+        assert self.charge2.mulliken == [-1.30, 1.30]
+        assert self.charge2.loewdin == [-1.25, 1.25]
+        assert self.charge2.atomlist == ["O1", "Mn2"]
+        assert self.charge2.types == ["O", "Mn"]
+        assert self.charge2.num_atoms == 2
 
         # test with CHARG.LCFO.lobster file
         assert self.charge_lcfo.is_lcfo
