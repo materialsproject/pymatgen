@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import os
-import tempfile
 
 import numpy as np
 import orjson
@@ -645,8 +644,8 @@ class TestCharge(MatSciTest):
         self.charge_lcfo = Charge(filename=f"{TEST_DIR}/CHARGE.LCFO.lobster.ALN.gz", is_lcfo=True)
 
     def test_attributes(self):
-        assert self.charge2.mulliken == [-1.30, 1.30]
-        assert self.charge2.loewdin == [-1.25, 1.25]
+        assert self.charge2.mulliken == approx([-1.30, 1.30])
+        assert self.charge2.loewdin == approx([-1.25, 1.25])
         assert self.charge2.atomlist == ["O1", "Mn2"]
         assert self.charge2.types == ["O", "Mn"]
         assert self.charge2.num_atoms == 2
@@ -1861,7 +1860,7 @@ class TestGrosspop:
             assert getattr(grosspop_from_dict, attr_name) == attr_value
 
 
-class TestIcohplist:
+class TestIcohplist(MatSciTest):
     def setup_method(self):
         self.icohp_bise = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST.lobster.BiSe")
         self.icoop_bise = Icohplist(
@@ -2168,21 +2167,16 @@ class TestIcohplist:
                 assert getattr(icohplist_from_dict, attr_name) == attr_value
 
     def test_missing_trailing_newline(self):
-        content = (
-            "1   Co1   O1   1.00000   0   0   0   -0.50000   -1.00000\n"
-            "2   Co2   O2   1.10000   0   0   0   -0.60000   -1.10000"
-        )
+        fname = f"{self.tmp_path}/icohplist"
+        with open(fname, mode="w", encoding="utf-8") as f:
+            f.write(
+                "1   Co1   O1   1.00000   0   0   0   -0.50000   -1.00000\n"
+                "2   Co2   O2   1.10000   0   0   0   -0.60000   -1.10000"
+            )
 
-        with tempfile.NamedTemporaryFile("w+", delete=False) as tmp:
-            tmp.write(content)
-            tmp.flush()
-            fname = tmp.name
-        try:
-            ip = Icohplist(filename=fname)
-            assert len(ip.icohplist) == 2
-            assert ip.icohplist["1"]["icohp"][Spin.up] == approx(-0.5)
-        finally:
-            os.remove(fname)
+        ip = Icohplist(filename=fname)
+        assert len(ip.icohplist) == 2
+        assert ip.icohplist["1"]["icohp"][Spin.up] == approx(-0.5)
 
 
 class TestNciCobiList:
