@@ -125,7 +125,7 @@ class Cohpcar:
             else:
                 self._filename = "COHPCAR.lobster"
 
-        lines: list[str] = _get_lines(filename)
+        lines: list[str] = _get_lines(self._filename)
 
         # The parameters line is the second line in a COHPCAR file.
         # It contains all parameters that are needed to map the file.
