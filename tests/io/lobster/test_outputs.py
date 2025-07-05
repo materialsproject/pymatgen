@@ -30,6 +30,7 @@ from pymatgen.io.lobster import (
     SitePotential,
     Wavefunction,
 )
+from pymatgen.io.lobster.outputs import _get_lines
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
@@ -82,7 +83,7 @@ class TestCohpcar(MatSciTest):
         self.orb = Cohpcar(filename=f"{TEST_DIR}/COHPCAR.lobster.orbitalwise.gz")
         self.orb_notot = Cohpcar(filename=f"{TEST_DIR}/COHPCAR.lobster.notot.orbitalwise.gz")
 
-        # Lobster 3.1 (Test data is from pre-release of Lobster 3.1)
+        # Lobster 3.1 (Test data is from prerelease of Lobster 3.1)
         self.cohp_KF = Cohpcar(filename=f"{TEST_DIR}/COHPCAR.lobster.KF.gz")
         self.coop_KF = Cohpcar(
             filename=f"{TEST_DIR}/COHPCAR.lobster.KF.gz",
@@ -2531,3 +2532,17 @@ class TestPolarization(MatSciTest):
             "abs": 56.14,
             "unit": "uC/cm2",
         }
+
+
+def test_get_lines():
+    """Ensure `_get_lines` is not trailing end char sensitive."""
+    with open("without-end-char", mode="wb") as f:
+        f.write(b"first line\nsecond line")
+
+    with open("with-end-char", mode="wb") as f:
+        f.write(b"first line\nsecond line\n")
+
+    without_end_char = _get_lines("without-end-char")
+    with_end_char = _get_lines("with-end-char")
+
+    assert len(with_end_char) == len(without_end_char) == 2
