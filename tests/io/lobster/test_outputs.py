@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 import gzip
 import os
-import tempfile
 
 import numpy as np
 import orjson
@@ -70,11 +69,12 @@ class TestCohpcar(MatSciTest):
         gz_path = f"{TEST_DIR}/COOPCAR.lobster.gz"
         with gzip.open(gz_path, "rt", encoding="utf-8") as f:
             content = f.read() + "\n"
-        with tempfile.NamedTemporaryFile("w", delete=False, encoding="utf-8", suffix=".lobster") as tmp:
-            tmp.write(content)
-            tmp_path = tmp.name
 
-        self.cohp_fe = Cohpcar(filename=tmp_path)
+        # Test default filename (None should be redirected to "COHPCAR.lobster")
+        with open("COHPCAR.lobster", "w", encoding="utf-8") as f:
+            f.write(content)
+
+        self.cohp_fe = Cohpcar(filename=None)
         self.coop_fe = Cohpcar(
             filename=f"{TEST_DIR}/COOPCAR.lobster.gz",
             are_coops=True,
