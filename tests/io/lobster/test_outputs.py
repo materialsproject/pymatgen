@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import copy
+import gzip
 import os
-import tempfile
 
 import numpy as np
 import orjson
@@ -30,6 +30,7 @@ from pymatgen.io.lobster import (
     SitePotential,
     Wavefunction,
 )
+from pymatgen.io.lobster.outputs import _get_lines
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
@@ -64,7 +65,17 @@ class TestCohpcar(MatSciTest):
             filename=f"{TEST_DIR}/COOPCAR.lobster.BiSe.gz",
             are_coops=True,
         )
-        self.cohp_fe = Cohpcar(filename=f"{TEST_DIR}/COOPCAR.lobster.gz")
+
+        # Make sure Cohpcar also works with terminating line ending char
+        gz_path = f"{TEST_DIR}/COOPCAR.lobster.gz"
+        with gzip.open(gz_path, "rt", encoding="utf-8") as f:
+            content = f.read() + "\n"
+
+        # Test default filename (None should be redirected to "COHPCAR.lobster")
+        with open("COHPCAR.lobster", "w", encoding="utf-8") as f:
+            f.write(content)
+
+        self.cohp_fe = Cohpcar(filename=None)
         self.coop_fe = Cohpcar(
             filename=f"{TEST_DIR}/COOPCAR.lobster.gz",
             are_coops=True,
@@ -645,16 +656,11 @@ class TestCharge(MatSciTest):
         self.charge_lcfo = Charge(filename=f"{TEST_DIR}/CHARGE.LCFO.lobster.ALN.gz", is_lcfo=True)
 
     def test_attributes(self):
-        charge_Loewdin = [-1.25, 1.25]
-        charge_Mulliken = [-1.30, 1.30]
-        atomlist = ["O1", "Mn2"]
-        types = ["O", "Mn"]
-        num_atoms = 2
-        assert charge_Mulliken == self.charge2.mulliken
-        assert charge_Loewdin == self.charge2.loewdin
-        assert atomlist == self.charge2.atomlist
-        assert types == self.charge2.types
-        assert num_atoms == self.charge2.num_atoms
+        assert self.charge2.mulliken == approx([-1.30, 1.30])
+        assert self.charge2.loewdin == approx([-1.25, 1.25])
+        assert self.charge2.atomlist == ["O1", "Mn2"]
+        assert self.charge2.types == ["O", "Mn"]
+        assert self.charge2.num_atoms == 2
 
         # test with CHARG.LCFO.lobster file
         assert self.charge_lcfo.is_lcfo
@@ -1866,7 +1872,7 @@ class TestGrosspop:
             assert getattr(grosspop_from_dict, attr_name) == attr_value
 
 
-class TestIcohplist:
+class TestIcohplist(MatSciTest):
     def setup_method(self):
         self.icohp_bise = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST.lobster.BiSe")
         self.icoop_bise = Icohplist(
@@ -2173,21 +2179,16 @@ class TestIcohplist:
                 assert getattr(icohplist_from_dict, attr_name) == attr_value
 
     def test_missing_trailing_newline(self):
-        content = (
-            "1   Co1   O1   1.00000   0   0   0   -0.50000   -1.00000\n"
-            "2   Co2   O2   1.10000   0   0   0   -0.60000   -1.10000"
-        )
+        fname = f"{self.tmp_path}/icohplist"
+        with open(fname, mode="w", encoding="utf-8") as f:
+            f.write(
+                "1   Co1   O1   1.00000   0   0   0   -0.50000   -1.00000\n"
+                "2   Co2   O2   1.10000   0   0   0   -0.60000   -1.10000"
+            )
 
-        with tempfile.NamedTemporaryFile("w+", delete=False) as tmp:
-            tmp.write(content)
-            tmp.flush()
-            fname = tmp.name
-        try:
-            ip = Icohplist(filename=fname)
-            assert len(ip.icohplist) == 2
-            assert ip.icohplist["1"]["icohp"][Spin.up] == approx(-0.5)
-        finally:
-            os.remove(fname)
+        ip = Icohplist(filename=fname)
+        assert len(ip.icohplist) == 2
+        assert ip.icohplist["1"]["icohp"][Spin.up] == approx(-0.5)
 
 
 class TestNciCobiList:
@@ -2531,3 +2532,17 @@ class TestPolarization(MatSciTest):
             "abs": 56.14,
             "unit": "uC/cm2",
         }
+
+
+def test_get_lines():
+    """Ensure `_get_lines` is not trailing end char sensitive."""
+    with open("without-end-char", mode="wb") as f:
+        f.write(b"first line\nsecond line")
+
+    with open("with-end-char", mode="wb") as f:
+        f.write(b"first line\nsecond line\n")
+
+    without_end_char = _get_lines("without-end-char")
+    with_end_char = _get_lines("with-end-char")
+
+    assert len(with_end_char) == len(without_end_char) == 2
