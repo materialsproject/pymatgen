@@ -477,10 +477,8 @@ def changebasis(uu, vv, nn, pps):
         MM[ii, 1] = vv[ii]
         MM[ii, 2] = nn[ii]
     PP = np.linalg.inv(MM)
-    new_pps = []
-    for pp in pps:
-        new_pps.append(matrixTimesVector(PP, pp))
-    return new_pps
+
+    return [matrixTimesVector(PP, pp) for pp in pps]
 
 
 def collinear(p1, p2, p3=None, tolerance=0.25):
@@ -525,8 +523,8 @@ def anticlockwise_sort(pps):
     for ipp, pp in enumerate(pps):
         angles[ipp] = np.arctan2(pp[1], pp[0])
     idx_sorted = np.argsort(angles)
-    for ii in range(len(pps)):
-        new_pps.append(pps[idx_sorted[ii]])
+
+    new_pps.extend(pps[idx_sorted[ii]] for ii in range(len(pps)))
     return new_pps
 
 
