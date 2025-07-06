@@ -73,11 +73,9 @@ class AbinitTimerParser(collections.abc.Iterable):
             ok_files: list of files that have been parsed successfully.
                 (ok_files == paths) if all files have been parsed.
         """
-        paths = []
-        for root, _dirs, files in os.walk(top):
-            for file in files:
-                if file.endswith(ext):
-                    paths.append(os.path.join(root, file))
+        paths = [
+            os.path.join(root, file) for root, _dirs, files in os.walk(top) for file in files if file.endswith(ext)
+        ]
 
         parser = cls()
         ok_files = parser.parse(paths)
@@ -745,10 +743,7 @@ class AbinitTimer:
         if isinstance(keys, str):
             return [sec.__dict__[keys] for sec in self.sections]
 
-        values = []
-        for key in keys:
-            values.append([sec.__dict__[key] for sec in self.sections])
-        return values
+        return [[sec.__dict__[key] for sec in self.sections] for key in keys]
 
     def names_and_values(self, key, minval=None, minfract=None, sorted=True):  # noqa: A002
         """Select the entries whose value[key] is >= minval or whose fraction[key] is >= minfract

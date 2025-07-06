@@ -38,8 +38,7 @@ class XSF:
 
         lines.extend(("CRYSTAL", "# Primitive lattice vectors in Angstrom", "PRIMVEC"))
         cell = self.structure.lattice.matrix
-        for i in range(3):
-            lines.append(f" {cell[i][0]:.14f} {cell[i][1]:.14f} {cell[i][2]:.14f}")
+        lines.extend(f" {cell[i][0]:.14f} {cell[i][1]:.14f} {cell[i][2]:.14f}" for i in range(3))
 
         cart_coords = self.structure.cart_coords
         lines.extend(
@@ -95,8 +94,7 @@ class XSF:
 
         for idx, line in enumerate(lines, start=1):
             if "PRIMVEC" in line:
-                for j in range(idx, idx + 3):
-                    lattice.append([float(c) for c in lines[j].split()])
+                lattice.extend([float(c) for c in lines[j].split()] for j in range(idx, idx + 3))
 
             if "PRIMCOORD" in line:
                 n_sites = int(lines[idx].split()[0])

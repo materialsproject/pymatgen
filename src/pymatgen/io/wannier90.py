@@ -103,14 +103,10 @@ class Unk:
         input_data = []
         with FortranFile(filename, mode="r") as file:
             *ng, ik, nbnd = file.read_ints()
-            for _ in range(nbnd):
-                input_data.append(
-                    # when reshaping need to specify ordering as fortran
-                    file.read_record(np.complex128).reshape(ng, order="F")
-                )
+            # when reshaping need to specify ordering as fortran
+            input_data.extend(file.read_record(np.complex128).reshape(ng, order="F") for _ in range(nbnd))
             try:
-                for _ in range(nbnd):
-                    input_data.append(file.read_record(np.complex128).reshape(ng, order="F"))
+                input_data.extend(file.read_record(np.complex128).reshape(ng, order="F") for _ in range(nbnd))
                 is_noncollinear = True
             except FortranEOFError:
                 is_noncollinear = False
