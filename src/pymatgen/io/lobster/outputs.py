@@ -663,10 +663,10 @@ class NciCobiList:
                 break  # condition has only to be met once
 
         if self.orbital_wise:
-            data_without_orbitals = []
-            for line in lines:
-                if "_" not in str(line.split()[3:]) and "s]" not in str(line.split()[3:]):
-                    data_without_orbitals.append(line)
+            data_without_orbitals = [
+                line for line in lines if "_" not in str(line.split()[3:]) and "s]" not in str(line.split()[3:])
+            ]
+
         else:
             data_without_orbitals = lines
 
@@ -1446,13 +1446,14 @@ class Fatband:
         parameters = []
 
         if not isinstance(filenames, list) or filenames is None:
-            filenames_new: list[str] = []
             if filenames is None:
                 filenames = "."
-            for name in os.listdir(filenames):
-                if fnmatch.fnmatch(name, "FATBAND_*.lobster"):
-                    filenames_new.append(os.path.join(filenames, name))
-            filenames = filenames_new  # type: ignore[assignment]
+
+            filenames = [
+                os.path.join(filenames, name)
+                for name in os.listdir(filenames)
+                if fnmatch.fnmatch(name, "FATBAND_*.lobster")
+            ]
 
         filenames = cast("list[PathLike]", filenames)
 
@@ -1479,9 +1480,7 @@ class Fatband:
         for items in atom_orbital_dict.values():
             if len(set(items)) != len(items):
                 raise ValueError("The are two FATBAND files for the same atom and orbital. The program will stop.")
-            split = []
-            for item in items:
-                split.append(item.split("_")[0])
+            split = [item.split("_")[0] for item in items]
             for number in collections.Counter(split).values():
                 if number not in {1, 3, 5, 7}:
                     raise ValueError(
@@ -1690,10 +1689,8 @@ class Bandoverlaps(MSONable):
                 overlaps = []
 
             else:
-                _lines = []
-                for el in line.split(" "):
-                    if el != "":
-                        _lines.append(float(el))
+                _lines = [float(el) for el in line.split(" ") if el != ""]
+
                 overlaps.append(_lines)
                 if len(overlaps) == len(_lines):
                     self.band_overlaps_dict[spin]["matrices"].append(np.array(overlaps))
