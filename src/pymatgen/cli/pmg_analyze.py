@@ -118,8 +118,7 @@ def get_magnetizations(dirc: str, ion_list: list[int]):
                     row.append(fullpath.lstrip("./"))
                     if ion_list:
                         all_ions = ion_list
-                    for ion in all_ions:
-                        row.append(str(_mags[ion]))
+                    row.extend(str(_mags[ion]) for ion in all_ions)
                     data.append(row)
                     max_row = max(len(all_ions), max_row)
                 except Exception:
@@ -129,8 +128,7 @@ def get_magnetizations(dirc: str, ion_list: list[int]):
         if len(d) < max_row + 1:
             d.extend([""] * (max_row + 1 - len(d)))
     headers = ["Filename"]
-    for i in range(max_row):
-        headers.append(str(i))
+    headers.extend(str(i) for i in range(max_row))
     print(tabulate(data, headers))
     return 0
 
