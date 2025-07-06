@@ -602,7 +602,7 @@ class Tags(dict):
         keys = list(self)
         if sort_keys:
             keys = sorted(keys)
-        lines = []
+        lines: list = []
         for key in keys:
             if key == "IONS":
                 lines.extend(["ION", f"{tok[0]} {tok[1]:.4f}"] for tok in self[key])

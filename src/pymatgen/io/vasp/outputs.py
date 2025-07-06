@@ -1741,9 +1741,9 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_dynmat(elem: XML_Element) -> tuple[list, list, list]:
         """Parse dynamical matrix."""
-        hessian = []
-        eigenvalues = []
-        eigenvectors = []
+        hessian: list[float] = []
+        eigenvalues: list[float] = []
+        eigenvectors: list[float] = []
 
         for v in elem.findall("v"):
             if v.attrib["name"] == "eigenvalues":

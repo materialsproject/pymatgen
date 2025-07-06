@@ -174,7 +174,7 @@ class EnumlibAdaptor:
         # Store the ordered sites, which are not enumerated.
         ordered_sites = []
         disordered_sites = []
-        coord_str = []
+        coord_str: list[str] = []
         for sites in symmetrized_structure.equivalent_sites:
             if sites[0].is_ordered:
                 ordered_sites.append(sites)

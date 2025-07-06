@@ -100,7 +100,7 @@ class Unk:
         Returns:
             Unk object
         """
-        input_data = []
+        input_data: list = []
         with FortranFile(filename, mode="r") as file:
             *ng, ik, nbnd = file.read_ints()
             # when reshaping need to specify ordering as fortran

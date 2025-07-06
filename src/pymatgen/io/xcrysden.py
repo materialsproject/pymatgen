@@ -89,7 +89,9 @@ class XSF:
             16      0.0000000     0.0000000     0.0000000  see (5)
             30      1.3550000    -1.3550000    -1.3550000
         """
-        lattice, coords, species = [], [], []
+        lattice: list[float] = []
+        coords: list[list[float]] = []
+        species: list[int] = []
         lines = input_string.splitlines()
 
         for idx, line in enumerate(lines, start=1):
@@ -101,8 +103,7 @@ class XSF:
 
                 for j in range(idx + 1, idx + 1 + n_sites):
                     tokens = lines[j].split()
-                    Z = Element(tokens[0]).Z if tokens[0].isalpha() else int(tokens[0])
-                    species.append(Z)
+                    species.append(Element(tokens[0]).Z if tokens[0].isalpha() else int(tokens[0]))
                     coords.append([float(j) for j in tokens[1:4]])
                 break
         else:

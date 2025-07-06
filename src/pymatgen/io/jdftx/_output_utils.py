@@ -732,7 +732,7 @@ def _get_u_to_oa_map(bandfile_filepath: Path) -> list[tuple[int, int]]:
     """
     map_labels_dict = _get_atom_orb_labels_map_dict(bandfile_filepath)
     atom_count_list = _get_atom_count_list(bandfile_filepath)
-    u_to_oa_map = []
+    u_to_oa_map: list = []
     a = 0
     for ion, ion_count in atom_count_list:
         for _i in range(ion_count):

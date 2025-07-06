@@ -661,7 +661,7 @@ class Poscar(MSONable):
             try:
                 lines.extend(["Lattice velocities and vectors", "  1"])
                 # VASP is strict about the format when reading this quantity
-                lines.extend(" ".join(f" {val: .7E}" for val in velo) for velo in self.lattice_velocities)
+                lines.extend(" ".join(f" {val: .7E}" for val in velo) for velo in self.lattice_velocities)  # type:ignore[str-bytes-safe]
             except Exception:
                 warnings.warn(
                     "Lattice velocities are missing or corrupted.",

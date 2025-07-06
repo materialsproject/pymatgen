@@ -216,7 +216,7 @@ class ACstrExtractor(ACExtractorBase):
         Returns:
             np.ndarray: Lattice basis vectors of shape=(9,)
         """
-        basis_vectors_lst = []
+        basis_vectors_lst: list[float] = []
         aim_content = "LATTICE"
         aim_idx = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)[0]
         for idx_str in [aim_idx + 1, aim_idx + 2, aim_idx + 3]:
