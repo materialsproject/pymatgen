@@ -383,7 +383,7 @@ class NwInput(MSONable):
         if self.symmetry_options:
             out.append(" symmetry " + " ".join(self.symmetry_options))
 
-        out.append(f" {site.specie.symbol} {site.x} {site.y} {site.z}" for site in self._mol)
+        out.extend(f" {site.specie.symbol} {site.x} {site.y} {site.z}" for site in self._mol)
         out.append("end\n")
         for task in self.tasks:
             out.extend((str(task), ""))

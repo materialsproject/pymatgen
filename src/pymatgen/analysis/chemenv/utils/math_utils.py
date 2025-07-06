@@ -27,9 +27,13 @@ __date__ = "Feb 20, 2016"
 
 
 def _append_es2sequences(sequences, es):
-    if not sequences:
-        return [[e] for e in es]
-    return [[*seq, e] for seq in sequences for e in es]
+    result = []
+    for e in es:
+        if not sequences:
+            result.append([e])
+        else:
+            result += [[*seq, e] for seq in sequences]
+    return result
 
 
 def _cartesian_product(lists):
