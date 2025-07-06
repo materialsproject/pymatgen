@@ -409,11 +409,7 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def ratio_prolate(self) -> np.ndarray:
         """This will compute ratio between largest and smallest eigenvalue of Ucart."""
-        ratios = []
-        for us in self.U1U2U3:
-            ratios.append(np.max(us) / np.min(us))
-
-        return np.array(ratios)
+        return np.array([np.max(us) / np.min(us) for us in self.U1U2U3])
 
     @classmethod
     def from_Ucif(
@@ -507,10 +503,8 @@ class ThermalDisplacementMatrices(MSONable):
         Returns:
             ThermalDisplacementMatrices
         """
-        Ucif_matrix = []
         # U11, U22, U33, U23, U13, U12
-        for site in structure:
-            Ucif_matrix.append([site.properties[f"U{idx}_cif"] for idx in (11, 22, 33, 23, 13, 12)])
+        Ucif_matrix = [[site.properties[f"U{idx}_cif"] for idx in (11, 22, 33, 23, 13, 12)] for site in structure]
 
         return cls.from_Ucif(Ucif_matrix, structure, temperature=temperature)
 

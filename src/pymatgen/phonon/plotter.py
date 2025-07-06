@@ -822,10 +822,7 @@ class ThermoPlotter:
         """
         ax, fig = get_ax_fig(ax)
 
-        values = []
-
-        for temp in temperatures:
-            values.append(func(temp, self.structure) * factor)  # type:ignore[arg-type]
+        values = [func(temp, self.structure) * factor for temp in temperatures]
 
         ax.plot(temperatures, values, label=label, **kwargs)
 
