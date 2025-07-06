@@ -2112,9 +2112,9 @@ class KPathLatimerMunro(KPathBase):
                             break
                         j += 1
                 worst_next_choice = next_choices.index(min(next_choices))
-                for grouped_ind in grouped_inds[idx]:
-                    if grouped_ind != worst_next_choice:
-                        unassigned_orbits.append(grouped_ind)
+                unassigned_orbits.extend(
+                    grouped_ind for grouped_ind in grouped_inds[idx] if grouped_ind != worst_next_choice
+                )
                 max_cosine_label_inds[grouped_inds[idx][worst_next_choice]] = initial_max_cosine_label_inds[
                     grouped_inds[idx][worst_next_choice]
                 ]
