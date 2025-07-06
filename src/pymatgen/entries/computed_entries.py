@@ -444,8 +444,10 @@ class ComputedEntry(Entry):
         if len(self.energy_adjustments) == 0:
             output.append("  None")
         else:
-            for e in self.energy_adjustments:
-                output.append(f"  {e.name:<23}: {e.value:<9.4f} eV ({e.value / n_atoms:<8.4f} eV/atom)")
+            output.extend(
+                f"  {e.name:<23}: {e.value:<9.4f} eV ({e.value / n_atoms:<8.4f} eV/atom)"
+                for e in self.energy_adjustments
+            )
         output.append("Parameters:")
         for k, v in self.parameters.items():
             output.append(f"  {k:<22} = {v}")
@@ -914,21 +916,19 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
                 entries with inclusion of Gibbs free energy of formation at the
                 specified temperature.
         """
-        gibbs_entries = []
-        for entry in pd.all_entries:
-            if entry in pd.el_refs.values() or not entry.composition.is_element:
-                gibbs_entries.append(
-                    cls(
-                        entry.structure,
-                        formation_enthalpy_per_atom=pd.get_form_energy_per_atom(entry),
-                        temp=temp,
-                        correction=0,
-                        gibbs_model=gibbs_model,
-                        data=entry.data,
-                        entry_id=entry.entry_id,
-                    )
-                )
-        return gibbs_entries
+        return [
+            cls(
+                entry.structure,
+                formation_enthalpy_per_atom=pd.get_form_energy_per_atom(entry),
+                temp=temp,
+                correction=0,
+                gibbs_model=gibbs_model,
+                data=entry.data,
+                entry_id=entry.entry_id,
+            )
+            for entry in pd.all_entries
+            if entry in pd.el_refs.values() or not entry.composition.is_element
+        ]
 
     @classmethod
     def from_entries(
