@@ -261,8 +261,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
             rad_file = f"{name}.rad"
             rad_flag = True
             with open(rad_file, "w+", encoding="utf-8") as file:
-                for el in rad_dict:
-                    file.write(f"{el} {rad_dict[el].real}\n")
+                file.writelines(f"{el} {rad_dict[el].real}\n" for el in rad_dict)
 
         atom_net = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         vor_net, vor_edge_centers, vor_face_centers = atom_net.perform_voronoi_decomposition()
@@ -410,8 +409,7 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
             rad_file = f"{name}.rad"
             rad_flag = True
             with open(rad_file, "w+", encoding="utf-8") as file:
-                for el in rad_dict:
-                    file.write(f"{el} {rad_dict[el].real}\n")
+                file.writelines(f"{el} {rad_dict[el].real}\n" for el in rad_dict)
 
         atom_net = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         out_file = "temp.res"

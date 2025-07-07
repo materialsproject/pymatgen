@@ -701,8 +701,7 @@ class AbinitTimer:
         if is_str:
             fileobj = open(fileobj, mode="w", encoding="utf-8")  # noqa: SIM115
 
-        for idx, section in enumerate(self.sections):
-            fileobj.write(section.to_csvline(with_header=(idx == 0)))
+        fileobj.writelines(section.to_csvline(with_header=(idx == 0)) for idx, section in enumerate(self.sections))
         fileobj.flush()
 
         if is_str:
