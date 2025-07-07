@@ -1869,22 +1869,22 @@ direct
 
     def test_charge(self):
         struct = Structure.from_sites(self.struct)
-        assert struct.charge == 0, "Initial Structure not defaulting to behavior in SiteCollection"
+        assert struct.charge == approx(0), "Initial Structure not defaulting to behavior in SiteCollection"
         struct.add_oxidation_state_by_site([1, 1])
-        assert struct.charge == 2, "Initial Structure not defaulting to behavior in SiteCollection"
+        assert struct.charge == approx(2), "Initial Structure not defaulting to behavior in SiteCollection"
         struct = Structure.from_sites(struct, charge=1)
-        assert struct.charge == 1, "Overall charge not being stored in separate property"
+        assert struct.charge == approx(1), "Overall charge not being stored in separate property"
         struct = struct.copy()
-        assert struct.charge == 1, "Overall charge not being copied properly with no sanitization"
+        assert struct.charge == approx(1), "Overall charge not being copied properly with no sanitization"
         struct = struct.copy(sanitize=True)
-        assert struct.charge == 1, "Overall charge not being copied properly with sanitization"
+        assert struct.charge == approx(1), "Overall charge not being copied properly with sanitization"
         super_cell = struct * 3
-        assert super_cell.charge == 27, "Overall charge is not being properly multiplied in IStructure __mul__"
+        assert super_cell.charge == approx(27), "Overall charge is not being properly multiplied in IStructure __mul__"
         assert "Overall Charge: +1" in str(struct), "String representation not adding charge"
         sorted_s = super_cell.get_sorted_structure()
-        assert sorted_s.charge == 27, "Overall charge is not properly copied during structure sorting"
+        assert sorted_s.charge == approx(27), "Overall charge is not properly copied during structure sorting"
         super_cell.set_charge(25)
-        assert super_cell.charge == 25, "Set charge not properly modifying _charge"
+        assert super_cell.charge == approx(25), "Set charge not properly modifying _charge"
 
     def test_vesta_lattice_matrix(self):
         silica_zeolite = Molecule.from_file(f"{TEST_FILES_DIR}/core/structure/CON_vesta.xyz")
