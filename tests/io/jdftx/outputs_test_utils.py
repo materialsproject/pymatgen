@@ -510,3 +510,150 @@ for known1 in [ex_fillings_line1_known, ex_iter_line1_known, ex_subspace_line1_k
 ex_jstep_known2 = {}
 for known2 in [ex_fillings_line2_known, ex_iter_line2_known, ex_subspace_line2_known]:
     ex_jstep_known2.update(known2)
+
+
+example_vib_outfile_path = ex_out_files_dir / Path("vib.out")
+example_vib_nrg_components = {
+    "T": 298.0,
+    "ZPE": 0.012162 * Ha_to_eV,
+    "Evib": 0.012641 * Ha_to_eV,
+    "TSvib": 0.000686 * Ha_to_eV,
+    "Avib": 0.011954 * Ha_to_eV,
+}
+example_vib_modes_known = [
+    {
+        "Type": "Imaginary",
+        "Type index": 1,
+        "Frequency": 0.003211 * 1j * Ha_to_eV,
+        "Degeneracy": 1,
+        "IR intensity": 0.1015,
+        "Displacements": np.array(
+            [
+                np.array([-0.001502301500021, 0.016139807700462, 0.004794115920733]),
+                np.array([-0.003227666066075, -0.003444853384899, -0.005623654997270]),
+                np.array([0.003563062362181, -0.009568755195267, -0.010017876395276]),
+            ]
+        )
+        * bohr_to_ang,
+    },
+    {
+        "Type": "Imaginary",
+        "Type index": 2,
+        "Frequency": 0.001816 * 1j * Ha_to_eV,
+        "Degeneracy": 1,
+        "IR intensity": 0.0014,
+        "Displacements": np.array(
+            [
+                np.array([0.011897355539145, 0.001393779704454, -0.010870152434402]),
+                np.array([-0.014950015017923, 0.003952780094546, 0.004794677356827]),
+                np.array([0.002882750977633, -0.003471024246565, 0.000366070625853]),
+            ]
+        )
+        * bohr_to_ang,
+    },
+    {
+        "Type": "Imaginary",
+        "Type index": 3,
+        "Frequency": 0.000986 * 1j * Ha_to_eV,
+        "Degeneracy": 1,
+        "IR intensity": 0.0003,
+        "Displacements": np.array(
+            [
+                np.array([0.001831896775059, -0.000519493708404, -0.000826114063229]),
+                np.array([0.008215382766313, 0.013135969275973, 0.003002047268263]),
+                np.array([-0.008612872298526, -0.014707651990282, 0.000628692658427]),
+            ]
+        )
+        * bohr_to_ang,
+    },
+    {
+        "Type": "Imaginary",
+        "Type index": 4,
+        "Frequency": 0.000584 * 1j * Ha_to_eV,
+        "Degeneracy": 1,
+        "IR intensity": 0.0009,
+        "Displacements": np.array(
+            [
+                np.array([-0.002873587752642, -0.000357270159722, 0.009507035658568]),
+                np.array([-0.002773621141597, -0.002278652939269, 0.008444977841195]),
+                np.array([0.010719232053596, -0.008451829956361, 0.013226919526156]),
+            ]
+        )
+        * bohr_to_ang,
+    },
+    {
+        "Type": "Zero",
+        "Type index": 1,
+        "Frequency": 0.000010 * 1j * Ha_to_eV,
+        "Degeneracy": 2,
+        "IR intensity": 0.0000,
+        "Displacements": np.array(
+            [
+                np.array([0.007597327520746, 0.010712391019933, 0.002704566793247]),
+                np.array([0.007881150132850, 0.010845838899770, 0.002620013897312]),
+                np.array([0.007765190577341, 0.010591653551291, 0.002319182104746]),
+            ]
+        )
+        * bohr_to_ang,
+    },
+    {
+        "Type": "Zero",
+        "Type index": 2,
+        "Frequency": 0.000050 * Ha_to_eV,
+        "Degeneracy": 2,
+        "IR intensity": 0.0000,
+        "Displacements": np.array(
+            [
+                np.array([0.010928992861829, -0.007092818205113, -0.003874657684275]),
+                np.array([0.010923114633010, -0.007525781466854, -0.004091667059576]),
+                np.array([0.010694926666458, -0.006058360112810, -0.003964322783956]),
+            ]
+        )
+        * bohr_to_ang,
+    },
+    {
+        "Type": "Real",
+        "Type index": 1,
+        "Frequency": 0.001795 * Ha_to_eV,
+        "Degeneracy": 1,
+        "IR intensity": 0.0050,
+        "Displacements": np.array(
+            [
+                np.array([0.004689955512831, -0.004561918723060, 0.010223393583369]),
+                np.array([-0.001077029836943, -0.001525888489046, 0.014555134211414]),
+                np.array([-0.002282652762669, 0.001952724669842, -0.013136592620777]),
+            ]
+        )
+        * bohr_to_ang,
+    },
+    {
+        "Type": "Real",
+        "Type index": 2,
+        "Frequency": 0.002701 * Ha_to_eV,
+        "Degeneracy": 1,
+        "IR intensity": 0.0896,
+        "Displacements": np.array(
+            [
+                np.array([0.011841920013071, 0.006471479676558, 0.004038350981094]),
+                np.array([0.002080302463227, -0.010601817998144, 0.000214161706513]),
+                np.array([-0.012420751778051, 0.000399317651251, 0.008639012103301]),
+            ]
+        )
+        * bohr_to_ang,
+    },
+    {
+        "Type": "Real",
+        "Type index": 3,
+        "Frequency": 0.019827 * Ha_to_eV,
+        "Degeneracy": 1,
+        "IR intensity": 0.0376,
+        "Displacements": np.array(
+            [
+                np.array([0.007032223801816, -0.007326012017446, 0.012995955668716]),
+                np.array([-0.006945332786266, 0.007072807313742, -0.013183707786736]),
+                np.array([-0.000064297833090, 0.000203820782562, 0.000350655054206]),
+            ]
+        )
+        * bohr_to_ang,
+    },
+]
