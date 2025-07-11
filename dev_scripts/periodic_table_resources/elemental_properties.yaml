@@ -2585,7 +2585,7 @@ Mineral hardness:
     Zn: 2.5
     Zr: 5.0
 Molar volume:
-  unit: cm^3
+  unit: cm^3 mol^-1
   data:
     Ac: 22.55
     Ag: 10.27
