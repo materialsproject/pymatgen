@@ -1350,7 +1350,7 @@ Boiling point:
     Zn: 1180
     Zr: 4682
 Brinell hardness:
-  unit: MN m^-2
+  unit: MPa
   data:
     Ag: 24.5
     Al: 245
@@ -3184,7 +3184,7 @@ Velocity of sound:
     Zn: 3700
     Zr: 3800
 Vickers hardness:
-  unit: MN m^-2
+  unit: MPa
   data:
     Ag: 251
     Al: 167

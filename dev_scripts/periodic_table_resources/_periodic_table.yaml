@@ -1087,7 +1087,7 @@ Boiling point:
     Pb: 2022, Bi: 1837, Po: 1235, Rn: 211.3, Ra: 2010, Ac: 3573, Th: 5093, U: 4200,
     Np: 4273, Pu: 3503, Am: 2880, Cm: 3383}
 Brinell hardness:
-  unit: MN m^-2
+  unit: MPa
   data: {Be: 600, Na: 0.69, Mg: 260, Al: 245, K: 0.363, Ca: 167, Sc: 750, Ti: 716,
     V: 628, Cr: 1120, Mn: 196, Fe: 490, Co: 700, Ni: 700, Cu: 874, Zn: 412, Ga: 60,
     As: 1440, Se: 736, Rb: 0.216, Y: 589, Zr: 650, Nb: 736, Mo: 1500, Ru: 2160, Rh: 1100,
@@ -4157,7 +4157,7 @@ Velocity of sound:
     Hf: 3010, Ta: 3400, W: 5174, Re: 4700, Os: 4940, Ir: 4825, Pt: 2680, Au: 1740,
     Hg: 1407, Tl: 818, Pb: 1260, Bi: 1790, Th: 2490, U: 3155, Pu: 2260}
 Vickers hardness:
-  unit: MN m^-2
+  unit: MPa
   data: {Be: 1670, B: 49000, Al: 167, Ti: 970, V: 628, Cr: 1060, Fe: 608, Co: 1043,
     Ni: 638, Cu: 369, Zr: 903, Nb: 1320, Mo: 1530, Rh: 1246, Pd: 461, Ag: 251, La: 491,
     Ce: 270, Pr: 400, Nd: 343, Sm: 412, Eu: 167, Gd: 570, Tb: 863, Dy: 540, Ho: 481,
