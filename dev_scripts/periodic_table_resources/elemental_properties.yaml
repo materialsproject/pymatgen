@@ -244,6 +244,7 @@ Atomic no:
     D: 1
     T: 1
 Atomic orbitals:
+  unit: hartree
   data:
     Ac:
       1s: -3443.110367
