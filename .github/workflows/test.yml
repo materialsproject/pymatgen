@@ -96,21 +96,7 @@ jobs:
 
       - name: Install optional Ubuntu and macOS dependencies
         if: matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest'
-        run: |
-          # Install BoltzTraP
-          wget -q -O BoltzTraP.tar.bz2 https://owncloud.tuwien.ac.at/index.php/s/s2d55LYlZnioa3s/download
-          tar -jxf BoltzTraP.tar.bz2 && realpath boltztrap-1.2.5/src/ >> $GITHUB_PATH
-
-          # Install Vampire 5.0
-          wget -q https://vampire.york.ac.uk/resources/release-5/vampire-5.0-linux.tar.gz
-          tar -zxf vampire-5.0-linux.tar.gz && mv linux vampire-5.0
-          realpath vampire-5.0/ >> $GITHUB_PATH
-
-          # Install Voro++ and ZEO++
-          wget -q http://www.zeoplusplus.org/zeo++-0.3.tar.gz && tar -xzf zeo++-0.3.tar.gz
-
-          cd zeo++-0.3/voro++/src && make -s CFLAGS="-w" && realpath . >> $GITHUB_PATH && cd ../..
-          make -s CFLAGS="-w" && realpath . >> $GITHUB_PATH
+        run: bash .github/workflows/_install_opt_unit_deps.sh
 
       - name: pytest split ${{ matrix.split }}
         env:
