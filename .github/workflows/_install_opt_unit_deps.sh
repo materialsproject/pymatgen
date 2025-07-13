@@ -8,7 +8,8 @@ tar -jxf BoltzTraP.tar.bz2
 echo "$(realpath boltztrap-1.2.5/src)" >> "$GITHUB_PATH"
 
 # Install Vampire 5.0
-wget https://vampire.york.ac.uk/resources/release-5/vampire-5.0-linux.tar.gz
+# TODO: https://github.com/richard-evans/vampire/issues/122
+wget --no-check-certificate https://vampire.york.ac.uk/resources/release-5/vampire-5.0-linux.tar.gz
 tar -zxf vampire-5.0-linux.tar.gz
 mv linux vampire-5.0
 echo "$(realpath vampire-5.0)" >> "$GITHUB_PATH"
