@@ -104,4 +104,4 @@ class TestMcsqsCaller(MatSciTest):
         struct.replace_species({"Pb": {"Ti": 0.2, "Pb": 0.8}})
         struct.replace_species({"O": {"F": 0.8, "O": 0.2}})
         with pytest.raises(RuntimeError, match="mcsqs did not generate output files"):
-            run_mcsqs(struct, {2: 6, 3: 4}, 10, 0.000001)
+            run_mcsqs(struct, {2: 6, 3: 4}, 10, search_time=0.000001)
