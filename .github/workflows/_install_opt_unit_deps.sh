@@ -24,7 +24,18 @@ make -C zeo++-0.3 -s CFLAGS="-w"
 cp zeo++-0.3/voro++/src/voro++ "$BIN_DIR"
 cp zeo++-0.3/network "$BIN_DIR"
 
-# TODO: Install mcsqs
+# Install mcsqs (from ATAT)
+# TODO: cannot build on MacOS
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  wget --no-verbose https://axelvandewalle.github.io/www-avdw/atat/atat3_50.tar.gz
+  tar -zxf atat3_50.tar.gz
+
+  # Replace `BINDIR` in makefile
+  sed -i "s|^BINDIR=.*|BINDIR=$BIN_DIR|" atat/makefile
+
+  sudo apt install csh -y -q
+  make -C atat && make -C atat install
+fi
 
 # Add to path
 echo "$BIN_DIR" >> "$GITHUB_PATH"
