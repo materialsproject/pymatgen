@@ -94,8 +94,16 @@ jobs:
           pip install --upgrade matgl>=1.2.6
           pip install torch==2.2.0 torchdata==0.7.1
 
-      - name: Install optional Ubuntu and macOS dependencies
+      - name: Restore cache for optional Ubuntu/MacOS dependencies
         if: matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest'
+        id: optbin-cache
+        uses: actions/cache@v4
+        with:
+          path: opt/bin
+          key: ${{ runner.os }}-optbin-${{ hashFiles('.github/workflows/_install_opt_unit_deps.sh') }}
+
+      - name: Build optional Ubuntu/MacOS dependencies (when cache misses)
+        if: (matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest') && steps.optbin-cache.outputs.cache-hit != 'true'
         run: bash .github/workflows/_install_opt_unit_deps.sh
 
       - name: pytest split ${{ matrix.split }}
