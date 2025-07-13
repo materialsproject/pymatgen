@@ -3,7 +3,7 @@ set -euo pipefail
 set -x
 
 # Use a custom bin directory for easier GitHub Actions caching
-BIN_DIR="$PWD/opt/bin"  && mkdir -p "$BIN_DIR"
+BIN_DIR="${1:-$PWD/opt/bin}" && mkdir -p "$BIN_DIR"
 
 # Install BoltzTraP
 wget --no-verbose -O BoltzTraP.tar.bz2 https://owncloud.tuwien.ac.at/index.php/s/s2d55LYlZnioa3s/download
