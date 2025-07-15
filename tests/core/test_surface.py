@@ -634,7 +634,7 @@ class TestSlabGenerator(MatSciTest):
         assert slabs[1].energy == approx(24.0)
 
 
-class ReconstructionGeneratorTests(MatSciTest):
+class TestReconstructionGenerator(MatSciTest):
     def setup_method(self):
         lattice = Lattice.cubic(3.51)
         species = ["Ni"]
