@@ -98,7 +98,7 @@ class TestMcsqsCaller(MatSciTest):
 
         assert sqs.objective_function == "Perfect_match"
 
-    @pytest.mark.skip("Fix later #4455")
+    @pytest.mark.xfail(reason="Fix later #4455")
     def test_mcsqs_caller_runtime_error(self):
         struct = self.struct.copy()
         struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})

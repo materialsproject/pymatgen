@@ -166,7 +166,7 @@ class TestGetVoronoiNodes:
         assert isinstance(vor_face_center_struct, Structure)
 
 
-@pytest.mark.skip("TODO: file free_sph.cif not present")
+@pytest.mark.xfail(reason="TODO: file free_sph.cif not present")
 class TestGetFreeSphereParams:
     def setup_method(self):
         filepath = f"{TEST_FILES_DIR}/cif/free_sph.cif"

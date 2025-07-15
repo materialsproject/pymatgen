@@ -1756,7 +1756,7 @@ class TestMVLScanRelaxSet(MatSciTest):
         ):
             MVLScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     @skip_if_no_psp_dir
     def test_potcar_need_fix(self):
         test_potcar_set_1 = self.set(self.struct, user_potcar_functional="PBE_54")

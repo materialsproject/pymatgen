@@ -714,7 +714,7 @@ Direct
             assert_allclose(cy_indices2, py_indices2)
             assert len(cy_offsets) == len(py_offsets)
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     @pytest.mark.skipif(not os.getenv("CI"), reason="Only run this in CI tests")
     def test_get_all_neighbors_crosscheck_old(self):
         rng = np.random.default_rng()
@@ -1988,7 +1988,7 @@ direct
         assert traj[0] != traj[-1]
         assert os.path.isfile(traj_file)
 
-    @pytest.mark.skip("TODO: #3958 wait for matgl resolve of torch dependency")
+    @pytest.mark.xfail(reason="TODO: #3958 wait for matgl resolve of torch dependency")
     def test_calculate_matgl(self):
         pytest.importorskip("matgl")
         calculator = self.get_structure("Si").calculate()
@@ -2668,7 +2668,7 @@ class TestMolecule(MatSciTest):
         assert calculator.results["energy"] == approx(-113.61022434200855)
         assert mol_copy == self.mol, "Molecule should not have been modified by calculation"
 
-    @pytest.mark.skip("Pytorch and TBLite clash. https://github.com/materialsproject/pymatgen/pull/3060")
+    @pytest.mark.xfail(reason="Pytorch and TBLite clash. https://github.com/materialsproject/pymatgen/pull/3060")
     def test_relax_gfnxtb(self):
         pytest.importorskip("tblite")
         mol = self.mol

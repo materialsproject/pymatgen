@@ -697,7 +697,7 @@ class ReconstructionGeneratorTests(MatSciTest):
         s2 = recon2.get_unreconstructed_slabs()[0]
         assert get_d(s1) == approx(get_d(s2))
 
-    @pytest.mark.skip("This test relies on neighbor orders and is hard coded. Disable temporarily")
+    @pytest.mark.xfail(reason="This test relies on neighbor orders and is hard coded. Disable temporarily")
     def test_previous_reconstructions(self):
         # Test to see if we generated all reconstruction types correctly and nothing changes
 
