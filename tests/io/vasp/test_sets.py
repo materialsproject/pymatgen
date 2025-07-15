@@ -1626,7 +1626,6 @@ class TestMPHSERelaxSet(MatSciTest):
         assert not vis.incar["LASPH"], "LASPH user setting not applied"
         assert vis.incar["VDW_SR"] == approx(1.5), "VDW_SR user setting not applied"
 
-    @pytest.mark.skipif(not os.path.exists(TEST_DIR), reason="Test files are not present.")
     def test_from_prev_calc(self):
         prev_run = os.path.join(TEST_DIR, "fixtures", "relaxation")
 
@@ -1643,7 +1642,6 @@ class TestMPHSERelaxSet(MatSciTest):
         assert "VDW_A2" in vis_bj.incar
         assert "VDW_S8" in vis_bj.incar
 
-    @pytest.mark.skipif(not os.path.exists(TEST_DIR), reason="Test files are not present.")
     def test_override_from_prev_calc(self):
         prev_run = os.path.join(TEST_DIR, "fixtures", "relaxation")
 
