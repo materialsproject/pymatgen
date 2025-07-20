@@ -65,7 +65,7 @@ POTCAR_FUNCTIONAL_MAP: dict[str, str] = {
     "PBE_52_W_HASH": "POTPAW_PBE_52",
     "PBE_54": "POT_GGA_PAW_PBE_54",
     "PBE_54_W_HASH": "POTPAW_PBE_54",
-    "PBE_64": "POT_PAW_PBE_64",
+    "PBE_64": "POT_GGA_PAW_PBE_64",
     "LDA": "POT_LDA_PAW",
     "LDA_52": "POT_LDA_PAW_52",
     "LDA_52_W_HASH": "POTPAW_LDA_52",
