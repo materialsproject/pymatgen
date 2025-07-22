@@ -141,17 +141,17 @@ class Poscar(MSONable):
         site_properties: dict[str, Any] = {}
 
         if selective_dynamics is not None:
-            selective_dynamics = np.array(selective_dynamics)
+            selective_dynamics = np.asarray(selective_dynamics)
             if not selective_dynamics.all():
                 site_properties["selective_dynamics"] = selective_dynamics
 
         if velocities:
-            velocities = np.array(velocities)
+            velocities = np.asarray(velocities)
             if velocities.any():
                 site_properties["velocities"] = velocities
 
         if predictor_corrector:
-            predictor_corrector = np.array(predictor_corrector)
+            predictor_corrector = np.asarray(predictor_corrector)
             if predictor_corrector.any():
                 site_properties["predictor_corrector"] = predictor_corrector
 
@@ -171,7 +171,7 @@ class Poscar(MSONable):
 
     def __setattr__(self, name: str, value: Any) -> None:
         if name in {"selective_dynamics", "velocities"} and value is not None and len(value) > 0:
-            value = np.array(value)
+            value = np.asarray(value)
             dim = value.shape
             if dim[1] != 3 or dim[0] != len(self.structure):
                 raise ValueError(f"{name} array must be same length as the structure.")
@@ -687,7 +687,7 @@ class Poscar(MSONable):
             lines.append("")
             if self.predictor_corrector_preamble:
                 lines.append(self.predictor_corrector_preamble)
-                pred = np.array(self.predictor_corrector)
+                pred = np.asarray(self.predictor_corrector)
                 for col in range(3):
                     for z in pred[:, col]:
                         lines.append(" ".join(format_str.format(i) for i in z))
@@ -700,7 +700,7 @@ class Poscar(MSONable):
 
         return "\n".join(lines) + "\n"
 
-    get_string = get_str
+    get_string = get_str  # TODO: should we add a deprecation deadline?
 
     def write_file(self, filename: PathLike, **kwargs) -> None:
         """Write POSCAR to a file. The supported kwargs are the same as those for
@@ -716,7 +716,7 @@ class Poscar(MSONable):
             "@class": type(self).__name__,
             "structure": self.structure.as_dict(),
             "true_names": self.true_names,
-            "selective_dynamics": np.array(self.selective_dynamics).tolist(),
+            "selective_dynamics": np.asarray(self.selective_dynamics).tolist(),
             "velocities": self.velocities,
             "predictor_corrector": self.predictor_corrector,
             "comment": self.comment,
@@ -2432,7 +2432,7 @@ class PotcarSingle:
 
         def data_stats(data_list: Sequence) -> dict:
             """Used for hash-less and therefore less brittle POTCAR validity checking."""
-            arr = np.array(data_list)
+            arr = np.asarray(data_list)
             return {
                 "MEAN": np.mean(arr),
                 "ABSMEAN": np.mean(np.abs(arr)),
@@ -2622,7 +2622,7 @@ class PotcarSingle:
         if key_match:
             data_diff = [
                 abs(potcar_stats_1["stats"].get(key, {}).get(stat) - potcar_stats_2["stats"].get(key, {}).get(stat))
-                for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
+                for stat in ("MEAN", "ABSMEAN", "VAR", "MIN", "MAX")
                 for key in check_potcar_fields
             ]
             data_match = all(np.array(data_diff) < tolerance)
