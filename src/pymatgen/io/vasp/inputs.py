@@ -175,7 +175,6 @@ class Poscar(MSONable):
             dim = value.shape
             if dim[1] != 3 or dim[0] != len(self.structure):
                 raise ValueError(f"{name} array must be same length as the structure.")
-            value = value.tolist()
 
         super().__setattr__(name, value)
 

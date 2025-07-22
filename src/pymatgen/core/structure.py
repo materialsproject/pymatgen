@@ -564,6 +564,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """
         if len(values) != len(self):
             raise ValueError(f"{len(values)=} must equal sites in structure={len(self)}")
+
         for site, val in zip(self, values, strict=True):
             site.properties[property_name] = val
 
