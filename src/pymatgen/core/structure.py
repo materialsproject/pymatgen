@@ -2964,7 +2964,11 @@ class IStructure(SiteCollection, MSONable):
             writer = Cssr(self)
 
         elif fmt == "json" or fnmatch(filename.lower(), "*.json*"):
-            json_str = json.dumps(self.as_dict(), **kwargs) if kwargs else orjson.dumps(self.as_dict()).decode()
+            json_str = (
+                json.dumps(self.as_dict(), **kwargs)
+                if kwargs
+                else orjson.dumps(self.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
+            )
 
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
