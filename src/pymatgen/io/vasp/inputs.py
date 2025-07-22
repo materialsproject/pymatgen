@@ -160,15 +160,16 @@ class Poscar(MSONable):
         self.structure = structure.copy(site_properties=site_properties)
         if sort_structure:
             self.structure = self.structure.get_sorted_structure()
-        self.true_names = true_names
-        self.comment = structure.formula if comment is None else comment
+
         if predictor_corrector_preamble:
             self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
 
         if lattice_velocities and np.any(lattice_velocities):
             self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
 
-        self.temperature = -1.0
+        self.true_names: bool = true_names
+        self.comment: str = structure.formula if comment is None else comment
+        self.temperature: float = -1.0
 
     def __setattr__(self, name: str, value: Any) -> None:
         if name in {"selective_dynamics", "velocities"} and value is not None and len(value) > 0:
