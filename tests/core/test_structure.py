@@ -1252,7 +1252,7 @@ class TestStructure(MatSciTest):
         with pytest.raises(AttributeError, match="attr='magmom' not found on PeriodicSite"):
             _ = struct[0].magmom
 
-    def test_propertied_structure(self):
+    def test_site_properties(self):
         # Make sure that site properties are set to None for missing values.
         self.struct.add_site_property("charge", [4.1, -5])
         self.struct.append("Li", [0.3, 0.3, 0.3])
