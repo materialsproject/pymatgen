@@ -784,9 +784,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     @deprecated(as_reduced_dict, deadline=(2026, 4, 4))
-    def to_reduced_dict(self, *args, **kwargs):
+    def to_reduced_dict(self):
         """Deprecated."""
-        return self.as_reduced_dict(*args, **kwargs)
+        return self.as_reduced_dict()
 
     def as_weight_dict(self) -> dict[str, float]:
         """
@@ -797,9 +797,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     @deprecated(as_weight_dict, deadline=(2026, 4, 4))
-    def to_weight_dict(self, *args, **kwargs) -> dict[str, float]:
+    def to_weight_dict(self) -> dict[str, float]:
         """Deprecated."""
-        return self.as_weight_dict(*args, **kwargs)
+        return self.as_weight_dict()
 
     def as_data_dict(
         self,
@@ -826,9 +826,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     @deprecated(as_data_dict, deadline=(2026, 4, 4))
-    def to_data_dict(self, *args, **kwargs):
+    def to_data_dict(self):
         """Deprecated."""
-        return self.as_data_dict(*args, **kwargs)
+        return self.as_data_dict()
 
     @property
     def charge(self) -> float | None:

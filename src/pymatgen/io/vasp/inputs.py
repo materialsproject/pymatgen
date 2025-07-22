@@ -25,6 +25,7 @@ from zipfile import ZipFile
 import numpy as np
 import orjson
 import scipy.constants as const
+from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os import cd
@@ -699,7 +700,9 @@ class Poscar(MSONable):
 
         return "\n".join(lines) + "\n"
 
-    get_string = get_str  # TODO: should we add a deprecation deadline?
+    @deprecated(get_str)
+    def get_string(self, *args, **kwargs):
+        return self.get_str(*args, **kwargs)
 
     def write_file(self, filename: PathLike, **kwargs) -> None:
         """Write POSCAR to a file. The supported kwargs are the same as those for
