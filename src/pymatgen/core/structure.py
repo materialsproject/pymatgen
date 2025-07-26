@@ -4030,7 +4030,7 @@ class IMolecule(SiteCollection, MSONable):
 
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
-                    file.write(json_str)
+                    file.write(json_str)  # type:ignore[arg-type]
             return json_str
 
         elif fmt in {"yaml", "yml"} or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
@@ -4040,7 +4040,7 @@ class IMolecule(SiteCollection, MSONable):
             yaml_str = str_io.getvalue()
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
-                    file.write(yaml_str)
+                    file.write(yaml_str)  # type:ignore[arg-type]
             return yaml_str
 
         else:
@@ -4125,7 +4125,7 @@ class IMolecule(SiteCollection, MSONable):
         fname = filename.lower()
 
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            contents: str = file.read()
+            contents: str = cast("str", file.read())
 
         if fnmatch(fname, "*.xyz*"):
             return cls.from_str(contents, fmt="xyz")
