@@ -64,6 +64,7 @@ jobs:
         uses: mamba-org/setup-micromamba@main
         with:
           environment-name: pmg
+          cache-environment: true
           create-args: >-
             python=${{ matrix.config.python }}
 
@@ -90,9 +91,9 @@ jobs:
         if: matrix.config.os == 'ubuntu-latest' && matrix.config.python < '3.13'
         run: |
           micromamba activate pmg
-          pip install --upgrade dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
-          pip install --upgrade matgl>=1.2.6
-          pip install torch==2.2.0 torchdata==0.7.1
+          uv pip install --upgrade dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
+          uv pip install --upgrade matgl>=1.2.6
+          uv pip install torch==2.2.0 torchdata==0.7.1
 
       - name: Install optional Ubuntu and macOS dependencies
         if: matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest'
@@ -120,7 +121,7 @@ jobs:
         run: |
           micromamba activate pmg
 
-          pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
+          uv run pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
 
   trigger_atomate2_ci:
     needs: test
