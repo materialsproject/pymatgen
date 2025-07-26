@@ -78,9 +78,12 @@ Given that `pymatgen` is intended to be a long-term code base, we adopt very str
    ```sh
    cd path/to/repo
 
-   # Option One (Recommended): Install in editable mode
-   pip install -e '.[ci]'  # or more optional dependencies
-   pytest tests
+   # Option One (Recommended): Set up development environment via `uv`
+   uv sync
+   # uv sync --extra optional  # Install a specific optional dependency
+   # uv sync --all-extras      # Install all optional dependencies
+
+   uv run pytest tests
 
    # Option Two: Use environment variable PMG_TEST_FILES_DIR
    pip install '.[ci]'
