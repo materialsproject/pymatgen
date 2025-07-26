@@ -2938,8 +2938,7 @@ class IStructure(SiteCollection, MSONable):
             str: String representation of structure in given format. If a filename
                 is provided, the same string is written to the file.
         """
-        filename = str(filename)
-        fmt = cast("FileFormats", fmt.lower())
+        filename, fmt = str(filename), cast("FileFormats", fmt.lower())
 
         # Default to JSON if filename not specified
         if filename == "" and fmt == "":
@@ -4020,16 +4019,19 @@ class IMolecule(SiteCollection, MSONable):
             from pymatgen.io.xyz import XYZ
 
             writer = XYZ(self)
+
         elif any(fmt == ext or fnmatch(filename.lower(), f"*.{ext}*") for ext in ("gjf", "g03", "g09", "com", "inp")):
             from pymatgen.io.gaussian import GaussianInput
 
             writer = GaussianInput(self)
+
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
             json_str = orjson.dumps(self.as_dict()).decode()
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
-                    file.write(json_str)  # type:ignore[arg-type]
+                    file.write(json_str)
             return json_str
+
         elif fmt in {"yaml", "yml"} or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
             str_io = io.StringIO()
@@ -4037,8 +4039,9 @@ class IMolecule(SiteCollection, MSONable):
             yaml_str = str_io.getvalue()
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
-                    file.write(yaml_str)  # type:ignore[arg-type]
+                    file.write(yaml_str)
             return yaml_str
+
         else:
             from pymatgen.io.babel import BabelMolAdaptor
 
@@ -4050,6 +4053,7 @@ class IMolecule(SiteCollection, MSONable):
 
         if filename:
             writer.write_file(filename)
+
         return str(writer)
 
     @classmethod
@@ -4117,28 +4121,35 @@ class IMolecule(SiteCollection, MSONable):
             Molecule
         """
         filename = str(filename)
+        fname = filename.lower()
 
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            contents: str = file.read()  # type:ignore[assignment]
-        fname = filename.lower()
+            contents: str = file.read()
+
         if fnmatch(fname, "*.xyz*"):
             return cls.from_str(contents, fmt="xyz")
+
         if any(fnmatch(fname.lower(), f"*.{r}*") for r in ("gjf", "g03", "g09", "com", "inp")):
             return cls.from_str(contents, fmt="g09")
+
         if any(fnmatch(fname.lower(), f"*.{r}*") for r in ("out", "lis", "log")):
             from pymatgen.io.gaussian import GaussianOutput
 
             return GaussianOutput(filename).final_structure
+
         if fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
             return cls.from_str(contents, fmt="json")
+
         if fnmatch(fname, "*.yaml*") or fnmatch(filename, "*.yml*"):
             return cls.from_str(contents, fmt="yaml")
-        from pymatgen.io.babel import BabelMolAdaptor
 
         if match := re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower()):
+            from pymatgen.io.babel import BabelMolAdaptor
+
             new = BabelMolAdaptor.from_file(filename, match[1]).pymatgen_mol
             new.__class__ = cls
             return new
+
         raise ValueError("Cannot determine file type.")
 
 
