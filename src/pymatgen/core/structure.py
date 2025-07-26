@@ -520,7 +520,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return bool(np.min(all_dists) > tol)
 
     @abstractmethod
-    def to(self, filename: str = "", fmt: FileFormats = "") -> str | None:
+    def to(self, filename: PathLike = "", fmt: FileFormats = "") -> str | None:
         """Generate string representations (cif, json, poscar, ....) of SiteCollections (e.g.,
         molecules / structures). Should return str or None if written to a file.
         """
@@ -2938,7 +2938,8 @@ class IStructure(SiteCollection, MSONable):
             str: String representation of structure in given format. If a filename
                 is provided, the same string is written to the file.
         """
-        filename, fmt = str(filename), cast("FileFormats", fmt.lower())
+        filename = str(filename)
+        fmt = cast("FileFormats", fmt.lower())
 
         # Default to JSON if filename not specified
         if filename == "" and fmt == "":
@@ -3994,11 +3995,11 @@ class IMolecule(SiteCollection, MSONable):
             properties=self.properties,
         )
 
-    def to(self, filename: str = "", fmt: str = "") -> str | None:
+    def to(self, filename: PathLike = "", fmt: str = "") -> str | None:
         """Outputs the molecule to a file or string.
 
         Args:
-            filename (str): If provided, output will be written to a file. If
+            filename (PathLike): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
             fmt (str): Format to output to. Defaults to JSON unless filename
@@ -4011,7 +4012,9 @@ class IMolecule(SiteCollection, MSONable):
             str: String representation of molecule in given format. If a filename
                 is provided, the same string is written to the file.
         """
+        filename = str(filename)
         fmt = fmt.lower()
+
         writer: Any
         if fmt == "xyz" or fnmatch(filename.lower(), "*.xyz*"):
             from pymatgen.io.xyz import XYZ
