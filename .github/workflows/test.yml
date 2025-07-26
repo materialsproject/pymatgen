@@ -80,8 +80,6 @@ jobs:
 
       - name: Install pymatgen and dependencies via uv
         run: |
-          micromamba activate pmg
-
           # Install from wheels to test the content
           uv build --wheel --no-build-logs
           WHEEL_FILE=$(ls dist/pymatgen*.whl)
@@ -90,7 +88,6 @@ jobs:
       - name: Install DGL and MatGL specially on ubuntu.
         if: matrix.config.os == 'ubuntu-latest' && matrix.config.python < '3.13'
         run: |
-          micromamba activate pmg
           uv pip install --upgrade dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
           uv pip install --upgrade matgl>=1.2.6
           uv pip install torch==2.2.0 torchdata==0.7.1
@@ -119,8 +116,6 @@ jobs:
           PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
           PMG_TEST_FILES_DIR: "${{ github.workspace }}/tests/files"
         run: |
-          micromamba activate pmg
-
           uv run pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
 
   trigger_atomate2_ci:
