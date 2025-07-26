@@ -325,9 +325,6 @@ reportMissingModuleSource = false
 reportInvalidTypeForm = false
 exclude = ["**/tests"]
 
-[tool.uv]
-default-groups = ["dev", "lint"]
-
 [dependency-groups]
 dev = [
     "invoke>=2.2.0",
