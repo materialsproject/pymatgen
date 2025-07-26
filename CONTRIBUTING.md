@@ -76,7 +76,7 @@ Given that `pymatgen` is intended to be a long-term code base, we adopt very str
    To run the testsuite in you repository follow these steps:
 
    ```sh
-   cd path/to/repo
+   cd path_to_pymatgen_repo
 
    # Option One (Recommended): Set up development environment via `uv`
    uv sync
@@ -93,10 +93,12 @@ Given that `pymatgen` is intended to be a long-term code base, we adopt very str
 2. **PEP 8** [code style](https://python.org/dev/peps/pep-0008). We allow a few exceptions when they are well-justified (e.g., Element's atomic number is given a variable name of capital Z, in line with accepted scientific convention), but generally, PEP 8 should be observed. Code style will be automatically checked for all PRs and must pass before any PR is merged. To aid you, you can install and run the same set of formatters and linters that will run in CI using:
 
    ```sh
-   pre-commit install  # ensures linters are run prior to all future commits
-   pre-commit run --files path/to/changed/files  # ensure your current uncommitted changes don't offend linters
-   # or
-   pre-commit run --all-files  # ensure your entire codebase passes linters
+   # Install the pre-commit hooks (runs linters automatically before each commit)
+   uv run pre-commit install
+
+   # (Optional) Run pre-commit manually
+   uv run pre-commit run --files path/to/changed/files  # Check specific files
+   uv run pre-commit run --all-files                    # Check the entire codebase
    ```
 
 3. **Python 3**. We only support Python 3.10+.
