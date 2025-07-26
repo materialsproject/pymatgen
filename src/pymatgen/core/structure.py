@@ -4026,7 +4026,8 @@ class IMolecule(SiteCollection, MSONable):
             writer = GaussianInput(self)
 
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
-            json_str = orjson.dumps(self.as_dict()).decode()
+            json_str = orjson.dumps(self.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
+
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)
