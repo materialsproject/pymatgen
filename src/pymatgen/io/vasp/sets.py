@@ -488,13 +488,13 @@ class VaspInputSet(InputGenerator, abc.ABC):
         )
 
     @deprecated(get_input_set, deadline=(2026, 6, 6))
-    def get_vasp_input(self, structure: Structure | None = None) -> VaspInput:
+    def get_vasp_input(self, *args, **kwargs) -> VaspInput:
         """Get a VaspInput object.
 
         Returns:
             VaspInput.
         """
-        return self.get_input_set(structure=structure)
+        return self.get_input_set(*args, **kwargs)
 
     @property
     def incar_updates(self) -> dict:

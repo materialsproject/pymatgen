@@ -271,8 +271,7 @@ class Lobsterin(UserDict, MSONable):
                     file.write(f"{type(self).BOOLEAN_KEYWORDS[key]}\n")
 
                 elif key in type(self).LIST_KEYWORDS:
-                    for value in self.get(key):  # type: ignore[union-attr]
-                        file.write(f"{type(self).LIST_KEYWORDS[key]} {value}\n")
+                    file.writelines(f"{type(self).LIST_KEYWORDS[key]} {value}\n" for value in self.get(key))
 
     def as_dict(self) -> dict:
         """MSONable dict."""

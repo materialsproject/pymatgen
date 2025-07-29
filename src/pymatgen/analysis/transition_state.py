@@ -347,11 +347,11 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
         )
 
         if arranged_neb_analyses:
-            neb1_energies = (
-                neb1_energies[0 : len(neb1_energies) - 1]
-                + [(neb1_energies[-1] + neb2_energies[0]) / 2]
-                + neb2_energies[1:]
-            )
+            neb1_energies = [
+                *neb1_energies[0 : len(neb1_energies) - 1],
+                (neb1_energies[-1] + neb2_energies[0]) / 2,
+                *neb2_energies[1:],
+            ]
             neb1_structures += neb2.structures[1:]
             neb1_forces = list(neb1_forces) + list(neb2.forces)[1:]
             neb1_r = list(neb1_r) + [i + neb1_r[-1] for i in list(neb2.r)[1:]]

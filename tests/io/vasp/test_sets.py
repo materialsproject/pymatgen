@@ -1626,7 +1626,6 @@ class TestMPHSERelaxSet(MatSciTest):
         assert not vis.incar["LASPH"], "LASPH user setting not applied"
         assert vis.incar["VDW_SR"] == approx(1.5), "VDW_SR user setting not applied"
 
-    @pytest.mark.skipif(not os.path.exists(TEST_DIR), reason="Test files are not present.")
     def test_from_prev_calc(self):
         prev_run = os.path.join(TEST_DIR, "fixtures", "relaxation")
 
@@ -1643,7 +1642,6 @@ class TestMPHSERelaxSet(MatSciTest):
         assert "VDW_A2" in vis_bj.incar
         assert "VDW_S8" in vis_bj.incar
 
-    @pytest.mark.skipif(not os.path.exists(TEST_DIR), reason="Test files are not present.")
     def test_override_from_prev_calc(self):
         prev_run = os.path.join(TEST_DIR, "fixtures", "relaxation")
 
@@ -1756,7 +1754,7 @@ class TestMVLScanRelaxSet(MatSciTest):
         ):
             MVLScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     @skip_if_no_psp_dir
     def test_potcar_need_fix(self):
         test_potcar_set_1 = self.set(self.struct, user_potcar_functional="PBE_54")

@@ -520,7 +520,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return bool(np.min(all_dists) > tol)
 
     @abstractmethod
-    def to(self, filename: str = "", fmt: FileFormats = "") -> str | None:
+    def to(self, filename: PathLike = "", fmt: FileFormats = "") -> str | None:
         """Generate string representations (cif, json, poscar, ....) of SiteCollections (e.g.,
         molecules / structures). Should return str or None if written to a file.
         """
@@ -564,6 +564,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """
         if len(values) != len(self):
             raise ValueError(f"{len(values)=} must equal sites in structure={len(self)}")
+
         for site, val in zip(self, values, strict=True):
             site.properties[property_name] = val
 
@@ -2964,7 +2965,11 @@ class IStructure(SiteCollection, MSONable):
             writer = Cssr(self)
 
         elif fmt == "json" or fnmatch(filename.lower(), "*.json*"):
-            json_str = json.dumps(self.as_dict(), **kwargs) if kwargs else orjson.dumps(self.as_dict()).decode()
+            json_str = (
+                json.dumps(self.as_dict(), **kwargs)
+                if kwargs
+                else orjson.dumps(self.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
+            )
 
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
@@ -3989,11 +3994,11 @@ class IMolecule(SiteCollection, MSONable):
             properties=self.properties,
         )
 
-    def to(self, filename: str = "", fmt: str = "") -> str | None:
+    def to(self, filename: PathLike = "", fmt: str = "") -> str | None:
         """Outputs the molecule to a file or string.
 
         Args:
-            filename (str): If provided, output will be written to a file. If
+            filename (PathLike): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
             fmt (str): Format to output to. Defaults to JSON unless filename
@@ -4006,22 +4011,28 @@ class IMolecule(SiteCollection, MSONable):
             str: String representation of molecule in given format. If a filename
                 is provided, the same string is written to the file.
         """
+        filename = str(filename)
         fmt = fmt.lower()
+
         writer: Any
         if fmt == "xyz" or fnmatch(filename.lower(), "*.xyz*"):
             from pymatgen.io.xyz import XYZ
 
             writer = XYZ(self)
+
         elif any(fmt == ext or fnmatch(filename.lower(), f"*.{ext}*") for ext in ("gjf", "g03", "g09", "com", "inp")):
             from pymatgen.io.gaussian import GaussianInput
 
             writer = GaussianInput(self)
+
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
-            json_str = orjson.dumps(self.as_dict()).decode()
+            json_str = orjson.dumps(self.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
+
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)  # type:ignore[arg-type]
             return json_str
+
         elif fmt in {"yaml", "yml"} or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
             str_io = io.StringIO()
@@ -4031,6 +4042,7 @@ class IMolecule(SiteCollection, MSONable):
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(yaml_str)  # type:ignore[arg-type]
             return yaml_str
+
         else:
             from pymatgen.io.babel import BabelMolAdaptor
 
@@ -4042,6 +4054,7 @@ class IMolecule(SiteCollection, MSONable):
 
         if filename:
             writer.write_file(filename)
+
         return str(writer)
 
     @classmethod
@@ -4109,28 +4122,35 @@ class IMolecule(SiteCollection, MSONable):
             Molecule
         """
         filename = str(filename)
+        fname = filename.lower()
 
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            contents: str = file.read()  # type:ignore[assignment]
-        fname = filename.lower()
+            contents: str = cast("str", file.read())
+
         if fnmatch(fname, "*.xyz*"):
             return cls.from_str(contents, fmt="xyz")
+
         if any(fnmatch(fname.lower(), f"*.{r}*") for r in ("gjf", "g03", "g09", "com", "inp")):
             return cls.from_str(contents, fmt="g09")
+
         if any(fnmatch(fname.lower(), f"*.{r}*") for r in ("out", "lis", "log")):
             from pymatgen.io.gaussian import GaussianOutput
 
             return GaussianOutput(filename).final_structure
+
         if fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
             return cls.from_str(contents, fmt="json")
+
         if fnmatch(fname, "*.yaml*") or fnmatch(filename, "*.yml*"):
             return cls.from_str(contents, fmt="yaml")
-        from pymatgen.io.babel import BabelMolAdaptor
 
         if match := re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower()):
+            from pymatgen.io.babel import BabelMolAdaptor
+
             new = BabelMolAdaptor.from_file(filename, match[1]).pymatgen_mol
             new.__class__ = cls
             return new
+
         raise ValueError("Cannot determine file type.")
 
 

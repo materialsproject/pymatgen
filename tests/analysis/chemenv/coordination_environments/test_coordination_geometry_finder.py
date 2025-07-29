@@ -166,12 +166,12 @@ class TestCoordinationGeometryFinder(MatSciTest):
                     # Check that the environment found is the expected one
                     assert coord_env == expected_geoms[ienv]
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_simplest_chemenv_strategy(self):
         strategy = SimplestChemenvStrategy()
         self._strategy_test(strategy)
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_simple_abundance_chemenv_strategy(self):
         strategy = SimpleAbundanceChemenvStrategy()
         self._strategy_test(strategy)
