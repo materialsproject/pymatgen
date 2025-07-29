@@ -628,8 +628,8 @@ class AbinitTimerSection:
         return {at: self.__dict__[at] for at in AbinitTimerSection.FIELDS}
 
     @deprecated(as_dict, deadline=(2026, 4, 4))
-    def to_dict(self):
-        return self.as_dict()
+    def to_dict(self, *args, **kwargs):
+        return self.as_dict(*args, **kwargs)
 
     def to_csvline(self, with_header=False):
         """Return a string with data in CSV format. Add header if `with_header`."""
@@ -701,8 +701,7 @@ class AbinitTimer:
         if is_str:
             fileobj = open(fileobj, mode="w", encoding="utf-8")  # noqa: SIM115
 
-        for idx, section in enumerate(self.sections):
-            fileobj.write(section.to_csvline(with_header=(idx == 0)))
+        fileobj.writelines(section.to_csvline(with_header=(idx == 0)) for idx, section in enumerate(self.sections))
         fileobj.flush()
 
         if is_str:

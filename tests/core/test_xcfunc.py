@@ -53,7 +53,7 @@ class TestLibxcFunc(MatSciTest):
         # Test if object can be serialized with Pickle
         self.serialize_with_pickle(self.ixc_11)
 
-    @pytest.mark.skip(reason="TODO:")
+    @pytest.mark.xfail(reason="TODO:")
     def test_msonable(self):
         # Test if object supports MSONable
         self.ixc_11.x.as_dict()

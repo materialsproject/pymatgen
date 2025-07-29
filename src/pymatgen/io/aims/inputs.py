@@ -935,8 +935,8 @@ class SpeciesDefaults(list, MSONable):
         }
 
     @deprecated(replacement=as_dict, deadline=(2026, 4, 4))
-    def to_dict(self):
-        return self.as_dict()
+    def to_dict(self, *args, **kwargs):
+        return self.as_dict(*args, **kwargs)
 
     @classmethod
     def from_dict(cls, dct: dict[str, Any]) -> SpeciesDefaults:
