@@ -271,7 +271,7 @@ class TestGulpIO:
         assert struct.lattice.a == approx(4.212)
         assert struct.lattice.alpha == approx(90)
 
-    @pytest.mark.skip("Test later")
+    @pytest.mark.xfail(reason="Test later")
     def test_tersoff_input(self):
         self.gio.tersoff_input(self.structure)
 

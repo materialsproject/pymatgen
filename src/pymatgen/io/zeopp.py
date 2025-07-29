@@ -41,8 +41,8 @@ try:
     from zeo.cluster import prune_voronoi_network_close_node
     from zeo.netstorage import AtomNetwork
 
-    zeo_found = True
-    zeo_source: str | None = "zeo"
+    zeo_found: bool = True
+    zeo_source: Literal["zeo", "pyzeo"] | None = "zeo"
 except ImportError:
     try:
         from pyzeo import AtomNetwork
@@ -58,6 +58,7 @@ except ImportError:
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from typing import Literal
 
     from typing_extensions import Self
 
