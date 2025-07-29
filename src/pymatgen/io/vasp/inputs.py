@@ -25,6 +25,7 @@ from zipfile import ZipFile
 import numpy as np
 import orjson
 import scipy.constants as const
+from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os import cd
@@ -141,17 +142,17 @@ class Poscar(MSONable):
         site_properties: dict[str, Any] = {}
 
         if selective_dynamics is not None:
-            selective_dynamics = np.array(selective_dynamics)
+            selective_dynamics = np.asarray(selective_dynamics)
             if not selective_dynamics.all():
                 site_properties["selective_dynamics"] = selective_dynamics
 
         if velocities:
-            velocities = np.array(velocities)
+            velocities = np.asarray(velocities)
             if velocities.any():
                 site_properties["velocities"] = velocities
 
         if predictor_corrector:
-            predictor_corrector = np.array(predictor_corrector)
+            predictor_corrector = np.asarray(predictor_corrector)
             if predictor_corrector.any():
                 site_properties["predictor_corrector"] = predictor_corrector
 
@@ -159,23 +160,23 @@ class Poscar(MSONable):
         self.structure = structure.copy(site_properties=site_properties)
         if sort_structure:
             self.structure = self.structure.get_sorted_structure()
-        self.true_names = true_names
-        self.comment = structure.formula if comment is None else comment
+
         if predictor_corrector_preamble:
             self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
 
         if lattice_velocities and np.any(lattice_velocities):
             self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
 
-        self.temperature = -1.0
+        self.true_names: bool = true_names
+        self.comment: str = structure.formula if comment is None else comment
+        self.temperature: float = -1.0
 
     def __setattr__(self, name: str, value: Any) -> None:
         if name in {"selective_dynamics", "velocities"} and value is not None and len(value) > 0:
-            value = np.array(value)
+            value = np.asarray(value)
             dim = value.shape
             if dim[1] != 3 or dim[0] != len(self.structure):
                 raise ValueError(f"{name} array must be same length as the structure.")
-            value = value.tolist()
 
         super().__setattr__(name, value)
 
@@ -687,7 +688,7 @@ class Poscar(MSONable):
             lines.append("")
             if self.predictor_corrector_preamble:
                 lines.append(self.predictor_corrector_preamble)
-                pred = np.array(self.predictor_corrector)
+                pred = np.asarray(self.predictor_corrector)
                 for col in range(3):
                     for z in pred[:, col]:
                         lines.append(" ".join(format_str.format(i) for i in z))
@@ -700,7 +701,9 @@ class Poscar(MSONable):
 
         return "\n".join(lines) + "\n"
 
-    get_string = get_str
+    @deprecated(get_str)
+    def get_string(self, *args, **kwargs):
+        return self.get_str(*args, **kwargs)
 
     def write_file(self, filename: PathLike, **kwargs) -> None:
         """Write POSCAR to a file. The supported kwargs are the same as those for
@@ -716,7 +719,7 @@ class Poscar(MSONable):
             "@class": type(self).__name__,
             "structure": self.structure.as_dict(),
             "true_names": self.true_names,
-            "selective_dynamics": np.array(self.selective_dynamics).tolist(),
+            "selective_dynamics": np.asarray(self.selective_dynamics).tolist(),
             "velocities": self.velocities,
             "predictor_corrector": self.predictor_corrector,
             "comment": self.comment,
@@ -2432,7 +2435,7 @@ class PotcarSingle:
 
         def data_stats(data_list: Sequence) -> dict:
             """Used for hash-less and therefore less brittle POTCAR validity checking."""
-            arr = np.array(data_list)
+            arr = np.asarray(data_list)
             return {
                 "MEAN": np.mean(arr),
                 "ABSMEAN": np.mean(np.abs(arr)),
@@ -2622,7 +2625,7 @@ class PotcarSingle:
         if key_match:
             data_diff = [
                 abs(potcar_stats_1["stats"].get(key, {}).get(stat) - potcar_stats_2["stats"].get(key, {}).get(stat))
-                for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
+                for stat in ("MEAN", "ABSMEAN", "VAR", "MIN", "MAX")
                 for key in check_potcar_fields
             ]
             data_match = all(np.array(data_diff) < tolerance)

@@ -1252,7 +1252,7 @@ class TestStructure(MatSciTest):
         with pytest.raises(AttributeError, match="attr='magmom' not found on PeriodicSite"):
             _ = struct[0].magmom
 
-    def test_propertied_structure(self):
+    def test_site_properties(self):
         # Make sure that site properties are set to None for missing values.
         self.struct.add_site_property("charge", [4.1, -5])
         self.struct.append("Li", [0.3, 0.3, 0.3])
@@ -1277,6 +1277,23 @@ class TestStructure(MatSciTest):
         struct = Structure.from_str(json_str, fmt="json")
         assert struct.properties == props
         assert dct == struct.as_dict()
+
+    def test_selective_dynamics(self):
+        """Ensure selective dynamics as numpy arrays can be JSON serialized."""
+        struct = self.get_structure("Li2O")
+        struct.add_site_property(
+            "selective_dynamics", np.array([[True, True, True], [False, False, False], [True, True, True]])
+        )
+
+        orjson_str = struct.to(fmt="json")
+
+        # Also test round trip
+        orjson_struct = Structure.from_str(orjson_str, fmt="json")
+        assert struct == orjson_struct
+
+        with pytest.raises(TypeError, match="Object of type ndarray is not JSON serializable"):
+            # Use a dummy kwarg (default value) to force `json.dumps`
+            struct.to(fmt="json", ensure_ascii=True)
 
     def test_perturb(self):
         struct = self.get_structure("Li2O")
