@@ -141,6 +141,7 @@ jobs:
             -d '{"event_type": "pymatgen-ci-trigger", "client_payload": {"pymatgen_ref": "${{ github.sha }}"}}'
 
   all_pass:
+    # This step is added to indicate all the tests have passed to make it easier to do auto-merge of PRs.
     needs: test
     runs-on: ubuntu-latest
     steps:
