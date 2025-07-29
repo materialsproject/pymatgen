@@ -229,11 +229,11 @@ class ThermalDisplacementMatrices(MSONable):
             file.write("_atom_site_aniso_U_12\n")
             file.write(f"# Additional Data for U_Aniso: {self.temperature}\n")
 
-            for idx, (site, matrix) in enumerate(zip(self.structure, self.Ucif, strict=True)):
-                file.write(
-                    f"{site.specie.symbol}{idx} {matrix[0][0]} {matrix[1][1]} {matrix[2][2]}"
-                    f" {matrix[1][2]} {matrix[0][2]} {matrix[0][1]}\n"
-                )
+            file.writelines(
+                f"{site.specie.symbol}{idx} {matrix[0][0]} {matrix[1][1]} {matrix[2][2]}"
+                f" {matrix[1][2]} {matrix[0][2]} {matrix[0][1]}\n"
+                for idx, (site, matrix) in enumerate(zip(self.structure, self.Ucif, strict=True))
+            )
 
     @staticmethod
     def _angle_dot(a: ArrayLike, b: ArrayLike) -> float:

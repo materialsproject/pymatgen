@@ -586,7 +586,7 @@ class SpacegroupAnalyzer:
         lattice = Lattice(np.dot(transf, conv.lattice.matrix))
         for site in conv:
             new_s = PeriodicSite(
-                site.specie,
+                site.species,
                 site.coords,
                 lattice,
                 to_unit_cell=True,

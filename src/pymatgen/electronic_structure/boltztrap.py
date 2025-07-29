@@ -273,8 +273,7 @@ class BoltztrapRunner(MSONable):
                     )
                     a, b, c = kpt.frac_coords
                     file.write(f"{a:12.8f} {b:12.8f} {c:12.8f}{len(eigs)}\n")
-                    for e in eigs:
-                        file.write(f"{sign * float(e):18.8f}\n")
+                    file.writelines(f"{sign * float(e):18.8f}\n" for e in eigs)
 
             else:
                 for i, kpt in enumerate(self._bs.kpoints):
@@ -301,8 +300,7 @@ class BoltztrapRunner(MSONable):
                     a, b, c = kpt.frac_coords
                     file.write(f"{a:12.8f} {b:12.8f} {c:12.8f} {len(eigs)}\n")
 
-                    for e in eigs:
-                        file.write(f"{float(e):18.8f}\n")
+                    file.writelines(f"{float(e):18.8f}\n" for e in eigs)
 
     def write_struct(self, output_file) -> None:
         """Write the structure to an output file.
@@ -332,8 +330,7 @@ class BoltztrapRunner(MSONable):
             file.write(f"{len(ops)}\n")
 
             for op in ops:
-                for row in op:
-                    file.write(f"{' '.join(map(str, row))}\n")
+                file.writelines(f"{' '.join(map(str, row))}\n" for row in op)
 
     def write_def(self, output_file) -> None:
         """Write the def to an output file.
@@ -394,8 +391,7 @@ class BoltztrapRunner(MSONable):
                                 tmp_proj.append(self._hl)
                             a, b, c = kpt.frac_coords
                             file.write(f"{a:12.8f} {b:12.8f} {c:12.8f} {len(tmp_proj)}\n")
-                            for t in tmp_proj:
-                                file.write(f"{float(t):18.8f}\n")
+                            file.writelines(f"{float(t):18.8f}\n" for t in tmp_proj)
         with open(output_file_def, mode="w", encoding="utf-8") as file:
             so = ""
             if self._bs.is_spin_polarized:
@@ -453,10 +449,8 @@ class BoltztrapRunner(MSONable):
                 fout.write(f"{self.tauref} {self.tauexp} {self.tauen} 0 0 0\n")
                 fout.write(f"{2 * len(self.doping)}\n")
 
-                for d in self.doping:
-                    fout.write(str(d) + "\n")
-                for d in self.doping:
-                    fout.write(str(-d) + "\n")
+                fout.writelines(str(d) + "\n" for d in self.doping)
+                fout.writelines(str(-d) + "\n" for d in self.doping)
 
         elif self.run_type == "FERMI":
             with open(output_file, mode="w", encoding="utf-8") as fout:

@@ -2812,7 +2812,7 @@ class Interface(Structure):
         min_height = np.abs(film_max_c - film_min_c) + np.abs(sub_max_c - sub_min_c)
 
         # Construct new lattice
-        abc = substrate_slab.lattice.abc[:2] + (min_height + gap + vacuum_over_film,)
+        abc = (*substrate_slab.lattice.abc[:2], min_height + gap + vacuum_over_film)
         angles = substrate_slab.lattice.angles
         lattice = Lattice.from_parameters(*abc, *angles)
 

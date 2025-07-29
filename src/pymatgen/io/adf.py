@@ -548,8 +548,7 @@ class AdfInput:
                 mol_blocks.append(unres_block)
 
         with open(inp_file, "w+", encoding="utf-8") as file:
-            for block in mol_blocks:
-                file.write(str(block) + "\n")
+            file.writelines(str(block) + "\n" for block in mol_blocks)
             file.write(str(self.task) + "\n")
             file.write("END INPUT")
 
