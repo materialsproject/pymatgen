@@ -471,10 +471,9 @@ class MPRester:
         """
         if isinstance(elements, str):
             elements = elements.split("-")
-        chemsys = []
-        for i in range(1, len(elements) + 1):
-            for els in itertools.combinations(elements, i):
-                chemsys.append("-".join(sorted(els)))
+        chemsys = [
+            "-".join(sorted(els)) for i in range(1, len(elements) + 1) for els in itertools.combinations(elements, i)
+        ]
         criteria = ",".join(chemsys)
 
         return self.get_entries(criteria, *args, **kwargs)

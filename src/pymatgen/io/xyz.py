@@ -138,8 +138,7 @@ class XYZ:
         output = [str(len(frame_mol)), frame_mol.formula]
         prec = self.precision
         fmt = f"{{}} {{:.{prec}f}} {{:.{prec}f}} {{:.{prec}f}}"
-        for site in frame_mol:
-            output.append(fmt.format(site.specie, site.x, site.y, site.z))
+        output.extend(fmt.format(site.specie, site.x, site.y, site.z) for site in frame_mol)
         return "\n".join(output)
 
     def __str__(self):

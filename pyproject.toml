@@ -213,7 +213,6 @@ ignore = [
     "FBT002", # Boolean default positional argument in function
     "PD011", # (A lot of false positive on non-Pandas objects)
     "PERF203", # Use of try-except in for/while loop
-    "PERF401", # Replace "for" loops with list comprehension
     "PLR0911", # Too many return statements
     "PLR0912", # Too many branches
     "PLR0913", # Too many arguments

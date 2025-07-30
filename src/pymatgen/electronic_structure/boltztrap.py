@@ -377,9 +377,11 @@ class BoltztrapRunner(MSONable):
                         file.write(f"{self._bs.structure.formula}\n")
                         file.write(f"{len(self._bs.kpoints)}\n")
                         for kpt_idx, kpt in enumerate(self._bs.kpoints):
-                            tmp_proj = []
-                            for j in range(math.floor(self._bs.nb_bands * (1 - self.cb_cut))):
-                                tmp_proj.append(self._bs.projections[Spin(self.spin)][j][kpt_idx][orb_idx][site_nb])
+                            tmp_proj = [
+                                self._bs.projections[Spin(self.spin)][j][kpt_idx][orb_idx][site_nb]
+                                for j in range(math.floor(self._bs.nb_bands * (1 - self.cb_cut)))
+                            ]
+
                             # TODO deal with the sorting going on at
                             # the energy level!!!
                             # tmp_proj.sort()
@@ -1835,22 +1837,20 @@ class BoltztrapAnalyzer:
 
         # parse the full Hall tensor
         with open(f"{path_dir}/boltztrap.halltens", encoding="utf-8") as file:
-            for line in file:
-                if not line.startswith("#"):
-                    data_hall.append([float(c) for c in line.split()])
+            data_hall.extend([float(c) for c in line.split()] for line in file if not line.startswith("#"))
 
         if len(doping_levels) != 0:
             # parse doping levels version of full cond. tensor, etc.
             with open(f"{path_dir}/boltztrap.condtens_fixdoping", encoding="utf-8") as file:
-                for line in file:
-                    if not line.startswith("#") and len(line) > 2:
-                        data_doping_full.append([float(c) for c in line.split()])
+                data_doping_full.extend(
+                    [float(c) for c in line.split()] for line in file if not line.startswith("#") and len(line) > 2
+                )
 
             # parse doping levels version of full hall tensor
             with open(f"{path_dir}/boltztrap.halltens_fixdoping", encoding="utf-8") as file:
-                for line in file:
-                    if not line.startswith("#") and len(line) > 2:
-                        data_doping_hall.append([float(c) for c in line.split()])
+                data_doping_hall.extend(
+                    [float(c) for c in line.split()] for line in file if not line.startswith("#") and len(line) > 2
+                )
 
         # Step 2: convert raw data to final format
 

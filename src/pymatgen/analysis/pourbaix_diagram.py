@@ -637,12 +637,7 @@ class PourbaixDiagram(MSONable):
                     these_combos.append(frozenset(these_entries))
                 combos.append(these_combos)
 
-        all_combos: set | list = set(itertools.chain.from_iterable(combos))
-
-        list_combos: list = []
-        for combo in all_combos:
-            list_combos.append(list(combo))
-        all_combos = list_combos
+        all_combos = [list(combo) for combo in set(itertools.chain.from_iterable(combos))]
 
         multi_entries: list = []
 

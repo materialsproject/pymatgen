@@ -565,13 +565,13 @@ class Poscar(MSONable):
             # There is no space between the coordinates and this section, so
             # it appears in the lines of the first chunk
             if len(lines) > ipos + n_sites + 1 and lines[ipos + n_sites + 1].lower().startswith("l"):
-                for line in lines[ipos + n_sites + 3 : ipos + n_sites + 9]:
-                    lattice_velocities.append([float(tok) for tok in line.split()])
+                lattice_velocities.extend(
+                    [float(tok) for tok in line.split()] for line in lines[ipos + n_sites + 3 : ipos + n_sites + 9]
+                )
 
             # Parse velocities if any
             if len(chunks) > 1:
-                for line in chunks[1].strip().split("\n"):
-                    velocities.append([float(tok) for tok in line.split()])
+                velocities.extend([float(tok) for tok in line.split()] for line in chunks[1].strip().split("\n"))
 
             # Parse the predictor-corrector data
             if len(chunks) > 2:
@@ -636,8 +636,7 @@ class Poscar(MSONable):
         # Add comment and lattice
         format_str: str = f"{{:{significant_figures + 5}.{significant_figures}f}}"
         lines: list[str] = [self.comment, "1.0"]
-        for vec in lattice.matrix:
-            lines.append(" ".join(format_str.format(c) for c in vec))
+        lines.extend(" ".join(format_str.format(c) for c in vec) for vec in lattice.matrix)
 
         # Add element symbols
         if self.true_names and not vasp4_compatible:
@@ -662,9 +661,8 @@ class Poscar(MSONable):
         if self.lattice_velocities is not None:
             try:
                 lines.extend(["Lattice velocities and vectors", "  1"])
-                for velo in self.lattice_velocities:
-                    # VASP is strict about the format when reading this quantity
-                    lines.append(" ".join(f" {val: .7E}" for val in velo))  # type:ignore[str-bytes-safe]
+                # VASP is strict about the format when reading this quantity
+                lines.extend(" ".join(f" {val: .7E}" for val in velo) for velo in self.lattice_velocities)  # type:ignore[str-bytes-safe]
             except Exception:
                 warnings.warn(
                     "Lattice velocities are missing or corrupted.",
@@ -675,8 +673,7 @@ class Poscar(MSONable):
         if self.velocities:
             try:
                 lines.append("")
-                for velo in self.velocities:
-                    lines.append(" ".join(format_str.format(val) for val in velo))
+                lines.extend(" ".join(format_str.format(val) for val in velo) for velo in self.velocities)
             except Exception:
                 warnings.warn(
                     "Velocities are missing or corrupted.",
@@ -689,9 +686,7 @@ class Poscar(MSONable):
             if self.predictor_corrector_preamble:
                 lines.append(self.predictor_corrector_preamble)
                 pred = np.asarray(self.predictor_corrector)
-                for col in range(3):
-                    for z in pred[:, col]:
-                        lines.append(" ".join(format_str.format(i) for i in z))
+                lines.extend(" ".join(format_str.format(i) for i in z) for col in range(3) for z in pred[:, col])
             else:
                 warnings.warn(
                     "Preamble information missing or corrupt. Writing Poscar with no predictor corrector data.",
@@ -821,15 +816,11 @@ class Incar(UserDict, MSONable):
                 stacklevel=2,
             )
 
-        # If INCAR contains vector-like MAGMOMS given as a list
-        # of floats, convert to a list of lists
+        # If INCAR contains vector-like MAGMOMS given as list[float], convert to list[list]
         if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], int | float)) and (
             params.get("LSORBIT") or params.get("LNONCOLLINEAR")
         ):
-            val: list[list] = []
-            for idx in range(len(params["MAGMOM"]) // 3):
-                val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
-            params["MAGMOM"] = val  # type:ignore[index]
+            params["MAGMOM"] = [params["MAGMOM"][idx * 3 : (idx + 1) * 3] for idx in range(len(params["MAGMOM"]) // 3)]
 
         super().__init__(params)
 
@@ -2052,45 +2043,45 @@ class PotcarSingle:
         PSCTR: dict[str, Any] = {}
 
         array_search = re.compile(r"(-*[0-9.]+)")
-        orbitals: list[Orbital] = []
-        descriptions: list[OrbitalDescription] = []
+
         if atomic_config_match := re.search(r"(?s)Atomic configuration(.*?)Description", search_lines):
             lines = atomic_config_match[1].splitlines()
             match = re.search(r"([0-9]+)", lines[1])
             num_entries = int(match[1]) if match else 0
             PSCTR["nentries"] = num_entries
-            for line in lines[3:]:
-                if orbit := array_search.findall(line):
-                    orbitals.append(
-                        Orbital(
-                            int(orbit[0]),
-                            int(orbit[1]),
-                            float(orbit[2]),
-                            float(orbit[3]),
-                            float(orbit[4]),
-                        )
+            PSCTR["Orbitals"] = tuple(
+                [
+                    Orbital(
+                        int(orbit[0]),
+                        int(orbit[1]),
+                        float(orbit[2]),
+                        float(orbit[3]),
+                        float(orbit[4]),
                     )
-            PSCTR["Orbitals"] = tuple(orbitals)
+                    for line in lines[3:]
+                    if (orbit := array_search.findall(line))
+                ]
+            )
 
         if description_string := re.search(
             r"(?s)Description\s*\n(.*?)Error from kinetic energy argument \(eV\)",
             search_lines,
         ):
-            for line in description_string[1].splitlines():
-                if description := array_search.findall(line):
-                    descriptions.append(
-                        OrbitalDescription(
-                            int(description[0]),
-                            float(description[1]),
-                            int(description[2]),
-                            float(description[3]),
-                            int(description[4]) if len(description) > 4 else None,
-                            float(description[5]) if len(description) > 4 else None,
-                        )
-                    )
+            descriptions: list[OrbitalDescription] = [
+                OrbitalDescription(
+                    int(description[0]),
+                    float(description[1]),
+                    int(description[2]),
+                    float(description[3]),
+                    int(description[4]) if len(description) > 4 else None,
+                    float(description[5]) if len(description) > 4 else None,
+                )
+                for line in description_string[1].splitlines()
+                if (description := array_search.findall(line))
+            ]
 
-        if descriptions:
-            PSCTR["OrbitalDescriptions"] = tuple(descriptions)
+            if descriptions:
+                PSCTR["OrbitalDescriptions"] = tuple(descriptions)
 
         rrkj_kinetic_energy_string = re.search(
             r"(?s)Error from kinetic energy argument \(eV\)\s*\n(.*?)END of PSCTR-controll parameters",

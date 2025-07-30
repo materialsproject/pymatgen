@@ -250,10 +250,7 @@ class AdfKey(MSONable):
             "options": self.options,
         }
         if len(self.subkeys) > 0:
-            subkeys = []
-            for subkey in self.subkeys:
-                subkeys.append(subkey.as_dict())
-            dct["subkeys"] = subkeys
+            dct["subkeys"] = [subkey.as_dict() for subkey in self.subkeys]
         return dct
 
     @classmethod

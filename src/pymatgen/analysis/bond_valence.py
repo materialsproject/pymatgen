@@ -414,9 +414,7 @@ class BVAnalyzer:
 
                 return [int(assigned[site]) for site in structure]
             assigned = {}
-            new_best_vset = []
-            for _ in equi_sites:
-                new_best_vset.append([])
+            new_best_vset = [[] for _ in equi_sites]
             for ival, val in enumerate(self._best_vset):
                 new_best_vset[attrib[ival]].append(val)
             for val, sites in zip(new_best_vset, equi_sites, strict=True):
