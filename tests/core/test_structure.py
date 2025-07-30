@@ -1407,6 +1407,10 @@ class TestStructure(MatSciTest):
         assert nio4 is nio
         assert nio[1].specie.spin == -5, "Failed to add spin states"
 
+        # Test lengths mismatch
+        with pytest.raises(ValueError, match="Spins for all sites must be specified"):
+            nio.add_spin_by_site([0, 1, 2])
+
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
         struct = self.struct.copy()

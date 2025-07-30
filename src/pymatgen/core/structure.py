@@ -1203,10 +1203,11 @@ class IStructure(SiteCollection, MSONable):
         props = self.site_properties
         keys = sorted(props)
         for idx, site in enumerate(self):
-            row = [str(idx), site.species_string]
-            row.extend([to_str(j) for j in site.frac_coords])
-            for key in keys:
-                row.append(props[key][idx])
+            row = (
+                [str(idx), site.species_string]
+                + [to_str(j) for j in site.frac_coords]
+                + [props[key][idx] for key in keys]
+            )
             data.append(row)
         outs.append(
             tabulate(
@@ -2101,11 +2102,7 @@ class IStructure(SiteCollection, MSONable):
                     )
                 )
 
-        neighbors: list[list[PeriodicNeighbor]] = []
-
-        for i in range(len(sites)):
-            neighbors.append(neighbor_dict[i])
-        return neighbors
+        return [neighbor_dict[i] for i in range(len(sites))]
 
     def get_all_neighbors_py(
         self,
@@ -2589,8 +2586,7 @@ class IStructure(SiteCollection, MSONable):
             if not use_site_props:
                 return site.species_string
             parts = [site.species_string]
-            for key in sorted(site.properties):
-                parts.append(f"{key}={site.properties[key]}")
+            parts.extend(f"{key}={site.properties[key]}" for key in sorted(site.properties))
             return ", ".join(parts)
 
         # Group sites by species string
@@ -2803,10 +2799,7 @@ class IStructure(SiteCollection, MSONable):
                 subset_structure = Structure.from_sites(disordered_sites)
                 dist_matrix = subset_structure.distance_matrix
                 dists = sorted(set(dist_matrix.ravel()))  # type:ignore[type-var]
-                unique_dists = []
-                for idx in range(1, len(dists)):
-                    if dists[idx] - dists[idx - 1] > 0.1:
-                        unique_dists.append(dists[idx])
+                unique_dists = [dists[idx] for idx in range(1, len(dists)) if dists[idx] - dists[idx - 1] > 0.1]
                 clusters = {(idx + 2): dist + 0.01 for idx, dist in enumerate(unique_dists) if idx < 2}
                 kwargs["clusters"] = clusters
             return [run_mcsqs(self, **kwargs).bestsqs]
@@ -2881,9 +2874,12 @@ class IStructure(SiteCollection, MSONable):
         site_properties = self.site_properties
         prop_keys = list(site_properties)
         for site in self:
-            row = [site.species, *site.frac_coords, *site.coords]
-            for key in prop_keys:
-                row.append(site.properties.get(key))
+            row = [
+                site.species,
+                *site.frac_coords,
+                *site.coords,
+                *[site.properties.get(key) for key in prop_keys],
+            ]
             data.append(row)
 
         df_struct = pd.DataFrame(data, columns=["Species", *"abcxyz", *prop_keys])

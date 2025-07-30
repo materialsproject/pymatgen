@@ -907,12 +907,8 @@ class HeisenbergModel(MSONable):
             wyckoff_ids[literal_eval(k)] = v
 
         # Reconstitute the structure and graph objects
-        structures = []
-        sgraphs = []
-        for v in dct["structures"]:
-            structures.append(Structure.from_dict(v))
-        for v in dct["sgraphs"]:
-            sgraphs.append(StructureGraph.from_dict(v))
+        structures = [Structure.from_dict(v) for v in dct["structures"]]
+        sgraphs = [StructureGraph.from_dict(v) for v in dct["sgraphs"]]
 
         # Interaction graph
         igraph = StructureGraph.from_dict(dct["igraph"])

@@ -1991,9 +1991,7 @@ class ReactionDiagram:
                     continue
 
                 try:
-                    mat = []
-                    for entry in face_entries:
-                        mat.append([entry.composition.get_atomic_fraction(el) for el in elements])
+                    mat = [[entry.composition.get_atomic_fraction(el) for el in elements] for entry in face_entries]
                     mat.append(comp_vec2 - comp_vec1)
                     matrix = np.array(mat).T
                     coeffs = np.linalg.solve(matrix, comp_vec2)

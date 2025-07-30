@@ -542,11 +542,8 @@ class Vasprun(MSONable):
                         for ii in range(n_atoms):
                             for jj in range(n_atoms):
                                 self.force_constants[ii, jj] = hessian[ii * 3 : (ii + 1) * 3, jj * 3 : (jj + 1) * 3]  # type: ignore[call-overload]
-                        phonon_eigenvectors = []
-                        for ev in eigenvectors:
-                            phonon_eigenvectors.append(np.array(ev).reshape(n_atoms, 3))
                         self.normalmode_eigenvals = np.array(eigenvalues)
-                        self.normalmode_eigenvecs = np.array(phonon_eigenvectors)
+                        self.normalmode_eigenvecs = np.array([np.array(ev).reshape(n_atoms, 3) for ev in eigenvectors])
 
                     elif ml_run:
                         if tag == "structure" and elem.attrib.get("name") is None:
@@ -1744,22 +1741,20 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_dynmat(elem: XML_Element) -> tuple[list, list, list]:
         """Parse dynamical matrix."""
-        hessian = []
-        eigenvalues = []
-        eigenvectors = []
+        hessian: list[float] = []
+        eigenvalues: list[float] = []
+        eigenvectors: list[float] = []
 
         for v in elem.findall("v"):
             if v.attrib["name"] == "eigenvalues":
-                eigenvalues = [float(i) for i in v.text.split()]  # type: ignore[union-attr]
+                eigenvalues = [float(i) for i in v.text.split()]
 
         for va in elem.findall("varray"):
             if va.attrib["name"] == "hessian":
-                for v in va.findall("v"):
-                    hessian.append([float(i) for i in v.text.split()])  # type: ignore[union-attr]
+                hessian.extend([float(i) for i in v.text.split()] for v in va.findall("v"))
 
             elif va.attrib["name"] == "eigenvectors":
-                for v in va.findall("v"):
-                    eigenvectors.append([float(i) for i in v.text.split()])  # type: ignore[union-attr]
+                eigenvectors.extend([float(i) for i in v.text.split()] for v in va.findall("v"))
         return hessian, eigenvalues, eigenvectors
 
 
@@ -2173,9 +2168,10 @@ class Outcar:
         # Merge x, y and z components of magmoms if present (SOC calculation)
         if mag_y and mag_z:
             # TODO: detect spin axis
-            mag = []
-            for idx in range(len(mag_x)):
-                mag.append({key: Magmom([mag_x[idx][key], mag_y[idx][key], mag_z[idx][key]]) for key in mag_x[0]})
+            mag = [
+                {key: Magmom([mag_x[idx][key], mag_y[idx][key], mag_z[idx][key]]) for key in mag_x[0]}
+                for idx in range(len(mag_x))
+            ]
         else:
             mag = mag_x  # type:ignore[assignment]
 

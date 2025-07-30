@@ -489,12 +489,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         if self.qpoints[index].label is None:
             return [index]
 
-        list_index_qpoints = []
-        for idx in range(self.nb_qpoints):
-            if self.qpoints[idx].label == self.qpoints[index].label:
-                list_index_qpoints.append(idx)
-
-        return list_index_qpoints
+        return [idx for idx in range(self.nb_qpoints) if self.qpoints[idx].label == self.qpoints[index].label]
 
     def get_branch(self, index: int) -> list[dict[str, str | int]]:
         r"""Get in what branch(es) is the qpoint. There can be several branches.
@@ -561,9 +556,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         dct["name"] = self.structure.formula
 
         # get qpoints
-        qpoints = []
-        for q_pt in self.qpoints:
-            qpoints.append(list(q_pt.frac_coords))
+        qpoints = [list(q_pt.frac_coords) for q_pt in self.qpoints]
         dct["qpoints"] = qpoints
 
         # get labels

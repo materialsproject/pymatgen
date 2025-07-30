@@ -152,8 +152,9 @@ class AimsGeometryIn(MSONable):
         content_lines: list[str] = []
 
         if isinstance(structure, Structure):
-            for lv in structure.lattice.matrix:
-                content_lines.append(f"lattice_vector {lv[0]: .12e} {lv[1]: .12e} {lv[2]: .12e}")
+            content_lines.extend(
+                f"lattice_vector {lv[0]: .12e} {lv[1]: .12e} {lv[2]: .12e}" for lv in structure.lattice.matrix
+            )
 
         for site in structure:
             element = site.species_string.split(",spin=")[0]
