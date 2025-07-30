@@ -56,6 +56,7 @@ jobs:
       MPLBACKEND: Agg  # non-interactive backend for matplotlib
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
       PYTHONWARNDEFAULTENCODING: "true"  # PEP 597: Enable optional EncodingWarning
+      OPT_BIN_DIR: ${{ github.workspace }}/opt/bin  # for optional Unix dependencies
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -94,23 +95,17 @@ jobs:
           pip install --upgrade matgl>=1.2.6
           pip install torch==2.2.0 torchdata==0.7.1
 
-      - name: Install optional Ubuntu and macOS dependencies
+      - name: Restore cache for optional Ubuntu/MacOS dependencies
         if: matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest'
-        run: |
-          # Install BoltzTraP
-          wget -q -O BoltzTraP.tar.bz2 https://owncloud.tuwien.ac.at/index.php/s/s2d55LYlZnioa3s/download
-          tar -jxf BoltzTraP.tar.bz2 && realpath boltztrap-1.2.5/src/ >> $GITHUB_PATH
+        id: optbin-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.OPT_BIN_DIR }}
+          key: opt-bin-${{ runner.os }}-${{ hashFiles('.github/workflows/_install_opt_unit_deps.sh') }}
 
-          # Install Vampire 5.0
-          wget -q https://vampire.york.ac.uk/resources/release-5/vampire-5.0-linux.tar.gz
-          tar -zxf vampire-5.0-linux.tar.gz && mv linux vampire-5.0
-          realpath vampire-5.0/ >> $GITHUB_PATH
-
-          # Install Voro++ and ZEO++
-          wget -q http://www.zeoplusplus.org/zeo++-0.3.tar.gz && tar -xzf zeo++-0.3.tar.gz
-
-          cd zeo++-0.3/voro++/src && make -s CFLAGS="-w" && realpath . >> $GITHUB_PATH && cd ../..
-          make -s CFLAGS="-w" && realpath . >> $GITHUB_PATH
+      - name: Build optional Ubuntu/MacOS dependencies (when cache misses)
+        if: (matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest') && steps.optbin-cache.outputs.cache-hit != 'true'
+        run: bash .github/workflows/_install_opt_unit_deps.sh "$OPT_BIN_DIR"
 
       - name: pytest split ${{ matrix.split }}
         env:
@@ -141,6 +136,7 @@ jobs:
             -d '{"event_type": "pymatgen-ci-trigger", "client_payload": {"pymatgen_ref": "${{ github.sha }}"}}'
 
   all_pass:
+    # This step is added to indicate all the tests have passed to make it easier to do auto-merge of PRs.
     needs: test
     runs-on: ubuntu-latest
     steps:

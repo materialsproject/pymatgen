@@ -217,10 +217,14 @@ class TestCp2kInput(MatSciTest):
         assert isinstance(self.ci["FORCE_EVAL"]["DFT"]["QS"]["EPS_DEFAULT"].values[0], float)
 
         # description retrieval
+        assert (
+            self.ci["FORCE_EVAL"]["SUBSYS"].description == '"/" used to break input file parser in Section start line'
+        )
         assert self.ci["FORCE_EVAL"]["SUBSYS"]["CELL"].description == "Input parameters needed to set up the CELL."
         assert (
             self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["CUTOFF"].description == "Cutoff in [Ry] for finest level of the MG."
         )
+        assert self.ci["FORCE_EVAL"]["METHOD"].description is None
 
     def test_odd_file(self):
         scramble = ""

@@ -80,8 +80,7 @@ class StandardTransmuter:
 
     def __str__(self):
         output = ["Current structures", "------------"]
-        for ts in self.transformed_structures:
-            output.append(str(ts.final_structure))
+        output.extend(str(ts.final_structure) for ts in self.transformed_structures)
         return "\n".join(output)
 
     def undo_last_change(self) -> None:

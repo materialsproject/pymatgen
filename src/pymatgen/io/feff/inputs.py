@@ -317,9 +317,7 @@ class Header(MSONable):
 
             n_atoms = int(lines[8].split(":")[-1].split()[0])
 
-            atomic_symbols = []
-            for i in range(9, 9 + n_atoms):
-                atomic_symbols.append(lines[i].split()[2])
+            atomic_symbols = [lines[i].split()[2] for i in range(9, 9 + n_atoms)]
 
             # read the atomic coordinates
             coords = []
@@ -604,11 +602,10 @@ class Tags(dict):
         keys = list(self)
         if sort_keys:
             keys = sorted(keys)
-        lines = []
+        lines: list = []
         for key in keys:
             if key == "IONS":
-                for tok in self[key]:
-                    lines.append(["ION", f"{tok[0]} {tok[1]:.4f}"])
+                lines.extend(["ION", f"{tok[0]} {tok[1]:.4f}"] for tok in self[key])
             elif isinstance(self[key], dict):
                 if key in ["ELNES", "EXELFS"]:
                     lines.append([key, self._stringify_val(self[key]["ENERGY"])])

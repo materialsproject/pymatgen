@@ -388,12 +388,12 @@ class StructureGraph(MSONable):
                 # this will happen when from_index == to_index,
                 # typically in primitive single-atom lattices
                 images = [1, 0, 0], [0, 1, 0], [0, 0, 1]
-                dists = []
-                for image in images:
-                    dists.append(
+                dist = min(
+                    [
                         self.structure[from_index].distance_and_image(self.structure[from_index], jimage=image)[0]
-                    )
-                dist = min(dists)
+                        for image in images
+                    ]
+                )
             equiv_sites = self.structure.get_neighbors_in_shell(
                 self.structure[from_index].coords, dist, dist * 0.01, include_index=True
             )
@@ -1753,10 +1753,7 @@ class MoleculeGraph(MSONable):
                     warn_duplicates=False,
                 )
 
-        duplicates = []
-        for edge in mg.graph.edges:
-            if edge[2] != 0:
-                duplicates.append(edge)
+        duplicates = [edge for edge in mg.graph.edges if edge[2] != 0]
 
         for duplicate in duplicates:
             mg.graph.remove_edge(duplicate[0], duplicate[1], key=duplicate[2])
@@ -2126,9 +2123,7 @@ class MoleculeGraph(MSONable):
         frag_dict = {}
         for ii in range(1, len(self.molecule)):
             for combination in combinations(graph.nodes, ii):
-                comp = []
-                for idx in combination:
-                    comp.append(str(self.molecule[idx].specie))
+                comp = [str(self.molecule[idx].specie) for idx in combination]
                 comp = "".join(sorted(comp))
                 subgraph = nx.subgraph(graph, combination)
                 if nx.is_connected(subgraph):

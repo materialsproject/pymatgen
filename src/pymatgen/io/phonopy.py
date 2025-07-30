@@ -285,9 +285,7 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=Non
     # Structure list to be returned
     structure_list = [get_pmg_structure(init_supercell)]
 
-    for cell in disp_supercells:
-        if cell is not None:
-            structure_list.append(get_pmg_structure(cell))
+    structure_list.extend(get_pmg_structure(cell) for cell in disp_supercells if cell is not None)
 
     return structure_list
 
@@ -648,7 +646,7 @@ def get_gruneisen_ph_bs_symm_line(gruneisen_path, structure=None, structure_path
 def get_thermal_displacement_matrices(
     thermal_displacements_yaml="thermal_displacement_matrices.yaml",
     structure_path="POSCAR",
-):
+) -> list[ThermalDisplacementMatrices]:
     """Read "thermal_displacement_matrices.yaml" from phonopy and return a list of
     ThermalDisplacementMatrices objects.
 
@@ -663,15 +661,12 @@ def get_thermal_displacement_matrices(
 
     structure = Structure.from_file(structure_path)
 
-    thermal_displacement_objects = []
-    for matrix in thermal_displacements_dict["thermal_displacement_matrices"]:
-        thermal_displacement_objects.append(
-            ThermalDisplacementMatrices(
-                thermal_displacement_matrix_cart=matrix["displacement_matrices"],
-                temperature=matrix["temperature"],
-                structure=structure,
-                thermal_displacement_matrix_cif=matrix["displacement_matrices_cif"],
-            )
+    return [
+        ThermalDisplacementMatrices(
+            thermal_displacement_matrix_cart=matrix["displacement_matrices"],
+            temperature=matrix["temperature"],
+            structure=structure,
+            thermal_displacement_matrix_cif=matrix["displacement_matrices_cif"],
         )
-
-    return thermal_displacement_objects
+        for matrix in thermal_displacements_dict["thermal_displacement_matrices"]
+    ]
