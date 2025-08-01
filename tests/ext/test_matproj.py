@@ -137,8 +137,8 @@ def test_get_entries(mprester):
     # test if it will retrieve the conventional unit cell of Ni
     entry = mprester.get_entry_by_material_id("mp-23")
     Ni = entry.structure
-    assert Ni.lattice.a == Ni.lattice.b
-    assert Ni.lattice.a == Ni.lattice.c
+    assert Ni.lattice.a == pytest.approx(Ni.lattice.b)
+    assert Ni.lattice.a == pytest.approx(Ni.lattice.c)
     assert Ni.lattice.alpha == pytest.approx(60)
     assert Ni.lattice.beta == pytest.approx(60)
     assert Ni.lattice.gamma == pytest.approx(60)
@@ -148,8 +148,8 @@ def test_get_entries(mprester):
     assert primNi.energy_per_atom == entry.energy_per_atom
 
     Ni = mprester.get_structure_by_material_id("mp-23")
-    assert Ni.lattice.a == Ni.lattice.b
-    assert Ni.lattice.a == Ni.lattice.c
+    assert Ni.lattice.a == pytest.approx(Ni.lattice.b)
+    assert Ni.lattice.a == pytest.approx(Ni.lattice.c)
     assert Ni.lattice.alpha == pytest.approx(90)
     assert Ni.lattice.beta == pytest.approx(90)
     assert Ni.lattice.gamma == pytest.approx(90)
