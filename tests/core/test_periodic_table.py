@@ -509,8 +509,8 @@ class TestSpecies(MatSciTest):
             "spin data available, and that value is returned.",
         ) as warns:
             radius = mn2.get_shannon_radius("V")
-            assert len(warns) == 1
-            assert radius == approx(0.75)
+        assert len(warns) == 1
+        assert radius == approx(0.75)
 
         assert mn2.get_shannon_radius("VI", "Low Spin") == approx(0.67)
         assert mn2.get_shannon_radius("VI", "High Spin") == approx(0.83)
