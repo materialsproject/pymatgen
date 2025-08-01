@@ -78,6 +78,9 @@ class VaspDoc:
             "&cmlimit=500&format=json"
         )
         response = requests.get(url, timeout=60)
+        if response.status_code != 200:
+            raise RuntimeError(f"API request failed with status {response.status_code}:\n{response.text}")
+
         response_dict = orjson.loads(response.text)
 
         def extract_titles(data):
@@ -94,6 +97,9 @@ class VaspDoc:
         # See https://www.mediawiki.org/wiki/API:Continue
         while "continue" in response_dict:
             response = requests.get(url + f"&cmcontinue={response_dict['continue']['cmcontinue']}", timeout=60)
+            if response.status_code != 200:
+                raise RuntimeError(f"API request failed with status {response.status_code}:\n{response.text}")
+
             response_dict = orjson.loads(response.text)
             tags = tags + extract_titles(response_dict)
 
