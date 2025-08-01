@@ -62,7 +62,7 @@ dependencies = [
     "networkx>=2.7", # PR4116
     # NumPy documentation suggests pinning the current major version as the C API is used
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
-    "numpy>=1.25.0,<3",
+    "numpy>=2,<3",
     "orjson>=3.10,<4",
     "palettable>=3.3.3",
     "pandas>=2",
@@ -97,13 +97,13 @@ ci = [
     "pytest-split>=0.10.0",
 ]
 electronic_structure = ["fdint>=2.0.2"]
-matcalc = [
-    "matcalc>=0.4.0; python_version<'3.13'",
-    "matgl>=1.2.7; python_version<'3.13'",
-]
-mlp = ["matgl>=1.2.7 ; python_version<'3.13'"]
+# matcalc = [
+#     "matcalc>=0.4.0; python_version<'3.13'",
+#     "matgl>=1.2.7; python_version<'3.13'",
+# ]
+# mlp = ["matgl>=1.2.7 ; python_version<'3.13'"]
 numba = ["numba>=0.55"]
-numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
+# numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
 optional = [
     "pymatgen[abinit,ase,matcalc,mlp,tblite,zeopp]",
     "beautifulsoup4",

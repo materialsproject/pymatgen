@@ -159,7 +159,7 @@ def test_get_entries(mprester):
 
 
 def test_api_parity(mprester):
-    docs = [
+    docs = (
         "summary",
         "core",
         "elasticity",
@@ -177,7 +177,7 @@ def test_api_parity(mprester):
         "chemenv",
         "bonds",
         "dielectric",
-    ]
+    )
 
     for doc in docs:
         # We should have Al2O3 data for these properties.
@@ -192,7 +192,7 @@ def test_api_parity(mprester):
     data = mprester.materials.tasks.search(task_ids="mp-1143")
     assert len(data) > 0, "No tasks data returned."
 
-    docs = ["surface_properties", "alloys"]
+    docs = ("surface_properties", "alloys")
 
     for doc in docs:
         data = mprester.materials.__getattribute__(doc).search(material_ids="mp-135")
