@@ -58,6 +58,8 @@ class VaspDoc:
             f"https://www.vasp.at/wiki/index.php/{tag}",
             timeout=60,
         )
+        response.raise_for_status()
+
         soup = BeautifulSoup(response.text, features="html.parser")
         main_doc = soup.find(id="mw-content-text")
         if fmt == "text":
@@ -78,8 +80,7 @@ class VaspDoc:
             "&cmlimit=500&format=json"
         )
         response = requests.get(url, timeout=60)
-        if response.status_code != 200:
-            raise RuntimeError(f"API request failed with status {response.status_code}:\n{response.text}")
+        response.raise_for_status()
 
         response_dict = orjson.loads(response.text)
 
@@ -97,8 +98,7 @@ class VaspDoc:
         # See https://www.mediawiki.org/wiki/API:Continue
         while "continue" in response_dict:
             response = requests.get(url + f"&cmcontinue={response_dict['continue']['cmcontinue']}", timeout=60)
-            if response.status_code != 200:
-                raise RuntimeError(f"API request failed with status {response.status_code}:\n{response.text}")
+            response.raise_for_status()
 
             response_dict = orjson.loads(response.text)
             tags = tags + extract_titles(response_dict)
