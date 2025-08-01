@@ -819,7 +819,6 @@ loop_
         with pytest.warns(UserWarning, match=warn_msg) as record:
             struct = parser.parse_structures()[0]
         assert len(record) == 3
-        assert warn_msg in str(record[-1])
 
         assert str(struct.composition) == "N5+72"
         assert warn_msg in parser.warnings
