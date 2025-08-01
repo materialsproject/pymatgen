@@ -10,14 +10,14 @@ from pymatgen.ext.matproj import MPRester
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 
-PMG_MAPI_KEY: str = SETTINGS.get("PMG_MAPI_KEY", "")
+# Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
+if SETTINGS.get("PMG_MAPI_KEY") is None:
+    pytest.skip("PMG_MAPI_KEY not set", allow_module_level=True)
 
 MP_URL = "https://api.materialsproject.org"
-
-# Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
 try:
-    skip_mprester_tests = requests.get(MP_URL, timeout=60).status_code != 200 or (not PMG_MAPI_KEY)
-except (ModuleNotFoundError, ImportError, requests.exceptions.ConnectionError):
+    skip_mprester_tests = requests.get(MP_URL, timeout=10).status_code != 200
+except requests.exceptions.ConnectionError:
     skip_mprester_tests = True
 
 if skip_mprester_tests:
