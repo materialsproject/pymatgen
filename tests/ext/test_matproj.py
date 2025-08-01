@@ -122,7 +122,7 @@ def test_get_entries(mprester):
     for entry in entries:
         assert entry.reduced_formula == "TiO2"
 
-    entries = mprester.get_entries("TiO2", inc_structure=True)
+    entries = mprester.get_entries("TiO2")
     assert len(entries) > 1
     for entry in entries:
         assert entry.structure.reduced_formula == "TiO2"
@@ -131,11 +131,11 @@ def test_get_entries(mprester):
     entries = mprester.get_entries("Fe", compatible_only=True)
     assert len(entries) < len(all_entries)
 
-    for entry in mprester.get_entries("CdO2", inc_structure=False):
+    for entry in mprester.get_entries("CdO2"):
         assert entry.data["oxide_type"] is not None
 
     # test if it will retrieve the conventional unit cell of Ni
-    entry = mprester.get_entry_by_material_id("mp-23", inc_structure=True, conventional_unit_cell=True)
+    entry = mprester.get_entry_by_material_id("mp-23")
     Ni = entry.structure
     assert Ni.lattice.a == Ni.lattice.b
     assert Ni.lattice.a == Ni.lattice.c
@@ -144,10 +144,10 @@ def test_get_entries(mprester):
     assert Ni.lattice.gamma == pytest.approx(60)
 
     # Ensure energy per atom is same
-    primNi = mprester.get_entry_by_material_id("mp-23", inc_structure=True, conventional_unit_cell=False)
+    primNi = mprester.get_entry_by_material_id("mp-23")
     assert primNi.energy_per_atom == entry.energy_per_atom
 
-    Ni = mprester.get_structure_by_material_id("mp-23", conventional_unit_cell=True)
+    Ni = mprester.get_structure_by_material_id("mp-23")
     assert Ni.lattice.a == Ni.lattice.b
     assert Ni.lattice.a == Ni.lattice.c
     assert Ni.lattice.alpha == pytest.approx(90)
