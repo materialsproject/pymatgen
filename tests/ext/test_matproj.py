@@ -11,8 +11,11 @@ from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 
 # Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
-if SETTINGS.get("PMG_MAPI_KEY") is None:
+if not (mp_api_key := SETTINGS.get("PMG_MAPI_KEY")):
     pytest.skip("PMG_MAPI_KEY not set", allow_module_level=True)
+
+if len(mp_api_key) != 32:
+    pytest.fail(f"Invalid/old MP API key, expected key length 32, got {len(mp_api_key)}")
 
 MP_URL = "https://api.materialsproject.org"
 try:
@@ -144,10 +147,10 @@ def test_get_entries(mprester):
     assert Ni.lattice.gamma == pytest.approx(60)
 
     # Ensure energy per atom is same
-    primNi = mprester.get_entry_by_material_id("mp-23")
+    primNi = mprester.get_entry_by_material_id("mp-23", conventional_unit_cell=False)
     assert primNi.energy_per_atom == entry.energy_per_atom
 
-    Ni = mprester.get_structure_by_material_id("mp-23")
+    Ni = mprester.get_structure_by_material_id("mp-23", conventional_unit_cell=True)
     assert Ni.lattice.a == pytest.approx(Ni.lattice.b)
     assert Ni.lattice.a == pytest.approx(Ni.lattice.c)
     assert Ni.lattice.alpha == pytest.approx(90)
