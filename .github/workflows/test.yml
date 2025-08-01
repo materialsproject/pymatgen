@@ -53,9 +53,6 @@ jobs:
 
     runs-on: ${{ matrix.config.os }}
     env:
-      MPLBACKEND: Agg  # non-interactive backend for matplotlib
-      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
-      PYTHONWARNDEFAULTENCODING: "true"  # PEP 597: Enable optional EncodingWarning
       OPT_BIN_DIR: ${{ github.workspace }}/opt/bin  # for optional Unix dependencies
     steps:
       - name: Check out repo
@@ -112,6 +109,7 @@ jobs:
           MPLBACKEND: Agg  # non-interactive backend for matplotlib
           PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
           PMG_TEST_FILES_DIR: "${{ github.workspace }}/tests/files"
+          PYTHONWARNDEFAULTENCODING: "true"  # PEP 597: Enable optional EncodingWarning
         run: |
           micromamba activate pmg
 
