@@ -67,7 +67,7 @@ dependencies = [
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=5.0.0",
-    "requests>=2.32",
+    "requests>=2.30",
     "ruamel.yaml>=0.17.0",
     "scipy>=1.13.0",
     # scipy<1.14.1 is incompatible with NumPy 2.0 on Windows
