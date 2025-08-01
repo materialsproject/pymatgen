@@ -179,7 +179,7 @@ def test_JDFTXInfile_expected_exceptions():
     with pytest.raises(ValueError, match=re.escape(err_str)):
         jif2.validate_tags(try_auto_type_fix=True)
     # The inevitable error can be reduced to a warning if you tell it not to try to fix the values
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match="The exchange-params tag with value"):
         jif2.validate_tags(try_auto_type_fix=False)
     # Setting a non-string tag raises an error within the JDFTXInfile object
     err_str = str(f"{1.2} is not a string!")

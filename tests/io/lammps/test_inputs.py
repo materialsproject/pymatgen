@@ -722,9 +722,9 @@ class TestFunc(MatSciTest):
         obj = LammpsData.from_file(src, atom_style="atomic")
         with pytest.warns(FutureWarning):
             write_lammps_inputs(output_dir="obj", script_template=peptide_script, data=obj)
-            obj_read = LammpsData.from_file(f"{self.tmp_path}/obj/data.peptide", atom_style="atomic")
-            pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
-            pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
+        obj_read = LammpsData.from_file(f"{self.tmp_path}/obj/data.peptide", atom_style="atomic")
+        pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
+        pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
 
 
 class TestLammpsTemplateGen(MatSciTest):
