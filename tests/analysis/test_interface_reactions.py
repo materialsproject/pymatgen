@@ -177,12 +177,14 @@ class TestInterfaceReaction:
 
     def test_get_entry_energy(self):
         comp = Composition("MnO3")
-        with pytest.warns(UserWarning) as warns:
+        with pytest.warns(
+            UserWarning,
+            match=(
+                "The reactant MnO3 has no matching entry with negative formation energy, instead "
+                "convex hull energy for this composition will be used for reaction energy calculation."
+            ),
+        ):
             energy = InterfacialReactivity._get_entry_energy(self.pd, comp)
-        assert str(warns[0].message) == (
-            "The reactant MnO3 has no matching entry with negative formation energy, instead "
-            "convex hull energy for this composition will be used for reaction energy calculation."
-        )
 
         test1 = np.isclose(energy, -30, atol=1e-3)
         assert test1, f"_get_entry_energy: energy for {comp.reduced_formula} is wrong!"
@@ -364,7 +366,7 @@ class TestInterfaceReaction:
                 relative_vectors_1 = [(x - x_kink[0], e - energy_kink[0]) for x, e in points]
                 relative_vectors_2 = [(x - x_kink[-1], e - energy_kink[-1]) for x, e in points]
                 relative_vectors = zip(relative_vectors_1, relative_vectors_2, strict=True)
-                positions = [np.cross(v1, v2) for v1, v2 in relative_vectors]
+                positions = [v1[0] * v2[1] - v1[1] * v2[0] for v1, v2 in relative_vectors]
                 assert np.all(np.array(positions) <= 0)
 
                 hull = ConvexHull(points)
