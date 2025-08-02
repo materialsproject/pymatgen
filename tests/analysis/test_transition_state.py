@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 import orjson
 from matplotlib import pyplot as plt
 from numpy.testing import assert_allclose
@@ -65,6 +67,7 @@ class TestNEBAnalysis(MatSciTest):
         neb_analysis = NEBAnalysis.from_dir(neb_dir)
         ax = neb_analysis.get_plot()
         assert isinstance(ax, plt.Axes)
-        assert ax.texts[0].get_text() == "326 meV", "Unexpected annotation text"
+        assert math.isclose(neb_analysis.get_extrema()[1][0][1], 325.20043063935128)
+        assert ax.texts[0].get_text() == "325 meV", "Unexpected annotation text"
         assert ax.get_xlabel() == "Reaction Coordinate"
         assert ax.get_ylabel() == "Energy (meV)"
