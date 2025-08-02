@@ -24,7 +24,7 @@ from pymatgen.util.plotting import pretty_plot
 if TYPE_CHECKING:
     from typing import Any
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike
@@ -89,7 +89,7 @@ class NEBAnalysis(MSONable):
             zero_slope_saddle (bool): New preferred argument.
                 If True, enforces zero slope at the saddle point.
         """
-        self.zero_slope_saddle = zero_slope_saddle
+        self.zero_slope_saddle: bool = zero_slope_saddle
         if spline_options is not None:
             warnings.warn(
                 "`spline_options` is deprecated and will be removed in 2026-08-01. "
@@ -99,18 +99,18 @@ class NEBAnalysis(MSONable):
             )
             self.zero_slope_saddle = spline_options.get("saddle_point") == "zero_slope"
 
-        relative_energies = self.energies - self.energies[0]
+        relative_energies: NDArray = self.energies - self.energies[0]
 
         if self.zero_slope_saddle:
-            imax = np.argmax(relative_energies)
+            idx_max: int = np.argmax(relative_energies)
             self.spline = CubicSpline(
-                x=self.r[: imax + 1],
-                y=relative_energies[: imax + 1],
+                x=self.r[: idx_max + 1],
+                y=relative_energies[: idx_max + 1],
                 bc_type=((1, 0.0), (1, 0.0)),
             )
             cspline2 = CubicSpline(
-                x=self.r[imax:],
-                y=relative_energies[imax:],
+                x=self.r[idx_max:],
+                y=relative_energies[idx_max:],
                 bc_type=((1, 0.0), (1, 0.0)),
             )
             self.spline.extend(c=cspline2.c, x=cspline2.x[1:])
@@ -141,28 +141,27 @@ class NEBAnalysis(MSONable):
         # which serves as the reaction coordinate. Note that these are
         # calculated from the final relaxed structures as the coordinates may
         # have changed from the initial interpolation.
-        rms_dist = [0]
-        prev = structures[0]
-        for st in structures[1:]:
-            dists = np.array([s2.distance(s1) for s1, s2 in zip(prev, st, strict=True)])
-            rms_dist.append(np.sqrt(np.sum(dists**2)))
-            prev = st
-        rms_dist = np.cumsum(rms_dist)
+        _rms_dist: list[float] = [0]
+        prev_struct: Structure = structures[0]
+        for struct in structures[1:]:
+            dists = np.array([s2.distance(s1) for s1, s2 in zip(prev_struct, struct, strict=True)])
+            _rms_dist.append(np.sqrt(np.sum(dists**2)))
+            prev_struct = struct
+        rms_dist: NDArray = np.cumsum(_rms_dist)
 
         energies, forces = [], []
         for idx, outcar in enumerate(outcars):
             outcar.read_neb()
             energies.append(outcar.data["energy"])
-            if idx in [0, len(outcars) - 1]:
+            if idx in {0, len(outcars) - 1}:
                 forces.append(0)
             else:
                 forces.append(outcar.data["tangent_force"])
-        forces = np.array(forces)
-        rms_dist = np.array(rms_dist)
+
         return cls(
             r=rms_dist,
-            energies=energies,
-            forces=forces,
+            energies=np.array(energies),
+            forces=np.array(forces),
             structures=structures,
             **kwargs,
         )
@@ -180,8 +179,8 @@ class NEBAnalysis(MSONable):
         Returns:
             tuple[min_extrema, max_extrema]: where the extrema are given as [(x1, y1), (x2, y2), ...].
         """
-        x = np.arange(0, np.max(self.r), 0.01)
-        y = self.spline(x) * 1000
+        x: NDArray = np.arange(0, np.max(self.r), 0.01)
+        y: NDArray = self.spline(x) * 1000
 
         scale: float = 1 if not normalize_rxn_coordinate else 1 / self.r[-1]
         min_extrema: list[tuple[float, float]] = []
@@ -191,6 +190,7 @@ class NEBAnalysis(MSONable):
                 min_extrema.append((x[i] * scale, y[i]))
             elif y[i] > y[i - 1] and y[i] > y[i + 1]:
                 max_extrema.append((x[i] * scale, y[i]))
+
         return min_extrema, max_extrema
 
     def get_plot(
@@ -210,10 +210,10 @@ class NEBAnalysis(MSONable):
             plt.Axes: matplotlib axes object.
         """
         ax = pretty_plot(12, 8)
-        scale = 1 / self.r[-1] if normalize_rxn_coordinate else 1
-        xs = np.arange(0, np.max(self.r), 0.01)
-        ys = self.spline(xs) * 1000
-        relative_energies = self.energies - self.energies[0]
+        scale: float = 1 / self.r[-1] if normalize_rxn_coordinate else 1
+        xs: NDArray = np.arange(0, np.max(self.r), 0.01)
+        ys: NDArray = self.spline(xs) * 1000
+        relative_energies: NDArray = self.energies - self.energies[0]
         ax.plot(
             self.r * scale,
             relative_energies * 1000,
@@ -228,6 +228,7 @@ class NEBAnalysis(MSONable):
         ax.set_xlabel("Reaction Coordinate")
         ax.set_ylabel("Energy (meV)")
         ax.set_ylim((np.min(ys) - 10, np.max(ys) * 1.02 + 20))
+
         if label_barrier:
             data = zip(xs * scale, ys, strict=True)
             barrier = max(data, key=lambda d: d[1])
@@ -239,6 +240,7 @@ class NEBAnalysis(MSONable):
                 horizontalalignment="center",
                 fontsize=18,
             )
+
         plt.tight_layout()
         return ax
 
@@ -246,7 +248,7 @@ class NEBAnalysis(MSONable):
     def from_dir(
         cls,
         root_dir: PathLike,
-        relaxation_dirs: tuple | None = None,
+        relaxation_dirs: tuple[PathLike, PathLike] | None = None,
         **kwargs,
     ) -> Self:
         """Initialize a NEBAnalysis object from a directory of a NEB run.
@@ -276,8 +278,8 @@ class NEBAnalysis(MSONable):
 
         Args:
             root_dir (PathLike): Path to the root directory of the NEB calculation.
-            relaxation_dirs (tuple): The starting and ending relaxation directories
-                from which the OUTCARs are read for the terminal points for the energies.
+            relaxation_dirs (tuple): The (start, end) directories from which
+                the OUTCARs are read for the terminal points for the energies.
 
         Returns:
             NEBAnalysis object.
