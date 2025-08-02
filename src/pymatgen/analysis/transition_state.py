@@ -60,20 +60,21 @@ class NEBAnalysis(MSONable):
                 DeprecationWarning,
                 stacklevel=2,
             )
-            zero_slope_saddle = spline_options.get("saddle_point") == "zero_slope"
+            self.zero_slope_saddle = spline_options.get("saddle_point") == "zero_slope"
+        else:
+            self.zero_slope_saddle = zero_slope_saddle
 
         self.r = np.asarray(r)
         self.energies = np.asarray(energies)
         self.forces = np.asarray(forces)
         self.structures = structures
-        self.spline_options = spline_options or {}
 
         # We do a piecewise interpolation between the points. Each spline (
         # cubic by default) is constrained by the boundary conditions of the
         # energies and the tangent force, i.e., the derivative of
         # the energy at each pair of points.
 
-        self.setup_spline(zero_slope_saddle=zero_slope_saddle)
+        self.setup_spline(zero_slope_saddle=self.zero_slope_saddle)
 
     def setup_spline(
         self,
@@ -96,12 +97,11 @@ class NEBAnalysis(MSONable):
                 DeprecationWarning,
                 stacklevel=2,
             )
-            zero_slope_saddle = spline_options.get("saddle_point") == "zero_slope"
+            self.zero_slope_saddle = spline_options.get("saddle_point") == "zero_slope"
 
-        self.spline_options = spline_options
         relative_energies = self.energies - self.energies[0]
 
-        if zero_slope_saddle:
+        if self.zero_slope_saddle:
             imax = np.argmax(relative_energies)
             self.spline = CubicSpline(
                 x=self.r[: imax + 1],
@@ -170,7 +170,7 @@ class NEBAnalysis(MSONable):
     def get_extrema(
         self, normalize_rxn_coordinate: bool = True
     ) -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
-        """Get the positions of the extrema along the minimum energy path (MEP).
+        """Get the positions of the extrema in meV along the minimum energy path (MEP).
         Both local minimums and maximums are returned.
 
         Args:
