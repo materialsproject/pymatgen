@@ -2,8 +2,6 @@
 Some reimplementation of Henkelman's Transition State Analysis utilities,
 which are originally in Perl. Additional features beyond those offered by
 Henkelman's utilities will be added.
-
-This allows the usage and customization in Python.
 """
 
 from __future__ import annotations
@@ -94,11 +92,15 @@ class NEBAnalysis(MSONable):
             self.spline = CubicSpline(x=self.r, y=relative_energies, bc_type=((1, 0.0), (1, 0.0)))
 
     @classmethod
-    def from_outcars(cls, outcars: list[Outcar], structures: list[Structure], **kwargs) -> Self:
+    def from_outcars(
+        cls,
+        outcars: list[Outcar],
+        structures: list[Structure],
+        **kwargs,
+    ) -> Self:
         """Initialize an NEBAnalysis from Outcar and Structure objects. Use
-        the static constructors, e.g. from_dir instead if you
-        prefer to have these automatically generated from a directory of NEB
-        calculations.
+        the static constructors, e.g. `from_dir` instead if you prefer to
+        have these automatically generated from a directory of NEB calculations.
 
         Args:
             outcars (list[Outcar]): Outcar objects. Note that these have
@@ -227,15 +229,15 @@ class NEBAnalysis(MSONable):
         terminal OUTCARs from relaxation calculations, you can specify the
         locations using `relaxation_dir`. If these are not specified, the code
         will attempt to look for the OUTCARs in 00 and 0n directories,
-        followed by subdirs "start", "end" or "initial", "final" in the
-        root_dir. These are just some typical conventions used
-        preferentially in Shyue Ping's MAVRL research group. For the
-        non-terminal points, the CONTCAR is read to obtain structures. For
-        terminal points, the POSCAR is used. The image directories are
+        followed by subdirs ("start", "end") or ("initial", "final") in the
+        `root_dir`. These are just some typical conventions used
+        preferentially in Shyue Ping's MAVRL research group.
+
+        For the non-terminal points, the CONTCAR is read to obtain structures.
+        For terminal points, the POSCAR is used. The image directories are
         assumed to be the only directories that can be resolved to integers.
-        e.g. "00", "01", "02", "03", "04", "05", "06". The minimum
-        sub-directory structure that can be parsed is of the following form (
-        a 5-image example is shown):
+        e.g. "00", "01", ..., "06". The minimum sub-directory structure that
+        can be parsed is of the following form (a 5-image example is shown):
             00:
                 - POSCAR
                 - OUTCAR
