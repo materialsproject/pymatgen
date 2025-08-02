@@ -65,6 +65,7 @@ class NEBAnalysis(MSONable):
 
         self.r = np.asarray(r)
         self.energies = np.asarray(energies)
+        self.relative_energies: NDArray = self.energies - self.energies[0]
         self.forces = np.asarray(forces)
         self.structures = structures
 
@@ -98,23 +99,21 @@ class NEBAnalysis(MSONable):
             )
             self.zero_slope_saddle = spline_options.get("saddle_point") == "zero_slope"
 
-        relative_energies: NDArray = self.energies - self.energies[0]
-
         if self.zero_slope_saddle:
-            idx_max: int = np.argmax(relative_energies)
+            idx_max: int = np.argmax(self.relative_energies)
             self.spline = CubicSpline(
                 x=self.r[: idx_max + 1],
-                y=relative_energies[: idx_max + 1],
+                y=self.relative_energies[: idx_max + 1],
                 bc_type=((1, 0.0), (1, 0.0)),
             )
             cspline2 = CubicSpline(
                 x=self.r[idx_max:],
-                y=relative_energies[idx_max:],
+                y=self.relative_energies[idx_max:],
                 bc_type=((1, 0.0), (1, 0.0)),
             )
             self.spline.extend(c=cspline2.c, x=cspline2.x[1:])
         else:
-            self.spline = CubicSpline(x=self.r, y=relative_energies, bc_type=((1, 0.0), (1, 0.0)))
+            self.spline = CubicSpline(x=self.r, y=self.relative_energies, bc_type=((1, 0.0), (1, 0.0)))
 
     @classmethod
     def from_outcars(
@@ -208,17 +207,18 @@ class NEBAnalysis(MSONable):
         Returns:
             plt.Axes: matplotlib axes object.
         """
-        ax = pretty_plot(12, 8)
         scale: float = 1 / self.r[-1] if normalize_rxn_coordinate else 1
         xs: NDArray = np.arange(0, np.max(self.r), 0.01)
-        ys: NDArray = self.spline(xs) * 1000
-        relative_energies: NDArray = self.energies - self.energies[0]
+        ys_mev: NDArray = self.spline(xs) * 1000
+        relative_energies_mev: NDArray = self.relative_energies * 1000
+
+        ax = pretty_plot(12, 8)
         ax.plot(
             self.r * scale,
-            relative_energies * 1000,
+            relative_energies_mev,
             "ro",
             xs * scale,
-            ys,
+            ys_mev,
             "k-",
             linewidth=2,
             markersize=10,
@@ -226,14 +226,14 @@ class NEBAnalysis(MSONable):
 
         ax.set_xlabel("Reaction Coordinate")
         ax.set_ylabel("Energy (meV)")
-        ax.set_ylim((np.min(ys) - 10, np.max(ys) * 1.02 + 20))
+        ax.set_ylim((np.min(ys_mev) - 10, np.max(ys_mev) * 1.02 + 20))
 
         if label_barrier:
-            data = zip(xs * scale, ys, strict=True)
-            barrier = max(data, key=lambda d: d[1])
+            data = zip(xs * scale, ys_mev, strict=True)
+            barrier: tuple[float, float] = max(data, key=lambda d: d[1])
             ax.plot([0, barrier[0]], [barrier[1], barrier[1]], "k--", linewidth=0.5)
             ax.annotate(
-                f"{np.max(ys) - np.min(ys):.0f} meV",
+                f"{max(relative_energies_mev):.0f} meV",
                 xy=(barrier[0] / 2, barrier[1] * 1.02),
                 xytext=(barrier[0] / 2, barrier[1] * 1.02),
                 horizontalalignment="center",
