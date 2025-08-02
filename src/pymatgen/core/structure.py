@@ -2425,7 +2425,7 @@ class IStructure(SiteCollection, MSONable):
             autosort_tol (float): A distance tolerance in angstrom in
                 which to automatically sort end_structure to match to the
                 closest points in this particular structure. This is usually
-                what you want in a NEB calculation. 0 implies no sorting.
+                what you want in an NEB calculation. 0 implies no sorting.
                 Otherwise, a 0.5 value usually works pretty well.
             end_amplitude (float): The fractional amplitude of the endpoint
                 of the interpolation, or a cofactor of the distortion vector
