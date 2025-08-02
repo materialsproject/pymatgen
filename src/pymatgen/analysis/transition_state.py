@@ -46,19 +46,19 @@ class NEBAnalysis(MSONable):
         between structures, the energies, the forces and the structures for the analysis.
 
         Args:
-            r: Root mean square distances between structures.
-            energies: Energies of each structure along reaction coordinate.
-            forces: Tangent forces along the reaction coordinate.
+            r (ArrayLike): Root mean square distances between structures.
+            energies (ArrayLike): Energies of each structure along reaction coordinate.
+            forces (ArrayLike): Tangent forces along the reaction coordinate.
             structures (list[Structure]): Structures along reaction coordinate.
-            spline_options (dict): Options for cubic spline. For example,
-                `{"saddle_point": "zero_slope"}` forces the slope at the saddle to
-                be zero.
+            spline_options (dict): Set to `{"saddle_point": "zero_slope"}` to force
+                the slope at the saddle to be zero.
+                TODO: this should be a boolean flag.
         """
         self.r = np.asarray(r)
         self.energies = np.asarray(energies)
         self.forces = np.asarray(forces)
         self.structures = structures
-        self.spline_options = spline_options if spline_options is not None else {}
+        self.spline_options = spline_options or {}
 
         # We do a piecewise interpolation between the points. Each spline (
         # cubic by default) is constrained by the boundary conditions of the
@@ -71,14 +71,13 @@ class NEBAnalysis(MSONable):
         """Setup of the options for the spline interpolation.
 
         Args:
-            spline_options (dict): Options for cubic spline. For example,
-                {"saddle_point": "zero_slope"} forces the slope at the saddle to
-                be zero.
+            spline_options (dict): Set to `{"saddle_point": "zero_slope"}` to force
+                the slope at the saddle to be zero.
         """
         self.spline_options = spline_options
         relative_energies = self.energies - self.energies[0]
 
-        if self.spline_options.get("saddle_point", "") == "zero_slope":
+        if self.spline_options.get("saddle_point") == "zero_slope":
             imax = np.argmax(relative_energies)
             self.spline = CubicSpline(
                 x=self.r[: imax + 1],
@@ -276,7 +275,7 @@ class NEBAnalysis(MSONable):
             outcar = glob(f"{neb_dir}/OUTCAR*")
             contcar = glob(f"{neb_dir}/CONTCAR*")
             poscar = glob(f"{neb_dir}/POSCAR*")  # TODO: fix glob order
-            terminal = idx in [0, neb_dirs[-1][0]]
+            terminal: bool = idx in {0, neb_dirs[-1][0]}
             if terminal:
                 for dirs in terminal_dirs:
                     od = dirs[0] if idx == 0 else dirs[1]
