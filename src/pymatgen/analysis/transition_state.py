@@ -72,7 +72,6 @@ class NEBAnalysis(MSONable):
         # cubic by default) is constrained by the boundary conditions of the
         # energies and the tangent force, i.e., the derivative of
         # the energy at each pair of points.
-
         self.setup_spline(zero_slope_saddle=self.zero_slope_saddle)
 
     def setup_spline(
@@ -251,7 +250,7 @@ class NEBAnalysis(MSONable):
         relaxation_dirs: tuple[PathLike, PathLike] | None = None,
         **kwargs,
     ) -> Self:
-        """Initialize a NEBAnalysis object from a directory of a NEB run.
+        """Initialize an NEBAnalysis object from a directory of an NEB run.
 
         Note that OUTCARs must be present in all image directories. For the
         terminal OUTCARs from relaxation calculations, you can specify the
@@ -361,7 +360,7 @@ def combine_neb_plots(
             reverse_plot: reverse the plot or percolation direction.
 
     Returns:
-        a NEBAnalysis object
+        NEBAnalysis object
     """
     x = StructureMatcher()
     neb1_structures = []
