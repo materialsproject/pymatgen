@@ -290,8 +290,6 @@ class NEBAnalysis(MSONable):
                 idx = int(digit)
                 neb_dirs.append((idx, pth))
         neb_dirs = sorted(neb_dirs, key=lambda d: d[0])
-        outcars = []
-        structures = []
 
         # Setup the search sequence for the OUTCARs for the terminal directories.
         terminal_dirs = [] if relaxation_dirs is None else [relaxation_dirs]
@@ -299,15 +297,17 @@ class NEBAnalysis(MSONable):
         terminal_dirs += [[os.path.join(root_dir, folder) for folder in ("start", "end")]]
         terminal_dirs += [[os.path.join(root_dir, folder) for folder in ("initial", "final")]]
 
+        outcars = []
+        structures = []
         for idx, neb_dir in neb_dirs:
-            outcar = glob(f"{neb_dir}/OUTCAR*")
-            contcar = glob(f"{neb_dir}/CONTCAR*")
-            poscar = glob(f"{neb_dir}/POSCAR*")  # TODO: fix glob order
+            outcar = glob(f"{neb_dir}/OUTCAR") or glob(f"{neb_dir}/OUTCAR*")
+            contcar = glob(f"{neb_dir}/CONTCAR") or glob(f"{neb_dir}/CONTCAR*")
+            poscar = glob(f"{neb_dir}/POSCAR") or glob(f"{neb_dir}/POSCAR*")
             terminal: bool = idx in {0, neb_dirs[-1][0]}
             if terminal:
                 for dirs in terminal_dirs:
                     od = dirs[0] if idx == 0 else dirs[1]
-                    if outcar := glob(f"{od}/OUTCAR*"):
+                    if outcar := (glob(f"{od}/OUTCAR") or glob(f"{od}/OUTCAR*")):
                         outcar = sorted(outcar)
                         outcars.append(Outcar(outcar[-1]))
                         break
