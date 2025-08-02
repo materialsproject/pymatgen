@@ -53,6 +53,7 @@ class NEBAnalysis(MSONable):
             spline_options (dict, optional): [Deprecated] Use `zero_slope_saddle` instead.
             zero_slope_saddle (bool): If True, enforces zero slope at saddle point.
         """
+        self.zero_slope_saddle = zero_slope_saddle
         if spline_options is not None:
             warnings.warn(
                 "`spline_options` is deprecated and will be removed in 2026-08-01. "
@@ -61,8 +62,6 @@ class NEBAnalysis(MSONable):
                 stacklevel=2,
             )
             self.zero_slope_saddle = spline_options.get("saddle_point") == "zero_slope"
-        else:
-            self.zero_slope_saddle = zero_slope_saddle
 
         self.r = np.asarray(r)
         self.energies = np.asarray(energies)
@@ -90,6 +89,7 @@ class NEBAnalysis(MSONable):
             zero_slope_saddle (bool): New preferred argument.
                 If True, enforces zero slope at the saddle point.
         """
+        self.zero_slope_saddle = zero_slope_saddle
         if spline_options is not None:
             warnings.warn(
                 "`spline_options` is deprecated and will be removed in 2026-08-01. "
