@@ -43,8 +43,7 @@ class NEBAnalysis(MSONable):
         spline_options: dict | None = None,
     ) -> None:
         """Initialize an NEBAnalysis from the cumulative root mean squared distances
-        between structures, the energies, the forces, the structures and the
-        interpolation_order for the analysis.
+        between structures, the energies, the forces and the structures for the analysis.
 
         Args:
             r: Root mean square distances between structures.
@@ -107,9 +106,6 @@ class NEBAnalysis(MSONable):
                 to be ordered from start to end along reaction coordinates.
             structures (list[Structure]): Structures along reaction
                 coordinate. Must be same length as outcars.
-            interpolation_order (int): Order of polynomial to use to   # TODO: remove this
-                interpolate between images. Same format as order parameter in
-                scipy.interpolate.PiecewisePolynomial.
         """
         if len(outcars) != len(structures):
             raise ValueError("# of Outcars must be same as # of Structures")
