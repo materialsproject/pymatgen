@@ -7,6 +7,7 @@ Henkelman's utilities will be added.
 from __future__ import annotations
 
 import os
+import warnings
 from glob import glob
 from typing import TYPE_CHECKING
 
@@ -39,6 +40,7 @@ class NEBAnalysis(MSONable):
         forces: ArrayLike,
         structures: list[Structure],
         spline_options: dict | None = None,
+        zero_slope_saddle: bool = False,
     ) -> None:
         """Initialize an NEBAnalysis from the cumulative root mean squared distances
         between structures, the energies, the forces and the structures for the analysis.
@@ -48,10 +50,18 @@ class NEBAnalysis(MSONable):
             energies (ArrayLike): Energies of each structure along reaction coordinate.
             forces (ArrayLike): Tangent forces along the reaction coordinate.
             structures (list[Structure]): Structures along reaction coordinate.
-            spline_options (dict): Set to `{"saddle_point": "zero_slope"}` to force
-                the slope at the saddle to be zero.
-                TODO: this should be a boolean flag.
+            spline_options (dict, optional): [Deprecated] Use `zero_slope_saddle` instead.
+            zero_slope_saddle (bool): If True, enforces zero slope at saddle point.
         """
+        if spline_options is not None:
+            warnings.warn(
+                "`spline_options` is deprecated and will be removed in 2026-08-01. "
+                "Use `zero_slope_saddle=True` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            zero_slope_saddle = spline_options.get("saddle_point") == "zero_slope"
+
         self.r = np.asarray(r)
         self.energies = np.asarray(energies)
         self.forces = np.asarray(forces)
@@ -63,19 +73,35 @@ class NEBAnalysis(MSONable):
         # energies and the tangent force, i.e., the derivative of
         # the energy at each pair of points.
 
-        self.setup_spline(spline_options=self.spline_options)
+        self.setup_spline(zero_slope_saddle=zero_slope_saddle)
 
-    def setup_spline(self, spline_options: dict | None = None) -> None:
-        """Setup of the options for the spline interpolation.
+    def setup_spline(
+        self,
+        spline_options: dict | None = None,
+        zero_slope_saddle: bool = False,
+    ) -> None:
+        """
+        Set up the cubic spline interpolation of the MEP.
 
         Args:
-            spline_options (dict): Set to `{"saddle_point": "zero_slope"}` to force
-                the slope at the saddle to be zero.
+            spline_options (dict, optional): [Deprecated] Dictionary of options.
+                Set to {"saddle_point": "zero_slope"} to enforce zero slope at saddle.
+            zero_slope_saddle (bool): New preferred argument.
+                If True, enforces zero slope at the saddle point.
         """
+        if spline_options is not None:
+            warnings.warn(
+                "`spline_options` is deprecated and will be removed in 2026-08-01. "
+                "Use `zero_slope_saddle=True` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            zero_slope_saddle = spline_options.get("saddle_point") == "zero_slope"
+
         self.spline_options = spline_options
         relative_energies = self.energies - self.energies[0]
 
-        if self.spline_options.get("saddle_point") == "zero_slope":
+        if zero_slope_saddle:
             imax = np.argmax(relative_energies)
             self.spline = CubicSpline(
                 x=self.r[: imax + 1],
