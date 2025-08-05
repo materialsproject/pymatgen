@@ -203,7 +203,7 @@ def process_parsed_fock_matrix(fock_matrix):
     return fock_matrix_reshaped
 
 
-def process_parsed_hess(hess_data):
+def process_parsed_hess(hess_data) -> list[int]:
     """
     Takes the information contained in a HESS file and converts it into
     the format of the machine-readable 132.0 file which can be printed
@@ -226,9 +226,4 @@ def process_parsed_hess(hess_data):
                     hess[column][row] = num
                     column += 1
 
-    processed_hess_data = []
-    for ii in range(dim):
-        for jj in range(dim):
-            processed_hess_data.append(hess[ii][jj])
-
-    return processed_hess_data
+    return [hess[ii][jj] for ii in range(dim) for jj in range(dim)]

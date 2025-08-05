@@ -632,8 +632,7 @@ class CoordinationGeometry:
             outs.append("... not yet implemented")
         else:
             outs.append("  - list of points :")
-            for pp in self.points:
-                outs.append(f"    - {pp}")
+            outs.extend(f"    - {pp}" for pp in self.points)
         outs.extend(("------------------------------------------------------------", ""))
 
         return "\n".join(outs)
@@ -754,9 +753,7 @@ class CoordinationGeometry:
         Returns:
             Permutation: Reference permutation of the perfect CoordinationGeometry.
         """
-        perms = []
-        for eqv_indices in self.equivalent_indices:
-            perms.append(tuple(permutation[ii] for ii in eqv_indices))
+        perms = [tuple(permutation[ii] for ii in eqv_indices) for eqv_indices in self.equivalent_indices]
         perms.sort()
         return perms[0]
 
@@ -925,8 +922,8 @@ class AllCoordinationGeometries(dict):
             "#=================================#",
             "",
         ]
-        for cg in self.cg_list:
-            outs.append(repr(cg))
+
+        outs.extend(repr(cg) for cg in self.cg_list)
 
         return "\n".join(outs)
 
@@ -939,9 +936,8 @@ class AllCoordinationGeometries(dict):
             "#=======================================================#",
             "",
         ]
-        for cg in self.cg_list:
-            if cg.is_implemented():
-                outs.append(str(cg))
+
+        outs.extend(str(cg) for cg in self.cg_list if cg.is_implemented())
 
         return "\n".join(outs)
 

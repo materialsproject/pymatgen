@@ -346,10 +346,11 @@ class LammpsInputFile(InputFile):
         stages = self.stages[: indices_stages_to_merge[0]]
 
         merge_name = "Merge of: " + ", ".join([self.stages_names[i] for i in indices_stages_to_merge])
-        merged_commands = []
-        for i in indices_stages_to_merge:
-            for j in range(len(self.stages[i]["commands"])):
-                merged_commands.append(self.stages[i]["commands"][j])
+        merged_commands = [
+            self.stages[i]["commands"][j]
+            for i in indices_stages_to_merge
+            for j in range(len(self.stages[i]["commands"]))
+        ]
 
         merged_stages = {"stage_name": merge_name, "commands": merged_commands}
         stages.append(merged_stages)
@@ -828,11 +829,9 @@ class LammpsInputFile(InputFile):
         string_list = string_list[imin : imax + 1]
 
         # Get rid of empty comments that are there just for cosmetic reasons
-        new_list = []
-        for string in string_list:
-            if len(string) > 1 or not (len(string.strip()) == 1 and string[0] == "#"):
-                new_list.append(string)
-        string_list = new_list
+        string_list = [
+            string for string in string_list if len(string) > 1 or not (len(string.strip()) == 1 and string[0] == "#")
+        ]
 
         # Keep only a single empty lines when there are multiple ones
         lines = [string_list[0]]

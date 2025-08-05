@@ -67,8 +67,7 @@ class Movement(MSONable):
         chunk_sizes: list[int] = []
         row_idxs: list[int] = LineLocator.locate_all_lines(self.filename, self.split_mark)
         chunk_sizes.append(row_idxs[0])
-        for ii in range(1, len(row_idxs)):
-            chunk_sizes.append(row_idxs[ii] - row_idxs[ii - 1])
+        chunk_sizes.extend(row_idxs[ii] - row_idxs[ii - 1] for ii in range(1, len(row_idxs)))
         chunk_sizes_bak: list[int] = copy.deepcopy(chunk_sizes)
         chunk_sizes_bak.insert(0, 0)
         chunk_starts: list[int] = np.cumsum(chunk_sizes_bak).tolist()

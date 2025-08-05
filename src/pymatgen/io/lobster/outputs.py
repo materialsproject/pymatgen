@@ -57,7 +57,7 @@ due.cite(
 
 def _get_lines(filename) -> list[str]:
     with zopen(filename, mode="rt", encoding="utf-8") as file:
-        return file.read().split("\n")  # type:ignore[return-value,arg-type]
+        return cast("list[str]", file.read().splitlines())
 
 
 class Cohpcar:
@@ -109,7 +109,7 @@ class Cohpcar:
             or (are_coops and are_multi_center_cobis)
             or (are_cobis and are_multi_center_cobis)
         ):
-            raise ValueError("You cannot have info about COOPs, COBIs and/or multi-center COBIS in the same file.")
+            raise ValueError("You cannot have info about COOPs, COBIs and/or multi-center COBIs in the same file.")
 
         self.are_coops = are_coops
         self.are_cobis = are_cobis
@@ -125,7 +125,7 @@ class Cohpcar:
             else:
                 self._filename = "COHPCAR.lobster"
 
-        lines = _get_lines(filename)
+        lines: list[str] = _get_lines(self._filename)
 
         # The parameters line is the second line in a COHPCAR file.
         # It contains all parameters that are needed to map the file.
@@ -136,24 +136,23 @@ class Cohpcar:
         self.is_spin_polarized = int(parameters[1]) == 2
         spins = [Spin.up, Spin.down] if int(parameters[1]) == 2 else [Spin.up]
         cohp_data: dict[str, dict[str, Any]] = {}
+
+        # The COHP/COBI data start from line num_bonds + 3
+        data = np.array([np.array(line.split(), dtype=float) for line in lines[num_bonds + 3 :]]).transpose()
+
         if not self.are_multi_center_cobis:
-            # The COHP data start in line num_bonds + 3
-            data = np.array([np.array(line.split(), dtype=float) for line in lines[num_bonds + 3 :]]).transpose()
             cohp_data = {
                 "average": {
                     "COHP": {spin: data[1 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
                     "ICOHP": {spin: data[2 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
                 }
             }
-        else:
-            # The COBI data start in line num_bonds + 3 if multi-center cobis exist
-            data = np.array([np.array(line.split(), dtype=float) for line in lines[num_bonds + 3 :]]).transpose()
 
         self.energies = data[0]
 
         orb_cohp: dict[str, Any] = {}
         # Present for LOBSTER versions older than 2.2.0
-        very_old = False
+        older_than_2_2_0: bool = False
 
         # The label has to be changed: there are more than one COHP for each atom combination
         # this is done to make the labeling consistent with ICOHPLIST.lobster
@@ -192,8 +191,8 @@ class Cohpcar:
                 else:
                     # Present for LOBSTER versions older than 2.2.0
                     if bond_num == 0:
-                        very_old = True
-                    if very_old:
+                        older_than_2_2_0 = True
+                    if older_than_2_2_0:
                         bond_num += 1
                         label = str(bond_num)
 
@@ -245,8 +244,8 @@ class Cohpcar:
                 else:
                     # Present for LOBSTER versions older than 2.2.0
                     if bond_num == 0:
-                        very_old = True
-                    if very_old:
+                        older_than_2_2_0 = True
+                    if older_than_2_2_0:
                         bond_num += 1
                         label = str(bond_num)
 
@@ -261,7 +260,7 @@ class Cohpcar:
                     }
 
         # Present for LOBSTER older than 2.2.0
-        if very_old:
+        if older_than_2_2_0:
             for bond_str in orb_cohp:
                 cohp_data[bond_str] = {
                     "COHP": None,
@@ -405,14 +404,10 @@ class Icohplist(MSONable):
             else:
                 self._filename = "ICOHPLIST.lobster"
 
-        # LOBSTER list files have an extra trailing blank line
-        # and we don't need the header.
         if self._icohpcollection is None:
             with zopen(self._filename, mode="rt", encoding="utf-8") as file:
-                all_lines: list[str] = file.read().splitlines()  # type:ignore[assignment]
+                all_lines: list[str] = cast("list[str]", file.read().splitlines())
 
-                # strip *trailing* blank lines only
-                all_lines = [line for line in all_lines if line.strip()]
                 # --- detect header length robustly ---
                 header_len = 0
                 try:
@@ -442,7 +437,7 @@ class Icohplist(MSONable):
             # If the calculation is spin polarized, the line in the middle
             # of the file will be another header line.
             # TODO: adapt this for orbital-wise stuff
-            if version in ("3.1.1", "2.2.1"):
+            if version in {"3.1.1", "2.2.1"}:
                 self.is_spin_polarized = "distance" in lines[len(lines) // 2]
             else:  # if version == "5.1.0":
                 self.is_spin_polarized = len(lines[0].split()) == 9
@@ -637,10 +632,8 @@ class NciCobiList:
         Args:
             filename: Name of the NcICOBILIST file.
         """
-
-        # LOBSTER list files have an extra trailing blank line
-        # and we don't need the header
-        lines = _get_lines(filename)[1:-1]
+        # We don't need the header
+        lines = _get_lines(filename)[1:]
         if len(lines) == 0:
             raise RuntimeError("NcICOBILIST file contains no data.")
 
@@ -663,10 +656,10 @@ class NciCobiList:
                 break  # condition has only to be met once
 
         if self.orbital_wise:
-            data_without_orbitals = []
-            for line in lines:
-                if "_" not in str(line.split()[3:]) and "s]" not in str(line.split()[3:]):
-                    data_without_orbitals.append(line)
+            data_without_orbitals = [
+                line for line in lines if "_" not in str(line.split()[3:]) and "s]" not in str(line.split()[3:])
+            ]
+
         else:
             data_without_orbitals = lines
 
@@ -930,7 +923,7 @@ class Charge(MSONable):
         self.loewdin = [] if loewdin is None else loewdin
 
         if self.num_atoms is None:
-            lines = _get_lines(filename)[3:-3]  # type:ignore[arg-type,assignment]
+            lines = _get_lines(filename)[3:-2]
             if len(lines) == 0:
                 raise RuntimeError("CHARGES file contains no data.")
 
@@ -1105,10 +1098,12 @@ class Lobsterout(MSONable):
             self.has_doscar_lso = (
                 "writing DOSCAR.LSO.lobster..." in lines and "SKIPPING writing DOSCAR.LSO.lobster..." not in lines
             )
+
             try:
                 version_number = float(".".join(self.lobster_version.strip("v").split(".")[:2]))
             except ValueError:
                 version_number = 0.0
+
             if version_number < 5.1:
                 self.has_cohpcar = (
                     "writing COOPCAR.lobster and ICOOPLIST.lobster..." in lines
@@ -1446,15 +1441,16 @@ class Fatband:
         parameters = []
 
         if not isinstance(filenames, list) or filenames is None:
-            filenames_new: list[str] = []
             if filenames is None:
                 filenames = "."
-            for name in os.listdir(filenames):
-                if fnmatch.fnmatch(name, "FATBAND_*.lobster"):
-                    filenames_new.append(os.path.join(filenames, name))
-            filenames = filenames_new  # type: ignore[assignment]
 
-        filenames = cast("list[PathLike]", filenames)
+            filenames_new = [
+                os.path.join(filenames, name)
+                for name in os.listdir(filenames)
+                if fnmatch.fnmatch(name, "FATBAND_*.lobster")
+            ]
+
+            filenames = cast("list[PathLike]", filenames_new)
 
         if len(filenames) == 0:
             raise ValueError("No FATBAND files in folder or given")
@@ -1479,9 +1475,7 @@ class Fatband:
         for items in atom_orbital_dict.values():
             if len(set(items)) != len(items):
                 raise ValueError("The are two FATBAND files for the same atom and orbital. The program will stop.")
-            split = []
-            for item in items:
-                split.append(item.split("_")[0])
+            split = [item.split("_")[0] for item in items]
             for number in collections.Counter(split).values():
                 if number not in {1, 3, 5, 7}:
                     raise ValueError(
@@ -1546,7 +1540,7 @@ class Fatband:
 
             idx_kpt = -1
             linenumber = iband = 0
-            for line in lines[1:-1]:
+            for line in lines[1:]:
                 if line.split()[0] == "#":
                     KPOINT = np.array(
                         [
@@ -1600,7 +1594,7 @@ class Fatband:
             lattice=self.lattice,
             efermi=self.efermi,  # type: ignore[arg-type]
             labels_dict=self.label_dict,
-            structure=self.structure,  # type:ignore[arg-type]
+            structure=self.structure,  # type: ignore[arg-type]
             projections=self.p_eigenvals,
         )
 
@@ -1690,10 +1684,8 @@ class Bandoverlaps(MSONable):
                 overlaps = []
 
             else:
-                _lines = []
-                for el in line.split(" "):
-                    if el != "":
-                        _lines.append(float(el))
+                _lines = [float(el) for el in line.split(" ") if el != ""]
+
                 overlaps.append(_lines)
                 if len(overlaps) == len(_lines):
                     self.band_overlaps_dict[spin]["matrices"].append(np.array(overlaps))
@@ -2159,7 +2151,7 @@ class SitePotential(MSONable):
             self._filename = filename
             self.ewald_splitting = float(lines[0].split()[9])
 
-            lines = lines[5:-1]
+            lines = lines[5:]
             self.num_atoms = len(lines) - 2
             for atom in range(self.num_atoms):
                 line_parts = lines[atom].split()
@@ -2305,7 +2297,7 @@ class LobsterMatrices:
 
         self._filename = str(filename)
         with zopen(self._filename, mode="rt", encoding="utf-8") as file:
-            lines: list[str] = file.readlines()  # type:ignore[assignment]
+            lines: list[str] = cast("list[str]", file.readlines())
         if len(lines) == 0:
             raise RuntimeError("Please check provided input file, it seems to be empty")
 

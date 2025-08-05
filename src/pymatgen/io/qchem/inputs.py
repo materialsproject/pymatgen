@@ -431,8 +431,9 @@ class QCInput(InputFile):
                 raise ValueError('The only acceptable text value for molecule is "read"')
         elif isinstance(molecule, Molecule):
             mol_list.append(f" {int(molecule.charge)} {molecule.spin_multiplicity}")
-            for site in molecule:
-                mol_list.append(f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}")
+            mol_list.extend(
+                f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}" for site in molecule
+            )
         else:
             overall_charge = sum(x.charge for x in molecule)
             unpaired_electrons = sum(x.spin_multiplicity - 1 for x in molecule)
@@ -442,8 +443,10 @@ class QCInput(InputFile):
 
             for fragment in molecule:
                 mol_list.extend(("--", f" {int(fragment.charge)} {fragment.spin_multiplicity}"))
-                for site in fragment:
-                    mol_list.append(f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}")
+                mol_list.extend(
+                    f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}"
+                    for site in fragment
+                )
 
         mol_list.append("$end")
         return "\n".join(mol_list)
@@ -481,8 +484,7 @@ class QCInput(InputFile):
         for key, value in opt.items():
             opt_list.append(f"{key}")
             # loops over all values within the section
-            for i in value:
-                opt_list.append(f"   {i}")
+            opt_list.extend(f"   {i}" for i in value)
             opt_list.extend((f"END{key}", ""))
         # this deletes the empty space after the last section
         del opt_list[-1]
@@ -561,8 +563,7 @@ class QCInput(InputFile):
             raise ValueError("Q-Chem only supports PES_SCAN with two or less variables.")
         for var_type, variables in scan.items():
             if variables not in [None, []]:
-                for var in variables:
-                    scan_list.append(f"   {var_type} {var}")
+                scan_list.extend(f"   {var_type} {var}" for var in variables)
         scan_list.append("$end")
         return "\n".join(scan_list)
 
@@ -729,13 +730,10 @@ class QCInput(InputFile):
         state_1 = almo_coupling[0]
         state_2 = almo_coupling[1]
 
-        for frag in state_1:
-            # Casting to int probably unnecessary, given type hint
-            # Doesn't hurt, though
-            almo_list.append(f"   {int(frag[0])} {int(frag[1])}")
+        # Casting to int probably unnecessary, given type hint
+        almo_list.extend(f"   {int(frag[0])} {int(frag[1])}" for frag in state_1)
         almo_list.append("   --")
-        for frag in state_2:
-            almo_list.append(f"   {int(frag[0])} {int(frag[1])}")
+        almo_list.extend(f"   {int(frag[0])} {int(frag[1])}" for frag in state_2)
 
         almo_list.append("$end")
         return "\n".join(almo_list)

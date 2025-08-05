@@ -105,7 +105,7 @@ mlp = ["matgl>=1.2.7 ; python_version<'3.13'"]
 numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
 optional = [
-    "pymatgen[abinit,ase,mlp,tblite,matcalc]",
+    "pymatgen[abinit,ase,matcalc,mlp,tblite,zeopp]",
     "beautifulsoup4",
     # PR4347: BoltzTraP2 needs to bump cmake version for spglib build
     # "BoltzTraP2>=24.9.4",
@@ -125,7 +125,7 @@ symmetry = ["moyopy[interface]>=0.3", "spglib>=2.5"]
 # https://github.com/tblite/tblite/issues/175
 tblite = ["tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'"]
 vis = ["vtk>=6.0.0"]
-zeopp = ["pyzeo"]  # Note: requires Voro++ and Zeo++ to be installed
+zeopp = ["pyzeo; platform_system != 'Windows'"]  # Note: requires Voro++ and Zeo++ to be installed
 
 [project.scripts]
 pmg = "pymatgen.cli.pmg:main"
@@ -213,7 +213,6 @@ ignore = [
     "FBT002", # Boolean default positional argument in function
     "PD011", # (A lot of false positive on non-Pandas objects)
     "PERF203", # Use of try-except in for/while loop
-    "PERF401", # Replace "for" loops with list comprehension
     "PLR0911", # Too many return statements
     "PLR0912", # Too many branches
     "PLR0913", # Too many arguments

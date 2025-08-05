@@ -173,7 +173,7 @@ class OptimadeStructureAdapter:
         if "attributes" not in resource:
             resource = {"attributes": resource}
 
-        _id = resource.get("id", None)
+        _id = resource.get("id")
         attributes = resource["attributes"]
         properties: dict[str, Any] = {"optimade_id": _id}
 
