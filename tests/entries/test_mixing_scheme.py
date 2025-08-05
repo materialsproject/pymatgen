@@ -2466,7 +2466,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         # process_entries should discard all GGA entries and return all R2SCAN
         with pytest.warns(UserWarning, match="is larger than GGA\\(\\+U\\) entries chemical system"):
             entries = mixing_scheme_no_compat.process_entries(ms_scan_chemsys_superset.all_entries)
-            assert len(entries) == 7
-            for entry in entries:
-                assert entry.correction == 0
-                assert entry.parameters["run_type"] == "R2SCAN"
+        assert len(entries) == 7
+        for entry in entries:
+            assert entry.correction == 0
+            assert entry.parameters["run_type"] == "R2SCAN"

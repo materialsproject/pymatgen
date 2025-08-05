@@ -171,7 +171,7 @@ def test_initmagmomtag():
     assert initmagmomtag.get_token_len() == 0
     initmagmomtag = InitMagMomTag(write_tagname=True, write_value=True)
     assert initmagmomtag.get_token_len() == 2
-    with pytest.warns(Warning):
+    with pytest.warns(Warning, match="warning"):
         initmagmomtag.validate_value_type("tag", Unstringable(), try_auto_type_fix=True)
 
 
@@ -188,7 +188,7 @@ def test_tagcontainer_validation():
         },
     )
     # issues with converting values to the correct type should only raise a warning within validate_value_type
-    with pytest.warns(Warning):
+    with pytest.warns(Warning, match="Invalid value"):
         tagcontainer.validate_value_type(
             f"{tag}", {f"{repeatable_str_subtag}": ["1"], f"{non_repeatable_int_subtag}": f"{non_intable_value}"}
         )
@@ -361,7 +361,7 @@ def test_tagcontainer_list_dict_conversion():
         [top_subtag, "True", "False"],
     )
     value = {top_subtag: {bottom_subtag1: {"True": True}, bottom_subtag2: "False"}}
-    with pytest.warns(Warning):
+    with pytest.warns(Warning, match="sun subtag does not allow list"):
         tagcontainer._make_list(value)
     value = [[top_subtag, "True", "False"]]
     assert_same_value(tagcontainer.get_list_representation("barbie", value), value)
