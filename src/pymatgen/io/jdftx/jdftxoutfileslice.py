@@ -304,6 +304,8 @@ class JDFTXOutfileSlice:
     elec_grad_k: float | None = None
     elec_alpha: float | None = None
     elec_linmin: float | None = None
+    vibrational_modes: list[dict[str, Any]] | None = None
+    vibrational_energy_components: dict[str, float] | None = None
 
     def _get_mu(self) -> None | float:
         """Sets mu from most recent JOutStructure. (Equivalent to efermi)"""
@@ -387,6 +389,8 @@ class JDFTXOutfileSlice:
 
         # Previously were properties, but are now set as attributes
         self._from_out_slice_init_all_post_init()
+        if "vibrations" in self.infile:
+            self._read_vibrational_data(text)
 
     def _set_internal_infile(self, text: list[str]) -> None:
         """Set the internal infile for the JDFTXOutfileSlice.
@@ -400,7 +404,9 @@ class JDFTXOutfileSlice:
         start_line_idx += 2
         end_line_idx = None
         for i in range(start_line_idx, len(text)):
-            if not len(text[i].strip()):
+            # Sometimes the dumped in file will have a blank line in the middle, so we actually need to
+            # find two consecutive blank lines to determine the end of the infile. (hopefully)
+            if (not len(text[i].strip())) and (not len(text[i + 1].strip())):
                 end_line_idx = i
                 break
         if end_line_idx is None:
@@ -1156,6 +1162,89 @@ class JDFTXOutfileSlice:
                 raise ValueError("Cannot determine if system is metal - self.homo_filling undefined")
             raise ValueError("Cannot determine if system is metal - self.nspin undefined")
         return None
+
+    def _read_vibrational_data(self, text: list[str]) -> None:
+        """Read vibrational data from the output file.
+
+        Args:
+            text (list[str]): Output of read_file for out file.
+        """
+        # TODO: Once t`he total number of computed configurations can be determined, a lot of the
+        # out file can be trimmed by setting the start line as the instance of "Completed n of n configurations"
+        mode_start_lines = (
+            find_all_key("Imaginary mode ", text) + find_all_key("Zero mode ", text) + find_all_key("Real mode ", text)
+        )
+        mode_dicts = []
+        for start_line in mode_start_lines:
+            end_line = start_line + 1
+            while end_line < len(text) and text[end_line].strip():
+                end_line += 1
+            mode_dicts.append(self._parse_vibrational_mode_lines(text[start_line:end_line]))
+        self.vibrational_modes = mode_dicts
+        vib_nrg_components_start_line = find_all_key("Vibrational free energy components", text)[-1]
+        end_line = vib_nrg_components_start_line + 1
+        while end_line < len(text) and text[end_line].strip():
+            end_line += 1
+        vib_nrg_lines = text[vib_nrg_components_start_line:end_line]
+        self.vibrational_energy_components = self._parse_vibrational_energy_components_lines(vib_nrg_lines)
+
+    def _parse_vibrational_energy_components_lines(self, text: list[str]) -> dict:
+        """Parse vibrational energy components from the output file.
+
+        Args:
+            text (list[str]): Output of read_file for out file.
+
+        Returns:
+            dict: Dictionary containing vibrational energy components.
+        """
+        vib_nrg_components = {}
+        if "T" in text[0]:
+            vib_nrg_components["T"] = float(text[0].split("=")[1].split("K")[0].strip())
+        for line in text[1:]:
+            if ":" in line:
+                key, value = line.split(":", 1)
+                vib_nrg_components[key.strip()] = float(value.strip()) * Ha_to_eV
+        return vib_nrg_components
+
+    def _parse_vibrational_mode_lines(self, text: list[str]) -> dict:
+        """Parse vibrational mode lines from the output file.
+
+        Args:
+            text (list[str]): Output of read_file for out file.
+
+        Returns:
+            dict: Dictionary containing vibrational mode information.
+        """
+        vib_mode_data: dict[str, float | int | complex | str | None] = {}
+        disp_start_idx = None
+        for i, line in enumerate(text):
+            if "Displacements:" in line:
+                disp_start_idx = i + 1
+                break
+            key = line.split(":")[0].strip()
+            value = line.split(":")[1].strip()
+            entry_val: float | int | complex | str | None = None
+            if key in ["Frequency", "IR intensity"]:
+                value = value.split()[0].strip()
+                entry_val = float(value.rstrip("i")) * 1j if value.endswith("i") else float(value)
+                if key == "Frequency":
+                    entry_val *= Ha_to_eV
+            elif key == "Degeneracy":
+                entry_val = int(value.split()[-1].strip())
+            elif "mode" in key:
+                vib_mode_data["Type"] = key.split()[0].strip()  # "Imaginary", "Zero", or "Real"
+                vib_mode_data["Type index"] = int(key.split()[2].strip())  # ie the third real mode
+            if entry_val is not None:
+                vib_mode_data[key] = entry_val
+        if disp_start_idx is not None:
+            _displacements = []
+            for line in text[disp_start_idx:]:
+                if not line.strip():
+                    break
+                _displacements.append(np.array([float(x) for x in line.split()[2:5]]))
+            vib_mode_data["Displacements"] = np.array(_displacements) * bohr_to_ang  # Length of displacement
+            # specified in inputs
+        return vib_mode_data
 
     def to_jdftxinfile(self) -> JDFTXInfile:
         """
