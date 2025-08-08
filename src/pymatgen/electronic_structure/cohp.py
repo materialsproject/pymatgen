@@ -1433,10 +1433,13 @@ class IcohpCollection(MSONable):
                 for key in lab_orb_icohp[orb]:
                     sub_dict = {}
                     if key == "icohp":
-                        sub_dict[key] = {
-                            Spin.up: lab_orb_icohp[orb][key]["1"],
-                            Spin.down: lab_orb_icohp[orb][key]["-1"],
-                        }
+                        if dct.get("is_spin_polarized"):
+                            sub_dict[key] = {
+                                Spin.up: lab_orb_icohp[orb][key]["1"],
+                                Spin.down: lab_orb_icohp[orb][key]["-1"],
+                            }
+                        else:
+                            sub_dict[key] = {Spin.up: lab_orb_icohp[orb][key]["1"]}
 
                     if key == "orbitals":
                         orb_temp = []
