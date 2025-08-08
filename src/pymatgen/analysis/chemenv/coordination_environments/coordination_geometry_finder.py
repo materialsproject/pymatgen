@@ -166,8 +166,8 @@ class AbstractGeometry:
             str: String representation of the AbstractGeometry.
         """
         outs = [f"\nAbstract Geometry with {len(self.coords)} points :"]
-        for pp in self.coords:
-            outs.append(f"  {pp}")
+
+        outs.extend(f"  {pp}" for pp in self.coords)
         if self.centering_type == "standard":
             if self.include_central_site_in_centroid:
                 outs.append(
@@ -1016,8 +1016,7 @@ class LocalGeometryFinder:
                 neighb_coords.append(np.array(pp) + max_random_dist * rv)
         else:
             coords = [np.zeros(3, float)]
-            for pp in _points:
-                neighb_coords.append(np.array(pp))
+            neighb_coords.extend(np.array(pp) for pp in _points)
         if indices == "RANDOM":
             shuffle(neighb_coords)
         elif indices == "ORDERED":
@@ -1122,9 +1121,8 @@ class LocalGeometryFinder:
         """
         aa = 0.4
         bb = -0.2
-        coords = []
-        for _ in range(coordination + 1):
-            coords.append(aa * np.random.default_rng().random(3) + bb)
+        coords = [aa * np.random.default_rng().random(3) + bb for _ in range(coordination + 1)]
+
         self.set_structure(
             lattice=np.array(np.eye(3) * 10, float),
             species=["Si"] * (coordination + 1),

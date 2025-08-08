@@ -426,6 +426,13 @@ class PhononDos(MSONable):
     ) -> PhononDosFingerprint:
         """Generate the DOS fingerprint.
 
+        Based on the work of:
+            F. Knoop, T. A. r Purcell, M. Scheffler, C. Carbogno, J. Open Source Softw. 2020, 5, 2671.
+            Source - https://gitlab.com/vibes-developers/vibes/-/tree/master/vibes/materials_fp
+            Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno.
+            Please also see and cite related work by:
+            M. Kuban, S. Rigamonti, C. Draxl, Digital Discovery 2024, 3, 2448.
+
         Args:
             binning (bool): If true, the DOS fingerprint is binned using np.linspace and n_bins.
                 Default is True.

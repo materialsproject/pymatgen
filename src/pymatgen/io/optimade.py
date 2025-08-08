@@ -17,6 +17,8 @@ import re
 from functools import reduce
 from typing import TYPE_CHECKING
 
+import orjson
+
 from pymatgen.core.structure import Lattice, Structure
 
 if TYPE_CHECKING:
@@ -164,14 +166,14 @@ class OptimadeStructureAdapter:
         """
         if isinstance(resource, str):
             try:
-                resource = json.loads(resource)
+                resource = orjson.loads(resource)
             except json.JSONDecodeError as exc:
                 raise ValueError(f"Could not decode the input OPTIMADE resource as JSON: {exc}")
 
         if "attributes" not in resource:
             resource = {"attributes": resource}
 
-        _id = resource.get("id", None)
+        _id = resource.get("id")
         attributes = resource["attributes"]
         properties: dict[str, Any] = {"optimade_id": _id}
 

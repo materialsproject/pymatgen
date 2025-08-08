@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import copy
-import json
 from collections import defaultdict
 
+import orjson
 import pytest
 from monty.json import MontyDecoder
 from pytest import approx
@@ -51,6 +51,9 @@ def test_energy_adjustment_repr():
             f"generated_by='{label}')"
         )
 
+    # Make sure int uncertainty also works
+    assert "uncertainty=0.0" in repr(EnergyAdjustment(10, uncertainty=0))
+
 
 def test_manual_energy_adjustment():
     ea = ManualEnergyAdjustment(10)
@@ -71,12 +74,16 @@ def test_constant_energy_adjustment():
     ea2 = ConstantEnergyAdjustment.from_dict(ea_dct)
     assert str(ea_dct) == str(ea2.as_dict())
 
+    ea3 = ConstantEnergyAdjustment(8, uncertainty=0)
+    assert "uncertainty=0.0" in repr(ea3)
+
 
 def test_composition_energy_adjustment():
     ea = CompositionEnergyAdjustment(2, 2, uncertainty_per_atom=0, name="H")
     assert ea.name == "H"
     assert ea.value == 4
     assert ea.explain == "Composition-based energy adjustment (2.000 eV/atom x 2 atoms)"
+    assert "uncertainty=0.0" in repr(ea)
     ea_dct = ea.as_dict()
     ea2 = CompositionEnergyAdjustment.from_dict(ea_dct)
     assert str(ea_dct) == str(ea2.as_dict())
@@ -89,6 +96,7 @@ def test_temp_energy_adjustment():
     assert ea.n_atoms == 5
     assert ea.temp == 298
     assert ea.explain == "Temperature-based energy adjustment (-0.1000 eV/K/atom x 298 K x 5 atoms)"
+    assert "uncertainty=0.0" in repr(ea)
     ea_dct = ea.as_dict()
     ea2 = TemperatureEnergyAdjustment.from_dict(ea_dct)
     assert str(ea_dct) == str(ea2.as_dict())
@@ -469,13 +477,13 @@ class TestGibbsComputedStructureEntry:
             for temp in self.temps
         }
 
-        with open(f"{TEST_DIR}/Mn-O_entries.json", encoding="utf-8") as file:
-            data = json.load(file)
-        with open(f"{TEST_DIR}/structure_CO2.json", encoding="utf-8") as file:
-            self.co2_struct = MontyDecoder().process_decoded(json.load(file))
+        with open(f"{TEST_DIR}/Mn-O_entries.json", "rb") as file:
+            data = orjson.loads(file.read())
+        with open(f"{TEST_DIR}/structure_CO2.json", "rb") as file:
+            self.co2_struct = MontyDecoder().process_decoded(orjson.loads(file.read()))
 
-        with open(f"{TEST_DIR}/Mn-O_entries.json") as file:
-            data = json.load(file)
+        with open(f"{TEST_DIR}/Mn-O_entries.json", "rb") as file:
+            data = orjson.loads(file.read())
         self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
 
     def test_gf_sisso(self):

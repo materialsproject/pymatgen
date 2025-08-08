@@ -11,11 +11,11 @@ from __future__ import annotations
 
 import abc
 import itertools
-import json
 import os
 from typing import TYPE_CHECKING
 
 import numpy as np
+import orjson
 from monty.json import MontyDecoder, MSONable
 from scipy.special import factorial
 
@@ -632,8 +632,7 @@ class CoordinationGeometry:
             outs.append("... not yet implemented")
         else:
             outs.append("  - list of points :")
-            for pp in self.points:
-                outs.append(f"    - {pp}")
+            outs.extend(f"    - {pp}" for pp in self.points)
         outs.extend(("------------------------------------------------------------", ""))
 
         return "\n".join(outs)
@@ -754,9 +753,7 @@ class CoordinationGeometry:
         Returns:
             Permutation: Reference permutation of the perfect CoordinationGeometry.
         """
-        perms = []
-        for eqv_indices in self.equivalent_indices:
-            perms.append(tuple(permutation[ii] for ii in eqv_indices))
+        perms = [tuple(permutation[ii] for ii in eqv_indices) for eqv_indices in self.equivalent_indices]
         perms.sort()
         return perms[0]
 
@@ -865,15 +862,15 @@ class AllCoordinationGeometries(dict):
                 data = file.readlines()
             for line in data:
                 cg_file = f"{MODULE_DIR}/{line.strip()}"
-                with open(cg_file, encoding="utf-8") as file:
-                    dd = json.load(file)
+                with open(cg_file, "rb") as file:
+                    dd = orjson.loads(file.read())
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
         else:
             for symbol in only_symbols:
                 fsymbol = symbol.replace(":", "#")
                 cg_file = f"{MODULE_DIR}/coordination_geometries_files/{fsymbol}.json"
-                with open(cg_file, encoding="utf-8") as file:
-                    dd = json.load(file)
+                with open(cg_file, "rb") as file:
+                    dd = orjson.loads(file.read())
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
 
         self.cg_list.append(CoordinationGeometry(UNKNOWN_ENVIRONMENT_SYMBOL, "Unknown environment", deactivate=True))
@@ -925,8 +922,8 @@ class AllCoordinationGeometries(dict):
             "#=================================#",
             "",
         ]
-        for cg in self.cg_list:
-            outs.append(repr(cg))
+
+        outs.extend(repr(cg) for cg in self.cg_list)
 
         return "\n".join(outs)
 
@@ -939,9 +936,8 @@ class AllCoordinationGeometries(dict):
             "#=======================================================#",
             "",
         ]
-        for cg in self.cg_list:
-            if cg.is_implemented():
-                outs.append(str(cg))
+
+        outs.extend(str(cg) for cg in self.cg_list if cg.is_implemented())
 
         return "\n".join(outs)
 

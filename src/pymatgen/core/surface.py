@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import copy
 import itertools
-import json
 import logging
 import math
 import os
@@ -25,6 +24,7 @@ from functools import reduce
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
+import orjson
 from monty.fractions import lcm
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
@@ -540,9 +540,8 @@ class Slab(Structure):
                     stacklevel=2,
                 )
                 continue
-            combinations = []
-            for g in grouped:
-                combinations.append(list(itertools.combinations(g, len(g) // 2)))
+
+            combinations = [list(itertools.combinations(g, len(g) // 2)) for g in grouped]
 
             for selection in itertools.product(*combinations):
                 species = [site.species for site in fixed]
@@ -852,10 +851,11 @@ def get_slab_regions(
                         all_indices.append(nn[-2])
 
         # Locate the highest site within the lower Slab
-        upper_fcoords: list = []
-        for site in slab:
-            if all(nn.index not in all_indices for nn in slab.get_neighbors(site, blength)):
-                upper_fcoords.append(site.frac_coords[2])
+        upper_fcoords: list = [
+            site.frac_coords[2]
+            for site in slab
+            if all(nn.index not in all_indices for nn in slab.get_neighbors(site, blength))
+        ]
         coords: list = copy.copy(frac_coords) if frac_coords else copy.copy(last_frac_coords)
         min_top = slab[last_indices[coords.index(min(coords))]].frac_coords[2]
         return [(0, max(upper_fcoords)), (min_top, 1)]
@@ -1693,8 +1693,8 @@ def generate_all_slabs(
 
 # Load the reconstructions_archive JSON file
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-with open(f"{MODULE_DIR}/reconstructions_archive.json", encoding="utf-8") as data_file:
-    RECONSTRUCTIONS_ARCHIVE = json.load(data_file)
+with open(f"{MODULE_DIR}/reconstructions_archive.json", "rb") as data_file:
+    RECONSTRUCTIONS_ARCHIVE = orjson.loads(data_file.read())
 
 
 def get_d(slab: Slab) -> float:

@@ -2,8 +2,6 @@
 
 This module contains reference data for JDFTx tags, such as valid options for
 functionals, pseudopotentials, etc.
-
-@mkhorton - this file is ready to review.
 """
 
 from __future__ import annotations
@@ -696,6 +694,7 @@ kinetic_functionals = [
     "mgga-k-pc07-opt",  # Reoptimized PC07 by Mejia-Rodriguez and Trickey
     "mgga-k-pgsl025",  # PGSL025 (Pauli-Gaussian) functional by Constantin, Fabiano, and Della Sala
     "mgga-k-rda",  # Reduced derivative approximation by Karasiev et al.
+    "(null)",
 ]
 
 

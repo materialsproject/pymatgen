@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import json
-
+import orjson
 from pytest import approx
 
 from pymatgen.analysis.wulff import WulffShape
@@ -23,8 +22,8 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/wulff"
 
 class TestWulffShape(MatSciTest):
     def setup_method(self):
-        with open(f"{TEST_DIR}/surface_samples.json", encoding="utf-8") as data_file:
-            surface_properties = json.load(data_file)
+        with open(f"{TEST_DIR}/surface_samples.json", "rb") as data_file:
+            surface_properties = orjson.loads(data_file.read())
 
         surface_energies, miller_indices = {}, {}
         for mpid in surface_properties:

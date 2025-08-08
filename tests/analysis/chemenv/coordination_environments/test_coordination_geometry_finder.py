@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import json
 import os
 
 import numpy as np
+import orjson
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -142,8 +142,8 @@ class TestCoordinationGeometryFinder(MatSciTest):
 
         for json_file in files:
             with self.subTest(json_file=json_file):
-                with open(f"{json_dir}/{json_file}", encoding="utf-8") as file:
-                    dct = json.load(file)
+                with open(f"{json_dir}/{json_file}", "rb") as file:
+                    dct = orjson.loads(file.read())
 
                 atom_indices = dct["atom_indices"]
                 expected_geoms = dct["expected_geoms"]
@@ -166,12 +166,12 @@ class TestCoordinationGeometryFinder(MatSciTest):
                     # Check that the environment found is the expected one
                     assert coord_env == expected_geoms[ienv]
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_simplest_chemenv_strategy(self):
         strategy = SimplestChemenvStrategy()
         self._strategy_test(strategy)
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_simple_abundance_chemenv_strategy(self):
         strategy = SimpleAbundanceChemenvStrategy()
         self._strategy_test(strategy)

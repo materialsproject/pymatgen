@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import json
 from shutil import which
 
 import numpy as np
+import orjson
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose, assert_array_equal
@@ -54,8 +54,8 @@ def get_table():
     default lambda table.
     """
     json_path = f"{TEST_FILES_DIR}/analysis/struct_predictor/test_lambda.json"
-    with open(json_path, encoding="utf-8") as file:
-        return json.load(file)
+    with open(json_path, "rb") as file:
+        return orjson.loads(file.read())
 
 
 enum_cmd = which("enum.x") or which("multienum.x")
@@ -185,7 +185,7 @@ class TestEnumerateStructureTransformation:
         for struct_trafo in all_structs:
             assert "energy" not in struct_trafo
 
-    @pytest.mark.skip(reason="dgl don't support torch 2.4.1+, #4073")
+    @pytest.mark.xfail(reason="dgl don't support torch 2.4.1+, #4073")
     def test_m3gnet(self):
         pytest.importorskip("matgl")
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
@@ -204,7 +204,7 @@ class TestEnumerateStructureTransformation:
             <= all_structs[-1]["energy"] / all_structs[-1]["num_sites"]
         )
 
-    @pytest.mark.skip(reason="dgl don't support torch 2.4.1+, #4073")
+    @pytest.mark.xfail(reason="dgl don't support torch 2.4.1+, #4073")
     def test_callable_sort_criteria(self):
         matgl = pytest.importorskip("matgl")
         from matgl.ext.ase import Relaxer
@@ -343,7 +343,7 @@ class TestMagOrderingTransformation(MatSciTest):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75)
         dct = trans.as_dict()
         # Check JSON encodability
-        _ = json.dumps(dct)
+        _ = orjson.dumps(dct).decode()
         trans = MagOrderingTransformation.from_dict(dct)
         assert trans.mag_species_spin == {"Fe": 5}
 
@@ -541,7 +541,7 @@ class TestDopingTransformation(MatSciTest):
         trans = DopingTransformation("Al3+", min_length=5, alio_tol=1, codopant=False, max_structures_per_enum=1)
         dct = trans.as_dict()
         # Check JSON encodability
-        _ = json.dumps(dct)
+        _ = orjson.dumps(dct).decode()
         trans = DopingTransformation.from_dict(dct)
         assert str(trans.dopant) == "Al3+"
         assert trans.max_structures_per_enum == 1

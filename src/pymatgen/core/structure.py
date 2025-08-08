@@ -23,6 +23,7 @@ from fnmatch import fnmatch
 from typing import TYPE_CHECKING, Literal, cast, get_args, overload
 
 import numpy as np
+import orjson
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
@@ -519,7 +520,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return bool(np.min(all_dists) > tol)
 
     @abstractmethod
-    def to(self, filename: str = "", fmt: FileFormats = "") -> str | None:
+    def to(self, filename: PathLike = "", fmt: FileFormats = "") -> str | None:
         """Generate string representations (cif, json, poscar, ....) of SiteCollections (e.g.,
         molecules / structures). Should return str or None if written to a file.
         """
@@ -563,6 +564,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """
         if len(values) != len(self):
             raise ValueError(f"{len(values)=} must equal sites in structure={len(self)}")
+
         for site, val in zip(self, values, strict=True):
             site.properties[property_name] = val
 
@@ -1201,10 +1203,11 @@ class IStructure(SiteCollection, MSONable):
         props = self.site_properties
         keys = sorted(props)
         for idx, site in enumerate(self):
-            row = [str(idx), site.species_string]
-            row.extend([to_str(j) for j in site.frac_coords])
-            for key in keys:
-                row.append(props[key][idx])
+            row = (
+                [str(idx), site.species_string]
+                + [to_str(j) for j in site.frac_coords]
+                + [props[key][idx] for key in keys]
+            )
             data.append(row)
         outs.append(
             tabulate(
@@ -2099,11 +2102,7 @@ class IStructure(SiteCollection, MSONable):
                     )
                 )
 
-        neighbors: list[list[PeriodicNeighbor]] = []
-
-        for i in range(len(sites)):
-            neighbors.append(neighbor_dict[i])
-        return neighbors
+        return [neighbor_dict[i] for i in range(len(sites))]
 
     def get_all_neighbors_py(
         self,
@@ -2587,8 +2586,7 @@ class IStructure(SiteCollection, MSONable):
             if not use_site_props:
                 return site.species_string
             parts = [site.species_string]
-            for key in sorted(site.properties):
-                parts.append(f"{key}={site.properties[key]}")
+            parts.extend(f"{key}={site.properties[key]}" for key in sorted(site.properties))
             return ", ".join(parts)
 
         # Group sites by species string
@@ -2801,10 +2799,7 @@ class IStructure(SiteCollection, MSONable):
                 subset_structure = Structure.from_sites(disordered_sites)
                 dist_matrix = subset_structure.distance_matrix
                 dists = sorted(set(dist_matrix.ravel()))  # type:ignore[type-var]
-                unique_dists = []
-                for idx in range(1, len(dists)):
-                    if dists[idx] - dists[idx - 1] > 0.1:
-                        unique_dists.append(dists[idx])
+                unique_dists = [dists[idx] for idx in range(1, len(dists)) if dists[idx] - dists[idx - 1] > 0.1]
                 clusters = {(idx + 2): dist + 0.01 for idx, dist in enumerate(unique_dists) if idx < 2}
                 kwargs["clusters"] = clusters
             return [run_mcsqs(self, **kwargs).bestsqs]
@@ -2812,14 +2807,14 @@ class IStructure(SiteCollection, MSONable):
 
     def as_dict(
         self,
-        verbosity: int = 1,
+        verbosity: Literal[0, 1] = 1,
         fmt: Literal["abivars"] | None = None,
         **kwargs,
     ) -> dict[str, Any]:
         """Dict representation of Structure.
 
         Args:
-            verbosity (int): Verbosity level. Default of 1 includes both
+            verbosity (0 | 1): Verbosity level. Default of 1 includes both
                 direct and Cartesian coordinates for all sites, lattice
                 parameters, etc. Useful for reading and for insertion into a
                 database. Set to 0 for an extremely lightweight version
@@ -2856,7 +2851,10 @@ class IStructure(SiteCollection, MSONable):
             del site_dict["lattice"]
             del site_dict["@module"]
             del site_dict["@class"]
+            if verbosity == 0:
+                del site_dict["label"]
             sites.append(site_dict)
+
         dct["sites"] = sites
         return dct
 
@@ -2876,9 +2874,12 @@ class IStructure(SiteCollection, MSONable):
         site_properties = self.site_properties
         prop_keys = list(site_properties)
         for site in self:
-            row = [site.species, *site.frac_coords, *site.coords]
-            for key in prop_keys:
-                row.append(site.properties.get(key))
+            row = [
+                site.species,
+                *site.frac_coords,
+                *site.coords,
+                *[site.properties.get(key) for key in prop_keys],
+            ]
             data.append(row)
 
         df_struct = pd.DataFrame(data, columns=["Species", *"abcxyz", *prop_keys])
@@ -2960,7 +2961,12 @@ class IStructure(SiteCollection, MSONable):
             writer = Cssr(self)
 
         elif fmt == "json" or fnmatch(filename.lower(), "*.json*"):
-            json_str = json.dumps(self.as_dict(), **kwargs)
+            json_str = (
+                json.dumps(self.as_dict(), **kwargs)
+                if kwargs
+                else orjson.dumps(self.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
+            )
+
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)  # type:ignore[arg-type]
@@ -3110,7 +3116,7 @@ class IStructure(SiteCollection, MSONable):
             cssr = Cssr.from_str(input_string, **kwargs)
             struct = cssr.structure  # type:ignore[assignment]
         elif fmt_low == "json":
-            dct = json.loads(input_string)
+            dct = orjson.loads(input_string)
             struct = Structure.from_dict(dct)
         elif fmt_low in ("yaml", "yml"):
             yaml = YAML()
@@ -3959,7 +3965,7 @@ class IMolecule(SiteCollection, MSONable):
         return cls(
             lattice,
             self.species * nimages,
-            coords,
+            all_coords,
             coords_are_cartesian=True,
             site_properties=site_props,
             labels=self.labels * nimages,
@@ -3984,11 +3990,11 @@ class IMolecule(SiteCollection, MSONable):
             properties=self.properties,
         )
 
-    def to(self, filename: str = "", fmt: str = "") -> str | None:
+    def to(self, filename: PathLike = "", fmt: str = "") -> str | None:
         """Outputs the molecule to a file or string.
 
         Args:
-            filename (str): If provided, output will be written to a file. If
+            filename (PathLike): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
             fmt (str): Format to output to. Defaults to JSON unless filename
@@ -4001,22 +4007,28 @@ class IMolecule(SiteCollection, MSONable):
             str: String representation of molecule in given format. If a filename
                 is provided, the same string is written to the file.
         """
+        filename = str(filename)
         fmt = fmt.lower()
+
         writer: Any
         if fmt == "xyz" or fnmatch(filename.lower(), "*.xyz*"):
             from pymatgen.io.xyz import XYZ
 
             writer = XYZ(self)
+
         elif any(fmt == ext or fnmatch(filename.lower(), f"*.{ext}*") for ext in ("gjf", "g03", "g09", "com", "inp")):
             from pymatgen.io.gaussian import GaussianInput
 
             writer = GaussianInput(self)
+
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
-            json_str = json.dumps(self.as_dict())
+            json_str = orjson.dumps(self.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
+
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)  # type:ignore[arg-type]
             return json_str
+
         elif fmt in {"yaml", "yml"} or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
             str_io = io.StringIO()
@@ -4026,6 +4038,7 @@ class IMolecule(SiteCollection, MSONable):
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(yaml_str)  # type:ignore[arg-type]
             return yaml_str
+
         else:
             from pymatgen.io.babel import BabelMolAdaptor
 
@@ -4037,6 +4050,7 @@ class IMolecule(SiteCollection, MSONable):
 
         if filename:
             writer.write_file(filename)
+
         return str(writer)
 
     @classmethod
@@ -4074,7 +4088,7 @@ class IMolecule(SiteCollection, MSONable):
             mol = GaussianInput.from_str(input_string).molecule
 
         elif fmt == "json":
-            dct = json.loads(input_string)
+            dct = orjson.loads(input_string)
             return cls.from_dict(dct)
 
         elif fmt in {"yaml", "yml"}:
@@ -4104,28 +4118,35 @@ class IMolecule(SiteCollection, MSONable):
             Molecule
         """
         filename = str(filename)
+        fname = filename.lower()
 
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            contents: str = file.read()  # type:ignore[assignment]
-        fname = filename.lower()
+            contents: str = cast("str", file.read())
+
         if fnmatch(fname, "*.xyz*"):
             return cls.from_str(contents, fmt="xyz")
+
         if any(fnmatch(fname.lower(), f"*.{r}*") for r in ("gjf", "g03", "g09", "com", "inp")):
             return cls.from_str(contents, fmt="g09")
+
         if any(fnmatch(fname.lower(), f"*.{r}*") for r in ("out", "lis", "log")):
             from pymatgen.io.gaussian import GaussianOutput
 
             return GaussianOutput(filename).final_structure
+
         if fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
             return cls.from_str(contents, fmt="json")
+
         if fnmatch(fname, "*.yaml*") or fnmatch(filename, "*.yml*"):
             return cls.from_str(contents, fmt="yaml")
-        from pymatgen.io.babel import BabelMolAdaptor
 
         if match := re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower()):
+            from pymatgen.io.babel import BabelMolAdaptor
+
             new = BabelMolAdaptor.from_file(filename, match[1]).pymatgen_mol
             new.__class__ = cls
             return new
+
         raise ValueError("Cannot determine file type.")
 
 
@@ -5572,5 +5593,5 @@ class StructureError(Exception):
     """
 
 
-with open(os.path.join(os.path.dirname(__file__), "func_groups.json"), encoding="utf-8") as file:
-    FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in json.load(file).items()}
+with open(os.path.join(os.path.dirname(__file__), "func_groups.json"), "rb") as file:
+    FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in orjson.loads(file.read()).items()}

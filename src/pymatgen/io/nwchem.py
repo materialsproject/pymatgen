@@ -157,13 +157,13 @@ class NwTask(MSONable):
         theory_spec = []
         if self.theory_directives:
             theory_spec.append(f"{self.theory}")
-            for k in sorted(self.theory_directives):
-                theory_spec.append(f" {k} {self.theory_directives[k]}")
+            theory_spec.extend(f" {k} {self.theory_directives[k]}" for k in sorted(self.theory_directives))
             theory_spec.append("end")
         for k in sorted(self.alternate_directives):
             theory_spec.append(k)
-            for k2 in sorted(self.alternate_directives[k]):
-                theory_spec.append(f" {k2} {self.alternate_directives[k][k2]}")
+            theory_spec.extend(
+                f" {k2} {self.alternate_directives[k][k2]}" for k2 in sorted(self.alternate_directives[k])
+            )
             theory_spec.append("end")
 
         t = Template(
@@ -377,13 +377,13 @@ class NwInput(MSONable):
         out = []
         if self.memory_options:
             out.append(f"memory {self.memory_options}")
-        for d in self.directives:
-            out.append(f"{d[0]} {d[1]}")
+
+        out.extend(f"{d[0]} {d[1]}" for d in self.directives)
         out.append("geometry " + " ".join(self.geometry_options))
         if self.symmetry_options:
             out.append(" symmetry " + " ".join(self.symmetry_options))
-        for site in self._mol:
-            out.append(f" {site.specie.symbol} {site.x} {site.y} {site.z}")
+
+        out.extend(f" {site.specie.symbol} {site.x} {site.y} {site.z}" for site in self._mol)
         out.append("end\n")
         for task in self.tasks:
             out.extend((str(task), ""))

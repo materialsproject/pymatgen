@@ -20,7 +20,6 @@ from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from os import PathLike
     from typing import Any, Literal
 
     from matplotlib.axes import Axes
@@ -30,6 +29,7 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
     from pymatgen.phonon.dos import PhononDos
     from pymatgen.phonon.gruneisen import GruneisenParameter
+    from pymatgen.util.typing import PathLike
 
 logger = logging.getLogger(__name__)
 
@@ -261,7 +261,7 @@ class PhononDosPlotter:
 
     def save_plot(
         self,
-        filename: str | PathLike,
+        filename: PathLike,
         img_format: str = "eps",
         xlim: float | None = None,
         ylim: float | None = None,
@@ -577,7 +577,7 @@ class PhononBSPlotter:
 
     def save_plot(
         self,
-        filename: str | PathLike,
+        filename: PathLike,
         ylim: float | None = None,
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
     ) -> None:
@@ -822,10 +822,7 @@ class ThermoPlotter:
         """
         ax, fig = get_ax_fig(ax)
 
-        values = []
-
-        for temp in temperatures:
-            values.append(func(temp, self.structure) * factor)  # type:ignore[arg-type]
+        values: list = [func(temp, self.structure) * factor for temp in temperatures]  # type: ignore[arg-type]
 
         ax.plot(temperatures, values, label=label, **kwargs)
 
@@ -1056,7 +1053,7 @@ class GruneisenPlotter:
 
     def save_plot(
         self,
-        filename: str | PathLike,
+        filename: PathLike,
         img_format: str = "pdf",
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
     ) -> None:
@@ -1239,7 +1236,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
 
     def save_plot_gs(
         self,
-        filename: str | PathLike,
+        filename: PathLike,
         img_format: str = "eps",
         ylim: float | None = None,
         plot_ph_bs_with_gruneisen: bool = False,

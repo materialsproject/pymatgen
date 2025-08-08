@@ -35,6 +35,7 @@ Atomic no:
     No: 102, Lr: 103, Rf: 104, Db: 105, Sg: 106, Bh: 107, Hs: 108, Mt: 109, Ds: 110,
     Rg: 111, Cn: 112, Nh: 113, Fl: 114, Mc: 115, Lv: 116, Ts: 117, Og: 118}
 Atomic orbitals:
+  unit: hartree
   data:
     H:
       1s: -0.233471
@@ -1086,7 +1087,7 @@ Boiling point:
     Pb: 2022, Bi: 1837, Po: 1235, Rn: 211.3, Ra: 2010, Ac: 3573, Th: 5093, U: 4200,
     Np: 4273, Pu: 3503, Am: 2880, Cm: 3383}
 Brinell hardness:
-  unit: MN m^-2
+  unit: MPa
   data: {Be: 600, Na: 0.69, Mg: 260, Al: 245, K: 0.363, Ca: 167, Sc: 750, Ti: 716,
     V: 628, Cr: 1120, Mn: 196, Fe: 490, Co: 700, Ni: 700, Cu: 874, Zn: 412, Ga: 60,
     As: 1440, Se: 736, Rb: 0.216, Y: 589, Zr: 650, Nb: 736, Mo: 1500, Ru: 2160, Rh: 1100,
@@ -2579,7 +2580,7 @@ Mineral hardness:
     Re: 7.0, Os: 7.0, Ir: 6.5, Pt: 3.5, Au: 2.5, Hg: 1.5, Tl: 1.2, Pb: 1.5, Bi: 2.25,
     Th: 3.0, U: 6.0}
 Molar volume:
-  unit: cm^3
+  unit: cm^3 mol^-1
   data: {H: 11.42, He: 21.0, Li: 13.02, Be: 4.85, B: 4.39, C: 5.29, N: 13.54, O: 17.36,
     F: 11.20, Ne: 13.23, Na: 23.78, Mg: 14.00, Al: 10.00, Si: 12.06, P: 17.02, S: 15.53,
     Cl: 17.39, Ar: 22.56, K: 45.94, Ca: 26.20, Sc: 15.00, Ti: 10.64, V: 8.32, Cr: 7.23,
@@ -4156,7 +4157,7 @@ Velocity of sound:
     Hf: 3010, Ta: 3400, W: 5174, Re: 4700, Os: 4940, Ir: 4825, Pt: 2680, Au: 1740,
     Hg: 1407, Tl: 818, Pb: 1260, Bi: 1790, Th: 2490, U: 3155, Pu: 2260}
 Vickers hardness:
-  unit: MN m^-2
+  unit: MPa
   data: {Be: 1670, B: 49000, Al: 167, Ti: 970, V: 628, Cr: 1060, Fe: 608, Co: 1043,
     Ni: 638, Cu: 369, Zr: 903, Nb: 1320, Mo: 1530, Rh: 1246, Pd: 461, Ag: 251, La: 491,
     Ce: 270, Pr: 400, Nd: 343, Sm: 412, Eu: 167, Gd: 570, Tb: 863, Dy: 540, Ho: 481,

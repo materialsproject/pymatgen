@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import json
 import os
 
 import numpy as np
+import orjson
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -327,8 +327,8 @@ class TestSlab(MatSciTest):
             primitive=True,
         )
         slab = slabs[0]
-        dict_str = json.dumps(slab.as_dict())
-        d = json.loads(dict_str)
+        dict_str = orjson.dumps(slab.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
+        d = orjson.loads(dict_str)
         assert slab == Slab.from_dict(d)
 
         # test initializing with a list scale_factor
@@ -341,8 +341,8 @@ class TestSlab(MatSciTest):
             0,
             self.zno55.scale_factor,
         )
-        dict_str = json.dumps(slab.as_dict())
-        d = json.loads(dict_str)
+        dict_str = orjson.dumps(slab.as_dict()).decode()
+        d = orjson.loads(dict_str)
         assert slab == Slab.from_dict(d)
 
 
@@ -634,7 +634,7 @@ class TestSlabGenerator(MatSciTest):
         assert slabs[1].energy == approx(24.0)
 
 
-class ReconstructionGeneratorTests(MatSciTest):
+class TestReconstructionGenerator(MatSciTest):
     def setup_method(self):
         lattice = Lattice.cubic(3.51)
         species = ["Ni"]
@@ -646,8 +646,8 @@ class ReconstructionGeneratorTests(MatSciTest):
         self.Fe = Structure.from_spacegroup("Im-3m", lattice, species, coords)
         self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500), ["Si"], [(0, 0, 0.5)])
 
-        with open(f"{PMG_CORE_DIR}/reconstructions_archive.json", encoding="utf-8") as data_file:
-            self.rec_archive = json.load(data_file)
+        with open(f"{PMG_CORE_DIR}/reconstructions_archive.json", "rb") as data_file:
+            self.rec_archive = orjson.loads(data_file.read())
 
     def test_build_slab(self):
         # First lets test a reconstruction where we only remove atoms
@@ -697,7 +697,7 @@ class ReconstructionGeneratorTests(MatSciTest):
         s2 = recon2.get_unreconstructed_slabs()[0]
         assert get_d(s1) == approx(get_d(s2))
 
-    @pytest.mark.skip("This test relies on neighbor orders and is hard coded. Disable temporarily")
+    @pytest.mark.xfail(reason="This test relies on neighbor orders and is hard coded. Disable temporarily")
     def test_previous_reconstructions(self):
         # Test to see if we generated all reconstruction types correctly and nothing changes
 

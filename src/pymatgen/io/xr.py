@@ -57,9 +57,7 @@ class Xr:
         for idx, site in enumerate(self.structure, start=1):
             output.append(f"{idx} {site.specie} {site.x:.4f} {site.y:.4f} {site.z:.4f}")
         mat = self.structure.lattice.matrix
-        for _ in range(2):
-            for j in range(3):
-                output.append(f"{mat[j][0]:.4f} {mat[j][1]:.4f} {mat[j][2]:.4f}")
+        output.extend(f"{mat[j][0]:.4f} {mat[j][1]:.4f} {mat[j][2]:.4f}" for _ in range(2) for j in range(3))
         return "\n".join(output)
 
     def write_file(self, filename: str | Path) -> None:

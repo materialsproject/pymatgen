@@ -96,7 +96,7 @@ class TestBandstructureLoader:
     def test_get_volume(self):
         assert self.loader.get_volume() == approx(477.6256714925874, abs=1e-5)
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_set_upper_lower_bands(self):
         min_bnd = min(self.loader_sp_up.ebands.min(), self.loader_sp_dn.ebands.min())
         max_bnd = max(self.loader_sp_up.ebands.max(), self.loader_sp_dn.ebands.max())

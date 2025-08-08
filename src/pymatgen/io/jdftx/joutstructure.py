@@ -43,6 +43,7 @@ def _is_homogenous(val: list):
         return False
 
 
+# TODO: Phase out redundant class attributes to data stored in `properties` and `site_properties` dicts.
 class JOutStructure(Structure):
     """Class object for storing a single JDFTx optimization step.
 
@@ -385,21 +386,21 @@ class JOutStructure(Structure):
         instance._parse_emin_lines(line_collections["emin"]["lines"])
         # Lattice must be parsed before posns/forces in case of direct coordinates
         instance._parse_lattice_lines(line_collections["lattice"]["lines"])
-        instance._parse_forces_lines(line_collections["forces"]["lines"])
+        # Posns must be parsed before forces and lowdin analysis so that they can be stored in site_properties
         instance._parse_posns_lines(line_collections["posns"]["lines"])
-        # Thermostat-velocity dumped alongside positions
-        instance._parse_thermostat_line(line_collections["posns"]["lines"])
-        # Lowdin must be parsed after posns
+        instance._parse_forces_lines(line_collections["forces"]["lines"])
         instance._parse_lowdin_lines(line_collections["lowdin"]["lines"])
-        # Strain and stress can be parsed at any point
+        # Can be parsed at any point
         instance._parse_strain_lines(line_collections["strain"]["lines"])
         instance._parse_stress_lines(line_collections["stress"]["lines"])
         instance._parse_kinetic_stress_lines(line_collections["kinetic_stress"]["lines"])
-
+        instance._parse_thermostat_line(line_collections["posns"]["lines"])  # Thermostat-velocity dumped with positions
         # In case of single-point calculation
         instance._init_e_sp_backup()
         # Setting attributes from elecmindata (set during _parse_emin_lines)
         instance._elecmindata_postinit()
+        # Set relevant properties in self.properties
+        instance._fill_properties()
         # Done last in case of any changes to site-properties
         instance._init_structure()
         return instance
@@ -584,7 +585,7 @@ class JOutStructure(Structure):
             order (vec i = r[i,:]) and converts from Bohr to Angstroms.
         """
         r = None
-        if len(lattice_lines):
+        if len(lattice_lines) >= 5:
             r = _brkt_list_of_3x3_to_nparray(lattice_lines, i_start=2)
             r = r.T * bohr_to_ang
             self.lattice = Lattice(np.array(r))
@@ -597,7 +598,7 @@ class JOutStructure(Structure):
             strain tensor. Converts from column-major to row-major order.
         """
         st = None
-        if len(strain_lines):
+        if len(strain_lines) == 4:
             st = _brkt_list_of_3x3_to_nparray(strain_lines, i_start=1)
             st = st.T
         self.strain = st
@@ -616,7 +617,7 @@ class JOutStructure(Structure):
         # "[Eh/a0^3]" (Hartree per bohr cubed). Check if this changes for direct
         # coordinates.
         st = None
-        if len(stress_lines):
+        if len(stress_lines) == 4:
             st = _brkt_list_of_3x3_to_nparray(stress_lines, i_start=1)
             st = st.T
             st *= Ha_to_eV / (bohr_to_ang**3)
@@ -636,7 +637,7 @@ class JOutStructure(Structure):
         # "[Eh/a0^3]" (Hartree per bohr cubed). Check if this changes for direct
         # coordinates.
         st = None
-        if len(stress_lines):
+        if len(stress_lines) == 4:
             st = _brkt_list_of_3x3_to_nparray(stress_lines, i_start=1)
             st = st.T
             st *= Ha_to_eV / (bohr_to_ang**3)
@@ -659,6 +660,18 @@ class JOutStructure(Structure):
         else:
             self.thermostat_velocity = None
 
+    def _check_for_structure_consistency(self, names: list[str]) -> bool:
+        # If JOutStructure was constructed with a reference init_structure
+        if len(self.species):
+            if len(names) != len(self.species):
+                return False
+            _names = list(set(names))
+            _self_names = [s.symbol for s in self.species]
+            for _name in _names:
+                if names.count(_name) != _self_names.count(_name):
+                    return False
+        return True
+
     def _parse_posns_lines(self, posns_lines: list[str]) -> None:
         """Parse positions lines.
 
@@ -673,8 +686,8 @@ class JOutStructure(Structure):
             the name of the element, and sd is a flag indicating whether the ion is
             excluded from optimization (1) or not (0).
         """
+        self.copy()
         if len(posns_lines):
-            self.remove_sites(list(range(len(self.species))))
             coords_type = posns_lines[0].split("positions in")[1]
             coords_type = coords_type.strip().split()[0].strip()
             _posns: list[NDArray[np.float64]] = []
@@ -697,6 +710,11 @@ class JOutStructure(Structure):
                 constraint_types.append(constraint_type)
                 constraint_vectors.append(constraint_vector)
                 group_names_list.append(group_names)
+            is_good = self._check_for_structure_consistency(names)
+            if not is_good and len(self.species):
+                # Abort structure updating if we have a pre-existing structure
+                return
+            self.remove_sites(list(range(len(self.species))))
             posns = np.array(_posns)
             if coords_type.lower() != "cartesian":
                 posns = np.dot(posns, self.lattice.matrix)
@@ -732,6 +750,7 @@ class JOutStructure(Structure):
                 forces *= 1 / bohr_to_ang
             forces *= Ha_to_eV
             self.forces = forces
+            self.add_site_property("forces", list(forces))
 
     def _parse_ecomp_lines(self, ecomp_lines: list[str]) -> None:
         """Parse energy component lines.
@@ -942,6 +961,22 @@ class JOutStructure(Structure):
             generic_lines.append(line_text)
         return generic_lines, collecting, collected
 
+    def _fill_properties(self) -> None:
+        """Fill properties attribute."""
+        self.properties = {
+            "eopt_type": self.eopt_type,
+            "opt_type": self.opt_type,
+            "etype": self.etype,
+            "energy": self.e,
+            "t_s": self.t_s,
+            "geom_converged": self.geom_converged,
+            "geom_converged_reason": self.geom_converged_reason,
+            "stress": self.stress,
+            "kinetic_stress": self.kinetic_stress,
+            "strain": self.strain,
+            "thermostat_velocity": self.thermostat_velocity,
+        }
+
     def _init_structure(self) -> None:
         """Initialize structure attribute."""
         self.structure = Structure(
@@ -950,6 +985,7 @@ class JOutStructure(Structure):
             coords=self.cart_coords,
             site_properties=self.site_properties,
             coords_are_cartesian=True,
+            properties=self.properties,
         )
 
     def as_dict(self) -> dict:
