@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.12' and sys_platform == 'win32'",
@@ -3207,6 +3207,7 @@ optional = [
     { name = "matgl", marker = "python_full_version < '3.13'" },
     { name = "netcdf4" },
     { name = "phonopy" },
+    { name = "pyzeo", marker = "sys_platform != 'win32'" },
     { name = "seekpath" },
     { name = "tblite", extra = ["ase"], marker = "python_full_version < '3.12' and sys_platform == 'linux'" },
 ]
@@ -3226,7 +3227,7 @@ vis = [
     { name = "vtk" },
 ]
 zeopp = [
-    { name = "pyzeo" },
+    { name = "pyzeo", marker = "sys_platform != 'win32'" },
 ]
 
 [package.dev-dependencies]
@@ -3278,14 +3279,14 @@ requires-dist = [
     { name = "pandas", specifier = ">=2" },
     { name = "phonopy", marker = "extra == 'optional'", specifier = ">=2.33.3" },
     { name = "plotly", specifier = ">=5.0.0" },
-    { name = "pymatgen", extras = ["abinit", "ase", "mlp", "tblite", "matcalc"], marker = "extra == 'optional'" },
+    { name = "pymatgen", extras = ["abinit", "ase", "matcalc", "mlp", "tblite", "zeopp"], marker = "extra == 'optional'" },
     { name = "pymatgen", extras = ["symmetry"], marker = "extra == 'prototypes'" },
     { name = "pytest", marker = "extra == 'ci'", specifier = ">=8.3.5" },
     { name = "pytest-cov", marker = "extra == 'ci'", specifier = ">=6.0.0" },
     { name = "pytest-split", marker = "extra == 'ci'", specifier = ">=0.10.0" },
     { name = "pyxtal", marker = "extra == 'prototypes'", specifier = ">=1.0" },
-    { name = "pyzeo", marker = "extra == 'zeopp'" },
-    { name = "requests", specifier = ">=2.32" },
+    { name = "pyzeo", marker = "sys_platform != 'win32' and extra == 'zeopp'" },
+    { name = "requests", specifier = ">=2.30" },
     { name = "ruamel-yaml", specifier = ">=0.17.0" },
     { name = "scipy", specifier = ">=1.13.0" },
     { name = "scipy", marker = "sys_platform == 'win32'", specifier = ">=1.14.1" },
