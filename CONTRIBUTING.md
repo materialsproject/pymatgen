@@ -73,33 +73,34 @@ For developers interested in expanding `pymatgen` for their own purposes, we rec
 Given that `pymatgen` is intended to be a long-term code base, we adopt very strict quality control and coding guidelines for all contributions to `pymatgen`. The following must be satisfied for your contributions to be accepted into `pymatgen`.
 
 1. **Unit tests** are required for all new modules and methods. The only way to minimize code regression is to ensure that all code is well-tested. Untested contributions will not be accepted.
-   To run the testsuite in you repository follow these steps:
+    To run the testsuite in you repository follow these steps:
 
-   ```sh
-   cd path_to_pymatgen_repo
+    ```sh
+    cd path_to_pymatgen_repo
 
-   # Option One (Recommended): Set up development environment via `uv`
-   uv sync
-   # uv sync --extra optional  # Install a specific optional dependency
-   # uv sync --all-extras      # Install all optional dependencies
+    # Option One (Recommended): Set up development environment via `uv`
+    uv sync
+    # uv sync --extra optional  # Install a specific optional dependency
+    # uv sync --all-extras      # Install all optional dependencies
 
-   uv run pytest tests
+    uv run pytest tests
 
-   # Option Two: Use environment variable PMG_TEST_FILES_DIR
-   pip install '.[ci]'
-   PMG_TEST_FILES_DIR=$(pwd)/tests/files pytest tests  # run the test suite providing the path for the test files
-   ```
+    # Option Two: Install `pymatgen` from wheel and use environment variable `PMG_TEST_FILES_DIR`
+    uv build --wheel
+    uv pip install dist/pymatgen-*.whl --group test
+    PMG_TEST_FILES_DIR=$(pwd)/tests/files uv run pytest tests
+    ```
 
 2. **PEP 8** [code style](https://python.org/dev/peps/pep-0008). We allow a few exceptions when they are well-justified (e.g., Element's atomic number is given a variable name of capital Z, in line with accepted scientific convention), but generally, PEP 8 should be observed. Code style will be automatically checked for all PRs and must pass before any PR is merged. To aid you, you can install and run the same set of formatters and linters that will run in CI using:
 
-   ```sh
-   # Install the pre-commit hooks (runs linters automatically before each commit)
-   uv run pre-commit install
+    ```sh
+    # Install the pre-commit hooks (runs linters automatically before each commit)
+    uv run pre-commit install
 
-   # (Optional) Run pre-commit manually
-   uv run pre-commit run --files path/to/changed/files  # Check specific files
-   uv run pre-commit run --all-files                    # Check the entire codebase
-   ```
+    # (Optional) Run pre-commit manually
+    uv run pre-commit run --files path/to/changed/files  # Check specific files
+    uv run pre-commit run --all-files                    # Check the entire codebase
+    ```
 
 3. **Python 3**. We only support Python 3.10+.
 4. **Documentation** is required for all modules, classes and methods. We prefer [Google Style Docstrings](https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html). In particular, the method doc strings should make clear the arguments expected and the return values. For complex algorithms (e.g., an Ewald summation), a summary of the algorithm should be provided and preferably with a link to a publication outlining the method in detail.

@@ -91,11 +91,6 @@ Pypi = "https://pypi.org/project/pymatgen"
 [project.optional-dependencies]
 abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.23.0"]
-ci = [
-    "pytest>=8.3.5",
-    "pytest-cov>=6.0.0",
-    "pytest-split>=0.10.0",
-]
 electronic_structure = ["fdint>=2.0.2"]
 matcalc = [
     "matcalc>=0.4.0; python_version<'3.13'",

@@ -33,19 +33,19 @@ jobs:
           - os: windows-latest
             python: "3.11"
             resolution: highest
-            extras: ci,optional,prototypes
+            extras: optional,prototypes
           - os: windows-latest
             python: "3.11"
             resolution: highest
-            extras: ci,prototypes,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
+            extras: prototypes,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
           - os: ubuntu-latest
             python: "3.13"
             resolution: lowest-direct
-            extras: ci,prototypes,optional
+            extras: prototypes,optional
           - os: macos-latest
             python: "3.12"
             resolution: lowest-direct
-            extras: ci,prototypes # test with only required dependencies installed
+            extras: prototypes # test with only required dependencies installed
 
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
         # update durations file with `pytest --store-durations --durations-path tests/files/.pytest-split-durations`
@@ -84,7 +84,7 @@ jobs:
           # Install from wheels to test the content
           uv build --wheel --no-build-logs
           WHEEL_FILE=$(ls dist/pymatgen*.whl)
-          uv pip install $WHEEL_FILE[${{matrix.config.extras}}] --resolution=${{matrix.config.resolution}}
+          uv pip install $WHEEL_FILE[${{matrix.config.extras}}] --resolution=${{matrix.config.resolution}}  --group test
 
       - name: Restore cache for optional Ubuntu/MacOS dependencies
         if: matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest'
