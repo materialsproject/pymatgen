@@ -154,18 +154,16 @@ class ConversionElectrode(AbstractElectrode):
                 )
                 for i in range(len(self.voltage_pairs))
             ]
-        sub_electrodes = []
-        for i in range(len(self.voltage_pairs)):
-            for j in range(i, len(self.voltage_pairs)):
-                sub_electrodes.append(
-                    ConversionElectrode(
-                        voltage_pairs=self.voltage_pairs[i : j + 1],
-                        working_ion_entry=self.working_ion_entry,
-                        initial_comp_formula=self.initial_comp_formula,
-                        framework_formula=self.framework_formula,
-                    )
-                )
-        return sub_electrodes
+        return [
+            ConversionElectrode(
+                voltage_pairs=self.voltage_pairs[i : j + 1],
+                working_ion_entry=self.working_ion_entry,
+                initial_comp_formula=self.initial_comp_formula,
+                framework_formula=self.framework_formula,
+            )
+            for i in range(len(self.voltage_pairs))
+            for j in range(i, len(self.voltage_pairs))
+        ]
 
     def is_super_electrode(self, conversion_electrode) -> bool:
         """Check if a particular conversion electrode is a sub electrode of the

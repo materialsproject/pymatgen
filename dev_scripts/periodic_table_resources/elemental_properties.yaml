@@ -244,6 +244,7 @@ Atomic no:
     D: 1
     T: 1
 Atomic orbitals:
+  unit: hartree
   data:
     Ac:
       1s: -3443.110367
@@ -1349,7 +1350,7 @@ Boiling point:
     Zn: 1180
     Zr: 4682
 Brinell hardness:
-  unit: MN m^-2
+  unit: MPa
   data:
     Ag: 24.5
     Al: 245
@@ -2584,7 +2585,7 @@ Mineral hardness:
     Zn: 2.5
     Zr: 5.0
 Molar volume:
-  unit: cm^3
+  unit: cm^3 mol^-1
   data:
     Ac: 22.55
     Ag: 10.27
@@ -3183,7 +3184,7 @@ Velocity of sound:
     Zn: 3700
     Zr: 3800
 Vickers hardness:
-  unit: MN m^-2
+  unit: MPa
   data:
     Ag: 251
     Al: 167

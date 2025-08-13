@@ -684,10 +684,12 @@ class BandStructure:
                     for jj in range(len(dct["projections"][spin][ii])):
                         dddd = []
                         for kk in range(len(dct["projections"][spin][ii][jj])):
-                            ddddd = []
                             orb = Orbital(kk).name
-                            for ll in range(len(dct["projections"][spin][ii][jj][orb])):
-                                ddddd.append(dct["projections"][spin][ii][jj][orb][ll])
+                            ddddd = [
+                                dct["projections"][spin][ii][jj][orb][ll]
+                                for ll in range(len(dct["projections"][spin][ii][jj][orb]))
+                            ]
+
                             dddd.append(np.array(ddddd))
                         ddd.append(np.array(dddd))
                     dd.append(np.array(ddd))
@@ -830,19 +832,17 @@ class BandStructureSymmLine(BandStructure, MSONable):
             A list of dicts [{"name", "start_index", "end_index", "index"}]
                 indicating all branches in which the k_point is.
         """
-        to_return = []
-        for idx in self.get_equivalent_kpoints(index):
-            for branch in self.branches:
-                if branch["start_index"] <= idx <= branch["end_index"]:
-                    to_return.append(
-                        {
-                            "name": branch["name"],
-                            "start_index": branch["start_index"],
-                            "end_index": branch["end_index"],
-                            "index": idx,
-                        }
-                    )
-        return to_return
+        return [
+            {
+                "name": branch["name"],
+                "start_index": branch["start_index"],
+                "end_index": branch["end_index"],
+                "index": idx,
+            }
+            for idx in self.get_equivalent_kpoints(index)
+            for branch in self.branches
+            if branch["start_index"] <= idx <= branch["end_index"]
+        ]
 
     def apply_scissor(self, new_band_gap: float) -> Self:
         """Apply a scissor operator (shift of the CBM) to fit the given band gap.
@@ -1012,9 +1012,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
             for spin in dct["projections"]:
                 dd = []
                 for i in range(len(dct["projections"][spin])):
-                    ddd = []
-                    for j in range(len(dct["projections"][spin][i])):
-                        ddd.append(dct["projections"][spin][i][j])
+                    ddd = [dct["projections"][spin][i][j] for j in range(len(dct["projections"][spin][i]))]
                     dd.append(np.array(ddd))
                 projections[Spin(int(spin))] = np.array(dd)
 
