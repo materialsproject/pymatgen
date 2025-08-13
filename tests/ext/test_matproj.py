@@ -170,7 +170,7 @@ def test_api_parity(mprester):
         "magnetism",
         "oxidation_states",
         "provenance",
-        # "alloys",
+        "alloys",
         "chemenv",
         "bonds",
         "dielectric",
