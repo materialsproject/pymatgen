@@ -4,7 +4,7 @@
 &FORCE_EVAL 
 	METHOD QS
 	STRESS_TENSOR ANALYTICAL
-	&SUBSYS 
+	&SUBSYS ! "/" used to break input file parser in Section start line
 		! Input parameters needed to set up the CELL.
 		&CELL 
 			A 0.0 2.734364 2.734364

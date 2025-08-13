@@ -174,7 +174,7 @@ class EnumlibAdaptor:
         # Store the ordered sites, which are not enumerated.
         ordered_sites = []
         disordered_sites = []
-        coord_str = []
+        coord_str: list[str] = []
         for sites in symmetrized_structure.equivalent_sites:
             if sites[0].is_ordered:
                 ordered_sites.append(sites)
@@ -195,8 +195,7 @@ class EnumlibAdaptor:
                         _sp_label.append(ind)
                         index_amounts[ind] += amt * len(sites)
                 sp_label: str = "/".join(f"{i}" for i in sorted(_sp_label))
-                for site in sites:
-                    coord_str.append(f"{coord_format.format(*site.coords)} {sp_label}")
+                coord_str.extend(f"{coord_format.format(*site.coords)} {sp_label}" for site in sites)
                 disordered_sites.append(sites)
 
         def get_sg_number(ss) -> int:
@@ -221,8 +220,7 @@ class EnumlibAdaptor:
                     logger.debug(f"Adding {sites[0].specie} in enum. New sg # {new_sg_num}")
                     index_species.append(sites[0].specie)
                     index_amounts.append(len(sites))
-                    for site in sites:
-                        coord_str.append(f"{coord_format.format(*site.coords)} {len(index_species) - 1}")
+                    coord_str.extend(f"{coord_format.format(*site.coords)} {len(index_species) - 1}" for site in sites)
                     disordered_sites.append(sites)
                     curr_sites = temp_sites
                     sg_num = new_sg_num
@@ -237,8 +235,7 @@ class EnumlibAdaptor:
         lattice = self.structure.lattice
 
         output = [self.structure.formula, "bulk"]
-        for vec in lattice.matrix:
-            output.append(coord_format.format(*vec))
+        output.extend(coord_format.format(*vec) for vec in lattice.matrix)
         output.extend((f"{len(index_species)}", f"{len(coord_str)}"))
         output.extend(coord_str)
 

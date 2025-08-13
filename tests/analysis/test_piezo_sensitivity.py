@@ -208,7 +208,7 @@ class TestPiezoSensitivity(MatSciTest):
             assert_allclose(asum1, np.zeros([3, 3]), atol=1e-5)
             assert_allclose(asum2, np.zeros([3, 3]), atol=1e-5)
 
-    @pytest.mark.skipif(
+    @pytest.mark.xfail(
         platform.system() == "Windows" and int(np.__version__[0]) >= 2,
         reason="See https://github.com/conda-forge/phonopy-feedstock/pull/158#issuecomment-2227506701",
     )
@@ -262,7 +262,7 @@ class TestPiezoSensitivity(MatSciTest):
         piezo = get_piezo(self.BEC, self.IST, self.FCM)
         assert_allclose(piezo, self.piezo, atol=1e-5)
 
-    @pytest.mark.skipif(
+    @pytest.mark.xfail(
         platform.system() == "Windows" and int(np.__version__[0]) >= 2,
         reason="See https://github.com/conda-forge/phonopy-feedstock/pull/158#issuecomment-2227506701",
     )

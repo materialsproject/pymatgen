@@ -2729,11 +2729,10 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         site_nb_sets = self.structure_environments.neighbors_sets[isite]
         if site_nb_sets is None:
             return None
-        cn_maps = []
-        for cn, nb_sets in site_nb_sets.items():
-            for inb_set in range(len(nb_sets)):
-                # CHECK THE ADDITIONAL CONDITION HERE ?
-                cn_maps.append((cn, inb_set))
+
+        # CHECK THE ADDITIONAL CONDITION HERE ?
+        cn_maps = [(cn, inb_set) for cn, nb_sets in site_nb_sets.items() for inb_set in range(len(nb_sets))]
+
         weights_additional_info = {"weights": {isite: {}}}
         for wdict in self.ordered_weights:
             cn_maps_new = []

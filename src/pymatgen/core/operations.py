@@ -139,7 +139,7 @@ class SymmOp(MSONable):
             Numpy array of coordinates after operation
         """
         points = np.asarray(points)
-        affine_points = np.concatenate([points, np.ones(points.shape[:-1] + (1,))], axis=-1)
+        affine_points = np.concatenate([points, np.ones((*points.shape[:-1], 1))], axis=-1)
         return np.inner(affine_points, self.affine_matrix)[..., :-1]
 
     def apply_rotation_only(self, vector: NDArray) -> NDArray:

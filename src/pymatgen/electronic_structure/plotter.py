@@ -498,21 +498,21 @@ class BSPlotter:
         bg_str = ""
 
         if not bs_is_metal:
-            for index in cbm["kpoint_index"]:
-                cbm_plot.append(
-                    (
-                        bs.distance[index],
-                        (cbm["energy"] - zero_energy if zero_to_efermi else cbm["energy"]),
-                    )
+            cbm_plot.extend(
+                (
+                    bs.distance[index],
+                    (cbm["energy"] - zero_energy if zero_to_efermi else cbm["energy"]),
                 )
+                for index in cbm["kpoint_index"]
+            )
 
-            for index in vbm["kpoint_index"]:
-                vbm_plot.append(
-                    (
-                        bs.distance[index],
-                        (vbm["energy"] - zero_energy if zero_to_efermi else vbm["energy"]),
-                    )
+            vbm_plot.extend(
+                (
+                    bs.distance[index],
+                    (vbm["energy"] - zero_energy if zero_to_efermi else vbm["energy"]),
                 )
+                for index in vbm["kpoint_index"]
+            )
 
             bg = bs.get_band_gap()
             direct = "Indirect"
@@ -2098,10 +2098,12 @@ class BSPlotterProjected(BSPlotter):
                 dictpa_d[elt] = []
                 if elt in sum_atoms:
                     _sites = self._bs.structure.sites
-                    indices = []
-                    for site_idx in range(len(_sites)):
-                        if next(iter(_sites[site_idx]._species)) == Element(elt):
-                            indices.append(site_idx + 1)
+                    indices = [
+                        site_idx + 1
+                        for site_idx in range(len(_sites))
+                        if next(iter(_sites[site_idx]._species)) == Element(elt)
+                    ]
+
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))
                     if flag_1 == len(indices) and flag_2 == len(indices):
@@ -2176,10 +2178,7 @@ class BSPlotterProjected(BSPlotter):
         ticks = self.get_ticks()
         distance = []
         label = []
-        rm_elems = []
-        for idx in range(1, len(ticks["distance"])):
-            if ticks["label"][idx] == ticks["label"][idx - 1]:
-                rm_elems.append(idx)
+        rm_elems = [idx for idx in range(1, len(ticks["distance"])) if ticks["label"][idx] == ticks["label"][idx - 1]]
         for idx in range(len(ticks["distance"])):
             if idx not in rm_elems:
                 distance.append(ticks["distance"][idx])
@@ -3183,9 +3182,7 @@ class BoltztrapPlotter:
             plt.subplot(121 + idx)
             for dop in doping:
                 dop_idx = self._bz.doping[dop_type].index(dop)
-                sbk_temp = []
-                for temp in temperatures:
-                    sbk_temp.append(sbk[dop_type][temp][dop_idx])
+                sbk_temp = [sbk[dop_type][temp][dop_idx] for temp in temperatures]
                 if output == "average":
                     ax.plot(temperatures, sbk_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
@@ -3240,9 +3237,7 @@ class BoltztrapPlotter:
             plt.subplot(121 + idx)
             for dop in doping:
                 dop_idx = self._bz.doping[dop_type].index(dop)
-                cond_temp = []
-                for temp in temperatures:
-                    cond_temp.append(cond[dop_type][temp][dop_idx])
+                cond_temp = [cond[dop_type][temp][dop_idx] for temp in temperatures]
                 if output == "average":
                     ax.plot(temperatures, cond_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
@@ -3298,9 +3293,7 @@ class BoltztrapPlotter:
             plt.subplot(121 + idx)
             for dop in doping:
                 dop_idx = self._bz.doping[dop_type].index(dop)
-                pf_temp = []
-                for temp in temperatures:
-                    pf_temp.append(pow_factor[dop_type][temp][dop_idx])
+                pf_temp = [pow_factor[dop_type][temp][dop_idx] for temp in temperatures]
                 if output == "average":
                     ax.plot(temperatures, pf_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
@@ -3357,9 +3350,7 @@ class BoltztrapPlotter:
             plt.subplot(121 + idx)
             for dop in doping:
                 dop_idx = self._bz.doping[dop_type].index(dop)
-                zt_temp = []
-                for temp in temperatures:
-                    zt_temp.append(zt[dop_type][temp][dop_idx])
+                zt_temp = [zt[dop_type][temp][dop_idx] for temp in temperatures]
                 if output == "average":
                     ax.plot(temperatures, zt_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":

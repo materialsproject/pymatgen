@@ -732,7 +732,6 @@ class WulffShape:
         """
         all_edges = []
         for facet in self.facets:
-            edges = []
             pt = self.get_line_in_facet(facet)
 
             lines = []
@@ -741,10 +740,6 @@ class WulffShape:
                     break
                 lines.append(tuple(sorted((tuple(pt[idx * 2]), tuple(pt[idx * 2 + 1])))))
 
-            for p in lines:
-                if p not in all_edges:
-                    edges.append(p)
-
-            all_edges.extend(edges)
+            all_edges.extend([p for p in lines if p not in all_edges])
 
         return len(all_edges)

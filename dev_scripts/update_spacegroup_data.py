@@ -58,10 +58,7 @@ def remove_identity_from_full_hermann_mauguin(symbol: str) -> str:
     blickrichtungen = symbol.split(" ")
     if blickrichtungen[1].startswith("3"):
         return symbol
-    blickrichtungen_new = []
-    for br in blickrichtungen:
-        if br != "1":
-            blickrichtungen_new.append(br + " ")
+    blickrichtungen_new = [br + " " for br in blickrichtungen if br != "1"]
     return "".join(blickrichtungen_new)
 
 
