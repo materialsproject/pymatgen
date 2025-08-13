@@ -80,7 +80,11 @@ def test_get_ref_import_time() -> None:
 
 
 @pytest.mark.skipif(GEN_REF_TIME, reason="Generating reference import time.")
-def test_import_time(grace_percent: float = 0.5, hard_percent: float = 1.0) -> None:
+@pytest.mark.parametrize(
+    ("grace_percent", "hard_percent"),
+    [(0.5, 1.0)],
+)
+def test_import_time(grace_percent: float, hard_percent: float) -> None:
     """Test the import time of core modules to avoid performance regression.
 
     Args:

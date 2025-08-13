@@ -3288,7 +3288,7 @@ requires-dist = [
     { name = "pytest-split", marker = "extra == 'ci'", specifier = ">=0.10.0" },
     { name = "pyxtal", marker = "extra == 'prototypes'", specifier = ">=1.0" },
     { name = "pyzeo", marker = "sys_platform != 'win32' and extra == 'zeopp'" },
-    { name = "requests", specifier = ">=2.32" },
+    { name = "requests", specifier = ">=2.30" },
     { name = "ruamel-yaml", specifier = ">=0.17.0" },
     { name = "scipy", specifier = ">=1.13.0" },
     { name = "scipy", marker = "sys_platform == 'win32'", specifier = ">=1.14.1" },

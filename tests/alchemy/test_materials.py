@@ -113,7 +113,7 @@ class TestTransformedStructure(MatSciTest):
 
     def test_snl(self):
         self.trans.set_parameter("author", "will")
-        with pytest.warns(UserWarning) as warns:
+        with pytest.warns(UserWarning, match="discarded during type conversion to SNL") as warns:
             struct_nl = self.trans.to_snl([("will", "will@test.com")])
 
         assert len(warns) >= 1, f"Warning not raised on type conversion with other_parameters {len(warns)=}"
