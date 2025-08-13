@@ -70,6 +70,8 @@ class JdftxInputSet(InputSet):
         """
         jdftxinput = JDFTXInfile.from_file(file)
         structure = jdftxinput.structure
+        if structure is None:
+            raise ValueError(f"Structure not defined in file {file}.")
         return JdftxInputSet(jdftxinput=jdftxinput, structure=structure)
 
 
