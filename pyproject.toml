@@ -102,6 +102,7 @@ numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
 optional = [
     "pymatgen[abinit,ase,matcalc,mlp,tblite,zeopp]",
     "beautifulsoup4",
+    "pymatgen-analysis-alloys",
     # PR4347: BoltzTraP2 needs to bump cmake version for spglib build
     # "BoltzTraP2>=24.9.4",
     "chemview>=0.6",
