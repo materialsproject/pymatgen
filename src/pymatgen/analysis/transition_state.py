@@ -2,13 +2,12 @@
 Some reimplementation of Henkelman's Transition State Analysis utilities,
 which are originally in Perl. Additional features beyond those offered by
 Henkelman's utilities will be added.
-
-This allows the usage and customization in Python.
 """
 
 from __future__ import annotations
 
 import os
+import warnings
 from glob import glob
 from typing import TYPE_CHECKING
 
@@ -23,81 +22,115 @@ from pymatgen.io.vasp import Outcar
 from pymatgen.util.plotting import pretty_plot
 
 if TYPE_CHECKING:
+    from typing import Any
+
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike
 
 
 class NEBAnalysis(MSONable):
     """An NEBAnalysis class."""
 
-    def __init__(self, r, energies, forces, structures, spline_options=None):
+    def __init__(
+        self,
+        r: ArrayLike,
+        energies: ArrayLike,
+        forces: ArrayLike,
+        structures: list[Structure],
+        spline_options: dict | None = None,
+        zero_slope_saddle: bool = False,
+    ) -> None:
         """Initialize an NEBAnalysis from the cumulative root mean squared distances
-        between structures, the energies, the forces, the structures and the
-        interpolation_order for the analysis.
+        between structures, the energies, the forces and the structures for the analysis.
 
         Args:
-            r: Root mean square distances between structures
-            energies: Energies of each structure along reaction coordinate
-            forces: Tangent forces along the reaction coordinate.
-            structures ([Structure]): List of Structures along reaction
-                coordinate.
-            spline_options (dict): Options for cubic spline. For example,
-                {"saddle_point": "zero_slope"} forces the slope at the saddle to
-                be zero.
+            r (ArrayLike): Root mean square distances between structures.
+            energies (ArrayLike): Energies of each structure along reaction coordinate.
+            forces (ArrayLike): Tangent forces along the reaction coordinate.
+            structures (list[Structure]): Structures along reaction coordinate.
+            spline_options (dict, optional): [Deprecated] Use `zero_slope_saddle` instead.
+            zero_slope_saddle (bool): If True, enforces zero slope at saddle point.
         """
-        self.r = np.array(r)
-        self.energies = np.array(energies)
-        self.forces = np.array(forces)
+        self.zero_slope_saddle = zero_slope_saddle
+        if spline_options is not None:
+            warnings.warn(
+                "`spline_options` is deprecated and will be removed in 2026-08-01. "
+                "Use `zero_slope_saddle=True` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            self.zero_slope_saddle = spline_options.get("saddle_point") == "zero_slope"
+
+        self.r = np.asarray(r)
+        self.energies = np.asarray(energies)
+        self.relative_energies: NDArray = self.energies - self.energies[0]
+        self.forces = np.asarray(forces)
         self.structures = structures
-        self.spline_options = spline_options if spline_options is not None else {}
 
         # We do a piecewise interpolation between the points. Each spline (
         # cubic by default) is constrained by the boundary conditions of the
         # energies and the tangent force, i.e., the derivative of
         # the energy at each pair of points.
+        self.setup_spline(zero_slope_saddle=self.zero_slope_saddle)
 
-        self.setup_spline(spline_options=self.spline_options)
-
-    def setup_spline(self, spline_options=None):
-        """Setup of the options for the spline interpolation.
+    def setup_spline(
+        self,
+        spline_options: dict | None = None,
+        zero_slope_saddle: bool = False,
+    ) -> None:
+        """
+        Set up the cubic spline interpolation of the MEP.
 
         Args:
-            spline_options (dict): Options for cubic spline. For example,
-                {"saddle_point": "zero_slope"} forces the slope at the saddle to
-                be zero.
+            spline_options (dict, optional): [Deprecated] Dictionary of options.
+                Set to {"saddle_point": "zero_slope"} to enforce zero slope at saddle.
+            zero_slope_saddle (bool): New preferred argument.
+                If True, enforces zero slope at the saddle point.
         """
-        self.spline_options = spline_options
-        relative_energies = self.energies - self.energies[0]
-        if self.spline_options.get("saddle_point", "") == "zero_slope":
-            imax = np.argmax(relative_energies)
+        self.zero_slope_saddle: bool = zero_slope_saddle
+        if spline_options is not None:
+            warnings.warn(
+                "`spline_options` is deprecated and will be removed in 2026-08-01. "
+                "Use `zero_slope_saddle=True` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            self.zero_slope_saddle = spline_options.get("saddle_point") == "zero_slope"
+
+        if self.zero_slope_saddle:
+            idx_max: int = np.argmax(self.relative_energies)
             self.spline = CubicSpline(
-                x=self.r[: imax + 1],
-                y=relative_energies[: imax + 1],
+                x=self.r[: idx_max + 1],
+                y=self.relative_energies[: idx_max + 1],
                 bc_type=((1, 0.0), (1, 0.0)),
             )
             cspline2 = CubicSpline(
-                x=self.r[imax:],
-                y=relative_energies[imax:],
+                x=self.r[idx_max:],
+                y=self.relative_energies[idx_max:],
                 bc_type=((1, 0.0), (1, 0.0)),
             )
             self.spline.extend(c=cspline2.c, x=cspline2.x[1:])
         else:
-            self.spline = CubicSpline(x=self.r, y=relative_energies, bc_type=((1, 0.0), (1, 0.0)))
+            self.spline = CubicSpline(x=self.r, y=self.relative_energies, bc_type=((1, 0.0), (1, 0.0)))
 
     @classmethod
-    def from_outcars(cls, outcars, structures, **kwargs) -> Self:
+    def from_outcars(
+        cls,
+        outcars: list[Outcar],
+        structures: list[Structure],
+        **kwargs,
+    ) -> Self:
         """Initialize an NEBAnalysis from Outcar and Structure objects. Use
-        the static constructors, e.g. from_dir instead if you
-        prefer to have these automatically generated from a directory of NEB
-        calculations.
+        the static constructors, e.g. `from_dir` instead if you prefer to
+        have these automatically generated from a directory of NEB calculations.
 
         Args:
-            outcars ([Outcar]): List of Outcar objects. Note that these have
+            outcars (list[Outcar]): Outcar objects. Note that these have
                 to be ordered from start to end along reaction coordinates.
-            structures ([Structure]): List of Structures along reaction
-                coordinate. Must be same length as outcar.
-            interpolation_order (int): Order of polynomial to use to
-                interpolate between images. Same format as order parameter in
-                scipy.interpolate.PiecewisePolynomial.
+            structures (list[Structure]): Structures along reaction
+                coordinate. Must be same length as outcars.
         """
         if len(outcars) != len(structures):
             raise ValueError("# of Outcars must be same as # of Structures")
@@ -106,35 +139,36 @@ class NEBAnalysis(MSONable):
         # which serves as the reaction coordinate. Note that these are
         # calculated from the final relaxed structures as the coordinates may
         # have changed from the initial interpolation.
-        rms_dist = [0]
-        prev = structures[0]
-        for st in structures[1:]:
-            dists = np.array([s2.distance(s1) for s1, s2 in zip(prev, st, strict=True)])
-            rms_dist.append(np.sqrt(np.sum(dists**2)))
-            prev = st
-        rms_dist = np.cumsum(rms_dist)
+        _rms_dist: list[float] = [0]
+        prev_struct: Structure = structures[0]
+        for struct in structures[1:]:
+            dists = np.array([s2.distance(s1) for s1, s2 in zip(prev_struct, struct, strict=True)])
+            _rms_dist.append(np.sqrt(np.sum(dists**2)))
+            prev_struct = struct
+        rms_dist: NDArray = np.cumsum(_rms_dist)
 
         energies, forces = [], []
         for idx, outcar in enumerate(outcars):
             outcar.read_neb()
             energies.append(outcar.data["energy"])
-            if idx in [0, len(outcars) - 1]:
+            if idx in {0, len(outcars) - 1}:
                 forces.append(0)
             else:
                 forces.append(outcar.data["tangent_force"])
-        forces = np.array(forces)
-        rms_dist = np.array(rms_dist)
+
         return cls(
             r=rms_dist,
-            energies=energies,
-            forces=forces,
+            energies=np.array(energies),
+            forces=np.array(forces),
             structures=structures,
             **kwargs,
         )
 
-    def get_extrema(self, normalize_rxn_coordinate=True):
-        """Get the positions of the extrema along the MEP. Both local
-        minimums and maximums are returned.
+    def get_extrema(
+        self, normalize_rxn_coordinate: bool = True
+    ) -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
+        """Get the positions of the extrema in meV along the minimum energy path (MEP).
+        Both local minimums and maximums are returned.
 
         Args:
             normalize_rxn_coordinate (bool): Whether to normalize the
@@ -143,20 +177,25 @@ class NEBAnalysis(MSONable):
         Returns:
             tuple[min_extrema, max_extrema]: where the extrema are given as [(x1, y1), (x2, y2), ...].
         """
-        x = np.arange(0, np.max(self.r), 0.01)
-        y = self.spline(x) * 1000
+        x: NDArray = np.arange(0, np.max(self.r), 0.01)
+        y: NDArray = self.spline(x) * 1000
 
-        scale = 1 if not normalize_rxn_coordinate else 1 / self.r[-1]
-        min_extrema = []
-        max_extrema = []
+        scale: float = 1 if not normalize_rxn_coordinate else 1 / self.r[-1]
+        min_extrema: list[tuple[float, float]] = []
+        max_extrema: list[tuple[float, float]] = []
         for i in range(1, len(x) - 1):
             if y[i] < y[i - 1] and y[i] < y[i + 1]:
                 min_extrema.append((x[i] * scale, y[i]))
             elif y[i] > y[i - 1] and y[i] > y[i + 1]:
                 max_extrema.append((x[i] * scale, y[i]))
+
         return min_extrema, max_extrema
 
-    def get_plot(self, normalize_rxn_coordinate: bool = True, label_barrier: bool = True) -> plt.Axes:
+    def get_plot(
+        self,
+        normalize_rxn_coordinate: bool = True,
+        label_barrier: bool = True,
+    ) -> plt.Axes:
         """Get an NEB plot. Uses Henkelman's approach of spline fitting
         each section of the reaction path based on tangent force and energies.
 
@@ -168,17 +207,18 @@ class NEBAnalysis(MSONable):
         Returns:
             plt.Axes: matplotlib axes object.
         """
+        scale: float = 1 / self.r[-1] if normalize_rxn_coordinate else 1
+        xs: NDArray = np.arange(0, np.max(self.r), 0.01)
+        ys_mev: NDArray = self.spline(xs) * 1000
+        relative_energies_mev: NDArray = self.relative_energies * 1000
+
         ax = pretty_plot(12, 8)
-        scale = 1 / self.r[-1] if normalize_rxn_coordinate else 1
-        xs = np.arange(0, np.max(self.r), 0.01)
-        ys = self.spline(xs) * 1000
-        relative_energies = self.energies - self.energies[0]
         ax.plot(
             self.r * scale,
-            relative_energies * 1000,
+            relative_energies_mev,
             "ro",
             xs * scale,
-            ys,
+            ys_mev,
             "k-",
             linewidth=2,
             markersize=10,
@@ -186,53 +226,59 @@ class NEBAnalysis(MSONable):
 
         ax.set_xlabel("Reaction Coordinate")
         ax.set_ylabel("Energy (meV)")
-        ax.set_ylim((np.min(ys) - 10, np.max(ys) * 1.02 + 20))
+        ax.set_ylim((np.min(ys_mev) - 10, np.max(ys_mev) * 1.02 + 20))
+
         if label_barrier:
-            data = zip(xs * scale, ys, strict=True)
-            barrier = max(data, key=lambda d: d[1])
+            data = zip(xs * scale, ys_mev, strict=True)
+            barrier: tuple[float, float] = max(data, key=lambda d: d[1])
             ax.plot([0, barrier[0]], [barrier[1], barrier[1]], "k--", linewidth=0.5)
             ax.annotate(
-                f"{np.max(ys) - np.min(ys):.0f} meV",
+                f"{max(relative_energies_mev):.0f} meV",
                 xy=(barrier[0] / 2, barrier[1] * 1.02),
                 xytext=(barrier[0] / 2, barrier[1] * 1.02),
                 horizontalalignment="center",
                 fontsize=18,
             )
+
         plt.tight_layout()
         return ax
 
     @classmethod
-    def from_dir(cls, root_dir, relaxation_dirs=None, **kwargs) -> Self:
-        """Initialize a NEBAnalysis object from a directory of a NEB run.
+    def from_dir(
+        cls,
+        root_dir: PathLike,
+        relaxation_dirs: tuple[PathLike, PathLike] | None = None,
+        **kwargs,
+    ) -> Self:
+        """Initialize an NEBAnalysis object from a directory of an NEB run.
+
         Note that OUTCARs must be present in all image directories. For the
         terminal OUTCARs from relaxation calculations, you can specify the
-        locations using relaxation_dir. If these are not specified, the code
+        locations using `relaxation_dir`. If these are not specified, the code
         will attempt to look for the OUTCARs in 00 and 0n directories,
-        followed by subdirs "start", "end" or "initial", "final" in the
-        root_dir. These are just some typical conventions used
-        preferentially in Shyue Ping's MAVRL research group. For the
-        non-terminal points, the CONTCAR is read to obtain structures. For
-        terminal points, the POSCAR is used. The image directories are
-        assumed to be the only directories that can be resolved to integers.
-        e.g. "00", "01", "02", "03", "04", "05", "06". The minimum
-        sub-directory structure that can be parsed is of the following form (
-        a 5-image example is shown):
+        followed by subdirs ("start", "end") or ("initial", "final") in the
+        `root_dir`. These are just some typical conventions used
+        preferentially in Shyue Ping's MAVRL research group.
 
-        00:
-        - POSCAR
-        - OUTCAR
-        01, 02, 03, 04, 05:
-        - CONTCAR
-        - OUTCAR
-        06:
-        - POSCAR
-        - OUTCAR
+        For the non-terminal points, the CONTCAR is read to obtain structures.
+        For terminal points, the POSCAR is used. The image directories are
+        assumed to be the only directories that can be resolved to integers.
+        e.g. "00", "01", ..., "06". The minimum sub-directory structure that
+        can be parsed is of the following form (a 5-image example is shown):
+            00:
+                - POSCAR
+                - OUTCAR
+            01-05:
+                - CONTCAR
+                - OUTCAR
+            06:
+                - POSCAR
+                - OUTCAR
 
         Args:
-            root_dir (str): Path to the root directory of the NEB calculation.
-            relaxation_dirs (tuple): This specifies the starting and ending
-                relaxation directories from which the OUTCARs are read for the
-                terminal points for the energies.
+            root_dir (PathLike): Path to the root directory of the NEB calculation.
+            relaxation_dirs (tuple): The (start, end) directories from which
+                the OUTCARs are read for the terminal points for the energies.
 
         Returns:
             NEBAnalysis object.
@@ -245,25 +291,24 @@ class NEBAnalysis(MSONable):
                 idx = int(digit)
                 neb_dirs.append((idx, pth))
         neb_dirs = sorted(neb_dirs, key=lambda d: d[0])
-        outcars = []
-        structures = []
 
-        # Setup the search sequence for the OUTCARs for the terminal
-        # directories.
+        # Setup the search sequence for the OUTCARs for the terminal directories.
         terminal_dirs = [] if relaxation_dirs is None else [relaxation_dirs]
         terminal_dirs += [(neb_dirs[0][1], neb_dirs[-1][1])]
-        terminal_dirs += [[os.path.join(root_dir, folder) for folder in ["start", "end"]]]
-        terminal_dirs += [[os.path.join(root_dir, folder) for folder in ["initial", "final"]]]
+        terminal_dirs += [[os.path.join(root_dir, folder) for folder in ("start", "end")]]
+        terminal_dirs += [[os.path.join(root_dir, folder) for folder in ("initial", "final")]]
 
+        outcars = []
+        structures = []
         for idx, neb_dir in neb_dirs:
-            outcar = glob(f"{neb_dir}/OUTCAR*")
-            contcar = glob(f"{neb_dir}/CONTCAR*")
-            poscar = glob(f"{neb_dir}/POSCAR*")
-            terminal = idx in [0, neb_dirs[-1][0]]
+            outcar = glob(f"{neb_dir}/OUTCAR") or glob(f"{neb_dir}/OUTCAR*")
+            contcar = glob(f"{neb_dir}/CONTCAR") or glob(f"{neb_dir}/CONTCAR*")
+            poscar = glob(f"{neb_dir}/POSCAR") or glob(f"{neb_dir}/POSCAR*")
+            terminal: bool = idx in {0, neb_dirs[-1][0]}
             if terminal:
-                for ds in terminal_dirs:
-                    od = ds[0] if idx == 0 else ds[1]
-                    if outcar := glob(f"{od}/OUTCAR*"):
+                for dirs in terminal_dirs:
+                    od = dirs[0] if idx == 0 else dirs[1]
+                    if outcar := (glob(f"{od}/OUTCAR") or glob(f"{od}/OUTCAR*")):
                         outcar = sorted(outcar)
                         outcars.append(Outcar(outcar[-1]))
                         break
@@ -273,9 +318,10 @@ class NEBAnalysis(MSONable):
             else:
                 outcars.append(Outcar(outcar[0]))
                 structures.append(Structure.from_file(contcar[0]))
+
         return NEBAnalysis.from_outcars(outcars, structures, **kwargs)
 
-    def as_dict(self):
+    def as_dict(self) -> dict[str, Any]:
         """
         Dict representation of NEBAnalysis.
 
@@ -292,23 +338,29 @@ class NEBAnalysis(MSONable):
         }
 
 
-def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=False):
+def combine_neb_plots(
+    neb_analyses: list[NEBAnalysis],
+    arranged_neb_analyses: bool = False,
+    reverse_plot: bool = False,
+) -> NEBAnalysis:
     """
-    neb_analyses: a list of NEBAnalysis objects.
+    Combine NEB plots.
 
-    arranged_neb_analyses: The code connects two end points with the
-    smallest-energy difference. If all end points have very close energies, it's
-    likely to result in an inaccurate connection. Manually arrange neb_analyses
-    if the combined plot is not as expected compared with all individual plots.
-    e.g. if there are two NEBAnalysis objects to combine, arrange in such a
-    way that the end-point energy of the first NEBAnalysis object is the
-    start-point energy of the second NEBAnalysis object.
-    Note that the barrier labeled in y-axis in the combined plot might be
-    different from that in the individual plot due to the reference energy used.
-    reverse_plot: reverse the plot or percolation direction.
+    Args:
+        neb_analyses: a list of NEBAnalysis objects.
+        arranged_neb_analyses: The code connects two end points with the
+            smallest-energy difference. If all end points have very close energies, it's
+            likely to result in an inaccurate connection. Manually arrange neb_analyses
+            if the combined plot is not as expected compared with all individual plots.
+            e.g. if there are two NEBAnalysis objects to combine, arrange in such a
+            way that the end-point energy of the first NEBAnalysis object is the
+            start-point energy of the second NEBAnalysis object.
+            Note that the barrier labeled in y-axis in the combined plot might be
+            different from that in the individual plot due to the reference energy used.
+            reverse_plot: reverse the plot or percolation direction.
 
     Returns:
-        a NEBAnalysis object
+        NEBAnalysis object
     """
     x = StructureMatcher()
     neb1_structures = []
@@ -385,12 +437,11 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
             )
 
     if reverse_plot:
-        na = NEBAnalysis(
+        return NEBAnalysis(
             list(reversed([i * -1 - neb1_r[-1] * -1 for i in list(neb1_r)])),
             list(reversed(neb1_energies)),
             list(reversed(neb1_forces)),
             list(reversed(neb1_structures)),
         )
-    else:
-        na = NEBAnalysis(neb1_r, neb1_energies, neb1_forces, neb1_structures)
-    return na
+
+    return NEBAnalysis(neb1_r, neb1_energies, neb1_forces, neb1_structures)
