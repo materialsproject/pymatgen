@@ -1405,7 +1405,11 @@ class IcohpCollection(MSONable):
                 {
                     key: {
                         "icohp": {str(spin): value for spin, value in val["icohp"].items()},
-                        "orbitals": [[n, int(orb)] for n, orb in val["orbitals"]],
+                        "orbitals": (
+                            [[n, int(orb)] for n, orb in val["orbitals"]]
+                            if isinstance(val["orbitals"][0], (list, tuple))
+                            else list(val["orbitals"])  # Handle LCFO orbitals
+                        ),
                     }
                     for key, val in entry.items()
                 }
@@ -1445,8 +1449,12 @@ class IcohpCollection(MSONable):
                         orb_temp = []
 
                         for item in lab_orb_icohp[orb][key]:
-                            item[1] = Orbital(item[1])
-                            orb_temp.append(item)
+                            # Handle LCFO orbitals
+                            if isinstance(item, (list, tuple)):
+                                item[1] = Orbital(item[1])
+                                orb_temp.append(tuple(item))
+                            else:
+                                orb_temp.append(item)
                         sub_dict[key] = orb_temp  # type: ignore[assignment]
 
                     new_list_orb[bond_num][orb].update(sub_dict)
