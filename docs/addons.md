@@ -35,6 +35,8 @@ Please submit a pull request to update this page when if release a new add-on pa
   by [Omar Ashour](https://github.com/oashour) and maintained in the [Griffin Group](https://sineadgriffin.com) repository.
 * [pymatgen-io-validation](https://github.com/materialsproject/pymatgen-io-validation/): Provides comprehensive validation of VASP calculations. This package was created by
   [Matthew Kuner](https://github.com/matthewkuner) and maintained in the Materials Project repository.
+* [pymatgen-io-aims](https://gitlab.com/FHI-aims-club/pymatgen-io-aims): Provides support for the [FHI-aims](https://fhi-aims.org/) DFT code. 
+  This package is created and maintained by Thomas A. R. Purcell, Andrey Sobol, and the MS1P team.
 
 ## External Tools
 
