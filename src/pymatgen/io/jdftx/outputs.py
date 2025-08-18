@@ -325,7 +325,7 @@ class JDFTXOutputs:
             projections[spins[i]] = np.zeros([nbands, nkpt, norbmax, len(self.outfile.structure)])
             # TODO: Consider jitting this loop
             for u in range(nproj):
-                idx = (slice(None), slice(None),) + tuple(u_to_oa_map[u])
+                idx = (slice(None), slice(None), *tuple(u_to_oa_map[u]))
                 projections[spins[i]][idx] += proj_sjku[i, :, :, u]
         return projections
 
