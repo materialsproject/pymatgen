@@ -278,8 +278,8 @@ class LobsterNeighbors(NearNeighbors):
         self.only_bonds_to = only_bonds_to
         self.adapt_extremum_to_add_cond = adapt_extremum_to_add_cond
         self.add_additional_data_sg = add_additional_data_sg
-        self.bonding_list_1 = bonding_list_1  # type:ignore[arg-type]
-        self.bonding_list_2 = bonding_list_2  # type:ignore[arg-type]
+        self.bonding_list_1 = bonding_list_1  # type:ignore[assignment]
+        self.bonding_list_2 = bonding_list_2  # type:ignore[assignment]
         self.id_blist_sg1 = id_blist_sg1.lower()
         self.id_blist_sg2 = id_blist_sg2.lower()
         self.noise_cutoff = noise_cutoff
