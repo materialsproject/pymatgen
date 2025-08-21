@@ -31,21 +31,21 @@ jobs:
         # newest version (currently 3.13) on ubuntu (to get complete coverage on unix).
         config:
           - os: windows-latest
-            python: "3.11"
+            python: "3.10"
             resolution: highest
             extras: ci,optional,prototypes
           - os: windows-latest
             python: "3.11"
             resolution: highest
             extras: ci,prototypes,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
-          - os: ubuntu-latest
-            python: "3.13"
-            resolution: lowest-direct
-            extras: ci,prototypes,optional
           - os: macos-latest
             python: "3.12"
             resolution: lowest-direct
             extras: ci,prototypes # test with only required dependencies installed
+          - os: ubuntu-latest
+            python: "3.13"
+            resolution: lowest-direct
+            extras: ci,prototypes,optional
 
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
         # update durations file with `pytest --store-durations --durations-path tests/files/.pytest-split-durations`
