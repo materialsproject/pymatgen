@@ -140,7 +140,7 @@ class TestVasprun(MatSciTest):
             match="Additional unlabelled dielectric data in vasprun.xml are stored as unlabelled.",
         ):
             vr = Vasprun(f"{VASP_OUT_DIR}/vasprun.dielectric_bad.xml.gz")
-            assert "unlabelled" in vr.dielectric_data
+        assert "unlabelled" in vr.dielectric_data
 
     def test_bad_vasprun(self):
         with pytest.raises(xml.etree.ElementTree.ParseError):

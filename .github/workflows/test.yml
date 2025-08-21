@@ -31,21 +31,21 @@ jobs:
         # newest version (currently 3.13) on ubuntu (to get complete coverage on unix).
         config:
           - os: windows-latest
-            python: "3.11"
+            python: "3.10"
             resolution: highest
             extras: optional,prototypes
           - os: windows-latest
             python: "3.11"
             resolution: highest
             extras: prototypes,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
-          - os: ubuntu-latest
-            python: "3.13"
-            resolution: lowest-direct
-            extras: prototypes,optional
           - os: macos-latest
             python: "3.12"
             resolution: lowest-direct
             extras: prototypes # test with only required dependencies installed
+          - os: ubuntu-latest
+            python: "3.13"
+            resolution: lowest-direct
+            extras: prototypes,optional
 
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
         # update durations file with `pytest --store-durations --durations-path tests/files/.pytest-split-durations`
@@ -53,9 +53,6 @@ jobs:
 
     runs-on: ${{ matrix.config.os }}
     env:
-      MPLBACKEND: Agg  # non-interactive backend for matplotlib
-      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
-      PYTHONWARNDEFAULTENCODING: "true"  # PEP 597: Enable optional EncodingWarning
       OPT_BIN_DIR: ${{ github.workspace }}/opt/bin  # for optional Unix dependencies
     steps:
       - name: Check out repo
@@ -104,6 +101,7 @@ jobs:
           MPLBACKEND: Agg  # non-interactive backend for matplotlib
           PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
           PMG_TEST_FILES_DIR: "${{ github.workspace }}/tests/files"
+          PYTHONWARNDEFAULTENCODING: "true"  # PEP 597: Enable optional EncodingWarning
         run: |
           pytest tests \
             --splits 10 --group ${{ matrix.split }} \

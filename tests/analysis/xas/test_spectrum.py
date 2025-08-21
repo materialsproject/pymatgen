@@ -116,7 +116,7 @@ class TestXAS(MatSciTest):
         self.l2_xanes.y[0] = 0.1
         with pytest.warns(UserWarning, match="jump") as warns:
             XAS.stitch(self.l2_xanes, self.l3_xanes, 100, mode="L23")
-            assert len(warns) == 1
+        assert len(warns) == 1
         self.l2_xanes = XAS.from_dict(l2_xanes_dict)
         l23 = XAS.stitch(self.l2_xanes, self.l3_xanes, 100, mode="L23")
         assert isinstance(l23, XAS)
