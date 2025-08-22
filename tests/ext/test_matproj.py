@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import importlib
+
 import numpy as np
 import pytest
 import requests
@@ -23,10 +25,8 @@ try:
 except requests.exceptions.ConnectionError:
     skip_mprester_tests = True
 
-try:  # Skip MPRester tests if pymatgen.analysis.alloys not installed.
-    import pymatgen.analysis.alloys  # noqa: F401
-except ImportError:
-    skip_mprester_tests = True
+# Skip MPRester tests if pymatgen.analysis.alloys not installed.
+skip_mprester_tests = importlib.util.find_spec("pymatgen.analysis.alloys") and skip_mprester_tests
 
 if skip_mprester_tests:
     pytest.skip("MP API is down", allow_module_level=True)
