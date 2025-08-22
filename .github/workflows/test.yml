@@ -41,7 +41,7 @@ jobs:
           - os: macos-latest
             python: "3.12"
             resolution: lowest-direct
-            extras: prototypes # test with only required dependencies installed
+            extras: prototypes,optional # test with only required dependencies installed
           - os: ubuntu-latest
             python: "3.13"
             resolution: lowest-direct
