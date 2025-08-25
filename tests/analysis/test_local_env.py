@@ -470,6 +470,8 @@ class TestMiniDistNN(MatSciTest):
         assert voronoi_nn.get_cn(self.cscl, 0) == 8
         assert voronoi_nn.get_cn(self.lifepo4, 0) == 6
 
+        assert CrystalNN._quadrant_integral([1, 0.36], 0) == approx(0.7551954297486029)
+        assert CrystalNN._quadrant_integral([1, 0.36, 0], 1) == approx(1 - 0.7551954297486029)
         crystal_nn = CrystalNN()
         assert crystal_nn.get_cn(self.diamond, 0) == 4
         assert crystal_nn.get_cn(self.nacl, 0) == 6
@@ -1211,7 +1213,7 @@ class TestCrystalNN(MatSciTest):
     def test_discrete_cn(self):
         cnn = CrystalNN()
         cn_array = []
-        expected_array = 8 * [6] + 20 * [4]
+        expected_array = 8 * [6] + 6 * [4] + [1] + 2 * [4] + [1] + 4 * [4] + [1] + +2 * [4] + [1] + 2 * [4]
         for idx, _ in enumerate(self.lifepo4):
             cn_array.append(cnn.get_cn(self.lifepo4, idx))
 
@@ -1235,6 +1237,7 @@ class TestCrystalNN(MatSciTest):
 
     def test_weighted_cn_no_oxid(self):
         cnn = CrystalNN(weighted_cn=True)
+        cn_array = []
         # fmt: off
         expected_array = [
             5.8962, 5.8996, 5.8962, 5.8996, 5.7195, 5.7195, 5.7202, 5.7194, 4.0012, 4.0012,
@@ -1243,7 +1246,8 @@ class TestCrystalNN(MatSciTest):
         ]
         # fmt: on
         struct = self.lifepo4.copy().remove_oxidation_states()
-        cn_array = [cnn.get_cn(struct, idx, use_weights=True) for idx in range(len(struct))]
+        for idx in range(len(struct)):
+            cn_array.append(cnn.get_cn(struct, idx, use_weights=True))
 
         assert_allclose(expected_array, cn_array, 2)
 
@@ -1255,11 +1259,11 @@ class TestCrystalNN(MatSciTest):
 
     def test_cation_anion(self):
         cnn = CrystalNN(weighted_cn=True, cation_anion=True)
-        assert cnn.get_cn(self.lifepo4, 0, use_weights=True) == approx(5.8630, abs=1e-2)
+        assert cnn.get_cn(self.lifepo4, 0, use_weights=True) == approx(5.5426, abs=1e-2)
 
     def test_x_diff_weight(self):
         cnn = CrystalNN(weighted_cn=True, x_diff_weight=0)
-        assert cnn.get_cn(self.lifepo4, 0, use_weights=True) == approx(5.8630, abs=1e-2)
+        assert cnn.get_cn(self.lifepo4, 0, use_weights=True) == approx(5.5426, abs=1e-2)
 
     def test_noble_gas_material(self):
         cnn = CrystalNN()
