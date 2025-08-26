@@ -353,7 +353,7 @@ class BandStructure:
                 if kpt.label == kpoint_vbm.label:
                     list_ind_kpts.append(idx)
         else:
-            list_ind_kpts.append(index)
+            list_ind_kpts.append(index)  # type:ignore[arg-type]
 
         # Get all other bands sharing the VBM
         list_ind_band = defaultdict(list)
@@ -419,7 +419,7 @@ class BandStructure:
                 if kpt.label == kpoint_cbm.label:
                     list_index_kpoints.append(idx)
         else:
-            list_index_kpoints.append(index)
+            list_index_kpoints.append(index)  # type:ignore[arg-type]
 
         # Get all other bands sharing the CBM
         list_index_band = defaultdict(list)
