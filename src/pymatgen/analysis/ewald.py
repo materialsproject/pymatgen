@@ -176,9 +176,7 @@ class EwaldSummation(MSONable):
 
         if len(matches) != len(sub_structure):
             output = ["Missing sites."]
-            for site in sub_structure:
-                if site not in matches:
-                    output.append(f"unmatched = {site}")
+            output.extend(f"unmatched = {site}" for site in sub_structure if site not in matches)
             raise ValueError("\n".join(output))
 
         return sum(sum(total_energy_matrix))

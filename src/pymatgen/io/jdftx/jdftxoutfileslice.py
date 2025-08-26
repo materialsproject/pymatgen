@@ -1368,10 +1368,8 @@ def _get_initial_species(pre_out_slice: list[str]) -> list[str]:
         list[str]: The initial species.
     """
     lines = _get_ion_lines(pre_out_slice)
-    species_strs = []
-    for line in lines:
-        species_strs.append(pre_out_slice[line].strip().split()[1])
-    return species_strs
+
+    return [pre_out_slice[line].strip().split()[1] for line in lines]
 
 
 def _get_ion_lines(pre_out_slice: list[str]) -> list[int]:

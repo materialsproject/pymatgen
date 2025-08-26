@@ -30,7 +30,16 @@ def is_right_known(val: Any, ex_known_val: Any):
 
 
 @pytest.mark.parametrize(
-    ("exfill_line", "exfill_known", "exiter_line", "exiter_known", "exsubspace_line", "exsubspace_known"),
+    (
+        "exfill_line",
+        "exfill_known",
+        "exiter_line",
+        "exiter_known",
+        "exsubspace_line",
+        "exsubspace_known",
+        "etype",
+        "eitertype",
+    ),
     [
         (
             ex_fillings_line1,
@@ -39,6 +48,8 @@ def is_right_known(val: Any, ex_known_val: Any):
             ex_iter_line1_known,
             ex_subspace_line1,
             ex_subspace_line1_known,
+            "F",
+            "ElecMinimize",
         )
     ],
 )
@@ -49,8 +60,8 @@ def test_JElStep_known(
     exiter_known: dict[str, float],
     exsubspace_line: str,
     exsubspace_known: dict[str, float],
-    etype: str = "F",
-    eitertype="ElecMinimize",
+    etype: str,
+    eitertype,
 ):
     ex_lines_collect = [exiter_line, exfill_line, exsubspace_line, ""]  # Empty line added for coverage
     jei = JElStep._from_lines_collect(ex_lines_collect, eitertype, etype)
@@ -75,12 +86,22 @@ def test_JElStep_known(
         assert is_right_known(val, ex_known[var])
 
 
-@pytest.mark.parametrize(("ex_lines", "ex_knowns"), [([ex_lines1, ex_lines2], [ex_known1, ex_known2])])
+@pytest.mark.parametrize(
+    ("ex_lines", "ex_knowns", "etype", "eitertype"),
+    [
+        (
+            [ex_lines1, ex_lines2],
+            [ex_known1, ex_known2],
+            "F",
+            "ElecMinimize",
+        )
+    ],
+)
 def test_JElSteps_known(
     ex_lines: list[list[str]],
     ex_knowns: list[dict],
-    etype: str = "F",
-    eitertype="ElecMinimize",
+    etype: str,
+    eitertype,
 ):
     text_slice = [line for exl in ex_lines for line in exl]
     jeis = JElSteps._from_text_slice(text_slice, opt_type=eitertype, etype=etype)

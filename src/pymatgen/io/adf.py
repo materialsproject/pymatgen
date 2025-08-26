@@ -250,10 +250,7 @@ class AdfKey(MSONable):
             "options": self.options,
         }
         if len(self.subkeys) > 0:
-            subkeys = []
-            for subkey in self.subkeys:
-                subkeys.append(subkey.as_dict())
-            dct["subkeys"] = subkeys
+            dct["subkeys"] = [subkey.as_dict() for subkey in self.subkeys]
         return dct
 
     @classmethod
@@ -551,8 +548,7 @@ class AdfInput:
                 mol_blocks.append(unres_block)
 
         with open(inp_file, "w+", encoding="utf-8") as file:
-            for block in mol_blocks:
-                file.write(str(block) + "\n")
+            file.writelines(str(block) + "\n" for block in mol_blocks)
             file.write(str(self.task) + "\n")
             file.write("END INPUT")
 

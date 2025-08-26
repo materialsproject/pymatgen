@@ -215,7 +215,7 @@ class TestBoltztrapAnalyzer:
             assert len(sbs_bzt.bands[Spin.up]) == approx(20)
             assert len(sbs_bzt.bands[Spin.up][1]) == approx(143)
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_check_acc_bzt_bands(self):
         structure = loadfn(f"{TEST_DIR}/structure_mp-12103.json")
         sbs = loadfn(f"{TEST_DIR}/dft_bs_sym_line.json")

@@ -1743,7 +1743,7 @@ class TestPotcar(MatSciTest):
         assert self.potcar.symbols == ["Fe_pv", "O"]
         assert self.potcar[0].nelectrons == 14
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_default_functional(self):
         potcar = Potcar(["Fe", "P"])
         assert potcar[0].functional_class == "GGA"

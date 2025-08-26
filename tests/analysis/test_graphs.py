@@ -239,7 +239,7 @@ class TestStructureGraph(MatSciTest):
 
         assert len(list(struct_graph.graph.edges(data=True))) == 3
 
-    @pytest.mark.skip(reason="Need someone to fix this, see issue 4206")
+    @pytest.mark.xfail(reason="Need someone to fix this, see issue 4206")
     def test_str(self):
         square_sg_str_ref = """Structure Graph
 Structure:

@@ -106,8 +106,7 @@ class Cohp(MSONable):
         format_header = "#" + " ".join("{:15s}" for __ in header)
         format_data = " ".join("{:.5f}" for __ in header)
         str_arr = [format_header.format(*header)]
-        for idx in range(len(self.energies)):
-            str_arr.append(format_data.format(*(d[idx] for d in data)))
+        str_arr.extend(format_data.format(*(d[idx] for d in data)) for idx in range(len(self.energies)))
         return "\n".join(str_arr)
 
     def as_dict(self) -> dict[str, Any]:
