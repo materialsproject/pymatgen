@@ -178,7 +178,7 @@ class MPRester:
                     response = self.session.post(actual_url, data=payload, verify=True)
                 else:
                     response = self.session.get(actual_url, params=payload, verify=True)
-                if response.status_code in [200, 400]:
+                if response.status_code in {200, 400}:
                     data = json.loads(response.text, cls=MontyDecoder) if mp_decode else orjson.loads(response.text)
                 else:
                     raise MPRestError(f"REST query returned with error status code {response.status_code}")

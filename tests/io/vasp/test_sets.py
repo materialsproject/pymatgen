@@ -237,15 +237,15 @@ class TestMITMPRelaxSet(MatSciTest):
             == f"ISMEAR = 0 with a small SIGMA ({vis.incar['SIGMA']}) detected. {vasp_docs_link}"
         )
 
+        vis = self.set(structure, user_incar_settings={"KSPACING": 1, "ISMEAR": -5})
         with pytest.warns(
             BadInputSetWarning,
             match="Large KSPACING value detected with ISMEAR = -5. Ensure that VASP "
             "generates an adequate number of KPOINTS, lower KSPACING, or set ISMEAR = 0",
         ) as warns_kspacing:
-            vis = self.set(structure, user_incar_settings={"KSPACING": 1, "ISMEAR": -5})
             _ = vis.incar
-            for warn in warns_kspacing:
-                print("scoots:", warn.message)
+        for warn in warns_kspacing:
+            print("scoots:", warn.message)
         assert len(warns_kspacing) == 2
 
     def test_poscar(self):
@@ -690,13 +690,13 @@ class TestMITMPRelaxSet(MatSciTest):
 
         # Test the behavior of constraining the net magnetic moment with a non-integer
         struct = self.structure.copy()
+        vis = MPRelaxSet(
+            struct,
+            user_incar_settings={"MAGMOM": {"Fe": 5.1}},
+            user_potcar_settings={"Fe": "Fe"},
+            constrain_total_magmom=True,
+        )
         with pytest.warns(UserWarning, match="constrain_total_magmom"):
-            vis = MPRelaxSet(
-                struct,
-                user_incar_settings={"MAGMOM": {"Fe": 5.1}},
-                user_potcar_settings={"Fe": "Fe"},
-                constrain_total_magmom=True,
-            )
             vis.incar.items()
 
     def test_write_input_and_from_directory(self):
@@ -771,22 +771,25 @@ class TestMPStaticSet(MatSciTest):
         assert lcalc_pol_vis.incar["LCALCPOL"]
 
         # Check warning if LASPH is set to False for meta-GGAs/hybrids/+U/vdW
+        vis = self.set(vis.structure, user_incar_settings={"METAGGA": "M06L", "LASPH": False})
         with pytest.warns(BadInputSetWarning, match=r"LASPH"):
-            vis = self.set(vis.structure, user_incar_settings={"METAGGA": "M06L", "LASPH": False})
             vis.incar.items()
+
+        vis = self.set(vis.structure, user_incar_settings={"LHFCALC": True, "LASPH": False})
         with pytest.warns(BadInputSetWarning, match=r"LASPH"):
-            vis = self.set(vis.structure, user_incar_settings={"LHFCALC": True, "LASPH": False})
             vis.incar.items()
+
+        vis = self.set(vis.structure, user_incar_settings={"LUSE_VDW": True, "LASPH": False})
         with pytest.warns(BadInputSetWarning, match=r"LASPH"):
-            vis = self.set(vis.structure, user_incar_settings={"LUSE_VDW": True, "LASPH": False})
             vis.incar.items()
+
+        dummy_struct = Structure(
+            lattice=[[0, 2, 2], [2, 0, 2], [2, 2, 0]],
+            species=["Fe", "O"],
+            coords=[[0, 0, 0], [0.5, 0.5, 0.5]],
+        )
+        vis = self.set(dummy_struct, user_incar_settings={"LDAU": True, "LASPH": False})
         with pytest.warns(BadInputSetWarning, match=r"LASPH"):
-            dummy_struct = Structure(
-                lattice=[[0, 2, 2], [2, 0, 2], [2, 2, 0]],
-                species=["Fe", "O"],
-                coords=[[0, 0, 0], [0.5, 0.5, 0.5]],
-            )
-            vis = self.set(dummy_struct, user_incar_settings={"LDAU": True, "LASPH": False})
             vis.incar.items()
 
     def test_user_incar_kspacing(self):
@@ -981,7 +984,7 @@ class TestMatPESStaticSet(MatSciTest):
 
         with pytest.warns(UserWarning, match="inconsistent with the recommended PBE_64"):
             diff_potcar = MatPESStaticSet(self.struct, user_potcar_functional="PBE")
-            assert str(diff_potcar.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE"))
+        assert str(diff_potcar.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE"))
 
     def test_from_prev_calc(self):
         vis = MatPESStaticSet.from_prev_calc(f"{TEST_DIR}/fixtures/relaxation")
@@ -1692,8 +1695,8 @@ class TestMPHSEBS(MatSciTest):
         vis = self.set.from_prev_calc(prev_calc_dir=prev_run, mode="uniform", user_kpoints_settings=uks)
         assert vis.reciprocal_density == 100
 
+        vis = self.set(MatSciTest.get_structure("Li2O"), user_incar_settings={"ALGO": "Fast"})
         with pytest.warns(BadInputSetWarning, match=r"Hybrid functionals"):
-            vis = self.set(MatSciTest.get_structure("Li2O"), user_incar_settings={"ALGO": "Fast"})
             vis.incar.items()
 
     def test_override_from_prev_calc(self):
@@ -1883,8 +1886,8 @@ class TestMPScanRelaxSet(MatSciTest):
         # IVDW key should not be present in the incar
         with pytest.warns(UserWarning, match=r"not supported at this time"):
             scan_vdw_set = MPScanRelaxSet(self.struct, vdw="DFTD3")
-            assert "LUSE_VDW" not in scan_vdw_set.incar
-            assert "IVDW" not in scan_vdw_set.incar
+        assert "LUSE_VDW" not in scan_vdw_set.incar
+        assert "IVDW" not in scan_vdw_set.incar
 
     @skip_if_no_psp_dir
     def test_potcar(self):
@@ -2300,8 +2303,8 @@ def test_dict_set_alias():
         FutureWarning,
         match="DictSet is deprecated, and will be removed on 2025-12-31\nUse VaspInputSet",
     ):
-        DictSet()
-        assert isinstance(DictSet(), VaspInputSet)
+        dictset = DictSet()
+    assert isinstance(dictset, VaspInputSet)
 
 
 class TestMP24Sets:

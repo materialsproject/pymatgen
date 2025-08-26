@@ -25,7 +25,7 @@ from .shared_test_utils import assert_same_value
 
 # def write_mt_file(fname: str, write_dir: Path = dump_files_dir):
 #     filepath = write_dir / fname
-#     with open(filepath, "w") as f:
+#     with open(filepath, "w", encoding="utf-8") as f:
 #         f.write("if you're reading this yell at ben")
 #     f.close()
 
@@ -321,9 +321,9 @@ partial_lattice_init_outfile_known_lattice = {
 
 ex_outfileslice1_fname = ex_out_file_sections_dir / "ex_out_slice_latmin"
 ex_outfileslice2_fname = ex_out_file_sections_dir / "ex_out_slice_ionmin"
-with open(ex_outfileslice1_fname) as f:
+with open(ex_outfileslice1_fname, encoding="utf-8") as f:
     ex_outfileslice1 = list.copy(list(f))
-with open(ex_outfileslice2_fname) as f:
+with open(ex_outfileslice2_fname, encoding="utf-8") as f:
     ex_outfileslice2 = list.copy(list(f))
 ex_outfileslice1_known = {
     "mu0_0": 0.713855355 * Ha_to_eV,
@@ -366,7 +366,7 @@ ex_outfileslice2_known = {
 
 ex_jstruc_slice_fname1 = ex_out_file_sections_dir / "ex_text_slice_forJAtoms_latmin"
 ex_jstruc_slice1 = []
-with open(ex_jstruc_slice_fname1) as f:
+with open(ex_jstruc_slice_fname1, encoding="utf-8") as f:
     ex_jstruc_slice1 = list.copy(list(f))
 
 ex_jstruc_slice1_known = {
@@ -409,7 +409,7 @@ ex_jstruc_slice1_known = {
 
 ex_jstruc_slice_fname2 = ex_out_file_sections_dir / "ex_text_slice_forJAtoms_latmin2"
 ex_jstruc_slice2 = []
-with open(ex_jstruc_slice_fname2) as f:
+with open(ex_jstruc_slice_fname2, encoding="utf-8") as f:
     ex_jstruc_slice2 = list.copy(list(f))
 
 
