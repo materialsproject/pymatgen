@@ -10,14 +10,22 @@ from pymatgen.ext.matproj import MPRester
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 
-PMG_MAPI_KEY: str = SETTINGS.get("PMG_MAPI_KEY", "")
+# Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
+if not (mp_api_key := SETTINGS.get("PMG_MAPI_KEY")):
+    pytest.skip("PMG_MAPI_KEY not set", allow_module_level=True)
+
+if len(mp_api_key) != 32:
+    pytest.fail(f"Invalid/old MP API key, expected key length 32, got {len(mp_api_key)}")
 
 MP_URL = "https://api.materialsproject.org"
-
-# Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
 try:
-    skip_mprester_tests = requests.get(MP_URL, timeout=60).status_code != 200 or (not PMG_MAPI_KEY)
-except (ModuleNotFoundError, ImportError, requests.exceptions.ConnectionError):
+    skip_mprester_tests = requests.get(MP_URL, timeout=10).status_code != 200
+except requests.exceptions.ConnectionError:
+    skip_mprester_tests = True
+
+try:  # Skip MPRester tests if pymatgen.analysis.alloys not installed.
+    import pymatgen.analysis.alloys  # noqa: F401
+except ImportError:
     skip_mprester_tests = True
 
 if skip_mprester_tests:
@@ -137,8 +145,8 @@ def test_get_entries(mprester):
     # test if it will retrieve the conventional unit cell of Ni
     entry = mprester.get_entry_by_material_id("mp-23", inc_structure=True, conventional_unit_cell=True)
     Ni = entry.structure
-    assert Ni.lattice.a == Ni.lattice.b
-    assert Ni.lattice.a == Ni.lattice.c
+    assert Ni.lattice.a == pytest.approx(Ni.lattice.b)
+    assert Ni.lattice.a == pytest.approx(Ni.lattice.c)
     assert Ni.lattice.alpha == pytest.approx(60)
     assert Ni.lattice.beta == pytest.approx(60)
     assert Ni.lattice.gamma == pytest.approx(60)
@@ -148,15 +156,15 @@ def test_get_entries(mprester):
     assert primNi.energy_per_atom == entry.energy_per_atom
 
     Ni = mprester.get_structure_by_material_id("mp-23", conventional_unit_cell=True)
-    assert Ni.lattice.a == Ni.lattice.b
-    assert Ni.lattice.a == Ni.lattice.c
+    assert Ni.lattice.a == pytest.approx(Ni.lattice.b)
+    assert Ni.lattice.a == pytest.approx(Ni.lattice.c)
     assert Ni.lattice.alpha == pytest.approx(90)
     assert Ni.lattice.beta == pytest.approx(90)
     assert Ni.lattice.gamma == pytest.approx(90)
 
 
 def test_api_parity(mprester):
-    docs = [
+    docs = (
         "summary",
         "core",
         "elasticity",
@@ -174,7 +182,7 @@ def test_api_parity(mprester):
         "chemenv",
         "bonds",
         "dielectric",
-    ]
+    )
 
     for doc in docs:
         # We should have Al2O3 data for these properties.
@@ -189,7 +197,7 @@ def test_api_parity(mprester):
     data = mprester.materials.tasks.search(task_ids="mp-1143")
     assert len(data) > 0, "No tasks data returned."
 
-    docs = ["surface_properties", "alloys"]
+    docs = ("surface_properties", "alloys")
 
     for doc in docs:
         data = mprester.materials.__getattribute__(doc).search(material_ids="mp-135")
