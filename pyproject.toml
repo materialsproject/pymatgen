@@ -67,7 +67,7 @@ dependencies = [
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=5.0.0",
-    "requests>=2.32",
+    "requests>=2.30",
     "ruamel.yaml>=0.17.0",
     "scipy>=1.13.0",
     # scipy<1.14.1 is incompatible with NumPy 2.0 on Windows
@@ -91,11 +91,6 @@ Pypi = "https://pypi.org/project/pymatgen"
 [project.optional-dependencies]
 abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.23.0"]
-ci = [
-    "pytest>=8.3.5",
-    "pytest-cov>=6.0.0",
-    "pytest-split>=0.10.0",
-]
 electronic_structure = ["fdint>=2.0.2"]
 matcalc = [
     "matcalc>=0.4.0; python_version<'3.13'",
@@ -107,6 +102,7 @@ numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
 optional = [
     "pymatgen[abinit,ase,matcalc,mlp,tblite,zeopp]",
     "beautifulsoup4",
+    "pymatgen-analysis-alloys",
     # PR4347: BoltzTraP2 needs to bump cmake version for spglib build
     # "BoltzTraP2>=24.9.4",
     "chemview>=0.6",
@@ -213,12 +209,14 @@ ignore = [
     "FBT002", # Boolean default positional argument in function
     "PD011", # (A lot of false positive on non-Pandas objects)
     "PERF203", # Use of try-except in for/while loop
+    "PLC0415",  # `import` should be at the top-level of a file
     "PLR0911", # Too many return statements
     "PLR0912", # Too many branches
     "PLR0913", # Too many arguments
     "PLR0915", # Too many statements
     "PLR1702", # Too many nested blocks
-    "PLR2004", # Magic-value-comparison TODO: fix these
+    "PLR2004", # Magic-value-comparison TODO: fix this
+    "PLW1641", # eq-without-hash TODO: fix this
     "PLW2901", # Outer for loop variable overwritten by inner assignment target
     "PT013", # Incorrect import of pytest
     "S110", # Log for try-except-pass
@@ -324,21 +322,28 @@ reportMissingModuleSource = false
 reportInvalidTypeForm = false
 exclude = ["**/tests"]
 
+[tool.uv]
+# TODO: remove `docs` once doc generation is automated
+default-groups = ["dev", "test", "lint", "docs"]
+
 [dependency-groups]
 dev = [
     "invoke>=2.2.0",
     "jupyter>=1.1.1",
     "pre-commit>=4.2.0",
+]
+test = [
     "pytest>=8.3.5",
     "pytest-cov>=6.0.0",
-    "pytest-split>=0.10.0",
-    "ruff>=0.11.3",
-    "sphinx>=8.1.3",
-    "sphinx-markdown-builder>=0.6.8",
-    "sphinx-rtd-theme>=3.0.2",
+    "pytest-split>=0.10.0"
 ]
 lint = [
     "mypy>=1.15.0",
     "pyright>=1.1.398",
-    "ruff>=0.11.2",
+    "ruff>=0.11.3",
+]
+docs = [
+  "sphinx>=8.1.3",
+  "sphinx-rtd-theme>=3.0.2",
+  "sphinx-markdown-builder>=0.6.8",
 ]

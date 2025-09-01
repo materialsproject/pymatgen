@@ -89,13 +89,11 @@ class Tensor(np.ndarray, MSONable):
         self._vscale = getattr(obj, "_vscale", None)
         self._vdict = getattr(obj, "_vdict", None)
 
-    def __array_wrap__(self, obj):
-        """Overrides __array_wrap__ methods in ndarray superclass to avoid errors
-        associated with functions that return scalar values.
-        """
-        if len(obj.shape) == 0:
-            return obj[()]
-        return np.ndarray.__array_wrap__(self, obj)
+    def __array_wrap__(self, obj, context=None, return_scalar=None):
+        """Override to properly handle scalars and be compatible with NumPy 2.0."""
+        if obj.ndim == 0:
+            return obj.item()
+        return np.ndarray.__array_wrap__(self, obj, context)
 
     def __hash__(self) -> int:  # type:ignore[override]
         """Define a hash function, since numpy arrays have their own __eq__ method."""

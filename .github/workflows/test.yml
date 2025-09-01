@@ -21,7 +21,7 @@ jobs:
     if: github.repository == 'materialsproject/pymatgen'
     defaults:
       run:
-        shell: bash -l {0} # Enable conda/mamba env activation by reading bash profile
+        shell: bash -leo pipefail {0} # Enable mamba env activation by reading bash profile
     strategy:
       fail-fast: false
       matrix:
@@ -31,21 +31,21 @@ jobs:
         # newest version (currently 3.13) on ubuntu (to get complete coverage on unix).
         config:
           - os: windows-latest
-            python: "3.11"
+            python: "3.10"
             resolution: highest
-            extras: ci,optional,prototypes
+            extras: optional,prototypes
           - os: windows-latest
             python: "3.11"
             resolution: highest
-            extras: ci,prototypes,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
-          - os: ubuntu-latest
-            python: "3.13"
-            resolution: lowest-direct
-            extras: ci,prototypes,optional
+            extras: prototypes,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
           - os: macos-latest
             python: "3.12"
             resolution: lowest-direct
-            extras: ci,prototypes # test with only required dependencies installed
+            extras: prototypes # test with only required dependencies installed
+          - os: ubuntu-latest
+            python: "3.13"
+            resolution: lowest-direct
+            extras: prototypes,optional
 
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
         # update durations file with `pytest --store-durations --durations-path tests/files/.pytest-split-durations`
@@ -53,9 +53,6 @@ jobs:
 
     runs-on: ${{ matrix.config.os }}
     env:
-      MPLBACKEND: Agg  # non-interactive backend for matplotlib
-      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
-      PYTHONWARNDEFAULTENCODING: "true"  # PEP 597: Enable optional EncodingWarning
       OPT_BIN_DIR: ${{ github.workspace }}/opt/bin  # for optional Unix dependencies
     steps:
       - name: Check out repo
@@ -65,6 +62,7 @@ jobs:
         uses: mamba-org/setup-micromamba@main
         with:
           environment-name: pmg
+          cache-environment: true
           create-args: >-
             python=${{ matrix.config.python }}
 
@@ -80,20 +78,11 @@ jobs:
 
       - name: Install pymatgen and dependencies via uv
         run: |
-          micromamba activate pmg
-
           # Install from wheels to test the content
           uv build --wheel --no-build-logs
           WHEEL_FILE=$(ls dist/pymatgen*.whl)
-          uv pip install $WHEEL_FILE[${{matrix.config.extras}}] --resolution=${{matrix.config.resolution}}
-
-      - name: Install DGL and MatGL specially on ubuntu.
-        if: matrix.config.os == 'ubuntu-latest' && matrix.config.python < '3.13'
-        run: |
-          micromamba activate pmg
-          pip install --upgrade dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
-          pip install --upgrade matgl>=1.2.6
-          pip install torch==2.2.0 torchdata==0.7.1
+          uv pip install $WHEEL_FILE[${{matrix.config.extras}}] --group test \
+            --resolution=${{matrix.config.resolution}}
 
       - name: Restore cache for optional Ubuntu/MacOS dependencies
         if: matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest'
@@ -112,10 +101,11 @@ jobs:
           MPLBACKEND: Agg  # non-interactive backend for matplotlib
           PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
           PMG_TEST_FILES_DIR: "${{ github.workspace }}/tests/files"
+          PYTHONWARNDEFAULTENCODING: "true"  # PEP 597: Enable optional EncodingWarning
         run: |
-          micromamba activate pmg
-
-          pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
+          pytest tests \
+            --splits 10 --group ${{ matrix.split }} \
+            --durations-path tests/files/.pytest-split-durations \
 
   trigger_atomate2_ci:
     needs: test

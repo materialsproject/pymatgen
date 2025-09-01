@@ -55,14 +55,16 @@ class TestTranslateSitesTransformation(MatSciTest):
         assert_allclose(struct[1].frac_coords, [0.375, 0.375, 0.375])
 
     def test_apply_transformation_site_by_site(self):
-        trafo = TranslateSitesTransformation([0, 1], [[0.1, 0.2, 0.3], [-0.075, -0.075, -0.075]])
+        trafo = TranslateSitesTransformation([0, 1, 4], [[0.1, 0.2, 0.3], [-0.075, -0.075, -0.075], [0.1, -0.1, 0.05]])
         struct = trafo.apply_transformation(self.struct)
         assert_allclose(struct[0].frac_coords, [0.1, 0.2, 0.3])
         assert_allclose(struct[1].frac_coords, [0.3, 0.3, 0.3])
+        assert_allclose(struct[4].frac_coords, [0.225, 0.025, 0.175])
         inv_t = trafo.inverse
         struct = inv_t.apply_transformation(struct)
         assert struct[0].distance_and_image_from_frac_coords([0, 0, 0])[0] == 0
         assert_allclose(struct[1].frac_coords, [0.375, 0.375, 0.375])
+        assert_allclose(struct[4].frac_coords, [0.125, 0.125, 0.125])
 
     def test_as_from_dict(self):
         d1 = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).as_dict()
