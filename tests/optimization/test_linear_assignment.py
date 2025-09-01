@@ -8,8 +8,8 @@ from pymatgen.optimization.linear_assignment import LinearAssignment
 
 
 class TestLinearAssignment:
-    def test(self):
-        w0 = np.array(
+    def test_square_cost_matrix(self):
+        costs_0 = np.array(
             [
                 [19, 95, 9, 43, 62, 90, 10, 77, 71, 27],
                 [26, 30, 88, 78, 87, 2, 14, 71, 78, 11],
@@ -23,8 +23,11 @@ class TestLinearAssignment:
                 [73, 11, 98, 50, 19, 96, 61, 73, 98, 14],
             ]
         )
+        la_0 = LinearAssignment(costs_0)
+        assert la_0.min_cost == 194, "Incorrect cost"
+        assert la_0.min_cost == la_0.min_cost, "Property incorrect"
 
-        w1 = np.array(
+        costs_1 = np.array(
             [
                 [95, 60, 89, 38, 36, 38, 58, 94, 66, 23],
                 [37, 0, 40, 58, 97, 85, 18, 54, 86, 21],
@@ -38,8 +41,10 @@ class TestLinearAssignment:
                 [13, 97, 97, 54, 5, 30, 44, 75, 16, 0],
             ]
         )
+        la_1 = LinearAssignment(costs_1)
+        assert la_1.min_cost == 125, "Incorrect cost"
 
-        w2 = np.array(
+        costs_2 = np.array(
             [
                 [34, 44, 72, 13, 10, 58, 16, 1, 10, 61],
                 [54, 70, 99, 4, 64, 0, 15, 94, 39, 46],
@@ -53,18 +58,11 @@ class TestLinearAssignment:
                 [32, 95, 37, 50, 97, 96, 12, 70, 40, 93],
             ]
         )
+        la_2 = LinearAssignment(costs_2)
+        assert la_2.min_cost == 110, "Incorrect cost"
 
-        la0 = LinearAssignment(w0)
-
-        assert la0.min_cost == 194, "Incorrect cost"
-        la1 = LinearAssignment(w1)
-        assert la0.min_cost == la0.min_cost, "Property incorrect"
-        assert la1.min_cost == 125, "Incorrect cost"
-        la2 = LinearAssignment(w2)
-        assert la2.min_cost == 110, "Incorrect cost"
-
-    def test_rectangular(self):
-        w0 = np.array(
+    def test_rectangular_cost_matrix(self):
+        costs_0 = np.array(
             [
                 [19, 95, 9, 43, 62, 90, 10, 77, 71, 27],
                 [26, 30, 88, 78, 87, 2, 14, 71, 78, 11],
@@ -77,9 +75,9 @@ class TestLinearAssignment:
                 [11, 37, 24, 70, 62, 35, 64, 18, 99, 20],
             ]
         )
-        la0 = LinearAssignment(w0)
+        la_0 = LinearAssignment(costs_0)
 
-        w1 = np.array(
+        costs_1 = np.array(
             [
                 [19, 95, 9, 43, 62, 90, 10, 77, 71, 27],
                 [26, 30, 88, 78, 87, 2, 14, 71, 78, 11],
@@ -93,15 +91,15 @@ class TestLinearAssignment:
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             ]
         )
-        la1 = LinearAssignment(w1)
-        assert len(la1.solution) == 10
-        assert la0.min_cost == la1.min_cost
+        la_1 = LinearAssignment(costs_1)
+        assert len(la_1.solution) == 10
+        assert la_0.min_cost == la_1.min_cost
 
         with pytest.raises(ValueError, match="cost matrix must have at least as many columns as rows"):
-            LinearAssignment(w0.T)
+            LinearAssignment(costs_0.T)
 
-    def another_test_case(self):
-        w1 = np.array(
+    def test_another_case(self):
+        costs = np.array(
             [
                 [
                     0.03900238875468465,
@@ -225,12 +223,12 @@ class TestLinearAssignment:
                 ],
             ]
         )
-        la = LinearAssignment(w1)
+        la = LinearAssignment(costs)
         assert la.min_cost == approx(0)
 
     def test_small_range(self):
         # can be tricky for the augment step
-        x = np.array(
+        costs = np.array(
             [
                 [4, 5, 5, 6, 8, 4, 7, 4, 7, 8],
                 [5, 6, 6, 6, 7, 6, 6, 5, 6, 7],
@@ -244,12 +242,13 @@ class TestLinearAssignment:
                 [5, 6, 6, 6, 7, 6, 6, 5, 6, 7],
             ]
         )
-        assert LinearAssignment(x).min_cost == approx(48)
+        assert LinearAssignment(costs).min_cost == 48
 
     def test_boolean_inputs(self):
-        ones = np.ones((135, 135), dtype=bool)
-        np.fill_diagonal(ones, val=False)
-        la = LinearAssignment(ones)
-        # if the input doesn't get converted to a float, the masking
-        # doesn't work properly
+        costs_ones = np.ones((135, 135), dtype=bool)
+        np.fill_diagonal(costs_ones, val=False)
+
+        la = LinearAssignment(costs_ones)
+        # If the input doesn't get converted to a float,
+        # the masking doesn't work properly
         assert la.orig_c.dtype == np.float64
