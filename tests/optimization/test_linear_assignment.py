@@ -92,7 +92,8 @@ class TestLinearAssignment:
             ]
         )
         la_1 = LinearAssignment(costs_1)
-        assert len(la_1.solution) == 10
+        assert list(la_1.solution) == [6, 5, 8, 4, 0, 9, 1, 2, 7, 3]
+
         assert la_0.min_cost == la_1.min_cost
 
         with pytest.raises(ValueError, match="cost matrix must have at least as many columns as rows"):
