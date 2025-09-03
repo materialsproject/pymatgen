@@ -17,7 +17,6 @@ from monty.json import MSONable
 
 from pymatgen.core.structure import Composition, DummySpecies, Element, Lattice, Molecule, Species, Structure
 from pymatgen.io.ase import NO_ASE_ERR, AseAtomsAdaptor
-from pymatgen.io.gaussian import _traj_to_gaussian_log
 
 if NO_ASE_ERR is None:
     from ase.io.trajectory import Trajectory as AseTrajectory
@@ -501,6 +500,10 @@ class Trajectory(MSONable):
                 not write the lattice information in the log file, but will enable the "forces" site properties
                 to be readable by Gaussview.
         """
+        # Import inside function as this is an expensive import
+        # (causes import time for Trajectory to surpass threshold for 3 test setups)
+        from pymatgen.io.gaussian import _traj_to_gaussian_log
+
         # Each frame must have an energy to be read properly by Gaussview.
         if hasattr(self, "frame_properties") and self.frame_properties is not None:
             energies = [fp.get("energy", 0) for fp in self.frame_properties]
