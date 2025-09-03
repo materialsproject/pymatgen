@@ -61,7 +61,7 @@ def _pymatgen_species(
 
         pymatgen_species.append(dict(zip(chemical_symbols, concentration, strict=True)))
 
-    return pymatgen_species
+    return pymatgen_species  # type:ignore[return-value]
 
 
 def _optimade_anonymous_element_generator() -> Generator[str, None, None]:
