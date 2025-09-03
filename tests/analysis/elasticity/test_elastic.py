@@ -209,17 +209,17 @@ class TestElasticTensor(MatSciTest):
             "vasp data, use with caution",
         ):
             et_fl = -0.1 * ElasticTensor.from_pseudoinverse(strain_list, stresses).voigt
-            assert_allclose(
-                et_fl.round(2),
-                [
-                    [59.29, 24.36, 22.46, 0, 0, 0],
-                    [28.06, 56.91, 22.46, 0, 0, 0],
-                    [28.06, 25.98, 54.67, 0, 0, 0],
-                    [0, 0, 0, 26.35, 0, 0],
-                    [0, 0, 0, 0, 26.35, 0],
-                    [0, 0, 0, 0, 0, 26.35],
-                ],
-            )
+        assert_allclose(
+            et_fl.round(2),
+            [
+                [59.29, 24.36, 22.46, 0, 0, 0],
+                [28.06, 56.91, 22.46, 0, 0, 0],
+                [28.06, 25.98, 54.67, 0, 0, 0],
+                [0, 0, 0, 26.35, 0, 0],
+                [0, 0, 0, 0, 26.35, 0],
+                [0, 0, 0, 0, 0, 26.35],
+            ],
+        )
 
     def test_from_independent_strains(self):
         strains = self.toec_dict["strains"]

@@ -89,7 +89,7 @@ class GaussianInput:
     """A Gaussian input file."""
 
     # Commonly used regex patterns
-    _zmat_patt = re.compile(r"^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
+    _zmat_patt = re.compile(r"^(\w+)([\s,]+(\w+)[\s,]+(\w+)){0,3}[\-\.\s,\w]*$")
     _xyz_patt = re.compile(r"^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\-\.\s,\w.]*$")
 
     def __init__(
@@ -380,9 +380,7 @@ class GaussianInput:
 
     def get_cart_coords(self) -> str:
         """Return the Cartesian coordinates of the molecule."""
-        outs = []
-        for site in self._mol:
-            outs.append(f"{site.species_string} {' '.join(f'{x:0.6f}' for x in site.coords)}")
+        outs = [f"{site.species_string} {' '.join(f'{x:0.6f}' for x in site.coords)}" for site in self._mol]
         return "\n".join(outs)
 
     def __str__(self):
@@ -823,17 +821,17 @@ class GaussianOutput:
                     elif parse_freq:
                         while line.strip() != "":  # blank line
                             ifreqs = [int(val) - 1 for val in line.split()]
-                            for _ in ifreqs:
-                                frequencies.append(
-                                    {
-                                        "frequency": None,
-                                        "r_mass": None,
-                                        "f_constant": None,
-                                        "IR_intensity": None,
-                                        "symmetry": None,
-                                        "mode": [],
-                                    }
-                                )
+                            frequencies.extend(
+                                {
+                                    "frequency": None,
+                                    "r_mass": None,
+                                    "f_constant": None,
+                                    "IR_intensity": None,
+                                    "symmetry": None,
+                                    "mode": [],
+                                }
+                                for _ in ifreqs
+                            )
                             # read freq, intensity, masses, symmetry ...
                             while "Atom  AN" not in line:
                                 if "Frequencies --" in line:

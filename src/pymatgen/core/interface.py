@@ -760,19 +760,20 @@ class GrainBoundaryGenerator:
         whole_lat = Lattice(whole_matrix_with_vac)
 
         # Construct the coords, move top grain with translation_v
-        all_coords = []
         grain_labels = bottom_grain.site_properties["grain_label"] + top_grain.site_properties["grain_label"]  # type: ignore[operator]
-        for site in bottom_grain:
-            all_coords.append(site.coords)
-        for site in top_grain:
-            all_coords.append(
+
+        all_coords = [site.coords for site in bottom_grain]
+        all_coords.extend(
+            [
                 site.coords
                 + half_lattice.matrix[2] * (1 + c_adjust)
                 + unit_ab_adjust * np.linalg.norm(half_lattice.matrix[2] * (1 + c_adjust))
                 + translation_v
                 + ab_shift[0] * whole_matrix_with_vac[0]
                 + ab_shift[1] * whole_matrix_with_vac[1]
-            )
+                for site in top_grain
+            ]
+        )
 
         gb_with_vac = Structure(
             whole_lat,
@@ -2363,9 +2364,8 @@ class GrainBoundaryGenerator:
             min_index = np.argmin([i for i in vec if i != 0])
             true_index = index[min_index]
             index.pop(min_index)
-            frac = []
-            for value in index:
-                frac.append(Fraction(vec[value] / vec[true_index]).limit_denominator(100))
+            frac = [Fraction(vec[value] / vec[true_index]).limit_denominator(100) for value in index]
+
             if len(index) == 1:
                 miller[true_index] = frac[0].denominator
                 miller[index[0]] = frac[0].numerator
@@ -2443,11 +2443,7 @@ def symm_group_cubic(mat: NDArray) -> list:
     sym_group[22, :] = [[0, 0, 1], [0, -1, 0], [1, 0, 0]]
     sym_group[23, :] = [[0, 0, 1], [0, 1, 0], [-1, 0, 0]]
 
-    mat = np.atleast_2d(mat)
-    all_vectors = []
-    for sym in sym_group:
-        for vec in mat:
-            all_vectors.append(np.dot(sym, vec))
+    all_vectors = [np.dot(sym, vec) for sym in sym_group for vec in np.atleast_2d(mat)]
     return np.unique(np.array(all_vectors), axis=0)
 
 
@@ -2816,7 +2812,7 @@ class Interface(Structure):
         min_height = np.abs(film_max_c - film_min_c) + np.abs(sub_max_c - sub_min_c)
 
         # Construct new lattice
-        abc = substrate_slab.lattice.abc[:2] + (min_height + gap + vacuum_over_film,)
+        abc = (*substrate_slab.lattice.abc[:2], min_height + gap + vacuum_over_film)
         angles = substrate_slab.lattice.angles
         lattice = Lattice.from_parameters(*abc, *angles)
 

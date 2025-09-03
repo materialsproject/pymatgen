@@ -119,14 +119,12 @@ class HighSymmKpath(KPathBase):
                     total_points_path += len(seg)
 
                 for block in bs.kpath["path"]:
-                    new_block = []
-                    for label in block:
-                        for ind in range(
-                            len(label_index) - len(bs.kpath["kpoints"]),
-                            len(label_index),
-                        ):
-                            if label_index[ind] == label:
-                                new_block.append(ind)
+                    new_block = [
+                        ind
+                        for label in block
+                        for ind in range(len(label_index) - len(bs.kpath["kpoints"]), len(label_index))
+                        if label_index[ind] == label
+                    ]
 
                     num_path.append(new_block)
 

@@ -325,7 +325,8 @@ class JDFTXOutputs:
             projections[spins[i]] = np.zeros([nbands, nkpt, norbmax, len(self.outfile.structure)])
             # TODO: Consider jitting this loop
             for u in range(nproj):
-                projections[spins[i]][:, :, *u_to_oa_map[u]] += proj_sjku[i, :, :, u]
+                idx = (slice(None), slice(None), *tuple(u_to_oa_map[u]))
+                projections[spins[i]][idx] += proj_sjku[i, :, :, u]
         return projections
 
 
@@ -407,6 +408,8 @@ _jof_atr_from_last_slice = (
     "t_s",
     "ecomponents",
     "infile",
+    "vibrational_modes",
+    "vibrational_energy_components",
 )
 
 # TODO: Remove references to the deprecated 'jsettings_*' attributes in `JDFTXOutfile` and `JDFTXOutfileSlice`
@@ -662,6 +665,8 @@ class JDFTXOutfile:
     elec_linmin: float = field(init=False)
     electronic_output: float = field(init=False)
     infile: JDFTXInfile = field(init=False)
+    vibrational_modes: list[dict[str, Any]] | None = None
+    vibrational_energy_components: dict[str, float] | None = None
 
     @classmethod
     def from_calc_dir(

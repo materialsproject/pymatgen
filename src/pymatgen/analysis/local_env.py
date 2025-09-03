@@ -1883,12 +1883,10 @@ class MinimumVIRENN(NearNeighbors):
         neighs_dists = vire.structure.get_neighbors(site, self.cutoff)
         rn = vire.radii[vire.structure[n].species_string]
 
-        reldists_neighs = []
-        for nn in neighs_dists:
-            reldists_neighs.append([nn.nn_distance / (vire.radii[nn.species_string] + rn), nn])
+        reldists_neighs = [[nn.nn_distance / (vire.radii[nn.species_string] + rn), nn] for nn in neighs_dists]
 
         siw = []
-        min_reldist = min(reldist for reldist, neigh in reldists_neighs)
+        min_reldist = min(reldist for reldist, _neigh in reldists_neighs)
         for reldist, s in reldists_neighs:
             if reldist < (1 + self.tol) * min_reldist:
                 w = min_reldist / reldist
@@ -3394,11 +3392,13 @@ class LocalStructOrderParams:
         # neighbors.
         if self._geomops2:
             # Compute all (unique) angles and sort the resulting list.
-            aij = []
-            for ir, r in enumerate(rij_norm, start=1):
-                for j in range(ir, len(rij_norm)):
-                    aij.append(math.acos(max(-1.0, min(np.inner(r, rij_norm[j]), 1.0))))
-            aijs = sorted(aij)
+            aijs = sorted(
+                [
+                    math.acos(max(-1.0, min(np.inner(r, rij_norm[j]), 1.0)))
+                    for ir, r in enumerate(rij_norm, start=1)
+                    for j in range(ir, len(rij_norm))
+                ]
+            )
 
             # Compute height, side and diagonal length estimates.
             neighscent = np.array([0.0, 0.0, 0.0])
@@ -4068,10 +4068,7 @@ class CrystalNN(NearNeighbors):
         cn_nninfo = {}  # CN -> list of nearneighbor info for that CN
         for idx, val in enumerate(dist_bins):
             if val != 0:
-                nn_info = []
-                for entry in nn:
-                    if entry["weight"] >= val:
-                        nn_info.append(entry)
+                nn_info = [entry for entry in nn if entry["weight"] >= val]
                 cn = len(nn_info)
                 cn_nninfo[cn] = nn_info
                 cn_weights[cn] = self._semicircle_integral(dist_bins, idx)

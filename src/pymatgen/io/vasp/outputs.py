@@ -486,13 +486,13 @@ class Vasprun(MSONable):
                         if parse_eigen:
                             # projected_kpoints_opt includes occupation information whereas
                             # eigenvalues_kpoints_opt doesn't.
-                            self.kpoints_opt_props.eigenvalues = self._parse_eigen(elem.find("eigenvalues"))
+                            self.kpoints_opt_props.eigenvalues = self._parse_eigen(elem.find("eigenvalues"))  # type:ignore[arg-type]
                         if tag == "eigenvalues_kpoints_opt":
                             (
                                 self.kpoints_opt_props.kpoints,
                                 self.kpoints_opt_props.actual_kpoints,
                                 self.kpoints_opt_props.actual_kpoints_weights,
-                            ) = self._parse_kpoints(elem.find("kpoints"))
+                            ) = self._parse_kpoints(elem.find("kpoints"))  # type:ignore[arg-type]
                         elif parse_projected_eigen:  # and tag == "projected_kpoints_opt": (implied)
                             (
                                 self.kpoints_opt_props.projected_eigenvalues,
@@ -542,11 +542,8 @@ class Vasprun(MSONable):
                         for ii in range(n_atoms):
                             for jj in range(n_atoms):
                                 self.force_constants[ii, jj] = hessian[ii * 3 : (ii + 1) * 3, jj * 3 : (jj + 1) * 3]  # type: ignore[call-overload]
-                        phonon_eigenvectors = []
-                        for ev in eigenvectors:
-                            phonon_eigenvectors.append(np.array(ev).reshape(n_atoms, 3))
                         self.normalmode_eigenvals = np.array(eigenvalues)
-                        self.normalmode_eigenvecs = np.array(phonon_eigenvectors)
+                        self.normalmode_eigenvecs = np.array([np.array(ev).reshape(n_atoms, 3) for ev in eigenvectors])
 
                     elif ml_run:
                         if tag == "structure" and elem.attrib.get("name") is None:
@@ -557,9 +554,9 @@ class Vasprun(MSONable):
                         elif tag == "varray" and elem.attrib.get("name") == "stress":
                             md_data[-1]["stress"] = _parse_vasp_array(elem)
                         elif tag == "energy":
-                            d = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
+                            d = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}  # type:ignore[arg-type]
                             if "kinetic" in d:
-                                md_data[-1]["energy"] = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
+                                md_data[-1]["energy"] = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}  # type:ignore[arg-type]
 
         except ET.ParseError:
             if self.exception_on_bad_xml:
@@ -1025,7 +1022,7 @@ class Vasprun(MSONable):
 
         for spin, val in eig_vals.items():
             val = np.swapaxes(val, 0, 1)
-            eigenvals[spin] = val[:, :, 0]
+            eigenvals[spin] = val[:, :, 0]  # type:ignore[assignment]
 
             if projected_eig_vals:
                 proj_eig_vals = projected_eig_vals[spin]
@@ -1034,7 +1031,7 @@ class Vasprun(MSONable):
                 proj_eig_vals = np.swapaxes(proj_eig_vals, 0, 1)  # Swap kpoint and band axes
                 proj_eig_vals = np.swapaxes(proj_eig_vals, 2, 3)  # Swap ion and orb axes
 
-                p_eig_vals[spin] = proj_eig_vals
+                p_eig_vals[spin] = proj_eig_vals  # type:ignore[assignment]
 
         # Check if we have an hybrid band structure computation
         # for this we look at the presence of the LHFCALC tag
@@ -1744,22 +1741,20 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_dynmat(elem: XML_Element) -> tuple[list, list, list]:
         """Parse dynamical matrix."""
-        hessian = []
-        eigenvalues = []
-        eigenvectors = []
+        hessian: list[float] = []
+        eigenvalues: list[float] = []
+        eigenvectors: list[float] = []
 
         for v in elem.findall("v"):
             if v.attrib["name"] == "eigenvalues":
-                eigenvalues = [float(i) for i in v.text.split()]  # type: ignore[union-attr]
+                eigenvalues = [float(i) for i in v.text.split()]
 
         for va in elem.findall("varray"):
             if va.attrib["name"] == "hessian":
-                for v in va.findall("v"):
-                    hessian.append([float(i) for i in v.text.split()])  # type: ignore[union-attr]
+                hessian.extend([float(i) for i in v.text.split()] for v in va.findall("v"))
 
             elif va.attrib["name"] == "eigenvectors":
-                for v in va.findall("v"):
-                    eigenvectors.append([float(i) for i in v.text.split()])  # type: ignore[union-attr]
+                eigenvectors.extend([float(i) for i in v.text.split()] for v in va.findall("v"))
         return hessian, eigenvalues, eigenvectors
 
 
@@ -1840,10 +1835,10 @@ class BSVasprun(Vasprun):
                     if in_kpoints_opt:
                         if self.kpoints_opt_props is None:
                             self.kpoints_opt_props = KpointOptProps()
-                        self.kpoints_opt_props.efermi = float(elem.text)
+                        self.kpoints_opt_props.efermi = float(elem.text)  # type:ignore[arg-type]
                         in_kpoints_opt = False
                     else:
-                        self.efermi = float(elem.text)
+                        self.efermi = float(elem.text)  # type:ignore[arg-type]
                 elif tag == "eigenvalues" and not in_kpoints_opt:
                     self.eigenvalues = self._parse_eigen(elem)
                 elif parse_projected_eigen and tag == "projected" and not in_kpoints_opt:
@@ -1854,13 +1849,13 @@ class BSVasprun(Vasprun):
                     in_kpoints_opt = False
                     # projected_kpoints_opt includes occupation information whereas
                     # eigenvalues_kpoints_opt doesn't.
-                    self.kpoints_opt_props.eigenvalues = self._parse_eigen(elem.find("eigenvalues"))
+                    self.kpoints_opt_props.eigenvalues = self._parse_eigen(elem.find("eigenvalues"))  # type:ignore[arg-type]
                     if tag == "eigenvalues_kpoints_opt":
                         (
                             self.kpoints_opt_props.kpoints,
                             self.kpoints_opt_props.actual_kpoints,
                             self.kpoints_opt_props.actual_kpoints_weights,
-                        ) = self._parse_kpoints(elem.find("kpoints"))
+                        ) = self._parse_kpoints(elem.find("kpoints"))  # type:ignore[arg-type]
                     elif parse_projected_eigen:  # and tag == "projected_kpoints_opt": (implied)
                         (
                             self.kpoints_opt_props.projected_eigenvalues,
@@ -2173,9 +2168,10 @@ class Outcar:
         # Merge x, y and z components of magmoms if present (SOC calculation)
         if mag_y and mag_z:
             # TODO: detect spin axis
-            mag = []
-            for idx in range(len(mag_x)):
-                mag.append({key: Magmom([mag_x[idx][key], mag_y[idx][key], mag_z[idx][key]]) for key in mag_x[0]})
+            mag = [
+                {key: Magmom([mag_x[idx][key], mag_y[idx][key], mag_z[idx][key]]) for key in mag_x[0]}
+                for idx in range(len(mag_x))
+            ]
         else:
             mag = mag_x  # type:ignore[assignment]
 

@@ -313,7 +313,7 @@ class TestQCOutput(MatSciTest):
 
     # PR#3985: the following unit test is failing, and it seems that
     # the array dimension from out_data and SINGLE_JOB_DICT mismatch
-    @pytest.mark.skip(reason="TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     @pytest.mark.skipif(openbabel is None, reason="OpenBabel not installed.")
     def test_all(self):
         single_outs = {file: QCOutput(f"{TEST_DIR}/{file}").data for file in SINGLE_JOB_OUT_NAMES}

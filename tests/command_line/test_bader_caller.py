@@ -1,11 +1,10 @@
 from __future__ import annotations
 
+import shutil
 import warnings
-from shutil import which
 
 import numpy as np
 import pytest
-from monty.shutil import copy_r
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -15,7 +14,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, Mat
 TEST_DIR = f"{TEST_FILES_DIR}/command_line/bader"
 
 
-@pytest.mark.skipif(not which("bader"), reason="bader executable not present")
+@pytest.mark.skipif(not shutil.which("bader"), reason="bader executable not present")
 class TestBaderAnalysis(MatSciTest):
     def setup_method(self):
         warnings.catch_warnings()
@@ -59,15 +58,15 @@ class TestBaderAnalysis(MatSciTest):
         assert len(analysis.data) == 14
 
         # Test Cube file format parsing
-        copy_r(TEST_DIR, self.tmp_path)
+        shutil.copytree(TEST_DIR, self.tmp_path, dirs_exist_ok=True)
         analysis = BaderAnalysis(cube_filename=f"{TEST_DIR}/elec.cube.gz")
         assert len(analysis.data) == 9
 
     def test_from_path(self):
         # we need to create two copies of input files since monty decompressing files
         # deletes the compressed version which can't happen twice in same directory
-        copy_r(TEST_DIR, direct_dir := f"{self.tmp_path}/direct")
-        copy_r(TEST_DIR, from_path_dir := f"{self.tmp_path}/from_path")
+        shutil.copytree(TEST_DIR, direct_dir := f"{self.tmp_path}/direct", dirs_exist_ok=True)
+        shutil.copytree(TEST_DIR, from_path_dir := f"{self.tmp_path}/from_path", dirs_exist_ok=True)
         chgcar_path = f"{direct_dir}/CHGCAR.gz"
         chgref_path = f"{direct_dir}/_CHGCAR_sum.gz"
 

@@ -612,9 +612,8 @@ class ForceConstantMatrix:
         dyn = np.reshape(dyn, (n_sites, 3, n_sites, 3)).swapaxes(1, 2)
 
         dyn_mass = np.zeros([len(self.structure), len(self.structure), 3, 3])
-        masses = []
-        for idx in range(n_sites):
-            masses.append(self.structure[idx].specie.atomic_mass)
+        masses = [self.structure[idx].specie.atomic_mass for idx in range(n_sites)]
+
         dyn_mass = np.zeros([n_sites, n_sites, 3, 3])
         for m in range(n_sites):
             for n in range(n_sites):
