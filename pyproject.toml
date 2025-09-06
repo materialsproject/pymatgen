@@ -256,8 +256,6 @@ addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
     # NOTE: the LAST matching option would be used
     "ignore::UserWarning", # Ignore UserWarning
-    # TODO: remove the following filter once `monty.io` dropped custom EncodingWarning (python 3.10+ only)
-    "error:We strongly encourage explicit `encoding`:monty.io.EncodingWarning",
 ]
 
 [tool.coverage.run]
