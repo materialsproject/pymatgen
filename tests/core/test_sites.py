@@ -178,7 +178,7 @@ class TestPeriodicSite(MatSciTest):
             self.lattice,
             properties={"selective_dynamics": np.array([True, True, False])},
         )
-        assert site_0 == site_0
+        assert site_0 == site_0  # noqa: PLR0124
 
         site_1 = PeriodicSite(
             "Fe",
