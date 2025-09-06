@@ -130,7 +130,7 @@ class TestReadWriteChemenv(MatSciTest):
             str(nb_set) == "Neighbors Set for site #6 :\n - Coordination number : 4\n - Voronoi indices : 1, 4, 5, 6\n"
         )
 
-        assert nb_set == nb_set
+        assert nb_set == nb_set  # noqa: PLR0124
 
         assert hash(nb_set) == 4
 

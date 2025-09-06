@@ -132,7 +132,7 @@ class TestIStructure(MatSciTest):
 
     def test_equal(self):
         struct = self.struct
-        assert struct == struct
+        assert struct == struct  # noqa: PLR0124
         assert struct == struct.copy()
         assert struct != 2 * struct
 
