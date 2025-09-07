@@ -2,15 +2,11 @@ from __future__ import annotations
 
 import os
 import subprocess
-from typing import TYPE_CHECKING
 
 from pymatgen.util.testing import TEST_FILES_DIR
 
-if TYPE_CHECKING:
-    from pathlib import Path
 
-
-def test_pmg_structure(cd_tmp_path: Path):
+def test_pmg_structure():
     subprocess.run(
         [
             "pmg",

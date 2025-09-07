@@ -2,17 +2,13 @@ from __future__ import annotations
 
 import os
 import subprocess
-from typing import TYPE_CHECKING
 
 import pytest
 
 from pymatgen.util.testing import VASP_IN_DIR, VASP_OUT_DIR
 
-if TYPE_CHECKING:
-    from pathlib import Path
 
-
-def test_plot_xrd(cd_tmp_path: Path):
+def test_plot_xrd():
     subprocess.run(
         [
             "pmg",
@@ -28,7 +24,7 @@ def test_plot_xrd(cd_tmp_path: Path):
     assert os.path.getsize("xrd.png") > 1024
 
 
-def test_plot_dos(cd_tmp_path: Path):
+def test_plot_dos():
     subprocess.run(
         [
             "pmg",
@@ -44,7 +40,7 @@ def test_plot_dos(cd_tmp_path: Path):
     assert os.path.getsize("dos.png") > 1024
 
 
-def test_plot_chgint(cd_tmp_path: Path):
+def test_plot_chgint():
     subprocess.run(
         [
             "pmg",
@@ -60,7 +56,7 @@ def test_plot_chgint(cd_tmp_path: Path):
     assert os.path.getsize("chg.png") > 1024
 
 
-def test_plot_wrong_arg(cd_tmp_path: Path):
+def test_plot_wrong_arg():
     with pytest.raises(subprocess.CalledProcessError) as exc_info:
         subprocess.run(
             ["pmg", "plot", "--wrong", f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz"],
