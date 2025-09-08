@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import itertools
+from typing import TYPE_CHECKING
 
 from tabulate import tabulate, tabulate_formats
 
@@ -18,8 +19,11 @@ from pymatgen.core import SETTINGS
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Incar, Potcar
 
+if TYPE_CHECKING:
+    from typing import Any
 
-def parse_view(args):
+
+def parse_view(args) -> int:
     """Handle view commands.
 
     Args:
@@ -35,7 +39,7 @@ def parse_view(args):
     return 0
 
 
-def diff_incar(args):
+def diff_incar(args) -> int:
     """Handle diff commands.
 
     Args:
@@ -79,10 +83,10 @@ def main(argv: list[str] | None = None) -> Any:
     """Handle main."""
     parser = argparse.ArgumentParser(
         description="""
-    pmg is a convenient script that uses pymatgen to perform many
+    `pmg` is a convenient script that uses `pymatgen` to perform many
     analyses, plotting and format conversions. This script works based on
     several sub-commands with their own options. To see the options for the
-    sub-commands, type "pmg sub-command -h".""",
+    sub-commands, type `pmg <sub-command> --help`.""",
         epilog="""Author: Pymatgen Development Team""",
     )
 
