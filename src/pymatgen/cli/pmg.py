@@ -75,7 +75,7 @@ def diff_incar(args):
     return 0
 
 
-def main():
+def main(argv: list[str] | None = None) -> Any:
     """Handle main."""
     parser = argparse.ArgumentParser(
         description="""
@@ -438,7 +438,7 @@ def main():
         # argcomplete not present.
         pass
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     try:
         _ = args.func
