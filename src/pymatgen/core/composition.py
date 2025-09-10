@@ -20,7 +20,7 @@ from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
 from monty.serialization import loadfn
 
-from pymatgen.core.periodic_table import DummySpecies, Element, ElementType, Species, get_el_sp
+from pymatgen.core.periodic_table import _PT_UNIT, DummySpecies, Element, ElementType, Species, get_el_sp
 from pymatgen.core.units import Mass
 from pymatgen.util.string import Stringify, formula_double_format
 
@@ -30,6 +30,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.core.units import FloatWithUnit
     from pymatgen.util.typing import SpeciesLike
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -547,9 +548,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return self._n_atoms
 
     @property
-    def weight(self) -> float:
+    def weight(self) -> FloatWithUnit:
         """Total molecular weight of Composition."""
-        return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), "amu")  # type: ignore[operator,misc]
+        return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), _PT_UNIT["Atomic mass"])
 
     def get_atomic_fraction(self, el: SpeciesLike) -> float:
         """Calculate atomic fraction of an Element or Species.
