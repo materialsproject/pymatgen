@@ -38,9 +38,9 @@ from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import _PT_UNIT, DummySpecies, Element, Species, get_el_sp
+from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.sites import PeriodicSite, Site
-from pymatgen.core.units import Length, Mass
+from pymatgen.core.units import Length
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
@@ -1540,7 +1540,7 @@ class IStructure(SiteCollection, MSONable):
     @property
     def density(self) -> float:
         """The density in units of g/cm^3."""
-        mass = Mass(self.composition.weight, _PT_UNIT["Atomic mass"])
+        mass = self.composition.weight
         return mass.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
     @property

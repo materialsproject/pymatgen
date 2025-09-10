@@ -321,7 +321,6 @@ class FloatWithUnit(float):
         unit: str | Unit,
         unit_type: str | None = None,
     ) -> Self:
-        """Override __new__."""
         new = float.__new__(cls, val)
         new._unit = unit if isinstance(unit, Unit) else Unit(unit)
         new._unit_type = unit_type
