@@ -13,7 +13,7 @@ import warnings
 from collections import defaultdict
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from monty.dev import deprecated
 from monty.fractions import gcd, gcd_float
@@ -571,8 +571,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Returns:
             float: Weight fraction for element el in Composition.
         """
-        el_mass = cast("float", get_el_sp(el).atomic_mass)
-        return el_mass * abs(self[el]) / self.weight
+        el_mass = get_el_sp(el).atomic_mass
+        return float(el_mass * abs(self[el]) / self.weight)
 
     def contains_element_type(self, category: str) -> bool:
         """Check if Composition contains any elements matching a given category.
