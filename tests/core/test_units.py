@@ -278,6 +278,14 @@ class TestArrayWithUnit(MatSciTest):
         pressure_arr = ArrayWithUnit([5, 10], "MPa")
         assert_array_equal(ArrayWithUnit([5e6, 1e7], "Pa"), pressure_arr.as_base_units)
 
+    def test_supported_units(self):
+        pressure_arr = ArrayWithUnit([5, 10], "MPa", unit_type="pressure")
+        assert pressure_arr.supported_units.keys() == {"Pa", "KPa", "MPa", "GPa"}
+
+        unknown_unit_type_array = ArrayWithUnit([5, 10], "MPa")
+        with pytest.raises(RuntimeError, match="Cannot get supported unit"):
+            _ = unknown_unit_type_array.supported_units
+
 
 class TestDataPersistence(MatSciTest):
     def test_pickle(self):
