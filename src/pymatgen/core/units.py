@@ -13,7 +13,7 @@ from __future__ import annotations
 import collections
 import re
 from collections import defaultdict
-from functools import partial
+from functools import partial, wraps
 from numbers import Number
 from typing import TYPE_CHECKING, cast
 
@@ -806,9 +806,13 @@ def unitized(unit):
     """
 
     def wrap(func):
+        @wraps(func)
         def wrapped_f(*args, **kwargs):
             val = func(*args, **kwargs)
             unit_type = _UNAME2UTYPE[unit]
+
+            if val is None:
+                return None
 
             if isinstance(val, FloatWithUnit | ArrayWithUnit):
                 return val.to(unit)
@@ -818,16 +822,14 @@ def unitized(unit):
                 # This complicated way is to ensure the sequence type is
                 # preserved (list or tuple).
                 return val.__class__([FloatWithUnit(i, unit_type=unit_type, unit=unit) for i in val])
+
             if isinstance(val, collections.abc.Mapping):
-                for k, v in val.items():
-                    val[k] = FloatWithUnit(v, unit_type=unit_type, unit=unit)
-            elif isinstance(val, Number):
+                return {k: FloatWithUnit(v, unit_type=unit_type, unit=unit) for k, v in val.items()}
+
+            if isinstance(val, Number):
                 return FloatWithUnit(val, unit_type=unit_type, unit=unit)
-            elif val is None:
-                pass
-            else:
-                raise TypeError(f"Don't know how to assign units to {val}")
-            return val
+
+            raise TypeError(f"Don't know how to assign units to {val}")
 
         return wrapped_f
 
