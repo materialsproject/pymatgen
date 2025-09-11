@@ -401,6 +401,7 @@ class TestComposition(MatSciTest):
         }
         for el, expected in correct_wt_frac.items():
             assert self.comps[0].get_wt_fraction(el) == approx(expected), "Wrong computed weight fraction"
+            assert type(self.comps[0].get_wt_fraction(el)) is float
         assert self.comps[0].get_wt_fraction(Element("S")) == 0, "Wrong computed weight fractions"
 
     def test_from_dict(self):
