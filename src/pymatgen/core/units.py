@@ -486,7 +486,7 @@ class FloatWithUnit(float):
     def supported_units(self) -> tuple:
         """Supported units for specific unit type."""
         if self.unit_type is None:
-            raise RuntimeError("Cannot get supported unit for None.")
+            raise RuntimeError("Cannot get supported unit for unknown unit type.")
 
         return tuple(ALL_UNITS[self.unit_type])
 
@@ -667,7 +667,7 @@ class ArrayWithUnit(np.ndarray):
         # TODO abstract base class property?
         """Supported units for specific unit type."""
         if self.unit_type is None:
-            raise RuntimeError("Cannot get supported unit for None.")
+            raise RuntimeError("Cannot get supported unit for known unit_type.")
 
         return ALL_UNITS[self.unit_type]
 
