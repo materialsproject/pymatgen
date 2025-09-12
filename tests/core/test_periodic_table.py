@@ -621,13 +621,11 @@ class TestDummySpecies:
         assert DummySpecies("X", 3) < DummySpecies("X", 4)
 
         sp = Species("Fe", 2, spin=5)
-        with pytest.raises(AttributeError) as exc:
+        # This error message is Python version dependent
+        # 3.10: can't set attribute 'spin'
+        # 3.11+: property 'spin' of 'Species' object has no setter
+        with pytest.raises(AttributeError, match=r"(can't set attribute|'Species' object has no setter)"):
             sp.spin = 6
-
-        # for some reason different message on Windows and Mac. on Linux: 'can't set attribute'
-        assert "can't set attribute" in str(exc.value) or "property 'spin' of 'Species' object has no setter" in str(
-            exc.value
-        )
         assert sp.spin == 5
 
     def test_species_electronic_structure(self):

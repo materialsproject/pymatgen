@@ -91,9 +91,8 @@ class TestAbinitInput(MatSciTest):
         with pytest.raises(TypeError, match="type dict does not have `to_abivars` method"):
             inp.add_abiobjects({})
 
-        with pytest.raises(KeyError) as exc:
+        with pytest.raises(KeyError, match="key='foo' not in self"):
             inp.remove_vars("foo", strict=True)
-        assert "key='foo' not in self:" in str(exc.value)
         assert not inp.remove_vars("foo", strict=False)
 
         # Test deepcopy and remove_vars.

@@ -41,15 +41,11 @@ class TestComposition(MatSciTest):
         ]
 
     def test_immutable(self):
-        with pytest.raises(TypeError) as exc:
+        with pytest.raises(TypeError, match="does not support item assignment"):
             self.comps[0]["Fe"] = 1
 
-        assert "'Composition' object does not support item assignment" in str(exc.value)
-
-        with pytest.raises(TypeError) as exc:
+        with pytest.raises(TypeError, match="does not support item deletion"):
             del self.comps[0]["Fe"]
-
-        assert "'Composition' object does not support item deletion" in str(exc.value)
 
     def test_in(self):
         # test the Composition.__contains__ magic method

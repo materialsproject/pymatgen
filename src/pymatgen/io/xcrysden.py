@@ -89,7 +89,7 @@ class XSF:
             16      0.0000000     0.0000000     0.0000000  see (5)
             30      1.3550000    -1.3550000    -1.3550000
         """
-        lattice: list[float] = []
+        lattice: list[list[float]] = []
         coords: list[list[float]] = []
         species: list[int] = []
         lines = input_string.splitlines()

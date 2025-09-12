@@ -1033,7 +1033,7 @@ class JDFTXStructure(MSONable):
             [[[y["d0"], y["d1"], y["d2"]] for y in x["HyperPlane"]]] if "HyperPlane" in x else None
             for x in jdftxinfile["ion"]
         ]
-        hyperplane_groups = [None for _ in range(len(hyperplane_vectors))]
+        hyperplane_groups: list = [None for _ in range(len(hyperplane_vectors))]
         if not all(x is None for x in hyperplane_vectors):
             for i in range(len(hyperplane_vectors)):
                 if hyperplane_vectors[i] is not None:
