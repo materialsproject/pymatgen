@@ -50,6 +50,30 @@ class TestUnit(MatSciTest):
         newton = Unit("kg") * acc
         assert str(newton * Unit("m")) == "N m"
 
+    def test_as_base_units(self):
+        # length
+        u = Unit({"m": 1})  # meter
+        base, factor = u.as_base_units
+        assert base == {"m": 1}
+        assert factor == 1.0
+
+        u = Unit({"cm": 1})
+        base, factor = u.as_base_units
+        assert base == {"m": 1}
+        assert pytest.approx(factor) == 0.01
+
+        # force
+        u = Unit({"N": 1})
+        base, factor = u.as_base_units
+        assert base == {"kg": 1, "m": 1, "s": -2}
+        assert factor == 1.0
+
+        # energy
+        u = Unit({"J": 1})
+        base, factor = u.as_base_units
+        assert base == {"kg": 1, "m": 2, "s": -2}
+        assert factor == 1.0
+
 
 class TestFloatWithUnit(MatSciTest):
     def test_rtruediv(self):
