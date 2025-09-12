@@ -1626,11 +1626,9 @@ class TestPotcarSingle:
 
         with (
             patch.dict(SETTINGS, PMG_VASP_PSP_SUB_DIRS={"PBE_64": "PBE_64_FOO"}),
-            pytest.raises(FileNotFoundError) as exc_info,
+            pytest.raises(FileNotFoundError, match=re.escape(err_msg)),
         ):
             PotcarSingle.from_symbol_and_functional(symbol, functional)
-
-        assert err_msg in str(exc_info.value)
 
     def test_repr(self):
         expected_repr = (

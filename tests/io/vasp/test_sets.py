@@ -671,9 +671,8 @@ class TestMITMPRelaxSet(MatSciTest):
         struct = self.structure.copy()
         get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="v")
         struct.insert(0, "Li", [0, 0, 0], properties={"magmom": 10.0})
-        with pytest.raises(TypeError) as exc:
+        with pytest.raises(TypeError, match="Magmom type conflict"):
             get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="a")
-        assert "Magmom type conflict" in str(exc.value)
 
         # Test the behavior of MPRelaxSet to automatically fill in the missing magmom
         struct = self.structure.copy()
