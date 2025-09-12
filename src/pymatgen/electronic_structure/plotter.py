@@ -4311,7 +4311,7 @@ def plot_labels(
         offset: float = 0.01
         if not coords_are_cartesian:
             if lattice is None:
-                raise ValueError("coords_are_cartesian=False requires the Lattice")
+                raise ValueError("coords_are_cartesian=False requires the lattice")
             coords = lattice.get_cartesian_coords(coords)
 
         coords = np.asarray(coords)
