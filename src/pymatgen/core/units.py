@@ -402,23 +402,6 @@ class FloatWithUnit(float):
             return type(self)(val, unit_type=self._unit_type, unit=self._unit)
         return type(self)(val, unit_type=None, unit=self._unit / other._unit)
 
-    def __rtruediv__(self, other: float | Self) -> Self:
-        if isinstance(other, float | int):
-            return type(self)(
-                other / float(self),
-                unit_type=None,
-                unit=self._unit ** -1,
-            )
-
-        if isinstance(other, type(self)):
-            return type(self)(
-                float(other) / float(self),
-                unit_type=None,
-                unit=other._unit / self._unit,
-            )
-
-        return NotImplemented
-
     def __neg__(self) -> Self:
         return type(self)(
             super().__neg__(),
