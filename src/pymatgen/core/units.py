@@ -331,9 +331,9 @@ class FloatWithUnit(float):
         return f"{super().__str__()} {self._unit}"
 
     @overload
-    def __add__(self, other: float) -> float: ...
-    @overload
     def __add__(self, other: Self) -> Self: ...
+    @overload
+    def __add__(self, other: float) -> float: ...
     def __add__(self, other: object) -> float | Self:
         if not hasattr(other, "unit_type"):
             return super().__add__(other)
@@ -349,9 +349,9 @@ class FloatWithUnit(float):
         )
 
     @overload
-    def __sub__(self, other: float) -> float: ...
-    @overload
     def __sub__(self, other: Self) -> Self: ...
+    @overload
+    def __sub__(self, other: float) -> float: ...
     def __sub__(self, other: object) -> float | Self:
         if not hasattr(other, "unit_type"):
             return super().__sub__(other)
