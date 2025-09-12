@@ -87,7 +87,7 @@ BASE_UNITS: dict[str, dict[str, float]] = {
 
 # This current list are supported derived units defined in terms of powers of
 # SI base units and constants.
-DERIVED_UNITS: dict[str, dict[str, dict]] = {
+DERIVED_UNITS: dict[str, dict[str, dict[str | float, float]]] = {
     "energy": {
         "eV": {"kg": 1, "m": 2, "s": -2, const.e: 1},
         "meV": {"kg": 1, "m": 2, "s": -2, const.e * 1e-3: 1},
@@ -138,7 +138,7 @@ ALL_UNITS: dict[str, dict] = BASE_UNITS | DERIVED_UNITS
 SUPPORTED_UNIT_NAMES: tuple[str, ...] = tuple(i for d in ALL_UNITS.values() for i in d)
 
 # Mapping unit name --> unit type (unit names must be unique).
-_UNAME2UTYPE = {uname: utype for utype, dct in ALL_UNITS.items() for uname in dct}
+_UNAME2UTYPE: dict[str, str] = {uname: utype for utype, dct in ALL_UNITS.items() for uname in dct}
 
 
 class UnitError(BaseException):
@@ -150,7 +150,7 @@ class Unit(collections.abc.Mapping):
     Only integer powers are supported.
     """
 
-    def __init__(self, unit_def: str | dict[str, int]) -> None:
+    def __init__(self, unit_def: str | dict[str, float]) -> None:
         """
         Args:
             unit_def: A definition for the unit. Either a mapping of unit to
@@ -170,7 +170,7 @@ class Unit(collections.abc.Mapping):
             return u
 
         if isinstance(unit_def, str):
-            unit: dict[str, int] = defaultdict(int)
+            unit: dict[str, float] = defaultdict(int)
 
             for match in re.finditer(r"([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
                 val = match[2]
@@ -217,7 +217,7 @@ class Unit(collections.abc.Mapping):
         )
 
     @property
-    def as_base_units(self) -> tuple[dict, float]:
+    def as_base_units(self) -> tuple[dict[str, float], float]:
         """Convert all units to base SI units, including derived units.
 
         Returns:
@@ -409,7 +409,7 @@ class FloatWithUnit(float):
             unit=self._unit,
         )
 
-    def __getnewargs__(self) -> float:
+    def __getnewargs__(self) -> tuple[float, Unit, str | None]:
         """Used by pickle to recreate object."""
         # TODO There's a problem with _unit_type if we try to unpickle objects from file.
         # since self._unit_type might not be defined. I think this is due to
@@ -488,7 +488,7 @@ class FloatWithUnit(float):
         Returns:
             FloatWithUnit in base SI units
         """
-        return self.to(self.unit.as_base_units[0])
+        return self.to(cast("Unit", self.unit.as_base_units[0]))
 
     @property
     def supported_units(self) -> tuple:
@@ -517,10 +517,13 @@ class ArrayWithUnit(np.ndarray):
     [28.21138625 56.42277249] eV
     """
 
+    _unit: Unit | None  # default to None in __array_finalize__
+    _unit_type: str | None
+
     def __new__(
         cls,
         input_array: ArrayLike,
-        unit: str | Unit,
+        unit: str | Unit | None,
         unit_type: str | None = None,
     ) -> Self:
         """Override __new__."""
@@ -528,7 +531,7 @@ class ArrayWithUnit(np.ndarray):
         # We first cast to be our class type
         obj = np.asarray(input_array).view(cls)
         # Add the new attributes to the created instance
-        obj._unit = unit if isinstance(unit, Unit) else Unit(unit)
+        obj._unit = unit if unit is None or isinstance(unit, Unit) else Unit(unit)
         obj._unit_type = unit_type
         return obj
 
@@ -668,7 +671,7 @@ class ArrayWithUnit(np.ndarray):
         Returns:
             ArrayWithUnit in base SI units
         """
-        return self.to(self.unit.as_base_units[0])
+        return self.to(cast("Unit", self.unit.as_base_units[0]))
 
     @property
     def supported_units(self) -> dict[str, dict[str, float]]:
