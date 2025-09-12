@@ -1088,7 +1088,7 @@ class CifParser:
 
                 # Find matching site by coordinate
                 match: tuple[float, float, float] | Literal[False] = get_matching_coord(coord_to_species, coord)
-                if not match:
+                if match is False:
                     coord_to_species[coord] = comp
                     coord_to_magmoms[coord] = magmoms.get(label, np.array([0, 0, 0]))
                     labels[coord] = label
