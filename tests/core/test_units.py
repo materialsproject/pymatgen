@@ -74,6 +74,38 @@ class TestUnit(MatSciTest):
         assert base == {"kg": 1, "m": 2, "s": -2}
         assert factor == 1.0
 
+    def test_get_conversion_factor(self):
+        # same unit
+        u = Unit("m")
+        factor = u.get_conversion_factor("m")
+        assert factor == pytest.approx(1.0)
+
+        # length
+        u = Unit("cm")
+        factor = u.get_conversion_factor("m")
+        assert factor == pytest.approx(0.01)
+
+        # mass
+        u = Unit("g")
+        factor = u.get_conversion_factor("kg")
+        assert factor == pytest.approx(1e-3)
+
+        # area
+        u = Unit("cm^2")
+        factor = u.get_conversion_factor("m^2")
+        assert factor == pytest.approx(1e-4)
+
+        # energy
+        u = Unit("J")
+        factor = u.get_conversion_factor("J")
+        assert factor == pytest.approx(1.0)
+
+        # incompatible conversion
+        # TODO: `UnitError` in implementation doesn't work
+        u = Unit("m")
+        with pytest.raises(KeyError):
+            u.get_conversion_factor("s")
+
 
 class TestFloatWithUnit(MatSciTest):
     def test_rtruediv(self):
