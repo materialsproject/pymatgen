@@ -52,6 +52,20 @@ class TestUnit(MatSciTest):
 
 
 class TestFloatWithUnit(MatSciTest):
+    def test_rtruediv(self):
+        # float / FloatWithUnit
+        pressure = FloatWithUnit(5, "MPa")
+        pressure_inv = 5 / pressure
+
+        assert float(pressure_inv) == approx(1)
+        assert pressure_inv.unit == Unit("MPa") ** -1
+        assert isinstance(pressure_inv, FloatWithUnit)
+
+        # FloatWithUnit / FloatWithUnit
+        pres_pres = pressure / pressure
+        assert float(pres_pres) == approx(1)
+        assert isinstance(pres_pres, FloatWithUnit)
+
     def test_energy(self):
         a = Energy(1.1, "eV")
         b = a.to("Ha")
@@ -148,16 +162,18 @@ class TestFloatWithUnit(MatSciTest):
         earth_acc = 9.81 * Length(1, "m") / (Time(1, "s") ** 2)
         e_pot = Mass(1, "kg") * earth_acc * Length(1, "m")
         assert str(e_pot) == "9.81 N m"
+
         form_e = FloatWithUnit(10, unit="kJ mol^-1").to("eV atom^-1")
         assert form_e == approx(0.103642691905)
         assert str(form_e.unit) == "eV atom^-1"
-        with pytest.raises(UnitError) as exc:
+        with pytest.raises(UnitError, match="Units .* are not compatible"):
             form_e.to("m s^-1")
-        assert "Units ('mol', -1) and ('m', 1) are not compatible" in str(exc.value)
+
         a = FloatWithUnit(1.0, "Ha^3")
         b = a.to("J^3")
         assert b == approx(8.28672661615e-53)
         assert str(b.unit) == "J^3"
+
         a = FloatWithUnit(1.0, "Ha bohr^-2")
         b = a.to("J m^-2")
         assert b == approx(1556.8931028218924)
@@ -288,3 +304,4 @@ class TestDataPersistence(MatSciTest):
             objects = [a, b]
 
             self.serialize_with_pickle(objects)
+            # TODO: check value
