@@ -28,7 +28,8 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
     """Setup CP2K basis and potential data directory."""
     # this function used to use `ruamel.yaml` which underwent breaking changes,
     # was easier to migrate to PyYAML than fix
-    import yaml
+    # TODO: `yaml` is not declared in dependencies
+    import yaml  # type: ignore[import-untyped]
 
     data_dir, target_dir = (os.path.abspath(dirc) for dirc in cp2k_data_dirs)
     if os.path.isdir(target_dir):

@@ -69,12 +69,12 @@ def analyze_localenv(args: Namespace) -> None:
         for idx, site in enumerate(struct):
             for species, dist in bonds.items():
                 if species[0] in [sp.symbol for sp in site.species]:
-                    dists = [
+                    _dists = [
                         nn.nn_distance
                         for nn in struct.get_neighbors(site, dist)
                         if species[1] in [sp.symbol for sp in nn.species]
                     ]
-                    dists = ", ".join(f"{d:.3f}" for d in sorted(dists))
+                    dists = ", ".join(f"{d:.3f}" for d in sorted(_dists))
                     data.append([idx, species[0], species[1], dists])
         print(tabulate(data, headers=["#", "Center", "Ligand", "Dists"]))
 

@@ -53,7 +53,7 @@ def get_energies(
         logger.basicConfig(level=logging.INFO, format=log_fmt)
 
     if quick:
-        drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
+        drone: VaspToComputedEntryDrone = SimpleVaspToComputedEntryDrone(inc_structure=True)
     else:
         drone = VaspToComputedEntryDrone(inc_structure=True, data=["filename", "initial_structure"])
 
@@ -155,6 +155,7 @@ def analyze(args: Namespace) -> int:
     if args.get_energies or default_energies:
         for folder in args.directories:
             return get_energies(folder, args.reanalyze, args.verbose, args.quick, args.sort, args.format)
+
     if args.ion_list:
         if args.ion_list[0] == "All":
             ion_list = None
@@ -162,6 +163,8 @@ def analyze(args: Namespace) -> int:
             start, end = (int(i) for i in re.split(r"-", args.ion_list[0]))
             ion_list = list(range(start, end + 1))
         for folder in args.directories:
+            if ion_list is None:
+                raise ValueError("ion_list is None")
             return get_magnetizations(folder, ion_list)
 
     return -1
