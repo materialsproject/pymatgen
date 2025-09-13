@@ -2,8 +2,20 @@ from __future__ import annotations
 
 import textwrap
 
+import pytest
+
 from pymatgen.cli import pmg
 from pymatgen.util.testing import VASP_IN_DIR
+
+
+def test_main(capsys):
+    with pytest.raises(SystemExit) as exc:
+        pmg.main([])
+
+    assert str(exc.value) == "Please specify a command."
+
+    out, _err = capsys.readouterr()
+    assert "`pmg` is a convenient script that uses `pymatgen`" in out
 
 
 def test_pmg_diff(capsys):

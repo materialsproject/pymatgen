@@ -83,8 +83,8 @@ def diff_incar(args: Namespace) -> int:
 
 
 def main(argv: list[str] | None = None) -> Any:
-    """Handle main."""
-    parser = argparse.ArgumentParser(
+    """Entry point for the `pmg` CLI."""
+    parser_main = argparse.ArgumentParser(
         description="""
     `pmg` is a convenient script that uses `pymatgen` to perform many
     analyses, plotting and format conversions. This script works based on
@@ -93,14 +93,15 @@ def main(argv: list[str] | None = None) -> Any:
         epilog="""Author: Pymatgen Development Team""",
     )
 
-    subparsers = parser.add_subparsers()
+    subparsers = parser_main.add_subparsers()
 
+    # `pmg config`
     parser_config = subparsers.add_parser(
         "config",
         help="Tools for configuring pymatgen, e.g. potcar setup, modifying .pmgrc.yaml configuration file.",
     )
-    groups = parser_config.add_mutually_exclusive_group(required=True)
-    groups.add_argument(
+    group_config = parser_config.add_mutually_exclusive_group(required=True)
+    group_config.add_argument(
         "-p",
         "--potcar",
         dest="potcar_dirs",
@@ -115,7 +116,7 @@ def main(argv: list[str] | None = None) -> Any:
         "POT_GGA_PAW_PBE or potpaw_PBE type "
         "subdirectories.",
     )
-    groups.add_argument(
+    group_config.add_argument(
         "-i",
         "--install",
         dest="install",
@@ -124,7 +125,7 @@ def main(argv: list[str] | None = None) -> Any:
         help="Install various optional command line tools needed for full functionality.",
     )
 
-    groups.add_argument(
+    group_config.add_argument(
         "-a",
         "--add",
         dest="var_spec",
@@ -132,7 +133,7 @@ def main(argv: list[str] | None = None) -> Any:
         help="Variables to add in the form of space separated key value pairs. e.g. PMG_VASP_PSP_DIR ~/PSPs",
     )
 
-    groups.add_argument(
+    group_config.add_argument(
         "--cp2k",
         dest="cp2k_data_dirs",
         metavar="dir_name",
@@ -150,6 +151,7 @@ def main(argv: list[str] | None = None) -> Any:
     )
     parser_config.set_defaults(func=configure_pmg)
 
+    # `pmg analyze`
     parser_analyze = subparsers.add_parser("analyze", help="VASP calculation analysis tools.")
     parser_analyze.add_argument(
         "directories",
@@ -216,14 +218,15 @@ def main(argv: list[str] | None = None) -> Any:
     )
     parser_analyze.set_defaults(func=analyze)
 
+    # `pmg query`
     parser_query = subparsers.add_parser("query", help="Search for structures and data from the Materials Project.")
     parser_query.add_argument(
         "criteria",
         metavar="criteria",
         help="Search criteria. Supported formats in formulas, chemical systems, Materials Project ids, etc.",
     )
-    group = parser_query.add_mutually_exclusive_group(required=True)
-    group.add_argument(
+    group_query = parser_query.add_mutually_exclusive_group(required=True)
+    group_query.add_argument(
         "-s",
         "--structure",
         dest="structure",
@@ -232,14 +235,14 @@ def main(argv: list[str] | None = None) -> Any:
         type=str.lower,
         help="Get structures from Materials Project and write them to a specified format.",
     )
-    group.add_argument(
+    group_query.add_argument(
         "-e",
         "--entries",
         dest="entries",
         metavar="filename",
         help="Get entries from Materials Project and write them to serialization file. JSON and YAML supported.",
     )
-    group.add_argument(
+    group_query.add_argument(
         "-d",
         "--data",
         dest="data",
@@ -251,23 +254,24 @@ def main(argv: list[str] | None = None) -> Any:
         "energy per atom, energy above hull are shown.",
     )
 
+    # `pmg plot`
     parser_plot = subparsers.add_parser("plot", help="Plotting tool for DOS, CHGCAR, XRD, etc.")
-    group = parser_plot.add_mutually_exclusive_group(required=True)
-    group.add_argument(
+    group_plot = parser_plot.add_mutually_exclusive_group(required=True)
+    group_plot.add_argument(
         "-d",
         "--dos",
         dest="dos_file",
         metavar="vasprun.xml",
         help="Plot DOS from a vasprun.xml",
     )
-    group.add_argument(
+    group_plot.add_argument(
         "-c",
         "--chgint",
         dest="chgcar_file",
         metavar="CHGCAR",
         help="Generate charge integration plots from any CHGCAR",
     )
-    group.add_argument(
+    group_plot.add_argument(
         "-x",
         "--xrd",
         dest="xrd_structure_file",
@@ -328,6 +332,7 @@ def main(argv: list[str] | None = None) -> Any:
     )
     parser_plot.set_defaults(func=plot)
 
+    # `pmg structure`
     parser_structure = subparsers.add_parser("structure", help="Structure conversion and analysis tools.")
 
     parser_structure.add_argument(
@@ -339,8 +344,8 @@ def main(argv: list[str] | None = None) -> Any:
         help="List of structure files.",
     )
 
-    groups = parser_structure.add_mutually_exclusive_group(required=True)
-    groups.add_argument(
+    group_structure = parser_structure.add_mutually_exclusive_group(required=True)
+    group_structure.add_argument(
         "-c",
         "--convert",
         dest="convert",
@@ -352,7 +357,7 @@ def main(argv: list[str] | None = None) -> Any:
         "the filename, the code will automatically attempt "
         "to find a primitive cell.",
     )
-    groups.add_argument(
+    group_structure.add_argument(
         "-s",
         "--symmetry",
         dest="symmetry",
@@ -362,7 +367,7 @@ def main(argv: list[str] | None = None) -> Any:
         "specified tolerance. 0.1 is usually a good "
         "value for DFT calculations.",
     )
-    groups.add_argument(
+    group_structure.add_argument(
         "-g",
         "--group",
         dest="group",
@@ -373,7 +378,7 @@ def main(argv: list[str] | None = None) -> Any:
         "Species mode will take into account oxidations "
         "states.",
     )
-    groups.add_argument(
+    group_structure.add_argument(
         "-l",
         "--localenv",
         dest="localenv",
@@ -384,6 +389,7 @@ def main(argv: list[str] | None = None) -> Any:
 
     parser_structure.set_defaults(func=analyze_structures)
 
+    # `pmg view`
     parser_view = subparsers.add_parser("view", help="Visualize structures")
     parser_view.add_argument("filename", metavar="filename", type=str, nargs=1, help="Filename")
     parser_view.add_argument(
@@ -396,6 +402,7 @@ def main(argv: list[str] | None = None) -> Any:
     )
     parser_view.set_defaults(func=parse_view)
 
+    # `pmg diff`
     parser_diff = subparsers.add_parser("diff", help="Diffing tool. For now, only INCAR supported.")
     parser_diff.add_argument(
         "-i",
@@ -408,6 +415,7 @@ def main(argv: list[str] | None = None) -> Any:
     )
     parser_diff.set_defaults(func=diff_incar)
 
+    # `pmg potcar`
     parser_potcar = subparsers.add_parser("potcar", help="Generate POTCARs")
     parser_potcar.add_argument(
         "-f",
@@ -418,9 +426,9 @@ def main(argv: list[str] | None = None) -> Any:
         default=SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE"),
         help="Functional to use. Unless otherwise stated (e.g., US), refers to PAW psuedopotential.",
     )
-    group = parser_potcar.add_mutually_exclusive_group(required=True)
+    group_potcar = parser_potcar.add_mutually_exclusive_group(required=True)
 
-    group.add_argument(
+    group_potcar.add_argument(
         "-s",
         "--symbols",
         dest="symbols",
@@ -428,7 +436,7 @@ def main(argv: list[str] | None = None) -> Any:
         nargs="+",
         help="List of POTCAR symbols. Use -f to set functional. Defaults to PBE.",
     )
-    group.add_argument(
+    group_potcar.add_argument(
         "-r",
         "--recursive",
         dest="recursive",
@@ -438,20 +446,20 @@ def main(argv: list[str] | None = None) -> Any:
     parser_potcar.set_defaults(func=generate_potcar)
 
     try:
-        import argcomplete
+        import argcomplete  # TODO: this is not declared anywhere
 
-        argcomplete.autocomplete(parser)
+        argcomplete.autocomplete(parser_main)
     except ImportError:
-        # argcomplete not present.
         pass
 
-    args = parser.parse_args(argv)
+    args = parser_main.parse_args(argv)
 
     try:
         _ = args.func
     except AttributeError as exc:
-        parser.print_help()
+        parser_main.print_help()
         raise SystemExit("Please specify a command.") from exc
+
     return args.func(args)
 
 
