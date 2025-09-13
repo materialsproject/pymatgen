@@ -6,12 +6,16 @@ import logging
 import multiprocessing
 import os
 import re
+from typing import TYPE_CHECKING
 
 from tabulate import tabulate
 
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.io.vasp import Outcar
+
+if TYPE_CHECKING:
+    from argparse import Namespace
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -22,10 +26,17 @@ __date__ = "Aug 13 2016"
 
 logger = logging.getLogger(__name__)
 
-SAVE_FILE = "vasp_data.gz"
+SAVE_FILE: str = "vasp_data.gz"
 
 
-def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
+def get_energies(
+    rootdir: str,
+    reanalyze: bool,
+    verbose: bool,
+    quick: bool,
+    sort: bool,
+    fmt: str,
+) -> int:
     """Get energies of all vaspruns in directory (nested).
 
     Args:
@@ -93,7 +104,7 @@ def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
     return 0
 
 
-def get_magnetizations(dirc: str, ion_list: list[int]):
+def get_magnetizations(dirc: str, ion_list: list[int]) -> int:
     """Get magnetization info from OUTCARs.
 
     Args:
@@ -133,11 +144,11 @@ def get_magnetizations(dirc: str, ion_list: list[int]):
     return 0
 
 
-def analyze(args):
-    """Master function controlling which analysis to call.
+def analyze(args: Namespace) -> int:
+    """Main function controlling which analysis to call.
 
     Args:
-        args (dict): args from argparse.
+        args (Namespace): args from argparse.
     """
     default_energies = not (args.get_energies or args.ion_list)
 

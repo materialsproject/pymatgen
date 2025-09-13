@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import matplotlib.pyplot as plt
 
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
@@ -13,12 +15,15 @@ from pymatgen.io.vasp import Chgcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.plotting import pretty_plot
 
+if TYPE_CHECKING:
+    from argparse import Namespace
 
-def get_dos_plot(args) -> plt.Axes:
+
+def get_dos_plot(args: Namespace) -> plt.Axes:
     """Plot DOS from vasprun.xml file.
 
     Args:
-        args (dict): Args from argparse.
+        args (Namespace): Args from argparse.
     """
     vasp_run = Vasprun(args.dos_file)
     dos = vasp_run.complete_dos
@@ -46,11 +51,11 @@ def get_dos_plot(args) -> plt.Axes:
     return plotter.get_plot()
 
 
-def get_chgint_plot(args, ax: plt.Axes | None = None) -> plt.Axes:
+def get_chgint_plot(args: Namespace, ax: plt.Axes | None = None) -> plt.Axes:
     """Plot integrated charge from CHGCAR file.
 
     Args:
-        args (dict): args from argparse.
+        args (Namespace): args from argparse.
         ax (plt.Axes): Matplotlib Axes object for plotting.
 
     Returns:
@@ -77,22 +82,22 @@ def get_chgint_plot(args, ax: plt.Axes | None = None) -> plt.Axes:
     return ax
 
 
-def get_xrd_plot(args) -> plt.Axes:
+def get_xrd_plot(args: Namespace) -> plt.Axes:
     """Plot XRD from structure.
 
     Args:
-        args (dict): Args from argparse
+        args (Namespace): Args from argparse
     """
     struct = Structure.from_file(args.xrd_structure_file)
     calculator = XRDCalculator()
     return calculator.get_plot(struct)
 
 
-def plot(args) -> None:
+def plot(args: Namespace) -> None:
     """Master control function calling other plot functions based on args.
 
     Args:
-        args (dict): Args from argparse.
+        args (Namespace): Args from argparse.
     """
     if args.chgcar_file:
         fig: plt.Figure | plt.SubFigure | None = get_chgint_plot(args).figure

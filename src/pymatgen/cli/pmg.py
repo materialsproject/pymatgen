@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import itertools
+from typing import TYPE_CHECKING
 
 from tabulate import tabulate, tabulate_formats
 
@@ -18,8 +19,12 @@ from pymatgen.core import SETTINGS
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Incar, Potcar
 
+if TYPE_CHECKING:
+    from argparse import Namespace
+    from typing import Any
 
-def parse_view(args):
+
+def parse_view(args: Namespace) -> int:
     """Handle view commands.
 
     Args:
@@ -35,7 +40,7 @@ def parse_view(args):
     return 0
 
 
-def diff_incar(args):
+def diff_incar(args: Namespace) -> int:
     """Handle diff commands.
 
     Args:
@@ -55,12 +60,14 @@ def diff_incar(args):
     output = [
         ["SAME PARAMS", "", ""],
         ["---------------", "", ""],
-        ["", "", ""],
-        ["DIFFERENT PARAMS", "", ""],
-        ["----------------", "", ""],
     ]
     output += [
         (k, format_lists(diff["Same"][k]), format_lists(diff["Same"][k])) for k in sorted(diff["Same"]) if k != "SYSTEM"
+    ]
+    output += [
+        ["", "", ""],
+        ["DIFFERENT PARAMS", "", ""],
+        ["----------------", "", ""],
     ]
     output += [
         (
@@ -75,14 +82,14 @@ def diff_incar(args):
     return 0
 
 
-def main():
+def main(argv: list[str] | None = None) -> Any:
     """Handle main."""
     parser = argparse.ArgumentParser(
         description="""
-    pmg is a convenient script that uses pymatgen to perform many
+    `pmg` is a convenient script that uses `pymatgen` to perform many
     analyses, plotting and format conversions. This script works based on
     several sub-commands with their own options. To see the options for the
-    sub-commands, type "pmg sub-command -h".""",
+    sub-commands, type `pmg <sub-command> --help`.""",
         epilog="""Author: Pymatgen Development Team""",
     )
 
@@ -438,7 +445,7 @@ def main():
         # argcomplete not present.
         pass
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     try:
         _ = args.func
