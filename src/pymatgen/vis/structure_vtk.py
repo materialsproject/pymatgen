@@ -477,7 +477,7 @@ class StructureVis:
         # ac.SetMapper(mapHull)
         ac.SetMapper(dsm)
         ac.GetProperty().SetOpacity(opacity)
-        if color == "element":
+        if isinstance(color, str) and color == "element":
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
             max_occu = 0.0
@@ -539,7 +539,8 @@ class StructureVis:
         ac = vtk.vtkActor()
         ac.SetMapper(mapper)
         ac.GetProperty().SetOpacity(opacity)
-        if color == "element":
+
+        if isinstance(color, str) and color == "element":
             if center is None:
                 raise ValueError(
                     "Color should be chosen according to the central atom, and central atom is not provided"
