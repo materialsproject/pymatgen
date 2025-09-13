@@ -80,6 +80,17 @@ def test_pmg_query():
     pass
 
 
-def test_pmg_view():
-    # TODO: add test
-    pass
+def test_pmg_view(monkeypatch):
+    pytest.importorskip("vtk", reason="vtk is not available")
+
+    called = {}
+
+    def fake_show(self):
+        called["show_called"] = True
+
+    monkeypatch.setattr("pymatgen.vis.structure_vtk.StructureVis.show", fake_show)
+
+    filename = f"{VASP_IN_DIR}/POSCAR"
+
+    pmg.main(["view", str(filename)])
+    assert called["show_called"]
