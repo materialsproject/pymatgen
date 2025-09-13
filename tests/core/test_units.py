@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
 from pytest import approx
@@ -295,6 +296,52 @@ class TestFloatWithUnit(MatSciTest):
 
 
 class TestArrayWithUnit(MatSciTest):
+    def test_neg(self):
+        arr = LengthArray([1.0, 2.0, 3.0], "m")
+        neg_arr = -arr
+
+        assert isinstance(neg_arr, ArrayWithUnit)
+
+        assert_array_equal(neg_arr, np.array([-1.0, -2.0, -3.0]))
+
+        assert neg_arr.unit == arr.unit
+        assert neg_arr.unit_type == arr.unit_type
+
+    def test_mul(self):
+        # __mul__ with scalar
+        arr = LengthArray([1.0, 2.0, 3.0], "m")
+        result = arr * 2
+        assert isinstance(result, ArrayWithUnit)
+        np.testing.assert_array_equal(result, np.array([2.0, 4.0, 6.0]))
+        assert result.unit == arr.unit
+        assert result.unit_type == arr.unit_type
+
+        # __rmul__ with scalar
+        result = 2 * arr
+        assert isinstance(result, ArrayWithUnit)
+        np.testing.assert_array_equal(result, np.array([2.0, 4.0, 6.0]))
+        assert result.unit == arr.unit
+        assert result.unit_type == arr.unit_type
+
+        # __rmul__ with ArrayWithUnit
+        length = LengthArray([1.0, 2.0], "m")
+        time = TimeArray([3.0, 4.0], "s")
+
+        result = length * time
+        assert isinstance(result, ArrayWithUnit)
+        np.testing.assert_array_equal(result, np.array([3.0, 8.0]))
+        assert result.unit == length.unit * time.unit
+        assert result.unit_type is None
+
+        # symmetry check for __rmul__
+        result2 = time * length
+        np.testing.assert_array_equal(result, result2)
+        assert result.unit == result2.unit
+
+    def test_conversions(self):
+        arr = LengthArray([1.0, 2.0, 3.0], "m")
+        assert "[0.001 0.002 0.003] km" in arr.conversions()
+
     def test_energy(self):
         """Similar to TestFloatWithUnit.test_energy.
         Check whether EnergyArray and FloatWithUnit have same behavior.
@@ -387,6 +434,9 @@ class TestArrayWithUnit(MatSciTest):
 
         with pytest.raises(UnitError, match="Adding different types of units is not allowed"):
             _ = ene_ha + time_s
+
+        with pytest.raises(UnitError, match="Subtracting different units"):
+            _ = ene_ha - time_s
 
     def test_factors(self):
         e_arr = EnergyArray([27.21138386, 1], "eV").to("Ha")
