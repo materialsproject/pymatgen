@@ -39,6 +39,8 @@ class TestUnit(MatSciTest):
     def test_init(self):
         u1 = Unit((("m", 1), ("s", -1)))
         assert str(u1) == "m s^-1"
+        assert len(u1) == 2
+
         u2 = Unit("kg m ^ 2 s ^ -2")
         assert str(u2) == "J"
         assert str(u1 * u2) == "J m s^-1"
@@ -177,6 +179,9 @@ class TestFloatWithUnit(MatSciTest):
         mega_3 = Memory.from_str("+1.0 MB")
         assert mega_0 == mega_1 == mega_2 == mega_3
 
+        with pytest.raises(ValueError, match="Unit is missing in string 1"):
+            Memory.from_str("1")
+
     def test_unitized(self):
         @unitized("eV")
         def func1():
@@ -239,9 +244,54 @@ class TestFloatWithUnit(MatSciTest):
         x = FloatWithUnit(5, "MPa")
         assert FloatWithUnit(5000000, "Pa") == x.as_base_units
 
+    def test_supported_units(self):
+        energy_supported_units = Energy(1.1, "eV").supported_units
+        assert energy_supported_units == ("eV", "meV", "Ha", "Ry", "J", "kJ", "kCal")
+
     def test_neg(self):
         x = FloatWithUnit(5, "MPa")
         assert FloatWithUnit(-5, "MPa") == -x
+
+    def test_mul(self):
+        # __mul__ with number
+        energy = Energy(2, "eV")
+        result = energy * 3
+        assert isinstance(result, FloatWithUnit)
+        assert pytest.approx(float(result)) == 6.0
+        assert str(result.unit) == "eV"
+
+        # __rmul__ with number
+        energy = Energy(2, "eV")
+        result = 3 * energy
+        assert isinstance(result, FloatWithUnit)
+        assert pytest.approx(float(result)) == 6.0
+        assert str(result.unit) == "eV"
+
+        # __mul__ with FloatWithUnit
+        force = Energy(2, "eV") * Length(1, "ang") ** -1
+        length = Length(3, "ang")
+        result = force * length
+        assert isinstance(result, FloatWithUnit)
+        assert pytest.approx(float(result)) == 6.0
+        assert str(result.unit) == "eV"
+
+        # symmetry check for __rmul__ with FloatWithUnit
+        result1 = force * length
+        result2 = length * force
+        assert pytest.approx(float(result1)) == float(result2)
+        assert result1.unit == result2.unit
+
+    def test_different_unit_type(self):
+        energy_unit = Energy(1.1, "eV")
+        length_unit = Length(4.2, "ang")
+
+        # __add__
+        with pytest.raises(UnitError, match="Adding different types of units"):
+            energy_unit + length_unit
+
+        # __sub__
+        with pytest.raises(UnitError, match="Subtracting different units"):
+            energy_unit - length_unit
 
 
 class TestArrayWithUnit(MatSciTest):
