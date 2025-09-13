@@ -23,6 +23,7 @@ from pymatgen.core.units import (
     amu_to_kg,
     bohr_to_angstrom,
     eV_to_Ha,
+    obj_with_unit,
     unitized,
 )
 from pymatgen.util.testing import MatSciTest
@@ -219,6 +220,21 @@ class TestFloatWithUnit(MatSciTest):
         assert j_out.unit == Unit("kg")
         assert j_out[0] == approx(0.005)
         assert j_out[1] == approx(0.01)
+
+        # Test None
+        @unitized("eV")
+        def func_none():
+            return None
+
+        assert func_none() is None
+
+        # Test unsupported type
+        @unitized("eV")
+        def func_invalid():
+            return object()
+
+        with pytest.raises(TypeError, match="Don't know how to assign units"):
+            func_invalid()
 
     def test_compound_operations(self):
         earth_acc = 9.81 * Length(1, "m") / (Time(1, "s") ** 2)
@@ -469,3 +485,31 @@ class TestDataPersistence(MatSciTest):
 
             self.serialize_with_pickle(objects)
             # TODO: check value
+
+
+class TestObjWithUnit:
+    def test_scalar(self):
+        e = obj_with_unit(2.5, "eV")
+        assert isinstance(e, FloatWithUnit)
+        assert float(e) == 2.5
+        assert str(e.unit) == "eV"
+
+    def test_array(self):
+        arr = obj_with_unit([1.0, 2.0, 3.0], "m")
+        assert isinstance(arr, ArrayWithUnit)
+        np.testing.assert_array_equal(arr, np.array([1.0, 2.0, 3.0]))
+        assert str(arr.unit) == "m"
+
+    def test_mapping(self):
+        d = obj_with_unit({"a": 1.0, "b": [2.0, 3.0]}, "Ha")
+        assert isinstance(d, dict)
+        assert isinstance(d["a"], FloatWithUnit)
+        assert isinstance(d["b"], ArrayWithUnit)
+        assert str(d["a"].unit) == "Ha"
+        assert str(d["b"].unit) == "Ha"
+
+    def test_nested_dict(self):
+        d = obj_with_unit({"outer": {"inner": 1.0}}, "eV")
+        assert isinstance(d["outer"], dict)
+        assert isinstance(d["outer"]["inner"], FloatWithUnit)
+        assert str(d["outer"]["inner"].unit) == "eV"
