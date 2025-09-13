@@ -360,19 +360,20 @@ class FloatWithUnit(float):
 
     def __mul__(self, other):
         cls = type(self)
-        if not isinstance(other, cls):
+        if isinstance(other, cls):
             return cls(
                 float(self) * other,
-                unit_type=self._unit_type,
-                unit=self._unit,
+                unit_type=None,
+                unit=self._unit * other._unit,
             )
         return cls(
             float(self) * other,
-            unit_type=None,
-            unit=self._unit * other._unit,
+            unit_type=self._unit_type,
+            unit=self._unit,
         )
 
     def __rmul__(self, other):
+        # TODO: this isn't needed, could just `return self.__mul__(other)`
         if not isinstance(other, type(self)):
             return type(self)(
                 float(self) * other,
@@ -602,26 +603,27 @@ class ArrayWithUnit(np.ndarray):
         # Same protocol for __div__
         if not hasattr(other, "unit_type"):
             return type(self)(
-                np.array(self) * np.array(other),
+                np.asarray(self) * np.asarray(other),
                 unit_type=self._unit_type,
                 unit=self._unit,
             )
         # Cannot use super since it returns an instance of self.__class__
         # while here we want a bare numpy array.
         return type(self)(
-            np.array(self).__mul__(np.array(other)),
+            np.asarray(self).__mul__(np.asarray(other)),
             unit=self.unit * other.unit,
         )
 
     def __rmul__(self, other):
+        # TODO: this isn't needed, could just `return self.__mul__(other)`
         if not hasattr(other, "unit_type"):
             return type(self)(
-                np.array(self) * np.array(other),
+                np.asarray(self) * np.asarray(other),
                 unit_type=self._unit_type,
                 unit=self._unit,
             )
         return type(self)(
-            np.array(self) * np.array(other),
+            np.asarray(self) * np.asarray(other),
             unit=self.unit * other.unit,
         )
 
