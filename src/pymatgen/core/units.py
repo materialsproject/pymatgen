@@ -553,12 +553,17 @@ class ArrayWithUnit(np.ndarray):
 
     def __reduce__(self):
         reduce = list(super().__reduce__())
-        reduce[2] = {"np_state": reduce[2], "_unit": self._unit}
+        reduce[2] = {
+            "np_state": reduce[2],
+            "_unit": self._unit,
+            "_unit_type": getattr(self, "_unit_type", None),
+        }
         return tuple(reduce)
 
     def __setstate__(self, state):
         super().__setstate__(state["np_state"])
         self._unit = state["_unit"]
+        self._unit_type = state.get("_unit_type", None)
 
     def __repr__(self) -> str:
         return f"{np.array(self)!r} {self.unit}"

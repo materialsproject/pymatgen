@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pickle
+
 import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
@@ -476,15 +478,27 @@ class TestArrayWithUnit(MatSciTest):
 
 
 class TestDataPersistence(MatSciTest):
-    def test_pickle(self):
+    @pytest.mark.parametrize("cls", [FloatWithUnit, ArrayWithUnit])
+    def test_pickle(self, cls):
         """Test whether FloatWithUnit and ArrayWithUnit support pickle."""
-        for cls in [FloatWithUnit, ArrayWithUnit]:
-            a = cls(1, "eV")
-            b = cls(10, "N bohr")
-            objects = [a, b]
+        a = cls(1, "eV")
+        b = cls(10, "N bohr")
+        objects = [a, b]
 
-            self.serialize_with_pickle(objects)
-            # TODO: check value
+        dumped = pickle.dumps(objects)
+        loaded = pickle.loads(dumped)
+
+        # Type check
+        assert all(isinstance(x, cls) for x in loaded)
+
+        # Value and unit check
+        for orig, new in zip(objects, loaded, strict=True):
+            if isinstance(orig, ArrayWithUnit):
+                assert_array_equal(orig, new)
+            else:
+                assert float(orig) == float(new)
+            assert orig.unit == new.unit
+            assert orig.unit_type == new.unit_type
 
 
 class TestObjWithUnit:
