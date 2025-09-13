@@ -20,10 +20,11 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Incar, Potcar
 
 if TYPE_CHECKING:
+    from argparse import Namespace
     from typing import Any
 
 
-def parse_view(args) -> int:
+def parse_view(args: Namespace) -> int:
     """Handle view commands.
 
     Args:
@@ -39,7 +40,7 @@ def parse_view(args) -> int:
     return 0
 
 
-def diff_incar(args) -> int:
+def diff_incar(args: Namespace) -> int:
     """Handle diff commands.
 
     Args:
@@ -59,12 +60,14 @@ def diff_incar(args) -> int:
     output = [
         ["SAME PARAMS", "", ""],
         ["---------------", "", ""],
-        ["", "", ""],
-        ["DIFFERENT PARAMS", "", ""],
-        ["----------------", "", ""],
     ]
     output += [
         (k, format_lists(diff["Same"][k]), format_lists(diff["Same"][k])) for k in sorted(diff["Same"]) if k != "SYSTEM"
+    ]
+    output += [
+        ["", "", ""],
+        ["DIFFERENT PARAMS", "", ""],
+        ["----------------", "", ""],
     ]
     output += [
         (
