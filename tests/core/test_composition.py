@@ -397,6 +397,7 @@ class TestComposition(MatSciTest):
         }
         for el, expected in correct_wt_frac.items():
             assert self.comps[0].get_wt_fraction(el) == approx(expected), "Wrong computed weight fraction"
+            assert type(self.comps[0].get_wt_fraction(el)) is float
         assert self.comps[0].get_wt_fraction(Element("S")) == 0, "Wrong computed weight fractions"
 
     def test_from_dict(self):
@@ -533,7 +534,7 @@ class TestComposition(MatSciTest):
         assert hash(comp1) == hash(comp2), "Hash equality test failed!"
 
         c1, c2 = self.comps[:2]
-        assert c1 == c1
+        assert c1 == c1  # noqa: PLR0124
         assert c1 != c2
 
     def test_hash_robustness(self):

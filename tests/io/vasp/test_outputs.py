@@ -154,6 +154,7 @@ class TestVasprun(MatSciTest):
         assert len(vasp_run.ionic_steps) == 1
         assert vasp_run.final_energy == approx(-269.00551374)
 
+    @pytest.mark.filterwarnings("ignore::pymatgen.io.vasp.outputs.UnconvergedVASPWarning")
     def test_runtype(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.GW0.xml.gz")
         assert vasp_run.run_type in "HF"
@@ -219,14 +220,15 @@ class TestVasprun(MatSciTest):
         orbs = list(vasp_run.complete_dos.pdos[vasp_run.final_structure[0]])
         assert OrbitalType.s in orbs
 
+    @pytest.mark.filterwarnings("ignore:invalid value encountered in divide")
     def test_standard(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.xml.gz"
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
 
         # Test NELM parsing
         assert vasp_run.parameters["NELM"] == 60
-        # test pDOS parsing
 
+        # test pDOS parsing
         assert vasp_run.complete_dos.spin_polarization == approx(1.0)
         assert Vasprun(f"{VASP_OUT_DIR}/vasprun.etest1.xml.gz").complete_dos.spin_polarization is None
 
@@ -367,6 +369,7 @@ class TestVasprun(MatSciTest):
         entry = MaterialsProjectCompatibility(check_potcar_hash=False).process_entry(entry)
         assert entry.uncorrected_energy + entry.correction == approx(entry.energy)
 
+    @pytest.mark.filterwarnings("ignore::pymatgen.io.vasp.outputs.UnconvergedVASPWarning")
     def test_dfpt_ionic(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.dfpt.ionic.xml.gz"
         vasprun_dfpt_ionic = Vasprun(filepath, parse_potcar_file=False)
@@ -376,7 +379,8 @@ class TestVasprun(MatSciTest):
 
     def test_dfpt_unconverged(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.dfpt.unconverged.xml.gz"
-        vasprun_dfpt_unconverged = Vasprun(filepath, parse_potcar_file=False)
+        with pytest.warns(UnconvergedVASPWarning):
+            vasprun_dfpt_unconverged = Vasprun(filepath, parse_potcar_file=False)
         assert not vasprun_dfpt_unconverged.converged_electronic
         assert vasprun_dfpt_unconverged.converged_ionic
         assert not vasprun_dfpt_unconverged.converged
@@ -611,12 +615,12 @@ class TestVasprun(MatSciTest):
         assert band_struct.get_branch(0)[0]["start_index"] == 0
         assert band_struct.get_branch(0)[0]["end_index"] == 0
 
-    def test_projected_magnetisation(self):
+    def test_projected_magnetization(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.lvel.Si2H.xml.gz"
         vasp_run = Vasprun(filepath, parse_projected_eigen=True)
-        assert vasp_run.projected_magnetisation is not None
-        assert vasp_run.projected_magnetisation.shape == (76, 240, 4, 9, 3)
-        assert vasp_run.projected_magnetisation[0, 0, 0, 0, 0] == approx(-0.0712)
+        assert vasp_run.projected_magnetization is not None
+        assert vasp_run.projected_magnetization.shape == (76, 240, 4, 9, 3)
+        assert vasp_run.projected_magnetization[0, 0, 0, 0, 0] == approx(-0.0712)
 
     def test_smart_efermi(self):
         # branch 1 - E_fermi does not cross a band

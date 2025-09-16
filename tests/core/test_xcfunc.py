@@ -19,7 +19,7 @@ class TestLibxcFunc(MatSciTest):
         ixc_1 = XcFunc.from_abinit_ixc(1)
         assert ixc_1.type == "LDA"
         assert ixc_1.name == "LDA_XC_TETER93"
-        assert ixc_1 == ixc_1  # test __eq__
+        assert ixc_1 == ixc_1  # test __eq__  # noqa: PLR0124
         assert ixc_1 == "LDA_XC_TETER93"
         assert ixc_1 != "PBE"
         assert ixc_1.name not in XcFunc.aliases()
