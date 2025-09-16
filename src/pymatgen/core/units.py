@@ -574,7 +574,7 @@ class ArrayWithUnit(np.ndarray):
     def __setstate__(self, state: dict[str, Any]) -> None:
         super().__setstate__(state["np_state"])
         self._unit = state["_unit"]
-        self._unit_type = state.get("_unit_type", None)
+        self._unit_type = state.get("_unit_type")
 
     def __repr__(self) -> str:
         return f"{np.array(self)!r} {self.unit}"
