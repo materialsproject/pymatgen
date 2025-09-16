@@ -908,7 +908,7 @@ class Vasprun(MSONable):
         self,
         inc_structure: bool = True,
         parameters: list[str] | None = None,
-        data: dict | None = None,
+        data: list | None = None,
         entry_id: str | None = None,
     ) -> ComputedStructureEntry | ComputedEntry:
         """Get a ComputedEntry or ComputedStructureEntry from the Vasprun.
@@ -920,7 +920,7 @@ class Vasprun(MSONable):
                 the properties supported by the Vasprun object. If is None,
                 a default set of parameters that are
                 necessary for typical post-processing will be set.
-            data (dict): Output data to include. Have to be the properties
+            data (list): Output data to include. Have to be the properties
                 supported by the Vasprun object.
             entry_id (str): An entry id for the ComputedEntry.
                 Defaults to "vasprun-{current datetime}"
@@ -944,21 +944,21 @@ class Vasprun(MSONable):
         if parameters is not None and len(parameters) > 0:
             param_names.update(parameters)
         params = {param: getattr(self, param) for param in param_names}
-        data = {} if data is None else {param: getattr(self, param) for param in data}
+        _data = {} if data is None else {param: getattr(self, param) for param in data}
 
         if inc_structure:
             return ComputedStructureEntry(
                 self.final_structure,
                 self.final_energy,
                 parameters=params,
-                data=data,
+                data=_data,
                 entry_id=entry_id,
             )
         return ComputedEntry(
             self.final_structure.composition,
             self.final_energy,
             parameters=params,
-            data=data,
+            data=_data,
             entry_id=entry_id,
         )
 

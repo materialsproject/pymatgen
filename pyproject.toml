@@ -245,7 +245,9 @@ docstring-code-format = true
     "ANN201", # missing-return-type-undocumented-public-function
     "D", # pydocstyle
     "PLR2004", # magic-value-comparison
-    "S101", # Use of "assert"
+    "PLR6301", # no-self-use
+    "S101", # Use of `assert`
+    "S301", # Use of `pickle.load`
 ]
 "src/pymatgen/analysis/*" = ["D"]
 "src/pymatgen/io/*" = ["D"]
