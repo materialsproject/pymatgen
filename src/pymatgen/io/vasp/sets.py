@@ -197,7 +197,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             previous VASP directory.
         auto_ispin (bool) = False:
             If generating input set from a previous calculation, this controls whether
-            to disable magnetisation (ISPIN = 1) if the absolute value of all magnetic
+            to disable magnetization (ISPIN = 1) if the absolute value of all magnetic
             moments are less than 0.02.
         auto_lreal (bool) = False:
             If True, automatically use the VASP recommended LREAL based on cell size.
@@ -3530,7 +3530,7 @@ class MPAbsorptionSet(VaspInputSet):
 
 
 def _get_ispin(vasprun: Vasprun | None, outcar: Outcar | None) -> Literal[1, 2]:
-    """Get value of ISPIN depending on the magnetisation in the OUTCAR and vasprun."""
+    """Get value of ISPIN depending on the magnetization in the OUTCAR and vasprun."""
     if outcar is not None and outcar.magnetization is not None:
         # Turn off spin when magmom for every site is smaller than 0.02.
         site_magmom = np.array([i["tot"] for i in outcar.magnetization])
