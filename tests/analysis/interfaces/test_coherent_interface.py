@@ -75,7 +75,7 @@ class TestCoherentInterfaceBuilder:
             film_miller=matches[0].film_miller,
             substrate_miller=matches[0].substrate_miller,
             zslgen=sub_analyzer,
-            termination_ftol=(2,0.1),
+            termination_ftol=(2, 0.1),
             label_index=True,
             filter_out_sym_slabs=False,
         )
