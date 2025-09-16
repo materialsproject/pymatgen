@@ -244,25 +244,20 @@ docstring-code-format = true
 "tests/**" = [
     "ANN201", # missing-return-type-undocumented-public-function
     "D", # pydocstyle
-    "PLR0124", # comparison-with-itself
     "PLR2004", # magic-value-comparison
     "PLR6301", # no-self-use
-    "S101", # Use of "assert"
+    "S101", # Use of `assert`
+    "S301", # Use of `pickle.load`
 ]
 "src/pymatgen/analysis/*" = ["D"]
 "src/pymatgen/io/*" = ["D"]
 "dev_scripts/*" = ["D"]
-"src/pymatgen/util/string.py" = ["A005"]
-"src/pymatgen/util/typing.py" = ["A005"]
-"src/pymatgen/util/io.py" = ["A005"]
 
 [tool.pytest.ini_options]
 addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
     # NOTE: the LAST matching option would be used
     "ignore::UserWarning", # Ignore UserWarning
-    # TODO: remove the following filter once `monty.io` dropped custom EncodingWarning (python 3.10+ only)
-    "error:We strongly encourage explicit `encoding`:monty.io.EncodingWarning",
 ]
 
 [tool.coverage.run]
@@ -292,7 +287,7 @@ exclude_also = [
 ignore_missing_imports = true
 namespace_packages = true
 no_implicit_optional = false
-disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "misc", "call-overload", "index"]
+disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "call-overload", "index"]
 exclude = ['src/pymatgen/analysis', 'src/pymatgen/io/cp2k', 'src/pymatgen/io/lammps']
 
 [[tool.mypy.overrides]]
@@ -301,14 +296,15 @@ ignore_missing_imports = true
 
 [tool.codespell]
 # TODO: un-ignore "ist/nd/ot/ontop/CoO" once support file-level ignore with pattern
+# https://github.com/codespell-project/codespell/issues/3673
 ignore-words-list = """Nd, Te, titel, Mater, nax,
 Hart, Lew, Rute, atomate,
 ist, nd, ot, ontop, CoO
 """
 # TODO: un-skip lammps/test_inputs.py once support block ignore with pattern
+# https://github.com/codespell-project/codespell/issues/3381
 skip = """*.json,
 src/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries_files/allcg.txt,
-src/pymatgen/entries/MPCompatibility.yaml,
 tests/io/lammps/test_inputs.py,
 """
 check-filenames = true

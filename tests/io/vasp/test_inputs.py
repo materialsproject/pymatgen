@@ -1238,7 +1238,7 @@ Cartesian
 
     def test_eq(self):
         auto_g_kpts = Kpoints.gamma_automatic()
-        assert auto_g_kpts == auto_g_kpts
+        assert auto_g_kpts == auto_g_kpts  # noqa: PLR0124
         assert auto_g_kpts == Kpoints.gamma_automatic()
         file_kpts = Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS")
         assert file_kpts == Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS")
@@ -1626,11 +1626,9 @@ class TestPotcarSingle:
 
         with (
             patch.dict(SETTINGS, PMG_VASP_PSP_SUB_DIRS={"PBE_64": "PBE_64_FOO"}),
-            pytest.raises(FileNotFoundError) as exc_info,
+            pytest.raises(FileNotFoundError, match=re.escape(err_msg)),
         ):
             PotcarSingle.from_symbol_and_functional(symbol, functional)
-
-        assert err_msg in str(exc_info.value)
 
     def test_repr(self):
         expected_repr = (

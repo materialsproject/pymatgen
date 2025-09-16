@@ -4275,7 +4275,13 @@ def plot_path(line, lattice=None, coords_are_cartesian=False, ax: plt.Axes = Non
     return fig, ax
 
 
-def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax: plt.Axes = None, **kwargs):
+def plot_labels(
+    labels,
+    lattice=None,
+    coords_are_cartesian=False,
+    ax: plt.Axes = None,
+    **kwargs,
+):
     """Add labels to a matplotlib Axes.
 
     Args:
@@ -4302,14 +4308,15 @@ def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax: plt.Axes =
         label = k
         if k.startswith("\\") or k.find("_") != -1:
             label = f"${k}$"
-        off = 0.01
-        if coords_are_cartesian:
-            coords = np.array(coords)
-        else:
+        offset: float = 0.01
+        if not coords_are_cartesian:
             if lattice is None:
-                raise ValueError("coords_are_cartesian False requires the lattice")
+                raise ValueError("coords_are_cartesian=False requires the lattice")
             coords = lattice.get_cartesian_coords(coords)
-        ax.text(*(coords + off), s=label, **kwargs)
+
+        coords = np.asarray(coords)
+        x, y, z = coords + offset
+        ax.text(x, y, z, label, **kwargs)
 
     return fig, ax
 

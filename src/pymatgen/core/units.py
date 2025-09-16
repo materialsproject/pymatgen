@@ -13,9 +13,9 @@ from __future__ import annotations
 import collections
 import re
 from collections import defaultdict
-from functools import partial
+from functools import partial, wraps
 from numbers import Number
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, overload
 
 import numpy as np
 import scipy.constants as const
@@ -87,7 +87,7 @@ BASE_UNITS: dict[str, dict[str, float]] = {
 
 # This current list are supported derived units defined in terms of powers of
 # SI base units and constants.
-DERIVED_UNITS: dict[str, dict[str, dict]] = {
+DERIVED_UNITS: dict[str, dict[str, dict[str | float, float]]] = {
     "energy": {
         "eV": {"kg": 1, "m": 2, "s": -2, const.e: 1},
         "meV": {"kg": 1, "m": 2, "s": -2, const.e * 1e-3: 1},
@@ -138,7 +138,7 @@ ALL_UNITS: dict[str, dict] = BASE_UNITS | DERIVED_UNITS
 SUPPORTED_UNIT_NAMES: tuple[str, ...] = tuple(i for d in ALL_UNITS.values() for i in d)
 
 # Mapping unit name --> unit type (unit names must be unique).
-_UNAME2UTYPE = {uname: utype for utype, dct in ALL_UNITS.items() for uname in dct}
+_UNAME2UTYPE: dict[str, str] = {uname: utype for utype, dct in ALL_UNITS.items() for uname in dct}
 
 
 class UnitError(BaseException):
@@ -150,7 +150,7 @@ class Unit(collections.abc.Mapping):
     Only integer powers are supported.
     """
 
-    def __init__(self, unit_def: str | dict[str, int]) -> None:
+    def __init__(self, unit_def: str | dict[str, float]) -> None:
         """
         Args:
             unit_def: A definition for the unit. Either a mapping of unit to
@@ -170,7 +170,7 @@ class Unit(collections.abc.Mapping):
             return u
 
         if isinstance(unit_def, str):
-            unit: dict[str, int] = defaultdict(int)
+            unit: dict[str, float] = defaultdict(int)
 
             for match in re.finditer(r"([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
                 val = match[2]
@@ -217,7 +217,7 @@ class Unit(collections.abc.Mapping):
         )
 
     @property
-    def as_base_units(self) -> tuple[dict, float]:
+    def as_base_units(self) -> tuple[dict[str, float], float]:
         """Convert all units to base SI units, including derived units.
 
         Returns:
@@ -330,7 +330,11 @@ class FloatWithUnit(float):
     def __str__(self) -> str:
         return f"{super().__str__()} {self._unit}"
 
-    def __add__(self, other):
+    @overload
+    def __add__(self, other: Self) -> Self: ...
+    @overload
+    def __add__(self, other: float) -> float: ...
+    def __add__(self, other: object) -> float | Self:
         if not hasattr(other, "unit_type"):
             return super().__add__(other)
         if other.unit_type != self._unit_type:
@@ -344,7 +348,11 @@ class FloatWithUnit(float):
             unit=self._unit,
         )
 
-    def __sub__(self, other):
+    @overload
+    def __sub__(self, other: Self) -> Self: ...
+    @overload
+    def __sub__(self, other: float) -> float: ...
+    def __sub__(self, other: object) -> float | Self:
         if not hasattr(other, "unit_type"):
             return super().__sub__(other)
         if other.unit_type != self._unit_type:
@@ -358,21 +366,22 @@ class FloatWithUnit(float):
             unit=self._unit,
         )
 
-    def __mul__(self, other):
+    def __mul__(self, other) -> Self:
         cls = type(self)
-        if not isinstance(other, cls):
+        if isinstance(other, cls):
             return cls(
                 float(self) * other,
-                unit_type=self._unit_type,
-                unit=self._unit,
+                unit_type=None,
+                unit=self._unit * other._unit,
             )
         return cls(
             float(self) * other,
-            unit_type=None,
-            unit=self._unit * other._unit,
+            unit_type=self._unit_type,
+            unit=self._unit,
         )
 
     def __rmul__(self, other):
+        # TODO: this isn't needed, could just `return self.__mul__(other)`
         if not isinstance(other, type(self)):
             return type(self)(
                 float(self) * other,
@@ -385,14 +394,31 @@ class FloatWithUnit(float):
             unit=self._unit * other._unit,
         )
 
-    def __pow__(self, i):
+    def __pow__(self, i: float) -> Self:
         return type(self)(float(self) ** i, unit_type=None, unit=self._unit**i)
 
-    def __truediv__(self, other):
+    def __truediv__(self, other) -> Self:
         val = super().__truediv__(other)
         if not isinstance(other, type(self)):
             return type(self)(val, unit_type=self._unit_type, unit=self._unit)
         return type(self)(val, unit_type=None, unit=self._unit / other._unit)
+
+    def __rtruediv__(self, other: float | Self) -> Self:
+        if isinstance(other, float | int):
+            return type(self)(
+                other / float(self),
+                unit_type=None,
+                unit=self._unit**-1,
+            )
+
+        if isinstance(other, type(self)):
+            return type(self)(
+                float(other) / float(self),
+                unit_type=None,
+                unit=other._unit / self._unit,
+            )
+
+        return NotImplemented
 
     def __neg__(self):
         return type(self)(
@@ -401,7 +427,7 @@ class FloatWithUnit(float):
             unit=self._unit,
         )
 
-    def __getnewargs__(self):
+    def __getnewargs__(self) -> tuple[float, Unit, str | None]:
         """Used by pickle to recreate object."""
         # TODO There's a problem with _unit_type if we try to unpickle objects from file.
         # since self._unit_type might not be defined. I think this is due to
@@ -414,12 +440,12 @@ class FloatWithUnit(float):
 
         return args
 
-    def __getstate__(self):
+    def __getstate__(self) -> dict[str, Any]:
         state = self.__dict__.copy()
         state["val"] = float(self)
         return state
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: dict[str, Any]) -> None:
         self._unit = state["_unit"]
 
     @property
@@ -474,19 +500,19 @@ class FloatWithUnit(float):
         return type(self)(new_value, unit_type=self._unit_type, unit=new_unit)
 
     @property
-    def as_base_units(self):
+    def as_base_units(self) -> Self:
         """This FloatWithUnit in base SI units, including derived units.
 
         Returns:
             FloatWithUnit in base SI units
         """
-        return self.to(self.unit.as_base_units[0])
+        return self.to(cast("Unit", self.unit.as_base_units[0]))
 
     @property
     def supported_units(self) -> tuple:
         """Supported units for specific unit type."""
         if self.unit_type is None:
-            raise RuntimeError("Cannot get supported unit for None.")
+            raise RuntimeError("Cannot get supported unit for unknown unit type.")
 
         return tuple(ALL_UNITS[self.unit_type])
 
@@ -504,15 +530,18 @@ class ArrayWithUnit(np.ndarray):
     >>> energy_arr_b = EnergyArray([1, 2], "eV")
     >>> energy_arr_c = energy_arr_a + energy_arr_b
     >>> print(energy_arr_c)
-    [ 1.03674933  2.07349865] Ha
+    [1.03674933 2.07349865] Ha
     >>> energy_arr_c.to("eV")
-    array([ 28.21138386,  56.42276772]) eV
+    [28.21138625 56.42277249] eV
     """
+
+    _unit: Unit | None  # default to None in __array_finalize__
+    _unit_type: str | None
 
     def __new__(
         cls,
         input_array: ArrayLike,
-        unit: str | Unit,
+        unit: str | Unit | None,
         unit_type: str | None = None,
     ) -> Self:
         """Override __new__."""
@@ -520,7 +549,7 @@ class ArrayWithUnit(np.ndarray):
         # We first cast to be our class type
         obj = np.asarray(input_array).view(cls)
         # Add the new attributes to the created instance
-        obj._unit = unit if isinstance(unit, Unit) else Unit(unit)
+        obj._unit = unit if unit is None or isinstance(unit, Unit) else Unit(unit)
         obj._unit_type = unit_type
         return obj
 
@@ -533,14 +562,19 @@ class ArrayWithUnit(np.ndarray):
         self._unit = getattr(obj, "_unit", None)
         self._unit_type = getattr(obj, "_unit_type", None)
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple:
         reduce = list(super().__reduce__())
-        reduce[2] = {"np_state": reduce[2], "_unit": self._unit}
+        reduce[2] = {
+            "np_state": reduce[2],
+            "_unit": self._unit,
+            "_unit_type": getattr(self, "_unit_type", None),
+        }
         return tuple(reduce)
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: dict[str, Any]) -> None:
         super().__setstate__(state["np_state"])
         self._unit = state["_unit"]
+        self._unit_type = state.get("_unit_type")
 
     def __repr__(self) -> str:
         return f"{np.array(self)!r} {self.unit}"
@@ -548,7 +582,7 @@ class ArrayWithUnit(np.ndarray):
     def __str__(self) -> str:
         return f"{np.array(self)} {self.unit}"
 
-    def __add__(self, other):
+    def __add__(self, other: Any) -> Self:
         if hasattr(other, "unit_type"):
             if other.unit_type != self.unit_type:
                 raise UnitError("Adding different types of units is not allowed")
@@ -558,7 +592,7 @@ class ArrayWithUnit(np.ndarray):
 
         return type(self)(np.array(self) + np.array(other), unit_type=self.unit_type, unit=self.unit)
 
-    def __sub__(self, other):
+    def __sub__(self, other: Any) -> Self:
         if hasattr(other, "unit_type"):
             if other.unit_type != self.unit_type:
                 raise UnitError("Subtracting different units is not allowed")
@@ -572,43 +606,44 @@ class ArrayWithUnit(np.ndarray):
             unit=self.unit,
         )
 
-    def __mul__(self, other):
-        # TODO Here we have the most important difference between
+    def __mul__(self, other: Any) -> Self:
+        # Here we have the most important difference between
         # FloatWithUnit and ArrayWithUnit:
-        # If other does not have units, return an object with the same units
-        # as self.
-        # If other *has* units, return an object *without* units since
+        # If `other` does not have units, return an object with the same units
+        # as `self`.
+        # If `other` *has* units, return an object *without* units since
         # taking into account all the possible derived quantities would be
         # too difficult.
-        # Moreover Energy(1.0) * Time(1.0, "s") returns 1.0 Ha that is a
+        # Moreover `Energy(1.0) * Time(1.0, "s")` returns `1.0 Ha` that is a
         # bit misleading.
         # Same protocol for __div__
         if not hasattr(other, "unit_type"):
             return type(self)(
-                np.array(self) * np.array(other),
+                np.asarray(self) * np.asarray(other),
                 unit_type=self._unit_type,
                 unit=self._unit,
             )
-        # Cannot use super since it returns an instance of self.__class__
-        # while here we want a bare numpy array.
+        # Cannot use `super` since it returns an instance of self.__class__
+        # while here we want a bare NumPy array.
         return type(self)(
-            np.array(self).__mul__(np.array(other)),
+            np.asarray(self).__mul__(np.asarray(other)),
             unit=self.unit * other.unit,
         )
 
     def __rmul__(self, other):
+        # TODO: this isn't needed, could just `return self.__mul__(other)`
         if not hasattr(other, "unit_type"):
             return type(self)(
-                np.array(self) * np.array(other),
+                np.asarray(self) * np.asarray(other),
                 unit_type=self._unit_type,
                 unit=self._unit,
             )
         return type(self)(
-            np.array(self) * np.array(other),
+            np.asarray(self) * np.asarray(other),
             unit=self.unit * other.unit,
         )
 
-    def __truediv__(self, other):
+    def __truediv__(self, other: Any) -> Self:
         if not hasattr(other, "unit_type"):
             return type(self)(
                 np.array(self) / np.array(other),
@@ -620,7 +655,7 @@ class ArrayWithUnit(np.ndarray):
             unit=self.unit / other.unit,
         )
 
-    def __neg__(self):
+    def __neg__(self) -> Self:
         return type(self)(-np.array(self), unit_type=self.unit_type, unit=self.unit)
 
     @property
@@ -645,7 +680,7 @@ class ArrayWithUnit(np.ndarray):
         Example usage:
         >>> energy = EnergyArray([1, 1.1], "Ha")
         >>> energy.to("eV")
-        array([ 27.21138386,  29.93252225]) eV
+        [27.21138625 29.93252487] eV
         """
         return type(self)(
             np.array(self) * self.unit.get_conversion_factor(new_unit),
@@ -654,20 +689,20 @@ class ArrayWithUnit(np.ndarray):
         )
 
     @property
-    def as_base_units(self):
+    def as_base_units(self) -> Self:
         """This ArrayWithUnit in base SI units, including derived units.
 
         Returns:
             ArrayWithUnit in base SI units
         """
-        return self.to(self.unit.as_base_units[0])
+        return self.to(cast("Unit", self.unit.as_base_units[0]))
 
     @property
-    def supported_units(self) -> dict:
+    def supported_units(self) -> dict[str, dict[str, float]]:
         # TODO abstract base class property?
         """Supported units for specific unit type."""
         if self.unit_type is None:
-            raise RuntimeError("Cannot get supported unit for None.")
+            raise RuntimeError("Cannot get supported unit for known unit_type.")
 
         return ALL_UNITS[self.unit_type]
 
@@ -788,7 +823,7 @@ def obj_with_unit(
     return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 
 
-def unitized(unit):
+def unitized(unit: str):
     """Decorator to assign units to the output of a function. You can also
     use it to standardize the output units of a function that already returns
     a FloatWithUnit or ArrayWithUnit. For sequences, all values in the sequences
@@ -806,9 +841,13 @@ def unitized(unit):
     """
 
     def wrap(func):
+        @wraps(func)
         def wrapped_f(*args, **kwargs):
             val = func(*args, **kwargs)
             unit_type = _UNAME2UTYPE[unit]
+
+            if val is None:
+                return None
 
             if isinstance(val, FloatWithUnit | ArrayWithUnit):
                 return val.to(unit)
@@ -818,16 +857,14 @@ def unitized(unit):
                 # This complicated way is to ensure the sequence type is
                 # preserved (list or tuple).
                 return val.__class__([FloatWithUnit(i, unit_type=unit_type, unit=unit) for i in val])
+
             if isinstance(val, collections.abc.Mapping):
-                for k, v in val.items():
-                    val[k] = FloatWithUnit(v, unit_type=unit_type, unit=unit)
-            elif isinstance(val, Number):
+                return {k: FloatWithUnit(v, unit_type=unit_type, unit=unit) for k, v in val.items()}
+
+            if isinstance(val, Number):
                 return FloatWithUnit(val, unit_type=unit_type, unit=unit)
-            elif val is None:
-                pass
-            else:
-                raise TypeError(f"Don't know how to assign units to {val}")
-            return val
+
+            raise TypeError(f"Don't know how to assign units to {val}")
 
         return wrapped_f
 

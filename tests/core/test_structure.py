@@ -132,7 +132,7 @@ class TestIStructure(MatSciTest):
 
     def test_equal(self):
         struct = self.struct
-        assert struct == struct
+        assert struct == struct  # noqa: PLR0124
         assert struct == struct.copy()
         assert struct != 2 * struct
 
@@ -2176,10 +2176,8 @@ class TestIMolecule(MatSciTest):
             [-0.513360, 0.889165, -0.363000],
             [-0.513360, 0.889165, -0.36301],
         ]
-        with pytest.raises(StructureError) as exc:
+        with pytest.raises(StructureError, match="sites that are less than 0.01 Angstrom"):
             Molecule(["C", "H", "H", "H", "H", "H"], coords, validate_proximity=True)
-
-        assert "Molecule contains sites that are less than 0.01 Angstrom apart!" in str(exc.value)
 
     def test_get_angle_dihedral(self):
         assert self.mol.get_angle(1, 0, 2) == approx(109.47122144618737)

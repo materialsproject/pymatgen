@@ -38,7 +38,7 @@ from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
+from pymatgen.core.periodic_table import _PT_UNIT, DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.units import Length, Mass
 from pymatgen.electronic_structure.core import Magmom
@@ -77,7 +77,6 @@ FileFormats: TypeAlias = Literal[
     "aims",
     "",
 ]
-StructureSources: TypeAlias = Literal["Materials Project", "COD"]
 
 
 class Neighbor(Site):
@@ -1540,7 +1539,7 @@ class IStructure(SiteCollection, MSONable):
     @property
     def density(self) -> float:
         """The density in units of g/cm^3."""
-        mass = Mass(self.composition.weight, "amu")
+        mass = Mass(self.composition.weight, _PT_UNIT["Atomic mass"])
         return mass.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
     @property
@@ -3051,7 +3050,7 @@ class IStructure(SiteCollection, MSONable):
         return str(writer)
 
     @classmethod
-    def from_id(cls, id_: str, source: StructureSources = "Materials Project", **kwargs) -> Structure:
+    def from_id(cls, id_, source: Literal["Materials Project", "COD"] = "Materials Project", **kwargs) -> Structure:
         """
         Load a structure file based on an id, usually from an online source.
 
@@ -3065,11 +3064,13 @@ class IStructure(SiteCollection, MSONable):
 
             mpr = MPRester(**kwargs)
             return mpr.get_structure_by_material_id(id_)  # type: ignore[attr-defined]
+
         if source == "COD":
             from pymatgen.ext.cod import COD
 
             cod = COD()
             return cod.get_structure_by_id(int(id_))
+
         raise ValueError(f"Invalid source: {source}")
 
     @classmethod
@@ -4780,7 +4781,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         scaling_matrix: ArrayLike,
         to_unit_cell: bool = True,
         in_place: bool = True,
-    ) -> Structure:
+    ) -> Self:
         """Create a supercell.
 
         Args:
@@ -4806,8 +4807,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
             Structure: self if in_place is True else self.copy() after making supercell
         """
         # TODO (janosh) maybe default in_place to False after a depreciation period
-        struct: Structure = self if in_place else self.copy()
-        supercell: Structure = struct * scaling_matrix
+        struct: Self = self if in_place else self.copy()
+        supercell = struct * scaling_matrix
         if to_unit_cell:
             for site in supercell:
                 site.to_unit_cell(in_place=True)
@@ -4816,7 +4817,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return struct
 
-    def scale_lattice(self, volume: float) -> Structure:
+    def scale_lattice(self, volume: float) -> Self:
         """Perform scaling of the lattice vectors so that length proportions
         and angles are preserved.
 
