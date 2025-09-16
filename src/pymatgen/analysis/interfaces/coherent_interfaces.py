@@ -132,10 +132,10 @@ class CoherentInterfaceBuilder:
             primitive=True,
             reorient_lattice=False,  # This is necessary to not screw up the lattice
         )
-        
+
         if type(self.termination_ftol) is not tuple:
             self.termination_ftol = (self.termination_ftol, self.termination_ftol)
-       
+
         film_slabs = film_sg.get_slabs(ftol=self.termination_ftol[0], filter_out_sym_slabs=self.filter_out_sym_slabs)
         sub_slabs = sub_sg.get_slabs(ftol=self.termination_ftol[1], filter_out_sym_slabs=self.filter_out_sym_slabs)
         film_shifts = [slab.shift for slab in film_slabs]
