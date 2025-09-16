@@ -84,7 +84,9 @@ class TestCoherentInterfaceBuilder:
             ("1_Ge_P4/mmm_1", "2_Si_P4/mmm_1"),
             ("2_Ge_P4/mmm_1", "1_Si_P4/mmm_1"),
             ("2_Ge_P4/mmm_1", "2_Si_P4/mmm_1"),
-        ] and cib2.terminations == [
+        ], "cib1 termination results wrong"
+        
+        assert cib2.terminations == [
             ("1_Ge_C2/m_2", "1_Si_P4/mmm_1"),
             ("1_Ge_C2/m_2", "2_Si_P4/mmm_1"),
-        ], "termination results wrong"
+        ], "cib2 termination results wrong"
