@@ -287,7 +287,7 @@ exclude_also = [
 ignore_missing_imports = true
 namespace_packages = true
 no_implicit_optional = false
-disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "misc", "call-overload", "index"]
+disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "call-overload", "index"]
 exclude = ['src/pymatgen/analysis', 'src/pymatgen/io/cp2k', 'src/pymatgen/io/lammps']
 
 [[tool.mypy.overrides]]

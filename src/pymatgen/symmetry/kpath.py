@@ -930,14 +930,13 @@ class KPathSeek(KPathBase):
 
         cell = (self._latt.matrix, positions, numbers)
 
-        lattice, scale_pos, atom_num = spglib.standardize_cell(
+        spg_struct = spglib.standardize_cell(
             cell,  # type: ignore[arg-type]
             to_primitive=False,
             no_idealize=True,
             symprec=symprec,  # type: ignore[arg-type]
         )
 
-        spg_struct = (lattice, scale_pos, atom_num)
         spath_dat = get_path(spg_struct, system_is_tri, "hpkot", atol, symprec, angle_tolerance)
 
         self._tmat = self._trans_sc_to_Hin(spath_dat["bravais_lattice_extended"])

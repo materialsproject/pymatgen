@@ -20,10 +20,8 @@ class TestXRDCalculator(MatSciTest):
     def test_type_wavelength(self):
         """Test TypeError is raised if wavelength is unaccepted type."""
         wavelength = [1.78, 2.78]  # just a list
-        with pytest.raises(TypeError) as exc:
+        with pytest.raises(TypeError, match="must be either float, int or str"):
             XRDCalculator(wavelength)
-
-        assert "wavelength_type='list' must be either float, int or str" in str(exc.value)
 
     def test_get_pattern(self):
         struct = self.get_structure("CsCl")

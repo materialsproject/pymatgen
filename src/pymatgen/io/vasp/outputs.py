@@ -1783,9 +1783,9 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_dynmat(elem: XML_Element) -> tuple[list, list, list]:
         """Parse dynamical matrix."""
-        hessian: list[float] = []
+        hessian: list[list[float]] = []
         eigenvalues: list[float] = []
-        eigenvectors: list[float] = []
+        eigenvectors: list[list[float]] = []
 
         for v in elem.findall("v"):
             if v.attrib["name"] == "eigenvalues":
@@ -4220,7 +4220,7 @@ class Procar(MSONable):
         # tuple to make it hashable, rounded to 5 decimal places to ensure proper kpoint matching
         return cast("tuple[float, float, float]", tuple(round(float(val), 5) for val in kpoint_fields))
 
-    def _read(self, filename: PathLike, parsed_kpoints: set[tuple[Kpoint]] | None = None):
+    def _read(self, filename: PathLike, parsed_kpoints: set[tuple[float, float, float]] | None = None):
         """Main function for reading in the PROCAR projections data.
 
         Args:

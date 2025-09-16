@@ -248,7 +248,6 @@ class TestFloatWithUnit(MatSciTest):
         assert str(form_e.unit) == "eV atom^-1"
         with pytest.raises(UnitError, match="Units .* are not compatible"):
             form_e.to("m s^-1")
-
         a = FloatWithUnit(1.0, "Ha^3")
         b = a.to("J^3")
         assert b == approx(8.28672661615e-53)
