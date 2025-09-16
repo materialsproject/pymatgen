@@ -383,7 +383,7 @@ class TestElement(MatSciTest):
 
     def test_pickle(self):
         pickled = pickle.dumps(Element.Fe)
-        assert Element.Fe == pickle.loads(pickled)  # noqa: S301
+        assert Element.Fe == pickle.loads(pickled)
 
         # Test 5 random elements
         rng = np.random.default_rng()
@@ -452,7 +452,7 @@ class TestSpecies(MatSciTest):
         assert elem_list == deepcopy(elem_list), "Deepcopy operation doesn't produce exact copy."
 
     def test_pickle(self):
-        assert self.specie1 == pickle.loads(pickle.dumps(self.specie1))  # noqa: S301
+        assert self.specie1 == pickle.loads(pickle.dumps(self.specie1))
         for idx in range(1, 5):
             self.serialize_with_pickle(getattr(self, f"specie{idx}"))
         cs = Species("Cs1+")
@@ -462,7 +462,7 @@ class TestSpecies(MatSciTest):
             pickle.dump((cs, cl), file)
 
         with open(f"{self.tmp_path}/cscl.pickle", "rb") as file:
-            tup = pickle.load(file)  # noqa: S301
+            tup = pickle.load(file)
             assert tup == (cs, cl)
 
     def test_get_crystal_field_spin(self):
@@ -613,7 +613,7 @@ class TestDummySpecies:
     def test_pickle(self):
         el1 = DummySpecies("X", 3)
         pickled = pickle.dumps(el1)
-        assert el1 == pickle.loads(pickled)  # noqa: S301
+        assert el1 == pickle.loads(pickled)
 
     def test_sort(self):
         Fe, X = Element.Fe, DummySpecies("X")
@@ -621,13 +621,11 @@ class TestDummySpecies:
         assert DummySpecies("X", 3) < DummySpecies("X", 4)
 
         sp = Species("Fe", 2, spin=5)
-        with pytest.raises(AttributeError) as exc:
+        # This error message is Python version dependent
+        # 3.10: can't set attribute 'spin'
+        # 3.11+: property 'spin' of 'Species' object has no setter
+        with pytest.raises(AttributeError, match=r"(can't set attribute|'Species' object has no setter)"):
             sp.spin = 6
-
-        # for some reason different message on Windows and Mac. on Linux: 'can't set attribute'
-        assert "can't set attribute" in str(exc.value) or "property 'spin' of 'Species' object has no setter" in str(
-            exc.value
-        )
         assert sp.spin == 5
 
     def test_species_electronic_structure(self):

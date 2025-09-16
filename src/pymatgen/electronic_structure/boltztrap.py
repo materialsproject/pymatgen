@@ -48,6 +48,7 @@ if TYPE_CHECKING:
 
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.core.structure import Structure
+    from pymatgen.core.units import FloatWithUnit
 
 __author__ = "Geoffroy Hautier, Zachary Gibbs, Francesco Ricci, Anubhav Jain"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -233,8 +234,9 @@ class BoltztrapRunner(MSONable):
         # buffer does not increase CPU time but will help get equal
         # energies for spin up/down for band structure
         const = Energy(2, "eV").to("Ry")
-        self._ll = min_eigenval - const
-        self._hl = max_eigenval + const
+
+        self._ll: FloatWithUnit = min_eigenval - const
+        self._hl: FloatWithUnit = max_eigenval + const
 
         en_range = Energy(max((abs(self._ll), abs(self._hl))), "Ry").to("eV")
 
@@ -264,7 +266,7 @@ class BoltztrapRunner(MSONable):
             if self.run_type == "FERMI":
                 sign = -1.0 if self.cond_band else 1.0
                 for i, kpt in enumerate(self._bs.kpoints):
-                    eigs = []
+                    eigs: list[FloatWithUnit] = []
                     eigs.append(
                         Energy(
                             self._bs.bands[Spin(self.spin)][self.band_nb][i] - self._bs.efermi,
