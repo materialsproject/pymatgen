@@ -926,7 +926,7 @@ class Lattice(MSONable):
         ltol: float = 1e-5,
         atol: float = 1,
         skip_rotation_matrix: bool = False,
-    ) -> Iterator[tuple[Lattice, NDArray[np.float64] | None, NDArray[np.float64]]]:
+    ) -> Iterator[tuple[Self, NDArray[np.float64] | None, NDArray[np.int64]]]:
         """Find all mappings between current lattice and another lattice.
 
         Args:
@@ -995,7 +995,7 @@ class Lattice(MSONable):
         ltol: float = 1e-5,
         atol: float = 1,
         skip_rotation_matrix: bool = False,
-    ) -> tuple[Lattice, NDArray[np.float64] | None, NDArray[np.float64]] | None:
+    ) -> tuple[Lattice, NDArray[np.float64] | None, NDArray[np.int64]] | None:
         """Find a mapping between current lattice and another lattice. There
         are an infinite number of choices of basis vectors for two entirely
         equivalent lattices. This method returns a mapping that maps

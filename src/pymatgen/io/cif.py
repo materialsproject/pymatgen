@@ -30,13 +30,14 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from typing import Any
 
     from numpy.typing import NDArray
     from typing_extensions import Self
 
     from pymatgen.core import IStructure
-    from pymatgen.util.typing import PathLike
+    from pymatgen.util.typing import MagMomentLike, PathLike
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
@@ -600,7 +601,7 @@ class CifParser:
     def _unique_coords(
         self,
         coords: list[tuple[float, float, float]],
-        magmoms: list[Magmom] | None = None,
+        magmoms: Sequence[MagMomentLike] | None = None,
         lattice: Lattice | None = None,
         labels: dict[tuple[float, float, float], str] | None = None,
     ) -> tuple[list[NDArray], list[Magmom], list[str]]:
@@ -1088,7 +1089,7 @@ class CifParser:
 
                 # Find matching site by coordinate
                 match: tuple[float, float, float] | Literal[False] = get_matching_coord(coord_to_species, coord)
-                if not match:
+                if match is False:
                     coord_to_species[coord] = comp
                     coord_to_magmoms[coord] = magmoms.get(label, np.array([0, 0, 0]))
                     labels[coord] = label
@@ -1143,7 +1144,7 @@ class CifParser:
                 )
             ):
                 tmp_coords: list[tuple[float, float, float]] = [site[0] for site in group]
-                tmp_magmom: list[Magmom] = [coord_to_magmoms[tmp_coord] for tmp_coord in tmp_coords]
+                tmp_magmom: list[NDArray] = [coord_to_magmoms[tmp_coord] for tmp_coord in tmp_coords]
 
                 if self.feature_flags["magcif"]:
                     coords, _magmoms, new_labels = self._unique_coords(

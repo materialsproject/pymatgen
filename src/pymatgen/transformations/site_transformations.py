@@ -166,8 +166,8 @@ class TranslateSitesTransformation(AbstractTransformation):
         """
         struct = structure.copy()
         if self.translation_vector.shape == (len(self.indices_to_move), 3):
-            for idx, idx in enumerate(self.indices_to_move):
-                struct.translate_sites(idx, self.translation_vector[idx], self.vector_in_frac_coords)
+            for idx, idx_to_move in enumerate(self.indices_to_move):
+                struct.translate_sites(idx_to_move, self.translation_vector[idx], self.vector_in_frac_coords)
         else:
             struct.translate_sites(
                 self.indices_to_move,

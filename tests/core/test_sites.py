@@ -65,7 +65,7 @@ class TestSite(MatSciTest):
 
     def test_pickle(self):
         dump = pickle.dumps(self.propertied_site)
-        assert pickle.loads(dump) == self.propertied_site  # noqa: S301
+        assert pickle.loads(dump) == self.propertied_site
 
     def test_setters(self):
         self.disordered_site.species = "Cu"
@@ -178,7 +178,7 @@ class TestPeriodicSite(MatSciTest):
             self.lattice,
             properties={"selective_dynamics": np.array([True, True, False])},
         )
-        assert site_0 == site_0
+        assert site_0 == site_0  # noqa: PLR0124
 
         site_1 = PeriodicSite(
             "Fe",
