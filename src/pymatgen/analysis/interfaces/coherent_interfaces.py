@@ -32,7 +32,7 @@ class CoherentInterfaceBuilder:
         film_miller: tuple[int, int, int],
         substrate_miller: tuple[int, int, int],
         zslgen: ZSLGenerator | None = None,
-        termination_ftol: float = 0.25,
+        termination_ftol: float | tuple[float, float] = 0.25,
         label_index: bool = False,  # necessary to add index to termination
         filter_out_sym_slabs: bool = True,
     ):
@@ -43,7 +43,8 @@ class CoherentInterfaceBuilder:
             film_miller (tuple[int, int, int]): miller index for the film layer
             substrate_miller (tuple[int, int, int]): miller index for the substrate layer
             zslgen (ZSLGenerator | None): BiDirectionalZSL if you want custom lattice matching tolerances for coherency.
-            termination_ftol (float): tolerance to distinguish different terminating atomic planes.
+            termination_ftol (float | tuple[float, float]): tolerances (film, substrate) to distinguish
+                different terminating atomic planes.
             label_index (bool): If True add an extra index at the beginning of the termination label.
             filter_out_sym_slabs (bool): If True filter out identical slabs with different terminations.
                 This might need to be set as False to find more non-identical terminations because slab
@@ -133,24 +134,33 @@ class CoherentInterfaceBuilder:
             reorient_lattice=False,  # This is necessary to not screw up the lattice
         )
 
-        film_slabs = film_sg.get_slabs(ftol=self.termination_ftol, filter_out_sym_slabs=self.filter_out_sym_slabs)
-        sub_slabs = sub_sg.get_slabs(ftol=self.termination_ftol, filter_out_sym_slabs=self.filter_out_sym_slabs)
+        if isinstance(self.termination_ftol, tuple):
+            self.film_termination_ftol, self.substrate_termination_ftol = self.termination_ftol
+        else:
+            self.film_termination_ftol = self.substrate_termination_ftol = self.termination_ftol
+
+        film_slabs = film_sg.get_slabs(ftol=self.film_termination_ftol, filter_out_sym_slabs=self.filter_out_sym_slabs)
+        sub_slabs = sub_sg.get_slabs(
+            ftol=self.substrate_termination_ftol, filter_out_sym_slabs=self.filter_out_sym_slabs
+        )
         film_shifts = [slab.shift for slab in film_slabs]
 
         if self.label_index:
             film_terminations = [
-                label_termination(slab, self.termination_ftol, t_idx) for t_idx, slab in enumerate(film_slabs, start=1)
+                label_termination(slab, self.film_termination_ftol, t_idx)
+                for t_idx, slab in enumerate(film_slabs, start=1)
             ]
         else:
-            film_terminations = [label_termination(slab, self.termination_ftol) for slab in film_slabs]
+            film_terminations = [label_termination(slab, self.film_termination_ftol) for slab in film_slabs]
 
         sub_shifts = [slab.shift for slab in sub_slabs]
         if self.label_index:
             sub_terminations = [
-                label_termination(slab, self.termination_ftol, t_idx) for t_idx, slab in enumerate(sub_slabs, start=1)
+                label_termination(slab, self.substrate_termination_ftol, t_idx)
+                for t_idx, slab in enumerate(sub_slabs, start=1)
             ]
         else:
-            sub_terminations = [label_termination(slab, self.termination_ftol) for slab in sub_slabs]
+            sub_terminations = [label_termination(slab, self.substrate_termination_ftol) for slab in sub_slabs]
 
         self._terminations = {
             (film_label, sub_label): (film_shift, sub_shift)

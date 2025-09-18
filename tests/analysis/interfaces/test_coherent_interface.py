@@ -59,7 +59,7 @@ class TestCoherentInterfaceBuilder:
     def test_termination_searching(self):
         sub_analyzer = SubstrateAnalyzer()
         matches = list(sub_analyzer.calculate(substrate=self.substrate, film=self.film))
-        cib = CoherentInterfaceBuilder(
+        cib1 = CoherentInterfaceBuilder(
             film_structure=self.film,
             substrate_structure=self.substrate,
             film_miller=matches[0].film_miller,
@@ -69,9 +69,24 @@ class TestCoherentInterfaceBuilder:
             label_index=True,
             filter_out_sym_slabs=False,
         )
-        assert cib.terminations == [
+        cib2 = CoherentInterfaceBuilder(
+            film_structure=self.film,
+            substrate_structure=self.substrate,
+            film_miller=matches[0].film_miller,
+            substrate_miller=matches[0].substrate_miller,
+            zslgen=sub_analyzer,
+            termination_ftol=(2, 0.1),
+            label_index=True,
+            filter_out_sym_slabs=False,
+        )
+        assert cib1.terminations == [
             ("1_Ge_P4/mmm_1", "1_Si_P4/mmm_1"),
             ("1_Ge_P4/mmm_1", "2_Si_P4/mmm_1"),
             ("2_Ge_P4/mmm_1", "1_Si_P4/mmm_1"),
             ("2_Ge_P4/mmm_1", "2_Si_P4/mmm_1"),
-        ], "termination results wrong"
+        ], "cib1 termination results wrong"
+
+        assert cib2.terminations == [
+            ("1_Ge_C2/m_2", "1_Si_P4/mmm_1"),
+            ("1_Ge_C2/m_2", "2_Si_P4/mmm_1"),
+        ], "cib2 termination results wrong"
