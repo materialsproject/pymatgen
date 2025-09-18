@@ -43,7 +43,7 @@ class CoherentInterfaceBuilder:
             film_miller (tuple[int, int, int]): miller index for the film layer
             substrate_miller (tuple[int, int, int]): miller index for the substrate layer
             zslgen (ZSLGenerator | None): BiDirectionalZSL if you want custom lattice matching tolerances for coherency.
-            termination_ftol (float): tolerances (film, substrate) to distinguish different terminating atomic planes.
+            termination_ftol (float | tuple[float, float]): tolerances (film, substrate) to distinguish different terminating atomic planes.
             label_index (bool): If True add an extra index at the beginning of the termination label.
             filter_out_sym_slabs (bool): If True filter out identical slabs with different terminations.
                 This might need to be set as False to find more non-identical terminations because slab
