@@ -133,10 +133,10 @@ class CoherentInterfaceBuilder:
             reorient_lattice=False,  # This is necessary to not screw up the lattice
         )
 
-        if isinstance(termination_ftol, tuple):
-            self.film_termination_ftol, self.substrate_termination_ftol = termination_ftol
+        if isinstance(self.termination_ftol, tuple):
+            self.film_termination_ftol, self.substrate_termination_ftol = self.termination_ftol
         else:
-            self.film_termination_ftol = self.substrate_termination_ftol = termination_ftol
+            self.film_termination_ftol = self.substrate_termination_ftol = self.termination_ftol
 
         film_slabs = film_sg.get_slabs(ftol=self.film_termination_ftol, filter_out_sym_slabs=self.filter_out_sym_slabs)
         sub_slabs = sub_sg.get_slabs(ftol=self.substrate_termination_ftol, filter_out_sym_slabs=self.filter_out_sym_slabs)
