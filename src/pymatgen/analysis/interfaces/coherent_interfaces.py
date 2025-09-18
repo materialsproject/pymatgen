@@ -133,29 +133,31 @@ class CoherentInterfaceBuilder:
             reorient_lattice=False,  # This is necessary to not screw up the lattice
         )
 
-        if type(self.termination_ftol) is not tuple:
-            self.termination_ftol = (self.termination_ftol, self.termination_ftol)
+        if isinstance(termination_ftol, tuple):
+            self.film_termination_ftol, self.substrate_termination_ftol = termination_ftol
+        else:
+            self.film_termination_ftol = self.substrate_termination_ftol = termination_ftol
 
-        film_slabs = film_sg.get_slabs(ftol=self.termination_ftol[0], filter_out_sym_slabs=self.filter_out_sym_slabs)
-        sub_slabs = sub_sg.get_slabs(ftol=self.termination_ftol[1], filter_out_sym_slabs=self.filter_out_sym_slabs)
+        film_slabs = film_sg.get_slabs(ftol=self.film_termination_ftol, filter_out_sym_slabs=self.filter_out_sym_slabs)
+        sub_slabs = sub_sg.get_slabs(ftol=self.substrate_termination_ftol, filter_out_sym_slabs=self.filter_out_sym_slabs)
         film_shifts = [slab.shift for slab in film_slabs]
 
         if self.label_index:
             film_terminations = [
-                label_termination(slab, self.termination_ftol[0], t_idx)
+                label_termination(slab, self.film_termination_ftol, t_idx)
                 for t_idx, slab in enumerate(film_slabs, start=1)
             ]
         else:
-            film_terminations = [label_termination(slab, self.termination_ftol[0]) for slab in film_slabs]
+            film_terminations = [label_termination(slab, self.film_termination_ftol) for slab in film_slabs]
 
         sub_shifts = [slab.shift for slab in sub_slabs]
         if self.label_index:
             sub_terminations = [
-                label_termination(slab, self.termination_ftol[1], t_idx)
+                label_termination(slab, self.substrate_termination_ftol, t_idx)
                 for t_idx, slab in enumerate(sub_slabs, start=1)
             ]
         else:
-            sub_terminations = [label_termination(slab, self.termination_ftol[1]) for slab in sub_slabs]
+            sub_terminations = [label_termination(slab, self.substrate_termination_ftol) for slab in sub_slabs]
 
         self._terminations = {
             (film_label, sub_label): (film_shift, sub_shift)
