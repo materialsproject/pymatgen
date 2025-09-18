@@ -139,7 +139,9 @@ class CoherentInterfaceBuilder:
             self.film_termination_ftol = self.substrate_termination_ftol = termination_ftol
 
         film_slabs = film_sg.get_slabs(ftol=self.film_termination_ftol, filter_out_sym_slabs=self.filter_out_sym_slabs)
-        sub_slabs = sub_sg.get_slabs(ftol=self.substrate_termination_ftol, filter_out_sym_slabs=self.filter_out_sym_slabs)
+        sub_slabs = sub_sg.get_slabs(
+            ftol=self.substrate_termination_ftol, filter_out_sym_slabs=self.filter_out_sym_slabs
+        )
         film_shifts = [slab.shift for slab in film_slabs]
 
         if self.label_index:
