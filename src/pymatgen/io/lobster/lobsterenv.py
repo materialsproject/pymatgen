@@ -15,6 +15,7 @@ import collections
 import copy
 import math
 import tempfile
+import warnings
 from typing import TYPE_CHECKING, NamedTuple
 
 import matplotlib as mpl
@@ -25,6 +26,7 @@ from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
 from pymatgen.analysis.local_env import NearNeighbors
+from pymatgen.core import Structure
 from pymatgen.electronic_structure.cohp import CompleteCohp
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.plotter import CohpPlotter
@@ -38,7 +40,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
     from typing_extensions import Self
 
-    from pymatgen.core import IStructure, PeriodicNeighbor, PeriodicSite, Structure
+    from pymatgen.core import IStructure, PeriodicNeighbor, PeriodicSite
     from pymatgen.core.periodic_table import Element
     from pymatgen.electronic_structure.cohp import IcohpCollection, IcohpValue
     from pymatgen.util.typing import PathLike
@@ -126,6 +128,19 @@ class LobsterNeighbors(NearNeighbors):
             id_blist_sg1 ("icoop" | "icobi"): Identity of data in filename_blist_sg1.
             id_blist_sg2 ("icoop" | "icobi"): Identity of data in filename_blist_sg2.
         """
+        warnings.warn(
+            "Instantiation with file paths (filename_icohp, filename_charge, filename_blist_sg1, filename_blist_sg2.) "
+            "is deprecated and will be removed on 31-01-2026. "
+            "Please use `LobsterNeighbors.from_file` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        warnings.warn(
+            "Class init args obj_icohp, obj_charge will be renamed to icohp and charge respectively on 31-01-2026.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         if filename_icohp is not None:
             self.ICOHP = Icohplist(are_coops=are_coops, are_cobis=are_cobis, filename=filename_icohp)
         elif obj_icohp is not None:
@@ -231,6 +246,164 @@ class LobsterNeighbors(NearNeighbors):
             perc_strength_icohp=perc_strength_icohp,
             adapt_extremum_to_add_cond=adapt_extremum_to_add_cond,
         )
+
+    def __init_new__(
+        self,
+        structure: Structure,
+        icohp: Icohplist,
+        are_coops: bool = False,
+        are_cobis: bool = False,
+        charge: Charge | None = None,
+        valences: list[float] | None = None,
+        limits: tuple[float, float] | None = None,
+        additional_condition: Literal[0, 1, 2, 3, 4, 5, 6] = 0,
+        only_bonds_to: list[str] | None = None,
+        perc_strength_icohp: float = 0.15,
+        noise_cutoff: float = 0.1,
+        valences_from_charges: bool = False,
+        which_charge: Literal["Mulliken", "Loewdin"] = "Mulliken",
+        adapt_extremum_to_add_cond: bool = False,
+        add_additional_data_sg: bool = False,
+        bonding_list_1: Icohplist | None = None,
+        bonding_list_2: Icohplist | None = None,
+        id_blist_sg1: Literal["icoop", "icobi"] = "icoop",
+        id_blist_sg2: Literal["icoop", "icobi"] = "icobi",
+    ):
+        self.structure = structure
+        self.ICOHP = icohp
+        self.Icohpcollection = icohp.icohpcollection
+        self.charge = charge
+        self.valences = valences
+        self.limits = limits
+        self.only_bonds_to = only_bonds_to
+        self.adapt_extremum_to_add_cond = adapt_extremum_to_add_cond
+        self.add_additional_data_sg = add_additional_data_sg
+        self.bonding_list_1 = bonding_list_1  # type:ignore[assignment]
+        self.bonding_list_2 = bonding_list_2  # type:ignore[assignment]
+        self.id_blist_sg1 = id_blist_sg1.lower()
+        self.id_blist_sg2 = id_blist_sg2.lower()
+        self.noise_cutoff = noise_cutoff
+        self.additional_condition = additional_condition
+        self.are_coops = are_coops
+        self.are_cobis = are_cobis
+
+        # validate
+        if self.id_blist_sg1 not in {"icoop", "icobi"} or self.id_blist_sg2 not in {"icoop", "icobi"}:
+            raise ValueError("Algorithm can only work with ICOOPs, ICOBIs")
+
+        if additional_condition not in range(7):
+            raise ValueError(f"Unexpected {additional_condition=}, must be one of {list(range(7))}")
+
+        if self.valences is None and valences_from_charges:
+            if which_charge == "Mulliken":
+                self.valences = charge.mulliken
+            elif which_charge == "Loewdin":
+                self.valences = charge.loewdin
+        else:
+            bv_analyzer = BVAnalyzer()
+            try:
+                self.valences = bv_analyzer.get_valences(structure=self.structure)  # type:ignore[arg-type]
+            except ValueError as exc:
+                self.valences = None
+                if additional_condition in {1, 3, 5, 6}:
+                    raise ValueError(
+                        "Valences cannot be assigned, additional_conditions 1, 3, 5 and 6 will not work"
+                    ) from exc
+
+        if np.allclose(self.valences or [], np.zeros_like(self.valences)) and additional_condition in {1, 3, 5, 6}:
+            raise ValueError("All valences are equal to 0, additional_conditions 1, 3, 5 and 6 will not work")
+
+        if limits is None:
+            self.lowerlimit = self.upperlimit = None
+        else:
+            self.lowerlimit, self.upperlimit = limits
+
+        # evaluate coordination environments
+        self._evaluate_ce(
+            lowerlimit=limits[0] if limits else None,
+            upperlimit=limits[1] if limits else None,
+            only_bonds_to=only_bonds_to,
+            additional_condition=additional_condition,
+            perc_strength_icohp=perc_strength_icohp,
+            adapt_extremum_to_add_cond=adapt_extremum_to_add_cond,
+        )
+
+    @classmethod
+    def from_files(
+        cls,
+        structure_path: PathLike = "CONTCAR",
+        icohp_path: PathLike = "ICOHPLIST.lobster",
+        are_coops: bool = False,
+        are_cobis: bool = False,
+        charge_path: PathLike | None = None,
+        blist_sg1_path: PathLike | None = None,
+        blist_sg2_path: PathLike | None = None,
+        id_blist_sg1: Literal["icoop", "icobi"] = "icoop",
+        id_blist_sg2: Literal["icoop", "icobi"] = "icobi",
+        **kwargs,
+    ):
+        """
+        Instanitate LobsterNeighbors using file paths.
+
+        Args:
+            structure_path (PathLike): Path to structure file, typically CONTCAR
+            icohp_path (PathLike): Path to ICOHPLIST.lobster or
+                ICOOPLIST.lobster or ICOBILIST.lobster.
+            are_coops (bool): Whether the file is a ICOOPLIST.lobster (True) or a
+                ICOHPLIST.lobster (False). Only tested for ICOHPLIST.lobster so far.
+            are_cobis (bool): Whether the file is a ICOBILIST.lobster (True) or
+                a ICOHPLIST.lobster (False).
+            charge_path (PathLike): Path to Charge.lobster.
+            blist_sg1_path (PathLike): Path to additional ICOOP, ICOBI data for structure graphs.
+            blist_sg2_path (PathLike): Path to additional ICOOP, ICOBI data for structure graphs.
+            id_blist_sg1 ("icoop" | "icobi"): Population type in blist_sg1_path.
+            id_blist_sg2 ("icoop" | "icobi"): Population type in in blist_sg2_path.
+        """
+        structure = Structure.from_file(structure_path)
+        icohp = Icohplist(filename=icohp_path, are_coops=are_coops, are_cobis=are_cobis)
+        charge = Charge(filename=charge_path) if charge_path else None
+        bonding_list_1 = bonding_list_2 = None
+
+        if kwargs.get("add_additional_data_sg", False):
+            if id_blist_sg1 == "icoop":
+                are_coops_id1 = True
+                are_cobis_id1 = False
+            else:
+                are_coops_id1 = False
+                are_cobis_id1 = True
+
+            bonding_list_1 = Icohplist(
+                filename=blist_sg1_path,
+                are_coops=are_coops_id1,
+                are_cobis=are_cobis_id1,
+            )
+
+            if id_blist_sg2 == "icoop":
+                are_coops_id2 = True
+                are_cobis_id2 = False
+            else:
+                are_coops_id2 = False
+                are_cobis_id2 = True
+
+            bonding_list_2 = Icohplist(
+                filename=blist_sg2_path,
+                are_coops=are_coops_id2,
+                are_cobis=are_cobis_id2,
+            )
+
+        obj = cls.__new__(cls)
+
+        obj.__init_new__(
+            structure=structure,
+            icohp=icohp,
+            are_coops=False,
+            are_cobis=False,
+            charge=charge,
+            bonding_list_1=bonding_list_1,
+            bonding_list_2=bonding_list_2,
+            **kwargs,
+        )
+        return obj
 
     @property
     def structures_allowed(self) -> Literal[True]:
