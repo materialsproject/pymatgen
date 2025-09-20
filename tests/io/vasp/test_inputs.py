@@ -1491,9 +1491,9 @@ class TestPotcarSingle:
             ],
         )
 
-        # Test POT_PAW_PBE_64 PSPs
+        # Test POT_GGA_PAW_PBE_64 PSPs
         assert_config_equal(
-            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_PAW_PBE_64/POTCAR.O.gz").electron_configuration,
+            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_64/POTCAR.O.gz").electron_configuration,
             [
                 (2, "s", 2.0),
                 (2, "p", 4.0),
@@ -1501,7 +1501,7 @@ class TestPotcarSingle:
         )
 
         assert_config_equal(
-            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_PAW_PBE_64/POTCAR.Fe_pv.gz").electron_configuration,
+            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_64/POTCAR.Fe_pv.gz").electron_configuration,
             [
                 (3, "p", 6.0),
                 (3, "d", 7.0),
