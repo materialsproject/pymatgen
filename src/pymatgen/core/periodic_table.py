@@ -158,11 +158,11 @@ class ElementBase(Enum):
             data = {**_PT_DATA[self.symbol], **data}
 
         at_r: float | None = data.get("Atomic radius")
-        self._atomic_radius = None if at_r is None else Length(at_r, _PT_UNIT["Atomic radius"])
+        self._atomic_radius: FloatWithUnit | None = None if at_r is None else Length(at_r, _PT_UNIT["Atomic radius"])
 
-        self._atomic_mass = Mass(data["Atomic mass"], _PT_UNIT["Atomic mass"])
+        self._atomic_mass: FloatWithUnit = Mass(data["Atomic mass"], _PT_UNIT["Atomic mass"])
 
-        self._atomic_mass_number = None
+        self._atomic_mass_number: FloatWithUnit | None = None
         self.A = data.get("Atomic mass no")
         if self.A is not None:
             self._atomic_mass_number = Mass(self.A, _PT_UNIT["Atomic mass no"])
