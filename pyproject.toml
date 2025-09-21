@@ -91,7 +91,10 @@ Pypi = "https://pypi.org/project/pymatgen"
 [project.optional-dependencies]
 abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.23.0"]
-electronic_structure = ["fdint>=2.0.2"]
+# TODO: `fdint` seems not maintained anymore and cannot be installed
+# with `uv` on Python 3.10 as build-time dependency was not declared
+# https://github.com/scott-maddox/fdint/issues/21
+# electronic_structure = ["fdint>=2.0.2"]
 matcalc = [
     "matcalc>=0.4.0; python_version<'3.13'",
     "matgl>=1.2.7; python_version<'3.13'",
