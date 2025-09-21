@@ -145,35 +145,43 @@ class MPRester:
             setattr(self, doc, Search(partial(self.search, doc)))
             setattr(self.materials, doc, Search(partial(self.search, doc)))
 
-    def __getattr__(self, item):
+    def __getattr__(self, item) -> None:
         raise AttributeError(
             f"{item} is not an attribute of this implementation of MPRester, which only supports functionality "
-            "used by 80% of users. If you are looking for the full functionality MPRester, pls install the mp-api ."
+            "used by 80% of users. If you are looking for the full functionality MPRester, please install the mp-api."
         )
 
     def __enter__(self) -> Self:
         """Support for "with" context."""
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         """Support for "with" context."""
         self.session.close()
 
-    def request(self, sub_url, payload=None, method="GET", mp_decode=True):
+    def request(
+        self,
+        sub_url: str,
+        payload=None,
+        method: str = "GET",
+        mp_decode: bool = True,
+        timeout: int = 60,
+    ) -> list:
         """Helper method to make the requests and perform decoding based on MSONable protocol."""
         response = None
         url = self.preamble + sub_url
 
-        per_page = 1000
-        page = 1
+        per_page: int = 1000
+        page: int = 1
         all_data = []
         while True:
             actual_url = f"{url}&_per_page={per_page}&_page={page}"
             try:
                 if method == "POST":
-                    response = self.session.post(actual_url, data=payload, verify=True)
+                    response = self.session.post(actual_url, data=payload, verify=True, timeout=timeout)
                 else:
-                    response = self.session.get(actual_url, params=payload, verify=True)
+                    response = self.session.get(actual_url, params=payload, verify=True, timeout=timeout)
+
                 if response.status_code in {200, 400}:
                     data = json.loads(response.text, cls=MontyDecoder) if mp_decode else orjson.loads(response.text)
                 else:
@@ -202,7 +210,7 @@ class MPRester:
             parameter value corresponds to the filter value
 
         Returns:
-        - list of dictionaries, each dictionary representing a material retrieved based on the filtering criteria
+            list[dict]: each dict representing a material retrieved based on the filtering criteria
         """
 
         def comma_cat(val):
