@@ -309,7 +309,7 @@ class MPRester:
         return [dct[prop] for dct in response]
 
     def get_structure_by_material_id(self, material_id: str, conventional_unit_cell: bool = False) -> Structure:
-        """Get  a Structure corresponding to a material_id.
+        """Get a Structure corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project ID (e.g. mp-1234).
