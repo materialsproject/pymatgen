@@ -62,14 +62,10 @@ class MPRester:
     pymatgen. We will support only issues pertaining to our implementation only.
 
     Attributes:
-    :ivar api_key: API key for authenticating requests to the Materials Project API.
-    :type api_key: str
-    :ivar preamble: Base endpoint URL for the Materials Project API.
-    :type preamble: str
-    :ivar session: HTTP session object for managing API requests.
-    :type session: requests.Session
-    :ivar materials: Placeholder object for dynamically adding endpoints related to materials.
-    :type materials: Any
+        api_key (str): API key for authenticating requests to the Materials Project API.
+        preamble (str): Base endpoint URL for the Materials Project API.
+        session (requests.Session): HTTP session object for managing API requests.
+        materials: Placeholder object for dynamically adding endpoints related to materials.
     """
 
     MATERIALS_DOCS = (
