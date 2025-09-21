@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import importlib
+
 import numpy as np
 import pytest
 import requests
@@ -17,19 +19,18 @@ if not (mp_api_key := SETTINGS.get("PMG_MAPI_KEY")):
 if len(mp_api_key) != 32:
     pytest.fail(f"Invalid/old MP API key, expected key length 32, got {len(mp_api_key)}")
 
-MP_URL = "https://api.materialsproject.org"
+MP_URL: str = "https://api.materialsproject.org"
+
 try:
-    skip_mprester_tests = requests.get(MP_URL, timeout=10).status_code != 200
+    mp_api_down: bool = requests.get(MP_URL, timeout=10).status_code != 200
 except requests.exceptions.ConnectionError:
-    skip_mprester_tests = True
+    mp_api_down = True
 
-try:  # Skip MPRester tests if pymatgen.analysis.alloys not installed.
-    import pymatgen.analysis.alloys  # noqa: F401
-except ImportError:
-    skip_mprester_tests = True
-
-if skip_mprester_tests:
+if mp_api_down:
     pytest.skip("MP API is down", allow_module_level=True)
+
+if importlib.util.find_spec("pymatgen.analysis.alloys") is None:
+    pytest.skip("pymatgen-analysis-alloys plugin is not installed", allow_module_level=True)
 
 
 @pytest.fixture(scope="module")
