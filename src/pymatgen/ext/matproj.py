@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.structure import Structure
-    from pymatgen.entries.computed_entries import ComputedStructureEntry
+    from pymatgen.entries.compatibility import AnyComputedEntry
 
 logger = logging.getLogger(__name__)
 
@@ -352,7 +352,7 @@ class MPRester:
         property_data: Sequence[str] | None = None,
         summary_data: Sequence[str] | None = None,
         **kwargs,
-    ):
+    ) -> list[AnyComputedEntry]:
         """Get a list of ComputedEntries or ComputedStructureEntries corresponding
         to a chemical system, formula, or materials_id or full criteria.
 
@@ -389,6 +389,7 @@ class MPRester:
                 return val
             if "-" in val:
                 return "-".join(sorted(val.split("-")))
+
             comp = Composition(val)
             if len(comp) == 1:
                 return val
@@ -400,21 +401,21 @@ class MPRester:
             criteria = ",".join([proc_crit(c) for c in criteria])
 
         if criteria.startswith("mp-"):
-            query = f"material_ids={criteria}"
+            query: str = f"material_ids={criteria}"
         elif "-" in criteria:
             query = f"chemsys={criteria}"
         else:
             query = f"formula={criteria}"
 
-        entries = []
+        entries: list = []
         fields = ["entries", *property_data] if property_data is not None else ["entries"]
         response = self.request(f"materials/thermo/?_fields={','.join(fields)}&{query}")
         for dct in response:
-            for e in dct["entries"].values():
+            for entry in dct["entries"].values():
                 if property_data:
                     for prop in property_data:
-                        e.data[prop] = dct[prop]
-                entries.append(e)
+                        entry.data[prop] = dct[prop]
+                entries.append(entry)
 
         if compatible_only:
             from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
@@ -434,13 +435,13 @@ class MPRester:
                     _fields=[*summary_data, "material_id"],
                 )
                 mapped_data = {d["material_id"]: {k: v for k, v in d.items() if k != "material_id"} for d in edata}
-                for e in chunked_entries:
-                    e.data["summary"] = mapped_data[e.data["material_id"]]
+                for entry in chunked_entries:
+                    entry.data["summary"] = mapped_data[entry.data["material_id"]]
 
         return list(set(entries))
 
-    def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> ComputedStructureEntry:
-        r"""Get  a ComputedEntry corresponding to a material_id.
+    def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> AnyComputedEntry:
+        r"""Get a ComputedEntry corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project material_id (a string,
