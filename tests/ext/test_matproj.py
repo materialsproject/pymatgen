@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import importlib
+
 import numpy as np
 import pytest
 import requests
@@ -17,19 +19,18 @@ if not (mp_api_key := SETTINGS.get("PMG_MAPI_KEY")):
 if len(mp_api_key) != 32:
     pytest.fail(f"Invalid/old MP API key, expected key length 32, got {len(mp_api_key)}")
 
-MP_URL = "https://api.materialsproject.org"
+MP_URL: str = "https://api.materialsproject.org"
+
 try:
-    skip_mprester_tests = requests.get(MP_URL, timeout=10).status_code != 200
+    mp_api_down: bool = requests.get(MP_URL, timeout=10).status_code != 200
 except requests.exceptions.ConnectionError:
-    skip_mprester_tests = True
+    mp_api_down = True
 
-try:  # Skip MPRester tests if pymatgen.analysis.alloys not installed.
-    import pymatgen.analysis.alloys  # noqa: F401
-except ImportError:
-    skip_mprester_tests = True
-
-if skip_mprester_tests:
+if mp_api_down:
     pytest.skip("MP API is down", allow_module_level=True)
+
+if importlib.util.find_spec("pymatgen.analysis.alloys") is None:
+    pytest.skip("pymatgen-analysis-alloys plugin is not installed", allow_module_level=True)
 
 
 @pytest.fixture(scope="module")
@@ -130,7 +131,7 @@ def test_get_entries(mprester):
     for entry in entries:
         assert entry.reduced_formula == "TiO2"
 
-    entries = mprester.get_entries("TiO2", inc_structure=True)
+    entries = mprester.get_entries("TiO2")
     assert len(entries) > 1
     for entry in entries:
         assert entry.structure.reduced_formula == "TiO2"
@@ -139,11 +140,11 @@ def test_get_entries(mprester):
     entries = mprester.get_entries("Fe", compatible_only=True)
     assert len(entries) < len(all_entries)
 
-    for entry in mprester.get_entries("CdO2", inc_structure=False):
+    for entry in mprester.get_entries("CdO2"):
         assert entry.data["oxide_type"] is not None
 
     # test if it will retrieve the conventional unit cell of Ni
-    entry = mprester.get_entry_by_material_id("mp-23", inc_structure=True, conventional_unit_cell=True)
+    entry = mprester.get_entry_by_material_id("mp-23")
     Ni = entry.structure
     assert Ni.lattice.a == pytest.approx(Ni.lattice.b)
     assert Ni.lattice.a == pytest.approx(Ni.lattice.c)
@@ -152,7 +153,7 @@ def test_get_entries(mprester):
     assert Ni.lattice.gamma == pytest.approx(60)
 
     # Ensure energy per atom is same
-    primNi = mprester.get_entry_by_material_id("mp-23", inc_structure=True, conventional_unit_cell=False)
+    primNi = mprester.get_entry_by_material_id("mp-23")
     assert primNi.energy_per_atom == entry.energy_per_atom
 
     Ni = mprester.get_structure_by_material_id("mp-23", conventional_unit_cell=True)

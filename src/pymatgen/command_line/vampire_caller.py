@@ -1,7 +1,7 @@
 """This module implements an interface to the VAMPIRE code for atomistic
 simulations of magnetic materials.
 
-This module depends on a compiled vampire executable available in the path.
+This module depends on a compiled vampire executable available in the PATH.
 Please download at https://vampire.york.ac.uk/download/ and
 follow the instructions to compile the executable.
 
@@ -53,7 +53,7 @@ class VampireCaller:
     """
 
     @requires(
-        VAMP_EXE,  # type: ignore[arg-type]
+        VAMP_EXE is not None,
         "VampireCaller requires vampire-serial to be in the path."
         "Please follow the instructions at https://vampire.york.ac.uk/download/.",
     )

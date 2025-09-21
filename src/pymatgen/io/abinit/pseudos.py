@@ -1566,7 +1566,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
         return cls(pseudos).sort_by_z()
 
-    def __init__(self, pseudos: Sequence[Pseudo]) -> None:
+    def __init__(self, pseudos: Sequence[Pseudo | str]) -> None:
         """
         Args:
             pseudos: List of pseudopotentials or filepaths.
