@@ -5,6 +5,7 @@ WARNING: you need to have GULP installed on your system.
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 import subprocess
@@ -22,6 +23,8 @@ __maintainer__ = "Bharat Medasani"
 __email__ = "bkmedasani@lbl.gov,wenhao@mit.edu"
 __status__ = "Production"
 __date__ = "Jun 22, 2013M"
+
+logger = logging.getLogger(__name__)
 
 _ANIONS = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))
 _CATIONS = set(
@@ -535,13 +538,13 @@ class GulpCaller:
             err = err.decode("utf-8")
 
             if "Error" in err or "error" in err:
-                print(gin)
-                print("----output_0---------")
-                print(out)
-                print("----End of output_0------\n\n\n")
-                print("----output_1--------")
-                print(out)
-                print("----End of output_1------")
+                logger.exception(gin)
+                logger.exception("----output_0---------")
+                logger.exception(out)
+                logger.exception("----End of output_0------\n\n\n")
+                logger.exception("----output_1--------")
+                logger.exception(out)
+                logger.exception("----End of output_1------")
                 raise GulpError(err)
 
             # We may not need this
