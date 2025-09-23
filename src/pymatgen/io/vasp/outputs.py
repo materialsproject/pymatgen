@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import itertools
+import logging
 import math
 import os
 import re
@@ -60,6 +61,9 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.util.typing import Kpoint, PathLike
+
+
+logger = logging.getLogger(__name__)
 
 
 def _parse_parameters(val_type: str, val: str) -> bool | str | float | int:
@@ -5096,7 +5100,7 @@ class Wavecar:
             # Read the header information
             recl, spin, rtag = np.fromfile(file, dtype=np.float64, count=3).astype(int)
             if verbose:
-                print(f"{recl=}, {spin=}, {rtag=}")
+                logger.info(f"{recl=}, {spin=}, {rtag=}")
             recl8 = int(recl / 8)
             self.spin = spin
 
@@ -5119,15 +5123,15 @@ class Wavecar:
             self.a = np.fromfile(file, dtype=np.float64, count=9).reshape((3, 3))
             self.efermi = np.fromfile(file, dtype=np.float64, count=1)[0]
             if verbose:
-                print(
+                logger.info(
                     f"kpoints = {self.nk}, bands = {self.nb}, energy cutoff = {self.encut}, fermi "
                     f"energy= {self.efermi:.04f}\n"
                 )
-                print(f"primitive lattice vectors = \n{self.a}")
+                logger.info(f"primitive lattice vectors = \n{self.a}")
 
             self.vol = np.dot(self.a[0, :], np.cross(self.a[1, :], self.a[2, :]))
             if verbose:
-                print(f"volume = {self.vol}\n")
+                logger.info(f"volume = {self.vol}\n")
 
             # Calculate reciprocal lattice
             b = np.array(
@@ -5140,13 +5144,13 @@ class Wavecar:
             b = 2 * np.pi * b / self.vol
             self.b = b
             if verbose:
-                print(f"reciprocal lattice vectors = \n{b}")
-                print(f"reciprocal lattice vector magnitudes = \n{np.linalg.norm(b, axis=1)}\n")
+                logger.info(f"reciprocal lattice vectors = \n{b}")
+                logger.info(f"reciprocal lattice vector magnitudes = \n{np.linalg.norm(b, axis=1)}\n")
 
             # Calculate maximum number of b vectors in each direction
             self._generate_nbmax()
             if verbose:
-                print(f"max number of G values = {self._nbmax}\n\n")
+                logger.info(f"max number of G values = {self._nbmax}\n\n")
             self.ng = self._nbmax * 3 if precision.lower()[0] == "n" else self._nbmax * 4
 
             # Pad to end of fortran REC=2
@@ -5166,7 +5170,7 @@ class Wavecar:
 
             for i_spin in range(spin):
                 if verbose:
-                    print(f"Reading spin {i_spin}")
+                    logger.info(f"Reading spin {i_spin}")
 
                 for i_nk in range(self.nk):
                     # Information for this kpoint
@@ -5179,7 +5183,7 @@ class Wavecar:
                         raise ValueError(f"kpoints of {i_nk=} mismatch")
 
                     if verbose:
-                        print(f"kpoint {i_nk: 4} with {nplane: 5} plane waves at {kpoint}")
+                        logger.info(f"kpoint {i_nk: 4} with {nplane: 5} plane waves at {kpoint}")
 
                     # Energy and occupation information
                     enocc = np.fromfile(file, dtype=np.float64, count=3 * self.nb).reshape((self.nb, 3))
@@ -5189,7 +5193,7 @@ class Wavecar:
                         self.band_energy.append(enocc)
 
                     if verbose:
-                        print("enocc =\n", enocc[:, [0, 2]])
+                        logger.info("enocc =\n%s", enocc[:, [0, 2]])
 
                     # Pad the end of record that contains nplane, kpoints, evals and occs
                     np.fromfile(file, dtype=np.float64, count=(recl8 - 4 - 3 * self.nb) % recl8)
@@ -5207,7 +5211,7 @@ class Wavecar:
                             self.vasp_type = "std" if len(self.Gpoints[i_nk]) == nplane else "ncl"  # type: ignore[arg-type]
 
                         if verbose:
-                            print(f"\ndetermined {self.vasp_type = }\n")
+                            logger.info(f"\ndetermined {self.vasp_type = }\n")
                     else:
                         self.Gpoints[i_nk], extra_gpoints, extra_coeff_inds = self._generate_G_points(  # type: ignore[call-overload]
                             kpoint, gamma=self.vasp_type.lower()[0] == "g"

@@ -571,9 +571,8 @@ class OptimadeRester:
                             prefix=link["attributes"].get("prefix"),
                         )
             except Exception:
-                # print(f"Failed to parse {provider}: {exc}")
+                logger.exception(f"Failed to parse {provider}:")
                 # Not all providers parse yet.
-                pass
             return ps
 
         return _parse_provider_link(provider, provider_link_json)
