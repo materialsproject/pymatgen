@@ -67,7 +67,7 @@ dependencies = [
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=5.0.0",
-    "requests>=2.32",
+    "requests>=2.30",
     "ruamel.yaml>=0.17.0",
     "scipy>=1.13.0",
     # scipy<1.14.1 is incompatible with NumPy 2.0 on Windows
@@ -91,11 +91,6 @@ Pypi = "https://pypi.org/project/pymatgen"
 [project.optional-dependencies]
 abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.23.0"]
-ci = [
-    "pytest>=8.3.5",
-    "pytest-cov>=6.0.0",
-    "pytest-split>=0.10.0",
-]
 electronic_structure = ["fdint>=2.0.2"]
 matcalc = [
     "matcalc>=0.4.0; python_version<'3.13'",
@@ -105,8 +100,9 @@ mlp = ["matgl>=1.2.7 ; python_version<'3.13'"]
 numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
 optional = [
-    "pymatgen[abinit,ase,mlp,tblite,matcalc]",
+    "pymatgen[abinit,ase,matcalc,mlp,tblite,zeopp]",
     "beautifulsoup4",
+    "pymatgen-analysis-alloys",
     # PR4347: BoltzTraP2 needs to bump cmake version for spglib build
     # "BoltzTraP2>=24.9.4",
     "chemview>=0.6",
@@ -125,7 +121,7 @@ symmetry = ["moyopy[interface]>=0.3", "spglib>=2.5"]
 # https://github.com/tblite/tblite/issues/175
 tblite = ["tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'"]
 vis = ["vtk>=6.0.0"]
-zeopp = ["pyzeo"]  # Note: requires Voro++ and Zeo++ to be installed
+zeopp = ["pyzeo; platform_system != 'Windows'"]  # Note: requires Voro++ and Zeo++ to be installed
 
 [project.scripts]
 pmg = "pymatgen.cli.pmg:main"
@@ -213,13 +209,14 @@ ignore = [
     "FBT002", # Boolean default positional argument in function
     "PD011", # (A lot of false positive on non-Pandas objects)
     "PERF203", # Use of try-except in for/while loop
-    "PERF401", # Replace "for" loops with list comprehension
+    "PLC0415",  # `import` should be at the top-level of a file
     "PLR0911", # Too many return statements
     "PLR0912", # Too many branches
     "PLR0913", # Too many arguments
     "PLR0915", # Too many statements
     "PLR1702", # Too many nested blocks
-    "PLR2004", # Magic-value-comparison TODO: fix these
+    "PLR2004", # Magic-value-comparison TODO: fix this
+    "PLW1641", # eq-without-hash TODO: fix this
     "PLW2901", # Outer for loop variable overwritten by inner assignment target
     "PT013", # Incorrect import of pytest
     "S110", # Log for try-except-pass
@@ -247,25 +244,20 @@ docstring-code-format = true
 "tests/**" = [
     "ANN201", # missing-return-type-undocumented-public-function
     "D", # pydocstyle
-    "PLR0124", # comparison-with-itself
     "PLR2004", # magic-value-comparison
     "PLR6301", # no-self-use
-    "S101", # Use of "assert"
+    "S101", # Use of `assert`
+    "S301", # Use of `pickle.load`
 ]
 "src/pymatgen/analysis/*" = ["D"]
 "src/pymatgen/io/*" = ["D"]
 "dev_scripts/*" = ["D"]
-"src/pymatgen/util/string.py" = ["A005"]
-"src/pymatgen/util/typing.py" = ["A005"]
-"src/pymatgen/util/io.py" = ["A005"]
 
 [tool.pytest.ini_options]
 addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
     # NOTE: the LAST matching option would be used
     "ignore::UserWarning", # Ignore UserWarning
-    # TODO: remove the following filter once `monty.io` dropped custom EncodingWarning (python 3.10+ only)
-    "error:We strongly encourage explicit `encoding`:monty.io.EncodingWarning",
 ]
 
 [tool.coverage.run]
@@ -295,9 +287,8 @@ exclude_also = [
 ignore_missing_imports = true
 namespace_packages = true
 no_implicit_optional = false
-disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "misc", "call-overload", "index"]
+disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "call-overload", "index"]
 exclude = ['src/pymatgen/analysis', 'src/pymatgen/io/cp2k', 'src/pymatgen/io/lammps']
-plugins = ["numpy.typing.mypy_plugin"]
 
 [[tool.mypy.overrides]]
 module = ["requests.*", "tabulate.*", "monty.*", "matplotlib.*"]
@@ -305,14 +296,15 @@ ignore_missing_imports = true
 
 [tool.codespell]
 # TODO: un-ignore "ist/nd/ot/ontop/CoO" once support file-level ignore with pattern
+# https://github.com/codespell-project/codespell/issues/3673
 ignore-words-list = """Nd, Te, titel, Mater, nax,
 Hart, Lew, Rute, atomate,
 ist, nd, ot, ontop, CoO
 """
 # TODO: un-skip lammps/test_inputs.py once support block ignore with pattern
+# https://github.com/codespell-project/codespell/issues/3381
 skip = """*.json,
 src/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries_files/allcg.txt,
-src/pymatgen/entries/MPCompatibility.yaml,
 tests/io/lammps/test_inputs.py,
 """
 check-filenames = true
@@ -326,21 +318,28 @@ reportMissingModuleSource = false
 reportInvalidTypeForm = false
 exclude = ["**/tests"]
 
+[tool.uv]
+# TODO: remove `docs` once doc generation is automated
+default-groups = ["dev", "test", "lint", "docs"]
+
 [dependency-groups]
 dev = [
     "invoke>=2.2.0",
     "jupyter>=1.1.1",
     "pre-commit>=4.2.0",
+]
+test = [
     "pytest>=8.3.5",
     "pytest-cov>=6.0.0",
-    "pytest-split>=0.10.0",
-    "ruff>=0.11.3",
-    "sphinx>=8.1.3",
-    "sphinx-markdown-builder>=0.6.8",
-    "sphinx-rtd-theme>=3.0.2",
+    "pytest-split>=0.10.0"
 ]
 lint = [
     "mypy>=1.15.0",
     "pyright>=1.1.398",
-    "ruff>=0.11.2",
+    "ruff>=0.11.3",
+]
+docs = [
+  "sphinx>=8.1.3",
+  "sphinx-rtd-theme>=3.0.2",
+  "sphinx-markdown-builder>=0.6.8",
 ]

@@ -930,14 +930,13 @@ class KPathSeek(KPathBase):
 
         cell = (self._latt.matrix, positions, numbers)
 
-        lattice, scale_pos, atom_num = spglib.standardize_cell(
+        spg_struct = spglib.standardize_cell(
             cell,  # type: ignore[arg-type]
             to_primitive=False,
             no_idealize=True,
             symprec=symprec,  # type: ignore[arg-type]
         )
 
-        spg_struct = (lattice, scale_pos, atom_num)
         spath_dat = get_path(spg_struct, system_is_tri, "hpkot", atol, symprec, angle_tolerance)
 
         self._tmat = self._trans_sc_to_Hin(spath_dat["bravais_lattice_extended"])
@@ -2112,9 +2111,9 @@ class KPathLatimerMunro(KPathBase):
                             break
                         j += 1
                 worst_next_choice = next_choices.index(min(next_choices))
-                for grouped_ind in grouped_inds[idx]:
-                    if grouped_ind != worst_next_choice:
-                        unassigned_orbits.append(grouped_ind)
+                unassigned_orbits.extend(
+                    grouped_ind for grouped_ind in grouped_inds[idx] if grouped_ind != worst_next_choice
+                )
                 max_cosine_label_inds[grouped_inds[idx][worst_next_choice]] = initial_max_cosine_label_inds[
                     grouped_inds[idx][worst_next_choice]
                 ]

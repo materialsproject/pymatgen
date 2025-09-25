@@ -43,8 +43,10 @@ def get_all_simple_paths_edges(graph, source, target, cutoff=None, data=True):
     """
     edge_paths = []
     if not graph.is_multigraph():
-        for path in nx.all_simple_paths(graph, source, target, cutoff=cutoff):
-            edge_paths.append([(path[ii], path[ii + 1]) for ii in range(len(path) - 1)])
+        edge_paths.extend(
+            [(path[ii], path[ii + 1]) for ii in range(len(path) - 1)]
+            for path in nx.all_simple_paths(graph, source, target, cutoff=cutoff)
+        )
         return edge_paths
 
     node_paths = []

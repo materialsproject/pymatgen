@@ -841,7 +841,7 @@ class TestMaterialsProjectCompatibility2020:
 
         with pytest.warns(UserWarning, match="Failed to guess oxidation state"):
             e1 = self.compat.process_entry(entry_blank)
-            assert e1.correction == approx(-0.422)
+        assert e1.correction == approx(-0.422)
 
         e2 = self.compat.process_entry(entry_oxi)
         assert e2.correction == approx(-0.687 + -3.202 * 2 + -0.614 * 8)

@@ -807,7 +807,7 @@ class JOutStructure(Structure):
                 for i, idx in enumerate(idcs):
                     moments[idx] += moments_dict[el][i]
         self.charges = charges
-        self.magnetic_moments = moments
+        self.magnetic_moments = moments  # type:ignore[assignment]
 
     def _parse_lowdin_line(self, lowdin_line: str, lowdin_dict: dict[str, list[float]]) -> dict[str, list[float]]:
         """Parse Lowdin line.

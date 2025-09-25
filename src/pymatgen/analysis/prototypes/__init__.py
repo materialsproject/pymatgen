@@ -57,20 +57,20 @@ if TYPE_CHECKING:
 try:
     from pyxtal import pyxtal
 
-    has_pyxtal = True
+    HAS_PYXTAL: bool = True
 except ImportError:
     pyxtal = None
-    has_pyxtal = False
+    HAS_PYXTAL = False
 
 try:
     import moyopy
     from moyopy.interface import MoyoAdapter
 
-    has_moyopy = True
+    HAS_MOYOPY: bool = True
 except ImportError:
     moyopy = None
     MoyoAdapter = None
-    has_moyopy = False
+    HAS_MOYOPY = False
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 AFLOW_PROTOTYPE_LIBRARY = loadfn(f"{MODULE_DIR}/aflow_prototypes.json.gz")
@@ -520,7 +520,7 @@ def get_protostructure_label_from_moyopy(
             explanation of failure if symmetry detection failed and `raise_errors`
             is False.
     """
-    if not has_moyopy:
+    if not HAS_MOYOPY:
         raise ImportError("moyopy not found, run pip install moyopy")
 
     # Convert pymatgen Structure to Moyo Cell and get symmetry data
@@ -925,7 +925,7 @@ def get_random_structure_for_protostructure(protostructure_label: str, **kwargs)
             sorted chemical system.
         **kwargs: Keyword arguments to pass to pyxtal().from_random()
     """
-    if not has_pyxtal:
+    if not HAS_PYXTAL:
         raise ImportError("pyxtal is required for this function")
 
     aflow_label, chemsys = protostructure_label.split(":")

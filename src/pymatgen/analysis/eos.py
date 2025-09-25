@@ -15,10 +15,10 @@ from typing import TYPE_CHECKING
 import numpy as np
 from scipy.optimize import leastsq, minimize
 
-try:
-    from numpy.exceptions import RankWarning  # NPY2
-except ImportError:
-    from numpy import RankWarning  # NPY1
+if np.lib.NumpyVersion(np.__version__) >= "2.0.0":
+    from numpy.exceptions import RankWarning
+else:
+    from numpy import RankWarning  # type: ignore[no-redef]
 
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
@@ -450,7 +450,7 @@ class NumericalEOS(PolynomialEOS):
             min_poly_order (int): minimum order of the polynomial to be
                 considered for fitting.
         """
-        warnings.simplefilter("ignore", RankWarning)
+        warnings.simplefilter("ignore", RankWarning)  # noqa: NPY201
 
         def get_rms(x, y):
             return np.sqrt(np.sum((np.array(x) - np.array(y)) ** 2) / len(x))

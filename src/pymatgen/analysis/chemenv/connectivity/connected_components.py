@@ -451,8 +451,7 @@ class ConnectedComponent(MSONable):
                         this_path_deltas_new = []
                         for edge_data in self._connected_subgraph[node1][node2].values():
                             delta = get_delta(node1, node2, edge_data)
-                            for current_delta in this_path_deltas:
-                                this_path_deltas_new.append(current_delta + delta)
+                            this_path_deltas_new.extend(current_delta + delta for current_delta in this_path_deltas)
                         this_path_deltas = this_path_deltas_new
                     this_node_cell_img_vectors.extend(this_path_deltas)
                     this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
@@ -487,8 +486,7 @@ class ConnectedComponent(MSONable):
                 this_cycle_deltas_new = []
                 for edge_data in self._connected_subgraph[node1][node2].values():
                     delta = get_delta(node1, node2, edge_data)
-                    for current_delta in this_cycle_deltas:
-                        this_cycle_deltas_new.append(current_delta + delta)
+                    this_cycle_deltas_new.extend(current_delta + delta for current_delta in this_cycle_deltas)
                 this_cycle_deltas = this_cycle_deltas_new
             all_deltas.extend(this_cycle_deltas)
             all_deltas = get_linearly_independent_vectors(all_deltas)

@@ -133,9 +133,8 @@ class VoronoiAnalyzer:
             if step % step_freq != 0:
                 continue
 
-            v = []
-            for n in range(len(structure)):
-                v.append(str(self.analyze(structure, n=n).view()))
+            v = [str(self.analyze(structure, n=n).view()) for n in range(len(structure))]
+
             for voro in v:
                 if voro in voro_dict:
                     voro_dict[voro] += 1

@@ -185,7 +185,7 @@ class TestEnumerateStructureTransformation:
         for struct_trafo in all_structs:
             assert "energy" not in struct_trafo
 
-    @pytest.mark.skip(reason="dgl don't support torch 2.4.1+, #4073")
+    @pytest.mark.xfail(reason="dgl don't support torch 2.4.1+, #4073")
     def test_m3gnet(self):
         pytest.importorskip("matgl")
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
@@ -204,7 +204,7 @@ class TestEnumerateStructureTransformation:
             <= all_structs[-1]["energy"] / all_structs[-1]["num_sites"]
         )
 
-    @pytest.mark.skip(reason="dgl don't support torch 2.4.1+, #4073")
+    @pytest.mark.xfail(reason="dgl don't support torch 2.4.1+, #4073")
     def test_callable_sort_criteria(self):
         matgl = pytest.importorskip("matgl")
         from matgl.ext.ase import Relaxer

@@ -5,130 +5,79 @@ nav_order: 5
 ---
 # Usage
 
-This page provides new users of the pymatgen code base with a quick overview of
-the pymatgen code base. It should also be pointed out that there is an
-:doc:`examples page </examples>` with many ipython notebook examples with
-actual code demonstrating the use of the code. Learning from those examples
-is the fastest way to get started.
+This page provides new users of the pymatgen code base with a quick overview of the pymatgen code base. It should also be pointed out that there is an :doc:`examples page </examples>` with many ipython notebook examples with actual code demonstrating the use of the code. Learning from those examples is the fastest way to get started.
 
-Pymatgen is structured in a highly object-oriented manner. Almost everything
-(Element, Site, Structure, etc.) is an object. Currently, the code is heavily
-biased towards the representation and manipulation of crystals with periodic
-boundary conditions, though flexibility has been built in for molecules.
+Pymatgen is structured in a highly object-oriented manner. Almost everything (Element, Site, Structure, etc.) is an object. Currently, the code is heavily biased towards the representation and manipulation of crystals with periodic boundary conditions, though flexibility has been built in for molecules.
 
-The core modules are in the (yes, you guess it) pymatgen.core package. Given the
-importance of this package for the overall functioning of the code, we have
-provided a quick summary of the various modules here:
+The core modules are in the (yes, you guess it) `pymatgen.core` package. Given the importance of this package for the overall functioning of the code, we have provided a quick summary of the various modules here:
 
-1. `pymatgen.core.periodic_table`: Everything begins here, where the
-   Element and Specie (Element with an oxidation state) objects are defined.
-   Unlike typical implementations, pymatgen's Element object is rich,
-   which means that each Element contains many useful properties associated
-   with it, including atomic numbers, atomic masses, melting points,
-   boiling points, just to name a few.
+1. `pymatgen.core.periodic_table`: Everything begins here, where the `Element` and `Species` (Element with an oxidation state) objects are defined. Unlike typical implementations, pymatgen's `Element` object is rich, which means that each `Element` contains many useful properties associated with it, including atomic numbers, atomic masses, melting points, boiling points, just to name a few.
 
-2. `pymatgen.core.lattice`: This module defines a Lattice object, which
-   essentially defines the lattice vectors in three dimensions. The Lattice
-   object provides convenience methods for performing fractional to cartesian
-   coordinates and vice versa, lattice parameter and angles computations, etc.
+2. `pymatgen.core.lattice`: This module defines a `Lattice` object, which essentially defines the lattice vectors in three dimensions. The `Lattice` object provides convenience methods for performing fractional to cartesian coordinates and vice versa, lattice parameter and angles computations, etc.
 
-3. `pymatgen.core.sites`: Defines the Site and PeriodicSite objects. A
-   Site is essentially a coordinate point containing an Element or Specie. A
-   PeriodicSite contains a Lattice as well.
+3. `pymatgen.core.sites`: Defines the `Site` and `PeriodicSite` objects. A `Site` is essentially a coordinate point containing an `Element` or `Species`. A `PeriodicSite` contains a `Lattice` as well.
 
-4. `pymatgen.core.structure`: Defines the Structure and Molecule objects.
-   A Structure and Molecule are simply a list of PeriodicSites and Site
-   respectively.
+4. `pymatgen.core.structure`: Defines the `Structure` and `Molecule` objects. A `Structure` and `Molecule` are simply a list of `PeriodicSites` and `Site` respectively.
 
-5. `pymatgen.core.composition`: A Composition is simply a mapping of
-   Element/Specie to amounts.
+5. `pymatgen.core.composition`: A `Composition` is simply a mapping of `Element/Species` to amounts.
 
-All units in pymatgen are typically assumed to be in atomic units, i.e.,
-angstroms for lengths, eV for energies, etc. However, most objects do not
-assume any units per se and it should be perfectly fine for the most part no
-matter what units are being used, as long as they are used consistently.
+All units in pymatgen are typically assumed to be in atomic units, i.e., angstroms for lengths, eV for energies, etc. However, most objects do not assume any units per se and it should be perfectly fine for the most part no matter what units are being used, as long as they are used consistently.
 
-## Side-note : as_dict / from_dict
+## Side-note : `as_dict` / `from_dict`
 
-As you explore the code, you may notice that many of the objects have an as_dict
-method and a from_dict static method implemented. For most of the non-basic
-objects, we have designed pymatgen such that it is easy to save objects for
-subsequent use. While python does provide pickling functionality, pickle tends
-to be extremely fragile with respect to code changes. Pymatgen's as_dict
-provide a means to save your work in a more robust manner, which also has the
-added benefit of being more readable. The dict representation is also
-particularly useful for entering such objects into certain databases,
-such as MongoDb. This as_dict specification is provided in the monty library,
-which is a general python supplementary library arising from pymatgen.
+As you explore the code, you may notice that many of the objects have an `as_dict` method and a `from_dict` static method implemented. For most of the non-basic objects, we have designed pymatgen such that it is easy to save objects for subsequent use. While python does provide pickling functionality, pickle tends to be extremely fragile with respect to code changes. Pymatgen's `as_dict` provide a means to save your work in a more robust manner, which also has the added benefit of being more readable. The dict representation is also particularly useful for entering such objects into certain databases, such as MongoDb. This `as_dict` specification is provided in the `monty` library, which is a general python supplementary library arising from pymatgen.
 
-The output from an as_dict method is always json/yaml serializable. So if you
-want to save a structure, you may do the following::
+The output from an `as_dict` method is always json/yaml serializable. So if you want to save a structure, you may do the following:
 
+   ```python
     with open("structure.json", "w", encoding="utf-8") as file:
         json.dump(structure.as_dict(), file)
+   ```
 
-Similarly, to get the structure back from a json, you can do the following to
-restore the structure (or any object with an as_dict method) from the json as
-follows::
+Similarly, to get the structure back from a json, you can do the following to restore the structure (or any object with an `as_dict` method) from the json as follows:
 
+   ```python
     with open("structure.json", "rb") as file:
         dct = orjson.loads(file.read())
         structure = Structure.from_dict(dct)
+   ```
 
-You may replace any of the above json commands with yaml in the PyYAML package
-to create a yaml file instead. There are certain tradeoffs between the two
-choices. JSON is much more efficient as a format, with extremely fast
-read/write speed, but is much less readable. YAML is an order of magnitude
-or more slower in terms of parsing, but is more human readable.
+You may replace any of the above json commands with yaml in the PyYAML package to create a yaml file instead. There are certain tradeoffs between the two choices. JSON is much more efficient as a format, with extremely fast read/write speed, but is much less readable. YAML is an order of magnitude or more slower in terms of parsing, but is more human readable.
 
 ## MontyEncoder/Decoder
 
-Extensions of the standard Python JSONEncoder and JSONDecoder has been
-implemented to support pymatgen objects. The MontyEncoder uses the as_dict
-API of pymatgen to generate the necessary dict for converting into json. To
-use the MontyEncoder, simply add it as the *cls* kwarg when using json.
-For example,
+Extensions of the standard Python `JSONEncoder` and `JSONDecoder` has been implemented to support pymatgen objects. The `MontyEncoder` uses the `as_dict` API of pymatgen to generate the necessary dict for converting into json. To use the `MontyEncoder`, simply add it as the `cls` kwarg when using json.
+
+For example:
 
 ```python
 json.dumps(object, cls=MontyEncoder)
 ```
 
-The MontyDecoder depends on finding a "@module" and "@class" key in the dict
-to decode the necessary python object. In general, the MontyEncoder will
-add these keys if they are not present, but for better long term stability
-(e.g., there may be situations where as_dict is called directly rather than
-through the encoder), the easiest way is to add the following to any as_dict
-property:
+The `MontyDecoder` depends on finding a `"@module"` and `"@class"` key in the dict to decode the necessary python object. In general, the `MontyEncoder` will add these keys if they are not present, but for better long term stability (e.g., there may be situations where as_dict is called directly rather than through the encoder), the easiest way is to add the following to any `as_dict` property:
 
 ```python
 d["@module"] = type(self).__module__
 d["@class"] = type(self).__name__
 ```
 
-To use the MontyDecoder, simply specify it as the *cls* kwarg when using json
-load, e.g.::
+To use the `MontyDecoder`, simply specify it as the `cls` kwarg when using `json.load`, e.g.:
 
 ```python
 json.loads(json_string, cls=MontyDecoder)
 ```
 
-The decoder is written in such a way that it supports nested list and dict of
-pymatgen objects. When going through the nesting hirerachy, the decoder will
-look for the highest level module/class names specified and convert those to
-pymatgen objects.
+The decoder is written in such a way that it supports nested list and dict of pymatgen objects. When going through the nesting hirerachy, the decoder will look for the highest level module/class names specified and convert those to pymatgen objects.
 
-The MontyEncoder/Decoder also supports datetime and numpy arrays out of box.
+The `MontyEncoder/Decoder` also supports datetime and numpy arrays out of box.
 
 # Structures and Molecules
 
-For most applications, you will be creating and manipulating
-Structure/Molecule objects. There are several ways to create these objects:
+For most applications, you will be creating and manipulating `Structure/Molecule` objects. There are several ways to create these objects:
 
 ## Creating a Structure manually
 
-This is generally the most painful method. Though sometimes necessary, it is
-seldom the method you would use. An example of creating the basic silicon
-crystal is provided below::
+This is generally the most painful method. Though sometimes necessary, it is seldom the method you would use. An example of creating the basic silicon crystal is provided below:
 
 ```python
 from pymatgen.core import Lattice, Structure, Molecule
@@ -146,17 +95,13 @@ coords = [[0.000000, 0.000000, 0.000000],
 methane = Molecule(["C", "H", "H", "H", "H"], coords)
 ```
 
-Note that both elements and species (elements with oxidation states) are
-supported. So both "Fe" and "Fe2+" are valid specifications.
+Note that both elements and species (elements with oxidation states) are supported. So both "Fe" and "Fe2+" are valid specifications.
 
 ## Reading and writing Structures/Molecules
 
-More often, you would already have the Structure/Molecule in one of many
-typical formats used (e.g., the Cystallographic Information Format (CIF),
-electronic structure code input / output, xyz, mol, etc.).
+More often, you would already have the Structure/Molecule in one of many typical formats used (e.g., the Cystallographic Information Format (CIF), electronic structure code input / output, xyz, mol, etc.).
 
-Pymatgen provides a convenient way to read structures and molecules via the
-from_file and to methods:
+Pymatgen provides a convenient way to read structures and molecules via the `from_file` and `to` methods:
 
 ```python
 # Read a POSCAR and write to a CIF.
@@ -170,8 +115,7 @@ methane.to(filename="methane.gjf")
 
 The format is automatically guessed from the filename.
 
-For more fine-grained control over which parsed to use, you can specify
-specific io packages. For example, to create a Structure from a cif:
+For more fine-grained control over which parsed to use, you can specify specific io packages. For example, to create a `Structure` from a cif:
 
 ```python
 from pymatgen.io.cif import CifParser
@@ -179,7 +123,7 @@ parser = CifParser("mycif.cif")
 structure = parser.get_structures()[0]
 ```
 
-Another example, creating a Structure from a VASP POSCAR/CONTCAR file::
+Another example, creating a `Structure` from a VASP POSCAR/CONTCAR file:
 
 ```python
 from pymatgen.io.vasp import Poscar
@@ -187,12 +131,7 @@ poscar = Poscar.from_file("POSCAR")
 structure = poscar.structure
 ```
 
-Many of these io packages also provide the means to write a Structure to
-various output formats, e.g. the CifWriter in `pymatgen.io.cif`. In
-particular, the `pymatgen.io.vasp.sets` provides a powerful way to
-generate complete sets of VASP input files from a Structure. In general,
-most file format conversions can be done with a few quick lines of code. For
-example, to read a POSCAR and write a cif:
+Many of these io packages also provide the means to write a `Structure` to various output formats, e.g. the `CifWriter` in `pymatgen.io.cif`. In particular, the `pymatgen.io.vasp.sets` provides a powerful way to generate complete sets of VASP input files from a `Structure`. In general, most file format conversions can be done with a few quick lines of code. For example, to read a POSCAR and write a CIF:
 
 ```python
 from pymatgen.io.vasp import Poscar
@@ -203,9 +142,7 @@ w = CifWriter(poscar.structure)
 w.write_file('mystructure.cif')
 ```
 
-For molecules, pymatgen has in-built support for XYZ and Gaussian input and
-output files via the `pymatgen.io.xyz` and
-`pymatgen.io.gaussian` respectively::
+For molecules, pymatgen has in-built support for XYZ and Gaussian input and output files via the `pymatgen.io.xyz` and `pymatgen.io.gaussian` respectively:
 
 ```python
 from pymatgen.io.xyz import XYZ
@@ -217,31 +154,20 @@ gau = GaussianInput(xyz.molecule,
 gau.write_file('methane.inp')
 ```
 
-
-There is also support for more than 100 file types via the OpenBabel
-interface. But that requires you to install openbabel with Python bindings.
-Please see the :doc:`installation guide </installation>`.
+There is also support for more than 100 file types via the OpenBabel interface. But that requires you to install openbabel with Python bindings. Please see the :doc:`installation guide </installation>`.
 
 ## Things you can do with Structures
 
-This section is a work in progress. But just to give an overview of the kind of
-analysis you can do:
+This section is a work in progress. But just to give an overview of the kind of analysis you can do:
 
 1. Modify Structures directly or even better, using the `pymatgen .transformations` and `pymatgen.alchemy` packages.
-2. Analyse Structures. E.g., compute the Ewald sum using the
-   `pymatgen.analysis.ewald` package, compare two structures for
-   similarity using `pymatgen.analysis.structure_matcher`.
+2. Analyse Structures. E.g., compute the Ewald sum using the `pymatgen.analysis.ewald` package, compare two structures for similarity using `pymatgen.analysis.structure_matcher`.
 
-It should be noted that Structure and Molecule are designed to be mutable. In
-fact, they are the most basic mutable units (everything below in the class
-hierarchy such as Element, Specie, Site, PeriodicSite, Lattice are immutable).
-If you need guarantees of immutability for Structure/Molecule,
-you should use the IStructure and IMolecule classes instead.
+It should be noted that `Structure` and `Molecule` are designed to be mutable. In fact, they are the most basic mutable units (everything below in the class hierarchy such as `Element`, `Species`, `Site`, `PeriodicSite`, `Lattice` are immutable).  If you need guarantees of immutability for `Structure/Molecule`, you should use the `IStructure` and `IMolecule` classes instead.
 
 ## Modifying Structures or Molecules
 
-Pymatgen supports a highly Pythonic interface for modifying Structures and
-Molecules. For example, you can change any site simply with::
+Pymatgen supports a highly Pythonic interface for modifying `Structure` and `Molecule`. For example, you can change any site simply with:
 
 ```python
 # Change the specie at site position 1 to a fluorine atom.
@@ -262,8 +188,7 @@ structure.append("F", [0.9, 0.9, 0.9])
 molecule.append("F", [2.1, 3,.2 4.3])
 ```
 
-There are also many typical transforms you can do on Structures. Here are
-some examples:
+There are also many typical transforms you can do on `Structure`. Here are some examples:
 
 ```python
 # Make a supercell
@@ -277,37 +202,17 @@ structure.get_primitive_structure()
 structure.interpolate(another_structure, nimages=10)
 ```
 
-The above is just some examples of typical use cases. A lot more is possible
-and you may explore the actual API doc for the structure and molecule classes.
+The above is just some examples of typical use cases. A lot more is possible and you may explore the actual API doc for the structure and molecule classes.
 
 # Entries - Basic analysis unit
 
-Beyond the core Element, Site and Structure objects, most analyses within in
-pymatgen (e.g., creating a PhaseDiagram) are performed using Entry objects. An
-Entry in its most basic form contains a calculated energy and a composition,
-and may optionally contain other input or calculated data. In most instances,
-you will use the ComputedEntry or ComputedStructureEntry objects defined in
-`pymatgen.entries.computed_entries`. ComputedEntry objects can be created
-by either manually parsing calculated data calculations, or by using the
-`pymatgen.apps.borg` package.
+Beyond the core `Element`, `Site` and `Structure` objects, most analyses within in pymatgen (e.g., creating a `PhaseDiagram`) are performed using `Entry` objects. An `Entry` in its most basic form contains a calculated energy and a composition, and may optionally contain other input or calculated data. In most instances, you will use the `ComputedEntry` or `ComputedStructureEntry` objects defined in `pymatgen.entries.computed_entries`. ComputedEntry objects can be created by either manually parsing calculated data calculations, or by using the `pymatgen.apps.borg` package.
 
 ## Compatibility - Mixing GGA and GGA+U runs
 
-The Ceder group has developed a scheme where by GGA and GGA+U calculations can
-be "mixed" such that analyses may be performed using the type of calculation
-most appropriate for each entry. For instance, to generate a Fe-P-O phase
-diagram, metallic phases such as Fe and FexPy are most appropriately modelled
-using standard GGA, while a hubbard U should be applied for the oxides such
-as FexOy and FexPyOz.
+The Ceder group has developed a scheme where by GGA and GGA+U calculations can be "mixed" such that analyses may be performed using the type of calculation most appropriate for each entry. For instance, to generate a Fe-P-O phase diagram, metallic phases such as Fe and FexPy are most appropriately modelled using standard GGA, while a hubbard U should be applied for the oxides such as FexOy and FexPyOz.
 
-In the `pymatgen.io.vasp.sets` module, pre-defined parameter sets have
-been coded to allow users to generate VASP input files that are consistent
-with input parameters that are compatible with the Materials Project data.
-Users who wish to perform analysis using runs calculated using these
-parameters should post-process entries generated from these runs using the
-appropriate compatibility. For example, if a user wants to generate a phase
-diagram from a list of entries generated from Fe-P-O vasp runs,
-he should use the following procedure:
+In the `pymatgen.io.vasp.sets` module, pre-defined parameter sets have been coded to allow users to generate VASP input files that are consistent with input parameters that are compatible with the Materials Project data. Users who wish to perform analysis using runs calculated using these parameters should post-process entries generated from these runs using the appropriate compatibility. For example, if a user wants to generate a phase diagram from a list of entries generated from Fe-P-O vasp runs, he should use the following procedure:
 
 ```python
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
@@ -327,22 +232,11 @@ plotter.show()
 
 # pymatgen.io - Managing calculation inputs and outputs
 
-The `pymatgen.io` module contains classes to facilitate writing input files
-and parsing output files from a variety of computational codes, including VASP,
-Q-Chem, LAMMPS, CP2K, AbInit, and many more.
+The `pymatgen.io` module contains classes to facilitate writing input files and parsing output files from a variety of computational codes, including VASP, Q-Chem, LAMMPS, CP2K, AbInit, and many more.
 
-The core class for managing inputs is the `InputSet`. An `InputSet` object contains
-all the data necessary to write one or more input files for a calculation.
-Specifically, every `InputSet` has a `write_input()` method that writes all the
-necessary files to a location you specify. There are also `InputGenerator` classes
-that yield `InputSet` with settings tailored to specific calculation types (for example,
-a structure relaxation). You can think of `InputGenerator` classes as "recipes" for
-accomplishing specific computational tasks, while `InputSet` contain those recipes
-applied to a specific system or structure.
+The core class for managing inputs is the `InputSet`. An `InputSet` object contains all the data necessary to write one or more input files for a calculation. Specifically, every `InputSet` has a `write_input()` method that writes all the necessary files to a location you specify. There are also `InputGenerator` classes that yield `InputSet` with settings tailored to specific calculation types (for example, a structure relaxation). You can think of `InputGenerator` classes as "recipes" for accomplishing specific computational tasks, while `InputSet` contain those recipes applied to a specific system or structure.
 
-Custom settings can be provided to `InputGenerator` on instantiation. For example,
-to construct an `InputSet` for packing water molecules into a box using the Packmol
-code, while changing the packing tolerance from 2.0 (default) to 3.0:
+Custom settings can be provided to `InputGenerator` on instantiation. For example, to construct an `InputSet` for packing water molecules into a box using the Packmol code, while changing the packing tolerance from 2.0 (default) to 3.0:
 
 ```python
 from pymatgen.io.packmol import PackmolBoxGen
@@ -355,41 +249,22 @@ packmol_set.write_input('/path/to/calc/directory')
 
 ```
 
-You can also use `InputSet.from_directory()` to construct a pymatgen `InputSet`
-from a directory containing calculation inputs.
+You can also use `InputSet.from_directory()` to construct a pymatgen `InputSet` from a directory containing calculation inputs.
 
-Many codes also contain classes for parsing output files into pymatgen objects that
-inherit from `InputFile`, which provides a standard interface for reading and
-writing individual files.
+Many codes also contain classes for parsing output files into pymatgen objects that inherit from `InputFile`, which provides a standard interface for reading and writing individual files.
 
-Use of `InputFile`, `InputSet`, and `InputGenerator` classes is
-not yet fully implemented by all codes supported by pymatgen, so please refer to the
-respective module documentation for each code for more details.
+Use of `InputFile`, `InputSet`, and `InputGenerator` classes is not yet fully implemented by all codes supported by pymatgen, so please refer to the respective module documentation for each code for more details.
 
 # pymatgen.borg - High-throughput data assimilation
 
-The borg package is still a work in progress, but a lot can already be done with
-it. The basic concept is to provide a convenient means to
-assimilate large quantities of data in a directory structure. For now, the main
-application is the assimilation of entire directory structures of VASP
-calculations into usable pymatgen entries, which can then be used for phase
-diagram and other analyses. The outline of how it works is as follows:
+The borg package is still a work in progress, but a lot can already be done with it. The basic concept is to provide a convenient means to assimilate large quantities of data in a directory structure. For now, the main application is the assimilation of entire directory structures of VASP calculations into usable pymatgen entries, which can then be used for phase diagram and other analyses. The outline of how it works is as follows:
 
-1. Drones are defined in the `pymatgen.apps.borg.hive` module. A Drone
-   is essentially an object which defines how a directory is parsed into a
-   pymatgen object. For example, the VaspToComputedEntryDrone defines how a
-   directory containing a vasp run (with a vasprun.xml file) is converted
-   into ComputedEntry.
-2. The BorgQueen object in `pymatgen.apps.borg.queen` module uses Drones
-   to assimilate an entire subdirectory structure. Parallel processing is
-   used where possible to speed up the process.
+1. `Drone`s are defined in the `pymatgen.apps.borg.hive` module. A `Drone` is essentially an object which defines how a directory is parsed into a pymatgen object. For example, the VaspToComputedEntryDrone defines how a directory containing a vasp run (with a vasprun.xml file) is converted into ComputedEntry.
+2. The `BorgQueen` object in `pymatgen.apps.borg.queen` module uses `Drone`s to assimilate an entire subdirectory structure. Parallel processing is used where possible to speed up the process.
 
 ## Simple example - Making a phase diagram
 
-Let's say you want to make the Li-O phase diagram. You have calculated all
-Li, O, and Li-O compounds you are interested in and the runs are in the
-directory "Li-O_runs". You can then generate the phase diagram using the
-following few lines of code:
+Let's say you want to make the Li-O phase diagram. You have calculated all Li, O, and Li-O compounds you are interested in and the runs are in the directory "Li-O_runs". You can then generate the phase diagram using the following few lines of code:
 
 ```python
 from pymatgen.borg.hive import VaspToComputedEntryDrone
@@ -413,17 +288,11 @@ plotter = PDPlotter(pd)
 plotter.show()
 ```
 
-In this example, neither Li nor O requires a Hubbard U. However, if you are
-making a phase diagram from a mix of GGA and GGA+U entries, you may need to
-post-process the assimilated entries with a Compatibility object before
-running the phase diagram code. See earlier section on entries_ and
-compatibility_.
+In this example, neither Li nor O requires a Hubbard U. However, if you are making a phase diagram from a mix of GGA and GGA+U entries, you may need to post-process the assimilated entries with a `Compatibility` object before running the phase diagram code. See earlier section on entries_ and compatibility_.
 
 ## Another example - Calculating reaction energies
 
-Another example of a cool thing you can do with the loaded entries is to
-calculate reaction energies. For example, reusing the Li-O data we have saved
-in the above step:
+Another example of a cool thing you can do with the loaded entries is to calculate reaction energies. For example, reusing the Li-O data we have saved in the above step:
 
 ```python
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
@@ -446,13 +315,7 @@ print rxn.calculated_reaction_energy
 
 # pymatgen.transformations
 
-The `pymatgen.transformations` package is the standard package for
-performing transformations on structures. Many transformations are already
-supported today, from simple transformations such as adding and removing
-sites, and replacing species in a structure to more advanced one-to-many
-transformations such as partially removing a fraction of a certain species
-from a structure using an electrostatic energy criterion. The Transformation
-classes follow a strict API. A typical usage is as follows:
+The `pymatgen.transformations` package is the standard package for performing transformations on structures. Many transformations are already supported today, from simple transformations such as adding and removing sites, and replacing species in a structure to more advanced one-to-many transformations such as partially removing a fraction of a certain species from a structure using an electrostatic energy criterion. The Transformation classes follow a strict API. A typical usage is as follows:
 
 ```python
 from pymatgen.io.cif import CifParser
@@ -468,19 +331,10 @@ modified_structure = t.apply_transformation(struct)
 
 # pymatgen.alchemy - High-throughput transformations
 
-The `pymatgen.alchemy` package is a framework for performing
-high-throughput (HT) structure transformations. For example, it allows a user
-to define a series of transformations to be applied to a set of structures,
-generating new structures in the process. The framework is also designed to
-provide proper logging of all changes performed on structures,
-with infinite undo. The main classes are:
+The `pymatgen.alchemy` package is a framework for performing high-throughput (HT) structure transformations. For example, it allows a user to define a series of transformations to be applied to a set of structures, generating new structures in the process. The framework is also designed to provide proper logging of all changes performed on structures, with infinite undo. The main classes are:
 
-1. `pymatgen.alchemy.materials.TransformedStructure` - Standard object
-   representing a TransformedStructure. Takes in an input structure and a list
-   of transformations as an input. Can also be generated from CIFs and POSCARs.
-2. `pymatgen.alchemy.transmuters.StandardTransmuter` - An example of
-   a Transmuter class, which takes a list of structures, and apply a sequence
-   of transformations on all of them.
+1. `pymatgen.alchemy.materials.TransformedStructure` - Standard object representing a TransformedStructure. Takes in an input structure and a list of transformations as an input. Can also be generated from CIFs and POSCARs.
+2. `pymatgen.alchemy.transmuters.StandardTransmuter` - An example of a Transmuter class, which takes a list of structures, and apply a sequence of transformations on all of them.
 
 ## Usage example - replace Fe with Mn and remove all Li in all structures:
 
@@ -495,25 +349,13 @@ structures = transmuter.transformed_structures
 
 # pymatgen.ext.matproj - Integration with the Materials Project REST API
 
-In version 2.0.0 of pymatgen, we introduced one of the most powerful and useful
-tools yet - an adaptor to the Materials Project REST API. The Materials Project
-REST API (simply Materials API) was introduced to provide a means for
-users to programmatically query for materials data. This allows users to
-efficiently perform structure manipulation and analyses without going through
-the web interface.
+In version 2.0.0 of pymatgen, we introduced one of the most powerful and useful tools yet - an adaptor to the Materials Project REST API. The Materials Project REST API (simply Materials API) was introduced to provide a means for users to programmatically query for materials data. This allows users to efficiently perform structure manipulation and analyses without going through the web interface.
 
-In parallel, we have coded in the `pymatgen.ext.matproj` module a
-MPRester, a user-friendly high-level interface to the Materials API to obtain
-useful pymatgen objects for further analyses. To use the Materials API,
-your need to first register with the Materials Project and generate your API
-key in your dashboard at https://www.materialsproject.org/dashboard. In the
-examples below, the user's Materials API key is designated as "USER_API_KEY".
+In parallel, we have coded in the `pymatgen.ext.matproj` module a `MPRester`, a user-friendly high-level interface to the Materials API to obtain useful pymatgen objects for further analyses. To use the Materials API, your need to first register with the Materials Project and generate your API key in your dashboard at https://www.materialsproject.org/dashboard. In the examples below, the user's Materials API key is designated as `"USER_API_KEY"`.
 
-The MPRester provides many convenience methods, but we will just highlight
-a few key methods here.
+The MPRester provides many convenience methods, but we will just highlight a few key methods here.
 
-To obtain information on a material with Materials Project Id "mp-1234",
-one can use the following:
+To obtain information on a material with Materials Project Id "mp-1234", one can use the following:
 
 ```python
 from pymatgen.ext.matproj import MPRester
@@ -529,7 +371,7 @@ with MPRester("USER_API_KEY") as m:
     bandstructure = m.get_bandstructure_by_material_id("mp-1234")
 ```
 
-The Materials API also allows for query of data by formulas::
+The Materials API also allows for query of data by formulas:
 
 ```python
 # To get a list of data for all entries having formula Fe2O3
@@ -539,11 +381,7 @@ data = m.get_data("Fe2O3")
 energies = m.get_data("Fe2O3", "energy")
 ```
 
-Finally, the MPRester provides methods to obtain all entries in a
-chemical system. Combined with the borg framework, this provides a
-particularly powerful way to combine one's own calculations with Materials
-Project data for analysis. The code below demonstrates the phase stability of
-a new calculated material can be determined:
+Finally, the `MPRester` provides methods to obtain all entries in a chemical system. Combined with the `borg` framework, this provides a particularly powerful way to combine one's own calculations with Materials Project data for analysis. The code below demonstrates the phase stability of a new calculated material can be determined:
 
 ```python
 from pymatgen.ext.matproj import MPRester
@@ -578,21 +416,18 @@ plotter.show()
 
 ## Setting the PMG_MAPI_KEY in the config file
 
-MPRester can also read the API key via the pymatgen config file. Simply run:
+`MPRester` can also read the API key via the pymatgen config file. Simply run:
 
 ```shell
 pmg config --add PMG_MAPI_KEY <USER_API_KEY>
 ```
 
-to add this to the `.pmgrc.yaml`, and you can now call MPRester without any
-arguments. This makes it much easier for heavy users of the Materials API to
-use MPRester without having to constantly insert their API key in the scripts.
+to add this to the `.pmgrc.yaml`, and you can now call `MPRester` without any arguments. This makes it much easier for heavy users of the Materials API to use `MPRester` without having to constantly insert their API key in the scripts.
 
 ## Global configuration variables
 
 The following is a list of global configuration variables and their purpose. These can be set in the `.pmgrc.yaml`
-file (recommended) as well as in environmental variables. You can use the `pmg config --add VARIABLE_NAME VALUE` command
-to add your desired values to the `.pmgrc.yaml` file.
+file (recommended) as well as in environmental variables. You can use the `pmg config --add VARIABLE_NAME VALUE` command to add your desired values to the `.pmgrc.yaml` file.
 
    * - Variable name
      - Purpose
@@ -601,8 +436,7 @@ to add your desired values to the `.pmgrc.yaml` file.
    * - PMG_VASP_PSP_DIR
      - Specifies the path in which to look for VASP pseudopotential files.
    * - PMG_POTCAR_CHECKS
-     - A system-wide setting that if false, disables all POTCAR checks. This includes the compatibility checks as well as checking
-       for the existence of POTCARS when performing VASP io.
+     - A system-wide setting that if false, disables all POTCAR checks. This includes the compatibility checks as well as checking for the existence of POTCARS when performing VASP io.
    * - PMG_DEFAULT_FUNCTIONAL
      - Sets the default functional to be used for VASP input files. Defaults to PBE.
    * - PMG_CP2K_DATA_DIR
