@@ -2239,8 +2239,7 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
                 zero = max(arr_bands[vbm])
         else:
             zero_ref = 0  # bands_ref_obj.efermi
-            zero = 0  # bands_obj.efermi
-            logger.debug(zero, zero_ref)
+            zero = 0  # bands_obj.efermi)
 
         for nbi in nb:
             bcheck[nbi] = {}

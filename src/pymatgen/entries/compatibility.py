@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import abc
 import copy
-import logging
 import os
 import warnings
 from collections import defaultdict
@@ -48,8 +47,6 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "April 2020"
-
-logger = logging.getLogger(__name__)
 
 MODULE_DIR: str = os.path.dirname(os.path.abspath(__file__))
 MU_H2O: float = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
