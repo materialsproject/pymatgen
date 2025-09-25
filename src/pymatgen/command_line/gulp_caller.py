@@ -538,13 +538,13 @@ class GulpCaller:
             err = err.decode("utf-8")
 
             if "Error" in err or "error" in err:
-                logger.exception(gin)
-                logger.exception("----output_0---------")
-                logger.exception(out)
-                logger.exception("----End of output_0------\n\n\n")
-                logger.exception("----output_1--------")
-                logger.exception(out)
-                logger.exception("----End of output_1------")
+                logger.error(gin)
+                logger.error("----output_0---------")
+                logger.error(out)
+                logger.error("----End of output_0------\n\n\n")
+                logger.error("----output_1--------")
+                logger.error(out)
+                logger.error("----End of output_1------")
                 raise GulpError(err)
 
             # We may not need this
