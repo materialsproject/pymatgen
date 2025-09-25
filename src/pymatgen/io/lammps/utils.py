@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import tempfile
 from shutil import which
@@ -31,6 +32,8 @@ if TYPE_CHECKING:
 
 __author__ = "Kiran Mathew, Brandon Wood, Michael Humbert"
 __email__ = "kmathew@lbl.gov"
+
+logger = logging.getLogger(__name__)
 
 
 class Polymer:
@@ -311,7 +314,7 @@ class PackmolRunner:
             if os.path.isfile(output_file):
                 packed_mol = BabelMolAdaptor.from_file(output_file, self.control_params["filetype"])
                 packed_mol = packed_mol.pymatgen_mol
-                print(f"packed molecule written to {self.control_params['output']}")
+                logger.info(f"packed molecule written to {self.control_params['output']}")
                 if site_property:
                     packed_mol = self.restore_site_properties(site_property=site_property, filename=output_file)
                 return packed_mol
@@ -456,7 +459,7 @@ class LammpsRunner:
     def run(self) -> tuple[bytes, bytes]:
         """Write the input/data files and run LAMMPS."""
         lammps_cmd = [*self.lammps_bin, "-in", self.input_filename]
-        print(f"Running: {' '.join(lammps_cmd)}")
+        logger.info(f"Running: {' '.join(lammps_cmd)}")
         with Popen(lammps_cmd, stdout=PIPE, stderr=PIPE) as process:
             stdout, stderr = process.communicate()
         return stdout, stderr

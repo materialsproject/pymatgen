@@ -45,6 +45,7 @@ determine the spontaneous polarization because it serves as a reference point.
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -67,6 +68,8 @@ __version__ = "1.0"
 __email__ = "tsmidt@berkeley.edu"
 __status__ = "Development"
 __date__ = "April 15, 2017"
+
+logger = logging.getLogger(__name__)
 
 
 def zval_dict_from_potcar(potcar) -> dict[str, float]:
@@ -417,7 +420,7 @@ class Polarization:
         try:
             sp = self.same_branch_splines(convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar)
         except Exception:
-            print("Something went wrong.")
+            logger.exception("Something went wrong.")
             return None
         sp_latt = [sp[i](range(L)) for i in range(3)]
         diff = [sp_latt[i] - tot[:, i].ravel() for i in range(3)]
@@ -444,7 +447,7 @@ class EnergyTrend:
         try:
             sp = self.spline()
         except Exception:
-            print("Energy spline failed.")
+            logger.exception("Energy spline failed.")
             return None
         spline_energies = sp(range(len(energies)))
         diff = spline_energies - energies
@@ -461,7 +464,7 @@ class EnergyTrend:
         try:
             sp = self.spline()
         except Exception:
-            print("Energy spline failed.")
+            logger.exception("Energy spline failed.")
             return None
         der = sp.derivative()
         der_energies = der(range(len(energies)))

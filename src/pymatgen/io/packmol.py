@@ -15,6 +15,7 @@ Note that PACKMOL versions prior to 20.3.0 do not support paths with spaces.
 
 from __future__ import annotations
 
+import logging
 import subprocess
 from pathlib import Path
 from shutil import which
@@ -35,6 +36,7 @@ __maintainer__ = "Ryan Kingsbury"
 __email__ = "RKingsbury@lbl.gov"
 __date__ = "Nov 2021"
 
+logger = logging.getLogger(__name__)
 
 PACKMOL_CONSTRAINTS = (
     "fixed",
@@ -248,7 +250,7 @@ class PackmolBoxGen(InputGenerator):
                 )
                 net_volume += (length**3.0) * float(dct["number"])
             box_length: float = net_volume ** (1 / 3)
-            print(f"Auto determined box size is {box_length:.1f} Å per side.")
+            logger.info(f"Auto determined box size is {box_length:.1f} Å per side.")
             box_list = f"0.0 0.0 0.0 {box_length:.1f} {box_length:.1f} {box_length:.1f}"
 
         for dct in molecules:

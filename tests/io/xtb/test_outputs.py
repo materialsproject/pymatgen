@@ -44,11 +44,11 @@ class TestCRESTOutput(MatSciTest):
         exp_best = Molecule.from_file(f"{EXPECTED_DIR}/expected_crest_best.xyz")
         for idx, c in enumerate(crest_out.sorted_structures_energies):
             for j, r in enumerate(c):
-                if openbabel:
+                if openbabel is not None:
                     assert check_for_structure_changes(r[0], expected_sorted_structures[idx][j]) == "no_change"
                 assert float(r[1]) == approx(float(expected_energies[idx][j]), abs=1e-4)
 
         assert crest_out.properly_terminated
-        if openbabel:
+        if openbabel is not None:
             assert check_for_structure_changes(crest_out.lowest_energy_structure, exp_best) == "no_change"
         assert crest_out.cmd_options == expected_cmd_options

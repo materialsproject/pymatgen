@@ -115,7 +115,7 @@ class TestBabelMolAdaptor:
         for site in opt_mol[1:]:
             assert site.distance(opt_mol[0]) == approx(1.09216, abs=1e-1)
 
-    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_confab_conformers(self):
         mol = pybel.readstring("smi", "CCCC").OBMol
         adaptor = BabelMolAdaptor(mol)

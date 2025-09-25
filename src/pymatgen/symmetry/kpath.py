@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import abc
 import itertools
+import logging
 import math
+import warnings
 from math import cos, pi, sin
 from typing import TYPE_CHECKING
-from warnings import warn
 
 import networkx as nx
 import numpy as np
@@ -36,6 +37,8 @@ __maintainer__ = "Jason Munro"
 __email__ = "jmunro@lbl.gov"
 __status__ = "Development"
 __date__ = "March 2020"
+
+logger = logging.getLogger(__name__)
 
 
 class KPathBase(abc.ABC):
@@ -151,7 +154,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                 A warning will be issued if the cells don't match.
         """
         if "magmom" in structure.site_properties:
-            warn(
+            warnings.warn(
                 (
                     "'magmom' entry found in site properties but will be ignored "
                     "for the Setyawan and Curtarolo convention."
@@ -170,7 +173,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         # reformatted to match the Setyawan/Curtarolo convention in order to work with the current k-path
         # generation scheme.
         if not np.allclose(self._structure.lattice.matrix, self._prim.lattice.matrix, atol=atol):
-            warn(
+            warnings.warn(
                 "The input structure does not match the expected standard primitive! "
                 "The path may be incorrect. Use at your own risk.",
                 stacklevel=2,
@@ -187,7 +190,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             elif "I" in spg_symbol:
                 self._kpath = self.bcc()
             else:
-                warn(f"Unexpected value for {spg_symbol=}", stacklevel=2)
+                warnings.warn(f"Unexpected value for {spg_symbol=}", stacklevel=2)
 
         elif lattice_type == "tetragonal":
             if "P" in spg_symbol:
@@ -200,7 +203,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                 else:
                     self._kpath = self.bctet2(c, a)
             else:
-                warn(f"Unexpected value for {spg_symbol=}", stacklevel=2)
+                warnings.warn(f"Unexpected value for {spg_symbol=}", stacklevel=2)
 
         elif lattice_type == "orthorhombic":
             a = self._conv.lattice.abc[0]
@@ -224,7 +227,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             elif "C" in spg_symbol or "A" in spg_symbol:
                 self._kpath = self.orcc(a, b, c)
             else:
-                warn(f"Unexpected value for {spg_symbol=}", stacklevel=2)
+                warnings.warn(f"Unexpected value for {spg_symbol=}", stacklevel=2)
 
         elif lattice_type == "hexagonal":
             self._kpath = self.hex()
@@ -258,7 +261,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                     if b * cos(alpha * pi / 180) / c + b**2 * sin(alpha * pi / 180) ** 2 / a**2 > 1:
                         self._kpath = self.mclc5(a, b, c, alpha * pi / 180)
             else:
-                warn(f"Unexpected value for {spg_symbol=}", stacklevel=2)
+                warnings.warn(f"Unexpected value for {spg_symbol=}", stacklevel=2)
 
         elif lattice_type == "triclinic":
             kalpha = self._rec_lattice.parameters[3]
@@ -274,7 +277,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                 self._kpath = self.trib()
 
         else:
-            warn(f"Unknown lattice type {lattice_type}", stacklevel=2)
+            warnings.warn(f"Unknown lattice type {lattice_type}", stacklevel=2)
 
     @property
     def conventional(self):
@@ -914,7 +917,7 @@ class KPathSeek(KPathBase):
         site_data: list[Composition] = species
 
         if not system_is_tri:
-            warn("Non-zero 'magmom' data will be used to define unique atoms in the cell.", stacklevel=2)
+            warnings.warn("Non-zero 'magmom' data will be used to define unique atoms in the cell.", stacklevel=2)
             site_data = zip(species, [tuple(vec) for vec in sp["magmom"]], strict=True)  # type: ignore[assignment]
 
         unique_species: list[CompositionLike] = []
@@ -1073,8 +1076,7 @@ class KPathLatimerMunro(KPathBase):
                     else:
                         reducible.append(False)
         if np.any(reducible):
-            print("reducible")
-            warn(
+            warnings.warn(
                 "The unit cell of the input structure is not fully reduced!"
                 "The path may be incorrect. Use at your own risk.",
                 stacklevel=2,
@@ -1159,7 +1161,7 @@ class KPathLatimerMunro(KPathBase):
         else:
             self._mag_type = "0"
             if "magmom" in self._structure.site_properties:
-                warn(
+                warnings.warn(
                     "The parameter has_magmoms is False, but site_properties contains the key magmom."
                     "This property will be removed and could result in different symmetry operations.",
                     stacklevel=2,
@@ -1641,7 +1643,7 @@ class KPathLatimerMunro(KPathBase):
         struct = self._structure.copy()
         magmom_axis = np.array(magmom_axis)
         if "magmom" not in struct.site_properties:
-            warn(
+            warnings.warn(
                 "The 'magmom' property is not set in the structure's site properties."
                 "All magnetic moments are being set to zero.",
                 stacklevel=2,
@@ -1664,7 +1666,7 @@ class KPathLatimerMunro(KPathBase):
                 new_magmoms.append(magmom * magmom_axis)
 
         if found_scalar and not axis_specified:
-            warn(
+            warnings.warn(
                 "At least one magmom had a scalar value and magmom_axis was not specified. Defaulted to z+ spinor.",
                 stacklevel=2,
             )
@@ -1868,7 +1870,7 @@ class KPathLatimerMunro(KPathBase):
                                 break
 
                     if not face_center_found:
-                        print("face center not found")
+                        logger.warning("face center not found")
                         for point in IRBZ_points:
                             cross = D * np.dot(g_inv, np.cross(ax, point[1]))
                             if not np.allclose(cross, 0, atol=atol):

@@ -59,7 +59,7 @@ class ConnectivityFinder:
                     idx_max = np.argmax(
                         [ee["ce_fraction"] for ee in light_structure_environments.coordination_environments[site_idx]]
                     )
-                    print(f"IMAX {idx_max}")
+                    logger.info(f"IMAX {idx_max}")
                     site_neighbors_set = site_neighbors_sets[idx_max]
                 else:
                     raise RuntimeError("Should not be here")

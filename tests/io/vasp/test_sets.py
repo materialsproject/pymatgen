@@ -244,8 +244,6 @@ class TestMITMPRelaxSet(MatSciTest):
             "generates an adequate number of KPOINTS, lower KSPACING, or set ISMEAR = 0",
         ) as warns_kspacing:
             _ = vis.incar
-        for warn in warns_kspacing:
-            print("scoots:", warn.message)
         assert len(warns_kspacing) == 2
 
     def test_poscar(self):
@@ -2387,7 +2385,6 @@ class TestMP24Sets:
 
             vis = self.static_set(structure=self.structure, xc_functional=xc_functional, dispersion="D4")
             assert vis.incar.get("METAGGA") is None
-            print(self.relax_set(structure=self.structure, xc_functional=xc_functional).incar)
             assert vis.incar["GGA"] == vasp_name
             assert all(
                 isinstance(vis.incar[k], float | int)

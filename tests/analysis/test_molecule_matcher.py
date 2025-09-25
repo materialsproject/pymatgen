@@ -148,19 +148,19 @@ def generate_Si2O_cluster():
 
 @pytest.mark.skipif(ob_align_missing, reason="OBAlign is missing, Skipping")
 class TestMoleculeMatcher:
-    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_fit(self):
         self.fit_with_mapper(IsomorphismMolAtomMapper())
         self.fit_with_mapper(InchiMolAtomMapper())
 
-    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_get_rmsd(self):
         mol_matcher = MoleculeMatcher()
         mol1 = Molecule.from_file(f"{TEST_DIR}/t3.xyz")
         mol2 = Molecule.from_file(f"{TEST_DIR}/t4.xyz")
         assert f"{mol_matcher.get_rmsd(mol1, mol2):7.3}" == "0.00488"
 
-    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_group_molecules(self):
         mol_matcher = MoleculeMatcher(tolerance=0.001)
         with open(f"{TEST_DIR}/mol_list.txt", encoding="utf-8") as file:
@@ -239,28 +239,28 @@ class TestMoleculeMatcher:
         mol2 = Molecule.from_file(f"{TEST_DIR}/t4.xyz")
         assert not mol_matcher.fit(mol1, mol2)
 
-    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_strange_inchi(self):
         mol_matcher = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
         mol1 = Molecule.from_file(f"{TEST_DIR}/k1.sdf")
         mol2 = Molecule.from_file(f"{TEST_DIR}/k2.sdf")
         assert mol_matcher.fit(mol1, mol2)
 
-    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_thiane(self):
         mol_matcher = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
         mol1 = Molecule.from_file(f"{TEST_DIR}/thiane1.sdf")
         mol2 = Molecule.from_file(f"{TEST_DIR}/thiane2.sdf")
         assert not mol_matcher.fit(mol1, mol2)
 
-    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_thiane_ethynyl(self):
         mol_matcher = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
         mol1 = Molecule.from_file(f"{TEST_DIR}/thiane_ethynyl1.sdf")
         mol2 = Molecule.from_file(f"{TEST_DIR}/thiane_ethynyl2.sdf")
         assert not mol_matcher.fit(mol1, mol2)
 
-    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_cdi_23(self):
         mol_matcher = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
         mol1 = Molecule.from_file(f"{TEST_DIR}/cdi_23_1.xyz")

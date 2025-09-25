@@ -2025,7 +2025,6 @@ direct
         matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed = struct.relax()
-        print(relaxed.lattice.a)
         assert relaxed.lattice.a == approx(3.860516230545545, rel=0.01)  # allow 1% error
         assert isinstance(relaxed.calc, matgl.ext.ase.PESCalculator)
         for key, val in {"type": "optimization", "optimizer": "FIRE"}.items():

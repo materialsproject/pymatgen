@@ -63,7 +63,6 @@ def JDFTXInfile_self_consistency_tester(jif: JDFTXInfile, tmp_path: PathLike):
     jifs = [jif, jif2, jif3, jif4]
     for i in range(len(jifs)):
         for j in range(i + 1, len(jifs)):
-            print(f"{i}, {j}")
             assert_idential_jif(jifs[i], jifs[j])
 
 

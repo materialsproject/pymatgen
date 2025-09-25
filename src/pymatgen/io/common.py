@@ -455,10 +455,10 @@ class PMGDir(collections.abc.Mapping):
 
     Example:
 
-    ```
-    d = PMGDir(".")
-    print(d["INCAR"]["NELM"])
-    print(d["vasprun.xml"].parameters)
+    ```python
+    pmg_dict = PMGDir(".")
+    print(pmg_dict["INCAR"]["NELM"])
+    print(pmg_dict["vasprun.xml"].parameters)
     ```
     """
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 
@@ -16,6 +17,9 @@ __version__ = "0.1"
 __maintainer__ = "Alex Epstein"
 __email__ = "aepstein@lbl.gov"
 __credits__ = "Sam Blau, Evan Spotte-Smith"
+
+
+logger = logging.getLogger(__name__)
 
 
 class CRESTOutput(MSONable):
@@ -65,7 +69,7 @@ class CRESTOutput(MSONable):
             self.coord_file = os.path.join(self.path, split_cmd[0])
             self.input_structure = Molecule.from_file(filename=self.coord_file)
         except FileNotFoundError:
-            print(f"Input file {split_cmd[0]} not found")
+            logger.exception(f"Input file {split_cmd[0]} not found")
 
         # Get CREST input flags
         for idx, entry in enumerate(split_cmd):
@@ -142,7 +146,7 @@ class CRESTOutput(MSONable):
                         self.sorted_structures_energies[n].append([rotamer_structures[idx], energies[idx]])
                     start = idx + 1
             except FileNotFoundError:
-                print(f"{final_rotamer_filename} not found, no rotamer list processed")
+                logger.exception(f"{final_rotamer_filename} not found, no rotamer list processed")
 
             # Get lowest energy conformer from 'crest_best.xyz'
             crest_best_path = os.path.join(self.path, "crest_best.xyz")
@@ -151,7 +155,7 @@ class CRESTOutput(MSONable):
                 lowest_e_struct.set_charge_and_spin(charge=chg)
                 self.lowest_energy_structure = lowest_e_struct
             except FileNotFoundError:
-                print(f"{crest_best_path} not found")
+                logger.exception(f"{crest_best_path} not found")
 
         else:
             crest_best_path = os.path.join(self.path, "crest_best.xyz")
@@ -160,4 +164,4 @@ class CRESTOutput(MSONable):
                 lowest_e_struct.set_charge_and_spin(charge=chg)
                 self.lowest_energy_structure = lowest_e_struct
             except FileNotFoundError:
-                print(f"{crest_best_path} not found")
+                logger.exception(f"{crest_best_path} not found")

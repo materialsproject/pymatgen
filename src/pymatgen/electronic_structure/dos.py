@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import functools
+import logging
 import warnings
 from typing import TYPE_CHECKING, NamedTuple, cast
 
@@ -31,6 +32,8 @@ if TYPE_CHECKING:
 
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.util.typing import SpeciesLike
+
+logger = logging.getLogger(__name__)
 
 
 class DOS(Spectrum):
@@ -1574,7 +1577,7 @@ def _get_orb_type_lobster(orb: str) -> OrbitalType | None:
         return orbital.orbital_type
 
     except AttributeError:
-        print("Orb not in list")
+        logger.exception("Orb not in list")
     return None
 
 
@@ -1591,5 +1594,5 @@ def _get_orb_lobster(orb: str) -> Orbital | None:
         return Orbital(_lobster_orb_labs.index(orb[1:]))
 
     except AttributeError:
-        print("Orb not in list")
+        logger.exception("Orb not in list")
         return None
