@@ -1360,6 +1360,12 @@ class MPScanRelaxSet(VaspInputSet):
         James W. Furness, Aaron D. Kaplan, Jinliang Ning, John P. Perdew, and Jianwei Sun.
         Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation.
         The Journal of Physical Chemistry Letters 11, 8208-8215 (2022) DOI: 10.1021/acs.jpclett.0c02405
+
+        Jinliang Ning, Manish Kothakonda, James W. Furness, Aaron D. Kaplan, Sebastian Ehlert,
+            Jan Gerit Brandenburg, John P. Perdew, and Jianwei Sun.
+        Workhorse minimally empirical dispersion-corrected density functional with tests for
+            weakly bound systems: r2SCAN+rVV10.
+        Phys. Rev. B 106, 075422 (2022) DOI: 10.1103/PhysRevB.106.075422
     """
 
     bandgap: float | None = None
@@ -1380,6 +1386,11 @@ class MPScanRelaxSet(VaspInputSet):
             vdw_par = loadfn(f"{MODULE_DIR}/vdW_parameters.yaml")
             for k in vdw_par[self.vdw]:
                 self._config_dict["INCAR"].pop(k, None)
+
+        elif self.vdw == "rvv10":
+            if self._config_dict["INCAR"]["METAGGA"] == "R2SCAN" and self.user_incar_settings.get("METAGGA") is None:
+                rVV10_r2scan = {"BPARAM": 11.95}
+                self._config_dict["INCAR"].update(rVV10_r2scan)
 
 
 @dataclass
