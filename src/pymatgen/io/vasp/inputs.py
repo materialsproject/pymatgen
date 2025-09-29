@@ -1250,8 +1250,6 @@ class Kpoints(MSONable):
                 specification is required, e.g. in the automatic scheme,
                 the kpts should still be specified as a 2D sequence. e.g.
                 [(20,),] or [(2, 2, 2),].
-
-                If using a numpy array, call tolist() on kpts first.
             kpts_shift (3x1 array): Shift for kpoints.
             kpts_weights (list[float]): Optional weights for explicit kpoints.
                 If using a numpy array, call tolist() on kpts first.
