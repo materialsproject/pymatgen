@@ -370,7 +370,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         e.g. Li4 Fe4 P4 O16.
         """
         sym_amt = self.get_el_amt_dict()
-        syms = sorted(sym_amt, key=lambda sym: get_el_sp(sym).X)
+        syms = sorted(sym_amt, key=lambda sym: (_electronegativity(sym), sym))
         formula = [f"{s}{formula_double_format(sym_amt[s], ignore_ones=False)}" for s in syms]
         return " ".join(formula)
 
@@ -1343,6 +1343,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                         yield match
 
 
+def _electronegativity(x: int | SpeciesLike) -> float:
+    """Return float infinity rather than NaN for undefined electronegativity."""
+    if math.isnan(e_neg := get_el_sp(x).X):
+        e_neg = float("inf")
+    return e_neg
+
+
 def reduce_formula(
     sym_amt: Mapping[str, float],
     iupac_ordering: bool = False,
@@ -1363,7 +1370,7 @@ def reduce_formula(
     Returns:
         tuple[str, int]: reduced formula and factor.
     """
-    syms: list[str] = sorted(sym_amt, key=lambda x: [get_el_sp(x).X, x])
+    syms: list[str] = sorted(sym_amt, key=lambda x: [_electronegativity(x), x])
 
     syms = list(filter(lambda x: abs(sym_amt[x]) > Composition.amount_tolerance, syms))
 
@@ -1374,7 +1381,7 @@ def reduce_formula(
 
     # If the composition contains polyanion
     poly_anions: list[str] = []
-    if len(syms) >= 3 and get_el_sp(syms[-1]).X - get_el_sp(syms[-2]).X < 1.65:
+    if len(syms) >= 3 and _electronegativity(syms[-1]) - _electronegativity(syms[-2]) < 1.65:
         poly_sym_amt: dict[str, float] = {syms[i]: sym_amt[syms[i]] / factor for i in (-2, -1)}
         poly_form, poly_factor = reduce_formula(poly_sym_amt, iupac_ordering=iupac_ordering)
 

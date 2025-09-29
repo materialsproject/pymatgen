@@ -1246,12 +1246,15 @@ class Kpoints(MSONable):
                 (or negative), VASP automatically generates the KPOINTS.
             style: Style for generating KPOINTS. Use one of the
                 Kpoints.supported_modes enum types.
-            kpts (2D array): Array of kpoints. Even when only a single
+            kpts (2D sequence): Sequence of kpoints. Even when only a single
                 specification is required, e.g. in the automatic scheme,
-                the kpts should still be specified as a 2D array. e.g.
+                the kpts should still be specified as a 2D sequence. e.g.
                 [(20,),] or [(2, 2, 2),].
+
+                If using a numpy array, call tolist() on kpts first.
             kpts_shift (3x1 array): Shift for kpoints.
             kpts_weights (list[float]): Optional weights for explicit kpoints.
+                If using a numpy array, call tolist() on kpts first.
             coord_type: In line-mode, this variable specifies whether the
                 Kpoints were given in Cartesian or Reciprocal coordinates.
             labels: In line-mode, this should provide a list of labels for

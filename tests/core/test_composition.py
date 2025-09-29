@@ -869,6 +869,26 @@ class TestComposition(MatSciTest):
         }.items():
             assert Composition(formula).formula == expected
 
+    def test_formula_order(self):
+        ref_vals = {
+            "formula": "Zn2 C2 Br2 Ar2 Ne2",
+            "reduced_formula": "ZnCBrArNe",
+        }
+        assert all(
+            all(getattr(Composition(dict.fromkeys(ele_order, 2)), k) == v for k, v in ref_vals.items())
+            for ele_order in [
+                ("Br", "Ar", "Zn", "C", "Ne"),
+                (
+                    "Ne",
+                    "Br",
+                    "Ar",
+                    "Zn",
+                    "C",
+                ),
+                ("Ar", "Br", "Ne", "C", "Zn"),
+            ]
+        )
+
 
 def test_reduce_formula():
     assert reduce_formula({"Li": 2, "Mn": 4, "O": 8}) == ("LiMn2O4", 2)
