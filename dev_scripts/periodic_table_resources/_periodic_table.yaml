@@ -1,5 +1,6 @@
 Atomic mass:
   unit: amu
+  reference: https://en.wikipedia.org/wiki/List_of_elements_by_atomic_properties
   data: {H: 1.00794, D: 2.013553212712, T: 3.0155007134, He: 4.002602, Li: 6.941,
     Be: 9.012182, B: 10.811, C: 12.0107, N: 14.0067, O: 15.9994, F: 18.9984032, Ne: 20.1797,
     Na: 22.98976928, Mg: 24.305, Al: 26.9815386, Si: 28.0855, P: 30.973762, S: 32.065,
@@ -1097,6 +1098,8 @@ Brinell hardness:
     Au: 2450, Tl: 26.4, Pb: 38.3, Bi: 94.2, Th: 400, U: 2400}
 Bulk modulus:
   unit: GPa
+  reference:
+    https://en.wikipedia.org/wiki/Elastic_properties_of_the_elements_(data_page)#Bulk_modulus
   data: {Li: 11, Be: 130, B: 320, C: 33, Na: 6.3, Mg: 45, Al: 76, Si: 100, P: 11,
     S: 7.7, Cl: 1.1, K: 3.1, Ca: 17, Sc: 57, Ti: 110, V: 160, Cr: 160, Mn: 120, Fe: 170,
     Co: 180, Ni: 180, Cu: 140, Zn: 70, As: 22, Se: 8.3, Br: 1.9, Rb: 2.5, Y: 41, Nb: 170,
