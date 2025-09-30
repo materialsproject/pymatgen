@@ -244,7 +244,7 @@ Atomic no:
     Og: 118
     D: 1
     T: 1
-Atomic orbitals:
+Atomic orbitals: # TODO: need source
   unit: hartree
   data:
     Ac:
@@ -1255,6 +1255,7 @@ Atomic orbitals:
       4s: -1.918971
       5s: -0.162391
 Boiling point:
+  reference: "https://en.wikipedia.org/wiki/Boiling_points_of_the_elements_(data_page)" # WebEI
   unit: K
   data:
     Ac: 3573
@@ -1350,7 +1351,7 @@ Boiling point:
     Yb: 1469
     Zn: 1180
     Zr: 4682
-Brinell hardness:
+Brinell hardness: # TODO: need source
   unit: MPa
   data:
     Ag: 24.5
@@ -1486,6 +1487,7 @@ Bulk modulus:
     Yb: 31
     Zn: 70
 Coefficient of linear thermal expansion:
+  reference: "https://en.wikipedia.org/wiki/Thermal_expansivities_of_the_elements" # WEL
   unit: K^-1
   factor: 1e-6
   data:
@@ -1552,7 +1554,7 @@ Coefficient of linear thermal expansion:
     Yb: 26.3
     Zn: 30.2
     Zr: 5.7
-Common oxidation states:
+Common oxidation states: # TODO: need source
   data:
     Ac: [3]
     Ag: [1]
@@ -1653,7 +1655,7 @@ Common oxidation states:
     Zr: [4]
     D: [-1, 1]
     T: [-1, 1]
-Critical temperature:
+Critical temperature: # TODO: need source (might from wiki: Critical points of the elements)
   unit: K
   data:
     Ar: 150.8
@@ -1680,6 +1682,7 @@ Critical temperature:
     Se: 1766
     Xe: 289.7
 Density of solid:
+  reference: "https://en.wikipedia.org/wiki/Densities_of_the_elements_(data_page)" # WEL
   unit: kg m^-3
   data:
     Ac: 10070
@@ -1764,9 +1767,8 @@ Density of solid:
     Yb: 6570
     Zn: 7140
     Zr: 6511
-Electrical resistivity:
+Electrical resistivity: # TODO: need source, need validate/update
   unit: ohm m
-  # reference: TODO: need to validate/update (haven't been updated for 13 years)
   factor: 1e-8
   data: # 293 K (20 °C)
     Ag: 1.63
@@ -2220,7 +2222,7 @@ Electronic structure:
     Zr:
       "0": "[Kr].4d2.5s2"
       "4": "[Ar].3d10.4s2.4p6"
-Liquid range:
+Liquid range: # TODO: need source
   unit: K
   data:
     Ac: 2250
@@ -2317,6 +2319,7 @@ Liquid range:
     Zn: 487.32
     Zr: 2554
 Melting point:
+  reference: "https://en.wikipedia.org/wiki/Melting_points_of_the_elements_(data_page)" # WEL
   unit: K
   data:
     Ac: 1323
@@ -2528,7 +2531,8 @@ Mendeleev no:
     Yb: 17
     Zn: 76
     Zr: 49
-Mineral hardness:
+Mineral hardness: # "Mohs hardness"
+  reference: "https://en.wikipedia.org/wiki/Hardnesses_of_the_elements_(data_page)"
   data:
     Ag: 2.5
     Al: 2.75
@@ -2586,7 +2590,7 @@ Mineral hardness:
     W: 7.5
     Zn: 2.5
     Zr: 5.0
-Molar volume:
+Molar volume: # TODO: need source
   unit: cm^3 mol^-1
   data:
     Ac: 22.55
@@ -2809,6 +2813,7 @@ Name:
     D: Deuterium
     T: Tritium
 Poissons ratio:
+  reference: https://en.wikipedia.org/wiki/Elastic_properties_of_the_elements_(data_page)
   data:
     Ag: 0.37
     Al: 0.35
@@ -2864,7 +2869,7 @@ Poissons ratio:
     Yb: 0.21
     Zn: 0.25
     Zr: 0.34
-Reflectivity:
+Reflectivity: # TODO: need source
   unit: "%"
   data:
     Ag: 97
@@ -2891,7 +2896,7 @@ Reflectivity:
     V: 61
     W: 62
     Zn: 80
-Refractive index:
+Refractive index: # TODO: need source
   data:
     Ar: 1.000281
     As: 1.001552
@@ -2912,7 +2917,8 @@ Refractive index:
     Te: 1.000991
     Xe: 1.000702
     Zn: 1.002050
-Rigidity modulus:
+Rigidity modulus: # "shear modulus"
+  reference: "https://en.wikipedia.org/wiki/Elastic_properties_of_the_elements_(data_page)"
   unit: GPa
   data:
     Ag: 30
@@ -2975,7 +2981,7 @@ Rigidity modulus:
     Yb: 9.9
     Zn: 43
     Zr: 33
-Superconduction temperature:
+Superconduction temperature: # TODO: need source
   unit: K
   data:
     Al: 1.175
@@ -3012,6 +3018,7 @@ Superconduction temperature:
     Zn: 0.85
     Zr: 0.61
 Thermal conductivity:
+  reference: "https://en.wikipedia.org/wiki/Thermal_conductivities_of_the_elements_(data_page)" # WEL
   unit: W m^-1 K^-1
   data:
     Ac: 12
@@ -3111,6 +3118,7 @@ Thermal conductivity:
     Zn: 120
     Zr: 23
 Velocity of sound:
+  reference: "https://en.wikipedia.org/wiki/Speeds_of_sound_of_the_elements" # WEL
   unit: m s^-1
   data:
     Ag: 2600
@@ -3186,6 +3194,7 @@ Velocity of sound:
     Zn: 3700
     Zr: 3800
 Vickers hardness:
+  reference: "https://en.wikipedia.org/wiki/Hardnesses_of_the_elements_(data_page)"
   unit: MPa
   data:
     Ag: 251
@@ -3228,6 +3237,7 @@ Vickers hardness:
     Yb: 206
     Zr: 903
 X:
+  reference: "https://en.wikipedia.org/wiki/Electronegativities_of_the_elements_(data_page)"
   data:
     Ac: 1.1
     Ag: 1.93
@@ -3330,6 +3340,7 @@ X:
     Zn: 1.65
     Zr: 1.33
 Youngs modulus:
+  reference: "https://en.wikipedia.org/wiki/Elastic_properties_of_the_elements_(data_page)"
   unit: GPa
   data:
     Ag: 83
@@ -3395,7 +3406,7 @@ Youngs modulus:
     Yb: 24
     Zn: 108
     Zr: 68
-ICSD oxidation states:
+ICSD oxidation states: # TODO: need source
   data:
     Ag: [1, 2, 3]
     Al: [3]
@@ -3488,7 +3499,7 @@ Min oxidation state:
     Ne: 0
     Rn: 0
     Xe: 2
-Atomic mass no:
+Atomic mass no: # TODO: shouldn't this merge into `Atomic mass`?
   unit: amu
   data:
     H: 1
