@@ -196,7 +196,7 @@ class LammpsSettings(MSONable):
                 )
 
     @property
-    def as_dict(self) -> dict:
+    def get_dict(self) -> dict:
         return self.__dict__
 
     def update(self, updates: dict) -> None:
@@ -283,10 +283,13 @@ class BaseLammpsSetGenerator(InputGenerator):
                 Dictionary containing the settings to update.
         """
         if isinstance(self.settings, LammpsSettings):
-            present_settings = self.settings.as_dict()
+            present_settings = self.settings.get_dict.copy()
             for k, v in updates.items():
                 present_settings.update({k: v})
-            self.settings = LammpsSettings(validate_params=validate_params, **present_settings)
+            if validate_params:
+                present_settings.update({"validate_params": validate_params})
+            print(f"Updating settings: {present_settings}")
+            self.settings = LammpsSettings(**present_settings)
         else:
             self.settings.update(updates)
 
@@ -340,7 +343,7 @@ class BaseLammpsSetGenerator(InputGenerator):
             molecule_updates = _BASE_LAMMPS_SETTINGS[data_type].copy()
             self.update_settings(molecule_updates, validate_params=self.validate_params)
 
-        settings_dict = self.settings.as_dict().copy() if isinstance(self.settings, LammpsSettings) else self.settings
+        settings_dict = self.settings.get_dict.copy() if isinstance(self.settings, LammpsSettings) else self.settings
         atom_style = settings_dict.get("atom_style", "full")
         print(f"Generating LAMMPS input set with settings: {settings_dict}")
 
@@ -391,7 +394,7 @@ class BaseLammpsSetGenerator(InputGenerator):
             settings_dict.update({"end_pressure": " ".join(map(str, settings_dict["end_pressure"])), "psymm": "aniso"})
 
         # Loop over the LammpsSettings object and update the settings dictionary
-        for attr, val in self.settings.as_dict().items():  # type: ignore[union-attr]
+        for attr, val in self.settings.get_dict.items():  # type: ignore[union-attr]
             if attr == "boundary":
                 settings_dict.update({"boundary": " ".join(list(val))})
 
@@ -455,7 +458,7 @@ class BaseLammpsSetGenerator(InputGenerator):
                     warnings.warn(f"Force field key {key} not recognized, will be ignored.", stacklevel=2)
 
             for ff_key in FF_STYLE_KEYS:
-                if ff_key not in self.settings.as_dict() or not self.settings.as_dict()[ff_key]:  # type: ignore[union-attr]
+                if ff_key not in self.settings.get_dict or not self.settings.get_dict[ff_key]:  # type: ignore[union-attr]
                     settings_dict.update({f"{ff_key}_flag": "###"})
                     warnings.warn(f"Force field key {ff_key} not found in the force field dictionary.", stacklevel=2)
 
