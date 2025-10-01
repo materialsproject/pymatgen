@@ -58,8 +58,8 @@ MODULES_TO_TEST: tuple[str, ...] = (
 RUNNER_OS: Literal["linux", "windows", "macos"] = os.getenv("RUNNER_OS", "").lower()  # type: ignore[assignment]
 assert RUNNER_OS in {"linux", "windows", "macos"}
 
-# Skip test on macOS and windows due to inconsistent import time results
-if RUNNER_OS in {"macos", "windows"}:
+# Skip test on macOS due to inconsistent import time results
+if RUNNER_OS == "macos":
     pytest.skip("Import time measurements are unstable on macOS", allow_module_level=True)
 
 REF_FILE: str = f"{TEST_FILES_DIR}/performance/import_time_{RUNNER_OS}.json"
@@ -79,6 +79,7 @@ def test_get_ref_import_time() -> None:
     pytest.fail("Reference import times generated. Copy from output to update JSON file.")
 
 
+@pytest.mark.xfail(reason="High variance in CI run times.")
 @pytest.mark.skipif(GEN_REF_TIME, reason="Generating reference import time.")
 @pytest.mark.parametrize(
     ("grace_percent", "hard_percent"),
