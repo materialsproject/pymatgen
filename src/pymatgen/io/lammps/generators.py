@@ -278,15 +278,27 @@ class BaseLammpsSetGenerator(InputGenerator):
         if isinstance(self.force_field, dict):
             self.force_field = LammpsForceField.from_dict(self.force_field)
 
-    def update_settings(self, updates: dict, validate_params: bool = True) -> None:
+    def update_settings(
+        self, updates: dict, validate_params: bool = True, include_defaults: bool | None = None
+    ) -> None:
         """
         Update the settings for the LammpsSettings object.
         Args:
             updates : dict
                 Dictionary containing the settings to update.
+            validate_params : bool
+                Whether to validate the parameters. Default is True.
+            include_defaults : bool
+                Whether to include the default settings. Default is True.
         """
+        if include_defaults is None:
+            include_defaults = self.include_defaults
+
         if isinstance(self.settings, LammpsSettings):
             present_settings = self.settings.get_dict.copy()
+            if include_defaults:
+                base_settings = _BASE_LAMMPS_SETTINGS[self.data_type].copy()
+                present_settings = base_settings | present_settings
             for k, v in updates.items():
                 present_settings.update({k: v})
             if validate_params:
@@ -294,7 +306,13 @@ class BaseLammpsSetGenerator(InputGenerator):
             print(f"Updating settings: {present_settings}")
             self.settings = LammpsSettings(**present_settings)
         else:
-            self.settings.update(updates)
+            if include_defaults:
+                base_settings = _BASE_LAMMPS_SETTINGS[self.data_type].copy()
+                present_settings = base_settings | updates
+                present_settings.update(updates)
+            else:
+                present_settings = updates
+            self.settings.update(present_settings)
 
     def get_input_set(
         self,
@@ -341,10 +359,8 @@ class BaseLammpsSetGenerator(InputGenerator):
                         "nor a string repr of the inputfile. Please check your inputs!"
                     )
 
-        data_type = "molecular" if isinstance(data, Molecule) else "periodic"
-        if self.include_defaults:
-            base_settings = _BASE_LAMMPS_SETTINGS[data_type].copy() | self.settings.get_dict.copy()
-            self.update_settings(base_settings, validate_params=self.validate_params)
+        "molecular" if isinstance(data, Molecule) else "periodic"
+        self.update_settings(updates={}, validate_params=self.validate_params, include_defaults=self.include_defaults)
 
         settings_dict = self.settings.get_dict.copy() if isinstance(self.settings, LammpsSettings) else self.settings
         atom_style = settings_dict.get("atom_style", "full")
