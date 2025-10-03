@@ -343,8 +343,8 @@ class BaseLammpsSetGenerator(InputGenerator):
 
         data_type = "molecular" if isinstance(data, Molecule) else "periodic"
         if self.include_defaults:
-            molecule_updates = _BASE_LAMMPS_SETTINGS[data_type].copy()
-            self.update_settings(molecule_updates, validate_params=self.validate_params)
+            base_settings = _BASE_LAMMPS_SETTINGS[data_type].copy() | self.settings.get_dict.copy()
+            self.update_settings(base_settings, validate_params=self.validate_params)
 
         settings_dict = self.settings.get_dict.copy() if isinstance(self.settings, LammpsSettings) else self.settings
         atom_style = settings_dict.get("atom_style", "full")
