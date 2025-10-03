@@ -22,7 +22,7 @@ from monty.json import MSONable
 
 from pymatgen.core import Lattice, Molecule, Structure
 from pymatgen.io.core import InputGenerator
-from pymatgen.io.lammps.data import CombinedData, LammpsBox, LammpsData
+from pymatgen.io.lammps.data import CombinedData, LammpsBox, LammpsData, LammpsForceField
 from pymatgen.io.lammps.inputs import LammpsInputFile
 from pymatgen.io.lammps.sets import LammpsInputSet
 from pymatgen.util.typing import PathLike
@@ -232,7 +232,7 @@ class BaseLammpsSetGenerator(InputGenerator):
 
     inputfile: LammpsInputFile | str | PathLike = field(default=None)
     settings: dict | LammpsSettings = field(default_factory=dict)
-    force_field: Path | dict | None = field(default=None)
+    force_field: Path | dict | LammpsForceField | None = field(default=None)
     data_type: Literal["periodic", "molecular"] = field(default="periodic")
     calc_type: str = field(default="lammps")
     include_defaults: bool = field(default=True)
@@ -274,6 +274,9 @@ class BaseLammpsSetGenerator(InputGenerator):
                 base_settings = _BASE_LAMMPS_SETTINGS[self.data_type].copy()
                 settings = base_settings | settings
             self.settings = LammpsSettings(validate_params=self.validate_params, **settings)
+
+        if isinstance(self.force_field, dict):
+            self.force_field = LammpsForceField.from_dict(self.force_field)
 
     def update_settings(self, updates: dict, validate_params: bool = True) -> None:
         """
@@ -322,7 +325,7 @@ class BaseLammpsSetGenerator(InputGenerator):
             warnings.warn(
                 "Force field not specified! Ensure you have the correct force field parameters "
                 "in the data file/settings or will specify it manually using "
-                "maker.input_set_generator.force_field.",
+                "maker.input_set_generator.force_field",
                 stacklevel=2,
             )
 
@@ -339,7 +342,7 @@ class BaseLammpsSetGenerator(InputGenerator):
                     )
 
         data_type = "molecular" if isinstance(data, Molecule) else "periodic"
-        if data_type != self.data_type and self.include_defaults:
+        if self.include_defaults:
             molecule_updates = _BASE_LAMMPS_SETTINGS[data_type].copy()
             self.update_settings(molecule_updates, validate_params=self.validate_params)
 
@@ -438,32 +441,40 @@ class BaseLammpsSetGenerator(InputGenerator):
             elif val:
                 settings_dict.update({attr: val})
 
+        write_data = {}
         # Handle the force field input by writing a separate FF file
         # and making the necessary updates to the settings dict
-        FF_string = ""
-        if isinstance(self.force_field, str):
-            FF_string += self.force_field
-            settings_dict.update({f"{ff}_flag": "###" for ff in FF_STYLE_KEYS})
+        if self.force_field:
+            FF_string = ""
+            if isinstance(self.force_field, str):
+                FF_string += self.force_field
+                settings_dict.update({f"{ff}_flag": "###" for ff in FF_STYLE_KEYS})
 
-        if isinstance(self.force_field, dict):
-            for key, value in self.force_field.items():
-                if key in FF_STYLE_KEYS and value:
-                    settings_dict.update({f"{key}": value, f"{key}_flag": f"{key}"})
-                if key in FF_COEFF_KEYS and value:
-                    FF_string += f"{key} {value}\n"
-                if key in ["species"]:
-                    # makes species specified in FF dict take precedence
-                    species = " ".join(value) if isinstance(value, list) else value
-                else:
-                    warnings.warn(f"Force field key {key} not recognized, will be ignored.", stacklevel=2)
+            if isinstance(self.force_field, dict):
+                self.force_field = LammpsForceField.from_dict(self.force_field)
 
-            for ff_key in FF_STYLE_KEYS:
-                if ff_key not in self.settings.get_dict or not self.settings.get_dict[ff_key]:  # type: ignore[union-attr]
-                    settings_dict.update({f"{ff_key}_flag": "###"})
-                    warnings.warn(f"Force field key {ff_key} not found in the force field dictionary.", stacklevel=2)
+            if isinstance(self.force_field, LammpsForceField):
+                for key, value in self.force_field.as_dict().items():
+                    if key in FF_STYLE_KEYS and value:
+                        settings_dict.update({f"{key}": value, f"{key}_flag": f"{key}"})
+                    if key in FF_COEFF_KEYS and value:
+                        FF_string += f"{key} {value}\n"
+                    if key in ["species"]:
+                        # makes species specified in FF dict take precedence
+                        species = " ".join(value) if isinstance(value, list) else value
+                    else:
+                        warnings.warn(f"Force field key {key} not recognized, will be ignored.", stacklevel=2)
 
-        settings_dict.update({"dump_modify_flag": "dump_modify" if species else "###", "species": species})
-        write_data = {"forcefield.lammps": FF_string}
+                for ff_key in FF_STYLE_KEYS:
+                    if ff_key not in self.settings.get_dict or not self.settings.get_dict[ff_key]:  # type: ignore[union-attr]
+                        settings_dict.update({f"{ff_key}_flag": "###"})
+                        warnings.warn(
+                            f"Force field key {ff_key} not found in the force field dictionary.", stacklevel=2
+                        )
+
+            settings_dict.update({"dump_modify_flag": "dump_modify" if species else "###", "species": species})
+            write_data.update({"forcefield.lammps": FF_string})
+
         if additional_data:
             write_data.update({"extra.data": additional_data})
             settings_dict.update({"extra_data_flag": "include"})

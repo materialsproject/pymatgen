@@ -17,6 +17,7 @@ from __future__ import annotations
 import itertools
 import re
 import warnings
+from dataclasses import dataclass, field
 from io import StringIO
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -111,6 +112,86 @@ ATOMS_HEADERS = {
     "full": ["molecule-ID", "type", "q", "x", "y", "z"],
     "molecular": ["molecule-ID", "type", "x", "y", "z"],
 }
+
+
+@dataclass
+class LammpsForceField:
+    """
+    Super light wrapper class to store force field information with
+    basic validation: If a {some}_coeff is specified,
+    {some}_style must be specified. If species is specified as a string,
+    it will be split into a list of strings.
+    """
+
+    pair_style: str | None = field(default=None)
+    pair_coeff: list | str | None = field(default=None)
+    bond_style: str | None = field(default=None)
+    bond_coeff: list | str | None = field(default=None)
+    angle_style: str | None = field(default=None)
+    angle_coeff: list | str | None = field(default=None)
+    dihedral_style: str | None = field(default=None)
+    dihedral_coeff: list | str | None = field(default=None)
+    improper_style: str | None = field(default=None)
+    improper_coeff: list | str | None = field(default=None)
+    species: list | str | None = field(default=None)
+
+    def __post_init__(self):
+        if self.species:
+            if isinstance(self.species, str):
+                self.species = self.species.split()
+            if not all(isinstance(s, str) for s in self.species):
+                raise ValueError("Species must be a list of strings")
+        has_atleast_one = False
+        for kw in ["pair_coeff", "bond_coeff", "angle_coeff", "dihedral_coeff", "improper_coeff"]:
+            if self.__getattribute__(kw):
+                type_kw = kw.split("_")[0]
+                if not self.__getattribute__(f"{type_kw}_style"):
+                    raise ValueError(
+                        f"{type_kw}_style must be specified \
+                        when {kw} is specified"
+                    )
+                has_atleast_one = True
+        if not has_atleast_one:
+            raise ValueError(
+                "At least one of pair_coeff, \
+                bond_coeff, angle_coeff, dihedral_coeff, or \
+                    improper_coeff must be specified"
+            )
+
+    def as_dict(self):
+        return {
+            "pair_style": self.pair_style,
+            "pair_coeff": self.pair_coeff,
+            "bond_style": self.bond_style,
+            "bond_coeff": self.bond_coeff,
+            "angle_style": self.angle_style,
+            "angle_coeff": self.angle_coeff,
+            "dihedral_style": self.dihedral_style,
+            "dihedral_coeff": self.dihedral_coeff,
+            "improper_style": self.improper_style,
+            "improper_coeff": self.improper_coeff,
+            "species": self.species,
+        }
+
+    @classmethod
+    def from_dict(cls, dct: dict):
+        kw_list = [
+            "pair_style",
+            "pair_coeff",
+            "bond_style",
+            "bond_coeff",
+            "angle_style",
+            "angle_coeff",
+            "dihedral_style",
+            "dihedral_coeff",
+            "improper_style",
+            "improper_coeff",
+            "species",
+        ]
+        build_dct = {}
+        for kw in kw_list:
+            build_dct[kw] = dct.get(kw)
+        return cls(**build_dct)
 
 
 class LammpsBox(MSONable):
