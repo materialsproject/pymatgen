@@ -2313,10 +2313,14 @@ class PDPlotter:
         Returns:
             go.Figure | plt.Axes: Plotly figure or matplotlib axes object depending on backend.
         """
-        fig = None
-        data = []
+        if self._dim not in {1, 2, 3, 4}:
+            raise ValueError(
+                f"Plotting is only supported for unary/binary/ternary/quaternary phase diagrams — got {self._dim}D "
+            )
 
         if self.backend == "plotly":
+            data: list = []
+
             if self._dim != 1:
                 data.append(self._create_plotly_lines())
 
@@ -2334,7 +2338,7 @@ class PDPlotter:
             if self._dim != 1 and not (self._dim == 3 and self.ternary_style == "2d"):
                 data.append(self._create_plotly_stable_labels(label_stable))
 
-            if fill and self._dim in [3, 4]:
+            if fill and self._dim in {3, 4}:
                 data.extend(self._create_plotly_fill())
 
             data.extend([stable_marker_plot, unstable_marker_plot])
@@ -2346,9 +2350,11 @@ class PDPlotter:
             fig.layout = self._create_plotly_figure_layout()
             fig.update_layout(coloraxis_colorbar={"yanchor": "top", "y": 0.05, "x": 1})
 
-        elif self.backend == "matplotlib":
-            if self._dim <= 3:
-                fig = self._get_matplotlib_2d_plot(
+            return fig
+
+        if self.backend == "matplotlib":
+            if self._dim in {1, 2, 3}:
+                return self._get_matplotlib_2d_plot(
                     label_stable,
                     label_unstable,
                     ordering,
@@ -2356,10 +2362,10 @@ class PDPlotter:
                     ax=ax,
                     process_attributes=process_attributes,
                 )
-            elif self._dim == 4:
-                fig = self._get_matplotlib_3d_plot(label_stable, ax=ax)
+            if self._dim == 4:
+                return self._get_matplotlib_3d_plot(label_stable, ax=ax)
 
-        return fig
+        return None
 
     def show(self, *args, **kwargs) -> None:
         """
