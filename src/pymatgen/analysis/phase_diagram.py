@@ -523,7 +523,7 @@ class PhaseDiagram(MSONable):
             [e.composition.get_atomic_fraction(el) for el in self.elements] + [e.energy_per_atom]
             for e in self.all_entries
         ]
-        return np.array(data)[:, 1:]
+        return np.asarray(data)[:, 1:]
 
     @property
     def unstable_entries(self) -> set[Entry]:
@@ -675,7 +675,7 @@ class PhaseDiagram(MSONable):
         for sc in self.simplexes:
             intersections.extend(sc.line_intersection(c1, c2))
 
-        return np.array(intersections)
+        return np.asarray(intersections)
 
     def get_decomposition(self, comp: Composition) -> dict[PDEntry, float]:
         """
@@ -2008,7 +2008,7 @@ class ReactionDiagram:
                 try:
                     mat = [[entry.composition.get_atomic_fraction(el) for el in elements] for entry in face_entries]
                     mat.append(comp_vec2 - comp_vec1)
-                    matrix = np.array(mat).T
+                    matrix = np.asarray(mat).T
                     coeffs = np.linalg.solve(matrix, comp_vec2)
 
                     x = coeffs[-1]
@@ -2571,7 +2571,7 @@ class PDPlotter:
         """
         pd = self._pd
         entries = pd.qhull_entries
-        data = np.array(pd.qhull_data)
+        data = np.asarray(pd.qhull_data)
 
         ax = self._get_matplotlib_2d_plot()
         data[:, 0:2] = triangular_coord(data[:, 0:2]).transpose()
@@ -2614,9 +2614,9 @@ class PDPlotter:
         """
         pd = self._pd
         entries = pd.qhull_entries
-        data = np.array(pd.qhull_data)
-        lines = []
-        stable_entries = {}
+        data = np.asarray(pd.qhull_data)
+        lines: list = []
+        stable_entries: dict = {}
 
         for line in self.lines:
             entry1 = entries[line[0]]
@@ -2638,7 +2638,7 @@ class PDPlotter:
             stable_entries[label_coord[1]] = entry2
 
         all_entries = pd.all_entries
-        all_data = np.array(pd.all_entries_hulldata)
+        all_data = np.asarray(pd.all_entries_hulldata)
         unstable_entries = {}
         stable = pd.stable_entries
 
@@ -2819,7 +2819,7 @@ class PDPlotter:
                     )
                 ]
         elif self._dim == 3 and self.ternary_style == "3d":
-            facets = np.array(self._pd.facets)
+            facets = np.asarray(self._pd.facets)
             coords = np.array(
                 [
                     triangular_coord(c)
@@ -2862,7 +2862,7 @@ class PDPlotter:
                 )
             )
         elif self._dim == 4:
-            all_data = np.array(pd.qhull_data)
+            all_data = np.asarray(pd.qhull_data)
             fillcolors = itertools.cycle(plotly_layouts["default_fill_colors"])
             for _idx, facet in enumerate(pd.facets):
                 xs, ys, zs = [], [], []
@@ -3727,7 +3727,7 @@ class PDPlotter:
             # The follow defines an offset for the annotation text emanating
             # from the center of the PD. Results in fairly nice layouts for the
             # most part.
-            vec = np.array(coords) - center
+            vec = np.asarray(coords) - center
             vec = vec / np.linalg.norm(vec) * 10 if np.linalg.norm(vec) != 0 else vec
             valign = "bottom" if vec[1] > 0 else "top"
             if vec[0] < -0.01:
@@ -3773,7 +3773,7 @@ class PDPlotter:
             for entry, coords in unstable.items():
                 ehull = self._pd.get_e_above_hull(entry)
                 if ehull is not None and ehull < self.show_unstable:
-                    vec = np.array(coords) - center
+                    vec = np.asarray(coords) - center
                     vec = vec / np.linalg.norm(vec) * 10 if np.linalg.norm(vec) != 0 else vec
                     label = entry.name
                     if energy_colormap is None:
@@ -3895,7 +3895,7 @@ def triangular_coord(coord):
     """
     unit_vec = np.array([[1, 0], [0.5, math.sqrt(3) / 2]])
 
-    result = np.dot(np.array(coord), unit_vec)
+    result = np.dot(np.asarray(coord), unit_vec)
     return result.transpose()
 
 
@@ -3917,7 +3917,7 @@ def tet_coord(coord):
             [0.5, 1 / 3 * math.sqrt(3) / 2, math.sqrt(6) / 3],
         ]
     )
-    result = np.dot(np.array(coord), unitvec)
+    result = np.dot(np.asarray(coord), unitvec)
     return result.transpose()
 
 
