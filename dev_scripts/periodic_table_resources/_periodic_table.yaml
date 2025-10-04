@@ -1096,6 +1096,8 @@ Boiling point:
     Pu: 3503, Am: 2880, Cm: 3383}
 Brinell hardness:
   unit: MPa
+  reference:
+    https://www.chemeurope.com/en/encyclopedia/Hardnesses_of_the_elements_%28data_page%29.html#Brinell_hardness
   data: {Be: 600, Na: 0.69, Mg: 260, Al: 245, K: 0.363, Ca: 167, Sc: 750, Ti:
       716, V: 628, Cr: 1120, Mn: 196, Fe: 490, Co: 700, Ni: 700, Cu: 874, Zn:
       412, Ga: 60, As: 1440, Se: 736, Rb: 0.216, Y: 589, Zr: 650, Nb: 736, Mo:
@@ -1132,6 +1134,8 @@ Coefficient of linear thermal expansion:
       Os: 5.1e-06, Ir: 6.4e-06, Pt: 8.8e-06, Au: 1.42e-05, Tl: 2.99e-05, Pb:
       2.89e-05, Bi: 1.34e-05, Th: 1.1e-05, U: 1.39e-05}
 Common oxidation states:
+  reference:
+    https://en.wikipedia.org/wiki/Template:List_of_oxidation_states_of_the_elements
   data:
     H: [-1, 1]
     D: [-1, 1]
@@ -1234,6 +1238,8 @@ Common oxidation states:
     Lr: [3]
 Critical temperature:
   unit: K
+  reference:
+    https://en.wikipedia.org/wiki/Critical_points_of_the_elements_(data_page)
   data: {H: 33, He: 5.19, Li: 3223, N: 126.2, O: 154.6, F: 144, Ne: 44.4, Na:
       2573, P: 994, S: 1314, Cl: 417, Ar: 150.8, K: 2223, As: 1700, Se: 1766, Br:
       586, Kr: 209.4, Rb: 2093, I: 819, Xe: 289.7, Cs: 1938, Hg: 1750, Rn: 377}
@@ -1254,6 +1260,8 @@ Density of solid:
     Cf: 15100}
 Electrical resistivity:
   unit: ohm m
+  reference:
+    https://en.wikipedia.org/wiki/Electrical_resistivities_of_the_elements_(data_page)
   data: {Li: 9.5e-08, Be: 3.8e-08, B: 15000.0, C: 1e-05, Na: 4.9e-08, Mg:
       4.4e-08, Al: 2.7e-08, Si: 0.001, P: 1e-07, S: 2000000000000000.0, Cl: 10.0,
     K: 7.5e-08, Ca: 3.4e-08, Sc: 5.5e-07, Ti: 4e-07, V: 2e-07, Cr: 1.27e-07, Mn:
@@ -2606,6 +2614,7 @@ Is named isotope:
   data: {D: true, T: true}
 Liquid range:
   unit: K
+  reference: https://www.webelements.com/periodicity/liquid_range/
   data: {H: 6.27, He: 3.27, Li: 1161.31, Be: 1182, B: 1851, C: 500, N: 14.31, O:
       35.4, F: 31.5, Ne: 2.51, Na: 785.13, Mg: 440, Al: 1858.53, Si: 1486, P:
       232.7, S: 329.51, Cl: 67.51, Ar: 3.5, K: 695.47, Ca: 642, Sc: 1289, Ti:
@@ -2682,6 +2691,7 @@ Mineral hardness:
     Au: 2.5, Hg: 1.5, Tl: 1.2, Pb: 1.5, Bi: 2.25, Th: 3.0, U: 6.0}
 Molar volume:
   unit: cm^3 mol^-1
+  reference: https://www.webelements.com/periodicity/molar_volume/
   data: {H: 11.42, He: 21.0, Li: 13.02, Be: 4.85, B: 4.39, C: 5.29, N: 13.54, O:
       17.36, F: 11.20, Ne: 13.23, Na: 23.78, Mg: 14.00, Al: 10.00, Si: 12.06, P:
       17.02, S: 15.53, Cl: 17.39, Ar: 22.56, K: 45.94, Ca: 26.20, Sc: 15.00, Ti:
@@ -2698,6 +2708,8 @@ Molar volume:
     Am: 17.63, Cm: 18.05, Bk: 16.84, Cf: 16.50, Es: 28.52}
 NMR Quadrupole Moment:
   unit: mbarn
+  reference: CRC Handbook of Chemistry and Physics, 95 th, Nuclear Spins,
+    Moments, and Other Data Related to NMR Spectroscopy
   data:
     H:
       H-2: 2.86
@@ -2920,10 +2932,12 @@ Poissons ratio:
     U: 0.23, Pu: 0.21}
 Reflectivity:
   unit: '%'
+  reference: https://www.webelements.com/periodicity/reflectivity/
   data: {C: 27, Mg: 74, Al: 71, Si: 28, V: 61, Fe: 65, Co: 67, Ni: 72, Cu: 90,
       Zn: 80, Mo: 58, Rh: 84, Pd: 72, Ag: 97, Cd: 67, Sn: 54, Sb: 55, Te: 50, Ta:
       78, W: 62, Ir: 78, Pt: 73, Au: 95, Hg: 73}
 Refractive index:
+  reference: https://www.webelements.com/periodicity/refractive_index/
   data: {H: 1.000132, He: 1.000035, C: 2.417, N: 1.000298, O: 1.000271, F:
       1.000195, Ne: 1.000067, P: 1.001212, S: 1.001111, Cl: 1.000773, Ar:
       1.000281, Zn: 1.002050, As: 1.001552, Se: 1.000895, Br: 1.001132, Kr:
@@ -4223,6 +4237,7 @@ Shannon radii:
           '': {crystal_radius: 1.24, ionic_radius: 1.1}
 Superconduction temperature:
   unit: K
+  reference: https://www.webelements.com/periodicity/supercon_temp/
   data: {Be: 0.026, Al: 1.175, Sc: 0.05, Ti: 0.40, V: 5.40, Zn: 0.85, Ga: 1.083,
       Y: 1.3, Zr: 0.61, Nb: 9.25, Mo: 0.915, Tc: 7.8, Ru: 0.49, Cd: 0.517, In:
       3.41, Sn: 3.72, La: 6.00, Ce: 0.022, Gd: 1.083, Lu: 0.022, Hf: 0.128, Ta:

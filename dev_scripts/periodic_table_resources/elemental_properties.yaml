@@ -1351,7 +1351,12 @@ Boiling point:
     Yb: 1469
     Zn: 1180
     Zr: 4682
-Brinell hardness: # TODO: need source
+Brinell hardness:
+  # NOTE: the following source referenced "Handbook of the physicochemical
+  # properties of the elements, IFI-Plenum, New York, USA, 1968."
+  # but I found the data from the handbook different (as a possible range,
+  # or multiple possible values)
+  reference: "https://www.chemeurope.com/en/encyclopedia/Hardnesses_of_the_elements_%28data_page%29.html#Brinell_hardness"
   unit: MPa
   data:
     Ag: 24.5
@@ -1554,7 +1559,10 @@ Coefficient of linear thermal expansion:
     Yb: 26.3
     Zn: 30.2
     Zr: 5.7
-Common oxidation states: # TODO: need source
+Common oxidation states:
+  # TODO: the source is very likely from wikipedia but our data need to be updated,
+  # for example the data for carbon shouldn't be only -4 or 4
+  reference: "https://en.wikipedia.org/wiki/Template:List_of_oxidation_states_of_the_elements"
   data:
     Ac: [3]
     Ag: [1]
@@ -1655,7 +1663,9 @@ Common oxidation states: # TODO: need source
     Zr: [4]
     D: [-1, 1]
     T: [-1, 1]
-Critical temperature: # TODO: need source (might from wiki: Critical points of the elements)
+Critical temperature:
+  # TODO: need to update with wikipedia
+  reference: "https://en.wikipedia.org/wiki/Critical_points_of_the_elements_(data_page)"
   unit: K
   data:
     Ar: 150.8
@@ -1767,7 +1777,8 @@ Density of solid:
     Yb: 6570
     Zn: 7140
     Zr: 6511
-Electrical resistivity: # TODO: need source, need validate/update
+Electrical resistivity: # TODO: need validate/update
+  reference: "https://en.wikipedia.org/wiki/Electrical_resistivities_of_the_elements_(data_page)"
   unit: ohm m
   factor: 1e-8
   data: # 293 K (20 °C)
@@ -2222,7 +2233,8 @@ Electronic structure:
     Zr:
       "0": "[Kr].4d2.5s2"
       "4": "[Ar].3d10.4s2.4p6"
-Liquid range: # TODO: need source
+Liquid range:
+  reference: "https://www.webelements.com/periodicity/liquid_range/"
   unit: K
   data:
     Ac: 2250
@@ -2590,7 +2602,8 @@ Mineral hardness: # "Mohs hardness"
     W: 7.5
     Zn: 2.5
     Zr: 5.0
-Molar volume: # TODO: need source
+Molar volume:
+  reference: "https://www.webelements.com/periodicity/molar_volume/"
   unit: cm^3 mol^-1
   data:
     Ac: 22.55
@@ -2869,7 +2882,8 @@ Poissons ratio:
     Yb: 0.21
     Zn: 0.25
     Zr: 0.34
-Reflectivity: # TODO: need source
+Reflectivity:
+  reference: "https://www.webelements.com/periodicity/reflectivity/"
   unit: "%"
   data:
     Ag: 97
@@ -2896,7 +2910,8 @@ Reflectivity: # TODO: need source
     V: 61
     W: 62
     Zn: 80
-Refractive index: # TODO: need source
+Refractive index:
+  reference: "https://www.webelements.com/periodicity/refractive_index/"
   data:
     Ar: 1.000281
     As: 1.001552
@@ -2981,7 +2996,8 @@ Rigidity modulus: # "shear modulus"
     Yb: 9.9
     Zn: 43
     Zr: 33
-Superconduction temperature: # TODO: need source
+Superconduction temperature:
+  reference: "https://www.webelements.com/periodicity/supercon_temp/"
   unit: K
   data:
     Al: 1.175
