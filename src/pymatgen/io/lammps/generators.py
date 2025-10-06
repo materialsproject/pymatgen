@@ -149,7 +149,7 @@ class LammpsSettings(MSONable):
 
     validate_params: bool = field(default=False)
 
-    def __init__(self, validate_params: bool = True, **kwargs):
+    def __init__(self, validate_params: bool = False, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
         if validate_params:
@@ -279,7 +279,7 @@ class BaseLammpsSetGenerator(InputGenerator):
             self.force_field = LammpsForceField.from_dict(self.force_field)
 
     def update_settings(
-        self, updates: dict, validate_params: bool = True, include_defaults: bool | None = None
+        self, updates: dict, validate_params: bool | None = None, include_defaults: bool | None = None
     ) -> None:
         """
         Update the settings for the LammpsSettings object.
@@ -291,8 +291,8 @@ class BaseLammpsSetGenerator(InputGenerator):
             include_defaults : bool
                 Whether to include the default settings. Default is True.
         """
-        if include_defaults is None:
-            include_defaults = self.include_defaults
+        validate_params = validate_params if isinstance(validate_params, bool) else self.validate_params
+        include_defaults = include_defaults if isinstance(include_defaults, bool) else self.include_defaults
 
         if isinstance(self.settings, LammpsSettings):
             present_settings = self.settings.get_dict.copy()
@@ -570,3 +570,96 @@ class BaseLammpsGenerator(InputGenerator):
             calc_type=self.calc_type,
             template_file=self.template,
         )
+
+
+class LammpsMinimization(BaseLammpsGenerator):
+    """
+    Generator that yields a LammpsInputSet tailored for minimizing the energy of a system by iteratively
+    adjusting atom coordinates.
+    Example usage:
+    ```
+    structure = Structure.from_file("mp-149.cif")
+    lmp_minimization = LammpsMinimization(units="atomic").get_input_set(structure)
+    ```.
+    Do not forget to specify the force field, otherwise LAMMPS will not be able to run!
+    This InputSet and InputGenerator implementation is based on templates and is not intended to be very flexible.
+    For instance, pymatgen will not detect whether a given variable should be adapted based on others
+    (e.g., the number of steps from the temperature), it will not check for convergence nor will it actually run LAMMPS.
+    For additional flexibility and automation, use the atomate2-lammps implementation
+    (https://github.com/Matgenix/atomate2-lammps).
+    """
+
+    def __init__(
+        self,
+        template: str | None = None,
+        units: str = "metal",
+        atom_style: str = "full",
+        dimension: int = 3,
+        boundary: str = "p p p",
+        read_data: str = "system.data",
+        force_field: str = "Unspecified force field!",
+        keep_stages: bool = False,
+    ) -> None:
+        r"""
+        Args:
+            template: Path (string) to the template file used to create the InputFile for LAMMPS.
+            units: units to be used for the LAMMPS calculation (see LAMMPS docs).
+            atom_style: atom_style to be used for the LAMMPS calculation (see LAMMPS docs).
+            dimension: dimension to be used for the LAMMPS calculation (see LAMMPS docs).
+            boundary: boundary to be used for the LAMMPS calculation (see LAMMPS docs).
+            read_data: read_data to be used for the LAMMPS calculation (see LAMMPS docs).
+            force_field: force field to be used for the LAMMPS calculation (see LAMMPS docs).
+                Note that you should provide all the required information as a single string.
+                In case of multiple lines expected in the input file,
+                separate them with '\n' in force_field.
+            keep_stages: If True, the string is formatted in a block structure with stage names
+                and newlines that differentiate commands in the respective stages of the InputFile.
+                If False, stage names are not printed and all commands appear in a single block.
+        """
+        if template is None:
+            template = f"{TEMPLATE_DIR}/minimization.template"
+        settings = {
+            "units": units,
+            "atom_style": atom_style,
+            "dimension": dimension,
+            "boundary": boundary,
+            "read_data": read_data,
+            "force_field": force_field,
+        }
+
+        super().__init__(
+            template=template,
+            settings=settings,
+            calc_type="minimization",
+            keep_stages=keep_stages,
+        )
+
+    @property
+    def units(self) -> str:
+        """The argument of the command 'units' passed to the generator."""
+        return self.settings["units"]
+
+    @property
+    def atom_style(self) -> str:
+        """The argument of the command 'atom_style' passed to the generator."""
+        return self.settings["atom_style"]
+
+    @property
+    def dimension(self) -> int:
+        """The argument of the command 'dimension' passed to the generator."""
+        return self.settings["dimension"]
+
+    @property
+    def boundary(self) -> str:
+        """The argument of the command 'boundary' passed to the generator."""
+        return self.settings["boundary"]
+
+    @property
+    def read_data(self) -> str:
+        """The argument of the command 'read_data' passed to the generator."""
+        return self.settings["read_data"]
+
+    @property
+    def force_field(self) -> str:
+        """The details of the force field commands passed to the generator."""
+        return self.settings["force_field"]
