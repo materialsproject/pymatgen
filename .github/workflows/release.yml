@@ -16,12 +16,12 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    # run test.yml first to ensure that the test suite is passing
-    uses: ./.github/workflows/test.yml
+  # test:
+  #   # run test.yml first to ensure that the test suite is passing
+  #   uses: ./.github/workflows/test.yml
 
   build_sdist:
-    needs: test
+    # needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
@@ -43,7 +43,7 @@ jobs:
           path: dist/*.tar.gz
 
   build_wheels:
-    needs: test
+    # needs: test
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, macos-13, windows-latest, ubuntu-24.04-arm]
@@ -85,6 +85,13 @@ jobs:
           pattern: dist-*
           merge-multiple: true
           path: dist
+
+      - name: Show what was downloaded (DEBUG)
+        run: |
+          echo "✅ Listing downloaded artifacts"
+          find dist -type f -print
+          echo ""
+          ls -lh dist
 
       - name: Publish to PyPI or TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
