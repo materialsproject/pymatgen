@@ -512,7 +512,7 @@ class JDFTXInfile(dict, MSONable):
         """
         for tag in self:
             tag_object = get_tag_object(tag)
-            checked_tag, is_tag_valid, value = tag_object.validate_value_type(
+            _checked_tag, is_tag_valid, value = tag_object.validate_value_type(
                 tag, self[tag], try_auto_type_fix=try_auto_type_fix
             )
             should_warn = not is_tag_valid
