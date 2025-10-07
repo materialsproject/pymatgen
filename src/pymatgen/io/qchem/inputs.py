@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import TYPE_CHECKING
 
@@ -24,6 +25,8 @@ __version__ = "0.1"
 __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 __credits__ = "Xiaohui Qu"
+
+logger = logging.getLogger(__name__)
 
 
 class QCInput(InputFile):
@@ -959,7 +962,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         pcm_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not pcm_table:
-            print("No valid PCM inputs found. Note that there should be no '=' characters in PCM input lines.")
+            logger.info("No valid PCM inputs found. Note that there should be no '=' characters in PCM input lines.")
             return {}
 
         return dict(pcm_table[0])
@@ -980,7 +983,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         vdw_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not vdw_table:
-            print("No valid vdW inputs found. Note that there should be no '=' characters in vdW input lines.")
+            logger.info("No valid vdW inputs found. Note that there should be no '=' characters in vdW input lines.")
             return "", {}
 
         mode = "sequential" if vdw_table[0][0][0] == 2 else "atomic"
@@ -1003,7 +1006,9 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         solvent_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not solvent_table:
-            print("No valid solvent inputs found. Note that there should be no '=' characters in solvent input lines.")
+            logger.info(
+                "No valid solvent inputs found. Note that there should be no '=' characters in solvent input lines."
+            )
             return {}
 
         return dict(solvent_table[0])
@@ -1024,7 +1029,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         smx_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not smx_table:
-            print("No valid smx inputs found. Note that there should be no '=' characters in smx input lines.")
+            logger.info("No valid smx inputs found. Note that there should be no '=' characters in smx input lines.")
             return {}
         smx = dict(smx_table[0])
         if smx["solvent"] == "tetrahydrofuran":
@@ -1050,7 +1055,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         scan_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if scan_table == []:
-            print("No valid scan inputs found. Note that there should be no '=' characters in scan input lines.")
+            logger.info("No valid scan inputs found. Note that there should be no '=' characters in scan input lines.")
             return {}
 
         stre = []
@@ -1085,7 +1090,9 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         plots_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if plots_table == []:
-            print("No valid plots inputs found. Note that there should be no '=' characters in plots input lines.")
+            logger.info(
+                "No valid plots inputs found. Note that there should be no '=' characters in plots input lines."
+            )
             return {}
         return dict(plots_table[0])
 
@@ -1105,7 +1112,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         nbo_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if nbo_table == []:
-            print("No valid nbo inputs found.")
+            logger.info("No valid nbo inputs found.")
             return {}
         return dict(nbo_table[0])
 
@@ -1125,7 +1132,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         geom_opt_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if geom_opt_table == []:
-            print("No valid geom_opt inputs found.")
+            logger.info("No valid geom_opt inputs found.")
             return {}
         return dict(geom_opt_table[0])
 
@@ -1151,7 +1158,7 @@ class QCInput(InputFile):
 
         section = read_pattern(string, pattern_sec)["full_section"]
         if len(section) == 0:
-            print("No valid cdft inputs found.")
+            logger.info("No valid cdft inputs found.")
             return []
 
         cdft = []
@@ -1206,7 +1213,7 @@ class QCInput(InputFile):
         section = read_pattern(string, pattern)["key"]
 
         if len(section) == 0:
-            print("No valid almo inputs found.")
+            logger.info("No valid almo inputs found.")
             return []
 
         section = section[0]
@@ -1233,7 +1240,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         svp_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if svp_table == []:
-            print("No valid svp inputs found.")
+            logger.info("No valid svp inputs found.")
             return {}
         svp_list = svp_table[0][0][0].split(", ")
         svp_dict = {}
@@ -1257,7 +1264,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         pcm_nonels_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not pcm_nonels_table:
-            print(
+            logger.info(
                 "No valid $pcm_nonels inputs found. Note that there should be no '=' "
                 "characters in $pcm_nonels input lines."
             )

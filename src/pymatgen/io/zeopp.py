@@ -24,6 +24,7 @@ b) Go to pymatgen/analysis/defects/tests and run
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 from typing import TYPE_CHECKING
@@ -68,6 +69,9 @@ __version__ = "0.1"
 __maintainer__ = "Bharat Medasani"
 __email__ = "mbkumar@gmail.com"
 __data__ = "Aug 2, 2013"
+
+
+logger = logging.getLogger(__name__)
 
 
 class ZeoCssr(Cssr):
@@ -344,8 +348,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         rad_flag = True
         rad_file = f"{name}.rad"
         with open(rad_file, "w+", encoding="utf-8") as file:
-            for el in rad_dict:
-                print(f"{el} {rad_dict[el].real}", file=file)
+            file.writelines(f"{el} {val.real}\n" for el, val in rad_dict.items())
 
         atom_net = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         # vornet, vor_edge_centers, vor_face_centers = atom_net.perform_voronoi_decomposition()
