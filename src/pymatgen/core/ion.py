@@ -110,7 +110,7 @@ class Ion(Composition, MSONable, Stringify):
     def formula(self) -> str:
         """A formula string with appended charge. The
         charge is written with the sign preceding the magnitude, e.g.
-        'Ca1 +2'. Uncharged species have "(aq)" appended, e.g. "O2 (aq)".
+        "Ca1 +2". Uncharged species have "(aq)" appended, e.g. "O2 (aq)".
         """
         formula = super().formula
         return f"{formula} {charge_string(self.charge, brackets=False)}"
@@ -133,8 +133,8 @@ class Ion(Composition, MSONable, Stringify):
 
         Similar to Composition.get_reduced_formula_and_factor except that O-H formulas
         receive special handling to differentiate between hydrogen peroxide and OH-.
-        Formulas containing HO are written with oxygen first (e.g. 'Fe(OH)2' rather than
-        'Fe(HO)2'), and special formulas that apply to solids (e.g. Li2O2 instead of LiO)
+        Formulas containing HO are written with oxygen first (e.g. "Fe(OH)2" rather than
+        "Fe(HO)2"), and special formulas that apply to solids (e.g. Li2O2 instead of LiO)
         are not used.
 
         Note that the formula returned by this method does not contain a charge.
@@ -156,7 +156,7 @@ class Ion(Composition, MSONable, Stringify):
 
         Returns:
             tuple[str, float]: A pretty normalized formula and a multiplicative factor, i.e.,
-                H4O4 returns ('H2O2', 2.0).
+                H4O4 returns ("H2O2", 2.0).
         """
         all_int = all(abs(val - round(val)) < Composition.amount_tolerance for val in self.values())
         if not all_int:
@@ -249,7 +249,7 @@ class Ion(Composition, MSONable, Stringify):
     def reduced_formula(self) -> str:
         """A reduced formula string with appended charge. The
         charge is placed in brackets with the sign preceding the magnitude, e.g.
-        'Ca[+2]'. Uncharged species have "(aq)" appended, e.g. "O2(aq)".
+        "Ca[+2]". Uncharged species have "(aq)" appended, e.g. "O2(aq)".
         """
         formula, factor = self.get_reduced_formula_and_factor()
         charge = self._charge / factor
