@@ -173,14 +173,12 @@ class TestIon:
 
     def test_as_dict(self):
         ion = Ion.from_dict({"Mn": 1, "O": 4, "charge": -1})
-        dct = ion.as_dict()
-        correct_dict = {"Mn": 1.0, "O": 4.0, "charge": -1.0}
-        assert dct == correct_dict
-        assert dct["charge"] == correct_dict["charge"]
-        correct_dict = {"Mn": 1.0, "O": 4.0, "charge": -1}
-        dct = ion.as_reduced_dict()
-        assert dct == correct_dict
-        assert dct["charge"] == correct_dict["charge"]
+        assert ion.as_dict() == {"Mn": 1.0, "O": 4.0, "charge": -1.0}
+
+    @pytest.mark.xfail(reason="TODO: fix this, charge isn't reduced")
+    def test_as_reduced_dict(self):
+        ion = Ion.from_dict({"Mn": 2, "O": 8, "charge": -2})
+        assert ion.as_reduced_dict() == {"Mn": 1, "O": 4, "charge": -1}
 
     def test_equals(self):
         rng = np.random.default_rng()
