@@ -6,6 +6,147 @@ nav_order: 4
 
 # Changelog
 
+## v2025.10.7
+
+- PR #4502 Fix: indexing error in Procar._read() by @finnrk
+    Major changes:
+    - Fixes a bug related to indices when skipping repeated k-points while reading `PROCAR` (for example, the double-counting of symmetry points when using a k-path for plotting bandstructure).
+    Previously, projections, eigenvalues, occupations and weights would be attributed to the wrong k-points. Also, the k-point following the skipped k-point would have complex projections of NaN, as well as an occupation, weight, eigenvalue and squared projections of 0.
+- PR #4503 Replace `print` with logging by @DanielYang59
+    - replace `print` with logging, I assume pymatgen as a lib code shouldn't use print...
+    - remove some print from tests
+- PR #4510 suppress runtime warning from boltztrap2 by @DanielYang59
+    close #2317
+- PR #4512 Fix missing sdist from PyPI by @DanielYang59
+    fix #4509
+    tested in my fork: https://github.com/DanielYang59/pymatgen/actions/runs/18279908313/job/52040659228
+- PR #4491 Deprecate `projected_magnetisation` with `projected_magnetization` (US spelling) by @DanielYang59
+    fix #4382
+- PR #4493 `Composition.get_wt_fraction` return float instead of `FloatWithUnit` by @DanielYang59
+    fix #4492
+- PR #4496 Overwrite `__rtruediv__` for `FloatWithUnit`, fix `ArrayWithUnit` loses `unit_type` when unpickled by @DanielYang59
+    - fix #4495
+    - [x] Check `ArrayWithUnit` behaviour
+    - Fix unpickle `ArrayWithUnit` loses `unit_type`
+    - Add some tests for `core.units`, https://app.codecov.io/gh/materialsproject/pymatgen/blob/master/pymatgen%2Fcore%2Funits.py
+- PR #4490 Replace `linear_assignment` with `scipy` `linear_sum_assignment ` by @DanielYang59
+    - Replace `linear_assignment` with [`scipy` `linear_sum_assignment `](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linear_sum_assignment.html#linear-sum-assignment)
+    - [x] Speed benchmark
+    ### Benchmark
+    WSL2 Ubuntu 24.04 (AMD64)
+    Master branch:
+    ```
+    n | avg_time (s) |  std_dev (s)
+    ------------------------------------
+    100 |     0.000104 |     0.000018
+    500 |     0.004302 |     0.002333
+    1000 |     0.018374 |     0.006702
+    5000 |     1.049615 |     0.327349
+    ````
+    Current branch:
+    ```
+    n | avg_time (s) |  std_dev (s)
+    ------------------------------------
+    100 |     0.000121 |     0.000030
+    500 |     0.005082 |     0.002957
+    1000 |     0.018487 |     0.006484
+    5000 |     1.062805 |     0.332552
+    ````
+- PR #4440 `JDFTXOutfileSlice.vibrational_modes` and `JDFTXOutfileSlice.vibrational_energy_components` by @benrich37
+    Major changes:
+    - feature 1: Parsing and storage of vibrational modes within a `JDFTXOutfileSlice`
+    -- Stored as a `list[dict]`, where each `dict` contains
+    --- "Type": `str`
+    ---- either `"Imaginary"`, `"Zero"`, or `"Real"`
+    --- "Type index": `int`
+    ---- (Base 1) index of the mode among other modes of the same frequency type
+    --- "Degeneracy": `int`
+    ---- Degeneracy of the mode (ie if `mode["Degeneracy"] == 2`, than there is one other mode in the list with the same frequency)
+    --- "Frequency": `float` | `complex`
+    ---- Frequency of the vibration in eV
+    --- "IR intensity": `float`
+    ---- IR intensity of the vibrational mode in e^2/amu as derived from dipole of the vibration
+    --- "Displacements": `NDArray[float]`
+    ---- Displacement vector representing the vibrational mode (converted from Bohr to Angstrom as magnitude of vector is a input variable for vibrational analysis in JDFTx)
+    -- Testing for vibrational mode parsing
+    - feature 2: Parsing and storage of vibration energy components within a `JDFTXOutfileSlice`
+    -- Stored as a `dict[str, float]`, containing
+    --- "T" : Temperature at which free energy was evaluated (in K)
+    --- Dumped free energy components in eV
+    -- Testing for vibrational energy components parsing
+- PR #4487 Fix TranslateSitesTransformation by @Rastow
+    There was a bug in the `TranslateSitesTransformation` class. Both index variables in `apply_transformation` are named identically. The test case did not capture this error. I changed the existing test case to fail when run with the old code and renamed the variables.
+- PR #4447 Fix `has_cobicar` when NcICOBILIST is present by @tomdemeyere
+    When `icobiBetween` is activated lobster prints out the `NcICOBILIST.lobster` file. In the lobster output we find "Writing COBICAR.lobster, ICOBILIST.lobster and NcICOBILIST.lobster..." instead of the regular line. The current parser then returns `False` even if the COBICAR.lobster is present.
+    Also, it seems that `has_cohpcar` and `has_coopcar` are flipped?
+    Switching to a regex approach on the whole files (not `\n` split) would allow much greater flexbility, performance and robustness.
+    @JaGeo @naik-aakash
+    - [ ] Google format doc strings added. Check with `ruff`.
+    - [ ] Type annotations included. Check with `mypy`.
+    - [ ] Tests added for new features/fixes.
+    - [ ] If applicable, new classes/functions/modules have [`duecredit`](https://github.com/duecredit/duecredit) `@due.dcite` decorators to reference relevant papers by DOI ([example](https://github.com/materialsproject/pymatgen/blob/91dbe6ee9ed01d781a9388bf147648e20c6d58e0/pymatgen/core/lattice.py#L1168-L1172))
+    Tip: Install `pre-commit` hooks to auto-check types and linting before every commit:
+    ```sh
+    pip install -U pre-commit
+    pre-commit install
+    ```
+- PR #4469 Loosen `requests` lower pin, fix `pre-commit` errors by @DanielYang59
+    ### Summary
+    - Loosen [`requests`](https://pypi.org/project/requests/#history) upper pin, current pin seems too strict and might cause unresolvable dependency
+    - Fix a few deprecation warnings
+    - Fix some new `ruff` errors from `pre-commit`
+- PR #4479 Move JDFTx sets from atomate2 to pymatgen by @cote3804
+    Following a request by @utf in an atomate2 [PR](https://github.com/materialsproject/atomate2/pull/955), I am moving our input set from atomate2 to pymatgen.
+    This PR adds a `sets.py` file with one new class, `JdftxInputSet`, which does little more than wrap the other JDFTx I/o classes. The only minor change to the original atomate2 code is that the `__init__` method now accepts a pymatgen `Structure` instead of a `JDFTXStructure`.
+    A yaml defining the base input set, `BaseJdftxSet.yaml` was also moved from atomate2.
+    I added two basic tests to check that both loading from an input file and from a `JdftxInfile` are working and that the file written by the input set yields the expected `JdftxInfile`.
+- PR #4484 Fix jdftx.outputs usage of 3.11+ only syntax by @DanielYang59
+    [Fix the following 3.11+ only syntax](https://docs.python.org/3/reference/expressions.html?utm_source=chatgpt.com#subscriptions):
+- PR #4473 Fix label in `NEBAnalysis` by @DanielYang59
+    ###
+    To close #4465
+    - [x] Incorrect label (and value)
+    - [x] `glob` now would use exact match first (`['path_1_Li_sv2004_test/00/POSCAR.xyz', 'path_1_Li_sv2004_test/00/POSCAR', 'path_1_Li_sv2004_test/00/POSCAR.vasp']`)https://github.com/materialsproject/pymatgen/blob/f01009c390a3df02d4d45b8f0225cf59305ee7bf/src/pymatgen/analysis/transition_state.py#L261
+    - Deprecate `spline_options` dict with boolean flag `zero_slope_saddle` as there's only one boolean config available: https://github.com/materialsproject/pymatgen/blob/f01009c390a3df02d4d45b8f0225cf59305ee7bf/src/pymatgen/analysis/transition_state.py#L70
+- PR #4260 Use external Package for FHI-aims IO interface by @tpurcell90
+    Major changes:
+    - moved FHI-aims specific content into a separate package (pyfhiaims) for ease of maintenance (stop multiple libraries from implementing the same basic interface)
+    ## Todos
+    If this is work in progress, what else needs to be done?
+    - Workout how to best test the aims io interface/dependency tracker
+    - check with community this does not break their setups
+- PR #4476 patch ReDOS vulnerability in GaussianInput.from_string by @lbluque
+    Major changes:
+    - Patches ReDOS vulnerability mentioned in #2755
+- PR #4448 Remove LOBSTER output file trailing line sensitivity by @DanielYang59
+    - Remove LOBSTER output file trailing line sensitivity, fix #4215
+    [`str.splitlines(keepends=False)`](https://docs.python.org/3/library/stdtypes.html#str.splitlines):
+    > Unlike [split()](https://docs.python.org/3/library/stdtypes.html#str.split) when a delimiter string sep is given, this method returns an empty list for the empty string, and a terminal line break does not result in an extra line:
+    cc @JaGeo @naik-aakash
+- PR #4454 Fix unit for `Element` properties: `density_of_solid` and `Molar volume` by @DanielYang59
+    ### Summary
+    - Remove unit in docstring for `Element` properties, to close #4453
+    - [x] Check other units in docstring
+- PR #4461 Handle numpy array for selective dynamics in `Structure` by @DanielYang59
+    ### Summary
+    - Handle numpy array for selective dynamics in `Structure`, to fix #4460
+    - [x] Double check consistent behaviour from `json` and `orjson`, also check round trip?
+    - [x] Unit test
+- PR #4464 Update analyzer.py by @boyoungzheng
+    Missing a letter "s" for `site.species` in pymatgen.symmetry.analyser.SpacegroupAnalyzer.get_primitive_standard_structure()
+    Major changes:
+    - feature 0:
+    - fix 1: Missing a letter "s" for `site.species` in pymatgen.symmetry.analyser.SpacegroupAnalyzer.get_primitive_standard_structure()
+- PR #4446 Efficiency updates for `__str__()` methods by @kavanase
+    Small change to improve the efficiency of `Species.__str__`, which can become a bottleneck in some workflows which e.g. subselect sites in a structure based on the species, before doing further processing (e.g. defect site matching in `doped`).
+    Improves efficiency by reducing redundant `getattr` calls.
+- PR #4438 Add basic S3 object retrieval to the pymatgen user agent by @esoteric-ephemera
+    The MP API has changed to accommodate increasingly large datasets. This PR allows for retrieving certain data objects from S3 that are no longer accessible via MongoDB
+    In the future, communicating which features unexpectedly no longer work, e.g., through matsci.org, is a great way to handle feature changes. [Calling out the team](https://github.com/materialsproject/pymatgen/commit/c1db75380fbf8e94bbb58ce85c10d9dffade0c5e) is not going to help
+    fyi @mkhorton, @computron
+- PR #4443 Better comment handling for CP2K input file by @DanielYang59
+    - Better comment handling for CP2K input file, to fix #4442
+
 ## v2025.6.14
 
 - Treat LATTICE_CONSTRAINTS as is for INCARs.
