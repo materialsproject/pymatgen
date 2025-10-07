@@ -1334,7 +1334,7 @@ class BSPlotterProjected(BSPlotter):
         proj_br = []
         for index in indices:
             b = self._bs.branches[index]
-            print(b)
+            logger.info(b)
             if self._bs.is_spin_polarized:
                 proj_br.append(
                     {
@@ -1659,9 +1659,9 @@ class BSPlotterProjected(BSPlotter):
         """
         dictio, sum_morbs = self._Orbitals_SumOrbitals(dictio, sum_morbs)
         dictpa, sum_atoms, n_figs = self._number_of_subfigures(dictio, dictpa, sum_atoms, sum_morbs)
-        print(f"Number of subfigures: {n_figs}")
+        logger.info(f"Number of subfigures: {n_figs}")
         if n_figs > 9:
-            print(
+            logger.info(
                 f"The number of subfigures {n_figs} might be too manny and the implementation might take a long "
                 f"time.\n A smaller number or a plot with selected symmetry lines (selected_branches) might be better."
             )
@@ -1821,7 +1821,7 @@ class BSPlotterProjected(BSPlotter):
                 raise KeyError(f"The invalid element was put into 'dictio' as a key: {elt}")
 
         if sum_morbs is None:
-            print("You do not want to sum projection over orbitals.")
+            logger.info("You do not want to sum projection over orbitals.")
         elif not isinstance(sum_morbs, dict):
             raise TypeError("The invalid type of 'sum_orbs' was bound. It should be dict or 'None' type.")
         elif len(sum_morbs) == 0:
@@ -1865,7 +1865,7 @@ class BSPlotterProjected(BSPlotter):
                 elif sum_morbs is None:
                     pass
                 elif elt not in sum_morbs:
-                    print(f"You do not want to sum projection over orbitals of element: {elt}")
+                    logger.info(f"You do not want to sum projection over orbitals of element: {elt}")
                 else:
                     if len(sum_morbs[elt]) == 0:
                         raise ValueError(f"The empty list is an invalid value for sum_morbs[{elt}].")
@@ -1889,7 +1889,7 @@ class BSPlotterProjected(BSPlotter):
                 if sum_morbs is None:
                     pass
                 elif elt not in sum_morbs:
-                    print(f"You do not want to sum projection over orbitals of element: {elt}")
+                    logger.info(f"You do not want to sum projection over orbitals of element: {elt}")
                 else:
                     if len(sum_morbs[elt]) == 0:
                         raise ValueError(f"The empty list is an invalid value for sum_morbs[{elt}].")
@@ -1937,7 +1937,7 @@ class BSPlotterProjected(BSPlotter):
                         if isinstance(number, str):
                             if number.lower() == "all":
                                 dictpa[elt] = indices
-                                print(f"You want to consider all {elt!r} atoms.")
+                                logger.info(f"You want to consider all {elt!r} atoms.")
                                 break
 
                             raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
@@ -1964,7 +1964,7 @@ class BSPlotterProjected(BSPlotter):
                 raise KeyError(f"The element {elt!r} in not in both dictpa and dictio.")
 
         if sum_atoms is None:
-            print("You do not want to sum projection over atoms.")
+            logger.info("You do not want to sum projection over atoms.")
         elif not isinstance(sum_atoms, dict):
             raise TypeError("The invalid type of 'sum_atoms' was bound. It should be dict type.")
         elif len(sum_atoms) == 0:
@@ -1984,7 +1984,7 @@ class BSPlotterProjected(BSPlotter):
                             if isinstance(number, str):
                                 if number.lower() == "all":
                                     sum_atoms[elt] = indices
-                                    print(f"You want to sum projection over all {elt!r} atoms.")
+                                    logger.info(f"You want to sum projection over all {elt!r} atoms.")
                                     break
                                 raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
                             if isinstance(number, int):
@@ -4063,7 +4063,7 @@ def plot_fermi_surface(
 
     if energy_levels is None:
         energy_levels = [en_min + 0.01] if cbm else [en_max - 0.01]
-        print(f"Energy level set to: {energy_levels[0]} eV")
+        logger.info(f"Energy level set to: {energy_levels[0]} eV")
 
     else:
         for e in energy_levels:

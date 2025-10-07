@@ -1511,12 +1511,11 @@ class PseudoTable(collections.abc.Sequence, MSONable):
     Individidual elements are accessed by name, symbol or atomic number.
 
     For example, the following all retrieve iron:
-
-    print(elements[26])
-    print(elements.Fe)
-    print(elements.symbol('Fe'))
-    print(elements.name('iron'))
-    print(elements.isotope('Fe'))
+    - elements[26]
+    - elements.Fe
+    - elements.symbol('Fe')
+    - elements.name('iron')
+    - elements.isotope('Fe')
     """
 
     @classmethod

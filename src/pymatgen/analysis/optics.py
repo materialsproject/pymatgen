@@ -85,7 +85,7 @@ class DielectricAnalysis:
             dielectric data (energies, real dielectric tensor, and imaginary dielectric
             tensor).
         """
-        energies, real_diel, imag_diel = vasprun.dielectric
+        _energies, _real_diel, _imag_diel = vasprun.dielectric
         return DielectricAnalysis(
             *vasprun.dielectric,
         )

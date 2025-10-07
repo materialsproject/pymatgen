@@ -139,8 +139,8 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
         nx.MultiGraph: Super graph of the environments.
     """
     super_graph = nx.MultiGraph()
-    print("periodicity vectors :")
-    print(periodicity_vectors)
+    logger.info("periodicity vectors :")
+    logger.info(periodicity_vectors)
     if isinstance(multiplicity, int) or len(multiplicity) == 1:
         mult = multiplicity if isinstance(multiplicity, int) else multiplicity[0]
         nodes = graph.nodes(data=True)
@@ -150,7 +150,7 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
         connecting_edges = []
         other_edges = []
         for n1, n2, key, data in edges:
-            print(n1, n2, key, data)
+            logger.info(n1, n2, key, data)
             if np.all(np.array(data["delta"]) == np.array(periodicity_vectors[0])):
                 connecting_edges.append((n1, n2, key, data))
             elif np.all(np.array(data["delta"]) == -np.array(periodicity_vectors[0])):
@@ -161,8 +161,8 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
                 connecting_edges.append((n1, n2, key, new_data))
             else:
                 if not np.all(np.array(data["delta"]) == 0):
-                    print(
-                        "delta not equal to periodicity nor 0 ... : ",
+                    logger.info(
+                        "delta not equal to periodicity nor 0 ... : %s %s %s %s %s",
                         n1,
                         n2,
                         key,
@@ -483,7 +483,7 @@ class ConnectedComponent(MSONable):
             cyc.append(cyc[0])
             this_cycle_deltas = [np.zeros(3, int)]
             for node1, node2 in [(node1, cyc[inode1 + 1]) for inode1, node1 in enumerate(cyc[:-1])]:
-                this_cycle_deltas_new = []
+                this_cycle_deltas_new: list = []
                 for edge_data in self._connected_subgraph[node1][node2].values():
                     delta = get_delta(node1, node2, edge_data)
                     this_cycle_deltas_new.extend(current_delta + delta for current_delta in this_cycle_deltas)

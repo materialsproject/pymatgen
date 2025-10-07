@@ -5,6 +5,7 @@ functionals.
 from __future__ import annotations
 
 import copy
+import logging
 import os
 import warnings
 from itertools import groupby
@@ -30,6 +31,8 @@ __copyright__ = "Copyright 2019-2021, The Materials Project"
 __version__ = "0.1"
 __email__ = "RKingsbury@lbl.gov"
 __date__ = "October 2021"
+
+logger = logging.getLogger(__name__)
 
 
 class MaterialsProjectDFTMixingScheme(Compatibility):
@@ -179,7 +182,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         if mixing_state_data is None:
             if verbose:
-                print("  Generating mixing state data from provided entries.")
+                logger.info("Generating mixing state data from provided entries.")
             mixing_state_data = self.get_mixing_state_data(entries_type_1 + entries_type_2)
 
         if verbose:
@@ -188,18 +191,18 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             stable_df = mixing_state_data[mixing_state_data["is_stable_1"]]
             if len(stable_df) > 0:
                 hull_entries_2 = sum(stable_df["energy_2"].notna())
-            print(
-                f"  Entries contain {self.run_type_2} calculations for {hull_entries_2} of {len(stable_df)} "
+            logger.info(
+                f"Entries contain {self.run_type_2} calculations for {hull_entries_2} of {len(stable_df)} "
                 f"{self.run_type_1} hull entries."
             )
             if hull_entries_2 == len(stable_df):
-                print(f"  {self.run_type_1} energies will be adjusted to the {self.run_type_2} scale")
+                logger.info(f"{self.run_type_1} energies will be adjusted to the {self.run_type_2} scale")
             else:
-                print(f"  {self.run_type_2} energies will be adjusted to the {self.run_type_1} scale")
+                logger.info(f"{self.run_type_2} energies will be adjusted to the {self.run_type_1} scale")
 
             if hull_entries_2 > 0:
-                print(
-                    f"  The energy above hull for {self.run_type_2} materials at compositions with "
+                logger.info(
+                    f"The energy above hull for {self.run_type_2} materials at compositions with "
                     f"{self.run_type_2} hull entries will be preserved. For other compositions, "
                     f"Energies of {self.run_type_2} materials will be set equal to those of "
                     f"matching {self.run_type_1} materials"
@@ -216,7 +219,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 if "WARNING!" in str(exc):
                     warnings.warn(str(exc), stacklevel=2)
                 elif verbose:
-                    print(f"  {exc}")
+                    logger.exception("error get adjustments")
                 ignore_entry = True
                 continue
 
@@ -245,7 +248,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         if verbose:
             count_type_1 = sum(entry.parameters["run_type"] in self.valid_rtypes_1 for entry in processed_entry_list)
             count_type_2 = sum(entry.parameters["run_type"] in self.valid_rtypes_2 for entry in processed_entry_list)
-            print(
+            logger.info(
                 f"\nProcessing complete. Mixed entries contain {count_type_1} {self.run_type_1} and {count_type_2} "
                 f"{self.run_type_2} entries.\n"
             )
@@ -625,7 +628,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         entries_type_2 = [e for e in filtered_entries if e.parameters["run_type"] in self.valid_rtypes_2]
 
         if verbose:
-            print(
+            logger.info(
                 f"Processing {len(entries_type_1)} {self.run_type_1} and {len(entries_type_2)} "
                 f"{self.run_type_2} entries..."
             )
@@ -635,8 +638,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         if self.compat_1:
             entries_type_1 = self.compat_1.process_entries(entries_type_1)
             if verbose:
-                print(
-                    f"  Processed {len(entries_type_1)} compatible {self.run_type_1} entries with "
+                logger.info(
+                    f"Processed {len(entries_type_1)} compatible {self.run_type_1} entries with "
                     f"{type(self.compat_1).__name__}"
                 )
         entries_type_1 = EntrySet(entries_type_1)
@@ -644,8 +647,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         if self.compat_2:
             entries_type_2 = self.compat_2.process_entries(entries_type_2)
             if verbose:
-                print(
-                    f"  Processed {len(entries_type_2)} compatible {self.run_type_2} entries with "
+                logger.info(
+                    f"Processed {len(entries_type_2)} compatible {self.run_type_2} entries with "
                     f"{type(self.compat_2).__name__}"
                 )
         entries_type_2 = EntrySet(entries_type_2)
@@ -667,7 +670,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             chemsys = entries_type_2.chemsys
 
         if verbose:
-            print(f"  Entries belong to the {chemsys} chemical system")
+            logger.info(f"Entries belong to the {chemsys} chemical system")
 
         return list(entries_type_1), list(entries_type_2)
 
@@ -742,12 +745,12 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         except ValueError:
             return
 
-        print(
+        logger.info(
             f"{'entry_id':<12}{'formula':<12}{'spacegroup':<12}{'run_type':<10}{'eV/atom':<8}"
             f"{'corr/atom':<9} {'e_above_hull':<9}"
         )
         for entry in entries:
-            print(
+            logger.info(
                 f"{entry.entry_id:<12}{entry.reduced_formula:<12}{entry.structure.get_space_group_info()[0]:<12}"
                 f"{entry.parameters['run_type']:<10}{entry.energy_per_atom:<8.3f}"
                 f"{entry.correction / entry.composition.num_atoms:<9.3f} {pd.get_e_above_hull(entry):<9.3f}"

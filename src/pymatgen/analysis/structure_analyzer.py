@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import itertools
 import math
+import warnings
 from collections import defaultdict
 from typing import TYPE_CHECKING
-from warnings import warn
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -295,7 +295,7 @@ class VoronoiConnectivity:
                 connectivity[atom_j, atom_i, image_i] = val
 
             if -10.101 in vts[v]:
-                warn(
+                warnings.warn(
                     "Found connectivity with infinite vertex. Cutoff is too low, and results may be incorrect",
                     stacklevel=2,
                 )
