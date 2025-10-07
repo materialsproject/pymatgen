@@ -278,7 +278,7 @@ class Ion(Composition, MSONable, Stringify):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict[str, float]) -> Self:
         """Generate an ion object from a dict created by as_dict().
 
         Args:
@@ -289,11 +289,11 @@ class Ion(Composition, MSONable, Stringify):
         composition = Composition(dct_copy)
         return cls(composition, charge)
 
-    def as_reduced_dict(self) -> dict:
+    def as_reduced_dict(self) -> dict[str, float]:
         """
         Returns:
             dict with element symbol and reduced amount e.g.
-                {"Fe": 2.0, "O":3.0}.
+                {"Fe": 2.0, "O": 3.0}.
         """
         dct = self.composition.as_reduced_dict()
         dct["charge"] = self.charge
@@ -301,7 +301,7 @@ class Ion(Composition, MSONable, Stringify):
 
     @property
     @deprecated(as_reduced_dict, deadline=(2026, 4, 4))
-    def to_reduced_dict(self) -> dict:
+    def to_reduced_dict(self) -> dict[str, float]:
         """Deprecated."""
         return self.as_reduced_dict()
 
