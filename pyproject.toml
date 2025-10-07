@@ -79,7 +79,7 @@ dependencies = [
     "tqdm>=4.60",
     "uncertainties>=3.1.4",
 ]
-version = "2025.6.14"
+version = "2025.10.7"
 
 [project.urls]
 Homepage = "https://pymatgen.org"
@@ -219,6 +219,7 @@ ignore = [
     "PLW1641", # eq-without-hash TODO: fix this
     "PLW2901", # Outer for loop variable overwritten by inner assignment target
     "PT013", # Incorrect import of pytest
+    "RUF043", # Pattern passed to `match=` contains metacharacters but is neither escaped nor raw
     "S110", # Log for try-except-pass
     "S112", # Log for try-except-continue
     "S311", # Use random module for cryptographic purposes
