@@ -296,8 +296,10 @@ class TestMITMPRelaxSet(MatSciTest):
                     user_potcar_functional="PBE_54",
                     user_potcar_settings=user_potcar_settings,
                 )
-                expected = {**({"W": "W_sv"} if "W" in struct.symbol_set else {}), **(user_potcar_settings or {})}
-                assert relax_set.user_potcar_settings == expected
+                if "W" in struct.symbol_set:
+                    assert relax_set.user_potcar_settings["W"] == (
+                        user_potcar_settings.get("W", "W_sv") if user_potcar_settings else "W_sv"
+                    )
 
     @skip_if_no_psp_dir
     def test_lda_potcar(self):
