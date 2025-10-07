@@ -169,7 +169,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
             if token := os.getenv("GITHUB_ACCESS_TOKEN"):
                 headers = {
                     "Accept": "application/vnd.github.v3+json",  # Recommended for GitHub API
-                    "Authorization": f"token {token}"
+                    "Authorization": f"token {token}",
                 }
 
             response = requests.get(
