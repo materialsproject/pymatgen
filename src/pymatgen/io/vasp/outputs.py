@@ -4289,6 +4289,7 @@ class Procar(MSONable):
             self.is_soc = is_soc
 
             skipping_kpoint = False  # true when skipping projections for a previously-parsed kpoint
+            skipped_kpoint_count = 0  # keep track of number of k-points skipped
             ion_line_count = 0  # printed twice when phase factors present
             proj_data_parsed_for_band = 0  # 0 for non-SOC, 1-4 for SOC/phase factors
             for line in file:  # type:ignore[assignment]
@@ -4299,7 +4300,7 @@ class Procar(MSONable):
                 if kpoint_expr.match(line):
                     kvec = self._parse_kpoint_line(line)
                     match = kpoint_expr.match(line)
-                    current_kpoint = int(match[1]) - 1  # type: ignore[index]
+                    current_kpoint = int(match[1]) - 1 - skipped_kpoint_count  # type: ignore[index]
                     if current_kpoint == 0:
                         spin = Spin.up if spin == Spin.down else Spin.down
 
@@ -4313,6 +4314,7 @@ class Procar(MSONable):
                             kpoints.append(kvec)  # only add once
                     else:  # skip ahead to next kpoint:
                         skipping_kpoint = True
+                        skipped_kpoint_count += 1
                         continue
 
                     if spin == Spin.up:  # record k-weight only once
@@ -4405,15 +4407,15 @@ class Procar(MSONable):
                 raise ValueError("Mismatch in number of spin channels in supplied PROCARs!")
             self.nspins = len(data)
 
-            # chop off empty kpoints in arrays and redetermine nkpoints as we may have skipped previously-parsed kpoints
+            # chop off empty kpoints in arrays, including last k-point in case it was skipped
             nkpoints = current_kpoint + 1
-            weights = np.array(weights[:nkpoints])  # type: ignore[index]
-            data = {spin: data[spin][:nkpoints] for spin in data}  # type: ignore[index]
-            eigenvalues = {spin: eigenvalues[spin][:nkpoints] for spin in eigenvalues}  # type: ignore[union-attr,index]
-            occupancies = {spin: occupancies[spin][:nkpoints] for spin in occupancies}  # type: ignore[union-attr,index]
-            phase_factors = {spin: phase_factors[spin][:nkpoints] for spin in phase_factors}  # type: ignore[union-attr,index]
+            weights = np.array(weights[: nkpoints - int(skipping_kpoint)])  # type: ignore[index]
+            data = {spin: data[spin][: nkpoints - int(skipping_kpoint)] for spin in data}  # type: ignore[index]
+            eigenvalues = {spin: eigenvalues[spin][: nkpoints - int(skipping_kpoint)] for spin in eigenvalues}  # type: ignore[union-attr,index]
+            occupancies = {spin: occupancies[spin][: nkpoints - int(skipping_kpoint)] for spin in occupancies}  # type: ignore[union-attr,index]
+            phase_factors = {spin: phase_factors[spin][: nkpoints - int(skipping_kpoint)] for spin in phase_factors}  # type: ignore[union-attr,index]
             if self.is_soc:
-                xyz_data = {spin: xyz_data[spin][:nkpoints] for spin in xyz_data}  # type: ignore[union-attr,index]
+                xyz_data = {spin: xyz_data[spin][: nkpoints - int(skipping_kpoint)] for spin in xyz_data}  # type: ignore[union-attr,index]
 
             # Update the parsed kpoints
             parsed_kpoints.update({kvec_spin_tuple[0] for kvec_spin_tuple in this_procar_parsed_kpoints})

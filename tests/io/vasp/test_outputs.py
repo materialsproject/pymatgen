@@ -1853,6 +1853,14 @@ class TestProcar(MatSciTest):
         d2 = procar.get_projection_on_elements(struct)
         assert d2[Spin.up][2][2] == approx({"Na": 0.688, "Li": 0.042})
 
+    def test_skip_kpoint(self):
+        filepath = f"{VASP_OUT_DIR}/PROCAR.repeatedpoints"
+        procar = Procar(filepath)
+        # length of projection's k-points axis should be equal to the number of k-points
+        assert procar.nkpoints == len(procar.data[Spin.up][:, 0, 0, 0])
+        assert procar.phase_factors[Spin.up][1, 0, 0, 0] == approx(-0.087 + -0.166j)
+        assert procar.kpoints[1][0] == approx(0.25000000)
+
 
 class TestXdatcar:
     def test_init(self):
