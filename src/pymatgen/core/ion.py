@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-from copy import deepcopy
 from typing import TYPE_CHECKING
 
 from monty.dev import deprecated
@@ -285,7 +284,7 @@ class Ion(Composition, MSONable, Stringify):
         Args:
             dct: {symbol: amount} dict.
         """
-        dct_copy = deepcopy(dct)
+        dct_copy = dict(dct)
         charge = dct_copy.pop("charge")
         composition = Composition(dct_copy)
         return cls(composition, charge)

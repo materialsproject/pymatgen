@@ -165,7 +165,11 @@ class TestIon:
 
     def test_from_dict(self):
         sym_dict = {"P": 1, "O": 4, "charge": -2}
-        assert Ion.from_dict(sym_dict).reduced_formula == "PO4[-2]", "Creation form sym_amount dictionary failed!"
+        ion = Ion.from_dict(sym_dict)
+        assert ion.reduced_formula == "PO4[-2]"
+
+        # Ensure input dict was not modified
+        assert sym_dict == {"P": 1, "O": 4, "charge": -2}
 
     def test_as_dict(self):
         ion = Ion.from_dict({"Mn": 1, "O": 4, "charge": -1})
