@@ -295,9 +295,18 @@ class Ion(Composition, MSONable, Stringify):
             dict with element symbol and reduced amount e.g.
                 {"Fe": 2.0, "O": 3.0}.
         """
-        dct = self.composition.as_reduced_dict()
-        dct["charge"] = self.charge
-        return dct
+        unreduced = self.composition.as_dict()
+        reduced = self.composition.as_reduced_dict()
+
+        # Determine the reduction factor
+        factor: float = 1
+        for el in reduced:
+            if el in unreduced:
+                factor = unreduced[el] / reduced[el]
+                break
+
+        reduced["charge"] = self.charge / factor
+        return reduced
 
     @property
     @deprecated(as_reduced_dict, deadline=(2026, 4, 4))
