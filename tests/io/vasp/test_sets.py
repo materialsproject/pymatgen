@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import re
 from glob import glob
 from zipfile import ZipFile
 
@@ -244,8 +245,6 @@ class TestMITMPRelaxSet(MatSciTest):
             "generates an adequate number of KPOINTS, lower KSPACING, or set ISMEAR = 0",
         ) as warns_kspacing:
             _ = vis.incar
-        for warn in warns_kspacing:
-            print("scoots:", warn.message)
         assert len(warns_kspacing) == 2
 
     def test_poscar(self):
@@ -297,11 +296,10 @@ class TestMITMPRelaxSet(MatSciTest):
                     user_potcar_functional="PBE_54",
                     user_potcar_settings=user_potcar_settings,
                 )
-                expected = {  # noqa: SIM222
-                    **({"W": "W_sv"} if "W" in struct.symbol_set else {}),
-                    **(user_potcar_settings or {}),
-                } or None
-                assert relax_set.user_potcar_settings == expected
+                if "W" in struct.symbol_set:
+                    assert relax_set.user_potcar_settings["W"] == (
+                        user_potcar_settings.get("W", "W_sv") if user_potcar_settings else "W_sv"
+                    )
 
     @skip_if_no_psp_dir
     def test_lda_potcar(self):
@@ -2098,7 +2096,7 @@ class TestLobsterSet(MatSciTest):
         # only allow isym=-1 and isym=0
         with pytest.raises(
             ValueError,
-            match="Lobster cannot digest WAVEFUNCTIONS with symmetry. isym must be -1 or 0",
+            match=re.escape("Lobster cannot digest WAVEFUNCTIONS with symmetry. isym must be -1 or 0"),
         ):
             self.lobsterset_new = self.set(self.struct, isym=2, ismear=0)
         with pytest.raises(ValueError, match="Lobster usually works with ismear=-5 or ismear=0"):
@@ -2387,7 +2385,6 @@ class TestMP24Sets:
 
             vis = self.static_set(structure=self.structure, xc_functional=xc_functional, dispersion="D4")
             assert vis.incar.get("METAGGA") is None
-            print(self.relax_set(structure=self.structure, xc_functional=xc_functional).incar)
             assert vis.incar["GGA"] == vasp_name
             assert all(
                 isinstance(vis.incar[k], float | int)

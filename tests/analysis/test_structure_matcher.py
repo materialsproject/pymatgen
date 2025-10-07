@@ -73,7 +73,7 @@ class TestLinearAssignment:
                 [32, 95, 37, 50, 97, 96, 12, 70, 40, 93],
             ]
         )
-        sol, min_cost = get_linear_assignment_solution(costs_2)
+        _sol, min_cost = get_linear_assignment_solution(costs_2)
         assert min_cost == 110, "Incorrect cost"
 
     def test_rectangular_cost_matrix(self):
@@ -239,7 +239,7 @@ class TestLinearAssignment:
                 ],
             ]
         )
-        sol, min_cost = get_linear_assignment_solution(costs)
+        _sol, min_cost = get_linear_assignment_solution(costs)
         assert min_cost == approx(0)
 
     def test_small_range(self):

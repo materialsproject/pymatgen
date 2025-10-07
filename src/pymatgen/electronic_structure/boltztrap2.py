@@ -445,6 +445,12 @@ class BztInterpolator:
             bands_loaded = self.load(fname)
         else:
             self.equivalences = sphere.get_equivalences(self.data.atoms, self.data.magmom, num_kpts * lpfac)
+            warnings.filterwarnings(
+                "ignore",
+                category=RuntimeWarning,
+                module=r"BoltzTraP2\.fite",
+                message=r".*(divide by zero|invalid value|overflow) encountered in matmul.*",
+            )
             self.coeffs = fite.fitde3D(self.data, self.equivalences)
 
         if not bands_loaded:
