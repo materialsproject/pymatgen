@@ -39,7 +39,7 @@ class TestLinearAssignment:
                 [73, 11, 98, 50, 19, 96, 61, 73, 98, 14],
             ]
         )
-        sol, min_cost = get_linear_assignment_solution(costs_0)
+        _sol, min_cost = get_linear_assignment_solution(costs_0)
         assert min_cost == 194, "Incorrect cost"
 
         costs_1 = np.array(
@@ -56,7 +56,7 @@ class TestLinearAssignment:
                 [13, 97, 97, 54, 5, 30, 44, 75, 16, 0],
             ]
         )
-        sol, min_cost = get_linear_assignment_solution(costs_1)
+        _sol, min_cost = get_linear_assignment_solution(costs_1)
         assert min_cost == 125, "Incorrect cost"
 
         costs_2 = np.array(
