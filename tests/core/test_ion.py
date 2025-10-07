@@ -191,6 +191,9 @@ class TestIon:
         ion = Ion.from_dict({"Mn": 2, "O": 8, "charge": -2})
         assert ion.as_reduced_dict() == {"Mn": 1, "O": 4, "charge": -1}
 
+        ion = Ion.from_dict({"Mn": 1, "O": 4, "charge": -1})
+        assert ion.as_reduced_dict() == {"Mn": 1, "O": 4, "charge": -1}
+
     def test_equals(self):
         rng = np.random.default_rng()
         random_z = rng.integers(1, 93)
