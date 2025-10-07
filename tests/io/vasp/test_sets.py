@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import re
 from glob import glob
 from zipfile import ZipFile
 
@@ -295,10 +296,7 @@ class TestMITMPRelaxSet(MatSciTest):
                     user_potcar_functional="PBE_54",
                     user_potcar_settings=user_potcar_settings,
                 )
-                expected = {
-                    **({"W": "W_sv"} if "W" in struct.symbol_set else {}),
-                    **(user_potcar_settings or {}),
-                } or None
+                expected = {**({"W": "W_sv"} if "W" in struct.symbol_set else {}), **(user_potcar_settings or {})}
                 assert relax_set.user_potcar_settings == expected
 
     @skip_if_no_psp_dir
@@ -2096,7 +2094,7 @@ class TestLobsterSet(MatSciTest):
         # only allow isym=-1 and isym=0
         with pytest.raises(
             ValueError,
-            match="Lobster cannot digest WAVEFUNCTIONS with symmetry. isym must be -1 or 0",
+            match=re.escape("Lobster cannot digest WAVEFUNCTIONS with symmetry. isym must be -1 or 0"),
         ):
             self.lobsterset_new = self.set(self.struct, isym=2, ismear=0)
         with pytest.raises(ValueError, match="Lobster usually works with ismear=-5 or ismear=0"):
