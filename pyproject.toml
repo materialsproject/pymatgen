@@ -79,7 +79,7 @@ dependencies = [
     "tqdm>=4.60",
     "uncertainties>=3.1.4",
 ]
-version = "2025.10.7"
+version = "2025.6.14"
 
 [project.urls]
 Homepage = "https://pymatgen.org"
@@ -331,6 +331,7 @@ default-groups = ["dev", "test", "lint", "docs"]
 dev = [
     "invoke>=2.2.0",
     "jupyter>=1.1.1",
+    "openai>=2.2.0",
     "pre-commit>=4.2.0",
 ]
 test = [
