@@ -26,9 +26,9 @@ from pymatgen.core import __version__
 if TYPE_CHECKING:
     from invoke import Context
 
-PROMPT = """
+CHANGELOG_PROMPT = """
 Provide a concise summary of the following pull requests as a change log for the pymatgen package. Format the summary
-as a a markdown bulleted list. Make sure to include the GitHub ids of all the authors. Do not include any code
+as a markdown bulleted list. Make sure to include the GitHub ids of all the authors. Do not include any code
 blocks and timing outputs. Do not include any dependabot and pre-commit PRs.
 """
 
@@ -196,7 +196,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
 
         client = OpenAI(api_key=os.environ["OPENAPI_KEY"])
 
-        messages = [{"role": "user", "content": PROMPT + f": '{body}'"}]
+        messages = [{"role": "user", "content": CHANGELOG_PROMPT + f": '{body}'"}]
         chat = client.chat.completions.create(model="gpt-5", messages=messages)
 
         reply = chat.choices[0].message.content
