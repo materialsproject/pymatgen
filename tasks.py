@@ -26,6 +26,12 @@ from pymatgen.core import __version__
 if TYPE_CHECKING:
     from invoke import Context
 
+CHANGELOG_PROMPT = """
+Provide a concise summary of the following pull requests as a change log for the pymatgen package. Format the summary
+as a markdown bulleted list. Make sure to include the GitHub ids of all the authors. Do not include any code
+blocks and timing outputs. Do not include any dependabot and pre-commit PRs.
+"""
+
 
 @task
 def make_doc(ctx: Context) -> None:
@@ -151,7 +157,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
             updating the actual change log file. Defaults to False.
     """
     version = version or f"{datetime.now(tz=timezone.utc):%Y.%-m.%-d}"
-    print(f"Getting all comments since {__version__}")
+    print(f"Getting all commits since {__version__}")
     output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{__version__}..HEAD"])
     lines = []
     ignored_commits = []
@@ -159,8 +165,16 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
         re_match = re.match(r".*\(\#(\d+)\)", line)
         if re_match and "materialsproject/dependabot/pip" not in line:
             pr_number = re_match[1].strip()
+            headers = {}
+            if token := os.getenv("GITHUB_ACCESS_TOKEN"):
+                headers = {
+                    "Accept": "application/vnd.github.v3+json",  # Recommended for GitHub API
+                    "Authorization": f"token {token}",
+                }
+
             response = requests.get(
                 f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}",
+                headers=headers,
                 timeout=60,
             )
             resp = response.json()
@@ -182,8 +196,8 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
 
         client = OpenAI(api_key=os.environ["OPENAPI_KEY"])
 
-        messages = [{"role": "user", "content": f"summarize as a markdown numbered list, include authors: '{body}'"}]
-        chat = client.chat.completions.create(model="gpt-4o", messages=messages)
+        messages = [{"role": "user", "content": CHANGELOG_PROMPT + f": '{body}'"}]
+        chat = client.chat.completions.create(model="gpt-5", messages=messages)
 
         reply = chat.choices[0].message.content
         body = "\n".join(reply.split("\n")[1:-1])
