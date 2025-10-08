@@ -1243,9 +1243,10 @@ Critical temperature:
   unit: K
   reference:
     https://en.wikipedia.org/wiki/Critical_points_of_the_elements_(data_page)
-  data: {H: 33, He: 5.19, Li: 3223, N: 126.2, O: 154.6, F: 144, Ne: 44.4, Na:
-      2573, P: 994, S: 1314, Cl: 417, Ar: 150.8, K: 2223, As: 1700, Se: 1766, Br:
-      586, Kr: 209.4, Rb: 2093, I: 819, Xe: 289.7, Cs: 1938, Hg: 1750, Rn: 377}
+  data: {H: 32.97, He: 5.19, Li: 3223, N: 126.21, O: 154.59, F: 144.13, Ne: 44.4,
+    Na: 2573, P: 994, S: 1314, Cl: 416.9, Ar: 150.87, K: 2223, As: 1673, Se:
+      1766, Br: 588, Kr: 209.41, Rb: 2093, I: 819, Xe: 289.77, Cs: 1938, Hg:
+      1750, Rn: 377}
 Density of solid:
   unit: kg m^-3
   reference: https://en.wikipedia.org/wiki/Densities_of_the_elements_(data_page)

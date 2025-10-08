@@ -1665,33 +1665,32 @@ Common oxidation states:
     D: [-1, 1]
     T: [-1, 1]
 Critical temperature:
-  # TODO: need to update with wikipedia
   reference: "https://en.wikipedia.org/wiki/Critical_points_of_the_elements_(data_page)"
   unit: K
   data:
-    Ar: 150.8
-    As: 1700
-    Br: 586
-    Cl: 417
+    Ar: 150.87
+    As: 1673
+    Br: 588
+    Cl: 416.9
     Cs: 1938
-    F: 144
-    H: 33
+    F: 144.13
+    H: 32.97
     He: 5.19
     Hg: 1750
     I: 819
     K: 2223
-    Kr: 209.4
+    Kr: 209.41
     Li: 3223
-    N: 126.2
+    N: 126.21
     Na: 2573
     Ne: 44.4
-    O: 154.6
+    O: 154.59
     P: 994
     Rb: 2093
     Rn: 377
     S: 1314
     Se: 1766
-    Xe: 289.7
+    Xe: 289.77
 Density of solid:
   reference: "https://en.wikipedia.org/wiki/Densities_of_the_elements_(data_page)" # WEL
   unit: kg m^-3
