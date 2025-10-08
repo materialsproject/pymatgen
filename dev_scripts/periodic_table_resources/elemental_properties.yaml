@@ -1560,8 +1560,6 @@ Coefficient of linear thermal expansion:
     Zn: 30.2
     Zr: 5.7
 Common oxidation states:
-  # TODO: the source is very likely from wikipedia but our data need to be updated,
-  # for example the data for carbon shouldn't be only -4 or 4
   reference: "https://en.wikipedia.org/wiki/Template:List_of_oxidation_states_of_the_elements"
   data:
     Ac: [3]
@@ -1576,8 +1574,8 @@ Common oxidation states:
     Be: [2]
     Bi: [3]
     Bk: [3]
-    Br: [-1, 1, 3, 5, 7]
-    C: [-4, 4]
+    Br: [-1, 1, 3, 5]
+    C: [-4, -3, -2, -1, 0, 1, 2, 3, 4]
     Ca: [2]
     Cd: [2]
     Ce: [3, 4]
@@ -1607,6 +1605,7 @@ Common oxidation states:
     In: [3]
     Ir: [3, 4]
     K: [1]
+    Kr: [2]
     La: [3]
     Li: [1]
     Lr: [3]
@@ -1635,7 +1634,8 @@ Common oxidation states:
     Pu: [4]
     Ra: [2]
     Rb: [1]
-    Re: [4]
+    Re: [4, 7]
+    Rf: [4]
     Rh: [3]
     Ru: [3, 4]
     S: [-2, 2, 4, 6]
@@ -1657,6 +1657,7 @@ Common oxidation states:
     U: [6]
     V: [5]
     W: [4, 6]
+    Xe: [2, 4, 6]
     Y: [3]
     Yb: [3]
     Zn: [2]
