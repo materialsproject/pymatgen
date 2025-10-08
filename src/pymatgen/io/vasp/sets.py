@@ -1506,6 +1506,8 @@ class MP24RelaxSet(VaspInputSet):
 
     def __post_init__(self) -> None:
         super().__post_init__()
+        if self.xc_functional.lower() not in {"r2scan", "pbe", "pbesol"}:
+            raise ValueError("xc_functional must be one of 'r2SCAN', 'PBE', or 'PBEsol'.")
         _config_updates(self, self.xc_functional, self.dispersion)
 
     @staticmethod
