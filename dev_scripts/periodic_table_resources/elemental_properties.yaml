@@ -1777,91 +1777,94 @@ Density of solid:
     Yb: 6570
     Zn: 7140
     Zr: 6511
-Electrical resistivity: # TODO: need validate/update
+Electrical resistivity:
   reference: "https://en.wikipedia.org/wiki/Electrical_resistivities_of_the_elements_(data_page)"
   unit: ohm m
   factor: 1e-8
   data: # 293 K (20 °C)
-    Ag: 1.63
-    Al: 2.7
-    As: 33
-    Au: 2.2
+    Ag: 1.587
+    Al: 2.65
+    Am: 68.9 # room temperature
+    As: 33.3
+    Au: 2.214
     B: 1.5e12
-    Ba: 34
-    Be: 3.8
-    Bi: 130
+    Ba: 33.2
+    Be: 3.56
+    Bi: 129
     Br: 7.8e18
-    C: 1000 # direction dependent
-    Ca: 3.4
-    Cd: 7
-    Ce: 74
-    Cl: 1e9
-    Co: 6
-    Cr: 12.7
-    Cs: 21
-    Cu: 1.72
-    Dy: 92.6
-    Er: 86.0
-    Eu: 90
-    Fe: 10
+    C: 1000 # graphite (direction dependent)
+    Ca: 3.36
+    Cd: 7.27 # 22 °C
+    Ce: 74.4 # gamma, polycrystalline
+    Cl: 1e9 # > 1e9
+    Cm: 125 # room temperature
+    Co: 6.24
+    Cr: 12.5
+    Cs: 20.5
+    Cu: 1.678
+    Dy: 92.6 # alpha, polycrystalline
+    Er: 86.0 # polycrystalline
+    Eu: 90 # polycrystalline
+    Fe: 9.61
     Ga: 14
-    Gd: 131
-    Ge: 50000
-    Hf: 34
-    Hg: 96
-    Ho: 81.4
-    I: 1.3e15
-    In: 8
-    Ir: 4.7
-    K: 7.5
-    La: 61.5
-    Li: 9.5
-    Lu: 58
-    Mg: 4.4
+    Gd: 131 # alpha, polycrystalline
+    Ge: 50000 # about
+    Hf: 33.1
+    Hg: 96.1 # 25 °C
+    Ho: 81.4 # polycrystalline
+    I: 1.3e15 # 0 °C
+    In: 8.37
+    Ir: 4.71
+    K: 7.2
+    La: 61.5 # alpha, polycrystalline
+    Li: 9.28
+    Lu: 58.2 # polycrystalline
+    Mg: 4.39
     Mn: 144
-    Mo: 5.5
-    Na: 4.9
+    Mo: 5.34
+    Na: 4.77
     Nb: 15.2
-    Nd: 64.3
-    Ni: 7.2
-    Np: 120
-    Os: 8.1
+    Nd: 64.3 # alpha, polycrystalline
+    Ni: 6.93
+    Np: 122 # 22 °C
+    Os: 8.12 # 0 °C
     P: 10
-    Pa: 18
-    Pb: 21
-    Pd: 10.8
-    Pm: 75
-    Po: 40
-    Pr: 70
-    Pt: 10.6
+    Pa: 19.1 # 22 °C
+    Pb: 20.8
+    Pd: 10.54
+    Pm: 75 # alpha, polycrystalline (estimated)
+    Po: 40 # 0 °C
+    Pr: 70 # alpha, polycrystalline
+    Pt: 10.5
     Pu: 150
     Ra: 100
-    Rb: 13.3
-    Re: 18
-    Rh: 4.3
+    Rb: 12.8
+    Re: 19.3
+    Rh: 4.33
     Ru: 7.1
-    S: 2e23
-    Sb: 40
-    Sc: 55
-    Si: 100000
-    Sm: 94
-    Sn: 11.5
-    Sr: 13.5
-    Ta: 13.5
-    Tb: 115
-    Tc: 22
-    Te: 10000
-    Th: 15
-    Ti: 40
-    Tl: 15
-    Tm: 67.6
+    S: 2e23 # amorphous
+    Sb: 41.7
+    Sc: 56.2
+    # Se: "high"
+    Si: 100000 # about
+    Sm: 94 # alpha, polycrystalline
+    Sn: 11
+    Sr: 13.2
+    Ta: 13.1
+    Tb: 115 # alpha, polycrystalline
+    Tc: 20
+    Te: 10000 # about
+    Th: 15.4 # 22 °C
+    Ti: 42
+    Tl: 18
+    Tm: 67.6 # polycrystalline
     U: 28
-    V: 20
-    W: 5.4
-    Y: 60
-    Yb: 25.0
-    Zn: 6.0
-    Zr: 43.3
+    V: 19.7
+    W: 5.28
+    Y: 59.6
+    Yb: 25.0 # beta, polycrystalline
+    Zn: 5.9
+    Zr: 42.1
 Electronic structure:
   reference: "Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024, June 3]. National Institute of Standards and Technology, Gaithersburg, MD. DOI: https://doi.org/10.18434/T4W30F"
   data:
