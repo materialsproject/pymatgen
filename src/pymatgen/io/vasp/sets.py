@@ -1299,6 +1299,78 @@ class MPRelaxSet(VaspInputSet):
     CONFIG = _load_yaml_config("MPRelaxSet")
 
 
+def _config_updates(
+    vasp_input_set: VaspInputSet,
+    xc_functional: str,
+    dispersion: str | None = None,
+) -> None:
+    """Update the INCAR settings for a given XC functional and dispersion correction.
+
+    Args:
+        vasp_input_set (VaspInputSet): The VaspInputSet instance to update.
+            Supported types are MPScanRelaxSet and MP24RelaxSet.
+        xc_functional (str): The exchange-correlation functional to use.
+            Supported values are "SCAN", "r2SCAN", "PBE", and "PBEsol".
+        dispersion (str | None): The dispersion correction to use.
+            Supported values are "rVV10" and "D4". If None, no dispersion correction is applied.
+
+    Returns:
+        None: The function updates the INCAR settings of the VaspInputSet in place.
+    """
+
+    xc = xc_functional.lower()
+    vdw = dispersion.lower() if dispersion is not None else None
+
+    to_func_metagga = {"scan": "SCAN", "r2scan": "R2SCAN"}
+    to_func_gga = {"pbe": "PE", "pbesol": "PS"}
+
+    config_updates: dict[str, Any] = {}
+
+    # Update the XC functional flags
+    if xc in to_func_metagga:
+        config_updates |= {"METAGGA": to_func_metagga[xc]}
+        vasp_input_set._config_dict["INCAR"].pop("GGA", None)
+    elif xc in to_func_gga:
+        config_updates |= {"GGA": to_func_gga[xc]}
+        vasp_input_set._config_dict["INCAR"].pop("METAGGA", None)
+    else:
+        raise ValueError(f"Unknown XC functional {xc_functional}!")
+
+    # Update the van der Waals parameters
+    if vdw == "rvv10":
+        rvv10_params_by_xc = {
+            "scan": {"BPARAM": 15.7, "CPARAM": 0.0093, "LUSE_VDW": True},
+            "r2scan": {"BPARAM": 11.95, "CPARAM": 0.0093, "LUSE_VDW": True},
+        }
+        try:
+            config_updates |= rvv10_params_by_xc[xc]
+        except KeyError:
+            raise ValueError(
+                "Use of rVV10 with functionals other than r2SCAN / SCAN is not currently supported in VASP."
+            )
+
+    elif vdw == "d4":
+        d4_pars = {
+            "r2scan": {"S6": 1.0, "S8": 0.60187490, "A1": 0.51559235, "A2": 5.77342911},
+            "pbe": {"S6": 1.0, "S8": 0.95948085, "A1": 0.38574991, "A2": 4.80688534},
+            "pbesol": {"S6": 1.0, "S8": 1.71885698, "A1": 0.47901421, "A2": 5.96771589},
+        }
+        if xc not in d4_pars:
+            raise ValueError(f"D4 parameters for XC functional '{xc_functional}' are not defined yet.")
+        pars = d4_pars[xc]
+        config_updates |= {"IVDW": 13, **{f"VDW_{k}": v for k, v in pars.items()}}
+
+    elif vdw and vdw != "rvv10":
+        if xc == "scan":
+            warnings.warn(
+                "Use of van der Waals functionals other than rVV10 with SCAN is not supported at this time.",
+                stacklevel=2,
+            )
+
+    if len(config_updates) > 0:
+        vasp_input_set._config_dict["INCAR"].update(config_updates)
+
+
 @due.dcite(
     Doi("10.1021/acs.jpclett.0c02405"),
     description="Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation",
