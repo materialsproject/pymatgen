@@ -374,7 +374,7 @@ class TestElement(MatSciTest):
         assert val == 235
         assert str(val.unit) == "W K^-1 m^-1"
         val = al.electrical_resistivity
-        assert val == approx(2.7e-08)
+        assert val == approx(2.65e-08)
         assert str(val.unit) == "m ohm"
 
     def test_sort(self):
