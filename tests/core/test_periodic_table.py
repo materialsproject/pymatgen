@@ -633,11 +633,20 @@ class TestSpecies(MatSciTest):
             assert Species(el, 3).valence[0] == 3, f"Failure for {el}+3"
 
         for el in Element:
+            if el is Element.Rf:  # Rf doesn't have `electronic_structure` data
+                continue
+
             for ox in el.common_oxidation_states:
-                if str(el) == "H" and ox == 1:
+                if el is Element.H and ox == 1:
                     continue
+
                 n_electron_el = sum(orb[-1] for orb in el.full_electronic_structure)
-                n_electron_sp = sum(orb[-1] for orb in Species(el.symbol, ox).full_electronic_structure)
+                # Some species miss `full_electronic_structure` data
+                try:
+                    n_electron_sp = sum(orb[-1] for orb in Species(el.symbol, ox).full_electronic_structure)
+                except ValueError:
+                    continue
+
                 assert n_electron_el - n_electron_sp == ox, f"Failure for {el} {ox}"
 
     @pytest.mark.parametrize(
