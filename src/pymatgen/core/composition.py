@@ -550,7 +550,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @property
     def weight(self) -> FloatWithUnit:
         """Total molecular weight of Composition."""
-        return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), _PT_UNIT["Atomic mass"])
+        return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), _PT_UNIT["Atomic mass"])  # type:ignore[misc]
 
     def get_atomic_fraction(self, el: SpeciesLike) -> float:
         """Calculate atomic fraction of an Element or Species.
@@ -779,7 +779,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def as_reduced_dict(self) -> dict[str, float]:
         """
         Returns:
-            dict[str, float]: element symbols mapped to reduced amount e.g. {"Fe": 2.0, "O":3.0}.
+            dict[str, float]: element symbols mapped to reduced amount e.g. {"Fe": 2.0, "O": 3.0}.
         """
         return self.reduced_composition.as_dict()
 

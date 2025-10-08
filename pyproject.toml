@@ -219,6 +219,7 @@ ignore = [
     "PLW1641", # eq-without-hash TODO: fix this
     "PLW2901", # Outer for loop variable overwritten by inner assignment target
     "PT013", # Incorrect import of pytest
+    "RUF043", # Pattern passed to `match=` contains metacharacters but is neither escaped nor raw
     "S110", # Log for try-except-pass
     "S112", # Log for try-except-continue
     "S311", # Use random module for cryptographic purposes
@@ -326,6 +327,7 @@ default-groups = ["dev", "test", "lint", "docs"]
 dev = [
     "invoke>=2.2.0",
     "jupyter>=1.1.1",
+    "openai>=2.2.0",
     "pre-commit>=4.2.0",
 ]
 test = [

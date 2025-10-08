@@ -88,7 +88,7 @@ class DielectricAnalysis:
             tensor).
         :rtype: DielectricAnalysis
         """
-        energies, real_diel, imag_diel = vasprun.dielectric
+        _energies, _real_diel, _imag_diel = vasprun.dielectric
         return DielectricAnalysis(
             *vasprun.dielectric,
         )

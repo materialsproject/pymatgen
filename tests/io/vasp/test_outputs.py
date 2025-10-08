@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import gzip
 import json
+import logging
 import os
-import sys
 import xml
-from io import StringIO
 from pathlib import Path
 from shutil import copyfile, copyfileobj
 
@@ -1854,6 +1853,14 @@ class TestProcar(MatSciTest):
         d2 = procar.get_projection_on_elements(struct)
         assert d2[Spin.up][2][2] == approx({"Na": 0.688, "Li": 0.042})
 
+    def test_skip_kpoint(self):
+        filepath = f"{VASP_OUT_DIR}/PROCAR.repeatedpoints"
+        procar = Procar(filepath)
+        # length of projection's k-points axis should be equal to the number of k-points
+        assert procar.nkpoints == len(procar.data[Spin.up][:, 0, 0, 0])
+        assert procar.phase_factors[Spin.up][1, 0, 0, 0] == approx(-0.087 + -0.166j)
+        assert procar.kpoints[1][0] == approx(0.25000000)
+
 
 class TestXdatcar:
     def test_init(self):
@@ -1930,7 +1937,7 @@ class TestWavecar(MatSciTest):
         self.w_ncl = Wavecar(f"{VASP_OUT_DIR}/WAVECAR.H2.ncl")
         self.w_frac_encut = Wavecar(f"{VASP_OUT_DIR}/WAVECAR.frac_encut")
 
-    def test_standard(self):
+    def test_standard(self, caplog):
         wavecar = self.wavecar
         a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0], [0.0, 0.0, 10.0]])
         vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))
@@ -1980,14 +1987,9 @@ class TestWavecar(MatSciTest):
         with pytest.raises(ValueError, match=r"cannot reshape array of size 257 into shape \(2,128\)"):
             Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2", vasp_type="n")
 
-        saved_stdout = sys.stdout
-        try:
-            out = StringIO()
-            sys.stdout = out
+        with caplog.at_level(logging.INFO):
             Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2", verbose=True)
-            assert out.getvalue().strip() != ""
-        finally:
-            sys.stdout = saved_stdout
+        assert any("reciprocal lattice vector magnitudes" in msg for msg in caplog.messages)
 
     def test_n2_45210(self):
         wavecar = Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2.45210")

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import itertools
+import logging
 import math
 import os
 import re
@@ -60,6 +61,9 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.util.typing import Kpoint, PathLike
+
+
+logger = logging.getLogger(__name__)
 
 
 def _parse_parameters(val_type: str, val: str) -> bool | str | float | int:
@@ -4285,6 +4289,7 @@ class Procar(MSONable):
             self.is_soc = is_soc
 
             skipping_kpoint = False  # true when skipping projections for a previously-parsed kpoint
+            skipped_kpoint_count = 0  # keep track of number of k-points skipped
             ion_line_count = 0  # printed twice when phase factors present
             proj_data_parsed_for_band = 0  # 0 for non-SOC, 1-4 for SOC/phase factors
             for line in file:  # type:ignore[assignment]
@@ -4295,7 +4300,7 @@ class Procar(MSONable):
                 if kpoint_expr.match(line):
                     kvec = self._parse_kpoint_line(line)
                     match = kpoint_expr.match(line)
-                    current_kpoint = int(match[1]) - 1  # type: ignore[index]
+                    current_kpoint = int(match[1]) - 1 - skipped_kpoint_count  # type: ignore[index]
                     if current_kpoint == 0:
                         spin = Spin.up if spin == Spin.down else Spin.down
 
@@ -4309,6 +4314,7 @@ class Procar(MSONable):
                             kpoints.append(kvec)  # only add once
                     else:  # skip ahead to next kpoint:
                         skipping_kpoint = True
+                        skipped_kpoint_count += 1
                         continue
 
                     if spin == Spin.up:  # record k-weight only once
@@ -4401,15 +4407,15 @@ class Procar(MSONable):
                 raise ValueError("Mismatch in number of spin channels in supplied PROCARs!")
             self.nspins = len(data)
 
-            # chop off empty kpoints in arrays and redetermine nkpoints as we may have skipped previously-parsed kpoints
+            # chop off empty kpoints in arrays, including last k-point in case it was skipped
             nkpoints = current_kpoint + 1
-            weights = np.array(weights[:nkpoints])  # type: ignore[index]
-            data = {spin: data[spin][:nkpoints] for spin in data}  # type: ignore[index]
-            eigenvalues = {spin: eigenvalues[spin][:nkpoints] for spin in eigenvalues}  # type: ignore[union-attr,index]
-            occupancies = {spin: occupancies[spin][:nkpoints] for spin in occupancies}  # type: ignore[union-attr,index]
-            phase_factors = {spin: phase_factors[spin][:nkpoints] for spin in phase_factors}  # type: ignore[union-attr,index]
+            weights = np.array(weights[: nkpoints - int(skipping_kpoint)])  # type: ignore[index]
+            data = {spin: data[spin][: nkpoints - int(skipping_kpoint)] for spin in data}  # type: ignore[index]
+            eigenvalues = {spin: eigenvalues[spin][: nkpoints - int(skipping_kpoint)] for spin in eigenvalues}  # type: ignore[union-attr,index]
+            occupancies = {spin: occupancies[spin][: nkpoints - int(skipping_kpoint)] for spin in occupancies}  # type: ignore[union-attr,index]
+            phase_factors = {spin: phase_factors[spin][: nkpoints - int(skipping_kpoint)] for spin in phase_factors}  # type: ignore[union-attr,index]
             if self.is_soc:
-                xyz_data = {spin: xyz_data[spin][:nkpoints] for spin in xyz_data}  # type: ignore[union-attr,index]
+                xyz_data = {spin: xyz_data[spin][: nkpoints - int(skipping_kpoint)] for spin in xyz_data}  # type: ignore[union-attr,index]
 
             # Update the parsed kpoints
             parsed_kpoints.update({kvec_spin_tuple[0] for kvec_spin_tuple in this_procar_parsed_kpoints})
@@ -5096,7 +5102,7 @@ class Wavecar:
             # Read the header information
             recl, spin, rtag = np.fromfile(file, dtype=np.float64, count=3).astype(int)
             if verbose:
-                print(f"{recl=}, {spin=}, {rtag=}")
+                logger.info(f"{recl=}, {spin=}, {rtag=}")
             recl8 = int(recl / 8)
             self.spin = spin
 
@@ -5119,15 +5125,15 @@ class Wavecar:
             self.a = np.fromfile(file, dtype=np.float64, count=9).reshape((3, 3))
             self.efermi = np.fromfile(file, dtype=np.float64, count=1)[0]
             if verbose:
-                print(
+                logger.info(
                     f"kpoints = {self.nk}, bands = {self.nb}, energy cutoff = {self.encut}, fermi "
                     f"energy= {self.efermi:.04f}\n"
                 )
-                print(f"primitive lattice vectors = \n{self.a}")
+                logger.info(f"primitive lattice vectors = \n{self.a}")
 
             self.vol = np.dot(self.a[0, :], np.cross(self.a[1, :], self.a[2, :]))
             if verbose:
-                print(f"volume = {self.vol}\n")
+                logger.info(f"volume = {self.vol}\n")
 
             # Calculate reciprocal lattice
             b = np.array(
@@ -5140,13 +5146,13 @@ class Wavecar:
             b = 2 * np.pi * b / self.vol
             self.b = b
             if verbose:
-                print(f"reciprocal lattice vectors = \n{b}")
-                print(f"reciprocal lattice vector magnitudes = \n{np.linalg.norm(b, axis=1)}\n")
+                logger.info(f"reciprocal lattice vectors = \n{b}")
+                logger.info(f"reciprocal lattice vector magnitudes = \n{np.linalg.norm(b, axis=1)}\n")
 
             # Calculate maximum number of b vectors in each direction
             self._generate_nbmax()
             if verbose:
-                print(f"max number of G values = {self._nbmax}\n\n")
+                logger.info(f"max number of G values = {self._nbmax}\n\n")
             self.ng = self._nbmax * 3 if precision.lower()[0] == "n" else self._nbmax * 4
 
             # Pad to end of fortran REC=2
@@ -5166,7 +5172,7 @@ class Wavecar:
 
             for i_spin in range(spin):
                 if verbose:
-                    print(f"Reading spin {i_spin}")
+                    logger.info(f"Reading spin {i_spin}")
 
                 for i_nk in range(self.nk):
                     # Information for this kpoint
@@ -5179,7 +5185,7 @@ class Wavecar:
                         raise ValueError(f"kpoints of {i_nk=} mismatch")
 
                     if verbose:
-                        print(f"kpoint {i_nk: 4} with {nplane: 5} plane waves at {kpoint}")
+                        logger.info(f"kpoint {i_nk: 4} with {nplane: 5} plane waves at {kpoint}")
 
                     # Energy and occupation information
                     enocc = np.fromfile(file, dtype=np.float64, count=3 * self.nb).reshape((self.nb, 3))
@@ -5189,7 +5195,7 @@ class Wavecar:
                         self.band_energy.append(enocc)
 
                     if verbose:
-                        print("enocc =\n", enocc[:, [0, 2]])
+                        logger.info("enocc =\n%s", enocc[:, [0, 2]])
 
                     # Pad the end of record that contains nplane, kpoints, evals and occs
                     np.fromfile(file, dtype=np.float64, count=(recl8 - 4 - 3 * self.nb) % recl8)
@@ -5207,7 +5213,7 @@ class Wavecar:
                             self.vasp_type = "std" if len(self.Gpoints[i_nk]) == nplane else "ncl"  # type: ignore[arg-type]
 
                         if verbose:
-                            print(f"\ndetermined {self.vasp_type = }\n")
+                            logger.info(f"\ndetermined {self.vasp_type = }\n")
                     else:
                         self.Gpoints[i_nk], extra_gpoints, extra_coeff_inds = self._generate_G_points(  # type: ignore[call-overload]
                             kpoint, gamma=self.vasp_type.lower()[0] == "g"
