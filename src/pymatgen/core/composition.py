@@ -779,7 +779,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def as_reduced_dict(self) -> dict[str, float]:
         """
         Returns:
-            dict[str, float]: element symbols mapped to reduced amount e.g. {"Fe": 2.0, "O":3.0}.
+            dict[str, float]: element symbols mapped to reduced amount e.g. {"Fe": 2.0, "O": 3.0}.
         """
         return self.reduced_composition.as_dict()
 
