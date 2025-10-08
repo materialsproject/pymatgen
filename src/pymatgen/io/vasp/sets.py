@@ -1505,56 +1505,7 @@ class MP24RelaxSet(VaspInputSet):
 
     def __post_init__(self) -> None:
         super().__post_init__()
-
-        to_func = {
-            "r2SCAN": "R2SCAN",
-            "PBE": "PE",
-            "PBEsol": "PS",
-        }
-
-        config_updates: dict[str, Any] = {}
-        if self.xc_functional == "r2SCAN":
-            config_updates |= {"METAGGA": to_func[self.xc_functional]}
-            self._config_dict["INCAR"].pop("GGA", None)
-        elif self.xc_functional in ["PBE", "PBEsol"]:
-            config_updates |= {"GGA": to_func[self.xc_functional]}
-            self._config_dict["INCAR"].pop("METAGGA", None)
-        else:
-            raise ValueError(f"Unknown XC functional {self.xc_functional}!")
-
-        if self.dispersion == "rVV10":
-            if self.xc_functional == "r2SCAN":
-                config_updates |= {"BPARAM": 11.95, "CPARAM": 0.0093, "LUSE_VDW": True}
-            else:
-                raise ValueError(
-                    "Use of rVV10 with functionals other than r2 / SCAN is not currently supported in VASP."
-                )
-
-        elif self.dispersion == "D4":
-            d4_pars = {
-                "r2SCAN": {
-                    "S6": 1.0,
-                    "S8": 0.60187490,
-                    "A1": 0.51559235,
-                    "A2": 5.77342911,
-                },
-                "PBE": {
-                    "S6": 1.0,
-                    "S8": 0.95948085,
-                    "A1": 0.38574991,
-                    "A2": 4.80688534,
-                },
-                "PBEsol": {
-                    "S6": 1.0,
-                    "S8": 1.71885698,
-                    "A1": 0.47901421,
-                    "A2": 5.96771589,
-                },
-            }
-            config_updates |= {"IVDW": 13, **{f"VDW_{k}": v for k, v in d4_pars[self.xc_functional].items()}}
-
-        if len(config_updates) > 0:
-            self._config_dict["INCAR"].update(config_updates)
+        _config_updates(self, self.xc_functional, self.dispersion)
 
     @staticmethod
     def _sigmoid_interp(
