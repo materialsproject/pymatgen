@@ -1360,12 +1360,11 @@ def _config_updates(
         pars = d4_pars[xc]
         config_updates |= {"IVDW": 13, **{f"VDW_{k}": v for k, v in pars.items()}}
 
-    elif vdw and vdw != "rvv10":
-        if xc == "scan":
-            warnings.warn(
-                "Use of van der Waals functionals other than rVV10 with SCAN is not supported at this time.",
-                stacklevel=2,
-            )
+    elif isinstance(vdw, str):
+        warnings.warn(
+            f"Dispersion correction '{dispersion}' with {xc} is not supported in this class and will be ignored.",
+            stacklevel=2,
+        )
 
     if len(config_updates) > 0:
         vasp_input_set._config_dict["INCAR"].update(config_updates)
