@@ -311,6 +311,7 @@ ist, nd, ot, ontop, CoO
 skip = """*.json,
 src/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries_files/allcg.txt,
 tests/io/lammps/test_inputs.py,
+dev_scripts/periodic_table_resources/elemental_properties.yaml,
 """
 check-filenames = true
 
