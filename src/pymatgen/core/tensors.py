@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import collections
 import itertools
+import logging
 import os
 import string
 import warnings
@@ -34,6 +35,7 @@ if TYPE_CHECKING:
 __author__ = "Joseph Montoya"
 __credits__ = "Maarten de Jong, Shyam Dwaraknath, Wei Chen, Mark Asta, Anubhav Jain, Terence Lew"
 
+logger = logging.getLogger(__name__)
 
 DEFAULT_QUAD = loadfn(os.path.join(os.path.dirname(__file__), "quad_data.json"))
 
@@ -640,14 +642,14 @@ class Tensor(np.ndarray, MSONable):
                 old[new_mask] = new[new_mask]
 
             if verbose:
-                print(f"Preconditioning for {len(sops)} symmops")
+                logger.info(f"Preconditioning for {len(sops)} symmops")
             for sop in sops:
                 rot = guess.transform(sop)
                 # Store non-zero entries of new that weren't previously
                 # in the guess in the guess
                 merge(guess, rot)
             if verbose:
-                print("Preconditioning for voigt symmetry")
+                logger.info("Preconditioning for voigt symmetry")
             if vsym:
                 v = guess.voigt
                 perms = list(itertools.permutations(range(len(v.shape))))
@@ -671,7 +673,7 @@ class Tensor(np.ndarray, MSONable):
             test_new[mask] = self[mask]
             test_old = test_new
             if verbose:
-                print(f"Iteration {idx}: {np.max(diff)}")
+                logger.info(f"Iteration {idx}: {np.max(diff)}")
         if not converged:
             max_diff = np.max(np.abs(self - test_new))
             warnings.warn(f"Warning, populated tensor is not converged with max diff of {max_diff}", stacklevel=2)

@@ -21,6 +21,7 @@ import os
 import subprocess
 import tempfile
 import time
+import warnings
 from shutil import which
 from typing import TYPE_CHECKING
 
@@ -241,7 +242,7 @@ class BoltztrapRunner(MSONable):
         en_range = Energy(max((abs(self._ll), abs(self._hl))), "Ry").to("eV")
 
         self.energy_span_around_fermi = en_range * 1.01
-        print("energy_span_around_fermi = ", self.energy_span_around_fermi)
+        logger.debug("energy_span_around_fermi = %s", self.energy_span_around_fermi)
 
     @property
     def bs(self):
@@ -550,12 +551,12 @@ class BoltztrapRunner(MSONable):
             raise ValueError("Convergence mode requires write_input to be true")
 
         run_type = self.run_type
-        if run_type in ("BANDS", "DOS", "FERMI"):
+        if run_type in {"BANDS", "DOS", "FERMI"}:
             convergence = False
             max_lpfac = max(self.lpfac, max_lpfac)
 
         if run_type == "BANDS" and self.bs.is_spin_polarized:
-            print(
+            logger.warning(
                 f"Reminder: for {run_type=}, spin component are not separated! "
                 "(you have a spin polarized band structure)"
             )
@@ -925,7 +926,7 @@ class BoltztrapAnalyzer:
                             bnd_around_efermi.append(nb)
                             break
             if len(bnd_around_efermi) < 8:
-                print(f"Warning! check performed on {len(bnd_around_efermi)}")
+                warnings.warn(f"check performed on {len(bnd_around_efermi)}", stacklevel=2)
                 nb_list = bnd_around_efermi
             else:
                 nb_list = bnd_around_efermi[:8]
@@ -947,7 +948,7 @@ class BoltztrapAnalyzer:
         bcheck["nb_list"] = nb_list
 
         if True in acc_err:
-            print("Warning! some bands around gap are not accurate")
+            warnings.warn("some bands around gap are not accurate", stacklevel=2)
 
         return bcheck
 
@@ -2238,8 +2239,7 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
                 zero = max(arr_bands[vbm])
         else:
             zero_ref = 0  # bands_ref_obj.efermi
-            zero = 0  # bands_obj.efermi
-            print(zero, zero_ref)
+            zero = 0  # bands_obj.efermi)
 
         for nbi in nb:
             bcheck[nbi] = {}
