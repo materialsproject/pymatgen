@@ -1423,7 +1423,7 @@ class MPScanRelaxSet(VaspInputSet):
         dispersion (str | None): set "rVV10" (default None) to enable r2SCAN+rVV10 or
             SCAN+rVV10, which is a versatile van der Waals density functional by combing
             the r2SCAN/SCAN functional with the rVV10 non-local correlation functional.
-            rVV10 is the only dispersion correction available for SCAN at this time.
+            rVV10 is the only dispersion correction available for r2SCAN and SCAN in MPScanRelaxSet class.
         **kwargs: Keywords supported by VaspInputSet.
 
     References:
@@ -1443,7 +1443,7 @@ class MPScanRelaxSet(VaspInputSet):
     """
 
     xc_functional: Literal["r2SCAN", "SCAN"] = "r2SCAN"
-    dispersion: str | None = None
+    dispersion: Literal["rVV10"] | None = None
     bandgap: float | None = None
     auto_kspacing: bool = True
     user_potcar_functional: UserPotcarFunctional = "PBE_54"
@@ -1453,6 +1453,8 @@ class MPScanRelaxSet(VaspInputSet):
 
     def __post_init__(self) -> None:
         super().__post_init__()
+        if isinstance(self.dispersion, str) and self.dispersion.lower() != "rvv10":
+            raise ValueError("Only rVV10 (or None) is supported for dispersion in MPScanRelaxSet.")
         _config_updates(self, self.xc_functional, self.dispersion)
 
 
