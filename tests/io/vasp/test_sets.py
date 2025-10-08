@@ -2396,3 +2396,9 @@ class TestMP24Sets:
                     "VDW_S8",
                 )
             )
+
+    def test_not_allowed_xc_func(self):
+        with pytest.raises(ValueError, match="xc_functional must be one of"):
+            self.relax_set(structure=self.structure, xc_functional="SCAN")
+        with pytest.raises(ValueError, match="xc_functional must be one of"):
+            self.static_set(structure=self.structure, xc_functional="SCAN", dispersion="rVV10")
