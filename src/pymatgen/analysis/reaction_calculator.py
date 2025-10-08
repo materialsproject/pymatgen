@@ -36,12 +36,12 @@ class BalancedReaction(MSONable):
     """Represent a complete chemical reaction."""
 
     # Tolerance for determining if a particular component fraction is > 0.
-    TOLERANCE = 1e-6
+    TOLERANCE: float = 1e-6
 
     def __init__(
         self,
-        reactants_coeffs: Mapping[CompositionLike, int | float],
-        products_coeffs: Mapping[CompositionLike, int | float],
+        reactants_coeffs: Mapping[CompositionLike, float],
+        products_coeffs: Mapping[CompositionLike, float],
     ) -> None:
         """
         Reactants and products to be specified as dict of {Composition: coeff}.
@@ -51,26 +51,26 @@ class BalancedReaction(MSONable):
             products_coeffs (dict[Composition, float]): Products as dict of {Composition: amt}.
         """
         # convert to Composition if necessary
-        reactants_coeffs = {Composition(comp): coeff for comp, coeff in reactants_coeffs.items()}
-        products_coeffs = {Composition(comp): coeff for comp, coeff in products_coeffs.items()}
+        self.reactants_coeffs: dict[Composition, float] = {
+            Composition(comp): coeff for comp, coeff in reactants_coeffs.items()
+        }
+        self.products_coeffs: dict[Composition, float] = {
+            Composition(comp): coeff for comp, coeff in products_coeffs.items()
+        }
 
         # sum reactants and products
-        all_reactants = sum((comp * coeff for comp, coeff in reactants_coeffs.items()), Composition())
-
-        all_products = sum((comp * coeff for comp, coeff in products_coeffs.items()), Composition())
+        all_reactants = sum((comp * coeff for comp, coeff in self.reactants_coeffs.items()), Composition())
+        all_products = sum((comp * coeff for comp, coeff in self.products_coeffs.items()), Composition())
 
         if not all_reactants.almost_equals(all_products, rtol=0, atol=self.TOLERANCE):
             raise ReactionError("Reaction is unbalanced!")
-
-        self.reactants_coeffs: dict = reactants_coeffs
-        self.products_coeffs: dict = products_coeffs
 
         # calculate net reaction coefficients
         self._coeffs: list[float] = []
         self._els: list[Element | Species] = []
         self._all_comp: list[Composition] = []
-        for key in {*reactants_coeffs, *products_coeffs}:
-            coeff = products_coeffs.get(key, 0) - reactants_coeffs.get(key, 0)
+        for key in {*self.reactants_coeffs, *self.products_coeffs}:
+            coeff = self.products_coeffs.get(key, 0) - self.reactants_coeffs.get(key, 0)
 
             if abs(coeff) > self.TOLERANCE:
                 self._all_comp += [key]
@@ -265,8 +265,8 @@ class BalancedReaction(MSONable):
         Returns:
             BalancedReaction
         """
-        reactants = {Composition(comp): coeff for comp, coeff in dct["reactants"].items()}
-        products = {Composition(comp): coeff for comp, coeff in dct["products"].items()}
+        reactants: dict[CompositionLike, float] = {Composition(comp): coeff for comp, coeff in dct["reactants"].items()}
+        products: dict[CompositionLike, float] = {Composition(comp): coeff for comp, coeff in dct["products"].items()}
         return cls(reactants, products)
 
     @classmethod

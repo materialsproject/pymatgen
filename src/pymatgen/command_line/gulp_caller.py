@@ -1,6 +1,6 @@
 """Interface with command line GULP.
 https://gulp.curtin.edu.au/index.html
-WARNING: you need to have GULP installed on your system.
+NOTE: you need to have GULP installed on your system.
 """
 
 from __future__ import annotations
