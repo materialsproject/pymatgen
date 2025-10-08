@@ -1440,6 +1440,8 @@ class MPScanRelaxSet(VaspInputSet):
         Phys. Rev. B 106, 075422 (2022) DOI: 10.1103/PhysRevB.106.075422
     """
 
+    xc_functional: Literal["r2SCAN", "SCAN"] = "r2SCAN"
+    dispersion: str | None = None
     bandgap: float | None = None
     auto_kspacing: bool = True
     user_potcar_functional: UserPotcarFunctional = "PBE_54"
@@ -1449,20 +1451,7 @@ class MPScanRelaxSet(VaspInputSet):
 
     def __post_init__(self) -> None:
         super().__post_init__()
-        if self.vdw and self.vdw != "rvv10":
-            warnings.warn(
-                "Use of van der waals functionals other than rVV10 with SCAN is not supported at this time. ",
-                stacklevel=2,
-            )
-            # Delete any vdw parameters that may have been added to the INCAR
-            vdw_par = loadfn(f"{MODULE_DIR}/vdW_parameters.yaml")
-            for k in vdw_par[self.vdw]:
-                self._config_dict["INCAR"].pop(k, None)
-
-        elif self.vdw == "rvv10":
-            if self._config_dict["INCAR"]["METAGGA"] == "R2SCAN" and self.user_incar_settings.get("METAGGA") is None:
-                rVV10_r2scan = {"BPARAM": 11.95}
-                self._config_dict["INCAR"].update(rVV10_r2scan)
+        _config_updates(self, self.xc_functional, self.dispersion)
 
 
 @dataclass
