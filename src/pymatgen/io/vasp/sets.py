@@ -1387,13 +1387,13 @@ def _config_updates(
 class MPScanRelaxSet(VaspInputSet):
     """Write a relaxation input set using the accurate and numerically
     efficient r2SCAN variant of the Strongly Constrained and Appropriately Normed
-    (SCAN) metaGGA density functional.
+    (SCAN) meta-GGA density functional.
 
     Notes:
         1. This functional is officially supported in VASP 6.0.0 and above. On older version,
         source code may be obtained by contacting the authors of the referenced manuscript.
         The original SCAN functional, available from VASP 5.4.3 onwards, maybe used instead
-        by passing `user_incar_settings={"METAGGA": "SCAN"}` when instantiating this InputSet.
+        by passing `xc_functional="SCAN"` when instantiating this InputSet.
         r2SCAN and SCAN are expected to yield very similar results.
 
         2. Meta-GGA calculations require POTCAR files that include
@@ -1418,10 +1418,12 @@ class MPScanRelaxSet(VaspInputSet):
             and Mueller [1] (see References). Note that if 'user_incar_settings'
             or 'user_kpoints_settings' override KSPACING, the calculation from
             bandgap is not performed.
-        vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
-            van der Waals density functional by combing the SCAN functional
-            with the rVV10 non-local correlation functional. rvv10 is the only
-            dispersion correction available for SCAN at this time.
+        xc_functional (str): set "r2SCAN" (default) or "SCAN" to choose the meta-GGA
+            exchange-correlation functional.
+        dispersion (str | None): set "rVV10" (default None) to enable r2SCAN+rVV10 or
+            SCAN+rVV10, which is a versatile van der Waals density functional by combing
+            the r2SCAN/SCAN functional with the rVV10 non-local correlation functional.
+            rVV10 is the only dispersion correction available for SCAN at this time.
         **kwargs: Keywords supported by VaspInputSet.
 
     References:
