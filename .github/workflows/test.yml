@@ -118,8 +118,8 @@ jobs:
           PYTHONWARNDEFAULTENCODING: "true" # PEP 597: Enable optional EncodingWarning
         run: |
           pytest tests \
-            --splits 10 --group ${{ matrix.split }} \
-            --durations-path tests/files/.pytest-split-durations
+            -n auto --splits 10 --group ${{ matrix.split }} \
+            --durations-path tests/files/.pytest-split-durations \
 
   trigger_atomate2_ci:
     needs: test

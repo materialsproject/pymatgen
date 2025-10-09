@@ -1112,6 +1112,11 @@ Cartesian
 0.5 0.5 0.5 4 None"""
         assert str(kpoints).strip() == expected_kpt_str
 
+        # ensure KPOINTS deserialize even when weights are numpy array
+        conf_dict = kpoints.as_dict()
+        conf_dict["kpts_weights"] = np.array(conf_dict["kpts_weights"])
+        assert Kpoints.from_dict(conf_dict) == kpoints
+
         # Explicit tetrahedra method
         filepath = f"{VASP_IN_DIR}/KPOINTS_explicit_tet"
         kpoints = Kpoints.from_file(filepath)
