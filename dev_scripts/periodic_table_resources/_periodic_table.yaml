@@ -1679,6 +1679,8 @@ Electronic structure:
     Lr:
       '0': '[Rn].5f14.7s2.7p1'
       '3': '[Rn].5f14'
+    Rf:
+      '0': '[Rn].5f14.6d2.7s2'
 Ground level:
   reference:
     https://physics.nist.gov/cgi-bin/ASD/ie.pl?spectra=H-DS+i&units=1&at_num_out=on&el_name_out=on&shells_out=on&level_out=on&e_out=0&unc_out=on&biblio=on

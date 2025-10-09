@@ -2136,6 +2136,8 @@ Electronic structure:
     Re:
       "0": "[Xe].4f14.5d5.6s2"
       "4": "[Xe].4f14.5d3"
+    Rf:
+      "0": "[Rn].5f14.6d2.7s2"
     Rh:
       "0": "[Kr].4d8.5s1"
       "3": "[Kr].4d6"

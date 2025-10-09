@@ -633,9 +633,6 @@ class TestSpecies(MatSciTest):
             assert Species(el, 3).valence[0] == 3, f"Failure for {el}+3"
 
         for el in Element:
-            if el is Element.Rf:  # Rf doesn't have `electronic_structure` data
-                continue
-
             for ox in el.common_oxidation_states:
                 if el is Element.H and ox == 1:
                     continue
