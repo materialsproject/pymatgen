@@ -257,7 +257,7 @@ docstring-code-format = true
 addopts = "-n auto --durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
     # NOTE: the LAST matching option would be used
-    "ignore::UserWarning", # Ignore UserWarning
+    "ignore::UserWarning",
 ]
 
 [tool.coverage.run]
@@ -273,12 +273,7 @@ omit = [
 [tool.coverage.report]
 exclude_also = [
     "@deprecated",
-    "def __repr__",
     "except ImportError:",
-    "if TYPE_CHECKING:",
-    "if self.debug:",
-    "if settings.DEBUG",
-    "pragma: no cover",
     "raise NotImplementedError",
     "show_plot",
 ]
