@@ -1220,7 +1220,7 @@ class Kpoints(MSONable):
         style: KpointsSupportedModes = supported_modes.Gamma,
         kpts: Sequence[Kpoint] = ((1, 1, 1),),
         kpts_shift: tuple[float, float, float] = (0, 0, 0),
-        kpts_weights: list[float] | None = None,
+        kpts_weights: Sequence[float] | None = None,
         coord_type: Literal["Reciprocal", "Cartesian"] | None = None,
         labels: list[str] | None = None,
         tet_number: int = 0,
@@ -1246,12 +1246,12 @@ class Kpoints(MSONable):
                 (or negative), VASP automatically generates the KPOINTS.
             style: Style for generating KPOINTS. Use one of the
                 Kpoints.supported_modes enum types.
-            kpts (2D array): Array of kpoints. Even when only a single
+            kpts (2D sequence): Sequence of kpoints. Even when only a single
                 specification is required, e.g. in the automatic scheme,
-                the kpts should still be specified as a 2D array. e.g.
+                the kpts should still be specified as a 2D sequence. e.g.
                 [(20,),] or [(2, 2, 2),].
             kpts_shift (3x1 array): Shift for kpoints.
-            kpts_weights (list[float]): Optional weights for explicit kpoints.
+            kpts_weights (Sequence[float]): Optional weights for explicit kpoints.
             coord_type: In line-mode, this variable specifies whether the
                 Kpoints were given in Cartesian or Reciprocal coordinates.
             labels: In line-mode, this should provide a list of labels for
@@ -1266,7 +1266,7 @@ class Kpoints(MSONable):
                 Format is a list of tuples, [ (sym_weight, [tet_vertices]),
                 ...]
         """
-        if num_kpts > 0 and not labels and not kpts_weights:
+        if num_kpts > 0 and not labels and kpts_weights is None:
             raise ValueError("For explicit or line-mode kpoints, either the labels or kpts_weights must be specified.")
 
         self.comment = comment
@@ -1274,7 +1274,7 @@ class Kpoints(MSONable):
         self.kpts = kpts  # type: ignore[assignment]
         self.style = style
         self.coord_type = coord_type
-        self.kpts_weights = kpts_weights
+        self.kpts_weights = list(kpts_weights) if kpts_weights is not None else None
         self.kpts_shift = tuple(kpts_shift)
         self.labels = labels
         self.tet_number = tet_number

@@ -79,6 +79,7 @@ def test_get_ref_import_time() -> None:
     pytest.fail("Reference import times generated. Copy from output to update JSON file.")
 
 
+@pytest.mark.xfail(reason="High variance in CI run times.")
 @pytest.mark.skipif(GEN_REF_TIME, reason="Generating reference import time.")
 @pytest.mark.parametrize(
     ("grace_percent", "hard_percent"),
