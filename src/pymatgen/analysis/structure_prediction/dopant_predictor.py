@@ -127,26 +127,21 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
 
 def _get_dopants(substitutions, num_dopants, match_oxi_sign) -> dict:
     """Utility method to get n- and p-type dopants from a list of substitutions."""
-    n_type = [
-        pred
-        for pred in substitutions
-        if pred["dopant_species"].oxi_state > pred["original_species"].oxi_state
-        and (
-            not match_oxi_sign
-            or np.sign(pred["dopant_species"].oxi_state) == np.sign(pred["original_species"].oxi_state)
-        )
-    ]
-    p_type = [
-        pred
-        for pred in substitutions
-        if pred["dopant_species"].oxi_state < pred["original_species"].oxi_state
-        and (
-            not match_oxi_sign
-            or np.sign(pred["dopant_species"].oxi_state) == np.sign(pred["original_species"].oxi_state)
-        )
-    ]
-
-    return {"n_type": n_type[:num_dopants], "p_type": p_type[:num_dopants]}
+    dopants = {k: [] for k in ("n_type", "p_type")}
+    for k in dopants:  # noqa: PLC0206
+        for pred in substitutions:
+            if (
+                pred["dopant_species"].oxi_state > pred["original_species"].oxi_state
+                if k == "n_type"
+                else pred["dopant_species"].oxi_state < pred["original_species"].oxi_state
+            ) and (
+                not match_oxi_sign
+                or np.sign(pred["dopant_species"].oxi_state) == np.sign(pred["original_species"].oxi_state)
+            ):
+                dopants[k].append(pred)
+            if len(dopants[k]) == num_dopants:
+                break
+    return dopants
 
 
 def _shannon_radii_from_cn(species_list, cn_roman, radius_to_compare=0):
@@ -171,7 +166,7 @@ def _shannon_radii_from_cn(species_list, cn_roman, radius_to_compare=0):
 
             - "species": The species with charge state.
             - "radius": The Shannon radius for the species.
-            - "radius_diff": The difference between the Shannon radius and the
+            - "radii_diff": The difference between the Shannon radius and the
                 radius_to_compare optional argument.
     """
     shannon_radii = []
