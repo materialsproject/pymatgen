@@ -961,13 +961,39 @@ class Incar(UserDict, MSONable):
         Returns:
             Incar object
         """
+        string = "\n".join([ln.split("#", 1)[0].split("!", 1)[0].rstrip() for ln in string.splitlines()])
+
         params: dict[str, Any] = {}
-        for line in clean_lines(string.splitlines()):
-            for sline in line.split(";"):
-                if match := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
-                    key: str = match[1].strip()
-                    val: str = match[2].strip()
-                    params[key] = cls.proc_val(key, val)
+
+        # Handle line continuations (\)
+        string = re.sub(r"\\\s*\n", " ", string)
+
+        # Regex pattern to find all valid "key = value" assignments at once
+        pattern = re.compile(
+            r"""
+            (?P<key>\w+)             # Key (e.g. ENCUT)
+            \s*=\s*                  # Equals sign and optional spaces
+            (?:                      # Non-capturing group for the value
+                "                    # Opening quote
+                (?P<qval>.*?)        # Capture everything inside (non-greedy)
+                [ \t]*"              # Allow trailing spaces/tabs before closing quote
+                |                    # OR
+                (?P<val>[^#!;\n]*)   # Unquoted value (stops before comment/separator)
+            )
+            """,
+            re.VERBOSE | re.DOTALL,
+        )
+
+        # Find all matches in the entire string
+        for match in pattern.finditer(string):
+            key = match.group("key")
+            val = match.group("qval") if match.group("qval") is not None else (match.group("val") or "").strip()
+
+            if not val:
+                continue
+
+            params[key] = cls.proc_val(key, val)
+
         return cls(params)
 
     @staticmethod
@@ -1038,7 +1064,7 @@ class Incar(UserDict, MSONable):
         )
         lower_str_keys = ("ML_MODE",)
         # String keywords to read "as is" (no case transformation, only stripped)
-        as_is_str_keys = ("SYSTEM",)
+        as_is_str_keys = ("SYSTEM", "WANNIER90_WIN")
 
         def smart_int_or_float_bool(str_: str) -> float | int | bool:
             """Determine whether a string represents an integer or a float."""

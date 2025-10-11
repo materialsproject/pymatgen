@@ -886,6 +886,92 @@ SIGMA = 0.05"""
         incar = Incar.from_file(tmp_file)
         assert incar == self.incar
 
+    def test_from_str_comment_handling(self):
+        incar_str = r"""
+        # A = 0
+        ! B=1
+        SIGMA = 0.05   # random comment (known float tag)
+        EDIFF = 1e-6   ! another comment (known float tag)
+        ALGO = Normal  # comment (unknown tag -> inferred as str)
+        GGA = PE       ! comment (unknown tag -> inferred as str)
+        """
+        incar = Incar.from_str(incar_str)
+
+        assert set(incar.keys()) == {"SIGMA", "EDIFF", "ALGO", "GGA"}
+        assert incar["SIGMA"] == approx(0.05)
+        assert incar["EDIFF"] == approx(1e-6)
+        assert incar["ALGO"] == "Normal"
+        assert incar["GGA"] == "Pe"
+
+    def test_from_str_semicolon_separated_statements(self):
+        # Test interaction between semicolon and comment
+        incar_str = r"""
+        ENMAX = 400; ALGO = Fast         ! A = 0
+        ENCUT = 500; ISMEAR = 0          # B=1
+        PREC = Accurate ; LREAL = Auto   ! precision and projection scheme
+        IBRION = 2; ISIF = 3; NSW = 100  # three statements in one line
+        """
+        incar = Incar.from_str(incar_str)
+
+        assert set(incar.keys()) == {
+            "ENMAX",
+            "ALGO",
+            "ENCUT",
+            "ISMEAR",
+            "PREC",
+            "LREAL",
+            "IBRION",
+            "ISIF",
+            "NSW",
+        }
+
+        assert incar["ENMAX"] == 400
+        assert incar["ALGO"] == "Fast"
+        assert incar["ENCUT"] == 500
+        assert incar["ISMEAR"] == 0
+        assert incar["PREC"] == "Accurate"
+        assert incar["LREAL"] == "Auto"
+        assert incar["IBRION"] == 2
+        assert incar["ISIF"] == 3
+        assert incar["NSW"] == 100
+
+    def test_from_str_line_continuation_with_backslash(self):
+        # Test line continuation with backslash
+        incar_str = r"""
+        ALGO = Normal  # \ This backslash should be ignored
+        ENMAX = 200    ! \ This backslash should be ignored
+        MAGMOM  = 0 0 1.0 0 0 -1.0 \
+                0 0 1.0 0 0 -1.0 \
+                6*0
+        """
+        incar = Incar.from_str(incar_str)
+
+        assert set(incar.keys()) == {"ALGO", "ENMAX", "MAGMOM"}
+        assert incar["ALGO"] == "Normal"
+        assert incar["ENMAX"] == 200
+
+        assert incar["MAGMOM"] == [0, 0, 1.0, 0, 0, -1.0, 0, 0, 1.0, 0, 0, -1.0] + [0.0] * 6
+
+    def test_from_str_multiline_string(self):
+        incar_str = r"""
+        # Multi-line string with embedded comments
+        WANNIER90_WIN = "begin Projections  # should NOT be capitalized
+        Fe:d ; Fe:p  # comment inside string
+        End Projections  ! random comment
+        "  # comment after closing quote
+        """
+        incar = Incar.from_str(incar_str)
+
+        assert set(incar.keys()) == {"WANNIER90_WIN"}
+
+        # Comments inside the string would be lost
+        assert (
+            incar["WANNIER90_WIN"]
+            == """begin Projections
+        Fe:d ; Fe:p
+        End Projections"""
+        )
+
     def test_get_str(self):
         incar_str = self.incar.get_str(pretty=True, sort_keys=True)
         expected = """ALGO       =  Damped
@@ -1003,6 +1089,7 @@ SIGMA = 0.1"""
 
     def test_proc_types(self):
         assert Incar.proc_val("HELLO", "-0.85 0.85") == "-0.85 0.85"
+        # `ML_MODE` should always be lower case
         assert Incar.proc_val("ML_MODE", "train") == "train"
         assert Incar.proc_val("ML_MODE", "RUN") == "run"
         assert Incar.proc_val("ALGO", "fast") == "Fast"
