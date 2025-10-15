@@ -154,54 +154,108 @@ class LammpsSettings(MSONable):
             setattr(self, key, value)
         if validate_params:
             self.__post_init__()
+        else:
+            # Always call __post_init__ for warnings, but skip validation
+            self._post_init_warnings_only()
+
+    def _post_init_warnings_only(self) -> None:
+        """Run warnings only, no validation."""
+        # Always validate restart parameter
+        if hasattr(self, "restart") and self.restart and not isinstance(self.restart, str):
+            raise ValueError(
+                f"restart should be the path to the restart file from the previous run, got {self.restart}."
+            )
+
+        if (
+            hasattr(self, "ensemble")
+            and self.ensemble not in ["nve", "minimize"]
+            and hasattr(self, "friction")
+            and hasattr(self, "timestep")
+            and (getattr(self, "thermostat", None) or getattr(self, "barostat", None))
+            and self.friction < self.timestep
+        ):
+            warnings.warn(
+                f"Friction ({self.friction}) is smaller than the timestep ({self.timestep}). "
+                "This may lead to numerical instability.",
+                stacklevel=2,
+            )
+
+        if hasattr(self, "ensemble") and self.ensemble == "minimize" and hasattr(self, "tol") and self.tol > 1e-4:
+            warnings.warn(
+                f"Tolerance for minimization ({self.tol}) is larger than 1e-4. This may lead to inaccurate results.",
+                stacklevel=2,
+            )
 
     def __post_init__(self) -> None:
         """Validate input values."""
 
         for attr, accept_vals in LAMMPS_DEFINED_TYPES.items():
             curr_val = getattr(self, attr, None)
-            if isinstance(curr_val, list | tuple):
-                is_ok = all(v in accept_vals for v in curr_val)
-            else:
-                is_ok = curr_val in accept_vals
-            if not is_ok:
-                raise ValueError(f"Error validating key {attr}: set to {curr_val}, should be one of {accept_vals}.")
+            if curr_val is not None:  # Only validate if the attribute exists
+                if isinstance(curr_val, list | tuple):
+                    is_ok = all(v in accept_vals for v in curr_val)
+                else:
+                    is_ok = curr_val in accept_vals
+                if not is_ok:
+                    raise ValueError(f"Error validating key {attr}: set to {curr_val}, should be one of {accept_vals}.")
 
-        if self.restart and not isinstance(self.restart, str):
+        if hasattr(self, "restart") and self.restart and not isinstance(self.restart, str):
             raise ValueError(
                 f"restart should be the path to the restart file from the previous run, got {self.restart}."
             )
 
-        if self.ensemble not in ["nve", "minimize"]:
-            if isinstance(self.start_pressure, (list, np.ndarray)) and len(self.start_pressure) != 3:
+        if hasattr(self, "ensemble") and self.ensemble not in ["nve", "minimize"]:
+            if (
+                hasattr(self, "start_pressure")
+                and isinstance(self.start_pressure, (list, np.ndarray))
+                and len(self.start_pressure) != 3
+            ):
                 raise ValueError(f"start_pressure should be a list of 3 values, got {self.start_pressure}.")
-            if isinstance(self.end_pressure, (list, np.ndarray)) and len(self.end_pressure) != 3:
+            if (
+                hasattr(self, "end_pressure")
+                and isinstance(self.end_pressure, (list, np.ndarray))
+                and len(self.end_pressure) != 3
+            ):
                 raise ValueError(f"end_pressure should be a list of 3 values, got {self.end_pressure}.")
 
-            if (self.thermostat or self.barostat) and self.friction < self.timestep:
+            if (
+                hasattr(self, "friction")
+                and hasattr(self, "timestep")
+                and (getattr(self, "thermostat", None) or getattr(self, "barostat", None))
+                and self.friction < self.timestep
+            ):
                 warnings.warn(
                     f"Friction ({self.friction}) is smaller than the timestep ({self.timestep}). "
                     "This may lead to numerical instability.",
                     stacklevel=2,
                 )
 
-        if self.ensemble == "minimize":
-            if self.nsteps < 1:
+        if hasattr(self, "ensemble") and self.ensemble == "minimize":
+            if hasattr(self, "nsteps") and self.nsteps < 1:
                 raise ValueError(f"nsteps should be greater than 0 for minimization simulations, got {self.nsteps}.")
-            if self.tol > 1e-4:
+            if hasattr(self, "tol") and self.tol > 1e-4:
                 warnings.warn(
                     f"Tolerance for minimization ({self.tol}) is larger than 1e-4. "
                     "This may lead to inaccurate results.",
                     stacklevel=2,
                 )
 
-    @property
-    def get_dict(self) -> dict:
-        return self.__dict__
-
     def update(self, updates: dict) -> None:
         for key, value in updates.items():
             setattr(self, key, value)
+
+    def as_dict(self) -> dict:
+        """Convert to dictionary for serialization."""
+        # Just return the plain dict representation without MSONable metadata
+        # This makes it serializable as a regular dict
+        return self.__dict__
+
+    @classmethod
+    def from_dict(cls, d: dict) -> LammpsSettings:
+        """Create LammpsSettings from dictionary."""
+        # Remove MSONable metadata if present
+        clean_dict = {k: v for k, v in d.items() if not k.startswith("@")}
+        return cls(**clean_dict)
 
 
 @dataclass
@@ -238,6 +292,7 @@ class BaseLammpsSetGenerator(InputGenerator):
     include_defaults: bool = field(default=True)
     validate_params: bool = field(default=True)
     keep_stages: bool = field(default=True)
+    override_updates: bool = field(default=False)
 
     def __post_init__(self):
         """Determine correct template requested by user.
@@ -295,7 +350,7 @@ class BaseLammpsSetGenerator(InputGenerator):
         include_defaults = include_defaults if isinstance(include_defaults, bool) else self.include_defaults
 
         if isinstance(self.settings, LammpsSettings):
-            present_settings = self.settings.get_dict.copy()
+            present_settings = self.settings.as_dict().copy()
             if include_defaults:
                 base_settings = _BASE_LAMMPS_SETTINGS[self.data_type].copy()
                 present_settings = base_settings | present_settings
@@ -303,13 +358,11 @@ class BaseLammpsSetGenerator(InputGenerator):
                 present_settings.update({k: v})
             if validate_params:
                 present_settings.update({"validate_params": validate_params})
-            print(f"Updating settings: {present_settings}")
             self.settings = LammpsSettings(**present_settings)
         else:
             if include_defaults:
                 base_settings = _BASE_LAMMPS_SETTINGS[self.data_type].copy()
                 present_settings = base_settings | updates
-                present_settings.update(updates)
             else:
                 present_settings = updates
             self.settings.update(present_settings)
@@ -359,12 +412,13 @@ class BaseLammpsSetGenerator(InputGenerator):
                         "nor a string repr of the inputfile. Please check your inputs!"
                     )
 
-        "molecular" if isinstance(data, Molecule) else "periodic"
+        # Update data_type based on input
+        if isinstance(data, Molecule):
+            self.data_type = "molecular"
         self.update_settings(updates={}, validate_params=self.validate_params, include_defaults=self.include_defaults)
 
-        settings_dict = self.settings.get_dict.copy() if isinstance(self.settings, LammpsSettings) else self.settings
+        settings_dict = self.settings.as_dict().copy() if isinstance(self.settings, LammpsSettings) else self.settings
         atom_style = settings_dict.get("atom_style", "full")
-        print(f"Generating LAMMPS input set with settings: {settings_dict}")
 
         # Attempt to read data file and convert to LammpsData object
         if isinstance(data, Path):
@@ -386,6 +440,16 @@ class BaseLammpsSetGenerator(InputGenerator):
             if isinstance(data, Structure):
                 data = LammpsData.from_structure(data, atom_style=atom_style)
             elif isinstance(data, Molecule):
+                # Provide a default box if none is given
+                if box_or_lattice is None:
+                    # Create a simple cubic box that's large enough for the molecule
+                    from pymatgen.core import Lattice
+
+                    coords = np.array([site.coords for site in data])
+                    min_coords = np.min(coords, axis=0)
+                    max_coords = np.max(coords, axis=0)
+                    box_size = np.max(max_coords - min_coords) + 10.0  # Add 10 Angstrom padding
+                    box_or_lattice = Lattice.cubic(box_size)
                 data = LammpsData.from_molecule(data, atom_style=atom_style, box_or_lattice=box_or_lattice)
 
         # Housekeeping to fill up the default settings for the MD template
@@ -413,7 +477,7 @@ class BaseLammpsSetGenerator(InputGenerator):
             settings_dict.update({"end_pressure": " ".join(map(str, settings_dict["end_pressure"])), "psymm": "aniso"})
 
         # Loop over the LammpsSettings object and update the settings dictionary
-        for attr, val in self.settings.get_dict.items():  # type: ignore[union-attr]
+        for attr, val in self.settings.as_dict().items():  # type: ignore[union-attr]
             if attr == "boundary":
                 settings_dict.update({"boundary": " ".join(list(val))})
 
@@ -482,7 +546,7 @@ class BaseLammpsSetGenerator(InputGenerator):
                         warnings.warn(f"Force field key {key} not recognized, will be ignored.", stacklevel=2)
 
                 for ff_key in FF_STYLE_KEYS:
-                    if ff_key not in self.settings.get_dict or not self.settings.get_dict[ff_key]:  # type: ignore[union-attr]
+                    if ff_key not in self.settings.as_dict() or not self.settings.as_dict()[ff_key]:  # type: ignore[union-attr]
                         settings_dict.update({f"{ff_key}_flag": "###"})
                         warnings.warn(
                             f"Force field key {ff_key} not found in the force field dictionary.", stacklevel=2
