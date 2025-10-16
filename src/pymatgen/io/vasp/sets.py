@@ -427,7 +427,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 get_valid_magmom_struct(structure, spin_mode="auto")
 
             struct_has_Yb = any(specie.symbol == "Yb" for site in structure for specie in site.species)
-            potcar_settings = self._config_dict.get("POTCAR", {})
+            potcar_settings = self._config_dict.get("POTCAR", {}).copy()
             if self.user_potcar_settings:
                 potcar_settings.update(self.user_potcar_settings)
             uses_Yb_2_psp = potcar_settings.get("Yb", None) == "Yb_2"

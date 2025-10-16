@@ -1143,7 +1143,7 @@ Common oxidation states:
     Li: [1]
     Be: [2]
     B: [3]
-    C: [-4, 4]
+    C: [-4, -3, -2, -1, 0, 1, 2, 3, 4]
     N: [-3, 3, 5]
     O: [-2]
     F: [-1]
@@ -1170,7 +1170,8 @@ Common oxidation states:
     Ge: [-4, 2, 4]
     As: [-3, 3, 5]
     Se: [-2, 2, 4, 6]
-    Br: [-1, 1, 3, 5, 7]
+    Br: [-1, 1, 3, 5]
+    Kr: [2]
     Rb: [1]
     Sr: [2]
     Y: [3]
@@ -1188,6 +1189,7 @@ Common oxidation states:
     Sb: [-3, 3, 5]
     Te: [-2, 2, 4, 6]
     I: [-1, 1, 3, 5, 7]
+    Xe: [2, 4, 6]
     Cs: [1]
     Ba: [2]
     La: [3]
@@ -1208,7 +1210,7 @@ Common oxidation states:
     Hf: [4]
     Ta: [5]
     W: [4, 6]
-    Re: [4]
+    Re: [4, 7]
     Os: [4]
     Ir: [3, 4]
     Pt: [2, 4]
@@ -1236,13 +1238,15 @@ Common oxidation states:
     Md: [3]
     No: [3]
     Lr: [3]
+    Rf: [4]
 Critical temperature:
   unit: K
   reference:
     https://en.wikipedia.org/wiki/Critical_points_of_the_elements_(data_page)
-  data: {H: 33, He: 5.19, Li: 3223, N: 126.2, O: 154.6, F: 144, Ne: 44.4, Na:
-      2573, P: 994, S: 1314, Cl: 417, Ar: 150.8, K: 2223, As: 1700, Se: 1766, Br:
-      586, Kr: 209.4, Rb: 2093, I: 819, Xe: 289.7, Cs: 1938, Hg: 1750, Rn: 377}
+  data: {H: 32.97, He: 5.19, Li: 3223, N: 126.21, O: 154.59, F: 144.13, Ne: 44.4,
+    Na: 2573, P: 994, S: 1314, Cl: 416.9, Ar: 150.87, K: 2223, As: 1673, Se:
+      1766, Br: 588, Kr: 209.41, Rb: 2093, I: 819, Xe: 289.77, Cs: 1938, Hg:
+      1750, Rn: 377}
 Density of solid:
   unit: kg m^-3
   reference: https://en.wikipedia.org/wiki/Densities_of_the_elements_(data_page)
@@ -1262,20 +1266,22 @@ Electrical resistivity:
   unit: ohm m
   reference:
     https://en.wikipedia.org/wiki/Electrical_resistivities_of_the_elements_(data_page)
-  data: {Li: 9.5e-08, Be: 3.8e-08, B: 15000.0, C: 1e-05, Na: 4.9e-08, Mg:
-      4.4e-08, Al: 2.7e-08, Si: 0.001, P: 1e-07, S: 2000000000000000.0, Cl: 10.0,
-    K: 7.5e-08, Ca: 3.4e-08, Sc: 5.5e-07, Ti: 4e-07, V: 2e-07, Cr: 1.27e-07, Mn:
-      1.44e-06, Fe: 1e-07, Co: 6e-08, Ni: 7.2e-08, Cu: 1.72e-08, Zn: 6e-08, Ga:
-      1.4e-07, Ge: 0.0005, As: 3.3e-07, Br: 78000000000.0, Rb: 1.33e-07, Sr:
-      1.35e-07, Y: 6e-07, Zr: 4.33e-07, Nb: 1.52e-07, Mo: 5.5e-08, Tc: 2.2e-07,
-      Ru: 7.1e-08, Rh: 4.3e-08, Pd: 1.08e-07, Ag: 1.63e-08, Cd: 7e-08, In: 8e-08,
-    Sn: 1.15e-07, Sb: 4e-07, Te: 0.0001, I: 13000000.0, Cs: 2.1e-07, Ba: 3.4e-07,
-    La: 6.15e-07, Ce: 7.4e-07, Pr: 7e-07, Nd: 6.43e-07, Pm: 7.5e-07, Sm: 9.4e-07,
-    Eu: 9e-07, Gd: 1.31e-06, Tb: 1.15e-06, Dy: 9.26e-07, Ho: 8.14e-07, Er:
-      8.6e-07, Tm: 6.76e-07, Yb: 2.5e-07, Lu: 5.8e-07, Hf: 3.4e-07, Ta: 1.35e-07,
-    W: 5.4e-08, Re: 1.8e-07, Os: 8.1e-08, Ir: 4.7e-08, Pt: 1.06e-07, Au: 2.2e-08,
-    Hg: 9.6e-07, Tl: 1.5e-07, Pb: 2.1e-07, Bi: 1.3e-06, Po: 4e-07, Ra: 1e-06, Th:
-      1.5e-07, Pa: 1.8e-07, U: 2.8e-07, Np: 1.2e-06, Pu: 1.5e-06}
+  data: {Li: 9.28e-08, Be: 3.56e-08, B: 15000.0, C: 1e-05, Na: 4.77e-08, Mg:
+      4.39e-08, Al: 2.65e-08, Si: 0.001, P: 1e-07, S: 2000000000000000.0, Cl:
+      10.0, K: 7.2e-08, Ca: 3.36e-08, Sc: 5.62e-07, Ti: 4.2e-07, V: 1.97e-07, Cr:
+      1.25e-07, Mn: 1.44e-06, Fe: 9.61e-08, Co: 6.24e-08, Ni: 6.93e-08, Cu:
+      1.678e-08, Zn: 5.9e-08, Ga: 1.4e-07, Ge: 0.0005, As: 3.33e-07, Br:
+      78000000000.0, Rb: 1.28e-07, Sr: 1.32e-07, Y: 5.96e-07, Zr: 4.21e-07, Nb:
+      1.52e-07, Mo: 5.34e-08, Tc: 2e-07, Ru: 7.1e-08, Rh: 4.33e-08, Pd:
+      1.054e-07, Ag: 1.587e-08, Cd: 7.27e-08, In: 8.37e-08, Sn: 1.1e-07, Sb:
+      4.17e-07, Te: 0.0001, I: 13000000.0, Cs: 2.05e-07, Ba: 3.32e-07, La:
+      6.15e-07, Ce: 7.44e-07, Pr: 7e-07, Nd: 6.43e-07, Pm: 7.5e-07, Sm: 9.4e-07,
+      Eu: 9e-07, Gd: 1.31e-06, Tb: 1.15e-06, Dy: 9.26e-07, Ho: 8.14e-07, Er:
+      8.6e-07, Tm: 6.76e-07, Yb: 2.5e-07, Lu: 5.82e-07, Hf: 3.31e-07, Ta:
+      1.31e-07, W: 5.28e-08, Re: 1.93e-07, Os: 8.12e-08, Ir: 4.71e-08, Pt:
+      1.05e-07, Au: 2.214e-08, Hg: 9.61e-07, Tl: 1.8e-07, Pb: 2.08e-07, Bi:
+      1.29e-06, Po: 4e-07, Ra: 1e-06, Th: 1.54e-07, Pa: 1.91e-07, U: 2.8e-07, Np:
+      1.22e-06, Pu: 1.5e-06, Am: 6.89e-07, Cm: 1.25e-06}
 Electron affinity:
   unit: eV
   reference: https://en.wikipedia.org/wiki/Electron_affinity_(data_page)
@@ -1673,6 +1679,8 @@ Electronic structure:
     Lr:
       '0': '[Rn].5f14.7s2.7p1'
       '3': '[Rn].5f14'
+    Rf:
+      '0': '[Rn].5f14.6d2.7s2'
 Ground level:
   reference:
     https://physics.nist.gov/cgi-bin/ASD/ie.pl?spectra=H-DS+i&units=1&at_num_out=on&el_name_out=on&shells_out=on&level_out=on&e_out=0&unc_out=on&biblio=on
