@@ -478,7 +478,7 @@ def add_oxidation_state_by_site_fraction(structure: Structure, oxidation_states:
             for j, (el, occu) in enumerate(get_z_ordered_elmap(site.species)):
                 specie = Species(el.symbol, oxidation_states[idx][j])
                 new_sp[specie] += occu
-            structure[idx] = new_sp
+            structure[idx] = new_sp  # type:ignore[assignment]
         return structure
     except IndexError:
         raise ValueError("Oxidation state of all sites must be specified in the list.")
