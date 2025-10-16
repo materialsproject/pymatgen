@@ -21,6 +21,7 @@ from pymatgen.io.vasp import Incar, Potcar
 
 if TYPE_CHECKING:
     from argparse import Namespace
+    from collections.abc import Sequence
     from typing import Any
 
 
@@ -88,7 +89,7 @@ def diff_incar(args: Namespace) -> int:
     return 0
 
 
-def main(argv: list[str] | None = None) -> Any:
+def main(argv: Sequence[str] | None = None) -> Any:
     """Entry point for the `pmg` CLI."""
     parser_main = argparse.ArgumentParser(
         description="""
