@@ -1117,7 +1117,7 @@ class Incar(UserDict, MSONable):
                 {"Same" : parameters_that_are_the_same, "Different": parameters_that_are_different}
                 Note that the parameters are return as full dictionaries of values. E.g. {"ISIF":3}
         """
-        similar_params = {}
+        same_params = {}
         different_params = {}
         for k1, v1 in self.items():
             if k1 not in other:
@@ -1125,13 +1125,13 @@ class Incar(UserDict, MSONable):
             elif v1 != other[k1]:
                 different_params[k1] = {"INCAR1": v1, "INCAR2": other[k1]}
             else:
-                similar_params[k1] = v1
+                same_params[k1] = v1
 
         for k2, v2 in other.items():
-            if k2 not in similar_params and k2 not in different_params and k2 not in self:
+            if k2 not in same_params and k2 not in different_params and k2 not in self:
                 different_params[k2] = {"INCAR1": None, "INCAR2": v2}
 
-        return {"Same": similar_params, "Different": different_params}
+        return {"Same": same_params, "Different": different_params}
 
     def check_params(self) -> None:
         """Check INCAR for invalid tags or values.
