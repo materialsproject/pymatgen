@@ -1039,7 +1039,8 @@ class Incar(UserDict, MSONable):
             if "int" in incar_types:
                 return int(re.match(r"^-?[0-9]+", val)[0])  # type: ignore[index]
 
-        except ValueError:
+        # If re.match doesn't hit, it would return None and thus TypeError from indexing
+        except (ValueError, TypeError):
             pass
 
         # Not in known keys. We will try a hierarchy of conversions.
