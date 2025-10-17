@@ -1001,11 +1001,17 @@ SIGMA = 0.1"""
         assert incar["HFSCREEN"] == approx(0.2)
         assert incar["ALGO"] == "All"
 
-    def test_proc_types(self):
+    def test_proc_val(self):
         assert Incar.proc_val("HELLO", "-0.85 0.85") == "-0.85 0.85"
         assert Incar.proc_val("ML_MODE", "train") == "train"
         assert Incar.proc_val("ML_MODE", "RUN") == "run"
         assert Incar.proc_val("ALGO", "fast") == "Fast"
+
+        # LREAL has union type "bool | str"
+        assert Incar.proc_val("LREAL", "T") is True
+        assert Incar.proc_val("LREAL", ".FALSE.") is False
+        assert Incar.proc_val("LREAL", "Auto") == "Auto"
+        assert Incar.proc_val("LREAL", "on") == "On"
 
     def test_check_params(self):
         # Triggers warnings when running into invalid parameters
