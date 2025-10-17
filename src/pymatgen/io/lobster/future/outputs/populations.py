@@ -8,11 +8,10 @@ Extracts Mulliken and Loewdin charges and gross populations for further analysis
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lobster.future.core import LobsterFile
-from pymatgen.io.lobster.future.utils import make_json_compatible
 from pymatgen.io.lobster.future.versioning import version_processor
 
 if TYPE_CHECKING:
@@ -47,6 +46,7 @@ class CHARGE(LobsterFile):
         self.centers = []
         self.mulliken = []
         self.loewdin = []
+
         for line in self.iterate_lines():
             if data := re.search(self.charge_regex, line):
                 data = data.groups()
@@ -66,21 +66,6 @@ class CHARGE(LobsterFile):
             str: Default filename for the CHARGE file, depending on LCFO mode.
         """
         return "CHARGE.lobster" if not cls.is_lcfo else "CHARGE.LCFO.lobster"
-
-    def as_dict(self) -> dict[str, Any]:
-        """Convert the `CHARGE` object to a dictionary for serialization.
-
-        Returns:
-            dict[str, Any]: Dictionary representation of the object.
-        """
-        dictionary = super().as_dict()
-
-        dictionary["attributes"]["is_lcfo"] = self.is_lcfo
-        dictionary["attributes"]["centers"] = self.centers
-        dictionary["attributes"]["mulliken"] = self.mulliken
-        dictionary["attributes"]["loewdin"] = self.loewdin
-
-        return dictionary
 
 
 class CHARGE_LCFO(CHARGE):
@@ -111,9 +96,6 @@ class GROSSPOP(LobsterFile):
 
         Populates the `populations` attribute with a nested dictionary structure
         containing Mulliken and Loewdin populations for each atom and orbital.
-
-        Returns:
-            None
         """
         self.populations: LobsterPopulations = {}
         self.spins = [Spin.up]
@@ -155,53 +137,6 @@ class GROSSPOP(LobsterFile):
                         populations[spin][key] = float(
                             groups[3 + i + j * len(self.spins)]
                         )
-
-    @classmethod
-    def get_default_filename(cls) -> str:
-        """Get the default filename for GROSSPOP files.
-
-        Returns:
-            str: Default filename for the GROSSPOP file, depending on LCFO mode.
-        """
-        return "GROSSPOP.LCFO.lobster" if cls.is_lcfo else "GROSSPOP.lobster"
-
-    def as_dict(self) -> dict[str, Any]:
-        """Convert the `GROSSPOP` object to a dictionary for serialization.
-
-        Returns:
-            dict[str, Any]: Dictionary representation of the object.
-        """
-        dictionary = super().as_dict()
-
-        dictionary["attributes"]["is_lcfo"] = self.is_lcfo
-        dictionary["attributes"]["populations"] = make_json_compatible(self.populations)
-        dictionary["attributes"]["spins"] = self.spins
-
-        return dictionary
-
-    @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> GROSSPOP:
-        """Create a `GROSSPOP` object from a dictionary.
-
-        Args:
-            d (dict): Dictionary representation of a `GROSSPOP` object.
-
-        Returns:
-            GROSSPOP: The created object.
-        """
-        instance = super().from_dict(d)
-
-        for orbitals in list(instance.populations.values()):
-            for orbital_key, spins in list(orbitals.items()):
-                new_spins = {}
-                for spin_key, methods in spins.items():
-                    new_spin_key = Spin(int(spin_key))
-                    new_spins[new_spin_key] = methods
-                orbitals[orbital_key] = new_spins
-
-        instance.spins = d["attributes"]["spins"]
-
-        return instance
 
 
 class GROSSPOP_LCFO(GROSSPOP):

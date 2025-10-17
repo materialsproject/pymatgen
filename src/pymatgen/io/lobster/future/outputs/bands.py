@@ -11,14 +11,12 @@ from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lobster.future.constants import LOBSTER_VERSION
 from pymatgen.io.lobster.future.core import LobsterFile
-from pymatgen.io.lobster.future.utils import make_json_compatible, natural_sort, parse_orbital_from_text
+from pymatgen.io.lobster.future.utils import natural_sort, parse_orbital_from_text
 from pymatgen.io.lobster.future.versioning import version_processor
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Vasprun
 
 if TYPE_CHECKING:
-    from numpy import floating
-    from numpy.typing import NDArray
 
     from pymatgen.core.structure import IStructure
     from pymatgen.io.lobster.future.types import LobsterBandOverlaps, LobsterFatband
@@ -29,13 +27,16 @@ class BandOverlaps(LobsterFile):
     """Parser for bandOverlaps.lobster files.
 
     Parses band overlap information produced by LOBSTER and stores it in a structured dictionary keyed by spin.
+    See the :class:`~pymatgen.io.lobster.future.types.LobsterBandOverlaps` type for details.
 
     Attributes:
-        band_overlaps (dict[Spin, dict]): Mapping from Spin to a dictionary with keys
+        band_overlaps (dict[Spin, dict]):
             "k_points", "max_deviations", and "matrices" holding the corresponding data.
             - "k_points" (list[list[float]]): List of k-point coordinates.
             - "max_deviations" (list[float]): List of maximal deviations for each k-point.
             - "matrices" (list[np.ndarray]): List of overlap matrices for each k-point.
+
+            each holding data for each spin channel.
     """
 
     @version_processor(max_version="3.2")
@@ -43,9 +44,6 @@ class BandOverlaps(LobsterFile):
         """Parse bandOverlaps.lobster file for LOBSTER versions ≤3.2.
 
         Uses legacy spin numbering [0, 1] for parsing.
-
-        Returns:
-            None
         """
         self.parse_file(spin_numbers=[0, 1])
 
@@ -54,9 +52,6 @@ class BandOverlaps(LobsterFile):
         """Parse bandOverlaps.lobster file for LOBSTER versions ≥4.0.
 
         Uses updated spin numbering [1, 2] for parsing.
-
-        Returns:
-            None
         """
         self.parse_file(spin_numbers=[1, 2])
 
@@ -69,9 +64,6 @@ class BandOverlaps(LobsterFile):
 
         Raises:
             ValueError: If no data is found for a key in the bandOverlaps file.
-
-        Returns:
-            None
         """
         kpoint_array: list = []
         overlaps: list = []
@@ -106,10 +98,7 @@ class BandOverlaps(LobsterFile):
                 self.band_overlaps["k_points"][spin].append(kpoint_array)
                 overlaps = []
             else:
-                _lines = []
-                for el in line.split(" "):
-                    if el != "":
-                        _lines.append(float(el))
+                _lines = [float(el) for el in line.split(" ") if el != ""]
                 overlaps.append(_lines)
                 if len(overlaps) == len(_lines):
                     self.band_overlaps["matrices"][spin].append(np.array(overlaps))
@@ -131,7 +120,7 @@ class BandOverlaps(LobsterFile):
             limit_max_deviation (float): Upper limit for acceptable max_deviation.
 
         Returns:
-            bool: True if all recorded maxDeviation values are <= limit_maxDeviation.
+            bool: True if all recorded max_deviation values are <= limit_max_deviation.
         """
         return all(
             deviation <= limit_max_deviation
@@ -186,49 +175,12 @@ class BandOverlaps(LobsterFile):
 
     @classmethod
     def get_default_filename(cls) -> str:
-        """Get the default filename for the BandOverlaps class.
+        """Get the default filename for the `BandOverlaps` class.
 
         Returns:
             str: Default filename.
         """
         return "bandOverlaps.lobster"
-
-    def as_dict(self) -> dict[str, Any]:
-        """Convert the `BandOverlaps` object to a dictionary for serialization.
-
-        Returns:
-            dict[str, Any]: Dictionary representation of the object.
-        """
-        dictionary = super().as_dict()
-
-        dictionary["attributes"]["band_overlaps"] = make_json_compatible(
-            self.band_overlaps
-        )
-
-        return dictionary
-
-    @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> BandOverlaps:
-        """Create a `BandOverlaps` object from a dictionary.
-
-        Args:
-            d (dict): A dictionary representation of a `BandOverlaps` object.
-
-        Returns:
-            BandOverlaps: The `BandOverlaps` object created from the dictionary.
-        """
-        instance = super().from_dict(d)
-
-        for keys, spins in list(instance.band_overlaps.items()):
-            spins = cast("dict[str, Any]", spins)
-
-            new_spins = {}
-            for spin, value in list(spins.items()):
-                new_spins[Spin(int(spin))] = value
-
-            instance.band_overlaps[keys] = new_spins
-
-        return instance
 
 
 class Fatbands(MSONable):
@@ -239,8 +191,8 @@ class Fatbands(MSONable):
     Attributes:
         efermi (float): Fermi level read from vasprun.xml.
         spins (list[Spin]): Spins present in the FATBAND files.
-        kpoints (Kpoints): Parsed KPOINTS used for the band structure.
-        filenames (list[Path]): Sorted list of matched FATBAND filenames.
+        kpoints (Kpoints): Parsed KPOINTS used for the lobster FatBand calculations.
+        filenames (list[Path]): Sorted list of matched filenames.
         structure (Structure): Structure object used for projections.
         reciprocal_lattice (Lattice): Reciprocal lattice of the structure.
         lobster_version (str): LOBSTER version string used for parsing.
@@ -254,17 +206,17 @@ class Fatbands(MSONable):
         kpoints_file: PathLike = "KPOINTS",
         vasprun_file: PathLike = "vasprun.xml",
         process_immediately: bool = True,
-        version: str | None = None,
+        lobster_version: str | None = None,
     ) -> None:
         """Initialize the Fatbands reader.
 
         Args:
             directory (PathLike): Path to directory containing FATBAND files.
             structure (IStructure | None): Structure object. If None, POSCAR.lobster is read from directory.
-            kpoints_file (PathLike): Path to the KPOINTS file for the bandstructure.
-            vasprun_file (PathLike): Path to the vasprun.xml file to extract the Fermi level.
+            kpoints_file (PathLike): Name of the KPOINTS file to be read in the directory.
+            vasprun_file (PathLike): Name of the vasprun.xml file to be read in the directory.
             process_immediately (bool): If True, process FATBAND files immediately after initialization.
-            version (str | None): Optional LOBSTER version string. If None, the default LOBSTER_VERSION is used.
+            lobster_version (str | None): Optional LOBSTER version string. If None, the default LOBSTER_VERSION is used.
 
         Raises:
             FileNotFoundError: If required files are missing in the directory.
@@ -347,7 +299,7 @@ class Fatbands(MSONable):
 
         self.fatbands: list[LobsterFatband] = []
 
-        self.lobster_version = version or LOBSTER_VERSION
+        self.lobster_version = lobster_version or LOBSTER_VERSION
 
         if process_immediately:
             self.process()
@@ -356,11 +308,8 @@ class Fatbands(MSONable):
         """Parse all FATBAND files and aggregate fatband data.
 
         Raises:
-            ValueError: If the number of kpoints does not match or if there is a mix of
-                spin-polarized and non-spin-polarized files.
-
-        Returns:
-            None
+            ValueError: If the number of kpoints does not match or if there is a mix of spin-polarized and
+            non-spin-polarized files.
         """
         is_spin_polarized = None
 
@@ -394,52 +343,11 @@ class Fatbands(MSONable):
         if is_spin_polarized:
             self.spins.append(Spin.down)
 
-    def as_dict(self) -> dict[str, Any]:
-        """Convert the `Fatbands` object to a dictionary for serialization.
+    as_dict = LobsterFile.as_dict
 
-        Returns:
-            dict[str, Any]: Dictionary representation of the object.
-        """
-        return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
-            "@version": None,
-            "attributes": {
-                "efermi": self.efermi,
-                "spins": self.spins,
-                "kpoints": self.kpoints.as_dict(),
-                "filenames": [str(f) for f in self.filenames],
-                "structure": self.structure.as_dict(),
-                "reciprocal_lattice": self.reciprocal_lattice.as_dict(),
-                "version": self.lobster_version,
-                "fatbands": self.fatbands,
-            },
-        }
+    has_spin = LobsterFile.has_spin
 
-    @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> Fatbands:
-        """Deserialize a `Fatbands` object from a dictionary.
-
-        Args:
-            d (dict): Dictionary with keys "@module", "@class", "@version", and "attributes".
-
-        Returns:
-            Fatbands: The deserialized object.
-        """
-        instance = cls.__new__(cls)
-
-        attributes = d["attributes"]
-
-        instance.efermi = attributes["efermi"]
-        instance.spins = attributes["spins"]
-        instance.kpoints = Kpoints.from_dict(attributes["kpoints"])
-        instance.filenames = attributes["filenames"]
-        instance.structure = Structure.from_dict(attributes["structure"])
-        instance.reciprocal_lattice = instance.structure.lattice.reciprocal_lattice
-        instance.lobster_version = attributes["lobster_version"]
-        instance.fatbands = attributes["fatbands"]
-
-        return instance
+    is_spin_polarized = LobsterFile.is_spin_polarized
 
 
 class Fatband(LobsterFile):
@@ -448,8 +356,9 @@ class Fatband(LobsterFile):
     Parses a single FATBAND file and stores:
         center (str): Central atom/species label parsed from filename.
         orbital (str): Orbital descriptor parsed from filename.
-        energies (np.ndarray): Energies for each k-point.
-        projections (dict[Spin, np.ndarray]): Projection/intensity arrays per spin.
+        nbands (int): Number of bands in the FATBAND file.
+        fatband (LobsterFatband): Parsed fatband data dictionary. Please see
+        :class:`~pymatgen.io.lobster.future.types.LobsterFatband` for details.
 
     The parsed data is available in the fatband attribute after parse_file().
     """
@@ -462,7 +371,7 @@ class Fatband(LobsterFile):
             process_immediately (bool): If True, parse the file during initialization.
 
         Raises:
-            ValueError: If the orbital cannot be parsed from the filename.
+            ValueError: If the orbital name cannot be parsed from the filename.
         """
         self.center = Path(filename).name.split("_")[1].title()
 
@@ -478,14 +387,7 @@ class Fatband(LobsterFile):
 
     @version_processor()
     def parse_file(self) -> None:
-        """Parse the FATBAND file and populate the fatband attribute.
-
-        Raises:
-            ValueError: If the file format is invalid.
-
-        Returns:
-            None
-        """
+        """Parse the FATBAND file and populate the fatband attribute."""
         fatband: dict[str, dict[Spin, list[Any]]] = {
             "energies": {Spin.up: []},
             "projections": {Spin.up: []},
@@ -544,40 +446,3 @@ class Fatband(LobsterFile):
             str: Default filename pattern.
         """
         return "FATBAND_*.lobster"
-
-    def as_dict(self) -> dict[str, Any]:
-        """Convert the `Fatband` object to a dictionary for serialization.
-
-        Returns:
-            dict[str, Any]: Dictionary representation of the object.
-        """
-        dictionary = super().as_dict()
-
-        dictionary["attributes"]["nbands"] = self.nbands
-        dictionary["attributes"]["fatband"] = make_json_compatible(self.fatband)
-        dictionary["attributes"]["spins"] = self.spins
-
-        return dictionary
-
-    @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> Fatband:
-        """Create a `Fatband` object from a dictionary.
-
-        Args:
-            d (dict): A dictionary representation of a `Fatband` object.
-
-        Returns:
-            Fatband: A `Fatband` object.
-        """
-        instance = super().from_dict(d)
-
-        for key in ["energies", "projections"]:
-            new_spins = {}
-
-            values = cast("dict[str, NDArray[floating]]", instance.fatband[key])
-            for spin, value in list(values.items()):
-                new_spins[Spin(int(spin))] = value
-
-            instance.fatband[key] = new_spins
-
-        return instance

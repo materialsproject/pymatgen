@@ -7,20 +7,18 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.io.lobster.future.core import LobsterDataHolder, LobsterFile
-from pymatgen.io.lobster.future.utils import make_json_compatible
+from pymatgen.io.lobster.future.core import LobsterFile, LobsterInteractionsHolder
 from pymatgen.io.lobster.future.versioning import version_processor
 
 if TYPE_CHECKING:
     from typing import Any, ClassVar, Literal
 
     from numpy.typing import NDArray
-    from pandas import DataFrame
 
     from pymatgen.io.lobster.future.types import LobsterInteractionData
 
 
-class LobsterCAR(LobsterFile, LobsterDataHolder):
+class COXXCAR(LobsterFile, LobsterInteractionsHolder):
     """Reader for COXXCAR-style files (COOPCAR, COHPCAR, COBICAR).
 
     Parses LOBSTER's COXXCAR outputs and organizes bond and orbital-resolved interaction data.
@@ -28,7 +26,6 @@ class LobsterCAR(LobsterFile, LobsterDataHolder):
     Attributes:
         filename (PathLike): Input file path.
         num_bonds (int): Number of bond interactions reported.
-        is_spin_polarized (bool): True if spin-polarized data present.
         num_data (int): Number of energy/data points.
         efermi (float): Fermi energy from the file.
         spins (list[Spin]): Present spin channels.
@@ -82,8 +79,8 @@ class LobsterCAR(LobsterFile, LobsterDataHolder):
                 {
                     "index": 0,
                     "centers": ["Average"],
-                    "orbitals": [],
-                    "cells": [],
+                    "orbitals": [None],
+                    "cells": [[]],
                     "length": None,
                 }
             )
@@ -121,7 +118,7 @@ class LobsterCAR(LobsterFile, LobsterDataHolder):
                 if match[3]:
                     length = float(match[3])
 
-            bond: LobsterInteractionData = {
+            bond = {
                 "index": int(bond_index),
                 "centers": bond_tmp["centers"],
                 "cells": bond_tmp["cells"],
@@ -180,7 +177,7 @@ class LobsterCAR(LobsterFile, LobsterDataHolder):
 
     @version_processor(min_version="5.1")
     def parse_file(self):
-        """Parse the full LobsterCAR file (header and data)."""
+        """Parse the full COXXCAR file (header and data)."""
         lines = self.lines
 
         self.parse_header(lines)
@@ -193,7 +190,7 @@ class LobsterCAR(LobsterFile, LobsterDataHolder):
         cells: list[list[int]] | None = None,
         orbitals: list[str] | None = None,
         length: tuple[float, float] | None = None,
-        spins: list[Spin] | None = None,
+        spins: list[Literal[1, -1]] | None = None,
         data_type: Literal["coxx", "icoxx"] | None = None,
     ) -> list[int]:
         """Return data-column indices matching the provided interaction properties.
@@ -231,7 +228,7 @@ class LobsterCAR(LobsterFile, LobsterDataHolder):
         cells: list[list[int]] | None = None,
         orbitals: list[str] | None = None,
         length: tuple[float, float] | None = None,
-        spins: list[Spin] | None = None,
+        spins: list[Literal[1, -1]] | None = None,
         data_type: Literal["coxx", "icoxx"] | None = None,
     ) -> NDArray[np.floating]:
         """Return the data columns matching the provided interaction properties.
@@ -263,7 +260,7 @@ class LobsterCAR(LobsterFile, LobsterDataHolder):
         ]
 
     def get_interactions_by_properties(
-        self: LobsterDataHolder,
+        self: LobsterInteractionsHolder,
         indices: list[int] | None = None,
         centers: list[str] | None = None,
         cells: list[list[int]] | None = None,
@@ -293,7 +290,7 @@ class LobsterCAR(LobsterFile, LobsterDataHolder):
     def interaction_indices_to_data_indices_mapping(
         self,
         interaction_indices: int | list[int],
-        spins: Spin | list[Spin] | None = None,
+        spins: Literal[1, -1] | list[Literal[1, -1]] | None = None,
         data_type: Literal["coxx", "icoxx"] | None = None,
     ) -> list[int]:
         """Map interaction indices to column indices in `self.data`.
@@ -312,7 +309,7 @@ class LobsterCAR(LobsterFile, LobsterDataHolder):
         if spins is None:
             spins = self.spins
 
-        if isinstance(spins, Spin):
+        if spins in (1, -1):
             spins = [spins]
         if isinstance(interaction_indices, int):
             interaction_indices = [interaction_indices]
@@ -346,89 +343,15 @@ class LobsterCAR(LobsterFile, LobsterDataHolder):
 
         return sorted(real_indices.tolist())
 
-    def as_dataframe(
-        self,
-        interaction_indices: int | list[int] | None = None,
-        spins: list[Spin] | None = None,
-        data_type: Literal["coxx", "icoxx"] | None = None,
-        **df_kwargs: Any,
-    ) -> DataFrame:
-        """Return selected data as a pandas DataFrame.
-
-        Args:
-            interaction_indices (int | list[int] | None): Interaction indices to include.
-            spins (list[Spin] | None): Spins to include.
-            data_type (Literal["coxx", "icoxx"] | None): Restrict column type.
-            **df_kwargs: Passed to pandas.DataFrame constructor.
-
-        Returns:
-            pandas.DataFrame: DataFrame with energy + selected columns.
-        """
-        from pandas import DataFrame
-
-        if interaction_indices is None:
-            interaction_indices = list(range(len(self.interactions)))
-
-        data = self.data[
-            :,
-            self.interaction_indices_to_data_indices_mapping(
-                interaction_indices,
-                spins=spins,
-                data_type=data_type,
-            ),
-        ]
-
-        header = self.get_header_from_interaction_indices(
-            interaction_indices,
-            spins=spins,
-            data_type=data_type,
-        )
-
-        return DataFrame(data=data, columns=header, **df_kwargs)
-
-    @property
-    def is_spin_polarized(self) -> bool:
-        """Return True if the data is spin-polarized.
-
-        Returns:
-            bool: True if spin-polarized, False otherwise.
-        """
-        return len(self.spins) == 2
-
-    def as_dict(self) -> dict[str, Any]:
-        """Serialize object to a dictionary for JSON/serde.
-
-        Returns:
-            dict: Serializable representation with 'kwargs' and 'attributes'.
-        """
-        dictionary = super().as_dict()
-
-        dictionary["attributes"].update(
-            {
-                "num_bonds": self.num_bonds,
-                "num_data": self.num_data,
-                "efermi": self.efermi,
-                "coxxcar_type": self.coxxcar_type,
-                "spins": self.spins,
-                "interactions": make_json_compatible(self.interactions),
-                "data": self.data,
-            }
-        )
-
-        if hasattr(self, "is_lcfo"):
-            dictionary["attributes"]["is_lcfo"] = self.is_lcfo  # type: ignore[attr-defined]
-
-        return dictionary
-
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> LobsterCAR:
+    def from_dict(cls, d: dict[str, Any]) -> COXXCAR:
         """Deserialize object from dictionary produced by `as_dict`.
 
         Args:
             d (dict): Dictionary produced by `as_dict`.
 
         Returns:
-            LobsterCAR: Reconstructed instance.
+            COXXCAR: Reconstructed instance.
         """
         instance = super().from_dict(d)
         instance.process_data_into_interactions()
@@ -436,7 +359,7 @@ class LobsterCAR(LobsterFile, LobsterDataHolder):
         return instance
 
 
-class COBICAR(LobsterCAR):
+class COBICAR(COXXCAR):
     """Reader for COBICAR.lobster files.
 
     Attributes:
@@ -454,7 +377,7 @@ class COBICAR(LobsterCAR):
         return "COBICAR.LCFO.lobster" if cls.is_lcfo else "COBICAR.lobster"
 
 
-class COHPCAR(LobsterCAR):
+class COHPCAR(COXXCAR):
     """Reader for COHPCAR.lobster files.
 
     Attributes:
@@ -472,7 +395,7 @@ class COHPCAR(LobsterCAR):
         return "COHPCAR.LCFO.lobster" if cls.is_lcfo else "COHPCAR.lobster"
 
 
-class COOPCAR(LobsterCAR):
+class COOPCAR(COXXCAR):
     """Reader for COOPCAR.lobster files.
 
     Attributes:

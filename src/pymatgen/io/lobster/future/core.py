@@ -3,25 +3,20 @@ from __future__ import annotations
 from abc import abstractmethod
 from collections import Counter
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, ClassVar, TypeVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, Self, cast
 
 import numpy as np
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 
 from pymatgen.io.lobster.future.constants import LOBSTER_VERSION
+from pymatgen.io.lobster.future.utils import convert_spin_keys, restore_spin_keys
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Generator
-    from typing import Literal
 
-    from numpy.typing import NDArray
-
-    from pymatgen.electronic_structure.core import Spin
-    from pymatgen.io.lobster.future.types import LobsterInteractionData
+    from pymatgen.io.lobster.future.types import LobsterInteraction, LobsterInteractionData, Spin
     from pymatgen.util.typing import PathLike
-
-Self = TypeVar("Self", bound="LobsterFile")
 
 
 class LobsterFile(MSONable):
@@ -35,9 +30,12 @@ class LobsterFile(MSONable):
         filename (PathLike): Name or path of the file. Defaults to the class default.
         lobster_version (str): Version string parsed from the file or the default LOBSTER_VERSION.
         version_processors (ClassVar[dict[tuple[str, str | None], Callable]]): Registry of version processors.
+        spins (list[Spin] | None): List of Spin objects if the file contains spin-polarized data, else None.
     """
 
     version_processors: ClassVar[dict[tuple[str, str | None], Callable]]
+
+    spins: list[Spin] | None = None
 
     def __init__(
         self, filename: PathLike | None = None, process_immediately: bool = True
@@ -55,7 +53,12 @@ class LobsterFile(MSONable):
         if process_immediately:
             self.process()
 
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        """
+        Automatically registers version processors for subclasses.
+        This method scans the subclass for methods decorated with @version_processor
+        and adds them to the version_processors registry.
+        """
         super().__init_subclass__(**kwargs)
 
         version_processors = {}
@@ -110,11 +113,11 @@ class LobsterFile(MSONable):
 
         Args:
             actual (str): Version string to check (e.g., "1.2.3").
-            minimum (str): Minimum acceptable version string (inclusive).
-            maximum (str | None): Maximum acceptable version string (inclusive) or None for no upper bound.
+            minimum (str): Minimum acceptable version string (exclusive).
+            maximum (str | None): Maximum acceptable version string (exclusive) or None for no upper bound.
 
         Returns:
-            bool: True if `actual` is >= `minimum` and <= `maximum` (if provided), otherwise False.
+            bool: True if `actual` is > `minimum` and < `maximum` (if provided), otherwise False.
         """
         actual_parts = tuple(map(int, actual.split(".")))
         minimum_parts = tuple(map(int, minimum.split(".")))
@@ -133,7 +136,7 @@ class LobsterFile(MSONable):
     @abstractmethod
     def get_file_version(self) -> str | None:
         """
-        Retrieves the file version.
+        Retrieves the file version. Override in subclasses to extract version from file content if possible.
 
         Returns:
             str | None: Version string (e.g., "1.2.3") if found, else None.
@@ -183,25 +186,27 @@ class LobsterFile(MSONable):
 
     def as_dict(self) -> dict[str, Any]:
         """
-        Serializes the LobsterFile to a JSON-serializable dictionary.
+        Serializes the LobsterFile object to a dictionary.
+        Spin keys in dictionaries are converted to strings for JSON compatibility.
 
         Returns:
-            dict[str, Any]: Dictionary with keys "@module", "@class", "@version", "kwargs", and "attributes".
+            dict[str, Any]: Dictionary with keys "@module", "@class", "@version", and all attributes of the object.
         """
-        return {
+        dictionary = {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
             "@version": None,
-            "kwargs": {"filename": str(self.filename)},
-            "attributes": {
-                "lobster_version": self.lobster_version,
-            },
         }
 
+        for k, v in vars(self).items():
+            dictionary[k] = convert_spin_keys(v)
+
+        return dictionary
+
     @classmethod
-    def from_dict(cls: type[Self], d: dict[str, Any]) -> Self:  # NOQA: PYI019
+    def from_dict(cls: type[Self], d: dict[str, Any]) -> Self:
         """
-        Deserializes a LobsterFile from a dictionary.
+        Deserializes a LobsterFile object from a dictionary. Spin keys in dictionaries are restored from strings.
 
         Args:
             d (dict[str, Any]): Dictionary produced by as_dict or similar serialization.
@@ -209,46 +214,55 @@ class LobsterFile(MSONable):
         Returns:
             LobsterFile: Instance of LobsterFile with attributes populated from the dictionary.
         """
+        instance = cls.__new__(cls)
+
         decoded_dictionary = {
-            k: MontyDecoder().process_decoded(v)
+            k: restore_spin_keys(MontyDecoder().process_decoded(v))
             for k, v in d.items()
             if not k.startswith("@")
         }
-        kwargs: dict[str, Any] = decoded_dictionary.get("kwargs", {})
-        kwargs.setdefault("process_immediately", False)
 
-        instance = cls(**kwargs)
-
-        attributes: dict[str, Any] = decoded_dictionary.get("attributes", {})
-        for attr, value in attributes.items():
-            setattr(instance, attr, value)
+        for k, v in decoded_dictionary.items():
+            setattr(instance, k, v)
 
         return instance
 
+    @property
+    def has_spin(self) -> bool:
+        """
+        Indicates whether the file could contain spin-polarized data.
 
-class LobsterDataHolder:
+        Returns:
+            bool: True if this file type supports spin, False otherwise.
+        """
+        return self.spins is not None
+
+    @property
+    def is_spin_polarized(self) -> bool:
+        """
+        Indicates whether the file contains spin-polarized data.
+
+        Returns:
+            bool: True if multiple spins are present, False otherwise.
+        """
+        return self.has_spin and len(self.spins) > 1
+
+
+class LobsterInteractionsHolder:
     """
-    Container for LOBSTER interaction data and associated arrays.
-
-    This class holds interaction metadata, numeric data arrays, and spin information
-    for LOBSTER output files. It provides methods for filtering and retrieving interaction
-    data based on various criteria.
+    Container for LOBSTER interaction data. This class holds interaction metadata. It provides methods for filtering and
+    retrieving interaction data based on various criteria.
 
     Attributes:
         interactions (list[LobsterInteractionData]): List of interaction metadata dicts.
-        data (NDArray[np.floating]): Array containing numeric data for interactions.
-        spins (list[Spin]): List of Spin objects corresponding to data spin channels.
     """
 
     def __init__(self):
         """
-        Initializes the LobsterDataHolder.
-
-        Attributes are expected to be set by the caller or by deserialization.
+        Initializes the LobsterInteractionsHolder object. Attributes are expected to be set by the caller or by
+        deserialization.
         """
         self.interactions: list[LobsterInteractionData]
-        self.data: NDArray[np.floating]
-        self.spins: list[Spin]
 
     def get_interaction_indices_by_properties(
         self,
@@ -342,53 +356,46 @@ class LobsterDataHolder:
 
         return sorted(set.intersection(*matching_sets)) if matching_sets else []
 
-    def get_header_from_interaction_indices(
-        self,
-        interaction_indices: int | list[int],
-        spins: list[Spin] | None = None,
-        data_type: Literal["coxx", "icoxx"] | None = None,
-    ) -> list[str]:
+    @staticmethod
+    def get_label_from_interaction(
+        interaction: LobsterInteraction,
+        include_centers: bool = True,
+        include_orbitals: bool = True,
+        include_cells: bool = False,
+        include_length: bool = False,
+    ) -> str:
         """
-        Builds header strings for specified interaction indices.
+        Generates a label string for a given interaction.
 
         Args:
-            interaction_indices (int | list[int]): Single index or sequence of interaction indices to include.
-            spins (list[Spin] | None): Optional sequence of Spin objects to include in headers; if None,
-            all spins are used.
-            data_type (Literal["coxx", "icoxx"] | None): Optional data type string or None to include both "coxx" and
-            "icoxx".
-
+            interaction (LobsterInteraction): Interaction metadata dictionary.
         Returns:
-            list[str]: Header strings constructed for each requested interaction, spin, and data type.
+            str: Formatted label string representing the interaction.
         """
-        if isinstance(interaction_indices, int):
-            interaction_indices = [interaction_indices]
+        parts = []
 
-        if spins is None:
-            spins = self.spins
+        for center, orbital, cell in zip(
+            interaction["centers"],
+            interaction["orbitals"],
+            interaction["cells"],
+            strict=True,
+        ):
+            tmp = ""
+            if include_centers:
+                tmp += center
 
-        header = []
-        for s in spins:
-            for i, bond in enumerate(self.interactions):
-                if i in interaction_indices:
-                    for d in [data_type] if data_type else ["coxx", "icoxx"]:
-                        header.append(f"No.{bond['index']}:")
+            if include_cells and cell is not None:
+                tmp += f"[{' '.join(map(str, cell))}]"
 
-                        length = f"({bond['length']})" if bond["length"] else ""
+            if include_orbitals and orbital:
+                tmp += f"[{orbital}]"
 
-                        tmp_string = []
+            parts.append(tmp)
 
-                        for center, cell, orbital in zip(
-                            bond["centers"],
-                            bond["cells"],
-                            bond["orbitals"],
-                            strict=True,
-                        ):
-                            orbital = f"[{orbital}]" if orbital else ""
-                            cell = "[{:d} {:d} {:d}]".format(*cell) if cell else ""
+        if not parts:
+            raise ValueError(f"Could not generate label from interaction {interaction}")
 
-                            tmp_string.append(f"{center}{cell}{orbital}")
+        if include_length and interaction["length"] is not None:
+            parts[-1] += f"({interaction['length']:.3f})"
 
-                        header[-1] += f"{'->'.join(tmp_string)}[{s.name}][{d}]{length}"
-
-        return header
+        return "->".join(parts)

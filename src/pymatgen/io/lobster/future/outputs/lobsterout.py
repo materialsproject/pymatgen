@@ -9,7 +9,7 @@ from pymatgen.io.lobster.future.core import LobsterFile
 from pymatgen.io.lobster.future.versioning import version_processor
 
 if TYPE_CHECKING:
-    from typing import Any, Literal
+    from typing import Literal
 
 
 class LobsterOut(LobsterFile):
@@ -463,16 +463,3 @@ class LobsterOut(LobsterFile):
             str: The default filename.
         """
         return "lobsterout"
-
-    def as_dict(self) -> dict[str, Any]:
-        """Convert the `LobsterOut` object to a dictionary for serialization.
-
-        Returns:
-            dict[str, Any]: Dictionary representation of the object.
-        """
-        dictionary = super().as_dict()
-
-        for attr_name in vars(self):
-            dictionary["attributes"][attr_name] = getattr(self, attr_name)
-
-        return dictionary

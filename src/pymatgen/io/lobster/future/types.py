@@ -8,7 +8,6 @@ from numpy.typing import NDArray
 from pymatgen.electronic_structure.core import Spin
 
 if TYPE_CHECKING:
-
     from typing import TypeAlias
 
     from numpy import floating, integer

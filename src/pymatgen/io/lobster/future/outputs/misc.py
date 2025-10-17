@@ -10,12 +10,12 @@ import numpy as np
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.io.lobster.future.constants import LOBSTER_ORBITALS
 from pymatgen.io.lobster.future.core import LobsterFile
-from pymatgen.io.lobster.future.utils import make_json_compatible, parse_orbital_from_text
+from pymatgen.io.lobster.future.utils import parse_orbital_from_text
 from pymatgen.io.lobster.future.versioning import version_processor
 from pymatgen.io.vasp.outputs import VolumetricData
 
 if TYPE_CHECKING:
-    from typing import Any, Literal
+    from typing import Literal
 
     from numpy import floating
 
@@ -81,6 +81,7 @@ class Wavefunction(LobsterFile):
 
         for line in lines[1:]:
             line_parts = line.split()
+
             if len(line_parts) >= 6:
                 self.points.append(
                     (float(line_parts[0]), float(line_parts[1]), float(line_parts[2]))
@@ -222,24 +223,6 @@ class Wavefunction(LobsterFile):
         else:
             raise ValueError('part can be only "real" or "imaginary" or "density"')
 
-    def as_dict(self) -> dict[str, Any]:
-        """Convert the `Wavefunction` object to a dictionary for serialization.
-
-        Returns:
-            dict[str, Any]: Dictionary representation of the object.
-        """
-        dictionary = super().as_dict()
-
-        dictionary["kwargs"]["structure"] = self.structure.as_dict()
-
-        dictionary["attributes"]["grid"] = self.grid
-        dictionary["attributes"]["points"] = self.points
-        dictionary["attributes"]["reals"] = self.reals
-        dictionary["attributes"]["imaginaries"] = self.imaginaries
-        dictionary["attributes"]["distances"] = self.distances
-
-        return dictionary
-
 
 class MadelungEnergies(LobsterFile):
     """Parser for MadelungEnergies.lobster files.
@@ -275,24 +258,6 @@ class MadelungEnergies(LobsterFile):
             str: Default filename.
         """
         return "MadelungEnergies.lobster"
-
-    def as_dict(self) -> dict[str, Any]:
-        """Convert the `MadelungEnergies` object to a dictionary for serialization.
-
-        Returns:
-            dict[str, Any]: Dictionary representation of the object.
-        """
-        dictionary = super().as_dict()
-
-        dictionary["attributes"][
-            "madelung_energies_mulliken"
-        ] = self.madelung_energies_mulliken
-        dictionary["attributes"][
-            "madelung_energies_loewdin"
-        ] = self.madelung_energies_loewdin
-        dictionary["attributes"]["ewald_splitting"] = self.ewald_splitting
-
-        return dictionary
 
 
 class SitePotentials(LobsterFile):
@@ -344,31 +309,6 @@ class SitePotentials(LobsterFile):
             str: Default filename.
         """
         return "SitePotentials.lobster"
-
-    def as_dict(self) -> dict[str, Any]:
-        """Convert the `SitePotentials` object to a dictionary for serialization.
-
-        Returns:
-            dict[str, Any]: Dictionary representation of the object.
-        """
-        dictionary = super().as_dict()
-
-        dictionary["attributes"]["centers"] = self.centers
-        dictionary["attributes"][
-            "site_potentials_mulliken"
-        ] = self.site_potentials_mulliken
-        dictionary["attributes"][
-            "site_potentials_loewdin"
-        ] = self.site_potentials_loewdin
-        dictionary["attributes"][
-            "madelung_energies_mulliken"
-        ] = self.madelung_energies_mulliken
-        dictionary["attributes"][
-            "madelung_energies_loewdin"
-        ] = self.madelung_energies_loewdin
-        dictionary["attributes"]["ewald_splitting"] = self.ewald_splitting
-
-        return dictionary
 
 
 def get_orb_from_str(orbs: list[str]) -> tuple[str, list[tuple[int, Orbital]]]:
@@ -569,23 +509,6 @@ class LobsterMatrices(LobsterFile):
         """
         return "hamiltonMatrices.lobster"
 
-    def as_dict(self) -> dict[str, Any]:
-        """Convert the `LobsterMatrices` object to a dictionary for serialization.
-
-        Returns:
-            dict[str, Any]: Dictionary representation of the object.
-        """
-        dictionary = super().as_dict()
-
-        dictionary["kwargs"]["efermi"] = self.efermi
-
-        dictionary["attributes"]["matrix_type"] = self.matrix_type
-        dictionary["attributes"]["centers"] = self.centers
-        dictionary["attributes"]["orbitals"] = self.orbitals
-        dictionary["attributes"]["matrices"] = make_json_compatible(self.matrices)
-
-        return dictionary
-
 
 class POLARIZATION(LobsterFile):
     """Parser for POLARIZATION.lobster file.
@@ -627,28 +550,13 @@ class POLARIZATION(LobsterFile):
         """
         return "POLARIZATION.lobster"
 
-    def as_dict(self) -> dict[str, Any]:
-        """Convert the `POLARIZATION` object to a dictionary for serialization.
-
-        Returns:
-            dict[str, Any]: Dictionary representation of the object.
-        """
-        dictionary = super().as_dict()
-
-        dictionary["attributes"][
-            "rel_mulliken_pol_vector"
-        ] = self.rel_mulliken_pol_vector
-        dictionary["attributes"]["rel_loewdin_pol_vector"] = self.rel_loewdin_pol_vector
-
-        return dictionary
-
 
 class BWDF(LobsterFile):
     """Parser for BWDF.lobster/BWDFCOHP.lobster files.
 
     Attributes:
         centers (NDArray): Bond length centers for the distribution.
-        bwdf (dict[Spin, NDArray]): Bond weighted distribution function.
+        bwdf (dict[Literal[1, -1], NDArray]): Bond weighted distribution function.
         bin_width (float): Bin width used for computing the distribution by LOBSTER.
     """
 
@@ -702,33 +610,6 @@ class BWDF(LobsterFile):
             str: Default filename.
         """
         return "BWDF.lobster"
-
-    def as_dict(self) -> dict[str, Any]:
-        """Convert the `BWDF` object to a dictionary for serialization.
-
-        Returns:
-            dict[str, Any]: Dictionary representation of the object.
-        """
-        dictionary = super().as_dict()
-
-        dictionary["attributes"]["data"] = self.data
-
-        return dictionary
-
-    @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> BWDF:
-        """Create a `BWDF` object from a dictionary.
-
-        Args:
-            d (dict): Dictionary representation of a `BWDF` object.
-
-        Returns:
-            BWDF: The created object.
-        """
-        instance = super().from_dict(d)
-        instance.process_data_into_bwdf_centers()
-
-        return instance
 
 
 class BWDFCOHP(BWDF):

@@ -6,7 +6,6 @@ import os
 from typing import TYPE_CHECKING
 
 import numpy as np
-import orjson
 import pytest
 from monty.json import MontyEncoder
 from numpy.testing import assert_allclose, assert_array_equal
@@ -41,7 +40,7 @@ from pymatgen.io.lobster.future import (
     Wavefunction,
 )
 from pymatgen.io.vasp import Vasprun
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR, MatSciTest
 
 if TYPE_CHECKING:
     from monty.json import MSONable
@@ -73,29 +72,13 @@ class TestBWDF(MatSciTest):
 class TestDOSCAR(MatSciTest):
     def setup_method(self):
         doscar = f"{VASP_OUT_DIR}/DOSCAR.lobster.spin"
-        poscar = f"{VASP_IN_DIR}/POSCAR.lobster.spin_DOS"
-
         doscar2 = f"{VASP_OUT_DIR}/DOSCAR.lobster.nonspin"
-        poscar2 = f"{VASP_IN_DIR}/POSCAR.lobster.nonspin_DOS"
-
         doscar3 = f"{VASP_OUT_DIR}/DOSCAR.LCFO.lobster.AlN"
-        poscar3 = f"{VASP_IN_DIR}/POSCAR.AlN"
 
-        self.doscar_spin_pol = DOSCAR(filename=doscar, structure_file=poscar)
-        self.doscar_nonspin_pol = DOSCAR(filename=doscar2, structure_file=poscar2)
-
-        self.doscar_lcfo = DOSCAR_LCFO(filename=doscar3, structure_file=poscar3)
-
-        with open(
-            f"{TEST_FILES_DIR}/electronic_structure/dos/structure_KF.json", "rb"
-        ) as file:
-            data = orjson.loads(file.read())
-
-        self.structure = Structure.from_dict(data)
-
-        self.doscar_spin_pol2 = DOSCAR(
-            filename=doscar, structure_file=None, structure=Structure.from_file(poscar)
-        )
+        self.doscar_spin_pol = DOSCAR(filename=doscar)
+        self.doscar_nonspin_pol = DOSCAR(filename=doscar2)
+        self.doscar_lcfo = DOSCAR_LCFO(filename=doscar3)
+        self.doscar_spin_pol2 = DOSCAR(filename=doscar)
 
     def test_pdos(self):
         """Test projected densities of states (PDOS) from DOSCAR files."""
@@ -128,12 +111,14 @@ class TestDOSCAR(MatSciTest):
         for orbital, spin_data in expected_pdos_spin.items():
             for spin, expected_values in spin_data.items():
                 assert_allclose(
-                    self.doscar_spin_pol.pdos[0][orbital][spin], expected_values
+                    self.doscar_spin_pol.projected_dos["F1"][orbital].densities[spin],
+                    expected_values,
                 )
 
         for orbital, expected_values in expected_pdos_nonspin.items():
             assert_allclose(
-                self.doscar_nonspin_pol.pdos[0][orbital][Spin.up], expected_values
+                self.doscar_nonspin_pol.projected_dos["F1"][orbital].densities[Spin.up],
+                expected_values,
             )
 
         pdos_1a1_AlN = [
@@ -177,9 +162,15 @@ class TestDOSCAR(MatSciTest):
         ]
 
         assert self.doscar_lcfo.is_lcfo
-        assert_allclose(self.doscar_lcfo.pdos[0]["1a1"][Spin.down], pdos_1a1_AlN)
-        assert_allclose(self.doscar_lcfo.pdos[1]["3p_y"][Spin.down], pdos_3py_Al)
-        assert_allclose(self.doscar_lcfo.pdos[2]["2s"][Spin.down], pdos_2s_N)
+        assert_allclose(
+            self.doscar_lcfo.projected_dos["AlN_1"]["1a1"].densities[Spin.down], pdos_1a1_AlN
+        )
+        assert_allclose(
+            self.doscar_lcfo.projected_dos["Al_1"]["3p_y"].densities[Spin.down], pdos_3py_Al
+        )
+        assert_allclose(
+            self.doscar_lcfo.projected_dos["N_1"]["2s"].densities[Spin.down], pdos_2s_N
+        )
 
     def test_tdos(self):
         """Test total densities of states (TDOS) from DOSCAR files."""
@@ -187,17 +178,17 @@ class TestDOSCAR(MatSciTest):
         tdos_up = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02577]
         tdos_down = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02586]
 
-        assert_allclose(energies_spin, self.doscar_spin_pol.tdos.energies)
-        assert_allclose(tdos_up, self.doscar_spin_pol.tdos.densities[Spin.up])
-        assert_allclose(tdos_down, self.doscar_spin_pol.tdos.densities[Spin.down])
-        # assert fermi == approx(self.doscar_spin_pol.tdos.efermi)
+        assert_allclose(energies_spin, self.doscar_spin_pol.total_dos.energies)
+        assert_allclose(tdos_up, self.doscar_spin_pol.total_dos.densities[Spin.up])
+        assert_allclose(tdos_down, self.doscar_spin_pol.total_dos.densities[Spin.down])
+        # assert fermi == approx(self.doscar_spin_pol.total_dos.efermi)
 
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
 
-        assert_allclose(energies_nonspin, self.doscar_nonspin_pol.tdos.energies)
-        assert_allclose(tdos_nonspin, self.doscar_nonspin_pol.tdos.densities[Spin.up])
-        # assert fermi == approx(self.doscar_nonspin_pol.tdos.efermi)
+        assert_allclose(energies_nonspin, self.doscar_nonspin_pol.total_dos.energies)
+        assert_allclose(tdos_nonspin, self.doscar_nonspin_pol.total_dos.densities[Spin.up])
+        # assert fermi == approx(self.doscar_nonspin_pol.total_dos.efermi)
 
     def test_energies(self):
         """Test energies from DOSCAR files."""
@@ -208,42 +199,15 @@ class TestDOSCAR(MatSciTest):
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         assert_allclose(energies_nonspin, self.doscar_nonspin_pol.energies)
 
-    def test_tdensities(self):
-        """Test total densities from DOSCAR files."""
-        tdos_up = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02577]
-        tdos_down = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02586]
-
-        assert_allclose(tdos_up, self.doscar_spin_pol.tdensities[Spin.up])
-        assert_allclose(tdos_down, self.doscar_spin_pol.tdensities[Spin.down])
-
-        tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
-        assert_allclose(tdos_nonspin, self.doscar_nonspin_pol.tdensities[Spin.up])
-
-        tdos_up = [
-            0.0,
-            1.75477,
-            0.11803,
-            0.0,
-            0.0,
-            0.0,
-            0.04156,
-            0.82291,
-            0.74449,
-            0.42481,
-            1.04535,
-        ]
-
-        assert_allclose(tdos_up, self.doscar_lcfo.tdensities[Spin.up])
-
     def test_itdensities(self):
         """Test integrated total densities from DOSCAR files."""
         itdos_up = [1.99997, 4.99992, 4.99992, 7.99987, 7.99987, 8.09650]
         itdos_down = [1.99997, 4.99992, 4.99992, 7.99987, 7.99987, 8.09685]
-        assert_allclose(itdos_up, self.doscar_spin_pol.itdensities[Spin.up])
-        assert_allclose(itdos_down, self.doscar_spin_pol.itdensities[Spin.down])
+        assert_allclose(itdos_up, self.doscar_spin_pol.integrated_total_dos.densities[Spin.up])
+        assert_allclose(itdos_down, self.doscar_spin_pol.integrated_total_dos.densities[Spin.down])
 
         itdos_nonspin = [4.00000, 10.00000, 10.00000, 16.00000, 16.00000, 16.09067]
-        assert_allclose(itdos_nonspin, self.doscar_nonspin_pol.itdensities[Spin.up])
+        assert_allclose(itdos_nonspin, self.doscar_nonspin_pol.integrated_total_dos.densities[Spin.up])
 
     def test_is_spin_polarized(self):
         """Test is_spin_polarized attribute from DOSCAR files."""
@@ -1120,13 +1084,6 @@ class TestBandOverlaps(MatSciTest):
                 number_occ_bands_spin_up=4,
                 spin_polarized=True,
             )
-
-    def test_msonable(self):
-        dict_data = self.band_overlaps2_new.as_dict()
-        bandoverlaps_from_dict = BandOverlaps.from_dict(dict_data)
-        all_attributes = vars(self.band_overlaps2_new)
-        for attr_name, attr_value in all_attributes.items():
-            assert getattr(bandoverlaps_from_dict, attr_name) == attr_value
 
     def test_keys(self):
         bo_dict = self.band_overlaps1.band_overlaps
@@ -2102,11 +2059,9 @@ class TestMsonable(MatSciTest):
         self.instances_to_test = [
             DOSCAR(
                 filename=f"{VASP_OUT_DIR}/DOSCAR.lobster.spin",
-                structure_file=f"{VASP_IN_DIR}/POSCAR.lobster.spin_DOS",
             ),
             DOSCAR_LCFO(
                 filename=f"{VASP_OUT_DIR}/DOSCAR.LCFO.lobster.AlN",
-                structure_file=f"{VASP_IN_DIR}/POSCAR.AlN",
             ),
             LobsterMatrices(
                 filename=f"{TEST_DIR}/Na_hamiltonMatrices.lobster.gz",

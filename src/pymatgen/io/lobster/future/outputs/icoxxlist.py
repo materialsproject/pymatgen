@@ -3,25 +3,25 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from itertools import islice
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Self
 
 import numpy as np
 
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.io.lobster.future.core import LobsterDataHolder, LobsterFile
-from pymatgen.io.lobster.future.outputs.coxxcar import LobsterCAR
-from pymatgen.io.lobster.future.utils import make_json_compatible, parse_orbital_from_text
+from pymatgen.io.lobster.future.core import LobsterFile, LobsterInteractionsHolder
+from pymatgen.io.lobster.future.outputs.coxxcar import COXXCAR
+from pymatgen.io.lobster.future.utils import parse_orbital_from_text
 from pymatgen.io.lobster.future.versioning import version_processor
 
 if TYPE_CHECKING:
-    from typing import ClassVar
+    from typing import ClassVar, Literal
 
     from numpy.typing import NDArray
 
     from pymatgen.io.lobster.future.types import LobsterInteractionData
 
 
-class ICOXXLIST(LobsterFile, LobsterDataHolder):
+class ICOXXLIST(LobsterFile, LobsterInteractionsHolder):
     """Reader for ICOXX data files (ICOHPLIST, ICOOPLIST, ICOBILIST).
 
     Parses interaction data from ICOXXLIST files, including spin-resolved values.
@@ -167,7 +167,10 @@ class ICOXXLIST(LobsterFile, LobsterDataHolder):
                 second_orbital = parse_orbital_from_text(second_center)
 
                 index = int(matches[0])
-                centers = [first_center, second_center]
+                centers = [
+                    first_center.replace(f"_{first_orbital}", ""),
+                    second_center.replace(f"_{second_orbital}", ""),
+                ]
                 length = float(matches[2])
 
                 cells = (
@@ -208,13 +211,13 @@ class ICOXXLIST(LobsterFile, LobsterDataHolder):
                 self.data[i, 1] = icoxx[Spin.down]
 
     def get_data_by_properties(
-        self: LobsterDataHolder,
+        self: LobsterInteractionsHolder,
         indices: list[int] | None = None,
         centers: list[str] | None = None,
         cells: list[list[int]] | None = None,
         orbitals: list[str] | None = None,
         length: tuple[float, float] | None = None,
-        spins: list[Spin] | None = None,
+        spins: list[Literal[1, -1]] | None = None,
     ) -> NDArray[np.floating]:
         """Get the data for bonds matching specified properties.
 
@@ -244,46 +247,28 @@ class ICOXXLIST(LobsterFile, LobsterDataHolder):
         Assigns numpy views into `self.data` for each spin channel.
         """
         spin_indices = {spin: i for i, spin in enumerate(self.spins)}
+
         for i, interaction in enumerate(self.interactions):
             interaction["icoxx"] = {}
             for spin, index in spin_indices.items():
                 interaction["icoxx"][spin] = self.data[i, index]
 
-    def as_dict(self) -> dict[str, Any]:
-        """Convert the `ICOXXLIST` object to a dictionary for serialization.
-
-        Returns:
-            dict[str, Any]: Dictionary representation of the object.
-        """
-        dictionary = super().as_dict()
-
-        dictionary["attributes"]["icoxxlist_type"] = self.icoxxlist_type
-
-        if hasattr(self, "is_lcfo"):
-            dictionary["attributes"]["is_lcfo"] = getattr(self, "is_lcfo")  # NOQA: B009
-
-        dictionary["attributes"]["spins"] = self.spins
-        dictionary["attributes"]["interactions"] = make_json_compatible(
-            self.interactions
-        )
-        dictionary["attributes"]["data"] = self.data
-
-        return dictionary
-
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> ICOXXLIST:
-        """Create a `ICOXXLIST` object from a dictionary.
+    def from_dict(cls, d: dict[str, Any]) -> Self:
+        """Deserialize object from dictionary produced by `as_dict`.
 
         Args:
-            d (dict): Dictionary representation of a `ICOXXLIST` object.
+            d (dict): Dictionary produced by `as_dict`.
 
         Returns:
-            ICOXXLIST: The created object.
+            COXXCAR: Reconstructed instance.
         """
         instance = super().from_dict(d)
         instance.process_data_into_interactions()
 
         return instance
+
+    get_interactions_by_properties = COXXCAR.get_interactions_by_properties
 
 
 class ICOHPLIST(ICOXXLIST):
@@ -355,7 +340,7 @@ class ICOBILIST_LCFO(ICOBILIST):
     is_lcfo: ClassVar[bool] = True
 
 
-class NcICOBILIST(LobsterFile, LobsterDataHolder):
+class NcICOBILIST(LobsterFile, LobsterInteractionsHolder):
     """Reader for NcICOBILIST.lobster files.
 
     Parses non-conventional ICOBI interaction data.
@@ -366,7 +351,7 @@ class NcICOBILIST(LobsterFile, LobsterDataHolder):
         data (NDArray[np.floating]): Array of ICOXX values for each interaction and spin.
     """
 
-    interactions_regex: ClassVar[str] = LobsterCAR.interactions_regex
+    interactions_regex: ClassVar[str] = COXXCAR.interactions_regex
 
     @version_processor(min_version="5.1")
     def parse_file(self) -> None:
@@ -475,7 +460,7 @@ class NcICOBILIST(LobsterFile, LobsterDataHolder):
 
     get_data_by_properties = ICOXXLIST.get_data_by_properties
 
-    get_interactions_by_properties = LobsterCAR.get_interactions_by_properties
+    get_interactions_by_properties = COXXCAR.get_interactions_by_properties
 
     process_data_into_interactions = ICOXXLIST.process_data_into_interactions
 
@@ -484,29 +469,15 @@ class NcICOBILIST(LobsterFile, LobsterDataHolder):
         """Return the default filename for NcICOBILIST."""
         return "NcICOBILIST.lobster"
 
-    def as_dict(self) -> dict[str, Any]:
-        """Convert the `NcICOBILIST` object to a dictionary for serialization.
-
-        Returns:
-            dict[str, Any]: Dictionary representation of the object.
-        """
-        dictionary = super().as_dict()
-
-        dictionary["attributes"]["spins"] = self.spins
-        dictionary["attributes"]["interactions"] = make_json_compatible(self.interactions)
-        dictionary["attributes"]["data"] = self.data
-
-        return dictionary
-
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> NcICOBILIST:
-        """Create a `NcICOBILIST` object from a dictionary.
+    def from_dict(cls, d: dict[str, Any]) -> Self:
+        """Deserialize object from dictionary produced by `as_dict`.
 
         Args:
-            d (dict): Dictionary representation of a `NcICOBILIST` object.
+            d (dict): Dictionary produced by `as_dict`.
 
         Returns:
-            NcICOBILIST: The created object.
+            COXXCAR: Reconstructed instance.
         """
         instance = super().from_dict(d)
         instance.process_data_into_interactions()

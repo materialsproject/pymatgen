@@ -3,21 +3,22 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from itertools import islice
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pymatgen.core.structure import Structure
+from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import Dos
 from pymatgen.io.lobster.future.core import LobsterFile
-from pymatgen.io.lobster.future.utils import make_json_compatible
 from pymatgen.io.lobster.future.versioning import version_processor
 
 if TYPE_CHECKING:
     from typing import ClassVar
 
-    from pymatgen.core.structure import IStructure
+    from numpy import floating
+    from numpy.typing import NDArray
+
     from pymatgen.util.typing import PathLike
 
 
@@ -45,8 +46,6 @@ class DOSCAR(LobsterFile):
     def __init__(
         self,
         filename: PathLike | None = None,
-        structure_file: PathLike | None = "POSCAR",
-        structure: IStructure | None = None,
         process_immediately: bool = True,
     ) -> None:
         """Initialize a DOSCAR object.
@@ -61,14 +60,9 @@ class DOSCAR(LobsterFile):
         Raises:
             ValueError: If neither `structure_file` nor `structure` is provided.
         """
-        if structure is not None:
-            self.structure = structure
-        elif structure_file is not None:
-            self.structure = Structure.from_file(structure_file)
-        else:
-            raise ValueError(
-                "Either `structure_file` or `structure` args must be provided."
-            )
+        self.projected_dos: dict[str, dict[str, Dos]]
+        self.total_dos: Dos
+        self.integrated_total_dos: Dos
 
         super().__init__(
             filename=filename,
@@ -87,17 +81,23 @@ class DOSCAR(LobsterFile):
             ValueError: If the DOSCAR file format is invalid or spin polarization
                 cannot be determined.
         """
-        tdensities, itdensities = {}, {}
-        dos, orbitals = [], []
+        total_dos, integrated_total_dos = {}, {}
+        data: list[NDArray] = []
+
+        centers: list[str] = []
+        orbitals: list[list[str]] = []
 
         self.spins = [Spin.up]
 
-        header_regex = r"\s*\S+\s+\S+\s+(\d+)\s+(\S+)\s+1\.0+(?:;.*;(.*))?"
+        header_regex = r"\s*\S+\s+\S+\s+(\d+)\s+(\S+)\s+1\.0+(?:;(.*);(.*))?"
 
         efermi = None
         ndos = 0
 
         lines_iter = iter(self.iterate_lines())
+
+        center_counts = defaultdict(int)
+
         for line in islice(lines_iter, 5, None):
             if match := re.match(header_regex, line):
                 ndos = int(match.group(1))
@@ -105,72 +105,93 @@ class DOSCAR(LobsterFile):
                 if efermi is None:
                     efermi = float(match.group(2))
 
-                if match.group(3):
-                    orbitals += [[orb.strip() for orb in match.group(3).split()]]
+                if center_match := match.group(3):
+                    center_match = center_match.strip()
+
+                    if center_match.startswith("Z="):
+                        center_match = Element.from_Z(
+                            int(center_match.split()[-1])
+                        ).symbol
+
+                    center_counts[center_match] += 1
+
+                    separator = "_" if self.is_lcfo else ""
+
+                    centers.append(
+                        f"{center_match}{separator}{center_counts[center_match]}"
+                    )
+
+                if orbital_match := match.group(4):
+                    orbitals += [[orb.strip() for orb in orbital_match.split()]]
 
             tmp_dos = []
             if line.strip():
                 for _ in range(ndos):
-                    line = next(lines_iter)
-                    tmp_dos.append(line.split())
+                    line = next(lines_iter).split()
+                    tmp_dos.append(line)
 
-                dos.append(np.array(tmp_dos, dtype=float))
+                data.append(np.array(tmp_dos, dtype=float))
 
-        doshere = dos[0]
-        if len(doshere[0, :]) == 5:
+        if len(data[0][0, :]) == 5:
             self.spins.append(Spin.down)
-        elif len(doshere[0, :]) == 3:
-            pass
-        else:
+        elif len(data[0][0, :]) != 3:
             raise ValueError(
                 "There is something wrong with the DOSCAR. Can't extract spin polarization."
             )
-
-        energies = doshere[:, 0]
-        if not self.is_spin_polarized:
-            tdensities[Spin.up] = doshere[:, 1]
-            itdensities[Spin.up] = doshere[:, 2]
-            pdoss = []
-            spin = Spin.up
-            for atom in range(len(dos) - 1):
-                pdos = defaultdict(dict)
-                data = dos[atom + 1]
-                _, ncol = data.shape
-
-                for orb_num, j in enumerate(range(1, ncol)):
-                    orb = orbitals[atom][orb_num]
-                    pdos[orb][spin] = data[:, j]
-                pdoss.append(pdos)
-        else:
-            tdensities[Spin.up] = doshere[:, 1]
-            tdensities[Spin.down] = doshere[:, 2]
-            itdensities[Spin.up] = doshere[:, 3]
-            itdensities[Spin.down] = doshere[:, 4]
-            pdoss = []
-            for atom in range(len(dos) - 1):
-                pdos = defaultdict(dict)
-                data = dos[atom + 1]
-                _, ncol = data.shape
-                orb_num = 0
-                for j in range(1, ncol):
-                    spin = Spin.down if j % 2 == 0 else Spin.up
-                    orb = orbitals[atom][orb_num]
-                    pdos[orb][spin] = data[:, j]
-                    if j % 2 == 0:
-                        orb_num += 1
-                pdoss.append(pdos)
 
         if efermi is None:
             raise ValueError(
                 "There is something wrong with the DOSCAR. Can't find efermi."
             )
 
-        self.efermi = efermi
-        self.pdos = pdoss
-        self.tdos = Dos(efermi, energies, tdensities)
-        self.energies = energies
-        self.tdensities = tdensities
-        self.itdensities = itdensities
+        energies = data[0][:, 0]
+        projected_dos = {}
+
+        if self.is_spin_polarized:
+            total_dos[Spin.up] = data[0][:, 1]
+            total_dos[Spin.down] = data[0][:, 2]
+
+            integrated_total_dos[Spin.up] = data[0][:, 3]
+            integrated_total_dos[Spin.down] = data[0][:, 4]
+        else:
+            total_dos[Spin.up] = data[0][:, 1]
+            integrated_total_dos[Spin.up] = data[0][:, 2]
+
+        for atom_counter in range(len(data) - 1):
+            block_data = data[atom_counter + 1]
+            center = centers[atom_counter]
+
+            if center not in projected_dos:
+                projected_dos[center] = {}
+
+            for spin_index, spin in enumerate(self.spins):
+                for orbital_index, row in enumerate(
+                    range(spin_index + 1, block_data.shape[1], len(self.spins))
+                ):
+                    orbital = orbitals[atom_counter][orbital_index]
+
+                    if orbital not in projected_dos[center]:
+                        projected_dos[center][orbital] = {}
+
+                    projected_dos[center][orbital][spin] = block_data[:, row]
+
+        for center, orbitals in projected_dos.items():
+            for orbital, dos in orbitals.items():
+                projected_dos[center][orbital] = Dos(efermi, energies, dos)
+
+        self.projected_dos: dict[str, dict[str, Dos]] = dict(projected_dos)
+        self.total_dos: Dos = Dos(efermi, energies, total_dos)
+        self.integrated_total_dos: Dos = Dos(efermi, energies, integrated_total_dos)
+
+    @property
+    def efermi(self) -> float:
+        """Fermi energy in eV."""
+        return self.total_dos.efermi
+
+    @property
+    def energies(self) -> NDArray[floating]:
+        """Energies at which the DOS was calculated (in eV, relative to efermi)."""
+        return self.total_dos.energies
 
     @property
     def is_spin_polarized(self) -> bool:
@@ -180,49 +201,6 @@ class DOSCAR(LobsterFile):
             bool: True if the system is spin polarized, False otherwise.
         """
         return len(self.spins) == 2
-
-    def as_dict(self) -> dict[str, Any]:
-        """Convert the `DOSCAR` object to a dictionary for serialization.
-
-        Returns:
-            dict[str, Any]: Dictionary representation of the `DOSCAR` object.
-        """
-        dictionary = super().as_dict()
-
-        dictionary["attributes"]["is_lcfo"] = self.is_lcfo
-        dictionary["attributes"]["pdos"] = make_json_compatible(self.pdos)
-        dictionary["attributes"]["spins"] = self.spins
-        dictionary["attributes"]["tdos"] = self.tdos.as_dict()
-        dictionary["attributes"]["energies"] = self.energies
-        dictionary["attributes"]["tdensities"] = make_json_compatible(self.tdensities)
-        dictionary["attributes"]["itdensities"] = make_json_compatible(self.itdensities)
-        dictionary["attributes"]["efermi"] = self.efermi
-
-        dictionary["kwargs"] = {
-            "structure": self.structure.as_dict(),
-            "filename": self.filename,
-        }
-
-        return dictionary
-
-    @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> DOSCAR:
-        """Create a `DOSCAR` object from a dictionary.
-
-        Args:
-            d (dict[str, Any]): A dictionary representation of a `DOSCAR` object.
-
-        Returns:
-            DOSCAR: The `DOSCAR` object created from the dictionary.
-        """
-        instance = super().from_dict(d)
-
-        for spin, value in list(instance.tdensities.items()):
-            instance.tdensities[Spin(int(spin))] = value
-        for spin, value in list(instance.itdensities.items()):
-            instance.itdensities[Spin(int(spin))] = value
-
-        return instance
 
     @classmethod
     def get_default_filename(cls) -> str:
