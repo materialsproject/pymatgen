@@ -87,7 +87,7 @@ class VolumetricData(MSONable):
         self.is_spin_polarized: bool = len(data) >= 2
         self.is_soc: bool = len(data) >= 4
         # convert data to numpy arrays in case they were jsanitized as lists
-        self.data: dict[str, NDArray] = {k: np.array(v) for k, v in data.items()}
+        self.data: dict[str, NDArray] = {k: np.asarray(v) for k, v in data.items()}
         self.dim = self.data["total"].shape
         self.data_aug = data_aug or {}
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
@@ -352,10 +352,10 @@ class VolumetricData(MSONable):
         import h5py
 
         with h5py.File(str(filename), mode="r") as file:
-            data = {k: np.array(v) for k, v in file["vdata"].items()}
+            data = {k: np.asarray(v) for k, v in file["vdata"].items()}
             data_aug = None
             if "vdata_aug" in file:
-                data_aug = {k: np.array(v) for k, v in file["vdata_aug"].items()}
+                data_aug = {k: np.asarray(v) for k, v in file["vdata_aug"].items()}
             structure = Structure.from_dict(orjson.loads(file.attrs["structure_json"]))
             return cls(structure, data=data, data_aug=data_aug, **kwargs)  # type:ignore[arg-type]
 
