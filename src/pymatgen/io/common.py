@@ -6,11 +6,10 @@ import collections
 import importlib
 import itertools
 import os
-import typing
 import warnings
 from copy import deepcopy
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
 import orjson
@@ -459,7 +458,7 @@ class PMGDir(collections.abc.Mapping):
     ```
     """
 
-    FILE_MAPPINGS: typing.ClassVar = {
+    FILE_MAPPINGS: ClassVar = {
         n: f"pymatgen.io.vasp.{n.capitalize()}"
         for n in [
             "INCAR",
