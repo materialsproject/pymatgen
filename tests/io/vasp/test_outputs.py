@@ -1754,7 +1754,13 @@ class TestElfcar(MatSciTest):
     def test_interpolation(self):
         elfcar = Elfcar.from_file(f"{VASP_OUT_DIR}/ELFCAR.gz")
         assert elfcar.value_at(0.4, 0.5, 0.6) == approx(0.0918471)
-        assert len(elfcar.linear_slice([0.0, 0.0, 0.0], [1.0, 1.0, 1.0])) == 100
+        assert len(elfcar.linear_slice([0.0, 0.0, 0.0], (1.0, 1.0, 1.0))) == 100
+
+        with pytest.raises(ValueError, match="lengths of p1 and p2 should be 3"):
+            elfcar.linear_slice(
+                [0.0],
+                [1.0, 1.0, 1.0],
+            )
 
 
 class TestProcar(MatSciTest):
