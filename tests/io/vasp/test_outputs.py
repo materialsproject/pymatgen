@@ -1582,6 +1582,10 @@ class TestLocpot(MatSciTest):
         assert locpot.get_axis_grid(1)[-1] == approx(2.87629, abs=1e-2)
         assert locpot.get_axis_grid(2)[-1] == approx(2.87629, abs=1e-2)
 
+        # Test copy preserve type
+        locpot_copy = locpot.copy()
+        assert type(locpot_copy) is type(locpot)
+
         # make sure locpot constructor works with data_aug=None
         poscar, data, _data_aug = Locpot.parse_file(filepath)
         l2 = Locpot(poscar=poscar, data=data, data_aug=None)
@@ -1632,6 +1636,10 @@ class TestChgcar(MatSciTest):
         ]
         actual = self.chgcar_fe3o4.get_integrated_diff(0, 3, 6)
         assert_allclose(actual[:, 1], expected)
+
+        # Test copy preserve type
+        chgcar_copy = chgcar.copy()
+        assert type(chgcar_copy) is type(chgcar)
 
     def test_write(self):
         self.chgcar_spin.write_file(out_path := f"{self.tmp_path}/CHGCAR_pmg")
@@ -1745,6 +1753,10 @@ class TestElfcar(MatSciTest):
         reconstituted = Elfcar.from_dict(elfcar.as_dict())
         assert elfcar.data == reconstituted.data
         assert elfcar.poscar.structure == reconstituted.poscar.structure
+
+        # Test copy preserve type
+        elfcar_copy = elfcar.copy()
+        assert type(elfcar_copy) is type(elfcar)
 
     def test_alpha(self):
         elfcar = Elfcar.from_file(f"{VASP_OUT_DIR}/ELFCAR.gz")

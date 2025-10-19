@@ -23,9 +23,7 @@ from pymatgen.core.units import ang_to_bohr, bohr_to_angstrom
 from pymatgen.electronic_structure.core import Spin
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    from numpy.typing import NDArray
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Any, Self
 
     from pymatgen.core.structure import IStructure
@@ -143,13 +141,13 @@ class VolumetricData(MSONable):
     def __sub__(self, other):
         return self.linear_add(other, -1.0)
 
-    def copy(self) -> VolumetricData:
+    def copy(self) -> Self:
         """Make a copy of VolumetricData object."""
-        return VolumetricData(
+        return type(self)(
             self.structure,
             {k: v.copy() for k, v in self.data.items()},
-            distance_matrix=self._distance_matrix,  # type:ignore[arg-type]
-            data_aug=self.data_aug,  # type:ignore[arg-type]
+            distance_matrix=self._distance_matrix,
+            data_aug=self.data_aug,
         )
 
     def linear_add(self, other, scale_factor=1.0) -> VolumetricData:
@@ -205,7 +203,7 @@ class VolumetricData(MSONable):
         """
         return self.interpolator([x, y, z])[0]
 
-    def linear_slice(self, p1: Sequence[float], p2: Sequence[float], n=100):
+    def linear_slice(self, p1: ArrayLike, p2: ArrayLike, n=100):
         """Get a linear slice of the volumetric data with n data points from
         point p1 to point p2, in the form of a list.
 
