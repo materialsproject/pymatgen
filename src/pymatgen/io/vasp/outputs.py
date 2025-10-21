@@ -3936,14 +3936,23 @@ class VolumetricData(BaseVolumetricData):
 class Locpot(VolumetricData):
     """LOCPOT file reader."""
 
-    def __init__(self, poscar: Poscar, data: dict[str, NDArray], **kwargs) -> None:
+    def __init__(self, poscar: Poscar | Structure, data: dict[str, NDArray], **kwargs) -> None:
         """
         Args:
-            poscar (Poscar): Poscar object containing structure.
+            poscar (Poscar | Structure): Poscat or Structure object containing structure.
             data (NDArray): Actual data.
         """
-        super().__init__(poscar.structure, data, **kwargs)
-        self.name = poscar.comment
+        if isinstance(poscar, Poscar):
+            struct = poscar.structure
+            self.poscar = poscar
+            self.name = poscar.comment
+        elif isinstance(poscar, Structure):
+            struct = poscar
+            self.poscar = Poscar(poscar)
+        else:
+            raise TypeError("Unsupported POSCAR type.")
+
+        super().__init__(struct, data, **kwargs)
 
     @classmethod
     def from_file(cls, filename: PathLike, **kwargs) -> Self:
@@ -3967,6 +3976,7 @@ class Chgcar(VolumetricData):
         poscar: Poscar | Structure,
         data: dict[str, NDArray],
         data_aug: dict[str, NDArray] | None = None,
+        **kwargs,
     ) -> None:
         """
         Args:
@@ -3986,7 +3996,7 @@ class Chgcar(VolumetricData):
         else:
             raise TypeError("Unsupported POSCAR type.")
 
-        super().__init__(struct, data, data_aug=data_aug)
+        super().__init__(struct, data, data_aug=data_aug, **kwargs)
         self._distance_matrix: dict = {}
 
     @classmethod
@@ -4020,6 +4030,7 @@ class Elfcar(VolumetricData):
         self,
         poscar: Poscar | Structure,
         data: dict[str, NDArray],
+        **kwargs,
     ) -> None:
         """
         Args:
@@ -4036,7 +4047,7 @@ class Elfcar(VolumetricData):
         else:
             raise TypeError("Unsupported POSCAR type.")
 
-        super().__init__(tmp_struct, data)
+        super().__init__(tmp_struct, data, **kwargs)
         # TODO: (mkhorton) modify VolumetricData so that the correct keys can be used.
         # for ELF, instead of "total" and "diff" keys we have
         # "Spin.up" and "Spin.down" keys

@@ -23,7 +23,7 @@ from pymatgen.core.units import ang_to_bohr, bohr_to_angstrom
 from pymatgen.electronic_structure.core import Spin
 
 if TYPE_CHECKING:
-    from numpy.typing import NDArray
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Any, Self
 
     from pymatgen.core.structure import IStructure
@@ -141,13 +141,13 @@ class VolumetricData(MSONable):
     def __sub__(self, other):
         return self.linear_add(other, -1.0)
 
-    def copy(self) -> VolumetricData:
+    def copy(self) -> Self:
         """Make a copy of VolumetricData object."""
-        return VolumetricData(
+        return type(self)(
             self.structure,
             {k: v.copy() for k, v in self.data.items()},
-            distance_matrix=self._distance_matrix,  # type:ignore[arg-type]
-            data_aug=self.data_aug,  # type:ignore[arg-type]
+            distance_matrix=self._distance_matrix,
+            data_aug=self.data_aug,
         )
 
     def linear_add(self, other, scale_factor=1.0) -> VolumetricData:
@@ -203,7 +203,7 @@ class VolumetricData(MSONable):
         """
         return self.interpolator([x, y, z])[0]
 
-    def linear_slice(self, p1, p2, n=100):
+    def linear_slice(self, p1: ArrayLike, p2: ArrayLike, n=100):
         """Get a linear slice of the volumetric data with n data points from
         point p1 to point p2, in the form of a list.
 
@@ -216,14 +216,11 @@ class VolumetricData(MSONable):
             List of n data points (mostly interpolated) representing a linear slice of the
             data from point p1 to point p2.
         """
-        if type(p1) not in {list, np.ndarray}:
-            raise TypeError(f"type of p1 should be list or np.ndarray, got {type(p1).__name__}")
-        if len(p1) != 3:
-            raise ValueError(f"length of p1 should be 3, got {len(p1)}")
-        if type(p2) not in {list, np.ndarray}:
-            raise TypeError(f"type of p2 should be list or np.ndarray, got {type(p2).__name__}")
-        if len(p2) != 3:
-            raise ValueError(f"length of p2 should be 3, got {len(p2)}")
+        p1 = np.asarray(p1)
+        p2 = np.asarray(p2)
+
+        if p1.shape != (3,) or p2.shape != (3,):
+            raise ValueError(f"lengths of p1 and p2 should be 3, got {len(p1)} and {len(p2)}")
 
         x_pts = np.linspace(p1[0], p2[0], num=n)
         y_pts = np.linspace(p1[1], p2[1], num=n)
