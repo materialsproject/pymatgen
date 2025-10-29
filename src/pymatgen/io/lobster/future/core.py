@@ -5,6 +5,8 @@ from collections import Counter
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, ClassVar, Self, cast
 
+from pathlib import Path
+
 import numpy as np
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
@@ -47,7 +49,7 @@ class LobsterFile(MSONable):
             filename (PathLike | None): Path to the file. If None, uses the default filename.
             process_immediately (bool): Whether to process the file immediately upon initialization. Defaults to True.
         """
-        self.filename = filename or self.get_default_filename()
+        self.filename = Path(filename or self.get_default_filename()).expanduser().resolve()
         self.lobster_version = self.get_file_version() or LOBSTER_VERSION
 
         if process_immediately:
@@ -84,6 +86,9 @@ class LobsterFile(MSONable):
         """
         eligible_methods = []
 
+        if not self.filename.exists():
+            raise FileNotFoundError(f"The file {self.filename} does not exist.")
+
         for (
             minimum_version,
             maximum_version,
@@ -102,6 +107,7 @@ class LobsterFile(MSONable):
             best_method(self)
         except Exception as e:
             processor_name = getattr(best_method, "__name__", str(best_method))
+
             raise RuntimeError(
                 f"Error occurred during file processing with {processor_name} (version {self.lobster_version}): {e}"
             ) from e

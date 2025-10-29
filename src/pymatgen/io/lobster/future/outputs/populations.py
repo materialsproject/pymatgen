@@ -138,6 +138,15 @@ class GROSSPOP(LobsterFile):
                             groups[3 + i + j * len(self.spins)]
                         )
 
+    @classmethod
+    def get_default_filename(cls) -> str:
+        """Get the default filename for GROSSPOP files.
+
+        Returns:
+            str: Default filename for the GROSSPOP file, depending on LCFO mode.
+        """
+        return "GROSSPOP.lobster" if not cls.is_lcfo else "GROSSPOP.LCFO.lobster"
+
 
 class GROSSPOP_LCFO(GROSSPOP):
     """Parser for GROSSPOP.LCFO.lobster files.

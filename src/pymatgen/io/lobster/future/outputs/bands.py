@@ -224,6 +224,14 @@ class Fatbands(MSONable):
         """
         self.directory = Path(directory)
 
+        self.filenames = sorted(
+            [str(i) for i in self.directory.glob(Fatband.get_default_filename())],
+            key=natural_sort,
+        )
+
+        if len(self.filenames) == 0:
+            raise ValueError("No FATBAND files found in the provided directory")
+
         self.efermi = Vasprun(
             filename=self.directory / vasprun_file,
             parse_eigen=False,
@@ -277,11 +285,6 @@ class Fatbands(MSONable):
                 "KPOINTS file must contain weights for `Fatbands` parsing."
             )
 
-        self.filenames = sorted(
-            [str(i) for i in self.directory.glob(Fatband.get_default_filename())],
-            key=natural_sort,
-        )
-
         if structure is None:
             try:
                 self.structure = Structure.from_file(Path(directory, "POSCAR.lobster"))
@@ -291,9 +294,6 @@ class Fatbands(MSONable):
                 )
         else:
             self.structure = structure
-
-        if len(self.filenames) == 0:
-            raise ValueError("No FATBAND files found in the provided directory")
 
         self.reciprocal_lattice = self.structure.lattice.reciprocal_lattice
 
