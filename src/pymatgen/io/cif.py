@@ -345,6 +345,11 @@ class CifParser:
             with zopen(filename, mode="rt", encoding="utf-8", errors="replace") as f:
                 cif_string: str = cast("str", f.read())
         elif isinstance(filename, StringIO):
+            warnings.warn(
+                "Initializing CifParser from StringIO is deprecated, use `from_str()` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
             cif_string = filename.getvalue()
         else:
             raise TypeError("Unsupported file format. Expect str or Path.")
