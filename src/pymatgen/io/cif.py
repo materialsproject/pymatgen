@@ -10,7 +10,7 @@ import warnings
 from collections import defaultdict, deque
 from functools import partial
 from inspect import getfullargspec
-from io import StringIO
+from io import StringIO, TextIOWrapper
 from itertools import groupby
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal, cast
@@ -344,6 +344,13 @@ class CifParser:
         if isinstance(filename, (str | Path)):
             with zopen(filename, mode="rt", encoding="utf-8", errors="replace") as f:
                 cif_string: str = cast("str", f.read())
+        elif isinstance(filename, TextIOWrapper):
+            warnings.warn(
+                "Initializing CifParser from TextIOWrapper is deprecated, use str or Path instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            cif_string = filename.read()
         elif isinstance(filename, StringIO):
             warnings.warn(
                 "Initializing CifParser from StringIO is deprecated, use `from_str()` instead.",
