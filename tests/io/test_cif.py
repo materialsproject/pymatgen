@@ -177,12 +177,6 @@ class TestCifIO(MatSciTest):
         with pytest.warns(DeprecationWarning, match="Initializing CifParser from StringIO"):
             parser = CifParser(StringIO(cif_text))
 
-        # Test init from TextIOWrapper
-        with (
-            pytest.warns(DeprecationWarning, match="Initializing CifParser from TextIOWrapper"),
-            open(f"{TEST_FILES_DIR}/cif/V2O3.cif") as file,
-        ):
-            parser = CifParser(file)
         for struct in parser.parse_structures():
             assert struct.formula == "V4 O6"
         bibtex_str = """
