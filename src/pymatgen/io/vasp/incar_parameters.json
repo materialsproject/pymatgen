@@ -1127,7 +1127,7 @@
     "type": "int"
  },
  "NUPDOWN": {
-    "type": "int"
+    "type": "float"
  },
  "NWRITE": {
    "type": "int",

@@ -1001,11 +1001,54 @@ SIGMA = 0.1"""
         assert incar["HFSCREEN"] == approx(0.2)
         assert incar["ALGO"] == "All"
 
-    def test_proc_types(self):
+    def test_proc_val(self):
         assert Incar.proc_val("HELLO", "-0.85 0.85") == "-0.85 0.85"
         assert Incar.proc_val("ML_MODE", "train") == "train"
         assert Incar.proc_val("ML_MODE", "RUN") == "run"
         assert Incar.proc_val("ALGO", "fast") == "Fast"
+
+        # LREAL has union type "bool | str"
+        assert Incar.proc_val("LREAL", "T") is True
+        assert Incar.proc_val("LREAL", ".FALSE.") is False
+        assert Incar.proc_val("LREAL", "Auto") == "Auto"
+        assert Incar.proc_val("LREAL", "on") == "On"
+
+    def test_proc_val_inconsistent_type(self):
+        """proc_val should not raise even when value conflicts with expected type."""
+
+        bool_values = ["T", ".FALSE."]
+        int_values = ["5", "-3"]
+        float_values = ["1.23", "-4.56e-2"]
+        list_values = ["3*1.0 2*0.5", "1 2 3"]
+        str_values = ["Auto", "Run", "Hello"]
+
+        # Expect bool
+        for v in int_values + float_values + list_values + str_values:
+            assert Incar.proc_val("LASPH", v) is not None
+
+        # Expect int
+        for v in bool_values + float_values + list_values + str_values:
+            assert Incar.proc_val("LORBIT", v) is not None
+
+        # Expect float
+        for v in bool_values + int_values + list_values + str_values:
+            assert Incar.proc_val("ENCUT", v) is not None
+
+        # Expect str
+        for v in bool_values + int_values + float_values + list_values:
+            assert Incar.proc_val("ALGO", v) is not None
+
+        # Expect list
+        for v in bool_values + int_values + float_values + str_values:
+            assert Incar.proc_val("PHON_TLIST", v) is not None
+
+        # Union type (bool | str)
+        for v in int_values + float_values + list_values:
+            assert Incar.proc_val("LREAL", v) is not None
+
+        # Non-existent
+        for v in int_values + float_values + list_values + str_values + bool_values:
+            assert Incar.proc_val("HELLOWORLD", v) is not None
 
     def test_check_params(self):
         # Triggers warnings when running into invalid parameters
