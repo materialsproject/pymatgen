@@ -5828,7 +5828,7 @@ class Waveder(MSONable):
     @property
     def cder(self) -> NDArray:
         """The complex derivative of the orbitals with respect to k."""
-        if self.cder_real.shape[0] != self.cder_real.shape[1]:  # pragma: no cover
+        if self.cder_real.shape[0] != self.cder_real.shape[1]:
             warnings.warn(
                 "Not all band pairs are present in the WAVEDER file."
                 "If you want to get all the matrix elements set LVEL=.True. in the INCAR.",

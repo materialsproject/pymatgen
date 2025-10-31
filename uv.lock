@@ -1266,16 +1266,16 @@ name = "hiphive"
 version = "1.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ase" },
-    { name = "h5py" },
-    { name = "numba" },
-    { name = "numpy" },
-    { name = "pandas" },
+    { name = "ase", marker = "python_full_version < '3.14'" },
+    { name = "h5py", marker = "python_full_version < '3.14'" },
+    { name = "numba", marker = "python_full_version < '3.14'" },
+    { name = "numpy", marker = "python_full_version < '3.14'" },
+    { name = "pandas", marker = "python_full_version < '3.14'" },
     { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "scipy", version = "1.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "spglib" },
-    { name = "sympy" },
-    { name = "trainstation" },
+    { name = "scipy", version = "1.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' and python_full_version < '3.14'" },
+    { name = "spglib", marker = "python_full_version < '3.14'" },
+    { name = "sympy", marker = "python_full_version < '3.14'" },
+    { name = "trainstation", marker = "python_full_version < '3.14'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/16/6a/697642c91eafefc253109114c2f8f69d39c997272f140e750c148e330859/hiphive-1.5.tar.gz", hash = "sha256:a8162686265aed88cfa6ad2721f39629102525100879484530cb7c25269ac386", size = 71384, upload-time = "2025-07-28T21:50:13.544Z" }
 wheels = [
@@ -2764,8 +2764,8 @@ name = "numba"
 version = "0.61.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "llvmlite" },
-    { name = "numpy" },
+    { name = "llvmlite", marker = "python_full_version < '3.14'" },
+    { name = "numpy", marker = "python_full_version < '3.14'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/1c/a0/e21f57604304aa03ebb8e098429222722ad99176a4f979d34af1d1ee80da/numba-0.61.2.tar.gz", hash = "sha256:8750ee147940a6637b80ecf7f95062185ad8726c8c28a2295b8ec1160a196f7d", size = 2820615, upload-time = "2025-04-09T02:58:07.659Z" }
 wheels = [
@@ -3668,7 +3668,7 @@ mlp = [
     { name = "matgl", marker = "python_full_version < '3.13'" },
 ]
 numba = [
-    { name = "numba" },
+    { name = "numba", marker = "python_full_version < '3.14'" },
 ]
 numpy-v1 = [
     { name = "numpy" },
@@ -3680,7 +3680,7 @@ optional = [
     { name = "f90nml" },
     { name = "galore" },
     { name = "h5py" },
-    { name = "hiphive" },
+    { name = "hiphive", marker = "python_full_version < '3.14'" },
     { name = "jarvis-tools" },
     { name = "matcalc", marker = "python_full_version < '3.13'" },
     { name = "matgl", marker = "python_full_version < '3.13'" },
@@ -3704,7 +3704,7 @@ tblite = [
     { name = "tblite", extra = ["ase"], marker = "python_full_version < '3.12' and sys_platform == 'linux'" },
 ]
 vis = [
-    { name = "vtk" },
+    { name = "vtk", marker = "python_full_version < '3.14'" },
 ]
 zeopp = [
     { name = "pyzeo", marker = "sys_platform != 'win32'" },
@@ -3744,7 +3744,7 @@ requires-dist = [
     { name = "f90nml", marker = "extra == 'optional'", specifier = ">=1.1.2" },
     { name = "galore", marker = "extra == 'optional'", specifier = ">=0.6.1" },
     { name = "h5py", marker = "extra == 'optional'", specifier = ">=3.11.0" },
-    { name = "hiphive", marker = "extra == 'optional'", specifier = ">=1.3.1" },
+    { name = "hiphive", marker = "python_full_version < '3.14' and extra == 'optional'", specifier = ">=1.3.1" },
     { name = "jarvis-tools", marker = "extra == 'optional'", specifier = ">=2020.7.14" },
     { name = "joblib", specifier = ">=1" },
     { name = "matcalc", marker = "python_full_version < '3.13' and extra == 'matcalc'", specifier = ">=0.4.0" },
@@ -3755,7 +3755,7 @@ requires-dist = [
     { name = "moyopy", extras = ["interface"], marker = "extra == 'symmetry'", specifier = ">=0.3" },
     { name = "netcdf4", marker = "extra == 'abinit'", specifier = ">=1.7.2" },
     { name = "networkx", specifier = ">=2.7" },
-    { name = "numba", marker = "extra == 'numba'", specifier = ">=0.55" },
+    { name = "numba", marker = "python_full_version < '3.14' and extra == 'numba'", specifier = ">=0.55" },
     { name = "numpy", specifier = ">=1.25.0,<3" },
     { name = "numpy", marker = "extra == 'numpy-v1'", specifier = ">=1.25.0,<2" },
     { name = "orjson", specifier = ">=3.10,<4" },
@@ -3780,7 +3780,7 @@ requires-dist = [
     { name = "tblite", extras = ["ase"], marker = "python_full_version < '3.12' and sys_platform == 'linux' and extra == 'tblite'", specifier = ">=0.3.0" },
     { name = "tqdm", specifier = ">=4.60" },
     { name = "uncertainties", specifier = ">=3.1.4" },
-    { name = "vtk", marker = "extra == 'vis'", specifier = ">=6.0.0" },
+    { name = "vtk", marker = "python_full_version < '3.14' and extra == 'vis'", specifier = ">=6.0.0" },
 ]
 provides-extras = ["abinit", "ase", "matcalc", "mlp", "numba", "numpy-v1", "optional", "prototypes", "symmetry", "tblite", "vis", "zeopp"]
 
@@ -5269,10 +5269,10 @@ name = "trainstation"
 version = "1.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy" },
-    { name = "scikit-learn" },
+    { name = "numpy", marker = "python_full_version < '3.14'" },
+    { name = "scikit-learn", marker = "python_full_version < '3.14'" },
     { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "scipy", version = "1.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "scipy", version = "1.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' and python_full_version < '3.14'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/94/bc/674edf4fb12f40d9b626b99a994c9d8281a5d0d327ceb8239c62bdd750d9/trainstation-1.2.tar.gz", hash = "sha256:e2cda1716a09f98930aa34640bdb2ac05e49e675afe54979d81657f3fac37d9b", size = 28509, upload-time = "2025-07-30T08:32:19.603Z" }
 wheels = [
@@ -5414,7 +5414,7 @@ name = "vtk"
 version = "9.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "matplotlib" },
+    { name = "matplotlib", marker = "python_full_version < '3.14'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/72/f5/3c4ff853eed6945a2a1f2ae3426a5faa7fee1b2f1a8eb007e369ad56c2cc/vtk-9.5.0-cp310-cp310-macosx_10_10_x86_64.whl", hash = "sha256:f9ed7461707bc2b5b2cca6eb3a749de82269ba632ab39a5e0f3b55e3d5002ff8", size = 86778960, upload-time = "2025-06-24T09:40:18.892Z" },

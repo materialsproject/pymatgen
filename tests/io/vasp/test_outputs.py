@@ -1782,7 +1782,7 @@ class TestProcar(MatSciTest):
         assert procar.get_occupation(0, "d")[Spin.up] == approx(0)
         assert procar.get_occupation(0, "s")[Spin.up] == approx(0.35381249999999997)
         assert procar.get_occupation(0, "p")[Spin.up] == approx(1.19540625)
-        with pytest.raises(ValueError, match="'m' is not in list"):
+        with pytest.raises(ValueError, match="not in list"):
             procar.get_occupation(1, "m")
         assert procar.nbands == 10
         assert procar.nkpoints == 10
