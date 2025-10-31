@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from io import StringIO
+
 import numpy as np
 import pytest
 from pytest import approx
@@ -168,6 +170,15 @@ class TestCifIO(MatSciTest):
         for struct in parser.parse_structures():
             assert struct.formula == "V4 O6"
 
+        # Test init from StringIO
+        with open(f"{TEST_FILES_DIR}/cif/V2O3.cif", encoding="utf-8") as f:
+            cif_text = f.read()
+
+        with pytest.warns(DeprecationWarning, match="Initializing CifParser from StringIO"):
+            parser = CifParser(StringIO(cif_text))
+
+        for struct in parser.parse_structures():
+            assert struct.formula == "V4 O6"
         bibtex_str = """
 @article{cifref0,
     author = "Andersson, G.",
