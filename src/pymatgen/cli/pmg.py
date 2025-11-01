@@ -63,11 +63,11 @@ def diff_incar(args: Namespace) -> int:
         ["---------------", "", ""],
     ]
     output += [
-        (  # type: ignore[misc]
+        [
             k,
             format_lists(diff["Same"][k]),
             format_lists(diff["Same"][k]),
-        )
+        ]
         for k in sorted(diff["Same"])
         if k != "SYSTEM"
     ]
@@ -77,7 +77,7 @@ def diff_incar(args: Namespace) -> int:
         ["----------------", "", ""],
     ]
     output += [
-        [  # type: ignore[misc]
+        [
             k,
             format_lists(diff["Different"][k]["INCAR1"]),
             format_lists(diff["Different"][k]["INCAR2"]),

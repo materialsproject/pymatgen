@@ -128,7 +128,7 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
 def _get_dopants(substitutions, num_dopants, match_oxi_sign) -> dict:
     """Utility method to get n- and p-type dopants from a list of substitutions."""
     dopants = {k: [] for k in ("n_type", "p_type")}
-    for k in dopants:  # noqa: PLC0206
+    for k, dop in dopants.items():
         for pred in substitutions:
             if (
                 pred["dopant_species"].oxi_state > pred["original_species"].oxi_state
@@ -138,8 +138,8 @@ def _get_dopants(substitutions, num_dopants, match_oxi_sign) -> dict:
                 not match_oxi_sign
                 or np.sign(pred["dopant_species"].oxi_state) == np.sign(pred["original_species"].oxi_state)
             ):
-                dopants[k].append(pred)
-            if len(dopants[k]) == num_dopants:
+                dop.append(pred)
+            if len(dop) == num_dopants:
                 break
     return dopants
 
