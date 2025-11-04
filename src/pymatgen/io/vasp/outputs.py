@@ -5172,11 +5172,13 @@ class Wavecar:
             # Read records
             self.Gpoints = [None for _ in range(self.nk)]
             self.kpoints = []
+
+            # mypy typing
+            self.coeffs: list[list[list[Any]]] | list[list[Any]]
+            self.band_energy: list[Any]
             if spin == 2:
-                self.coeffs: list[list[list[None]]] | list[list[None]] = [
-                    [[None for _ in range(self.nb)] for _ in range(self.nk)] for _ in range(spin)
-                ]
-                self.band_energy: list = [[] for _ in range(spin)]
+                self.coeffs = [[[None for _ in range(self.nb)] for _ in range(self.nk)] for _ in range(spin)]
+                self.band_energy = [[] for _ in range(spin)]
             else:
                 self.coeffs = [[None for _ in range(self.nb)] for _ in range(self.nk)]
                 self.band_energy = []
