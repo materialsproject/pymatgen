@@ -13,14 +13,14 @@ import warnings
 from collections import defaultdict
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from monty.dev import deprecated
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
 from monty.serialization import loadfn
 
-from pymatgen.core.periodic_table import DummySpecies, Element, ElementType, Species, get_el_sp
+from pymatgen.core.periodic_table import _PT_UNIT, DummySpecies, Element, ElementType, Species, get_el_sp
 from pymatgen.core.units import Mass
 from pymatgen.util.string import Stringify, formula_double_format
 
@@ -30,6 +30,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.core.units import FloatWithUnit
     from pymatgen.util.typing import SpeciesLike
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -369,7 +370,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         e.g. Li4 Fe4 P4 O16.
         """
         sym_amt = self.get_el_amt_dict()
-        syms = sorted(sym_amt, key=lambda sym: get_el_sp(sym).X)
+        syms = _symbol_sort_order(sym_amt)
         formula = [f"{s}{formula_double_format(sym_amt[s], ignore_ones=False)}" for s in syms]
         return " ".join(formula)
 
@@ -547,9 +548,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return self._n_atoms
 
     @property
-    def weight(self) -> float:
+    def weight(self) -> FloatWithUnit:
         """Total molecular weight of Composition."""
-        return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), "amu")  # type: ignore[operator,misc]
+        return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), _PT_UNIT["Atomic mass"])  # type: ignore[misc]
 
     def get_atomic_fraction(self, el: SpeciesLike) -> float:
         """Calculate atomic fraction of an Element or Species.
@@ -571,8 +572,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Returns:
             float: Weight fraction for element el in Composition.
         """
-        el_mass = cast("float", get_el_sp(el).atomic_mass)
-        return el_mass * abs(self[el]) / self.weight
+        el_mass = get_el_sp(el).atomic_mass
+        return float(el_mass * abs(self[el]) / self.weight)
 
     def contains_element_type(self, category: str) -> bool:
         """Check if Composition contains any elements matching a given category.
@@ -778,7 +779,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def as_reduced_dict(self) -> dict[str, float]:
         """
         Returns:
-            dict[str, float]: element symbols mapped to reduced amount e.g. {"Fe": 2.0, "O":3.0}.
+            dict[str, float]: element symbols mapped to reduced amount e.g. {"Fe": 2.0, "O": 3.0}.
         """
         return self.reduced_composition.as_dict()
 
@@ -1362,7 +1363,7 @@ def reduce_formula(
     Returns:
         tuple[str, int]: reduced formula and factor.
     """
-    syms: list[str] = sorted(sym_amt, key=lambda x: [get_el_sp(x).X, x])
+    syms: list[str] = _symbol_sort_order(sym_amt)
 
     syms = list(filter(lambda x: abs(sym_amt[x]) > Composition.amount_tolerance, syms))
 
@@ -1391,6 +1392,11 @@ def reduce_formula(
         reduced_form.extend((sym, str(formula_double_format(norm_amt))))
 
     return "".join([*reduced_form, *poly_anions]), factor
+
+
+def _symbol_sort_order(sym: list[str] | Mapping[str, Any]) -> list[str]:
+    """Define fixed order for sorting based on electronegativity + alphabatical fallback."""
+    return sorted(sym, key=lambda x: [float("inf") if math.isnan(e_neg := get_el_sp(x).X) else e_neg, x])
 
 
 class CompositionError(Exception):

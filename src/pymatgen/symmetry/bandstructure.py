@@ -5,7 +5,7 @@ generate high-symmetry k-paths using different conventions.
 from __future__ import annotations
 
 import itertools
-from warnings import warn
+import warnings
 
 import networkx as nx
 import numpy as np
@@ -119,14 +119,12 @@ class HighSymmKpath(KPathBase):
                     total_points_path += len(seg)
 
                 for block in bs.kpath["path"]:
-                    new_block = []
-                    for label in block:
-                        for ind in range(
-                            len(label_index) - len(bs.kpath["kpoints"]),
-                            len(label_index),
-                        ):
-                            if label_index[ind] == label:
-                                new_block.append(ind)
+                    new_block = [
+                        ind
+                        for label in block
+                        for ind in range(len(label_index) - len(bs.kpath["kpoints"]), len(label_index))
+                        if label_index[ind] == label
+                    ]
 
                     num_path.append(new_block)
 
@@ -202,7 +200,7 @@ class HighSymmKpath(KPathBase):
         bs.kpath["kpoints"] = kpoints
         self._rec_lattice = self._structure.lattice.reciprocal_lattice
 
-        warn(
+        warnings.warn(
             "K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice"
             "of the input structure. Use `KPathSeek` for the path in the original author-intended basis.",
             stacklevel=2,

@@ -6,6 +6,145 @@ nav_order: 4
 
 # Changelog
 
+## v2025.10.7
+
+- PR #4503 Replace print statements with logging across library code and tests (by @DanielYang59)
+- PR #4510 Suppress noisy RuntimeWarning messages from BoltzTraP2 during transport analysis (by @DanielYang59)
+- PR #4512 Ensure source distribution (sdist) is published to PyPI alongside wheels (by @DanielYang59)
+- PR #4494 Re-enable mypy “misc” rule and perform minor documentation, typing, and test cleanups (by @DanielYang59)
+- PR #4491 Deprecate projected_magnetisation in favor of projected_magnetization (US spelling) (by @DanielYang59)
+- PR #4493 Composition.get_wt_fraction now returns a float instead of FloatWithUnit (by @DanielYang59)
+- PR #4496 Implement __rtruediv__ for FloatWithUnit and fix ArrayWithUnit losing unit_type on unpickling; add unit tests (by @DanielYang59)
+- PR #4497 Improve pmg CLI tests; fix pmg diff header ordering and resolve pmg view color handling error (by @DanielYang59)
+- PR #4490 Replace internal linear_assignment with scipy.optimize.linear_sum_assignment (by @DanielYang59)
+- PR #4440 Add parsing/storage of vibrational modes and vibrational energy components to JDFTXOutfileSlice with tests (by @benrich37)
+- PR #4487 Fix variable name collision in TranslateSitesTransformation.apply_transformation; strengthen test to catch issue (by @Rastow)
+- PR #4463 Remove dev-only “ci” optional dependency group, migrate CI to uv, and update markdown docs (by @DanielYang59)
+- PR #4447 Correct has_cobicar detection when NcICOBILIST is present in LOBSTER outputs (by @tomdemeyere)
+- PR #4469 Loosen requests version pin and fix deprecations/new ruff issues (by @DanielYang59)
+- PR #4479 Introduce JdftxInputSet (moved from atomate2), add base YAML preset and basic tests (by @cote3804)
+- PR #4484 Make jdftx.outputs compatible with Python versions prior to 3.11 by removing starred-subscript usage (by @DanielYang59)
+- PR #4473 Fix labels and values in NEBAnalysis plots, prefer exact glob matches, and deprecate spline_options in favor of zero_slope_saddle flag (by @DanielYang59)
+- PR #4260 Move FHI-aims IO to external package (pyfhiaims) to reduce duplication and ease maintenance (by @tpurcell90)
+- PR #4476 Patch ReDOS vulnerability in GaussianInput.from_string (by @lbluque)
+- PR #4449 Address ruff PERF401 (manual list comprehension) for minor performance/cleanliness improvements (by @DanielYang59)
+- PR #4448 Remove sensitivity to trailing newline in LOBSTER output parsers; improves robustness (by @DanielYang59)
+- PR #4454 Correct documentation for Element density_of_solid and molar volume units (by @DanielYang59)
+- PR #4455 Cache optional dependency installs in CI for macOS/Ubuntu; enable mcsqs and pyzeo tests; convert some skips to xfail (by @DanielYang59)
+- PR #4461 Allow numpy arrays for selective dynamics in Structure and add tests; ensure JSON roundtrips (by @DanielYang59)
+- PR #4464 Fix typo referencing site.species in SpacegroupAnalyzer.get_primitive_standard_structure (by @boyoungzheng)
+- PR #4446 Improve performance of Species.__str__ by reducing redundant attribute lookups (by @kavanase)
+- PR #4438 Add basic S3 object retrieval support to the pymatgen user agent for large MP datasets (by @esoteric-ephemera)
+
+## v2025.6.14
+
+- Treat LATTICE_CONSTRAINTS as is for INCARs.
+- PR #4425 `JDFTXOutfileSlice.trajectory` revision by @benrich37
+    Major changes:
+    - feature 1: `JDFTXOutfileSlice.trajectory` is now initialized with `frame_properties` set
+    -- `JOutStructure.properties` filled with relevant data for `frame_properties`
+    -- More properties added to `JOutStructure.site_properties`
+    ## Todos
+    - Remove class attributes in `JOutStructure` now redundant to data stored in `JOutStructure.properties` and `JOutStructure.site_properties`
+- PR #4431 Single source of truth for POTCAR directory structure by @esoteric-ephemera
+    Modifies the pymatgen CLI to use the same POTCAR library directory structure as in `pymatgen.io.vasp.inputs` to close #4430. Possibly breaking from the CLI side (the directory structure will change)
+    Pinging @mkhorton since #4424 was probably motivated by similar concerns?
+- PR #4433 Speed up symmetry functions with faster `is_periodic_image` algorithm by @kavanase
+    I noticed that in some of our `doped` testing workflows, `SpacegroupAnalyzer.get_primitive_standard_structure()` is one of the main bottlenecks (as to be expected). One of the dominant cost factors here is the usage of `is_periodic_image`, which can be expensive for large structures due to many `np.allclose()` calls.
+    This PR implements a small change to instead use an equivalent (but faster) pure Python loop, which also breaks early if the tolerance is exceeded.
+    In my test case, this reduced the time spent on `is_periodic_image` (and thus `SpacegroupAnalyzer.get_primitive_standard_structure()`) from 35s to 10s.
+- PR #4432 Fingerprint sources by @JaGeo
+    Add correct papers to tanimoto fingerprints
+- PR #4061 Fix branch directory check in `io.vasp.outputs.get_band_structure_from_vasp_multiple_branches` by @DanielYang59
+    ### Summary
+    - Fix branch directory check in `io.vasp.outputs.get_band_structure_from_vasp_multiple_branches`, to fix #4060
+    - [ ] Improve unit test (waiting for data, I don't have experience with "VASP multi-branch bandstructure calculation")
+- PR #4409 Packmol constraints by @davidwaroquiers
+    Added possibility to set individual constraints in packmol.
+    Added some sanity checks.
+    Added unit tests.
+- PR #4428 Fixes a bug in `NanoscaleStability.plot_one_stability_map` and `plot_all_stability_map`. by @kmu
+    Major changes:
+    - Replaced incorrect `ax.xlabel()` and `ax.ylabel()` calls with correct `ax.set_xlabel()` and `ax.set_ylabel()`.
+    - Added `ax.legend()` to `plot_all_stability_map` so that labels passed via `ax.plot(..., label=...)` are displayed.
+    - Added `test_plot()` to `test_surface_analysis.py`.
+- PR #4424 Add additional name mappings for new LDA v64 potcars by @mkhorton
+    As title.
+- PR #4426 Fix uncertainty as int for `EnergyAdjustment` by @DanielYang59
+    - Avoid `==` or `!=` for possible float comparison
+    - Fix uncertainty as int for `EnergyAdjustment` cannot generate repr:
+    ```python
+    from pymatgen.entries.computed_entries import EnergyAdjustment
+    print(EnergyAdjustment(10, uncertainty=0))
+    ```
+    Gives:
+    ```
+    Traceback (most recent call last):
+    File "/Users/yang/developer/pymatgen/test_json.py", line 25, in <module>
+    print(EnergyAdjustment(10, uncertainty=0))
+    File "/Users/yang/developer/pymatgen/src/pymatgen/entries/computed_entries.py", line 108, in __repr__
+    return f"{type(self).__name__}({name=}, {value=:.3}, {uncertainty=:.3}, {description=}, {generated_by=})"
+    ^^^^^^^^^^^^^^^^^
+    ValueError: Precision not allowed in integer format specifier
+    ```
+- PR #4421 Cache `Lattice` property (`lengths/angles/volume`) for much faster `Structure.as_dict` by @DanielYang59
+    ### Summary
+    - `lengths/angles/volume` of `Lattice` would now be cached, related to #4385
+    - `verbosity` in `as_dict` of `PeriodicSite/Lattice` now explicitly requires literal 0 or 1 to be consistent with docstring, instead of checking `if verbosity > 0` (currently in grace period, only warning issued) https://github.com/materialsproject/pymatgen/blob/34608d0b92166e5fc4a9dd52ed465ae7dccfa525/src/pymatgen/core/lattice.py#L904-L905
+    ---
+    ### Cache frequently used `Lattice` properties
+    Currently `length/angles/volume` is not cached and is frequently used, for example accessing all lattice parameter related property would lead to `length/angles` being repeatedly calculated: https://github.com/materialsproject/pymatgen/blob/34608d0b92166e5fc4a9dd52ed465ae7dccfa525/src/pymatgen/core/lattice.py#L475-L524
+    `structure.as_dict` now around 8x faster
+    Before (1000 structure, each has 10-100 atoms):
+    ```
+    Total time: 3.29617 s
+    File: create_dummp_json_structure.py
+    Function: generate_and_save_structures at line 34
+    Line #      Hits         Time  Per Hit   % Time  Line Contents
+    ==============================================================
+    34                                           @profile
+    35                                           def generate_and_save_structures(n, output_dir):
+    36         1         20.0     20.0      0.0      os.makedirs(output_dir, exist_ok=True)
+    37
+    38      1001        222.0      0.2      0.0      for i in range(n):
+    39      1000     291789.0    291.8      8.9          structure = generate_dummy_structure()
+    40      1000        583.0      0.6      0.0          filename = f"structure_{i:04d}.json.gz"
+    41      1000       1942.0      1.9      0.1          filepath = os.path.join(output_dir, filename)
+    42
+    43      2000     224549.0    112.3      6.8          with gzip.open(filepath, "wb") as f:
+    44      1000    2761900.0   2761.9     83.8              dct = structure.as_dict()
+    45      1000      15163.0     15.2      0.5              f.write(orjson.dumps(dct))
+    ```
+    Now:
+    ```
+    Total time: 0.949622 s
+    File: create_dummp_json_structure.py
+    Function: generate_and_save_structures at line 34
+    Line #      Hits         Time  Per Hit   % Time  Line Contents
+    ==============================================================
+    34                                           @profile
+    35                                           def generate_and_save_structures(n, output_dir):
+    36         1         37.0     37.0      0.0      os.makedirs(output_dir, exist_ok=True)
+    37
+    38      1001        195.0      0.2      0.0      for i in range(n):
+    39      1000     286696.0    286.7     30.2          structure = generate_dummy_structure()
+    40      1000        511.0      0.5      0.1          filename = f"structure_{i:04d}.json.gz"
+    41      1000       1843.0      1.8      0.2          filepath = os.path.join(output_dir, filename)
+    42
+    43      2000     214130.0    107.1     22.5          with gzip.open(filepath, "wb") as f:
+    44      1000     431677.0    431.7     45.5              dct = structure.as_dict()
+    45      1000      14533.0     14.5      1.5              f.write(orjson.dumps(dct))
+    ```
+    ---
+    Also note `lattice` (the performance bottleneck) is not used in the dict for site: https://github.com/materialsproject/pymatgen/blob/34608d0b92166e5fc4a9dd52ed465ae7dccfa525/src/pymatgen/core/structure.py#L2856-L2857
+    So we could modify `as_dict` to control whether lattice would be generated at all
+    This could reduce the runtime slightly so I guess it's not worth the effort:
+    ```
+    Total time: 0.867376 s
+    ```
+- PR #4391 Add custom as_dict/from_dict method for proper initialization of attributes of IcohpCollection by @naik-aakash
+    Currently `IcohpCollection` instance is not serialized correctly, thus I added custom  from_dict  and as_dict methods here.
+
 ## v2025.5.28
 
 - PR #4411 Add `orjson` as required dependency as default JSON handler when custom encoder/decoder is not needed by @DanielYang59
@@ -63,7 +202,7 @@ nav_order: 4
     - feature 2: Outline how we might initialize `BandStructureSymmLine`(s) for calculations with explicitly defined 'kpoint' tags, as using 'kpoint's instead of `kpoint-folding` is most likely an indicator of a band-structure calculation
 - PR #4415 speed-up Structure instantiation by @danielzuegner
     This PR speeds up the instantiation of `Structure` objects by preventing hash collisions in the `lru_cache` of `get_el_sp` and increasing its `maxsize`. The issue is that currently `Element` objects are hashed to the same value as the integer atomic numbers (e.g., `Element[H]` maps to the same hash as `int(1)`). This forces the `lru_hash` to perform an expensive `__eq__` comparison between the two, which reduces the performance of instantiating many `Structure` objects. Also here we increase the `maxsize` of `get_el_sp`'s `lru_cache` to 1024 for further performance improvements.
-    This reduces time taken to instantiate 100,000 `Structure` objects from 31 seconds to 8.7s (avoid hash collisions) to 6.1s (also increase `maxsize` to 1024). 
+    This reduces time taken to instantiate 100,000 `Structure` objects from 31 seconds to 8.7s (avoid hash collisions) to 6.1s (also increase `maxsize` to 1024).
 - PR #4410 JDFTx Inputs - boundary value checking by @benrich37
     Major changes:
     - feature 1: Revised boundary checking for input tags
@@ -183,7 +322,7 @@ nav_order: 4
 
 ## v2025.4.24
 
-- Structure now has a calc_property method that enables one to get a wide range of elasticity, EOS, and phonon properties using matcalc. Requires matcalc to be 
+- Structure now has a calc_property method that enables one to get a wide range of elasticity, EOS, and phonon properties using matcalc. Requires matcalc to be
   installed.
 - Bug fix and expansion of pymatgen.ext.matproj.MPRester. Now property_data is always consistent with the returned entry in get_entries. Summary data, which is not
   always consistent but is more comprehensive, can be obtained via a summary_data kwarg.
@@ -209,7 +348,7 @@ nav_order: 4
 
 ## v2025.4.19
 
-- MPRester.get_entries and get_entries_in_chemsys now supports property_data. inc_structure, conventional_only and 
+- MPRester.get_entries and get_entries_in_chemsys now supports property_data. inc_structure, conventional_only and
 - PR #4367 fix perturb bug that displaced all atoms equally by @skasamatsu
 - PR #4361 Replace `pybtex` with `bibtexparser` by @DanielYang59
 - PR #4362 fix(MVLSlabSet): convert DIPOL vector to pure Python list before writing INCAR by @atulcthakur

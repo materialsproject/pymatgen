@@ -1,4 +1,7 @@
 Oxidation states:
+  # TODO: the reference might be incorrect, as the following data seems
+  # either the "main oxidation states" in the wiki page (bold),
+  # nor all possible oxidation states (e.g. boron only +3 is main state)
   reference: https://en.wikipedia.org/wiki/Template:List_of_oxidation_states_of_the_elements
   data:
     H: [-1, 1]

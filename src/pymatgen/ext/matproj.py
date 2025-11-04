@@ -9,6 +9,7 @@ https://materialsproject.org/dashboard.
 
 from __future__ import annotations
 
+import gzip
 import itertools
 import json
 import logging
@@ -19,22 +20,26 @@ import warnings
 from functools import partial
 from typing import TYPE_CHECKING, NamedTuple
 
+import numpy as np
 import orjson
 import requests
 from monty.json import MontyDecoder
 
-from pymatgen.core import SETTINGS
+from pymatgen.core import SETTINGS, Lattice
 from pymatgen.core import __version__ as PMG_VERSION
 from pymatgen.core.composition import Composition
+from pymatgen.electronic_structure.bandstructure import Kpoint
+from pymatgen.phonon import CompletePhononDos, PhononBandStructureSymmLine
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+    from typing import Any
 
     from typing_extensions import Self
 
     from pymatgen.core.structure import Structure
-    from pymatgen.entries.computed_entries import ComputedStructureEntry
+    from pymatgen.entries.compatibility import AnyComputedEntry
 
 logger = logging.getLogger(__name__)
 
@@ -57,14 +62,10 @@ class MPRester:
     pymatgen. We will support only issues pertaining to our implementation only.
 
     Attributes:
-    :ivar api_key: API key for authenticating requests to the Materials Project API.
-    :type api_key: str
-    :ivar preamble: Base endpoint URL for the Materials Project API.
-    :type preamble: str
-    :ivar session: HTTP session object for managing API requests.
-    :type session: requests.Session
-    :ivar materials: Placeholder object for dynamically adding endpoints related to materials.
-    :type materials: Any
+        api_key (str): API key for authenticating requests to the Materials Project API.
+        preamble (str): Base endpoint URL for the Materials Project API.
+        session (requests.Session): HTTP session object for managing API requests.
+        materials: Placeholder object for dynamically adding endpoints related to materials.
     """
 
     MATERIALS_DOCS = (
@@ -144,36 +145,44 @@ class MPRester:
             setattr(self, doc, Search(partial(self.search, doc)))
             setattr(self.materials, doc, Search(partial(self.search, doc)))
 
-    def __getattr__(self, item):
+    def __getattr__(self, item) -> None:
         raise AttributeError(
             f"{item} is not an attribute of this implementation of MPRester, which only supports functionality "
-            "used by 80% of users. If you are looking for the full functionality MPRester, pls install the mp-api ."
+            "used by 80% of users. If you are looking for the full functionality MPRester, please install the mp-api."
         )
 
     def __enter__(self) -> Self:
         """Support for "with" context."""
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         """Support for "with" context."""
         self.session.close()
 
-    def request(self, sub_url, payload=None, method="GET", mp_decode=True):
+    def request(
+        self,
+        sub_url: str,
+        payload=None,
+        method: str = "GET",
+        mp_decode: bool = True,
+        timeout: int = 60,
+    ) -> list:
         """Helper method to make the requests and perform decoding based on MSONable protocol."""
         response = None
         url = self.preamble + sub_url
 
-        per_page = 1000
-        page = 1
+        per_page: int = 1000
+        page: int = 1
         all_data = []
         while True:
             actual_url = f"{url}&_per_page={per_page}&_page={page}"
             try:
                 if method == "POST":
-                    response = self.session.post(actual_url, data=payload, verify=True)
+                    response = self.session.post(actual_url, data=payload, verify=True, timeout=timeout)
                 else:
-                    response = self.session.get(actual_url, params=payload, verify=True)
-                if response.status_code in [200, 400]:
+                    response = self.session.get(actual_url, params=payload, verify=True, timeout=timeout)
+
+                if response.status_code in {200, 400}:
                     data = json.loads(response.text, cls=MontyDecoder) if mp_decode else orjson.loads(response.text)
                 else:
                     raise MPRestError(f"REST query returned with error status code {response.status_code}")
@@ -201,7 +210,7 @@ class MPRester:
             parameter value corresponds to the filter value
 
         Returns:
-        - list of dictionaries, each dictionary representing a material retrieved based on the filtering criteria
+            list[dict]: each dict representing a material retrieved based on the filtering criteria
         """
 
         def comma_cat(val):
@@ -300,7 +309,7 @@ class MPRester:
         return [dct[prop] for dct in response]
 
     def get_structure_by_material_id(self, material_id: str, conventional_unit_cell: bool = False) -> Structure:
-        """Get  a Structure corresponding to a material_id.
+        """Get a Structure corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project ID (e.g. mp-1234).
@@ -347,7 +356,7 @@ class MPRester:
         property_data: Sequence[str] | None = None,
         summary_data: Sequence[str] | None = None,
         **kwargs,
-    ):
+    ) -> list[AnyComputedEntry]:
         """Get a list of ComputedEntries or ComputedStructureEntries corresponding
         to a chemical system, formula, or materials_id or full criteria.
 
@@ -384,6 +393,7 @@ class MPRester:
                 return val
             if "-" in val:
                 return "-".join(sorted(val.split("-")))
+
             comp = Composition(val)
             if len(comp) == 1:
                 return val
@@ -395,21 +405,21 @@ class MPRester:
             criteria = ",".join([proc_crit(c) for c in criteria])
 
         if criteria.startswith("mp-"):
-            query = f"material_ids={criteria}"
+            query: str = f"material_ids={criteria}"
         elif "-" in criteria:
             query = f"chemsys={criteria}"
         else:
             query = f"formula={criteria}"
 
-        entries = []
+        entries: list = []
         fields = ["entries", *property_data] if property_data is not None else ["entries"]
         response = self.request(f"materials/thermo/?_fields={','.join(fields)}&{query}")
         for dct in response:
-            for e in dct["entries"].values():
+            for entry in dct["entries"].values():
                 if property_data:
                     for prop in property_data:
-                        e.data[prop] = dct[prop]
-                entries.append(e)
+                        entry.data[prop] = dct[prop]
+                entries.append(entry)
 
         if compatible_only:
             from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
@@ -429,13 +439,13 @@ class MPRester:
                     _fields=[*summary_data, "material_id"],
                 )
                 mapped_data = {d["material_id"]: {k: v for k, v in d.items() if k != "material_id"} for d in edata}
-                for e in chunked_entries:
-                    e.data["summary"] = mapped_data[e.data["material_id"]]
+                for entry in chunked_entries:
+                    entry.data["summary"] = mapped_data[entry.data["material_id"]]
 
         return list(set(entries))
 
-    def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> ComputedStructureEntry:
-        r"""Get  a ComputedEntry corresponding to a material_id.
+    def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> AnyComputedEntry:
+        r"""Get a ComputedEntry corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project material_id (a string,
@@ -466,16 +476,46 @@ class MPRester:
         """
         if isinstance(elements, str):
             elements = elements.split("-")
-        chemsys = []
-        for i in range(1, len(elements) + 1):
-            for els in itertools.combinations(elements, i):
-                chemsys.append("-".join(sorted(els)))
+        chemsys = [
+            "-".join(sorted(els)) for i in range(1, len(elements) + 1) for els in itertools.combinations(elements, i)
+        ]
         criteria = ",".join(chemsys)
 
         return self.get_entries(criteria, *args, **kwargs)
 
-    def get_phonon_bandstructure_by_material_id(self, material_id: str):
+    def _retrieve_object_from_s3(self, material_id: str, bucket: str, prefix: str, timeout: float = 60) -> Any:
+        """
+        Retrieve data from Amazon S3 OpenData the non-canonical way, using requests.
+
+        This should be transitioned to boto3 if long-term support is desired,
+        or to expand pymatgen support of, e.g., electronic DOS, bandstructure, etc.
+
+        Args:
+            material_id (str): Materials Project material_id
+            bucket (str): the Materials Project bucket, either materialsproject-parsed
+                or materialsproject-build
+            prefix (str) : the prefix of the particular S3 key.
+            timeout (float = 60) : timeout in seconds for the requests command.
+
+        Returns:
+            json loaded object
+        """
+        response = requests.get(
+            f"https://s3.us-east-1.amazonaws.com/{bucket}/{prefix}/{material_id}.json.gz",
+            timeout=timeout,
+        )
+        if response.status_code not in {200, 400}:
+            raise MPRestError(
+                f"Failed to retrieve data from OpenData with status code {response.status_code}:\n{response.reason}"
+            )
+        return orjson.loads(gzip.decompress(response.content))
+
+    def get_phonon_bandstructure_by_material_id(self, material_id: str) -> PhononBandStructureSymmLine:
         """Get phonon bandstructure by material_id.
+
+        Note that this method borrows constructor methods built into
+        in the emmet-core model for this data. Calling the `to_pmg`
+        method of the emmet-core data model handles this.
 
         Args:
             material_id (str): Materials Project material_id
@@ -483,12 +523,27 @@ class MPRester:
         Returns:
             PhononBandStructureSymmLine: A phonon band structure.
         """
-        prop = "ph_bs"
-        response = self.request(f"materials/phonon/?material_ids={material_id}&_fields={prop}")
-        return response[0][prop]
+        data = self._retrieve_object_from_s3(
+            material_id, bucket="materialsproject-parsed", prefix="ph-bandstructures/dfpt"
+        )
+        rlatt = Lattice(data["reciprocal_lattice"])
+        return PhononBandStructureSymmLine(
+            [Kpoint(q, lattice=rlatt).frac_coords for q in data["qpoints"]],
+            np.array(data["frequencies"]),
+            rlatt,
+            has_nac=data["has_nac"],
+            eigendisplacements=np.array(data["eigendisplacements"]),
+            structure=data["structure"],
+            labels_dict={k: Kpoint(v, lattice=rlatt).frac_coords for k, v in (data["labels_dict"] or {}).items()},
+            coords_are_cartesian=False,
+        )
 
-    def get_phonon_dos_by_material_id(self, material_id: str):
+    def get_phonon_dos_by_material_id(self, material_id: str) -> CompletePhononDos:
         """Get phonon density of states by material_id.
+
+        Note that this method borrows constructor methods built into
+        in the emmet-core model for this data. Calling the `to_pmg`
+        method of the emmet-core data model handles this.
 
         Args:
             material_id (str): Materials Project material_id
@@ -496,9 +551,9 @@ class MPRester:
         Returns:
             CompletePhononDos: A phonon DOS object.
         """
-        prop = "ph_dos"
-        response = self.request(f"materials/phonon/?material_ids={material_id}&_fields={prop}")
-        return response[0][prop]
+        data = self._retrieve_object_from_s3(material_id, bucket="materialsproject-parsed", prefix="ph-dos/dfpt")
+        data["pdos"] = data.pop("projected_densities", None)
+        return CompletePhononDos.from_dict(data)
 
 
 class MPRestError(Exception):

@@ -97,7 +97,7 @@ class TestStructureEnvironments(MatSciTest):
 
         assert len(struct_envs.differences_wrt(struct_envs)) == 0
 
-        assert struct_envs == struct_envs
+        assert struct_envs == struct_envs  # noqa: PLR0124
 
         ce = struct_envs.ce_list[isite][4][0]
 
@@ -175,7 +175,7 @@ class TestStructureEnvironments(MatSciTest):
         assert len(nb_set) == 4
         assert hash(nb_set) == 4
 
-        assert nb_set == nb_set
+        assert nb_set == nb_set  # noqa: PLR0124
 
         assert (
             str(nb_set) == "Neighbors Set for site #6 :\n"
@@ -227,7 +227,7 @@ class TestStructureEnvironments(MatSciTest):
         assert lse.structure_contains_atom_environment(atom_symbol="Si", ce_symbol="T:4")
         assert not lse.structure_contains_atom_environment(atom_symbol="O", ce_symbol="T:4")
         assert lse.uniquely_determines_coordination_environments
-        assert lse == lse
+        assert lse == lse  # noqa: PLR0124
 
         envs = lse.strategy.get_site_coordination_environments(lse.structure[6])
         assert len(envs) == 1

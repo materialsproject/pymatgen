@@ -658,6 +658,28 @@ class TestIncar(MatSciTest):
         assert float(incar["EDIFF"]) == approx(1e-4), "Wrong EDIFF"
         assert isinstance(incar["LORBIT"], int)
 
+    def test_lattice_constaints(self):
+        incar_str = """
+        ALGO = Fast
+EDIFF = 0.00045000000000000004
+ENCUT = 520.0
+IBRION = 2
+ISIF = 3
+ISMEAR = -5
+ISPIN = 2
+LASPH = True
+LATTICE_CONSTRAINTS = False False True
+LORBIT = 11
+LREAL = Auto
+LWAVE = False
+MAGMOM = 9*0.6
+NELM = 100
+NSW = 99
+PREC = Accurate
+SIGMA = 0.05"""
+        incar = Incar.from_str(incar_str)
+        assert incar["LATTICE_CONSTRAINTS"] == [False, False, True]
+
     def test_check_for_duplicate(self):
         incar_str: str = """encut = 400
         ENCUT = 500
@@ -1090,6 +1112,11 @@ Cartesian
 0.5 0.5 0.5 4 None"""
         assert str(kpoints).strip() == expected_kpt_str
 
+        # ensure KPOINTS deserialize even when weights are numpy array
+        conf_dict = kpoints.as_dict()
+        conf_dict["kpts_weights"] = np.array(conf_dict["kpts_weights"])
+        assert Kpoints.from_dict(conf_dict) == kpoints
+
         # Explicit tetrahedra method
         filepath = f"{VASP_IN_DIR}/KPOINTS_explicit_tet"
         kpoints = Kpoints.from_file(filepath)
@@ -1216,7 +1243,7 @@ Cartesian
 
     def test_eq(self):
         auto_g_kpts = Kpoints.gamma_automatic()
-        assert auto_g_kpts == auto_g_kpts
+        assert auto_g_kpts == auto_g_kpts  # noqa: PLR0124
         assert auto_g_kpts == Kpoints.gamma_automatic()
         file_kpts = Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS")
         assert file_kpts == Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS")
@@ -1604,11 +1631,9 @@ class TestPotcarSingle:
 
         with (
             patch.dict(SETTINGS, PMG_VASP_PSP_SUB_DIRS={"PBE_64": "PBE_64_FOO"}),
-            pytest.raises(FileNotFoundError) as exc_info,
+            pytest.raises(FileNotFoundError, match=re.escape(err_msg)),
         ):
             PotcarSingle.from_symbol_and_functional(symbol, functional)
-
-        assert err_msg in str(exc_info.value)
 
     def test_repr(self):
         expected_repr = (
@@ -1721,7 +1746,7 @@ class TestPotcar(MatSciTest):
         assert self.potcar.symbols == ["Fe_pv", "O"]
         assert self.potcar[0].nelectrons == 14
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_default_functional(self):
         potcar = Potcar(["Fe", "P"])
         assert potcar[0].functional_class == "GGA"

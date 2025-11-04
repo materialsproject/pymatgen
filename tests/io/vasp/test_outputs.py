@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import gzip
 import json
+import logging
 import os
-import sys
 import xml
-from io import StringIO
 from pathlib import Path
 from shutil import copyfile, copyfileobj
 
@@ -140,7 +139,7 @@ class TestVasprun(MatSciTest):
             match="Additional unlabelled dielectric data in vasprun.xml are stored as unlabelled.",
         ):
             vr = Vasprun(f"{VASP_OUT_DIR}/vasprun.dielectric_bad.xml.gz")
-            assert "unlabelled" in vr.dielectric_data
+        assert "unlabelled" in vr.dielectric_data
 
     def test_bad_vasprun(self):
         with pytest.raises(xml.etree.ElementTree.ParseError):
@@ -154,6 +153,7 @@ class TestVasprun(MatSciTest):
         assert len(vasp_run.ionic_steps) == 1
         assert vasp_run.final_energy == approx(-269.00551374)
 
+    @pytest.mark.filterwarnings("ignore::pymatgen.io.vasp.outputs.UnconvergedVASPWarning")
     def test_runtype(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.GW0.xml.gz")
         assert vasp_run.run_type in "HF"
@@ -219,14 +219,15 @@ class TestVasprun(MatSciTest):
         orbs = list(vasp_run.complete_dos.pdos[vasp_run.final_structure[0]])
         assert OrbitalType.s in orbs
 
+    @pytest.mark.filterwarnings("ignore:invalid value encountered in divide")
     def test_standard(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.xml.gz"
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
 
         # Test NELM parsing
         assert vasp_run.parameters["NELM"] == 60
-        # test pDOS parsing
 
+        # test pDOS parsing
         assert vasp_run.complete_dos.spin_polarization == approx(1.0)
         assert Vasprun(f"{VASP_OUT_DIR}/vasprun.etest1.xml.gz").complete_dos.spin_polarization is None
 
@@ -367,6 +368,7 @@ class TestVasprun(MatSciTest):
         entry = MaterialsProjectCompatibility(check_potcar_hash=False).process_entry(entry)
         assert entry.uncorrected_energy + entry.correction == approx(entry.energy)
 
+    @pytest.mark.filterwarnings("ignore::pymatgen.io.vasp.outputs.UnconvergedVASPWarning")
     def test_dfpt_ionic(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.dfpt.ionic.xml.gz"
         vasprun_dfpt_ionic = Vasprun(filepath, parse_potcar_file=False)
@@ -376,7 +378,8 @@ class TestVasprun(MatSciTest):
 
     def test_dfpt_unconverged(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.dfpt.unconverged.xml.gz"
-        vasprun_dfpt_unconverged = Vasprun(filepath, parse_potcar_file=False)
+        with pytest.warns(UnconvergedVASPWarning):
+            vasprun_dfpt_unconverged = Vasprun(filepath, parse_potcar_file=False)
         assert not vasprun_dfpt_unconverged.converged_electronic
         assert vasprun_dfpt_unconverged.converged_ionic
         assert not vasprun_dfpt_unconverged.converged
@@ -611,12 +614,12 @@ class TestVasprun(MatSciTest):
         assert band_struct.get_branch(0)[0]["start_index"] == 0
         assert band_struct.get_branch(0)[0]["end_index"] == 0
 
-    def test_projected_magnetisation(self):
+    def test_projected_magnetization(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.lvel.Si2H.xml.gz"
         vasp_run = Vasprun(filepath, parse_projected_eigen=True)
-        assert vasp_run.projected_magnetisation is not None
-        assert vasp_run.projected_magnetisation.shape == (76, 240, 4, 9, 3)
-        assert vasp_run.projected_magnetisation[0, 0, 0, 0, 0] == approx(-0.0712)
+        assert vasp_run.projected_magnetization is not None
+        assert vasp_run.projected_magnetization.shape == (76, 240, 4, 9, 3)
+        assert vasp_run.projected_magnetization[0, 0, 0, 0, 0] == approx(-0.0712)
 
     def test_smart_efermi(self):
         # branch 1 - E_fermi does not cross a band
@@ -1579,6 +1582,10 @@ class TestLocpot(MatSciTest):
         assert locpot.get_axis_grid(1)[-1] == approx(2.87629, abs=1e-2)
         assert locpot.get_axis_grid(2)[-1] == approx(2.87629, abs=1e-2)
 
+        # Test copy preserve type
+        locpot_copy = locpot.copy()
+        assert type(locpot_copy) is type(locpot)
+
         # make sure locpot constructor works with data_aug=None
         poscar, data, _data_aug = Locpot.parse_file(filepath)
         l2 = Locpot(poscar=poscar, data=data, data_aug=None)
@@ -1629,6 +1636,10 @@ class TestChgcar(MatSciTest):
         ]
         actual = self.chgcar_fe3o4.get_integrated_diff(0, 3, 6)
         assert_allclose(actual[:, 1], expected)
+
+        # Test copy preserve type
+        chgcar_copy = chgcar.copy()
+        assert type(chgcar_copy) is type(chgcar)
 
     def test_write(self):
         self.chgcar_spin.write_file(out_path := f"{self.tmp_path}/CHGCAR_pmg")
@@ -1743,6 +1754,10 @@ class TestElfcar(MatSciTest):
         assert elfcar.data == reconstituted.data
         assert elfcar.poscar.structure == reconstituted.poscar.structure
 
+        # Test copy preserve type
+        elfcar_copy = elfcar.copy()
+        assert type(elfcar_copy) is type(elfcar)
+
     def test_alpha(self):
         elfcar = Elfcar.from_file(f"{VASP_OUT_DIR}/ELFCAR.gz")
         alpha = elfcar.get_alpha()
@@ -1751,7 +1766,13 @@ class TestElfcar(MatSciTest):
     def test_interpolation(self):
         elfcar = Elfcar.from_file(f"{VASP_OUT_DIR}/ELFCAR.gz")
         assert elfcar.value_at(0.4, 0.5, 0.6) == approx(0.0918471)
-        assert len(elfcar.linear_slice([0.0, 0.0, 0.0], [1.0, 1.0, 1.0])) == 100
+        assert len(elfcar.linear_slice([0.0, 0.0, 0.0], (1.0, 1.0, 1.0))) == 100
+
+        with pytest.raises(ValueError, match="lengths of p1 and p2 should be 3"):
+            elfcar.linear_slice(
+                [0.0],
+                [1.0, 1.0, 1.0],
+            )
 
 
 class TestProcar(MatSciTest):
@@ -1850,6 +1871,14 @@ class TestProcar(MatSciTest):
         d2 = procar.get_projection_on_elements(struct)
         assert d2[Spin.up][2][2] == approx({"Na": 0.688, "Li": 0.042})
 
+    def test_skip_kpoint(self):
+        filepath = f"{VASP_OUT_DIR}/PROCAR.repeatedpoints"
+        procar = Procar(filepath)
+        # length of projection's k-points axis should be equal to the number of k-points
+        assert procar.nkpoints == len(procar.data[Spin.up][:, 0, 0, 0])
+        assert procar.phase_factors[Spin.up][1, 0, 0, 0] == approx(-0.087 + -0.166j)
+        assert procar.kpoints[1][0] == approx(0.25000000)
+
 
 class TestXdatcar:
     def test_init(self):
@@ -1926,7 +1955,7 @@ class TestWavecar(MatSciTest):
         self.w_ncl = Wavecar(f"{VASP_OUT_DIR}/WAVECAR.H2.ncl")
         self.w_frac_encut = Wavecar(f"{VASP_OUT_DIR}/WAVECAR.frac_encut")
 
-    def test_standard(self):
+    def test_standard(self, caplog):
         wavecar = self.wavecar
         a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0], [0.0, 0.0, 10.0]])
         vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))
@@ -1976,14 +2005,9 @@ class TestWavecar(MatSciTest):
         with pytest.raises(ValueError, match=r"cannot reshape array of size 257 into shape \(2,128\)"):
             Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2", vasp_type="n")
 
-        saved_stdout = sys.stdout
-        try:
-            out = StringIO()
-            sys.stdout = out
+        with caplog.at_level(logging.INFO):
             Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2", verbose=True)
-            assert out.getvalue().strip() != ""
-        finally:
-            sys.stdout = saved_stdout
+        assert any("reciprocal lattice vector magnitudes" in msg for msg in caplog.messages)
 
     def test_n2_45210(self):
         wavecar = Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2.45210")

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-from copy import deepcopy
 from typing import TYPE_CHECKING
 
 from monty.dev import deprecated
@@ -110,7 +109,7 @@ class Ion(Composition, MSONable, Stringify):
     def formula(self) -> str:
         """A formula string with appended charge. The
         charge is written with the sign preceding the magnitude, e.g.
-        'Ca1 +2'. Uncharged species have "(aq)" appended, e.g. "O2 (aq)".
+        "Ca1 +2". Uncharged species have "(aq)" appended, e.g. "O2 (aq)".
         """
         formula = super().formula
         return f"{formula} {charge_string(self.charge, brackets=False)}"
@@ -133,8 +132,8 @@ class Ion(Composition, MSONable, Stringify):
 
         Similar to Composition.get_reduced_formula_and_factor except that O-H formulas
         receive special handling to differentiate between hydrogen peroxide and OH-.
-        Formulas containing HO are written with oxygen first (e.g. 'Fe(OH)2' rather than
-        'Fe(HO)2'), and special formulas that apply to solids (e.g. Li2O2 instead of LiO)
+        Formulas containing HO are written with oxygen first (e.g. "Fe(OH)2" rather than
+        "Fe(HO)2"), and special formulas that apply to solids (e.g. Li2O2 instead of LiO)
         are not used.
 
         Note that the formula returned by this method does not contain a charge.
@@ -156,7 +155,7 @@ class Ion(Composition, MSONable, Stringify):
 
         Returns:
             tuple[str, float]: A pretty normalized formula and a multiplicative factor, i.e.,
-                H4O4 returns ('H2O2', 2.0).
+                H4O4 returns ("H2O2", 2.0).
         """
         all_int = all(abs(val - round(val)) < Composition.amount_tolerance for val in self.values())
         if not all_int:
@@ -249,7 +248,7 @@ class Ion(Composition, MSONable, Stringify):
     def reduced_formula(self) -> str:
         """A reduced formula string with appended charge. The
         charge is placed in brackets with the sign preceding the magnitude, e.g.
-        'Ca[+2]'. Uncharged species have "(aq)" appended, e.g. "O2(aq)".
+        "Ca[+2]". Uncharged species have "(aq)" appended, e.g. "O2(aq)".
         """
         formula, factor = self.get_reduced_formula_and_factor()
         charge = self._charge / factor
@@ -279,30 +278,39 @@ class Ion(Composition, MSONable, Stringify):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict[str, float]) -> Self:
         """Generate an ion object from a dict created by as_dict().
 
         Args:
             dct: {symbol: amount} dict.
         """
-        dct_copy = deepcopy(dct)
+        dct_copy = dict(dct)
         charge = dct_copy.pop("charge")
         composition = Composition(dct_copy)
         return cls(composition, charge)
 
-    def as_reduced_dict(self) -> dict:
+    def as_reduced_dict(self) -> dict[str, float]:
         """
         Returns:
             dict with element symbol and reduced amount e.g.
-                {"Fe": 2.0, "O":3.0}.
+                {"Fe": 2.0, "O": 3.0}.
         """
-        dct = self.composition.as_reduced_dict()
-        dct["charge"] = self.charge
-        return dct
+        unreduced = self.composition.as_dict()
+        reduced = self.composition.as_reduced_dict()
+
+        # Determine the reduction factor
+        factor: float = 1
+        for el in reduced:
+            if el in unreduced:
+                factor = unreduced[el] / reduced[el]
+                break
+
+        reduced["charge"] = self.charge / factor
+        return reduced
 
     @property
     @deprecated(as_reduced_dict, deadline=(2026, 4, 4))
-    def to_reduced_dict(self) -> dict:
+    def to_reduced_dict(self) -> dict[str, float]:
         """Deprecated."""
         return self.as_reduced_dict()
 

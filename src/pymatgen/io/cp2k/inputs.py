@@ -44,14 +44,13 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
-    from pathlib import Path
     from typing import Any, Literal
 
     from typing_extensions import Self
 
     from pymatgen.core.lattice import Lattice
     from pymatgen.core.structure import Molecule, Structure
-    from pymatgen.util.typing import Kpoint
+    from pymatgen.util.typing import Kpoint, PathLike
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -152,7 +151,7 @@ class Keyword(MSONable):
         )
 
     @classmethod
-    def from_str(cls, s: str) -> Self:
+    def from_str(cls, s: str, description: str | None) -> Self:
         """
         Initialize from a string.
 
@@ -163,12 +162,6 @@ class Keyword(MSONable):
         Returns:
             Keyword or None
         """
-        s = s.strip()
-        if "!" in s or "#" in s:
-            s, description = re.split("(?:!|#)", s)
-            description = description.strip()
-        else:
-            description = None
         units = re.findall(r"\[(.*)\]", s) or [None]
         s = re.sub(r"\[(.*)\]", "", s)
         args: list[Any] = s.split()
@@ -660,7 +653,7 @@ class Cp2kInput(Section):
     title and by implementing the file i/o.
     """
 
-    def __init__(self, name: str = "CP2K_INPUT", subsections: dict | None = None, **kwargs):
+    def __init__(self, name: str = "CP2K_INPUT", subsections: dict | None = None, **kwargs) -> None:
         """Initialize Cp2kInput by calling the super."""
         self.name = name
         self.subsections = subsections or {}
@@ -675,12 +668,12 @@ class Cp2kInput(Section):
             **kwargs,
         )
 
-    def get_str(self):
+    def get_str(self) -> str:
         """Get string representation of the Cp2kInput."""
         return "".join(v.get_str() for v in self.subsections.values())
 
     @classmethod
-    def _from_dict(cls, dct: dict):
+    def _from_dict(cls, dct: dict) -> Self:
         """Initialize from a dictionary."""
         constructor = getattr(
             __import__(dct["@module"], globals(), locals(), dct["@class"], 0),
@@ -690,7 +683,7 @@ class Cp2kInput(Section):
         return Cp2kInput("CP2K_INPUT", subsections=constructor.from_dict(dct).subsections)
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> Self:
+    def from_file(cls, filename: PathLike) -> Self:
         """Initialize from a file."""
         with zopen(filename, mode="rt", encoding="utf-8") as file:
             txt = preprocessor(file.read(), os.path.dirname(file.name))
@@ -699,33 +692,38 @@ class Cp2kInput(Section):
     @classmethod
     def from_str(cls, s: str) -> Self:
         """Initialize from a string."""
-        lines = s.splitlines()
-        lines = [line.replace("\t", "") for line in lines]
-        lines = [line.strip() for line in lines]
-        lines = [line for line in lines if line]
+        lines: list[str] = [cleaned for line in s.splitlines() if (cleaned := line.replace("\t", "").strip())]
         return cls.from_lines(lines)
 
     @classmethod
-    def from_lines(cls, lines: list | tuple) -> Self:
+    def from_lines(cls, lines: Sequence[str]) -> Self:
         """Helper method to read lines of file."""
         cp2k_input = Cp2kInput("CP2K_INPUT", subsections={})
         Cp2kInput._from_lines(cp2k_input, lines)
         return cp2k_input
 
-    def _from_lines(self, lines):
+    def _from_lines(self, lines: Sequence[str]) -> None:
         """Helper method, reads lines of text to get a Cp2kInput."""
-        current = self.name
-        description = ""
+        current: str = self.name
+        description: str = ""
+
         for line in lines:
-            if line.startswith(("!", "#")):
-                description += line[1:].strip()
-            elif line.upper().startswith("&END"):
+            line, *comment = re.split(r"[!#]", line, maxsplit=1)
+
+            if comment:
+                description += comment[0].strip()
+
+            if not (line := line.strip()):
+                continue
+
+            if line.upper().startswith("&END"):
                 current = "/".join(current.split("/")[:-1])
+
             elif line.startswith("&"):
                 name, subsection_params = line.split()[0][1:], line.split()[1:]
                 subsection_params = (
                     []
-                    if len(subsection_params) == 1 and subsection_params[0].upper() in ("T", "TRUE", "F", "FALSE", "ON")
+                    if len(subsection_params) == 1 and subsection_params[0].upper() in {"T", "TRUE", "F", "FALSE", "ON"}
                     else subsection_params
                 )
                 alias = f"{name} {' '.join(subsection_params)}" if subsection_params else None
@@ -745,8 +743,10 @@ class Cp2kInput(Section):
                 else:
                     self.by_path(current).insert(sec)
                 current = f"{current}/{alias or name}"
+
             else:
-                kwd = Keyword.from_str(line)
+                kwd = Keyword.from_str(line, (description or None))
+
                 if tmp := self.by_path(current).get(kwd.name):
                     if isinstance(tmp, KeywordList):
                         self.by_path(current).get(kwd.name).append(kwd)
@@ -761,15 +761,15 @@ class Cp2kInput(Section):
 
     def write_file(
         self,
-        input_filename: str = "cp2k.inp",
-        output_dir: str = ".",
+        input_filename: PathLike = "cp2k.inp",
+        output_dir: PathLike = ".",
         make_dir_if_not_present: bool = True,
-    ):
+    ) -> None:
         """Write input to a file.
 
         Args:
-            input_filename (str, optional): Defaults to "cp2k.inp".
-            output_dir (str, optional): Defaults to ".".
+            input_filename (PathLike, optional): Defaults to "cp2k.inp".
+            output_dir (PathLike, optional): Defaults to ".".
             make_dir_if_not_present (bool, optional): Defaults to True.
         """
         if not os.path.isdir(output_dir) and make_dir_if_not_present:

@@ -110,7 +110,7 @@ class ElementBase(Enum):
             rigidity_modulus (float, optional): Rigidity modulus (GPa).
             mineral_hardness (float, optional): Mohs hardness.
             vickers_hardness (float, optional): Vickers hardness (MPa).
-            density_of_solid (float, optional): Density in solid phase (g/cm³).
+            density_of_solid (float, optional): Density in solid phase (kg/m³).
             coefficient_of_linear_thermal_expansion (float, optional): Thermal expansion coefficient (K⁻¹).
             ground_level (float, optional): Ground energy level of the element.
             ionization_energies (list[Optional[float]]): Ionization energies (kJ/mol), indexed from 0.
@@ -125,9 +125,12 @@ class ElementBase(Enum):
                 >>> hydrogen.electronic_structure
                 '1s1'
 
-            Access additional attributes such as atomic radius:
+            Access additional attributes such as atomic radius. For scalar, the unit may also be available:
                 >>> hydrogen.atomic_radius_calculated
                 0.53
+
+                >>> hydrogen.atomic_radius_calculated.unit
+                ang
 
         Notes:
             - This class supports handling of isotopes by incorporating named isotopes
@@ -155,11 +158,11 @@ class ElementBase(Enum):
             data = {**_PT_DATA[self.symbol], **data}
 
         at_r: float | None = data.get("Atomic radius")
-        self._atomic_radius = None if at_r is None else Length(at_r, _PT_UNIT["Atomic radius"])
+        self._atomic_radius: FloatWithUnit | None = None if at_r is None else Length(at_r, _PT_UNIT["Atomic radius"])
 
-        self._atomic_mass = Mass(data["Atomic mass"], _PT_UNIT["Atomic mass"])
+        self._atomic_mass: FloatWithUnit = Mass(data["Atomic mass"], _PT_UNIT["Atomic mass"])
 
-        self._atomic_mass_number = None
+        self._atomic_mass_number: FloatWithUnit | None = None
         self.A = data.get("Atomic mass no")
         if self.A is not None:
             self._atomic_mass_number = Mass(self.A, _PT_UNIT["Atomic mass no"])
@@ -1088,15 +1091,17 @@ class Species(MSONable, Stringify):
         return f"Species {self}"
 
     def __str__(self) -> str:
-        output = self.name if hasattr(self, "name") else self.symbol
-        if self.oxi_state is not None:
-            abs_charge = formula_double_format(abs(self.oxi_state))
+        name = getattr(self, "name", None)
+        output = name or self.symbol
+        oxi_state = self.oxi_state
+        if oxi_state is not None:
+            abs_charge = formula_double_format(abs(oxi_state))
             if isinstance(abs_charge, float):
                 abs_charge = f"{abs_charge:.2f}"  # type: ignore[assignment]
-            output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
+            output += f"{abs_charge}{'+' if oxi_state >= 0 else '-'}"
 
-        if self._spin is not None:
-            spin = self._spin
+        spin = self._spin
+        if spin is not None:
             output += f",{spin=}"
         return output
 
@@ -1484,10 +1489,11 @@ class DummySpecies(Species):
 
     def __str__(self) -> str:
         output = self.symbol
-        if self.oxi_state is not None:
-            output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
-        if self._spin is not None:
-            spin = self._spin
+        oxi_state = self.oxi_state
+        if oxi_state is not None:
+            output += f"{formula_double_format(abs(oxi_state))}{'+' if oxi_state >= 0 else '-'}"
+        spin = self._spin
+        if spin is not None:
             output += f",{spin=}"
         return output
 
@@ -1634,9 +1640,9 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
     # If obj is an integer, return the Element with atomic number obj
     try:
         flt = float(obj)
-        assert flt == int(flt)  # noqa: S101
-        return Element.from_Z(int(flt))
-    except (AssertionError, ValueError, TypeError, KeyError):
+        if flt.is_integer():
+            return Element.from_Z(int(flt))
+    except (ValueError, TypeError, KeyError):
         pass
 
     # If obj is a string, attempt to parse it as a Species

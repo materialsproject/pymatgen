@@ -63,7 +63,6 @@ def JDFTXInfile_self_consistency_tester(jif: JDFTXInfile, tmp_path: PathLike):
     jifs = [jif, jif2, jif3, jif4]
     for i in range(len(jifs)):
         for j in range(i + 1, len(jifs)):
-            print(f"{i}, {j}")
             assert_idential_jif(jifs[i], jifs[j])
 
 
@@ -179,7 +178,7 @@ def test_JDFTXInfile_expected_exceptions():
     with pytest.raises(ValueError, match=re.escape(err_str)):
         jif2.validate_tags(try_auto_type_fix=True)
     # The inevitable error can be reduced to a warning if you tell it not to try to fix the values
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match="The exchange-params tag with value"):
         jif2.validate_tags(try_auto_type_fix=False)
     # Setting a non-string tag raises an error within the JDFTXInfile object
     err_str = str(f"{1.2} is not a string!")

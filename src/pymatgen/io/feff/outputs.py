@@ -100,7 +100,6 @@ class LDos(MSONable):
             lines = file.readlines()
         e_fermi = float(lines[0].split()[4])
 
-        dos_energies = []
         ldos = {}
 
         for idx in range(1, len(pot_dict) + 1):
@@ -109,8 +108,7 @@ class LDos(MSONable):
             else:
                 ldos[idx] = np.loadtxt(f"{ldos_file}{idx}.dat")
 
-        for idx in range(len(ldos[1])):
-            dos_energies.append(ldos[1][idx][0])
+        dos_energies = [ldos[1][idx][0] for idx in range(len(ldos[1]))]
 
         all_pdos: list[dict] = []
         vorb = {"s": Orbital.s, "p": Orbital.py, "d": Orbital.dxy, "f": Orbital.f0}

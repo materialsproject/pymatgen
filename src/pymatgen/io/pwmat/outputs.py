@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import linecache
+import logging
 from io import StringIO
 from typing import TYPE_CHECKING
 
@@ -15,6 +16,7 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
     from pymatgen.util.typing import PathLike
 
+logger = logging.getLogger(__name__)
 
 __author__ = "Hanyu Liu"
 __email__ = "domainofbuaa@gmail.com"
@@ -67,8 +69,7 @@ class Movement(MSONable):
         chunk_sizes: list[int] = []
         row_idxs: list[int] = LineLocator.locate_all_lines(self.filename, self.split_mark)
         chunk_sizes.append(row_idxs[0])
-        for ii in range(1, len(row_idxs)):
-            chunk_sizes.append(row_idxs[ii] - row_idxs[ii - 1])
+        chunk_sizes.extend(row_idxs[ii] - row_idxs[ii - 1] for ii in range(1, len(row_idxs)))
         chunk_sizes_bak: list[int] = copy.deepcopy(chunk_sizes)
         chunk_sizes_bak.insert(0, 0)
         chunk_starts: list[int] = np.cumsum(chunk_sizes_bak).tolist()
@@ -148,12 +149,12 @@ class Movement(MSONable):
                 if e_atoms is not None:
                     tmp_step["atom_energies"] = ACstrExtractor(tmp_chunk).get_atom_energies()
                 else:
-                    print(f"Ionic step #{ii} : Energy deposition is turn down.")
+                    logger.info(f"Ionic step #{ii} : Energy deposition is turn down.")
                 virial: np.ndarray | None = ACstrExtractor(tmp_chunk).get_virial()
                 if virial is not None:
                     tmp_step["virial"] = virial.reshape(3, 3)
                 else:
-                    print(f"Ionic step #{ii} : No virial information.")
+                    logger.info(f"Ionic step #{ii} : No virial information.")
                 ionic_steps.append(tmp_step)
         return ionic_steps
 

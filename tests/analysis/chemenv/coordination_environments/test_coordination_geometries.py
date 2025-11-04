@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
@@ -298,23 +300,19 @@ class TestCoordinationGeometries(MatSciTest):
         ]
 
         assert all_cg.get_geometry_from_name("Octahedron").mp_symbol == cg_oct.mp_symbol
-        with pytest.raises(LookupError) as exc:
+        with pytest.raises(LookupError, match=re.escape("No coordination geometry found with name 'Octahedran'")):
             all_cg.get_geometry_from_name("Octahedran")
-        assert str(exc.value) == "No coordination geometry found with name 'Octahedran'"
 
         assert all_cg.get_geometry_from_IUPAC_symbol("OC-6").mp_symbol == cg_oct.mp_symbol
-        with pytest.raises(LookupError) as exc:
+        with pytest.raises(LookupError, match=re.escape("No coordination geometry found with IUPAC symbol 'OC-7'")):
             all_cg.get_geometry_from_IUPAC_symbol("OC-7")
-        assert str(exc.value) == "No coordination geometry found with IUPAC symbol 'OC-7'"
 
         assert all_cg.get_geometry_from_IUCr_symbol("[6o]").mp_symbol == cg_oct.mp_symbol
-        with pytest.raises(LookupError) as exc:
+        with pytest.raises(LookupError, match=re.escape("No coordination geometry found with IUCr symbol '[6oct]'")):
             all_cg.get_geometry_from_IUCr_symbol("[6oct]")
-        assert str(exc.value) == "No coordination geometry found with IUCr symbol '[6oct]'"
 
-        with pytest.raises(LookupError) as exc:
+        with pytest.raises(LookupError, match=re.escape("No coordination geometry found with mp_symbol 'O:7'")):
             all_cg.get_geometry_from_mp_symbol("O:7")
-        assert str(exc.value) == "No coordination geometry found with mp_symbol 'O:7'"
 
         assert (
             all_cg.pretty_print(maxcn=4)

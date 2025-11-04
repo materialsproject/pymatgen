@@ -888,13 +888,8 @@ class Lattice(MSONable):
 
         vcps = np.dot(selling1, vcp_matrices)[0]
 
-        all_reflections = []
-        for vcp in vcps:
-            for reflection_matrix in reflection_matrices:
-                all_reflections.append(np.dot(vcp, reflection_matrix))
-
-        for reflection_matrix in reflection_matrices:
-            all_reflections.append(np.dot(selling1, reflection_matrix))
+        all_reflections = [np.dot(vcp, reflection_matrix) for vcp in vcps for reflection_matrix in reflection_matrices]
+        all_reflections.extend([np.dot(selling1, reflection_matrix) for reflection_matrix in reflection_matrices])
 
         return min(np.linalg.norm(reflection - selling2) for reflection in all_reflections)  # type: ignore[return-value, type-var]
 
@@ -931,7 +926,7 @@ class Lattice(MSONable):
         ltol: float = 1e-5,
         atol: float = 1,
         skip_rotation_matrix: bool = False,
-    ) -> Iterator[tuple[Lattice, NDArray[np.float64] | None, NDArray[np.float64]]]:
+    ) -> Iterator[tuple[Self, NDArray[np.float64] | None, NDArray[np.int64]]]:
         """Find all mappings between current lattice and another lattice.
 
         Args:
@@ -1000,7 +995,7 @@ class Lattice(MSONable):
         ltol: float = 1e-5,
         atol: float = 1,
         skip_rotation_matrix: bool = False,
-    ) -> tuple[Lattice, NDArray[np.float64] | None, NDArray[np.float64]] | None:
+    ) -> tuple[Lattice, NDArray[np.float64] | None, NDArray[np.int64]] | None:
         """Find a mapping between current lattice and another lattice. There
         are an infinite number of choices of basis vectors for two entirely
         equivalent lattices. This method returns a mapping that maps
@@ -1318,12 +1313,7 @@ class Lattice(MSONable):
         from scipy.spatial import Voronoi
 
         tess = Voronoi(list_k_points)
-        out = []
-        for r in tess.ridge_dict:
-            if r[0] == 13 or r[1] == 13:
-                out.append([tess.vertices[i] for i in tess.ridge_dict[r]])
-
-        return out
+        return [[tess.vertices[i] for i in tess.ridge_dict[r]] for r in tess.ridge_dict if r[0] == 13 or r[1] == 13]
 
     def get_brillouin_zone(self) -> list[list[NDArray[np.float64]]]:
         """Get the Wigner-Seitz cell for the reciprocal lattice, aka the

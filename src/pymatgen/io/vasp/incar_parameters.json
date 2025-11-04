@@ -402,6 +402,13 @@
       4
      ]
  },
+ "ISEARCH": {
+   "type": "int",
+   "values": [
+      0,
+      1
+     ]
+ },
  "ISIF": {
    "type": "int",
    "values": [

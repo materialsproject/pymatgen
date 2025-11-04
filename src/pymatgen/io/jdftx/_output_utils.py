@@ -732,12 +732,11 @@ def _get_u_to_oa_map(bandfile_filepath: Path) -> list[tuple[int, int]]:
     """
     map_labels_dict = _get_atom_orb_labels_map_dict(bandfile_filepath)
     atom_count_list = _get_atom_count_list(bandfile_filepath)
-    u_to_oa_map = []
+    u_to_oa_map: list = []
     a = 0
     for ion, ion_count in atom_count_list:
         for _i in range(ion_count):
-            for orb in map_labels_dict[ion]:
-                u_to_oa_map.append((orb_ref_to_o_dict[orb], a))
+            u_to_oa_map.extend((orb_ref_to_o_dict[orb], a) for orb in map_labels_dict[ion])
             a += 1
     return u_to_oa_map
 
@@ -762,9 +761,7 @@ def _get_orb_label_list(bandfile_filepath: Path) -> tuple[str, ...]:
         ion = ion_tuple[0]
         orbs = labels_dict[ion]
         count = ion_tuple[1]
-        for i in range(count):
-            for orb in orbs:
-                labels_list.append(_get_orb_label(ion, i, orb))
+        labels_list.extend(_get_orb_label(ion, i, orb) for i in range(count) for orb in orbs)
     # This is most likely unnecessary, but it is a good check to have.
     if len(labels_list) != _get_orb_label_list_expected_len(labels_dict, atom_count_list):
         raise RuntimeError("Number of atomic orbital projections does not match expected length.")

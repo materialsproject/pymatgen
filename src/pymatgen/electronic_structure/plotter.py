@@ -498,21 +498,21 @@ class BSPlotter:
         bg_str = ""
 
         if not bs_is_metal:
-            for index in cbm["kpoint_index"]:
-                cbm_plot.append(
-                    (
-                        bs.distance[index],
-                        (cbm["energy"] - zero_energy if zero_to_efermi else cbm["energy"]),
-                    )
+            cbm_plot.extend(
+                (
+                    bs.distance[index],
+                    (cbm["energy"] - zero_energy if zero_to_efermi else cbm["energy"]),
                 )
+                for index in cbm["kpoint_index"]
+            )
 
-            for index in vbm["kpoint_index"]:
-                vbm_plot.append(
-                    (
-                        bs.distance[index],
-                        (vbm["energy"] - zero_energy if zero_to_efermi else vbm["energy"]),
-                    )
+            vbm_plot.extend(
+                (
+                    bs.distance[index],
+                    (vbm["energy"] - zero_energy if zero_to_efermi else vbm["energy"]),
                 )
+                for index in vbm["kpoint_index"]
+            )
 
             bg = bs.get_band_gap()
             direct = "Indirect"
@@ -1334,7 +1334,7 @@ class BSPlotterProjected(BSPlotter):
         proj_br = []
         for index in indices:
             b = self._bs.branches[index]
-            print(b)
+            logger.info(b)
             if self._bs.is_spin_polarized:
                 proj_br.append(
                     {
@@ -1659,9 +1659,9 @@ class BSPlotterProjected(BSPlotter):
         """
         dictio, sum_morbs = self._Orbitals_SumOrbitals(dictio, sum_morbs)
         dictpa, sum_atoms, n_figs = self._number_of_subfigures(dictio, dictpa, sum_atoms, sum_morbs)
-        print(f"Number of subfigures: {n_figs}")
+        logger.info(f"Number of subfigures: {n_figs}")
         if n_figs > 9:
-            print(
+            logger.info(
                 f"The number of subfigures {n_figs} might be too manny and the implementation might take a long "
                 f"time.\n A smaller number or a plot with selected symmetry lines (selected_branches) might be better."
             )
@@ -1821,7 +1821,7 @@ class BSPlotterProjected(BSPlotter):
                 raise KeyError(f"The invalid element was put into 'dictio' as a key: {elt}")
 
         if sum_morbs is None:
-            print("You do not want to sum projection over orbitals.")
+            logger.info("You do not want to sum projection over orbitals.")
         elif not isinstance(sum_morbs, dict):
             raise TypeError("The invalid type of 'sum_orbs' was bound. It should be dict or 'None' type.")
         elif len(sum_morbs) == 0:
@@ -1865,7 +1865,7 @@ class BSPlotterProjected(BSPlotter):
                 elif sum_morbs is None:
                     pass
                 elif elt not in sum_morbs:
-                    print(f"You do not want to sum projection over orbitals of element: {elt}")
+                    logger.info(f"You do not want to sum projection over orbitals of element: {elt}")
                 else:
                     if len(sum_morbs[elt]) == 0:
                         raise ValueError(f"The empty list is an invalid value for sum_morbs[{elt}].")
@@ -1889,7 +1889,7 @@ class BSPlotterProjected(BSPlotter):
                 if sum_morbs is None:
                     pass
                 elif elt not in sum_morbs:
-                    print(f"You do not want to sum projection over orbitals of element: {elt}")
+                    logger.info(f"You do not want to sum projection over orbitals of element: {elt}")
                 else:
                     if len(sum_morbs[elt]) == 0:
                         raise ValueError(f"The empty list is an invalid value for sum_morbs[{elt}].")
@@ -1937,7 +1937,7 @@ class BSPlotterProjected(BSPlotter):
                         if isinstance(number, str):
                             if number.lower() == "all":
                                 dictpa[elt] = indices
-                                print(f"You want to consider all {elt!r} atoms.")
+                                logger.info(f"You want to consider all {elt!r} atoms.")
                                 break
 
                             raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
@@ -1964,7 +1964,7 @@ class BSPlotterProjected(BSPlotter):
                 raise KeyError(f"The element {elt!r} in not in both dictpa and dictio.")
 
         if sum_atoms is None:
-            print("You do not want to sum projection over atoms.")
+            logger.info("You do not want to sum projection over atoms.")
         elif not isinstance(sum_atoms, dict):
             raise TypeError("The invalid type of 'sum_atoms' was bound. It should be dict type.")
         elif len(sum_atoms) == 0:
@@ -1984,7 +1984,7 @@ class BSPlotterProjected(BSPlotter):
                             if isinstance(number, str):
                                 if number.lower() == "all":
                                     sum_atoms[elt] = indices
-                                    print(f"You want to sum projection over all {elt!r} atoms.")
+                                    logger.info(f"You want to sum projection over all {elt!r} atoms.")
                                     break
                                 raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
                             if isinstance(number, int):
@@ -2098,10 +2098,12 @@ class BSPlotterProjected(BSPlotter):
                 dictpa_d[elt] = []
                 if elt in sum_atoms:
                     _sites = self._bs.structure.sites
-                    indices = []
-                    for site_idx in range(len(_sites)):
-                        if next(iter(_sites[site_idx]._species)) == Element(elt):
-                            indices.append(site_idx + 1)
+                    indices = [
+                        site_idx + 1
+                        for site_idx in range(len(_sites))
+                        if next(iter(_sites[site_idx]._species)) == Element(elt)
+                    ]
+
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))
                     if flag_1 == len(indices) and flag_2 == len(indices):
@@ -2176,10 +2178,7 @@ class BSPlotterProjected(BSPlotter):
         ticks = self.get_ticks()
         distance = []
         label = []
-        rm_elems = []
-        for idx in range(1, len(ticks["distance"])):
-            if ticks["label"][idx] == ticks["label"][idx - 1]:
-                rm_elems.append(idx)
+        rm_elems = [idx for idx in range(1, len(ticks["distance"])) if ticks["label"][idx] == ticks["label"][idx - 1]]
         for idx in range(len(ticks["distance"])):
             if idx not in rm_elems:
                 distance.append(ticks["distance"][idx])
@@ -3183,9 +3182,7 @@ class BoltztrapPlotter:
             plt.subplot(121 + idx)
             for dop in doping:
                 dop_idx = self._bz.doping[dop_type].index(dop)
-                sbk_temp = []
-                for temp in temperatures:
-                    sbk_temp.append(sbk[dop_type][temp][dop_idx])
+                sbk_temp = [sbk[dop_type][temp][dop_idx] for temp in temperatures]
                 if output == "average":
                     ax.plot(temperatures, sbk_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
@@ -3240,9 +3237,7 @@ class BoltztrapPlotter:
             plt.subplot(121 + idx)
             for dop in doping:
                 dop_idx = self._bz.doping[dop_type].index(dop)
-                cond_temp = []
-                for temp in temperatures:
-                    cond_temp.append(cond[dop_type][temp][dop_idx])
+                cond_temp = [cond[dop_type][temp][dop_idx] for temp in temperatures]
                 if output == "average":
                     ax.plot(temperatures, cond_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
@@ -3298,9 +3293,7 @@ class BoltztrapPlotter:
             plt.subplot(121 + idx)
             for dop in doping:
                 dop_idx = self._bz.doping[dop_type].index(dop)
-                pf_temp = []
-                for temp in temperatures:
-                    pf_temp.append(pow_factor[dop_type][temp][dop_idx])
+                pf_temp = [pow_factor[dop_type][temp][dop_idx] for temp in temperatures]
                 if output == "average":
                     ax.plot(temperatures, pf_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
@@ -3357,9 +3350,7 @@ class BoltztrapPlotter:
             plt.subplot(121 + idx)
             for dop in doping:
                 dop_idx = self._bz.doping[dop_type].index(dop)
-                zt_temp = []
-                for temp in temperatures:
-                    zt_temp.append(zt[dop_type][temp][dop_idx])
+                zt_temp = [zt[dop_type][temp][dop_idx] for temp in temperatures]
                 if output == "average":
                     ax.plot(temperatures, zt_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
@@ -4072,7 +4063,7 @@ def plot_fermi_surface(
 
     if energy_levels is None:
         energy_levels = [en_min + 0.01] if cbm else [en_max - 0.01]
-        print(f"Energy level set to: {energy_levels[0]} eV")
+        logger.info(f"Energy level set to: {energy_levels[0]} eV")
 
     else:
         for e in energy_levels:
@@ -4284,7 +4275,13 @@ def plot_path(line, lattice=None, coords_are_cartesian=False, ax: plt.Axes = Non
     return fig, ax
 
 
-def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax: plt.Axes = None, **kwargs):
+def plot_labels(
+    labels,
+    lattice=None,
+    coords_are_cartesian=False,
+    ax: plt.Axes = None,
+    **kwargs,
+):
     """Add labels to a matplotlib Axes.
 
     Args:
@@ -4311,14 +4308,15 @@ def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax: plt.Axes =
         label = k
         if k.startswith("\\") or k.find("_") != -1:
             label = f"${k}$"
-        off = 0.01
-        if coords_are_cartesian:
-            coords = np.array(coords)
-        else:
+        offset: float = 0.01
+        if not coords_are_cartesian:
             if lattice is None:
-                raise ValueError("coords_are_cartesian False requires the lattice")
+                raise ValueError("coords_are_cartesian=False requires the lattice")
             coords = lattice.get_cartesian_coords(coords)
-        ax.text(*(coords + off), s=label, **kwargs)
+
+        coords = np.asarray(coords)
+        x, y, z = coords + offset
+        ax.text(x, y, z, label, **kwargs)
 
     return fig, ax
 

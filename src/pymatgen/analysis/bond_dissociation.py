@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import warnings
 from typing import cast
 
@@ -21,6 +22,8 @@ __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 __status__ = "Alpha"
 __date__ = "7/26/18"
+
+logger = logging.getLogger(__name__)
 
 
 class BondDissociationEnergies(MSONable):
@@ -54,7 +57,7 @@ class BondDissociationEnergies(MSONable):
         """
         self.molecule_entry = molecule_entry
         self.filter_fragment_entries(fragment_entries)
-        print(f"{len(self.filtered_entries)} filtered entries")
+        logger.info(f"{len(self.filtered_entries)} filtered entries")
         self.bond_dissociation_energies: list[float | None] = []
         self.done_frag_pairs: list[list] = []
         self.done_RO_frags: list[dict] = []
@@ -150,12 +153,12 @@ class BondDissociationEnergies(MSONable):
                         # Since a ring opening still yields a single molecule, it should have the same charge as the
                         # principle:
                         if frag["initial_molecule"]["charge"] == self.molecule_entry["final_molecule"]["charge"]:
-                            good_entries.append(frag)
+                            good_entries.append(frag)  # noqa: PERF401
                     # If we didn't find any good entries, let's also look at those that exhibit structural changes:
                     if len(good_entries) == 0:
                         for frag in opened_entries[1]:  # 1 -> YES structural change
                             if frag["initial_molecule"]["charge"] == self.molecule_entry["final_molecule"]["charge"]:
-                                good_entries.append(frag)
+                                good_entries.append(frag)  # noqa: PERF401
                     # If we still have no good entries, something must have gone wrong with the calculations:
                     if len(good_entries) == 0:
                         bb = BabelMolAdaptor.from_molecule_graph(RO_frag)

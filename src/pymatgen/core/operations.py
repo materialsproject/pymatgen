@@ -126,7 +126,7 @@ class SymmOp(MSONable):
         Returns:
             Coordinates of point after operation.
         """
-        affine_point = np.asarray([*point, 1])
+        affine_point = np.append(point, 1.0)
         return np.dot(self.affine_matrix, affine_point)[:3]
 
     def operate_multi(self, points: ArrayLike) -> NDArray[np.float64]:
@@ -139,7 +139,7 @@ class SymmOp(MSONable):
             Numpy array of coordinates after operation
         """
         points = np.asarray(points)
-        affine_points = np.concatenate([points, np.ones(points.shape[:-1] + (1,))], axis=-1)
+        affine_points = np.concatenate([points, np.ones((*points.shape[:-1], 1))], axis=-1)
         return np.inner(affine_points, self.affine_matrix)[..., :-1]
 
     def apply_rotation_only(self, vector: NDArray) -> NDArray:

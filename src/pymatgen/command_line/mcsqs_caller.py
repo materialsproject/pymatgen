@@ -146,7 +146,7 @@ def run_mcsqs(
 
         raise RuntimeError("mcsqs exited before timeout reached")
 
-    except TimeoutExpired:
+    except TimeoutExpired as exc:
         for process in mcsqs_find_sqs_processes:
             process.kill()
             process.communicate()
@@ -157,7 +157,7 @@ def run_mcsqs(
                 raise RuntimeError(
                     "mcsqs did not generate output files, "
                     "is search_time sufficient or are number of instances too high?"
-                )
+                ) from exc
 
             process = Popen(["mcsqs", "-best"])
             process.communicate()
@@ -166,7 +166,7 @@ def run_mcsqs(
             return _parse_sqs_path(".")
 
         os.chdir(original_directory)
-        raise TimeoutError("Cluster expansion took too long.")
+        raise TimeoutError("Cluster expansion took too long.") from exc
 
 
 def _parse_sqs_path(path) -> Sqs:

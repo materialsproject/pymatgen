@@ -73,11 +73,9 @@ class AbinitTimerParser(collections.abc.Iterable):
             ok_files: list of files that have been parsed successfully.
                 (ok_files == paths) if all files have been parsed.
         """
-        paths = []
-        for root, _dirs, files in os.walk(top):
-            for file in files:
-                if file.endswith(ext):
-                    paths.append(os.path.join(root, file))
+        paths = [
+            os.path.join(root, file) for root, _dirs, files in os.walk(top) for file in files if file.endswith(ext)
+        ]
 
         parser = cls()
         ok_files = parser.parse(paths)
@@ -229,15 +227,9 @@ class AbinitTimerParser(collections.abc.Iterable):
         for idx, timer in enumerate(self.timers()):
             if idx == 0:
                 section_names = [s.name for s in timer.order_sections(ordkey)]
-                # check = section_names
             # else:
             #     new_set = {s.name for s in timer.order_sections(ordkey)}
             #     section_names.intersection_update(new_set)
-            #     check = check | new_set
-
-        # if check != section_names:
-        #  print("sections", section_names)
-        #  print("check",check)
 
         return section_names
 
@@ -628,8 +620,8 @@ class AbinitTimerSection:
         return {at: self.__dict__[at] for at in AbinitTimerSection.FIELDS}
 
     @deprecated(as_dict, deadline=(2026, 4, 4))
-    def to_dict(self):
-        return self.as_dict()
+    def to_dict(self, *args, **kwargs):
+        return self.as_dict(*args, **kwargs)
 
     def to_csvline(self, with_header=False):
         """Return a string with data in CSV format. Add header if `with_header`."""
@@ -701,8 +693,7 @@ class AbinitTimer:
         if is_str:
             fileobj = open(fileobj, mode="w", encoding="utf-8")  # noqa: SIM115
 
-        for idx, section in enumerate(self.sections):
-            fileobj.write(section.to_csvline(with_header=(idx == 0)))
+        fileobj.writelines(section.to_csvline(with_header=(idx == 0)) for idx, section in enumerate(self.sections))
         fileobj.flush()
 
         if is_str:
@@ -745,10 +736,7 @@ class AbinitTimer:
         if isinstance(keys, str):
             return [sec.__dict__[keys] for sec in self.sections]
 
-        values = []
-        for key in keys:
-            values.append([sec.__dict__[key] for sec in self.sections])
-        return values
+        return [[sec.__dict__[key] for sec in self.sections] for key in keys]
 
     def names_and_values(self, key, minval=None, minfract=None, sorted=True):  # noqa: A002
         """Select the entries whose value[key] is >= minval or whose fraction[key] is >= minfract
