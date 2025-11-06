@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from itertools import islice
-from typing import TYPE_CHECKING, Any, Self
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -254,7 +254,7 @@ class ICOXXLIST(LobsterFile, LobsterInteractionsHolder):
                 interaction["icoxx"][spin] = self.data[i, index]
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> Self:
+    def from_dict(cls, d: dict[str, Any]) -> ICOXXLIST:
         """Deserialize object from dictionary produced by `as_dict`.
 
         Args:
@@ -470,7 +470,7 @@ class NcICOBILIST(LobsterFile, LobsterInteractionsHolder):
         return "NcICOBILIST.lobster"
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> Self:
+    def from_dict(cls, d: dict[str, Any]) -> NcICOBILIST:
         """Deserialize object from dictionary produced by `as_dict`.
 
         Args:

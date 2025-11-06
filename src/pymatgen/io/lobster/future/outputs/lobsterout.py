@@ -90,6 +90,16 @@ class LobsterOut(LobsterFile):
             "loading projection from projectionData.lobster..." in lines
         )
 
+        self.has_error = "ERROR:" in lines
+    
+        if self.has_error:
+            self.error_lines = [
+                line for line in lines if line.startswith("ERROR:")
+            ]
+            raise RuntimeError(
+                f"LOBSTER calculation ended with errors:\n{self.error_lines}"
+            )
+
         self.number_of_threads = self._get_threads(lines)
         self.dft_program = self._get_dft_program(lines)
 

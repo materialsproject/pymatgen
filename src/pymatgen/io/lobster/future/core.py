@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from collections import Counter
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, ClassVar, Self, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from pathlib import Path
 
@@ -17,7 +17,11 @@ from pymatgen.io.lobster.future.utils import convert_spin_keys, restore_spin_key
 if TYPE_CHECKING:
     from collections.abc import Callable, Generator
 
-    from pymatgen.io.lobster.future.types import LobsterInteraction, LobsterInteractionData, Spin
+    from pymatgen.io.lobster.future.types import (
+        LobsterInteraction,
+        LobsterInteractionData,
+        Spin,
+    )
     from pymatgen.util.typing import PathLike
 
 
@@ -49,7 +53,9 @@ class LobsterFile(MSONable):
             filename (PathLike | None): Path to the file. If None, uses the default filename.
             process_immediately (bool): Whether to process the file immediately upon initialization. Defaults to True.
         """
-        self.filename = Path(filename or self.get_default_filename()).expanduser().resolve()
+        self.filename = (
+            Path(filename or self.get_default_filename()).expanduser().resolve()
+        )
         self.lobster_version = self.get_file_version() or LOBSTER_VERSION
 
         if process_immediately:
@@ -210,7 +216,7 @@ class LobsterFile(MSONable):
         return dictionary
 
     @classmethod
-    def from_dict(cls: type[Self], d: dict[str, Any]) -> Self:
+    def from_dict(cls, d: dict[str, Any]) -> LobsterFile:
         """
         Deserializes a LobsterFile object from a dictionary. Spin keys in dictionaries are restored from strings.
 
