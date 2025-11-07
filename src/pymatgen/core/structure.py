@@ -3513,7 +3513,7 @@ class IMolecule(SiteCollection, MSONable):
         n_electrons = self.nelectrons
         if spin_multiplicity:
             if charge_spin_check and (n_electrons + spin_multiplicity) % 2 != 1:
-                raise ValueError(
+                raise UserWarning(
                     f"Charge of {self._charge} and spin multiplicity of {spin_multiplicity} "
                     "is not possible for this molecule!"
                 )
@@ -5238,7 +5238,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         if spin_multiplicity:
             if self._charge_spin_check and (n_electrons + spin_multiplicity) % 2 != 1:
-                raise ValueError(
+                raise UserWarning(
                     f"Charge of {self._charge} and spin multiplicity of {spin_multiplicity} is"
                     " not possible for this molecule"
                 )
