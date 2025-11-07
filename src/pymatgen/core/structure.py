@@ -38,7 +38,7 @@ from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
+from pymatgen.core.periodic_table import _PT_UNIT, DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.units import Length, Mass
 from pymatgen.electronic_structure.core import Magmom
@@ -77,7 +77,6 @@ FileFormats: TypeAlias = Literal[
     "aims",
     "",
 ]
-StructureSources: TypeAlias = Literal["Materials Project", "COD"]
 
 
 class Neighbor(Site):
@@ -520,7 +519,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return bool(np.min(all_dists) > tol)
 
     @abstractmethod
-    def to(self, filename: str = "", fmt: FileFormats = "") -> str | None:
+    def to(self, filename: PathLike = "", fmt: FileFormats = "") -> str | None:
         """Generate string representations (cif, json, poscar, ....) of SiteCollections (e.g.,
         molecules / structures). Should return str or None if written to a file.
         """
@@ -564,6 +563,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """
         if len(values) != len(self):
             raise ValueError(f"{len(values)=} must equal sites in structure={len(self)}")
+
         for site, val in zip(self, values, strict=True):
             site.properties[property_name] = val
 
@@ -1202,10 +1202,11 @@ class IStructure(SiteCollection, MSONable):
         props = self.site_properties
         keys = sorted(props)
         for idx, site in enumerate(self):
-            row = [str(idx), site.species_string]
-            row.extend([to_str(j) for j in site.frac_coords])
-            for key in keys:
-                row.append(props[key][idx])
+            row = (
+                [str(idx), site.species_string]
+                + [to_str(j) for j in site.frac_coords]
+                + [props[key][idx] for key in keys]
+            )
             data.append(row)
         outs.append(
             tabulate(
@@ -1538,7 +1539,7 @@ class IStructure(SiteCollection, MSONable):
     @property
     def density(self) -> float:
         """The density in units of g/cm^3."""
-        mass = Mass(self.composition.weight, "amu")
+        mass = Mass(self.composition.weight, _PT_UNIT["Atomic mass"])
         return mass.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
     @property
@@ -2100,11 +2101,7 @@ class IStructure(SiteCollection, MSONable):
                     )
                 )
 
-        neighbors: list[list[PeriodicNeighbor]] = []
-
-        for i in range(len(sites)):
-            neighbors.append(neighbor_dict[i])
-        return neighbors
+        return [neighbor_dict[i] for i in range(len(sites))]
 
     def get_all_neighbors_py(
         self,
@@ -2427,7 +2424,7 @@ class IStructure(SiteCollection, MSONable):
             autosort_tol (float): A distance tolerance in angstrom in
                 which to automatically sort end_structure to match to the
                 closest points in this particular structure. This is usually
-                what you want in a NEB calculation. 0 implies no sorting.
+                what you want in an NEB calculation. 0 implies no sorting.
                 Otherwise, a 0.5 value usually works pretty well.
             end_amplitude (float): The fractional amplitude of the endpoint
                 of the interpolation, or a cofactor of the distortion vector
@@ -2588,8 +2585,7 @@ class IStructure(SiteCollection, MSONable):
             if not use_site_props:
                 return site.species_string
             parts = [site.species_string]
-            for key in sorted(site.properties):
-                parts.append(f"{key}={site.properties[key]}")
+            parts.extend(f"{key}={site.properties[key]}" for key in sorted(site.properties))
             return ", ".join(parts)
 
         # Group sites by species string
@@ -2802,10 +2798,7 @@ class IStructure(SiteCollection, MSONable):
                 subset_structure = Structure.from_sites(disordered_sites)
                 dist_matrix = subset_structure.distance_matrix
                 dists = sorted(set(dist_matrix.ravel()))  # type:ignore[type-var]
-                unique_dists = []
-                for idx in range(1, len(dists)):
-                    if dists[idx] - dists[idx - 1] > 0.1:
-                        unique_dists.append(dists[idx])
+                unique_dists = [dists[idx] for idx in range(1, len(dists)) if dists[idx] - dists[idx - 1] > 0.1]
                 clusters = {(idx + 2): dist + 0.01 for idx, dist in enumerate(unique_dists) if idx < 2}
                 kwargs["clusters"] = clusters
             return [run_mcsqs(self, **kwargs).bestsqs]
@@ -2880,9 +2873,12 @@ class IStructure(SiteCollection, MSONable):
         site_properties = self.site_properties
         prop_keys = list(site_properties)
         for site in self:
-            row = [site.species, *site.frac_coords, *site.coords]
-            for key in prop_keys:
-                row.append(site.properties.get(key))
+            row = [
+                site.species,
+                *site.frac_coords,
+                *site.coords,
+                *[site.properties.get(key) for key in prop_keys],
+            ]
             data.append(row)
 
         df_struct = pd.DataFrame(data, columns=["Species", *"abcxyz", *prop_keys])
@@ -2964,7 +2960,11 @@ class IStructure(SiteCollection, MSONable):
             writer = Cssr(self)
 
         elif fmt == "json" or fnmatch(filename.lower(), "*.json*"):
-            json_str = json.dumps(self.as_dict(), **kwargs) if kwargs else orjson.dumps(self.as_dict()).decode()
+            json_str = (
+                json.dumps(self.as_dict(), **kwargs)
+                if kwargs
+                else orjson.dumps(self.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
+            )
 
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
@@ -3050,7 +3050,7 @@ class IStructure(SiteCollection, MSONable):
         return str(writer)
 
     @classmethod
-    def from_id(cls, id_: str, source: StructureSources = "Materials Project", **kwargs) -> Structure:
+    def from_id(cls, id_, source: Literal["Materials Project", "COD"] = "Materials Project", **kwargs) -> Structure:
         """
         Load a structure file based on an id, usually from an online source.
 
@@ -3064,11 +3064,13 @@ class IStructure(SiteCollection, MSONable):
 
             mpr = MPRester(**kwargs)
             return mpr.get_structure_by_material_id(id_)  # type: ignore[attr-defined]
+
         if source == "COD":
             from pymatgen.ext.cod import COD
 
             cod = COD()
             return cod.get_structure_by_id(int(id_))
+
         raise ValueError(f"Invalid source: {source}")
 
     @classmethod
@@ -3989,11 +3991,11 @@ class IMolecule(SiteCollection, MSONable):
             properties=self.properties,
         )
 
-    def to(self, filename: str = "", fmt: str = "") -> str | None:
+    def to(self, filename: PathLike = "", fmt: str = "") -> str | None:
         """Outputs the molecule to a file or string.
 
         Args:
-            filename (str): If provided, output will be written to a file. If
+            filename (PathLike): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
             fmt (str): Format to output to. Defaults to JSON unless filename
@@ -4006,22 +4008,28 @@ class IMolecule(SiteCollection, MSONable):
             str: String representation of molecule in given format. If a filename
                 is provided, the same string is written to the file.
         """
+        filename = str(filename)
         fmt = fmt.lower()
+
         writer: Any
         if fmt == "xyz" or fnmatch(filename.lower(), "*.xyz*"):
             from pymatgen.io.xyz import XYZ
 
             writer = XYZ(self)
+
         elif any(fmt == ext or fnmatch(filename.lower(), f"*.{ext}*") for ext in ("gjf", "g03", "g09", "com", "inp")):
             from pymatgen.io.gaussian import GaussianInput
 
             writer = GaussianInput(self)
+
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
-            json_str = orjson.dumps(self.as_dict()).decode()
+            json_str = orjson.dumps(self.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
+
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)  # type:ignore[arg-type]
             return json_str
+
         elif fmt in {"yaml", "yml"} or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
             str_io = io.StringIO()
@@ -4031,6 +4039,7 @@ class IMolecule(SiteCollection, MSONable):
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(yaml_str)  # type:ignore[arg-type]
             return yaml_str
+
         else:
             from pymatgen.io.babel import BabelMolAdaptor
 
@@ -4042,6 +4051,7 @@ class IMolecule(SiteCollection, MSONable):
 
         if filename:
             writer.write_file(filename)
+
         return str(writer)
 
     @classmethod
@@ -4109,28 +4119,35 @@ class IMolecule(SiteCollection, MSONable):
             Molecule
         """
         filename = str(filename)
+        fname = filename.lower()
 
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            contents: str = file.read()  # type:ignore[assignment]
-        fname = filename.lower()
+            contents: str = cast("str", file.read())
+
         if fnmatch(fname, "*.xyz*"):
             return cls.from_str(contents, fmt="xyz")
+
         if any(fnmatch(fname.lower(), f"*.{r}*") for r in ("gjf", "g03", "g09", "com", "inp")):
             return cls.from_str(contents, fmt="g09")
+
         if any(fnmatch(fname.lower(), f"*.{r}*") for r in ("out", "lis", "log")):
             from pymatgen.io.gaussian import GaussianOutput
 
             return GaussianOutput(filename).final_structure
+
         if fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
             return cls.from_str(contents, fmt="json")
+
         if fnmatch(fname, "*.yaml*") or fnmatch(filename, "*.yml*"):
             return cls.from_str(contents, fmt="yaml")
-        from pymatgen.io.babel import BabelMolAdaptor
 
         if match := re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower()):
+            from pymatgen.io.babel import BabelMolAdaptor
+
             new = BabelMolAdaptor.from_file(filename, match[1]).pymatgen_mol
             new.__class__ = cls
             return new
+
         raise ValueError("Cannot determine file type.")
 
 
@@ -4764,7 +4781,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         scaling_matrix: ArrayLike,
         to_unit_cell: bool = True,
         in_place: bool = True,
-    ) -> Structure:
+    ) -> Self:
         """Create a supercell.
 
         Args:
@@ -4790,8 +4807,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
             Structure: self if in_place is True else self.copy() after making supercell
         """
         # TODO (janosh) maybe default in_place to False after a depreciation period
-        struct: Structure = self if in_place else self.copy()
-        supercell: Structure = struct * scaling_matrix
+        struct: Self = self if in_place else self.copy()
+        supercell = struct * scaling_matrix
         if to_unit_cell:
             for site in supercell:
                 site.to_unit_cell(in_place=True)
@@ -4800,7 +4817,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return struct
 
-    def scale_lattice(self, volume: float) -> Structure:
+    def scale_lattice(self, volume: float) -> Self:
         """Perform scaling of the lattice vectors so that length proportions
         and angles are preserved.
 

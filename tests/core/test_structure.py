@@ -132,7 +132,7 @@ class TestIStructure(MatSciTest):
 
     def test_equal(self):
         struct = self.struct
-        assert struct == struct
+        assert struct == struct  # noqa: PLR0124
         assert struct == struct.copy()
         assert struct != 2 * struct
 
@@ -714,7 +714,7 @@ Direct
             assert_allclose(cy_indices2, py_indices2)
             assert len(cy_offsets) == len(py_offsets)
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     @pytest.mark.skipif(not os.getenv("CI"), reason="Only run this in CI tests")
     def test_get_all_neighbors_crosscheck_old(self):
         rng = np.random.default_rng()
@@ -1252,7 +1252,7 @@ class TestStructure(MatSciTest):
         with pytest.raises(AttributeError, match="attr='magmom' not found on PeriodicSite"):
             _ = struct[0].magmom
 
-    def test_propertied_structure(self):
+    def test_site_properties(self):
         # Make sure that site properties are set to None for missing values.
         self.struct.add_site_property("charge", [4.1, -5])
         self.struct.append("Li", [0.3, 0.3, 0.3])
@@ -1277,6 +1277,23 @@ class TestStructure(MatSciTest):
         struct = Structure.from_str(json_str, fmt="json")
         assert struct.properties == props
         assert dct == struct.as_dict()
+
+    def test_selective_dynamics(self):
+        """Ensure selective dynamics as numpy arrays can be JSON serialized."""
+        struct = self.get_structure("Li2O")
+        struct.add_site_property(
+            "selective_dynamics", np.array([[True, True, True], [False, False, False], [True, True, True]])
+        )
+
+        orjson_str = struct.to(fmt="json")
+
+        # Also test round trip
+        orjson_struct = Structure.from_str(orjson_str, fmt="json")
+        assert struct == orjson_struct
+
+        with pytest.raises(TypeError, match="Object of type ndarray is not JSON serializable"):
+            # Use a dummy kwarg (default value) to force `json.dumps`
+            struct.to(fmt="json", ensure_ascii=True)
 
     def test_perturb(self):
         struct = self.get_structure("Li2O")
@@ -1389,6 +1406,10 @@ class TestStructure(MatSciTest):
         nio4 = nio.add_spin_by_site(spins)
         assert nio4 is nio
         assert nio[1].specie.spin == -5, "Failed to add spin states"
+
+        # Test lengths mismatch
+        with pytest.raises(ValueError, match="Spins for all sites must be specified"):
+            nio.add_spin_by_site([0, 1, 2])
 
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
@@ -1988,7 +2009,7 @@ direct
         assert traj[0] != traj[-1]
         assert os.path.isfile(traj_file)
 
-    @pytest.mark.skip("TODO: #3958 wait for matgl resolve of torch dependency")
+    @pytest.mark.xfail(reason="TODO: #3958 wait for matgl resolve of torch dependency")
     def test_calculate_matgl(self):
         pytest.importorskip("matgl")
         calculator = self.get_structure("Si").calculate()
@@ -2004,7 +2025,6 @@ direct
         matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed = struct.relax()
-        print(relaxed.lattice.a)
         assert relaxed.lattice.a == approx(3.860516230545545, rel=0.01)  # allow 1% error
         assert isinstance(relaxed.calc, matgl.ext.ase.PESCalculator)
         for key, val in {"type": "optimization", "optimizer": "FIRE"}.items():
@@ -2025,7 +2045,7 @@ direct
     def test_relax_m3gnet_with_traj(self):
         pytest.importorskip("matgl")
         struct = self.get_structure("Si")
-        relaxed, trajectory = struct.relax(return_trajectory=True)
+        relaxed, _trajectory = struct.relax(return_trajectory=True)
         assert relaxed.lattice.a == approx(3.867626620642243, abs=0.039)
         # assert sorted(trajectory.__dict__) == expected_attrs
         # for key in expected_attrs:
@@ -2155,10 +2175,8 @@ class TestIMolecule(MatSciTest):
             [-0.513360, 0.889165, -0.363000],
             [-0.513360, 0.889165, -0.36301],
         ]
-        with pytest.raises(StructureError) as exc:
+        with pytest.raises(StructureError, match="sites that are less than 0.01 Angstrom"):
             Molecule(["C", "H", "H", "H", "H", "H"], coords, validate_proximity=True)
-
-        assert "Molecule contains sites that are less than 0.01 Angstrom apart!" in str(exc.value)
 
     def test_get_angle_dihedral(self):
         assert self.mol.get_angle(1, 0, 2) == approx(109.47122144618737)
@@ -2668,7 +2686,7 @@ class TestMolecule(MatSciTest):
         assert calculator.results["energy"] == approx(-113.61022434200855)
         assert mol_copy == self.mol, "Molecule should not have been modified by calculation"
 
-    @pytest.mark.skip("Pytorch and TBLite clash. https://github.com/materialsproject/pymatgen/pull/3060")
+    @pytest.mark.xfail(reason="Pytorch and TBLite clash. https://github.com/materialsproject/pymatgen/pull/3060")
     def test_relax_gfnxtb(self):
         pytest.importorskip("tblite")
         mol = self.mol

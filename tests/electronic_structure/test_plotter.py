@@ -300,7 +300,7 @@ class TestPlotBZ:
         )
 
 
-@pytest.mark.skip("TODO: need someone to fix this")
+@pytest.mark.xfail(reason="TODO: need someone to fix this")
 @pytest.mark.skipif(not which("x_trans"), reason="No x_trans executable found")
 class TestBoltztrapPlotter:
     def setup_method(self):

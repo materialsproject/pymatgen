@@ -1,4 +1,7 @@
 NMR Quadrupole Moment:
+  # NOTE: most data could be found in the CRC handbook (except for C-11), also
+  # the handbook has much more data than here
+  reference: "CRC Handbook of Chemistry and Physics, 95 th, Nuclear Spins, Moments, and Other Data Related to NMR Spectroscopy"
   unit: mbarn
   data:
     Al:

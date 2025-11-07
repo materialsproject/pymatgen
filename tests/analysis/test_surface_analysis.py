@@ -253,21 +253,21 @@ class TestSurfaceEnergyPlotter(MatSciTest):
         surf_ene_plotter = SurfaceEnergyPlotter(all_Pt_slab_entries, self.Pt_analyzer.ucell_entry)
         assert surf_ene_plotter.list_of_chempots == self.Pt_analyzer.list_of_chempots
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_monolayer_vs_BE(self):
         for el in self.Oads_analyzer_dict:
             # Test WulffShape for adsorbed surfaces
             analyzer = self.Oads_analyzer_dict[el]
             analyzer.monolayer_vs_BE()
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_area_frac_vs_chempot_plot(self):
         for el in self.Oads_analyzer_dict:
             # Test WulffShape for adsorbed surfaces
             analyzer = self.Oads_analyzer_dict[el]
             analyzer.area_frac_vs_chempot_plot(x_is_u_ads=True)
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_chempot_vs_gamma_clean(self):
         self.Cu_analyzer.chempot_vs_gamma_clean()
         for el in self.Oads_analyzer_dict:
@@ -275,7 +275,7 @@ class TestSurfaceEnergyPlotter(MatSciTest):
             analyzer = self.Oads_analyzer_dict[el]
             analyzer.chempot_vs_gamma_clean(x_is_u_ads=True)
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_chempot_vs_gamma_facet(self):
         for el, val in self.metals_O_entry_dict.items():
             for hkl in val:
@@ -283,7 +283,7 @@ class TestSurfaceEnergyPlotter(MatSciTest):
                 analyzer = self.Oads_analyzer_dict[el]
                 analyzer.chempot_vs_gamma_facet(hkl)
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_surface_chempot_range_map(self):
         for el, val in self.metals_O_entry_dict.items():
             for hkl in val:

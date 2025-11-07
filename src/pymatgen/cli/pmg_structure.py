@@ -4,11 +4,16 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from tabulate import tabulate
 
 from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from argparse import Namespace
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -18,11 +23,11 @@ __email__ = "ongsp@ucsd.edu"
 __date__ = "Aug 13 2016"
 
 
-def convert_fmt(args):
+def convert_fmt(args: Namespace) -> None:
     """Convert files from one format to another.
 
     Args:
-        args (dict): Args from argparse.
+        args (Namespace): Args from argparse.
     """
     if len(args.filenames) != 2:
         print("File format conversion takes in only two filenames.")
@@ -30,11 +35,11 @@ def convert_fmt(args):
     struct.to(filename=args.filenames[1])
 
 
-def analyze_symmetry(args):
+def analyze_symmetry(args: Namespace) -> None:
     """Analyze symmetry of structures in files.
 
     Args:
-        args (dict): Args from argparse.
+        args (Namespace): Args from argparse.
     """
     tolerance = args.symmetry
     table_rows = []
@@ -46,11 +51,11 @@ def analyze_symmetry(args):
     print(tabulate(table_rows, headers=["Filename", "Int Symbol", "Int number", "Hall"]))
 
 
-def analyze_localenv(args):
+def analyze_localenv(args: Namespace) -> None:
     """Analyze local env of structures in files.
 
     Args:
-        args (dict): Args for argparse.
+        args (Namespace): Args for argparse.
     """
     bonds = {}
     for bond in args.localenv:
@@ -64,21 +69,21 @@ def analyze_localenv(args):
         for idx, site in enumerate(struct):
             for species, dist in bonds.items():
                 if species[0] in [sp.symbol for sp in site.species]:
-                    dists = [
+                    _dists = [
                         nn.nn_distance
                         for nn in struct.get_neighbors(site, dist)
                         if species[1] in [sp.symbol for sp in nn.species]
                     ]
-                    dists = ", ".join(f"{d:.3f}" for d in sorted(dists))
+                    dists = ", ".join(f"{d:.3f}" for d in sorted(_dists))
                     data.append([idx, species[0], species[1], dists])
         print(tabulate(data, headers=["#", "Center", "Ligand", "Dists"]))
 
 
-def compare_structures(args):
+def compare_structures(args: Namespace) -> None:
     """Compare structures in files for similarity using structure matcher.
 
     Args:
-        args (dict): Args from argparse.
+        args (Namespace): Args from argparse.
     """
     filenames = args.filenames
     if len(filenames) < 2:
@@ -97,11 +102,11 @@ def compare_structures(args):
         print()
 
 
-def analyze_structures(args):
-    """Master function to handle which operation to perform.
+def analyze_structures(args: Namespace) -> None:
+    """Main function to handle which operation to perform.
 
     Args:
-        args (dict): Args from argparse.
+        args (Namespace): Args from argparse.
     """
     if args.convert:
         convert_fmt(args)

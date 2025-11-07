@@ -1016,7 +1016,5 @@ def get_randomly_manipulated_structures(
         manip_ = _get_manipulation(manipulations, rng, 1000, seen)
         seen.add(manip_)
         sampled_manips.append(manip_)
-    output_structs = []
-    for manip_ in sampled_manips:
-        output_structs.append(_apply_manip(struct, manip_))
-    return output_structs
+
+    return [_apply_manip(struct, manip) for manip in sampled_manips]

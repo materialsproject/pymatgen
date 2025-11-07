@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import itertools
 import math
+import warnings
 from collections import defaultdict
 from typing import TYPE_CHECKING
-from warnings import warn
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -133,9 +133,8 @@ class VoronoiAnalyzer:
             if step % step_freq != 0:
                 continue
 
-            v = []
-            for n in range(len(structure)):
-                v.append(str(self.analyze(structure, n=n).view()))
+            v = [str(self.analyze(structure, n=n).view()) for n in range(len(structure))]
+
             for voro in v:
                 if voro in voro_dict:
                     voro_dict[voro] += 1
@@ -296,7 +295,7 @@ class VoronoiConnectivity:
                 connectivity[atom_j, atom_i, image_i] = val
 
             if -10.101 in vts[v]:
-                warn(
+                warnings.warn(
                     "Found connectivity with infinite vertex. Cutoff is too low, and results may be incorrect",
                     stacklevel=2,
                 )

@@ -5,6 +5,7 @@ for parsing CP2K-related outputs.
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 import warnings
@@ -30,6 +31,9 @@ from pymatgen.io.xyz import XYZ
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
 __status__ = "Production"
+
+
+logger = logging.getLogger(__name__)
 
 
 class Cp2kOutput:
@@ -946,7 +950,7 @@ class Cp2kOutput:
             footer_pattern=footer,
             last_one_only=False,
         ):
-            print("Found data, but not yet implemented!")
+            logger.warning("Found data, but not yet implemented!")
 
     def parse_hirshfeld(self):
         """Parse the Hirshfeld population analysis for each step."""

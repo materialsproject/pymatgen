@@ -21,6 +21,7 @@ import os
 import subprocess
 import tempfile
 import time
+import warnings
 from shutil import which
 from typing import TYPE_CHECKING
 
@@ -48,6 +49,7 @@ if TYPE_CHECKING:
 
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.core.structure import Structure
+    from pymatgen.core.units import FloatWithUnit
 
 __author__ = "Geoffroy Hautier, Zachary Gibbs, Francesco Ricci, Anubhav Jain"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -233,13 +235,14 @@ class BoltztrapRunner(MSONable):
         # buffer does not increase CPU time but will help get equal
         # energies for spin up/down for band structure
         const = Energy(2, "eV").to("Ry")
-        self._ll = min_eigenval - const
-        self._hl = max_eigenval + const
+
+        self._ll: FloatWithUnit = min_eigenval - const
+        self._hl: FloatWithUnit = max_eigenval + const
 
         en_range = Energy(max((abs(self._ll), abs(self._hl))), "Ry").to("eV")
 
         self.energy_span_around_fermi = en_range * 1.01
-        print("energy_span_around_fermi = ", self.energy_span_around_fermi)
+        logger.debug("energy_span_around_fermi = %s", self.energy_span_around_fermi)
 
     @property
     def bs(self):
@@ -264,7 +267,7 @@ class BoltztrapRunner(MSONable):
             if self.run_type == "FERMI":
                 sign = -1.0 if self.cond_band else 1.0
                 for i, kpt in enumerate(self._bs.kpoints):
-                    eigs = []
+                    eigs: list[FloatWithUnit] = []
                     eigs.append(
                         Energy(
                             self._bs.bands[Spin(self.spin)][self.band_nb][i] - self._bs.efermi,
@@ -273,8 +276,7 @@ class BoltztrapRunner(MSONable):
                     )
                     a, b, c = kpt.frac_coords
                     file.write(f"{a:12.8f} {b:12.8f} {c:12.8f}{len(eigs)}\n")
-                    for e in eigs:
-                        file.write(f"{sign * float(e):18.8f}\n")
+                    file.writelines(f"{sign * float(e):18.8f}\n" for e in eigs)
 
             else:
                 for i, kpt in enumerate(self._bs.kpoints):
@@ -301,8 +303,7 @@ class BoltztrapRunner(MSONable):
                     a, b, c = kpt.frac_coords
                     file.write(f"{a:12.8f} {b:12.8f} {c:12.8f} {len(eigs)}\n")
 
-                    for e in eigs:
-                        file.write(f"{float(e):18.8f}\n")
+                    file.writelines(f"{float(e):18.8f}\n" for e in eigs)
 
     def write_struct(self, output_file) -> None:
         """Write the structure to an output file.
@@ -332,8 +333,7 @@ class BoltztrapRunner(MSONable):
             file.write(f"{len(ops)}\n")
 
             for op in ops:
-                for row in op:
-                    file.write(f"{' '.join(map(str, row))}\n")
+                file.writelines(f"{' '.join(map(str, row))}\n" for row in op)
 
     def write_def(self, output_file) -> None:
         """Write the def to an output file.
@@ -380,9 +380,11 @@ class BoltztrapRunner(MSONable):
                         file.write(f"{self._bs.structure.formula}\n")
                         file.write(f"{len(self._bs.kpoints)}\n")
                         for kpt_idx, kpt in enumerate(self._bs.kpoints):
-                            tmp_proj = []
-                            for j in range(math.floor(self._bs.nb_bands * (1 - self.cb_cut))):
-                                tmp_proj.append(self._bs.projections[Spin(self.spin)][j][kpt_idx][orb_idx][site_nb])
+                            tmp_proj = [
+                                self._bs.projections[Spin(self.spin)][j][kpt_idx][orb_idx][site_nb]
+                                for j in range(math.floor(self._bs.nb_bands * (1 - self.cb_cut)))
+                            ]
+
                             # TODO deal with the sorting going on at
                             # the energy level!!!
                             # tmp_proj.sort()
@@ -392,8 +394,7 @@ class BoltztrapRunner(MSONable):
                                 tmp_proj.append(self._hl)
                             a, b, c = kpt.frac_coords
                             file.write(f"{a:12.8f} {b:12.8f} {c:12.8f} {len(tmp_proj)}\n")
-                            for t in tmp_proj:
-                                file.write(f"{float(t):18.8f}\n")
+                            file.writelines(f"{float(t):18.8f}\n" for t in tmp_proj)
         with open(output_file_def, mode="w", encoding="utf-8") as file:
             so = ""
             if self._bs.is_spin_polarized:
@@ -451,10 +452,8 @@ class BoltztrapRunner(MSONable):
                 fout.write(f"{self.tauref} {self.tauexp} {self.tauen} 0 0 0\n")
                 fout.write(f"{2 * len(self.doping)}\n")
 
-                for d in self.doping:
-                    fout.write(str(d) + "\n")
-                for d in self.doping:
-                    fout.write(str(-d) + "\n")
+                fout.writelines(str(d) + "\n" for d in self.doping)
+                fout.writelines(str(-d) + "\n" for d in self.doping)
 
         elif self.run_type == "FERMI":
             with open(output_file, mode="w", encoding="utf-8") as fout:
@@ -552,12 +551,12 @@ class BoltztrapRunner(MSONable):
             raise ValueError("Convergence mode requires write_input to be true")
 
         run_type = self.run_type
-        if run_type in ("BANDS", "DOS", "FERMI"):
+        if run_type in {"BANDS", "DOS", "FERMI"}:
             convergence = False
             max_lpfac = max(self.lpfac, max_lpfac)
 
         if run_type == "BANDS" and self.bs.is_spin_polarized:
-            print(
+            logger.warning(
                 f"Reminder: for {run_type=}, spin component are not separated! "
                 "(you have a spin polarized band structure)"
             )
@@ -927,7 +926,7 @@ class BoltztrapAnalyzer:
                             bnd_around_efermi.append(nb)
                             break
             if len(bnd_around_efermi) < 8:
-                print(f"Warning! check performed on {len(bnd_around_efermi)}")
+                warnings.warn(f"check performed on {len(bnd_around_efermi)}", stacklevel=2)
                 nb_list = bnd_around_efermi
             else:
                 nb_list = bnd_around_efermi[:8]
@@ -949,7 +948,7 @@ class BoltztrapAnalyzer:
         bcheck["nb_list"] = nb_list
 
         if True in acc_err:
-            print("Warning! some bands around gap are not accurate")
+            warnings.warn("some bands around gap are not accurate", stacklevel=2)
 
         return bcheck
 
@@ -1841,22 +1840,20 @@ class BoltztrapAnalyzer:
 
         # parse the full Hall tensor
         with open(f"{path_dir}/boltztrap.halltens", encoding="utf-8") as file:
-            for line in file:
-                if not line.startswith("#"):
-                    data_hall.append([float(c) for c in line.split()])
+            data_hall.extend([float(c) for c in line.split()] for line in file if not line.startswith("#"))
 
         if len(doping_levels) != 0:
             # parse doping levels version of full cond. tensor, etc.
             with open(f"{path_dir}/boltztrap.condtens_fixdoping", encoding="utf-8") as file:
-                for line in file:
-                    if not line.startswith("#") and len(line) > 2:
-                        data_doping_full.append([float(c) for c in line.split()])
+                data_doping_full.extend(
+                    [float(c) for c in line.split()] for line in file if not line.startswith("#") and len(line) > 2
+                )
 
             # parse doping levels version of full hall tensor
             with open(f"{path_dir}/boltztrap.halltens_fixdoping", encoding="utf-8") as file:
-                for line in file:
-                    if not line.startswith("#") and len(line) > 2:
-                        data_doping_hall.append([float(c) for c in line.split()])
+                data_doping_hall.extend(
+                    [float(c) for c in line.split()] for line in file if not line.startswith("#") and len(line) > 2
+                )
 
         # Step 2: convert raw data to final format
 
@@ -2242,8 +2239,7 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
                 zero = max(arr_bands[vbm])
         else:
             zero_ref = 0  # bands_ref_obj.efermi
-            zero = 0  # bands_obj.efermi
-            print(zero, zero_ref)
+            zero = 0  # bands_obj.efermi)
 
         for nbi in nb:
             bcheck[nbi] = {}

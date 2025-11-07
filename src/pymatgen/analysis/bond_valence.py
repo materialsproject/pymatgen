@@ -414,9 +414,7 @@ class BVAnalyzer:
 
                 return [int(assigned[site]) for site in structure]
             assigned = {}
-            new_best_vset = []
-            for _ in equi_sites:
-                new_best_vset.append([])
+            new_best_vset = [[] for _ in equi_sites]
             for ival, val in enumerate(self._best_vset):
                 new_best_vset[attrib[ival]].append(val)
             for val, sites in zip(new_best_vset, equi_sites, strict=True):
@@ -480,7 +478,7 @@ def add_oxidation_state_by_site_fraction(structure: Structure, oxidation_states:
             for j, (el, occu) in enumerate(get_z_ordered_elmap(site.species)):
                 specie = Species(el.symbol, oxidation_states[idx][j])
                 new_sp[specie] += occu
-            structure[idx] = new_sp
+            structure[idx] = new_sp  # type:ignore[assignment]
         return structure
     except IndexError:
         raise ValueError("Oxidation state of all sites must be specified in the list.")

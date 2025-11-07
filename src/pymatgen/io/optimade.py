@@ -61,7 +61,7 @@ def _pymatgen_species(
 
         pymatgen_species.append(dict(zip(chemical_symbols, concentration, strict=True)))
 
-    return pymatgen_species
+    return pymatgen_species  # type:ignore[return-value]
 
 
 def _optimade_anonymous_element_generator() -> Generator[str, None, None]:
@@ -173,7 +173,7 @@ class OptimadeStructureAdapter:
         if "attributes" not in resource:
             resource = {"attributes": resource}
 
-        _id = resource.get("id", None)
+        _id = resource.get("id")
         attributes = resource["attributes"]
         properties: dict[str, Any] = {"optimade_id": _id}
 

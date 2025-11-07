@@ -139,7 +139,7 @@ class TestMoleculeStructureComparator:
         d2 = MoleculeStructureComparator.from_dict(d1).as_dict()
         assert d1 == d2
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_structural_change_in_geom_opt(self):
         qcout_path = f"{TEST_DIR}/mol_1_3_bond.qcout"
         qcout = QCOutput(qcout_path)
