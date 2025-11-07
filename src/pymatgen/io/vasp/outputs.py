@@ -3936,14 +3936,23 @@ class VolumetricData(BaseVolumetricData):
 class Locpot(VolumetricData):
     """LOCPOT file reader."""
 
-    def __init__(self, poscar: Poscar, data: dict[str, NDArray], **kwargs) -> None:
+    def __init__(self, poscar: Poscar | Structure, data: dict[str, NDArray], **kwargs) -> None:
         """
         Args:
-            poscar (Poscar): Poscar object containing structure.
+            poscar (Poscar | Structure): Poscat or Structure object containing structure.
             data (NDArray): Actual data.
         """
-        super().__init__(poscar.structure, data, **kwargs)
-        self.name = poscar.comment
+        if isinstance(poscar, Poscar):
+            struct = poscar.structure
+            self.poscar = poscar
+            self.name = poscar.comment
+        elif isinstance(poscar, Structure):
+            struct = poscar
+            self.poscar = Poscar(poscar)
+        else:
+            raise TypeError("Unsupported POSCAR type.")
+
+        super().__init__(struct, data, **kwargs)
 
     @classmethod
     def from_file(cls, filename: PathLike, **kwargs) -> Self:
@@ -3967,6 +3976,7 @@ class Chgcar(VolumetricData):
         poscar: Poscar | Structure,
         data: dict[str, NDArray],
         data_aug: dict[str, NDArray] | None = None,
+        **kwargs,
     ) -> None:
         """
         Args:
@@ -3986,7 +3996,7 @@ class Chgcar(VolumetricData):
         else:
             raise TypeError("Unsupported POSCAR type.")
 
-        super().__init__(struct, data, data_aug=data_aug)
+        super().__init__(struct, data, data_aug=data_aug, **kwargs)
         self._distance_matrix: dict = {}
 
     @classmethod
@@ -4020,6 +4030,7 @@ class Elfcar(VolumetricData):
         self,
         poscar: Poscar | Structure,
         data: dict[str, NDArray],
+        **kwargs,
     ) -> None:
         """
         Args:
@@ -4036,7 +4047,7 @@ class Elfcar(VolumetricData):
         else:
             raise TypeError("Unsupported POSCAR type.")
 
-        super().__init__(tmp_struct, data)
+        super().__init__(tmp_struct, data, **kwargs)
         # TODO: (mkhorton) modify VolumetricData so that the correct keys can be used.
         # for ELF, instead of "total" and "diff" keys we have
         # "Spin.up" and "Spin.down" keys
@@ -5161,11 +5172,13 @@ class Wavecar:
             # Read records
             self.Gpoints = [None for _ in range(self.nk)]
             self.kpoints = []
+
+            # mypy typing
+            self.coeffs: list[list[list[Any]]] | list[list[Any]]
+            self.band_energy: list[Any]
             if spin == 2:
-                self.coeffs: list[list[list[None]]] | list[list[None]] = [
-                    [[None for _ in range(self.nb)] for _ in range(self.nk)] for _ in range(spin)
-                ]
-                self.band_energy: list = [[] for _ in range(spin)]
+                self.coeffs = [[[None for _ in range(self.nb)] for _ in range(self.nk)] for _ in range(spin)]
+                self.band_energy = [[] for _ in range(spin)]
             else:
                 self.coeffs = [[None for _ in range(self.nb)] for _ in range(self.nk)]
                 self.band_energy = []
@@ -5817,7 +5830,7 @@ class Waveder(MSONable):
     @property
     def cder(self) -> NDArray:
         """The complex derivative of the orbitals with respect to k."""
-        if self.cder_real.shape[0] != self.cder_real.shape[1]:  # pragma: no cover
+        if self.cder_real.shape[0] != self.cder_real.shape[1]:
             warnings.warn(
                 "Not all band pairs are present in the WAVEDER file."
                 "If you want to get all the matrix elements set LVEL=.True. in the INCAR.",

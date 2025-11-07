@@ -1640,9 +1640,9 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
     # If obj is an integer, return the Element with atomic number obj
     try:
         flt = float(obj)
-        assert flt == int(flt)  # noqa: S101
-        return Element.from_Z(int(flt))
-    except (AssertionError, ValueError, TypeError, KeyError):
+        if flt.is_integer():
+            return Element.from_Z(int(flt))
+    except (ValueError, TypeError, KeyError):
         pass
 
     # If obj is a string, attempt to parse it as a Species

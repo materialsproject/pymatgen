@@ -8,7 +8,7 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.13.3
+    rev: v0.14.3
     hooks:
       - id: ruff
         args: [--fix, --unsafe-fixes]
@@ -38,7 +38,7 @@ repos:
         exclude: src/pymatgen/analysis/aflow_prototypes.json
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: v0.17.0
+    rev: v0.18.1
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]
@@ -67,6 +67,6 @@ repos:
         args: [--drop-empty-cells, --keep-output]
 
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.406
+    rev: v1.1.407
     hooks:
       - id: pyright

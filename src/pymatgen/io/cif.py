@@ -340,20 +340,78 @@ class CifParser:
                 don't match to within comp_tol.
         """
 
+        # Load CIF content as text
+        if isinstance(filename, (str | Path)):
+            with zopen(filename, mode="rt", encoding="utf-8", errors="replace") as f:
+                cif_string: str = cast("str", f.read())
+        elif isinstance(filename, StringIO):
+            warnings.warn(
+                "Initializing CifParser from StringIO is deprecated, use `from_str()` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            cif_string = filename.getvalue()
+        else:
+            raise TypeError("Unsupported file format. Expect str or Path.")
+
+        parser = type(self).from_str(
+            cif_string,
+            occupancy_tolerance=occupancy_tolerance,
+            site_tolerance=site_tolerance,
+            frac_tolerance=frac_tolerance,
+            check_cif=check_cif,
+            comp_tol=comp_tol,
+        )
+
+        self.__dict__.update(parser.__dict__)
+
+    @classmethod
+    def from_str(
+        cls,
+        cif_string: str,
+        *,
+        occupancy_tolerance: float = 1.0,
+        site_tolerance: float = 1e-4,
+        frac_tolerance: float = 1e-4,
+        check_cif: bool = True,
+        comp_tol: float = 0.01,
+    ) -> Self:
+        """Create a CifParser from a string.
+
+        Args:
+            cif_string (str): String representation of a CIF.
+
+        Returns:
+            CifParser
+        """
+
+        self = cls.__new__(cls)
+
+        self._cif = CifFile.from_str(cif_string)
+
+        # Take tolerances
+        self._occupancy_tolerance = occupancy_tolerance
+        self._site_tolerance = site_tolerance
+        self._frac_tolerance = frac_tolerance
+
+        # Options related to checking CIFs for missing elements
+        # or incorrect stoichiometries
+        self.check_cif = check_cif
+        self.comp_tol = comp_tol
+
         def is_magcif() -> bool:
             """Check if a file is a magCIF file (heuristic)."""
             # Doesn't seem to be a canonical way to test if file is magCIF or
             # not, so instead check for magnetic symmetry datanames
-            prefixes = [
+            prefixes = (
                 "_space_group_magn",
                 "_atom_site_moment",
                 "_space_group_symop_magn",
-            ]
+            )
             for data in self._cif.data.values():
                 for key in data.data:
-                    for prefix in prefixes:
-                        if prefix in key:
-                            return True
+                    if any(prefix in key for prefix in prefixes):
+                        return True
             return False
 
         def is_magcif_incommensurate() -> bool:
@@ -364,57 +422,28 @@ class CifParser:
             # Doesn't seem to be a canonical way to test if magCIF file
             # describes incommensurate structure or not, so instead check
             # for common datanames
-            if not self.feature_flags["magcif"]:
+            if not self.feature_flags.get("magcif", False):
                 return False
             prefixes = ["_cell_modulation_dimension", "_cell_wave_vector"]
             for data in self._cif.data.values():
                 for key in data.data:
-                    for prefix in prefixes:
-                        if prefix in key:
-                            return True
+                    if any(prefix in key for prefix in prefixes):
+                        return True
             return False
 
-        # Take tolerances
-        self._occupancy_tolerance = occupancy_tolerance
-        self._site_tolerance = site_tolerance
-        self._frac_tolerance = frac_tolerance
-
-        # Read CIF file
-        if isinstance(filename, str | Path):
-            self._cif = CifFile.from_file(filename)
-        elif isinstance(filename, StringIO):
-            self._cif = CifFile.from_str(filename.read())
-        else:
-            raise TypeError("Unsupported file format.")
-
-        # Options related to checking CIFs for missing elements
-        # or incorrect stoichiometries
-        self.check_cif = check_cif
-        self.comp_tol = comp_tol
-
         # Store features from non-core CIF dictionaries, e.g. magCIF
-        self.feature_flags: dict[Literal["magcif", "magcif_incommensurate"], bool] = {}
+        self.feature_flags = cast("dict[Literal['magcif', 'magcif_incommensurate'], bool]", {})
         self.feature_flags["magcif"] = is_magcif()
         self.feature_flags["magcif_incommensurate"] = is_magcif_incommensurate()
 
         # Store warnings during parsing
-        self.warnings: list[str] = []
+        self.warnings = cast("list[str]", [])
 
         # Pass individual CifBlocks to _sanitize_data
         for key in self._cif.data:
             self._cif.data[key] = self._sanitize_data(self._cif.data[key])
 
-    @classmethod
-    def from_str(cls, cif_string: str, **kwargs) -> Self:
-        """Create a CifParser from a string.
-
-        Args:
-            cif_string (str): String representation of a CIF.
-
-        Returns:
-            CifParser
-        """
-        return cls(StringIO(cif_string), **kwargs)
+        return self
 
     def _sanitize_data(self, data: CifBlock) -> CifBlock:
         """Some CIF files do not conform to spec. This method corrects
