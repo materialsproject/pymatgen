@@ -795,6 +795,10 @@ class Incar(UserDict, MSONable):
         in the `lower_str_keys/as_is_str_keys` of the `proc_val` method.
     """
 
+    # INCAR tag/value recording
+    with open(os.path.join(MODULE_DIR, "incar_parameters.json"), encoding="utf-8") as json_file:
+        INCAR_PARAMS: ClassVar[dict[Literal["type", "values"], Any]] = orjson.loads(json_file.read())
+
     def __init__(self, params: Mapping[str, Any] | None = None) -> None:
         """
         Clean up params and create an Incar object.
@@ -970,8 +974,8 @@ class Incar(UserDict, MSONable):
                     params[key] = cls.proc_val(key, val)
         return cls(params)
 
-    @staticmethod
-    def proc_val(key: str, val: str) -> list | bool | float | int | str:
+    @classmethod
+    def proc_val(cls, key: str, val: str) -> list | bool | float | int | str:
         """Helper method to convert INCAR parameters to proper types
         like ints, floats, lists, etc.
 
@@ -979,79 +983,37 @@ class Incar(UserDict, MSONable):
             key (str): INCAR parameter key.
             val (str): Value of INCAR parameter.
         """
-        list_keys = (
-            "LDAUU",
-            "LDAUL",
-            "LDAUJ",
-            "MAGMOM",
-            "DIPOL",
-            "LANGEVIN_GAMMA",
-            "QUAD_EFG",
-            "EINT",
-            "LATTICE_CONSTRAINTS",
-        )
-        bool_keys = (
-            "LDAU",
-            "LWAVE",
-            "LSCALU",
-            "LCHARG",
-            "LPLANE",
-            "LUSE_VDW",
-            "LHFCALC",
-            "ADDGRID",
-            "LSORBIT",
-            "LNONCOLLINEAR",
-        )
-        float_keys = (
-            "EDIFF",
-            "SIGMA",
-            "TIME",
-            "ENCUTFOCK",
-            "HFSCREEN",
-            "POTIM",
-            "EDIFFG",
-            "AGGAC",
-            "PARAM1",
-            "PARAM2",
-            "ENCUT",
-            "NUPDOWN",
-        )
-        int_keys = (
-            "NSW",
-            "NBANDS",
-            "NELMIN",
-            "ISIF",
-            "IBRION",
-            "ISPIN",
-            "ISTART",
-            "ICHARG",
-            "NELM",
-            "ISMEAR",
-            "NPAR",
-            "LDAUPRINT",
-            "LMAXMIX",
-            "NSIM",
-            "NKRED",
-            "ISPIND",
-            "LDAUTYPE",
-            "IVDW",
-        )
+        # Handle union type (e.g. "bool | str" for LREAL)
+        if incar_type := cls.INCAR_PARAMS.get(key, {}).get("type"):
+            incar_types: list[str] = [t.strip() for t in incar_type.split("|")]
+        else:
+            incar_types = []
+
+        # Special cases
+        # Always lower case
         lower_str_keys = ("ML_MODE",)
         # String keywords to read "as is" (no case transformation, only stripped)
         as_is_str_keys = ("SYSTEM",)
 
-        def smart_int_or_float_bool(str_: str) -> float | int | bool:
-            """Determine whether a string represents an integer or a float."""
-            if str_.lower().startswith(".t") or str_.lower().startswith("t"):
-                return True
-            if str_.lower().startswith(".f") or str_.lower().startswith("f"):
-                return False
-            if "." in str_ or "e" in str_.lower():
-                return float(str_)
-            return int(str_)
-
         try:
-            if key in list_keys:
+            if key in lower_str_keys:
+                return val.strip().lower()
+
+            if key in as_is_str_keys:
+                return val.strip()
+
+            if "list" in incar_types:
+
+                def smart_int_or_float_bool(str_: str) -> float | int | bool:
+                    """Determine whether a string represents an integer or a float."""
+                    if str_.lower().startswith(".t") or str_.lower().startswith("t"):
+                        return True
+                    if str_.lower().startswith(".f") or str_.lower().startswith("f"):
+                        return False
+                    if "." in str_ or "e" in str_.lower():
+                        return float(str_)
+                    return int(str_)
+
                 output = []
                 tokens = re.findall(r"(-?\d+\.?\d*|[\.A-Z]+)\*?(-?\d+\.?\d*|[\.A-Z]+)?\*?(-?\d+\.?\d*|[\.A-Z]+)?", val)
                 for tok in tokens:
@@ -1061,27 +1023,24 @@ class Incar(UserDict, MSONable):
                         output.extend([smart_int_or_float_bool(tok[1])] * int(tok[0]))
                     else:
                         output.append(smart_int_or_float_bool(tok[0]))
-                return output
 
-            if key in bool_keys:
+                if output:  # pass when fail to parse (val is not list)
+                    return output
+
+            if "bool" in incar_types:
                 if match := re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val):
                     return match[1].lower() == "t"
 
                 raise ValueError(f"{key} should be a boolean type!")
 
-            if key in float_keys:
+            if "float" in incar_types:
                 return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", val)[0])  # type: ignore[index]
 
-            if key in int_keys:
+            if "int" in incar_types:
                 return int(re.match(r"^-?[0-9]+", val)[0])  # type: ignore[index]
 
-            if key in lower_str_keys:
-                return val.strip().lower()
-
-            if key in as_is_str_keys:
-                return val.strip()
-
-        except ValueError:
+        # If re.match doesn't hit, it would return None and thus TypeError from indexing
+        except (ValueError, TypeError):
             pass
 
         # Not in known keys. We will try a hierarchy of conversions.
@@ -1138,13 +1097,9 @@ class Incar(UserDict, MSONable):
         If a tag doesn't exist, calculation will still run, however VASP
         will ignore the tag and set it as default without letting you know.
         """
-        # Load INCAR tag/value check reference file
-        with open(os.path.join(MODULE_DIR, "incar_parameters.json"), encoding="utf-8") as json_file:
-            incar_params = orjson.loads(json_file.read())
-
         for tag, val in self.items():
             # Check if the tag exists
-            if tag not in incar_params:
+            if tag not in self.INCAR_PARAMS:
                 warnings.warn(
                     f"Cannot find {tag} in the list of INCAR tags",
                     BadIncarWarning,
@@ -1153,8 +1108,8 @@ class Incar(UserDict, MSONable):
                 continue
 
             # Check value type
-            param_type: str = incar_params[tag].get("type")
-            allowed_values: list[Any] = incar_params[tag].get("values")
+            param_type: str = self.INCAR_PARAMS[tag].get("type")
+            allowed_values: list[Any] = self.INCAR_PARAMS[tag].get("values")
 
             if param_type is not None and not isinstance(val, eval(param_type)):  # noqa: S307
                 warnings.warn(f"{tag}: {val} is not a {param_type}", BadIncarWarning, stacklevel=2)
