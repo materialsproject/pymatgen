@@ -965,13 +965,39 @@ class Incar(UserDict, MSONable):
         Returns:
             Incar object
         """
+        string = "\n".join([ln.split("#", 1)[0].split("!", 1)[0].rstrip() for ln in string.splitlines()])
+
         params: dict[str, Any] = {}
-        for line in clean_lines(string.splitlines()):
-            for sline in line.split(";"):
-                if match := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
-                    key: str = match[1].strip()
-                    val: str = match[2].strip()
-                    params[key] = cls.proc_val(key, val)
+
+        # Handle line continuations (\)
+        string = re.sub(r"\\\s*\n", " ", string)
+
+        # Regex pattern to find all valid "key = value" assignments at once
+        pattern = re.compile(
+            r"""
+            (?P<key>\w+)             # Key (e.g. ENCUT)
+            \s*=\s*                  # Equals sign and optional spaces
+            (?:                      # Non-capturing group for the value
+                "                    # Opening quote
+                (?P<qval>.*?)        # Capture everything inside (non-greedy)
+                [ \t]*"              # Allow trailing spaces/tabs before closing quote
+                |                    # OR
+                (?P<val>[^#!;\n]*)   # Unquoted value (stops before comment/separator)
+            )
+            """,
+            re.VERBOSE | re.DOTALL,
+        )
+
+        # Find all matches in the entire string
+        for match in pattern.finditer(string):
+            key = match.group("key")
+            val = match.group("qval") if match.group("qval") is not None else (match.group("val") or "").strip()
+
+            if not val:
+                continue
+
+            params[key] = cls.proc_val(key, val)
+
         return cls(params)
 
     @classmethod
@@ -993,7 +1019,7 @@ class Incar(UserDict, MSONable):
         # Always lower case
         lower_str_keys = ("ML_MODE",)
         # String keywords to read "as is" (no case transformation, only stripped)
-        as_is_str_keys = ("SYSTEM",)
+        as_is_str_keys = ("SYSTEM", "WANNIER90_WIN")
 
         try:
             if key in lower_str_keys:
@@ -1076,7 +1102,7 @@ class Incar(UserDict, MSONable):
                 {"Same" : parameters_that_are_the_same, "Different": parameters_that_are_different}
                 Note that the parameters are return as full dictionaries of values. E.g. {"ISIF":3}
         """
-        similar_params = {}
+        same_params = {}
         different_params = {}
         for k1, v1 in self.items():
             if k1 not in other:
@@ -1084,13 +1110,13 @@ class Incar(UserDict, MSONable):
             elif v1 != other[k1]:
                 different_params[k1] = {"INCAR1": v1, "INCAR2": other[k1]}
             else:
-                similar_params[k1] = v1
+                same_params[k1] = v1
 
         for k2, v2 in other.items():
-            if k2 not in similar_params and k2 not in different_params and k2 not in self:
+            if k2 not in same_params and k2 not in different_params and k2 not in self:
                 different_params[k2] = {"INCAR1": None, "INCAR2": v2}
 
-        return {"Same": similar_params, "Different": different_params}
+        return {"Same": same_params, "Different": different_params}
 
     def check_params(self) -> None:
         """Check INCAR for invalid tags or values.
