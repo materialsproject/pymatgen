@@ -2319,8 +2319,8 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert self.mol.spin_multiplicity == 1
         assert self.mol.nelectrons == 10
         assert_allclose(self.mol.center_of_mass, [0, 0, 0], atol=1e-7)
-        with pytest.raises(
-            ValueError,
+        with pytest.warns(
+            UserWarning,
             match="Charge of 1 and spin multiplicity of 1 is not possible for this molecule",
         ):
             Molecule(
@@ -2348,8 +2348,8 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
             [1.026719, 0, -0.363000],
             [-0.513360, -0.889165, -0.363000],
         ]
-        with pytest.raises(
-            ValueError,
+        with pytest.warns(
+            UserWarning,
             match="Charge of 0 and spin multiplicity of 1 is not possible for this molecule",
         ):
             mol = IMolecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
@@ -2623,7 +2623,7 @@ class TestMolecule(MatSciTest):
             [-0.513360, -0.889165, -0.363000],
         ]
         expected_msg = "Charge of 0 and spin multiplicity of 1 is not possible for this molecule"
-        with pytest.raises(ValueError, match=expected_msg):
+        with pytest.warns(UserWarning, match=expected_msg):
             Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
         mol_valid = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=2)
         with pytest.raises(ValueError, match=expected_msg):
