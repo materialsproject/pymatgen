@@ -72,4 +72,3 @@ After running the scripts:
 - The meta-package maintains backward compatibility
 - All four packages should share the same version number
 - Users can install just `pymatgen-core` if they don't need analysis tools or CLI
-

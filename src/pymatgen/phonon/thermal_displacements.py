@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.json import MSONable
 
-from pymatgen.core.structure_matcher import StructureMatcher
 from pymatgen.core.structure import Structure
+from pymatgen.core.structure_matcher import StructureMatcher
 from pymatgen.io.cif import CifFile, CifParser, CifWriter, str2float
 from pymatgen.symmetry.groups import SYMM_DATA
 from pymatgen.util.due import Doi, due

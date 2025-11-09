@@ -26,4 +26,3 @@ setup(
     ],
     include_dirs=[np.get_include()],
 )
-

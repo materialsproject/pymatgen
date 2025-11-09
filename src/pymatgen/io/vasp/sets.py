@@ -45,8 +45,8 @@ from monty.dev import deprecated
 from monty.json import MSONable
 from monty.serialization import loadfn
 
-from pymatgen.core.structure_matcher import StructureMatcher
 from pymatgen.core import Element, PeriodicSite, SiteCollection, Species, Structure
+from pymatgen.core.structure_matcher import StructureMatcher
 from pymatgen.io.core import InputGenerator
 from pymatgen.io.vasp.inputs import Incar, Kpoints, PmgVaspPspDirError, Poscar, Potcar, VaspInput
 from pymatgen.io.vasp.outputs import Outcar, Vasprun

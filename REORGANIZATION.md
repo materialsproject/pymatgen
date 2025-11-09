@@ -124,6 +124,7 @@ try:
 except ImportError:
     StructureMatcher = None
 
+
 def some_function():
     if StructureMatcher is None:
         raise ImportError(
@@ -173,4 +174,3 @@ Update documentation to reflect the new package structure and installation instr
   - New code should use `from pymatgen.core.structure_matcher import StructureMatcher`
 - Users can install just `pymatgen-core` if they don't need analysis tools or CLI
 - The version numbers should be kept in sync across all four packages
-

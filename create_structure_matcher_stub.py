@@ -6,6 +6,8 @@ This creates a stub file in pymatgen-analysis that imports from pymatgen.core.st
 to maintain backward compatibility.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 
 STUB_CONTENT = '''"""
@@ -54,19 +56,21 @@ __all__ = [
 ]
 '''
 
+
 def main():
     base = Path(__file__).parent
     stub_path = base / "pymatgen-analysis" / "src" / "pymatgen" / "analysis" / "structure_matcher.py"
-    
+
     # Create directory if it doesn't exist
     stub_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Write the stub file
     stub_path.write_text(STUB_CONTENT)
     print(f"Created backward compatibility stub at {stub_path}")
     return 0
 
+
 if __name__ == "__main__":
     import sys
-    sys.exit(main())
 
+    sys.exit(main())

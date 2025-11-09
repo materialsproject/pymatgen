@@ -21,4 +21,3 @@ for item in "$SRC_PYMATGEN"/*; do
 done
 
 echo "Done!"
-

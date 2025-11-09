@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Script to reorganize pymatgen into mono-repo structure."""
 
-import os
+from __future__ import annotations
+
 import shutil
 import sys
 from pathlib import Path
+
 
 def main():
     # Base paths
@@ -42,7 +44,7 @@ def main():
         print("Analysis directory already exists, skipping")
     else:
         print(f"Warning: {analysis_src} does not exist")
-    
+
     # Move structure_matcher.py from analysis to core/core directory
     structure_matcher_src = src_pymatgen / "analysis" / "structure_matcher.py"
     structure_matcher_dest = pymatgen_core / "core" / "structure_matcher.py"
@@ -57,7 +59,7 @@ def main():
     # Copy apps and cli to pymatgen-apps
     apps_src = src_pymatgen / "apps"
     cli_src = src_pymatgen / "cli"
-    
+
     if apps_src.exists():
         apps_dest = pymatgen_apps / "apps"
         if apps_dest.exists():
@@ -65,7 +67,7 @@ def main():
         print(f"Copying {apps_src} to {apps_dest}")
         shutil.copytree(apps_src, apps_dest)
         print("Copied apps directory")
-    
+
     if cli_src.exists():
         cli_dest = pymatgen_apps / "cli"
         if cli_dest.exists():
@@ -98,6 +100,6 @@ def main():
     print(f"\nReorganization complete! Copied {len(copied)} items to pymatgen-core")
     return 0
 
+
 if __name__ == "__main__":
     sys.exit(main())
-
