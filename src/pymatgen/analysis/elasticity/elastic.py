@@ -200,7 +200,7 @@ class ElasticTensor(NthOrderElasticTensor):
     @property
     def y_mod(self) -> float:
         """
-        Calculates Young's modulus (in SI units) using the
+        Calculates Young's modulus using the
         Voigt-Reuss-Hill averages of bulk and shear moduli.
         """
         return 9.0e9 * self.k_vrh * self.g_vrh * self.eV_A3_to_GPa / (3 * self.k_vrh + self.g_vrh)
