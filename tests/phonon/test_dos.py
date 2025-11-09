@@ -19,10 +19,15 @@ class TestPhononDos(MatSciTest):
         with open(f"{TEST_DIR}/NaCl_ph_dos.json", "rb") as file:
             self.dos = PhononDos.from_dict(orjson.loads(file.read()))
         with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", "rb") as file:
-            self.structure = CompletePhononDos.from_dict(orjson.loads(file.read())).structure
+            self.structure = CompletePhononDos.from_dict(
+                orjson.loads(file.read())
+            ).structure
 
     def test_repr(self):
-        assert repr(self.dos) == "PhononDos(frequencies=(201,), densities=(201,), n_positive_freqs=183)"
+        assert (
+            repr(self.dos)
+            == "PhononDos(frequencies=(201,), densities=(201,), n_positive_freqs=183)"
+        )
 
     def test_str(self):
         assert re.match(
@@ -47,16 +52,30 @@ class TestPhononDos(MatSciTest):
         assert self.dos.get_smeared_densities(0) is self.dos.densities
 
     def test_dict_methods(self):
-        json_str = orjson.dumps(self.dos.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
-        assert json_str.startswith('{"@module":"pymatgen.phonon.dos","@class":"PhononDos","frequencies":')
+        json_str = orjson.dumps(
+            self.dos.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY
+        ).decode()
+        assert json_str.startswith(
+            '{"@module":"pymatgen.phonon.dos","@class":"PhononDos","frequencies":'
+        )
         self.assert_msonable(self.dos)
 
     def test_thermodynamic_functions(self):
-        assert self.dos.cv(300, structure=self.structure) == approx(48.049366665412485, abs=1e-4)
-        assert self.dos.internal_energy(300, structure=self.structure) == approx(15527.596956593827, abs=1e-4)
-        assert self.dos.helmholtz_free_energy(300, structure=self.structure) == approx(-6998.034212172695, abs=1e-4)
-        assert self.dos.entropy(300, structure=self.structure) == approx(75.08543723748751, abs=1e-4)
-        assert self.dos.zero_point_energy(structure=self.structure) == approx(4847.462485708741, abs=1e-4)
+        assert self.dos.cv(300, structure=self.structure) == approx(
+            48.049366665412485, abs=1e-4
+        )
+        assert self.dos.internal_energy(300, structure=self.structure) == approx(
+            15527.596956593827, abs=1e-4
+        )
+        assert self.dos.helmholtz_free_energy(300, structure=self.structure) == approx(
+            -6998.034212172695, abs=1e-4
+        )
+        assert self.dos.entropy(300, structure=self.structure) == approx(
+            75.08543723748751, abs=1e-4
+        )
+        assert self.dos.zero_point_energy(structure=self.structure) == approx(
+            4847.462485708741, abs=1e-4
+        )
 
     def test_add(self):
         dos_2x = self.dos + self.dos
@@ -114,7 +133,9 @@ class TestPhononDos(MatSciTest):
 
         # check that r2_score is 0 for DOS with same mean as self.dos
         densities = self.dos.densities
-        mean_dos = PhononDos(self.dos.frequencies, np.full_like(densities, densities.mean()))
+        mean_dos = PhononDos(
+            self.dos.frequencies, np.full_like(densities, densities.mean())
+        )
         assert self.dos.r2_score(mean_dos) == approx(0)
         # moving away from the mean should decrease r2_score
         assert self.dos.r2_score(-mean_dos) == approx(-3.604224283)
@@ -142,25 +163,33 @@ class TestPhononDos(MatSciTest):
         assert sum(dos_fp2.densities * bin_width2) == approx(13.722295798242834)
         assert dos_fp2.bin_width == approx(bin_width2)
         # binning is False
-        dos_fp = self.dos.get_dos_fp(min_f=None, max_f=None, n_bins=56, normalize=True, binning=False)
+        dos_fp = self.dos.get_dos_fp(
+            min_f=None, max_f=None, n_bins=56, normalize=True, binning=False
+        )
         assert dos_fp.n_bins == len(self.dos.frequencies)
 
     def test_get_dos_fp_similarity(self):
         # Tanimoto
         dos_fp = self.dos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=True)
         dos_fp2 = self.dos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=False)
-        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="tanimoto")
+        similarity_index = self.dos.get_dos_fp_similarity(
+            dos_fp, dos_fp2, col=1, metric="tanimoto"
+        )
         assert similarity_index == approx(0.0553088193)
 
         dos_fp = self.dos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=True)
         dos_fp2 = self.dos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=True)
-        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="tanimoto")
+        similarity_index = self.dos.get_dos_fp_similarity(
+            dos_fp, dos_fp2, col=1, metric="tanimoto"
+        )
         assert similarity_index == approx(1)
 
         # Wasserstein
         dos_fp = self.dos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=True)
         dos_fp2 = self.dos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=True)
-        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="wasserstein")
+        similarity_index = self.dos.get_dos_fp_similarity(
+            dos_fp, dos_fp2, col=1, metric="wasserstein"
+        )
         assert similarity_index == approx(0)
 
     def test_dos_fp_exceptions(self):
@@ -171,7 +200,9 @@ class TestPhononDos(MatSciTest):
             ValueError,
             match="Cannot compute similarity index. When normalize=True, then please set metric=cosine-sim",
         ):
-            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="tanimoto", normalize=True)
+            self.dos.get_dos_fp_similarity(
+                dos_fp, dos_fp2, col=1, metric="tanimoto", normalize=True
+            )
 
         valid_metrics = ("tanimoto", "wasserstein", "cosine-sim")
         metric = "Dot"
@@ -179,7 +210,9 @@ class TestPhononDos(MatSciTest):
             ValueError,
             match=re.escape(f"Invalid {metric=}, choose from {valid_metrics}."),
         ):
-            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric=metric, normalize=False)
+            self.dos.get_dos_fp_similarity(
+                dos_fp, dos_fp2, col=1, metric=metric, normalize=False
+            )
 
 
 class TestCompletePhononDos(MatSciTest):
@@ -199,12 +232,17 @@ class TestCompletePhononDos(MatSciTest):
         assert Element.Na in self.cdos.get_element_dos()
         assert Element.Cl in self.cdos.get_element_dos()
 
-        sum_dos = self.cdos.get_element_dos()[Element.Na] + self.cdos.get_element_dos()[Element.Cl]
+        sum_dos = (
+            self.cdos.get_element_dos()[Element.Na]
+            + self.cdos.get_element_dos()[Element.Cl]
+        )
         assert sum_dos.frequencies == approx(self.cdos.frequencies)
         assert sum_dos.densities == approx(self.cdos.densities)
 
     def test_dict_methods(self):
-        json_str = orjson.dumps(self.cdos.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
+        json_str = orjson.dumps(
+            self.cdos.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY
+        ).decode()
         assert json_str is not None
         self.assert_msonable(self.cdos)
 

@@ -5,7 +5,10 @@ import json
 from monty.json import MontyDecoder
 from pytest import approx
 
-from pymatgen.apps.battery.conversion_battery import ConversionElectrode, ConversionVoltagePair
+from pymatgen.apps.battery.conversion_battery import (
+    ConversionElectrode,
+    ConversionVoltagePair,
+)
 from pymatgen.core.composition import Composition
 from pymatgen.util.testing import TEST_FILES_DIR
 
@@ -88,7 +91,10 @@ class TestConversionElectrode:
         for formula in self.formulas:
             conv_electrode = self.conversion_electrodes[formula]["CE"]
 
-            assert len(conv_electrode.get_sub_electrodes(adjacent_only=True)) == conv_electrode.num_steps
+            assert (
+                len(conv_electrode.get_sub_electrodes(adjacent_only=True))
+                == conv_electrode.num_steps
+            )
             assert len(conv_electrode.get_sub_electrodes(adjacent_only=False)) == sum(
                 range(1, conv_electrode.num_steps + 1)
             )
@@ -159,5 +165,7 @@ class TestConversionElectrode:
                 composite_dict = self.expected_composite[formula]
                 for attr in ["entries_charge", "entries_discharge"]:
                     # composite at each discharge step, of which entry object is simplified to reduced formula
-                    entries_formula_list = [entry.reduced_formula for entry in getattr(volt_pair, attr)]
+                    entries_formula_list = [
+                        entry.reduced_formula for entry in getattr(volt_pair, attr)
+                    ]
                     assert entries_formula_list == composite_dict[attr][step]

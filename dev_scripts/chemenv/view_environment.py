@@ -53,7 +53,9 @@ if __name__ == "__main__":
         sep_plane = False
         algo = None
         if any(algo.algorithm_type == SEPARATION_PLANE for algo in cg.algorithms):
-            test = input("Enter index of the algorithm for which you want to visualize the plane : ")
+            test = input(
+                "Enter index of the algorithm for which you want to visualize the plane : "
+            )
             if test != "":
                 try:
                     idx = int(test)
@@ -65,7 +67,11 @@ if __name__ == "__main__":
                         "to visualize for this geometry. Continues without ..."
                     )
         factor = 3.0
-        vis = visualize(cg=cg, zoom=1, factor=factor) if vis is None else visualize(cg=cg, vis=vis, factor=factor)
+        vis = (
+            visualize(cg=cg, zoom=1, factor=factor)
+            if vis is None
+            else visualize(cg=cg, vis=vis, factor=factor)
+        )
         cg_points = [factor * np.array(pp) for pp in cg.points]
         cg_central_site = factor * np.array(cg.central_site)
         if sep_plane:

@@ -15,7 +15,9 @@ from .outputs_test_utils import ex_outfileslice1_known as ex_outslice1_known
     ("ex_slice", "ex_slice_known", "opt_type"),
     [(ex_outslice1, ex_outslice1_known, "lattice")],
 )
-def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], opt_type: str):
+def test_jstructures(
+    ex_slice: list[str], ex_slice_known: dict[str, float], opt_type: str
+):
     """General testing of the JOutStructures class.
 
     Args:
@@ -41,7 +43,9 @@ def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], opt_
     assert jstruct[0].elecmindata[0].nelectrons == approx(ex_slice_known["nelec0_0"])
     assert jstruct[0].elecmindata[-1].nelectrons == approx(ex_slice_known["nelec0_-1"])
     assert jstruct[-1].elecmindata[0].nelectrons == approx(ex_slice_known["nelec-1_0"])
-    assert jstruct[-1].elecmindata[-1].nelectrons == approx(ex_slice_known["nelec-1_-1"])
+    assert jstruct[-1].elecmindata[-1].nelectrons == approx(
+        ex_slice_known["nelec-1_-1"]
+    )
     assert jstruct.elecmindata[-1].nelectrons == approx(ex_slice_known["nelec-1_-1"])
     assert len(jstruct[0].elecmindata) == ex_slice_known["nEminSteps0"]
     assert len(jstruct[-1].elecmindata) == ex_slice_known["nEminSteps-1"]

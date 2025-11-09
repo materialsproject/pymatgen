@@ -27,8 +27,12 @@ class TestQuasiRRHO:
         correct_g = -884.776886
         correct_stot = 141.584080
         qrrho = QuasiRRHO.from_gaussian_output(self.gout)
-        assert correct_stot == approx(qrrho.entropy_quasiRRHO, rel=0.1), "Incorrect total entropy"
-        assert correct_g == approx(qrrho.free_energy_quasiRRHO), "Incorrect Quasi-RRHO free energy"
+        assert correct_stot == approx(qrrho.entropy_quasiRRHO, rel=0.1), (
+            "Incorrect total entropy"
+        )
+        assert correct_g == approx(qrrho.free_energy_quasiRRHO), (
+            "Incorrect Quasi-RRHO free energy"
+        )
 
     def test_qrrho_qchem(self):
         """
@@ -41,8 +45,12 @@ class TestQuasiRRHO:
         # HO total entropy from QChem = 106.521
 
         qrrho = QuasiRRHO.from_qc_output(self.qout)
-        assert correct_stot == approx(qrrho.entropy_quasiRRHO, rel=0.1), "Incorrect total entropy"
-        assert correct_g == approx(qrrho.free_energy_quasiRRHO), "Incorrect Quasi-RRHO free energy"
+        assert correct_stot == approx(qrrho.entropy_quasiRRHO, rel=0.1), (
+            "Incorrect total entropy"
+        )
+        assert correct_g == approx(qrrho.free_energy_quasiRRHO), (
+            "Incorrect Quasi-RRHO free energy"
+        )
 
     def test_rrho_manual(self):
         """
@@ -55,8 +63,12 @@ class TestQuasiRRHO:
         correct_g = -884.776886
         correct_stot = 141.584080
         qrrho = QuasiRRHO(mol=mol, energy=e_final, frequencies=vib_freqs, mult=1)
-        assert correct_stot == approx(qrrho.entropy_quasiRRHO, rel=0.1), "Incorrect total entropy"
-        assert correct_g == approx(qrrho.free_energy_quasiRRHO), "Incorrect Quasi-RRHO free energy"
+        assert correct_stot == approx(qrrho.entropy_quasiRRHO, rel=0.1), (
+            "Incorrect total entropy"
+        )
+        assert correct_g == approx(qrrho.free_energy_quasiRRHO), (
+            "Incorrect Quasi-RRHO free energy"
+        )
 
     def test_rrho_linear(self):
         """Test on a linear CO2 molecule from Gaussian Output file.
@@ -70,7 +82,9 @@ class TestQuasiRRHO:
         assert correct_g_ho == approx(qrrho.free_energy_ho, rel=1e-5), (
             f"Incorrect harmonic oscillator free energy, {correct_g_ho} != {qrrho.free_energy_ho}"
         )
-        assert correct_g_qrrho == approx(qrrho.free_energy_quasiRRHO), "Incorrect  Quasi-RRHO free energy"
+        assert correct_g_qrrho == approx(qrrho.free_energy_quasiRRHO), (
+            "Incorrect  Quasi-RRHO free energy"
+        )
 
     def test_extreme_temperature_and_pressure(self):
         qrrho = QuasiRRHO.from_gaussian_output(self.gout, temp=0.1, press=1e9)

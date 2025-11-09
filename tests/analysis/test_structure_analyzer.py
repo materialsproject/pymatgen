@@ -28,10 +28,14 @@ class TestVoronoiAnalyzer(MatSciTest):
     def test_analyze(self):
         # Check for the Voronoi index of site i in Structure
         single_structure = self.va.analyze(self.struct, n=5)
-        assert single_structure.view() in np.array([4, 3, 3, 4, 2, 2, 1, 0]).view(), "Cannot find the right polyhedron."
+        assert single_structure.view() in np.array([4, 3, 3, 4, 2, 2, 1, 0]).view(), (
+            "Cannot find the right polyhedron."
+        )
         # Check for the presence of a Voronoi index and its frequency in
         # a ensemble (list) of Structures
-        ensemble = self.va.analyze_structures(self.structs, step_freq=2, most_frequent_polyhedra=10)
+        ensemble = self.va.analyze_structures(
+            self.structs, step_freq=2, most_frequent_polyhedra=10
+        )
         assert (
             "[1 3 4 7 1 0 0 0]",
             3,
@@ -93,7 +97,9 @@ class TestMiscFunction(MatSciTest):
             [3.874524708023352, 4.425301459451914, 2.771990305592935],
             [2.055778446743566, 4.437449313863041, 4.061046832034642],
         ]
-        assert solid_angle(center, coords) == approx(1.83570965938, abs=1e-7), "Wrong result returned by solid_angle"
+        assert solid_angle(center, coords) == approx(1.83570965938, abs=1e-7), (
+            "Wrong result returned by solid_angle"
+        )
 
     def test_contains_peroxide(self):
         for formula in ("LiFePO4", "NaFePO4", "Li3V2(PO4)3", "Li2O"):
@@ -121,7 +127,9 @@ class TestMiscFunction(MatSciTest):
         el_li = Element("Li")
         el_o = Element("O")
         elems = [el_li, el_o, el_o, el_o]
-        lattice = Lattice.from_parameters(3.999911, 3.999911, 3.999911, 133.847504, 102.228244, 95.477342)
+        lattice = Lattice.from_parameters(
+            3.999911, 3.999911, 3.999911, 133.847504, 102.228244, 95.477342
+        )
         coords = [
             [0.513004, 0.513004, 1.000000],
             [0.017616, 0.017616, 0.000000],
@@ -131,7 +139,9 @@ class TestMiscFunction(MatSciTest):
         struct = Structure(lattice, elems, coords)
         assert oxide_type(struct, 1.1) == "ozonide"
 
-        lattice = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510)
+        lattice = Lattice.from_parameters(
+            3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510
+        )
         el_li = Element("Li")
         el_o = Element("O")
         elems = [el_li, el_li, el_li, el_li, el_o, el_o, el_o, el_o]
@@ -151,7 +161,9 @@ class TestMiscFunction(MatSciTest):
         el_li = Element("Li")
         el_o = Element("O")
         el_h = Element("H")
-        lattice = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000)
+        lattice = Lattice.from_parameters(
+            3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000
+        )
         elems = [el_h, el_h, el_li, el_li, el_o, el_o]
         coords = [
             [0.000000, 0.500000, 0.413969],
@@ -167,7 +179,9 @@ class TestMiscFunction(MatSciTest):
         el_li = Element("Li")
         el_n = Element("N")
         el_h = Element("H")
-        lattice = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000)
+        lattice = Lattice.from_parameters(
+            3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000
+        )
         elems = [el_h, el_h, el_li, el_li, el_n, el_n]
         coords = [
             [0.000000, 0.500000, 0.413969],
@@ -181,7 +195,9 @@ class TestMiscFunction(MatSciTest):
         assert oxide_type(struct, 1.1) == "None"
 
         el_o = Element("O")
-        lattice = Lattice.from_parameters(4.389828, 5.369789, 5.369789, 70.786622, 69.244828, 69.244828)
+        lattice = Lattice.from_parameters(
+            4.389828, 5.369789, 5.369789, 70.786622, 69.244828, 69.244828
+        )
         elems = [el_o, el_o, el_o, el_o, el_o, el_o, el_o, el_o]
         coords = [
             [0.844609, 0.273459, 0.786089],

@@ -19,7 +19,9 @@ class TestFeffLdos:
 
     def test_init(self):
         e_fermi = TestFeffLdos.ldos.complete_dos.efermi
-        assert e_fermi == approx(-11.430), "Did not read correct Fermi energy from ldos file"
+        assert e_fermi == approx(-11.430), (
+            "Did not read correct Fermi energy from ldos file"
+        )
 
     def test_complete_dos(self):
         complete_dos = TestFeffLdos.ldos.complete_dos
@@ -35,7 +37,9 @@ class TestFeffLdos:
 
     def test_reci_init(self):
         e_fermi = TestFeffLdos.reci_dos.complete_dos.efermi
-        assert e_fermi == approx(-9.672), "Did not read correct Fermi energy from ldos file"
+        assert e_fermi == approx(-9.672), (
+            "Did not read correct Fermi energy from ldos file"
+        )
 
     def test_reci_complete_dos(self):
         complete_dos = TestFeffLdos.reci_dos.complete_dos

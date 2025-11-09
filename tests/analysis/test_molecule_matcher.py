@@ -73,7 +73,9 @@ def permute(mol, seed):
 
 def generate_Si_cluster():
     coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
-    lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
+    lattice = Lattice.from_parameters(
+        a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60
+    )
 
     struct = Structure(lattice, ["Si", "Si"], coords)
     struct.make_supercell([2, 2, 2])
@@ -115,7 +117,9 @@ def generate_Si2O_cluster():
         [0.750, 0.750, 0.750],
     ]
 
-    lattice = Lattice.from_parameters(a=6.61657069, b=6.61657069, c=6.61657069, alpha=60, beta=60, gamma=60)
+    lattice = Lattice.from_parameters(
+        a=6.61657069, b=6.61657069, c=6.61657069, alpha=60, beta=60, gamma=60
+    )
     struct = Structure(lattice, ["Si", "Si", "Si", "Si", "O", "O"], coords)
     # struct.make_supercell([2, 2, 2])
 
@@ -148,32 +152,42 @@ def generate_Si2O_cluster():
 
 @pytest.mark.skipif(ob_align_missing, reason="OBAlign is missing, Skipping")
 class TestMoleculeMatcher:
-    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(
+        platform.system() == "Windows", reason="Tests for openbabel failing on Win"
+    )
     def test_fit(self):
         self.fit_with_mapper(IsomorphismMolAtomMapper())
         self.fit_with_mapper(InchiMolAtomMapper())
 
-    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(
+        platform.system() == "Windows", reason="Tests for openbabel failing on Win"
+    )
     def test_get_rmsd(self):
         mol_matcher = MoleculeMatcher()
         mol1 = Molecule.from_file(f"{TEST_DIR}/t3.xyz")
         mol2 = Molecule.from_file(f"{TEST_DIR}/t4.xyz")
         assert f"{mol_matcher.get_rmsd(mol1, mol2):7.3}" == "0.00488"
 
-    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(
+        platform.system() == "Windows", reason="Tests for openbabel failing on Win"
+    )
     def test_group_molecules(self):
         mol_matcher = MoleculeMatcher(tolerance=0.001)
         with open(f"{TEST_DIR}/mol_list.txt", encoding="utf-8") as file:
             filename_list = [line.strip() for line in file]
         mol_list = [Molecule.from_file(f"{TEST_DIR}/{file}") for file in filename_list]
         mol_groups = mol_matcher.group_molecules(mol_list)
-        filename_groups = [[filename_list[mol_list.index(m)] for m in g] for g in mol_groups]
+        filename_groups = [
+            [filename_list[mol_list.index(m)] for m in g] for g in mol_groups
+        ]
         with open(f"{TEST_DIR}/grouped_mol_list.txt", encoding="utf-8") as file:
             grouped_text = file.read().strip()
         assert str(filename_groups) == grouped_text
 
     def test_to_and_from_dict(self):
-        mol_matcher = MoleculeMatcher(tolerance=0.5, mapper=InchiMolAtomMapper(angle_tolerance=50.0))
+        mol_matcher = MoleculeMatcher(
+            tolerance=0.5, mapper=InchiMolAtomMapper(angle_tolerance=50.0)
+        )
         dct = mol_matcher.as_dict()
         mm2 = MoleculeMatcher.from_dict(dct)
         assert dct == mm2.as_dict()
@@ -239,28 +253,36 @@ class TestMoleculeMatcher:
         mol2 = Molecule.from_file(f"{TEST_DIR}/t4.xyz")
         assert not mol_matcher.fit(mol1, mol2)
 
-    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(
+        platform.system() == "Windows", reason="Tests for openbabel failing on Win"
+    )
     def test_strange_inchi(self):
         mol_matcher = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
         mol1 = Molecule.from_file(f"{TEST_DIR}/k1.sdf")
         mol2 = Molecule.from_file(f"{TEST_DIR}/k2.sdf")
         assert mol_matcher.fit(mol1, mol2)
 
-    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(
+        platform.system() == "Windows", reason="Tests for openbabel failing on Win"
+    )
     def test_thiane(self):
         mol_matcher = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
         mol1 = Molecule.from_file(f"{TEST_DIR}/thiane1.sdf")
         mol2 = Molecule.from_file(f"{TEST_DIR}/thiane2.sdf")
         assert not mol_matcher.fit(mol1, mol2)
 
-    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(
+        platform.system() == "Windows", reason="Tests for openbabel failing on Win"
+    )
     def test_thiane_ethynyl(self):
         mol_matcher = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
         mol1 = Molecule.from_file(f"{TEST_DIR}/thiane_ethynyl1.sdf")
         mol2 = Molecule.from_file(f"{TEST_DIR}/thiane_ethynyl2.sdf")
         assert not mol_matcher.fit(mol1, mol2)
 
-    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(
+        platform.system() == "Windows", reason="Tests for openbabel failing on Win"
+    )
     def test_cdi_23(self):
         mol_matcher = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
         mol1 = Molecule.from_file(f"{TEST_DIR}/cdi_23_1.xyz")
@@ -388,7 +410,9 @@ class TestHungarianOrderMatcher:
         mol2 = Molecule.from_file(f"{TEST_DIR}/t2.xyz")
         mol_matcher = HungarianOrderMatcher(mol1)
 
-        with pytest.raises(ValueError, match="The number of the same species aren't matching"):
+        with pytest.raises(
+            ValueError, match="The number of the same species aren't matching"
+        ):
             mol_matcher.fit(mol2)
 
     def test_fit(self):
@@ -493,7 +517,9 @@ class TestGeneticOrderMatcher:
         mol2 = Molecule.from_file(f"{TEST_DIR}/t2.xyz")
         mol_matcher = GeneticOrderMatcher(mol1, threshold=0.3)
 
-        with pytest.raises(ValueError, match="The number of the same species aren't matching"):
+        with pytest.raises(
+            ValueError, match="The number of the same species aren't matching"
+        ):
             mol_matcher.fit(mol2)[0]
 
     def test_fit(self):
@@ -626,7 +652,9 @@ class TestHungarianOrderMatcherSi:
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster_rotated.xyz")
-        with pytest.raises(ValueError, match="The number of the same species aren't matching"):
+        with pytest.raises(
+            ValueError, match="The number of the same species aren't matching"
+        ):
             self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):
@@ -665,7 +693,9 @@ class TestGeneticOrderMatcherSi:
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster.xyz")
-        with pytest.raises(ValueError, match="The number of the same species aren't matching"):
+        with pytest.raises(
+            ValueError, match="The number of the same species aren't matching"
+        ):
             self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):
@@ -732,7 +762,9 @@ class TestBruteForceOrderMatcherSi2O:
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si_cluster_rotated.xyz")
-        with pytest.raises(ValueError, match="The number of the same species aren't matching"):
+        with pytest.raises(
+            ValueError, match="The number of the same species aren't matching"
+        ):
             self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):
@@ -771,11 +803,15 @@ class TestBruteForceOrderMatcherSi2O:
         assert rmsd == approx(0, abs=1e-4)
 
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster_2.xyz")
-        _, rmsd = self.mol_matcher.fit(mol2, break_on_tol=2)  # breaks early with higher RMSD, < tol
+        _, rmsd = self.mol_matcher.fit(
+            mol2, break_on_tol=2
+        )  # breaks early with higher RMSD, < tol
         assert rmsd < 2
 
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster_2.xyz")
-        _, rmsd = self.mol_matcher.fit(mol2, break_on_tol=0.2)  # doesn't break early, returns orig best RMSD
+        _, rmsd = self.mol_matcher.fit(
+            mol2, break_on_tol=0.2
+        )  # doesn't break early, returns orig best RMSD
         assert rmsd == approx(0.23051587697194997, abs=1e-6)
 
 
@@ -787,7 +823,9 @@ class TestHungarianOrderMatcherSi2O:
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si_cluster_rotated.xyz")
-        with pytest.raises(ValueError, match="The number of the same species aren't matching"):
+        with pytest.raises(
+            ValueError, match="The number of the same species aren't matching"
+        ):
             self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):
@@ -819,7 +857,9 @@ class TestGeneticOrderMatcherSi2O:
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si_cluster.xyz")
-        with pytest.raises(ValueError, match="The number of the same species aren't matching"):
+        with pytest.raises(
+            ValueError, match="The number of the same species aren't matching"
+        ):
             self.mol_matcher.fit(mol2)
 
     def test_rotated_molecule(self):

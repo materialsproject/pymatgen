@@ -60,23 +60,30 @@ assert RUNNER_OS in {"linux", "windows", "macos"}
 
 # Skip test on macOS due to inconsistent import time results
 if RUNNER_OS == "macos":
-    pytest.skip("Import time measurements are unstable on macOS", allow_module_level=True)
+    pytest.skip(
+        "Import time measurements are unstable on macOS", allow_module_level=True
+    )
 
 REF_FILE: str = f"{TEST_FILES_DIR}/performance/import_time_{RUNNER_OS}.json"
 
 
-@pytest.mark.skipif(not GEN_REF_TIME, reason="Set GEN_REF_TIME to generate reference import time.")
+@pytest.mark.skipif(
+    not GEN_REF_TIME, reason="Set GEN_REF_TIME to generate reference import time."
+)
 def test_get_ref_import_time() -> None:
     """A dummy test that would always fail, used to generate copyable reference time."""
     import_times: dict[str, float] = {
-        module_import_cmd: _measure_import_time_in_ms(module_import_cmd) for module_import_cmd in MODULES_TO_TEST
+        module_import_cmd: _measure_import_time_in_ms(module_import_cmd)
+        for module_import_cmd in MODULES_TO_TEST
     }
 
     # Print a copyable JSON format for easy reference updating
     print("\nCopyable import time JSON:")
     print(orjson.dumps(import_times, option=orjson.OPT_INDENT_2).decode())
 
-    pytest.fail("Reference import times generated. Copy from output to update JSON file.")
+    pytest.fail(
+        "Reference import times generated. Copy from output to update JSON file."
+    )
 
 
 @pytest.mark.xfail(reason="High variance in CI run times.")
@@ -107,7 +114,9 @@ def test_import_time(grace_percent: float, hard_percent: float) -> None:
 
         if current_time > grace_threshold:
             if current_time > hard_threshold:
-                pytest.fail(f"{module_import_cmd} import too slow at {current_time:.2f} ms! {hard_threshold=:.2f} ms")
+                pytest.fail(
+                    f"{module_import_cmd} import too slow at {current_time:.2f} ms! {hard_threshold=:.2f} ms"
+                )
             else:
                 warnings.warn(
                     f"{module_import_cmd} import slightly slower than reference: {grace_threshold=:.2f} ms",

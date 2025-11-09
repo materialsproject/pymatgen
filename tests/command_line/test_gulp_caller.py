@@ -128,7 +128,9 @@ class TestGulpIO:
         assert "cell" not in inp_str
 
     def test_structure_lines_no_frac_coords(self):
-        inp_str = self.gio.structure_lines(self.structure, cell_flg=False, frac_flg=False)
+        inp_str = self.gio.structure_lines(
+            self.structure, cell_flg=False, frac_flg=False
+        )
         assert "cell" not in inp_str
         assert "cart" in inp_str
 

@@ -12,7 +12,12 @@ import pytest
 from monty.serialization import loadfn
 from pytest import approx
 
-from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError, PeriodicSite, StructureGraph
+from pymatgen.analysis.graphs import (
+    MoleculeGraph,
+    MolGraphSplitError,
+    PeriodicSite,
+    StructureGraph,
+)
 from pymatgen.analysis.local_env import (
     CovalentBondNN,
     CutOffDictNN,
@@ -50,7 +55,9 @@ class TestStructureGraph(MatSciTest):
     def setup_method(self):
         # trivial example, simple square lattice for testing
         structure = Structure(Lattice.tetragonal(5, 50), ["H"], [[0, 0, 0]])
-        self.square_sg = StructureGraph.from_empty_graph(structure, edge_weight_name="", edge_weight_units="")
+        self.square_sg = StructureGraph.from_empty_graph(
+            structure, edge_weight_name="", edge_weight_units=""
+        )
         self.square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(1, 0, 0))
         self.square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(-1, 0, 0))
         self.square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(0, 1, 0))
@@ -59,8 +66,12 @@ class TestStructureGraph(MatSciTest):
         # self.square_sg.decorate_structure_with_ce_info()
 
         # body-centered square lattice for testing
-        structure = Structure(Lattice.tetragonal(5, 50), ["H", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-        self.bc_square_sg = StructureGraph.from_empty_graph(structure, edge_weight_name="", edge_weight_units="")
+        structure = Structure(
+            Lattice.tetragonal(5, 50), ["H", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
+        self.bc_square_sg = StructureGraph.from_empty_graph(
+            structure, edge_weight_name="", edge_weight_units=""
+        )
         self.bc_square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(1, 0, 0))
         self.bc_square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(-1, 0, 0))
         self.bc_square_sg.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(0, 1, 0))
@@ -72,8 +83,12 @@ class TestStructureGraph(MatSciTest):
 
         # body-centered square lattice for testing
         # directions reversed, should be equivalent to bc_square
-        structure = Structure(Lattice.tetragonal(5, 50), ["H", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-        self.bc_square_sg_r = StructureGraph.from_empty_graph(structure, edge_weight_name="", edge_weight_units="")
+        structure = Structure(
+            Lattice.tetragonal(5, 50), ["H", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
+        self.bc_square_sg_r = StructureGraph.from_empty_graph(
+            structure, edge_weight_name="", edge_weight_units=""
+        )
         self.bc_square_sg_r.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(1, 0, 0))
         self.bc_square_sg_r.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(-1, 0, 0))
         self.bc_square_sg_r.add_edge(0, 0, from_jimage=(0, 0, 0), to_jimage=(0, 1, 0))
@@ -88,21 +103,29 @@ class TestStructureGraph(MatSciTest):
         stdout_file = f"{TEST_FILES_DIR}/command_line/critic2/MoS2_critic2_stdout.txt"
         with open(stdout_file, encoding="utf-8") as txt_file:
             reference_stdout = txt_file.read()
-        self.structure = Structure.from_file(f"{TEST_FILES_DIR}/command_line/critic2/MoS2.cif")
+        self.structure = Structure.from_file(
+            f"{TEST_FILES_DIR}/command_line/critic2/MoS2.cif"
+        )
         c2o = Critic2Analysis(self.structure, reference_stdout)
         self.mos2_sg = c2o.structure_graph(include_critical_points=False)
 
         lattice = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
-        self.NiO = Structure.from_spacegroup(225, lattice, species, coords).get_primitive_structure()
+        self.NiO = Structure.from_spacegroup(
+            225, lattice, species, coords
+        ).get_primitive_structure()
 
         # BCC example.
-        self.bcc = Structure(Lattice.cubic(5.0), ["He", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        self.bcc = Structure(
+            Lattice.cubic(5.0), ["He", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
 
     def test_inappropriate_construction(self):
         # Check inappropriate strategy
-        with pytest.raises(ValueError, match="Chosen strategy is not designed for use with structures"):
+        with pytest.raises(
+            ValueError, match="Chosen strategy is not designed for use with structures"
+        ):
             StructureGraph.from_local_env_strategy(self.NiO, CovalentBondNN())
 
     def test_properties(self):
@@ -113,11 +136,15 @@ class TestStructureGraph(MatSciTest):
         assert len(self.mos2_sg.get_connected_sites(0)) == 6
         assert isinstance(self.mos2_sg.get_connected_sites(0)[0].site, PeriodicSite)
         assert str(self.mos2_sg.get_connected_sites(0)[0].site.specie) == "S"
-        assert self.mos2_sg.get_connected_sites(0, jimage=(0, 0, 100))[0].site.frac_coords[2] == approx(100.303027)
+        assert self.mos2_sg.get_connected_sites(0, jimage=(0, 0, 100))[
+            0
+        ].site.frac_coords[2] == approx(100.303027)
 
         # these two graphs should be equivalent
         for n in range(len(self.bc_square_sg)):
-            assert self.bc_square_sg.get_coordination_of_site(n) == self.bc_square_sg_r.get_coordination_of_site(n)
+            assert self.bc_square_sg.get_coordination_of_site(
+                n
+            ) == self.bc_square_sg_r.get_coordination_of_site(n)
 
         # test we're not getting duplicate connected sites
         # thanks to Jack D. Sundberg for reporting this bug
@@ -131,7 +158,9 @@ class TestStructureGraph(MatSciTest):
         ]
         nacl = Structure(nacl_lattice, ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
-        nacl_graph = StructureGraph.from_local_env_strategy(nacl, CutOffDictNN({("Cl", "Cl"): 5.0}))
+        nacl_graph = StructureGraph.from_local_env_strategy(
+            nacl, CutOffDictNN({("Cl", "Cl"): 5.0})
+        )
 
         assert len(nacl_graph.get_connected_sites(1)) == 12
         assert len(nacl_graph.graph.get_edge_data(1, 1)) == 6
@@ -209,7 +238,9 @@ class TestStructureGraph(MatSciTest):
         structure_copy = copy.deepcopy(structure)
         structure_copy_graph = copy.deepcopy(structure)
 
-        struct_graph = StructureGraph.from_local_env_strategy(structure, MinimumDistanceNN())
+        struct_graph = StructureGraph.from_local_env_strategy(
+            structure, MinimumDistanceNN()
+        )
         sg_copy = copy.deepcopy(struct_graph)
 
         # Ensure that strings and molecules lead to equivalent substitutions
@@ -228,8 +259,12 @@ class TestStructureGraph(MatSciTest):
             (0, 3): {"weight": 0.5},
         }
 
-        sg_with_graph = StructureGraph.from_local_env_strategy(structure_copy_graph, MinimumDistanceNN())
-        sg_with_graph.substitute_group(1, "methyl", MinimumDistanceNN, graph_dict=graph_dict)
+        sg_with_graph = StructureGraph.from_local_env_strategy(
+            structure_copy_graph, MinimumDistanceNN()
+        )
+        sg_with_graph.substitute_group(
+            1, "methyl", MinimumDistanceNN, graph_dict=graph_dict
+        )
         edge = sg_with_graph.graph.get_edge_data(11, 13)[0]
         assert edge["weight"] == approx(0.5)
 
@@ -336,12 +371,16 @@ from    to  to_image
         for idx in mos2_sg_mul.structure.indices_from_symbol("Mo"):
             assert mos2_sg_mul.get_coordination_of_site(idx) == 6
 
-        mos2_sg_premul = StructureGraph.from_local_env_strategy(self.structure * (3, 3, 1), MinimumDistanceNN())
+        mos2_sg_premul = StructureGraph.from_local_env_strategy(
+            self.structure * (3, 3, 1), MinimumDistanceNN()
+        )
         assert mos2_sg_mul == mos2_sg_premul
 
         # test 3D Structure
 
-        nio_struct_graph = StructureGraph.from_local_env_strategy(self.NiO, MinimumDistanceNN())
+        nio_struct_graph = StructureGraph.from_local_env_strategy(
+            self.NiO, MinimumDistanceNN()
+        )
         nio_struct_graph *= 3
 
         for n in range(len(nio_struct_graph)):
@@ -364,14 +403,22 @@ from    to  to_image
         # draw MoS2 graph that's been successively multiplied
         mos2_sg_2 = self.mos2_sg * (3, 3, 1)
         mos2_sg_2 *= 3, 3, 1
-        mos2_sg_2.draw_graph_to_file(f"{self.tmp_path}/MoS2_twice_mul.pdf", algo="neato", hide_image_edges=True)
+        mos2_sg_2.draw_graph_to_file(
+            f"{self.tmp_path}/MoS2_twice_mul.pdf", algo="neato", hide_image_edges=True
+        )
 
         # draw MoS2 graph that's generated from a pre-multiplied Structure
-        mos2_sg_premul = StructureGraph.from_local_env_strategy(self.structure * (3, 3, 1), MinimumDistanceNN())
-        mos2_sg_premul.draw_graph_to_file(f"{self.tmp_path}/MoS2_premul.pdf", algo="neato", hide_image_edges=True)
+        mos2_sg_premul = StructureGraph.from_local_env_strategy(
+            self.structure * (3, 3, 1), MinimumDistanceNN()
+        )
+        mos2_sg_premul.draw_graph_to_file(
+            f"{self.tmp_path}/MoS2_premul.pdf", algo="neato", hide_image_edges=True
+        )
 
         # draw graph for a square lattice
-        self.square_sg.draw_graph_to_file(f"{self.tmp_path}/square_single.pdf", hide_image_edges=False)
+        self.square_sg.draw_graph_to_file(
+            f"{self.tmp_path}/square_single.pdf", hide_image_edges=False
+        )
         square_sg = self.square_sg * (5, 5, 1)
         square_sg.draw_graph_to_file(
             f"{self.tmp_path}/square.pdf",
@@ -381,14 +428,22 @@ from    to  to_image
         )
 
         # draw graph for a body-centered square lattice
-        self.bc_square_sg.draw_graph_to_file(f"{self.tmp_path}/bc_square_single.pdf", hide_image_edges=False)
+        self.bc_square_sg.draw_graph_to_file(
+            f"{self.tmp_path}/bc_square_single.pdf", hide_image_edges=False
+        )
         bc_square_sg = self.bc_square_sg * (9, 9, 1)
-        bc_square_sg.draw_graph_to_file(f"{self.tmp_path}/bc_square.pdf", algo="neato", image_labels=False)
+        bc_square_sg.draw_graph_to_file(
+            f"{self.tmp_path}/bc_square.pdf", algo="neato", image_labels=False
+        )
 
         # draw graph for a body-centered square lattice defined in an alternative way
-        self.bc_square_sg_r.draw_graph_to_file(f"{self.tmp_path}/bc_square_r_single.pdf", hide_image_edges=False)
+        self.bc_square_sg_r.draw_graph_to_file(
+            f"{self.tmp_path}/bc_square_r_single.pdf", hide_image_edges=False
+        )
         bc_square_sg_r = self.bc_square_sg_r * (9, 9, 1)
-        bc_square_sg_r.draw_graph_to_file(f"{self.tmp_path}/bc_square_r.pdf", algo="neato", image_labels=False)
+        bc_square_sg_r.draw_graph_to_file(
+            f"{self.tmp_path}/bc_square_r.pdf", algo="neato", image_labels=False
+        )
 
         # ensure PDF files were created
         pdfs = {path.split("/")[-1] for path in glob(f"{self.tmp_path}/*.pdf")}
@@ -414,7 +469,9 @@ from    to  to_image
 
     def test_from_local_env_and_equality_and_diff(self):
         min_dist_nn = MinimumDistanceNN()
-        struct_graph = StructureGraph.from_local_env_strategy(self.structure, min_dist_nn)
+        struct_graph = StructureGraph.from_local_env_strategy(
+            self.structure, min_dist_nn
+        )
 
         assert struct_graph.graph.number_of_edges() == 6
 
@@ -476,7 +533,9 @@ from    to  to_image
         types = self.mos2_sg.types_of_coordination_environments()
         assert types == ["Mo-S(6)", "S-Mo(3)"]
 
-        types_anonymous = self.mos2_sg.types_of_coordination_environments(anonymous=True)
+        types_anonymous = self.mos2_sg.types_of_coordination_environments(
+            anonymous=True
+        )
         assert types_anonymous == ["A-B(3)", "A-B(6)"]
 
     def test_no_duplicate_hops(self):
@@ -492,7 +551,9 @@ from    to  to_image
 
         min_dist_nn = MinimumDistanceNN(cutoff=6, get_all_sites=True)
 
-        struct_graph = StructureGraph.from_local_env_strategy(test_structure, min_dist_nn)
+        struct_graph = StructureGraph.from_local_env_strategy(
+            test_structure, min_dist_nn
+        )
 
         assert struct_graph.graph.number_of_edges() == 3
 
@@ -532,7 +593,9 @@ class TestMoleculeGraph:
         self.cyclohexene.add_edge(5, 15, weight=1.0)
 
         butadiene = Molecule.from_file(f"{TEST_DIR}/butadiene.xyz")
-        self.butadiene = MoleculeGraph.from_empty_graph(butadiene, edge_weight_name="strength", edge_weight_units="")
+        self.butadiene = MoleculeGraph.from_empty_graph(
+            butadiene, edge_weight_name="strength", edge_weight_units=""
+        )
         self.butadiene.add_edge(0, 1, weight=2.0)
         self.butadiene.add_edge(1, 2, weight=1.0)
         self.butadiene.add_edge(2, 3, weight=2.0)
@@ -544,7 +607,9 @@ class TestMoleculeGraph:
         self.butadiene.add_edge(3, 9, weight=1.0)
 
         ethylene = Molecule.from_file(f"{TEST_DIR}/ethylene.xyz")
-        self.ethylene = MoleculeGraph.from_empty_graph(ethylene, edge_weight_name="strength", edge_weight_units="")
+        self.ethylene = MoleculeGraph.from_empty_graph(
+            ethylene, edge_weight_name="strength", edge_weight_units=""
+        )
         self.ethylene.add_edge(0, 1, weight=2.0)
         self.ethylene.add_edge(0, 2, weight=1.0)
         self.ethylene.add_edge(0, 3, weight=1.0)
@@ -589,27 +654,45 @@ class TestMoleculeGraph:
 
     def test_construction(self):
         pytest.importorskip("openbabel")
-        edges_frag = {(edge[0], edge[1]): {"weight": 1.0} for edge in self.pc_frag1_edges}
+        edges_frag = {
+            (edge[0], edge[1]): {"weight": 1.0} for edge in self.pc_frag1_edges
+        }
         mol_graph = MoleculeGraph.from_edges(self.pc_frag1, edges_frag)
         # dumpfn(mol_graph.as_dict(), f"{TEST_FILES_DIR}/analysis/bond_dissociation/pc_frag1_mg.json")
-        ref_mol_graph = loadfn(f"{TEST_FILES_DIR}/analysis/bond_dissociation/pc_frag1_mg.json")
+        ref_mol_graph = loadfn(
+            f"{TEST_FILES_DIR}/analysis/bond_dissociation/pc_frag1_mg.json"
+        )
         assert mol_graph == ref_mol_graph
         assert mol_graph.graph.adj == ref_mol_graph.graph.adj
         for node in mol_graph.graph.nodes:
-            assert mol_graph.graph.nodes[node]["specie"] == ref_mol_graph.graph.nodes[node]["specie"]
+            assert (
+                mol_graph.graph.nodes[node]["specie"]
+                == ref_mol_graph.graph.nodes[node]["specie"]
+            )
             for ii in range(3):
-                assert mol_graph.graph.nodes[node]["coords"][ii] == ref_mol_graph.graph.nodes[node]["coords"][ii]
+                assert (
+                    mol_graph.graph.nodes[node]["coords"][ii]
+                    == ref_mol_graph.graph.nodes[node]["coords"][ii]
+                )
 
         edges_pc = {(edge[0], edge[1]): {"weight": 1.0} for edge in self.pc_edges}
         mol_graph = MoleculeGraph.from_edges(self.pc, edges_pc)
         # dumpfn(mol_graph.as_dict(), f"{TEST_FILES_DIR}/analysis/bond_dissociation/pc_mg.json")
-        ref_mol_graph = loadfn(f"{TEST_FILES_DIR}/analysis/bond_dissociation/pc_mg.json")
+        ref_mol_graph = loadfn(
+            f"{TEST_FILES_DIR}/analysis/bond_dissociation/pc_mg.json"
+        )
         assert mol_graph == ref_mol_graph
         assert mol_graph.graph.adj == ref_mol_graph.graph.adj
         for node in mol_graph.graph:
-            assert mol_graph.graph.nodes[node]["specie"] == ref_mol_graph.graph.nodes[node]["specie"]
+            assert (
+                mol_graph.graph.nodes[node]["specie"]
+                == ref_mol_graph.graph.nodes[node]["specie"]
+            )
             for ii in range(3):
-                assert mol_graph.graph.nodes[node]["coords"][ii] == ref_mol_graph.graph.nodes[node]["coords"][ii]
+                assert (
+                    mol_graph.graph.nodes[node]["coords"][ii]
+                    == ref_mol_graph.graph.nodes[node]["coords"][ii]
+                )
 
         mol_graph_edges = MoleculeGraph.from_edges(self.pc, edges=edges_pc)
         mol_graph_strat = MoleculeGraph.from_local_env_strategy(self.pc, OpenBabelNN())
@@ -620,7 +703,9 @@ class TestMoleculeGraph:
         strategy = VoronoiNN()
         with pytest.raises(
             ValueError,
-            match=re.escape(f"{strategy=} is not designed for use with molecules! Choose another strategy"),
+            match=re.escape(
+                f"{strategy=} is not designed for use with molecules! Choose another strategy"
+            ),
         ):
             MoleculeGraph.from_local_env_strategy(self.pc, strategy)
 
@@ -730,7 +815,9 @@ class TestMoleculeGraph:
         dis_mg.add_edge(0, 4)
 
         fragments = dis_mg.get_disconnected_fragments()
-        fragments_2, index_map = dis_mg.get_disconnected_fragments(return_index_map=True)
+        fragments_2, index_map = dis_mg.get_disconnected_fragments(
+            return_index_map=True
+        )
         assert list(map(str, fragments)) == list(map(str, fragments_2))
         assert len(fragments) == 2
         assert fragments[0].molecule == no_he
@@ -756,7 +843,9 @@ class TestMoleculeGraph:
             (3, 4): {"weight": 2.0},
         }
         # Perform retro-Diels-Alder reaction - turn product into reactants
-        reactants = self.cyclohexene.split_molecule_subgraphs(bonds, allow_reverse=True, alterations=alterations)
+        reactants = self.cyclohexene.split_molecule_subgraphs(
+            bonds, allow_reverse=True, alterations=alterations
+        )
         assert isinstance(reactants, list)
 
         reactants = sorted(reactants, key=len)
@@ -816,7 +905,11 @@ class TestMoleculeGraph:
         edges = {(edge[0], edge[1]): None for edge in self.pc_edges}
         mol_graph = MoleculeGraph.from_edges(self.pc, edges)
         unique_fragment_dict = mol_graph.build_unique_fragments()
-        unique_fragments = [fragment for key in unique_fragment_dict for fragment in unique_fragment_dict[key]]
+        unique_fragments = [
+            fragment
+            for key in unique_fragment_dict
+            for fragment in unique_fragment_dict[key]
+        ]
         assert len(unique_fragments) == 295
         nm = iso.categorical_node_match("specie", "ERROR")
         for ii in range(295):
@@ -829,7 +922,9 @@ class TestMoleculeGraph:
                 )
 
             # Test that each fragment correctly maps between Molecule and graph
-            assert len(unique_fragments[ii].molecule) == len(unique_fragments[ii].graph.nodes)
+            assert len(unique_fragments[ii].molecule) == len(
+                unique_fragments[ii].graph.nodes
+            )
             species = nx.get_node_attributes(unique_fragments[ii].graph, "specie")
             coords = nx.get_node_attributes(unique_fragments[ii].graph, "coords")
 
@@ -869,7 +964,9 @@ class TestMoleculeGraph:
         # check fix in https://github.com/materialsproject/pymatgen/pull/3221
         # by comparing graph with equal nodes but different edges
         edges[1, 4] = {"weight": 2}
-        assert not self.ethylene.isomorphic_to(MoleculeGraph.from_edges(ethylene, edges))
+        assert not self.ethylene.isomorphic_to(
+            MoleculeGraph.from_edges(ethylene, edges)
+        )
 
     def test_substitute(self):
         molecule = FunctionalGroups["methyl"]
@@ -894,7 +991,9 @@ class TestMoleculeGraph:
         eth_graph = copy.deepcopy(self.ethylene)
 
         # Check that MoleculeGraph input is handled properly
-        eth_graph.substitute_group(5, molecule, MinimumDistanceNN, graph_dict=graph_dict)
+        eth_graph.substitute_group(
+            5, molecule, MinimumDistanceNN, graph_dict=graph_dict
+        )
         eth_mg.substitute_group(5, mol_graph, MinimumDistanceNN)
         assert eth_graph.graph.get_edge_data(5, 6)[0]["weight"] == approx(1.0)
         assert eth_mg == eth_graph

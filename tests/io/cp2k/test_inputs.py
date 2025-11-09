@@ -135,7 +135,9 @@ H GTH-PBE-q1 GTH-PBE
         pot_file_path = self.tmp_path / "potential-file"
         pot_file_path.write_text(self.pot_hydrogen_str)
         pot_from_file = PotentialFile.from_file(pot_file_path)
-        assert pot_file != pot_from_file  # unequal because pot_from_file has filename != None
+        assert (
+            pot_file != pot_from_file
+        )  # unequal because pot_from_file has filename != None
 
         # Ensure keyword can be properly generated
         kw = pot.get_keyword()
@@ -212,17 +214,26 @@ class TestCp2kInput(MatSciTest):
 
     def test_ci_file(self):
         # proper type retrieval
-        assert isinstance(self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["NGRIDS"].values[0], int)
+        assert isinstance(
+            self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["NGRIDS"].values[0], int
+        )
         assert isinstance(self.ci["FORCE_EVAL"]["DFT"]["UKS"].values[0], bool)
-        assert isinstance(self.ci["FORCE_EVAL"]["DFT"]["QS"]["EPS_DEFAULT"].values[0], float)
+        assert isinstance(
+            self.ci["FORCE_EVAL"]["DFT"]["QS"]["EPS_DEFAULT"].values[0], float
+        )
 
         # description retrieval
         assert (
-            self.ci["FORCE_EVAL"]["SUBSYS"].description == '"/" used to break input file parser in Section start line'
+            self.ci["FORCE_EVAL"]["SUBSYS"].description
+            == '"/" used to break input file parser in Section start line'
         )
-        assert self.ci["FORCE_EVAL"]["SUBSYS"]["CELL"].description == "Input parameters needed to set up the CELL."
         assert (
-            self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["CUTOFF"].description == "Cutoff in [Ry] for finest level of the MG."
+            self.ci["FORCE_EVAL"]["SUBSYS"]["CELL"].description
+            == "Input parameters needed to set up the CELL."
+        )
+        assert (
+            self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["CUTOFF"].description
+            == "Cutoff in [Ry] for finest level of the MG."
         )
         assert self.ci["FORCE_EVAL"]["METHOD"].description is None
 
@@ -248,7 +259,9 @@ class TestCp2kInput(MatSciTest):
         # excessive white space or tabs
         ci = Cp2kInput.from_str(scramble)
         assert ci["FORCE_EVAL"]["DFT"]["UKS"] == Keyword("UKS", True)  # noqa: FBT003
-        assert [k.name.upper() for k in ci["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"]] == [
+        assert [
+            k.name.upper() for k in ci["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"]
+        ] == [
             "BASIS_SET_FILE_NAME",
             "BASIS_SET_FILE_NAME",
         ]

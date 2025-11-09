@@ -53,7 +53,9 @@ class TestXAS(MatSciTest):
         scaled_spect2 = self.k_xanes * 3
         assert_allclose(scaled_spect.y, 2 * self.k_xanes.y)
         assert_allclose(scaled_spect2.y, 3 * self.k_xanes.y)
-        assert self.k_xanes.get_interpolated_value(7720.422) == approx(0.274302, abs=1e-3)
+        assert self.k_xanes.get_interpolated_value(7720.422) == approx(
+            0.274302, abs=1e-3
+        )
 
     def test_as_from_dict(self):
         xas = XAS.from_dict(self.k_xanes.as_dict())
@@ -64,7 +66,10 @@ class TestXAS(MatSciTest):
         assert_allclose(self.k_xanes.intensity, self.k_xanes.y)
 
     def test_str(self):
-        assert str(self.k_xanes) == "Co K Edge XANES for LiCoO2: <super: <class 'XAS'>, <XAS object>>"
+        assert (
+            str(self.k_xanes)
+            == "Co K Edge XANES for LiCoO2: <super: <class 'XAS'>, <XAS object>>"
+        )
 
     def test_validate(self):
         y_zeros = -np.ones(len(self.k_xanes.x))
@@ -91,7 +96,9 @@ class TestXAS(MatSciTest):
         assert all(v == 0.0 for i, v in enumerate(spectrum.y) if i % 2 == 1)
 
     def test_stitch_xafs(self):
-        with pytest.raises(ValueError, match="Invalid mode. Only XAFS and L23 are supported"):
+        with pytest.raises(
+            ValueError, match="Invalid mode. Only XAFS and L23 are supported"
+        ):
             XAS.stitch(self.k_xanes, self.k_exafs, mode="invalid")
         xafs = XAS.stitch(self.k_xanes, self.k_exafs, mode="XAFS")
         assert isinstance(xafs, XAS)
@@ -99,8 +106,12 @@ class TestXAS(MatSciTest):
         assert len(xafs.x) == 500
         assert min(xafs.x) == approx(min(self.k_xanes.x), abs=1e-2)
         assert max(xafs.y) == approx(max(self.k_xanes.y), abs=1e-2)
-        assert xafs.x[np.argmax(np.gradient(xafs.y) / np.gradient(xafs.x))] == approx(self.k_xanes.e0, abs=1e-2)
-        with pytest.raises(ValueError, match="The input structures for spectra mismatch"):
+        assert xafs.x[np.argmax(np.gradient(xafs.y) / np.gradient(xafs.x))] == approx(
+            self.k_xanes.e0, abs=1e-2
+        )
+        with pytest.raises(
+            ValueError, match="The input structures for spectra mismatch"
+        ):
             XAS.stitch(self.k_xanes, self.l2_xanes, mode="XAFS")
         self.k_xanes.x = np.zeros(100)
         with pytest.raises(
@@ -109,7 +120,9 @@ class TestXAS(MatSciTest):
         ):
             XAS.stitch(self.k_xanes, self.k_exafs)
         self.k_xanes.absorbing_element = Element("Pt")
-        with pytest.raises(ValueError, match="The absorbing elements for spectra are different"):
+        with pytest.raises(
+            ValueError, match="The absorbing elements for spectra are different"
+        ):
             XAS.stitch(self.k_xanes, self.k_exafs, mode="XAFS")
 
     def test_stitch_l23(self):
@@ -126,12 +139,18 @@ class TestXAS(MatSciTest):
         assert np.greater_equal(l23.y, self.l2_xanes.y).all()
         assert len(l23.x) == 100
         self.l2_xanes.spectrum_type = "EXAFS"
-        with pytest.raises(ValueError, match="Only XANES spectrum can be stitched in L23 mode"):
+        with pytest.raises(
+            ValueError, match="Only XANES spectrum can be stitched in L23 mode"
+        ):
             XAS.stitch(self.l2_xanes, self.l3_xanes, mode="L23")
         self.l2_xanes.absorbing_element = Element("Pt")
-        with pytest.raises(ValueError, match="The absorbing elements for spectra are different"):
+        with pytest.raises(
+            ValueError, match="The absorbing elements for spectra are different"
+        ):
             XAS.stitch(self.l2_xanes, self.l3_xanes, mode="L23")
-        with pytest.raises(ValueError, match="The input structures for spectra mismatch"):
+        with pytest.raises(
+            ValueError, match="The input structures for spectra mismatch"
+        ):
             XAS.stitch(self.k_xanes, self.l3_xanes, mode="L23")
 
     def test_site_weighted_spectrum(self):
@@ -139,8 +158,12 @@ class TestXAS(MatSciTest):
         assert isinstance(weighted_spectrum, XAS)
         assert len(weighted_spectrum.x) == 500
         # The site multiplicities for site1 and site2 are 4 and 2, respectively.
-        assert weighted_spectrum.y[0] == approx((4 * self.site1_xanes.y[0] + 2 * self.site2_xanes.y[0]) / 6, abs=1e-2)
-        assert min(weighted_spectrum.x) == max(min(self.site1_xanes.x), min(self.site2_xanes.x))
+        assert weighted_spectrum.y[0] == approx(
+            (4 * self.site1_xanes.y[0] + 2 * self.site2_xanes.y[0]) / 6, abs=1e-2
+        )
+        assert min(weighted_spectrum.x) == max(
+            min(self.site1_xanes.x), min(self.site2_xanes.x)
+        )
         self.site2_xanes.absorbing_index = self.site1_xanes.absorbing_index
         with pytest.raises(
             ValueError,

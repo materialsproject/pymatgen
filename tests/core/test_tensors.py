@@ -10,7 +10,14 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.tensors import SquareTensor, Tensor, TensorCollection, TensorMapping, itertools, symmetry_reduce
+from pymatgen.core.tensors import (
+    SquareTensor,
+    Tensor,
+    TensorCollection,
+    TensorMapping,
+    itertools,
+    symmetry_reduce,
+)
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
@@ -24,9 +31,15 @@ class TestTensor(MatSciTest):
         self.rand_rank3 = Tensor(rng.standard_normal((3, 3, 3)))
         self.rand_rank4 = Tensor(rng.standard_normal((3, 3, 3, 3)))
         a = 3.14 * 42.5 / 180
-        self.non_symm = SquareTensor([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]])
-        self.rotation = SquareTensor([[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]])
-        self.low_val = Tensor([[1e-6, 1 + 1e-5, 1e-6], [1 + 1e-6, 1e-6, 1e-6], [1e-7, 1e-7, 1 + 1e-5]])
+        self.non_symm = SquareTensor(
+            [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]]
+        )
+        self.rotation = SquareTensor(
+            [[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]]
+        )
+        self.low_val = Tensor(
+            [[1e-6, 1 + 1e-5, 1e-6], [1 + 1e-6, 1e-6, 1e-6], [1e-7, 1e-7, 1 + 1e-5]]
+        )
         self.symm_rank2 = Tensor([[1, 2, 3], [2, 4, 5], [3, 5, 6]])
         self.symm_rank3 = Tensor(
             [
@@ -111,9 +124,7 @@ class TestTensor(MatSciTest):
     def test_new(self):
         bad_2 = np.zeros((4, 4))
         bad_3 = np.zeros((4, 4, 4))
-        expected_msg = (
-            "Pymatgen only supports 3-dimensional tensors, and default tensor constructor uses standard notation"
-        )
+        expected_msg = "Pymatgen only supports 3-dimensional tensors, and default tensor constructor uses standard notation"
         with pytest.raises(ValueError, match=expected_msg):
             Tensor(bad_2)
         with pytest.raises(ValueError, match=expected_msg):
@@ -123,7 +134,9 @@ class TestTensor(MatSciTest):
         assert self.rand_rank4.rank == 4
 
     def test_zeroed(self):
-        assert self.low_val.zeroed() == approx(Tensor([[0, 1 + 1e-5, 0], [1 + 1e-6, 0, 0], [0, 0, 1 + 1e-5]]))
+        assert self.low_val.zeroed() == approx(
+            Tensor([[0, 1 + 1e-5, 0], [1 + 1e-6, 0, 0], [0, 0, 1 + 1e-5]])
+        )
         assert self.low_val.zeroed(tol=1e-6) == approx(
             Tensor([[1e-6, 1 + 1e-5, 1e-6], [1 + 1e-6, 1e-6, 1e-6], [0, 0, 1 + 1e-5]])
         )
@@ -134,7 +147,9 @@ class TestTensor(MatSciTest):
     def test_transform(self):
         # Rank 3
         tensor = Tensor(np.arange(0, 27).reshape(3, 3, 3))
-        symm_op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, translation_vec=[0, 0, 1])
+        symm_op = SymmOp.from_axis_angle_and_translation(
+            [0, 0, 1], 30, translation_vec=[0, 0, 1]
+        )
         new_tensor = tensor.transform(symm_op)
 
         assert_allclose(
@@ -163,7 +178,9 @@ class TestTensor(MatSciTest):
         assert self.vec.rotate([[0, -1, 0], [1, 0, 0], [0, 0, 1]]).tolist() == [0, 1, 0]
         assert_allclose(
             self.non_symm.rotate(self.rotation),
-            SquareTensor([[0.531, 0.485, 0.271], [0.700, 0.5, 0.172], [0.171, 0.233, 0.068]]),
+            SquareTensor(
+                [[0.531, 0.485, 0.271], [0.700, 0.5, 0.172], [0.171, 0.233, 0.068]]
+            ),
             atol=1e-3,
         )
         with pytest.raises(ValueError, match="Rotation matrix is not valid"):
@@ -341,7 +358,9 @@ class TestTensor(MatSciTest):
         sn = self.get_structure("Sn")
         indices = [(0, 0), (0, 1), (3, 3)]
         values = [259.31, 160.71, 73.48]
-        et = Tensor.from_values_indices(values, indices, structure=sn, populate=True).voigt.round(4)
+        et = Tensor.from_values_indices(
+            values, indices, structure=sn, populate=True
+        ).voigt.round(4)
         assert et[1, 1] == approx(259.31)
         assert et[2, 2] == approx(259.31)
         assert et[0, 2] == approx(160.71)
@@ -366,7 +385,9 @@ class TestTensor(MatSciTest):
         assert_allclose(self.ones.average_over_unit_sphere(), 1)
 
     def test_summary_methods(self):
-        assert set(self.ones.get_grouped_indices()[0]) == set(itertools.product(range(3), range(3)))
+        assert set(self.ones.get_grouped_indices()[0]) == set(
+            itertools.product(range(3), range(3))
+        )
         assert self.ones.get_grouped_indices(voigt=True)[0] == [(i,) for i in range(6)]
         assert self.ones.get_symbol_dict() == {"T_1": 1}
         assert self.ones.get_symbol_dict(voigt=False) == {"T_11": 1}
@@ -414,7 +435,9 @@ class TestTensorCollection(MatSciTest):
         self.list_based_function_check("zeroed", tc, tol=1e-5)
 
         # transform
-        symm_op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, translation_vec=[0, 0, 1])
+        symm_op = SymmOp.from_axis_angle_and_translation(
+            [0, 0, 1], 30, translation_vec=[0, 0, 1]
+        )
         self.list_based_function_check("transform", self.seq_tc, symm_op=symm_op)
 
         # symmetrized
@@ -422,7 +445,9 @@ class TestTensorCollection(MatSciTest):
 
         # rotation
         a = 3.14 * 42.5 / 180
-        rotation = SquareTensor([[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]])
+        rotation = SquareTensor(
+            [[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]]
+        )
         self.list_based_function_check("rotate", self.diff_rank, matrix=rotation)
 
         # is_symmetric
@@ -473,14 +498,26 @@ class TestTensorCollection(MatSciTest):
 
 class TestSquareTensor(MatSciTest):
     def setup_method(self):
-        self.rand_sqtensor = SquareTensor(np.random.default_rng().standard_normal((3, 3)))
-        self.symm_sqtensor = SquareTensor([[0.1, 0.3, 0.4], [0.3, 0.5, 0.2], [0.4, 0.2, 0.6]])
+        self.rand_sqtensor = SquareTensor(
+            np.random.default_rng().standard_normal((3, 3))
+        )
+        self.symm_sqtensor = SquareTensor(
+            [[0.1, 0.3, 0.4], [0.3, 0.5, 0.2], [0.4, 0.2, 0.6]]
+        )
         self.non_invertible = SquareTensor([[0.1, 0, 0], [0.2, 0, 0], [0, 0, 0]])
-        self.non_symm = SquareTensor([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]])
-        self.low_val = SquareTensor([[1e-6, 1 + 1e-5, 1e-6], [1 + 1e-6, 1e-6, 1e-6], [1e-7, 1e-7, 1 + 1e-5]])
-        self.low_val_2 = SquareTensor([[1e-6, -1 - 1e-6, 1e-6], [1 + 1e-7, 1e-6, 1e-6], [1e-7, 1e-7, 1 + 1e-6]])
+        self.non_symm = SquareTensor(
+            [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]]
+        )
+        self.low_val = SquareTensor(
+            [[1e-6, 1 + 1e-5, 1e-6], [1 + 1e-6, 1e-6, 1e-6], [1e-7, 1e-7, 1 + 1e-5]]
+        )
+        self.low_val_2 = SquareTensor(
+            [[1e-6, -1 - 1e-6, 1e-6], [1 + 1e-7, 1e-6, 1e-6], [1e-7, 1e-7, 1 + 1e-6]]
+        )
         a = 3.14 * 42.5 / 180
-        self.rotation = SquareTensor([[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]])
+        self.rotation = SquareTensor(
+            [[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]]
+        )
 
     def test_new(self):
         non_sq_matrix = [
@@ -506,7 +543,9 @@ class TestSquareTensor(MatSciTest):
 
     def test_properties(self):
         # transpose
-        assert self.non_symm.trans == approx(SquareTensor([[0.1, 0.4, 0.2], [0.2, 0.5, 0.5], [0.3, 0.6, 0.5]]))
+        assert self.non_symm.trans == approx(
+            SquareTensor([[0.1, 0.4, 0.2], [0.2, 0.5, 0.5], [0.3, 0.6, 0.5]])
+        )
         assert self.rand_sqtensor.trans == approx(np.transpose(self.rand_sqtensor))
         assert self.symm_sqtensor == approx(self.symm_sqtensor.trans)
         # inverse
@@ -520,7 +559,9 @@ class TestSquareTensor(MatSciTest):
         assert self.non_symm.det == approx(0.009)
 
         # symmetrized
-        assert self.rand_sqtensor.symmetrized == approx(0.5 * (self.rand_sqtensor + self.rand_sqtensor.trans))
+        assert self.rand_sqtensor.symmetrized == approx(
+            0.5 * (self.rand_sqtensor + self.rand_sqtensor.trans)
+        )
         assert self.symm_sqtensor == approx(self.symm_sqtensor.symmetrized)
         assert_allclose(
             self.non_symm.symmetrized,
@@ -556,12 +597,16 @@ class TestSquareTensor(MatSciTest):
         assert_allclose(self.rotation, new.refine_rotation())
 
     def test_get_scaled(self):
-        assert self.non_symm.get_scaled(10) == approx(SquareTensor([[1, 2, 3], [4, 5, 6], [2, 5, 5]]))
+        assert self.non_symm.get_scaled(10) == approx(
+            SquareTensor([[1, 2, 3], [4, 5, 6], [2, 5, 5]])
+        )
 
     def test_polar_decomposition(self):
         u_mat, p_mat = self.rand_sqtensor.polar_decomposition()
         assert_allclose(np.dot(u_mat, p_mat), self.rand_sqtensor)
-        assert_allclose(np.eye(3), np.dot(u_mat, np.conjugate(np.transpose(u_mat))), atol=1e-9)
+        assert_allclose(
+            np.eye(3), np.dot(u_mat, np.conjugate(np.transpose(u_mat))), atol=1e-9
+        )
 
     def test_serialization(self):
         # Test base serialize-deserialize

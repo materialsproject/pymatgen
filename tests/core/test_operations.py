@@ -12,12 +12,16 @@ from pymatgen.util.testing import MatSciTest
 
 class TestSymmOp(MatSciTest):
     def setup_method(self):
-        self.op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, translation_vec=[0, 0, 1])
+        self.op = SymmOp.from_axis_angle_and_translation(
+            [0, 0, 1], 30, translation_vec=[0, 0, 1]
+        )
 
     def test_properties(self):
         rot = self.op.rotation_matrix
         vec = self.op.translation_vector
-        assert_allclose(rot, [[0.8660254, -0.5, 0.0], [0.5, 0.8660254, 0.0], [0.0, 0.0, 1.0]], 2)
+        assert_allclose(
+            rot, [[0.8660254, -0.5, 0.0], [0.5, 0.8660254, 0.0], [0.0, 0.0, 1.0]], 2
+        )
         assert_allclose(vec, [0, 0, 1], 2)
 
     def test_operate(self):
@@ -50,7 +54,9 @@ class TestSymmOp(MatSciTest):
         point = rng.random(3)
         new_coord = refl.operate(point)
         # Distance to the plane should be negatives of each other.
-        assert_allclose(np.dot(new_coord - origin, normal), -np.dot(point - origin, normal))
+        assert_allclose(
+            np.dot(new_coord - origin, normal), -np.dot(point - origin, normal)
+        )
 
     def test_apply_rotation_only(self):
         point = np.random.default_rng().random(3)
@@ -177,10 +183,18 @@ class TestSymmOp(MatSciTest):
         r_b = self.op.apply_rotation_only(r_a) - floored[0] + floored[1]
         from_b %= 1
         to_b %= 1
-        assert self.op.are_symmetrically_related_vectors(from_a, to_a, r_a, from_b, to_b, r_b)[0]
-        assert not self.op.are_symmetrically_related_vectors(from_a, to_a, r_a, from_b, to_b, r_b)[1]
-        assert self.op.are_symmetrically_related_vectors(to_a, from_a, -r_a, from_b, to_b, r_b)[0]
-        assert self.op.are_symmetrically_related_vectors(to_a, from_a, -r_a, from_b, to_b, r_b)[1]
+        assert self.op.are_symmetrically_related_vectors(
+            from_a, to_a, r_a, from_b, to_b, r_b
+        )[0]
+        assert not self.op.are_symmetrically_related_vectors(
+            from_a, to_a, r_a, from_b, to_b, r_b
+        )[1]
+        assert self.op.are_symmetrically_related_vectors(
+            to_a, from_a, -r_a, from_b, to_b, r_b
+        )[0]
+        assert self.op.are_symmetrically_related_vectors(
+            to_a, from_a, -r_a, from_b, to_b, r_b
+        )[1]
 
     def test_as_from_dict(self):
         dct = self.op.as_dict()
@@ -203,7 +217,9 @@ class TestSymmOp(MatSciTest):
         assert xyz_str == "x-y, -y, -z"
         assert op == SymmOp.from_xyz_str(xyz_str)
 
-        op2 = SymmOp([[0, -1, 0, 0.5], [1, 0, 0, 0.5], [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]])
+        op2 = SymmOp(
+            [[0, -1, 0, 0.5], [1, 0, 0, 0.5], [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]]
+        )
         s2 = op2.as_xyz_str()
         assert s2 == "-y+1/2, x+1/2, z+1/2"
         assert op2 == SymmOp.from_xyz_str(s2)
@@ -287,10 +303,14 @@ class TestMagSymmOp(MatSciTest):
 
         transformed_magmoms = [[1, 2, 3], [-1, -2, -3], [1, -2, 3], [1, 2, -3]]
 
-        for xyzt_string, transformed_magmom in zip(xyzt_strings, transformed_magmoms, strict=True):
+        for xyzt_string, transformed_magmom in zip(
+            xyzt_strings, transformed_magmoms, strict=True
+        ):
             for magmom in magmoms:
                 op = MagSymmOp.from_xyzt_str(xyzt_string)
-                assert_allclose(transformed_magmom, op.operate_magmom(magmom).global_moment)
+                assert_allclose(
+                    transformed_magmom, op.operate_magmom(magmom).global_moment
+                )
 
     def test_inverse(self):
         op = SymmOp(

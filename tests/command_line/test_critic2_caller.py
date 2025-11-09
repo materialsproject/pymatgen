@@ -47,7 +47,9 @@ class TestCritic2Caller:
         c2o = Critic2Analysis.from_dict(c2o_dict)
         # note: these values don't seem sensible physically, but seem to be correct with
         # respect to the input files (possibly bad/underconverged source data)
-        assert c2o.structure.site_properties["bader_charge_transfer"][0] == approx(4.2229131)
+        assert c2o.structure.site_properties["bader_charge_transfer"][0] == approx(
+            4.2229131
+        )
 
         # alternatively, can also set when we do the analysis, but note that this will change
         # the analysis performed since augmentation charges are added in core regions
@@ -56,7 +58,9 @@ class TestCritic2Caller:
         # check yt integration
         assert c2o.structure.site_properties["bader_volume"][0] == approx(66.0148355)
         assert c2o.structure.site_properties["bader_charge"][0] == approx(12.2229131)
-        assert c2o.structure.site_properties["bader_charge_transfer"][0] == approx(4.2229131)
+        assert c2o.structure.site_properties["bader_charge_transfer"][0] == approx(
+            4.2229131
+        )
 
     def test_from_structure(self):
         # uses pro-molecular density
@@ -69,7 +73,9 @@ class TestCritic2Caller:
 
         # test with chgcar and zpsp to ensure zval is formatted as int
         # https://github.com/materialsproject/pymatgen/issues/3501
-        c2c = Critic2Caller.from_chgcar(structure, zpsp={"Mo": 6.0, "S": 6.0}, chgcar=f"{BADER_TEST_DIR}/CHGCAR.gz")
+        c2c = Critic2Caller.from_chgcar(
+            structure, zpsp={"Mo": 6.0, "S": 6.0}, chgcar=f"{BADER_TEST_DIR}/CHGCAR.gz"
+        )
 
         assert "ERROR : load int.CHGCAR id chg_int zpsp Mo 6 S 6" in c2c._input_script
 

@@ -28,7 +28,9 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/qchem"
 NEW_QCHEM_TEST_DIR = f"{TEST_DIR}/new_qchem_files"
 
 
-__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
+__author__ = (
+    "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
+)
 __copyright__ = "Copyright 2018-2022, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Samuel Blau"
@@ -274,7 +276,9 @@ class TestQCOutput(MatSciTest):
         """Used to generate test dictionary for multiple jobs."""
         multi_job_dict = {}
         for file in MULTI_JOB_OUT_NAMES:
-            outputs = QCOutput.multiple_outputs_from_file(f"{TEST_DIR}/{file}", keep_sub_files=False)
+            outputs = QCOutput.multiple_outputs_from_file(
+                f"{TEST_DIR}/{file}", keep_sub_files=False
+            )
             multi_job_dict[file] = [sub_output.data for sub_output in outputs]
         dumpfn(multi_job_dict, "multi_job.json")
 
@@ -285,7 +289,9 @@ class TestQCOutput(MatSciTest):
             except ValueError:
                 try:
                     if isinstance(out_data.get(key), dict):
-                        assert out_data.get(key) == approx(SINGLE_JOB_DICT[filename].get(key))
+                        assert out_data.get(key) == approx(
+                            SINGLE_JOB_DICT[filename].get(key)
+                        )
                     else:
                         assert_allclose(
                             out_data.get(key),
@@ -300,10 +306,14 @@ class TestQCOutput(MatSciTest):
         for filename, outputs in multi_outs.items():
             for idx, sub_output in enumerate(outputs):
                 try:
-                    assert sub_output.data.get(key) == MULTI_JOB_DICT[filename][idx].get(key)
+                    assert sub_output.data.get(key) == MULTI_JOB_DICT[filename][
+                        idx
+                    ].get(key)
                 except ValueError:
                     if isinstance(sub_output.data.get(key), dict):
-                        assert sub_output.data.get(key) == approx(MULTI_JOB_DICT[filename][idx].get(key))
+                        assert sub_output.data.get(key) == approx(
+                            MULTI_JOB_DICT[filename][idx].get(key)
+                        )
                     else:
                         assert_allclose(
                             sub_output.data.get(key),
@@ -316,10 +326,14 @@ class TestQCOutput(MatSciTest):
     @pytest.mark.xfail(reason="TODO: need someone to fix this")
     @pytest.mark.skipif(openbabel is None, reason="OpenBabel not installed.")
     def test_all(self):
-        single_outs = {file: QCOutput(f"{TEST_DIR}/{file}").data for file in SINGLE_JOB_OUT_NAMES}
+        single_outs = {
+            file: QCOutput(f"{TEST_DIR}/{file}").data for file in SINGLE_JOB_OUT_NAMES
+        }
 
         multi_outs = {
-            file: QCOutput.multiple_outputs_from_file(f"{TEST_DIR}/{file}", keep_sub_files=False)
+            file: QCOutput.multiple_outputs_from_file(
+                f"{TEST_DIR}/{file}", keep_sub_files=False
+            )
             for file in MULTI_JOB_OUT_NAMES
         }
 
@@ -353,11 +367,19 @@ class TestQCOutput(MatSciTest):
         t2 = Molecule.from_file(f"{TEST_FILES_DIR}/analysis/structural_change/t2.xyz")
         t3 = Molecule.from_file(f"{TEST_FILES_DIR}/analysis/structural_change/t3.xyz")
 
-        thio_1 = Molecule.from_file(f"{TEST_FILES_DIR}/analysis/structural_change/thiophene1.xyz")
-        thio_2 = Molecule.from_file(f"{TEST_FILES_DIR}/analysis/structural_change/thiophene2.xyz")
+        thio_1 = Molecule.from_file(
+            f"{TEST_FILES_DIR}/analysis/structural_change/thiophene1.xyz"
+        )
+        thio_2 = Molecule.from_file(
+            f"{TEST_FILES_DIR}/analysis/structural_change/thiophene2.xyz"
+        )
 
-        frag_1 = Molecule.from_file(f"{NEW_QCHEM_TEST_DIR}/test_structure_change/frag_1.xyz")
-        frag_2 = Molecule.from_file(f"{NEW_QCHEM_TEST_DIR}/test_structure_change/frag_2.xyz")
+        frag_1 = Molecule.from_file(
+            f"{NEW_QCHEM_TEST_DIR}/test_structure_change/frag_1.xyz"
+        )
+        frag_2 = Molecule.from_file(
+            f"{NEW_QCHEM_TEST_DIR}/test_structure_change/frag_2.xyz"
+        )
 
         assert check_for_structure_changes(t1, t1) == "no_change"
         assert check_for_structure_changes(t2, t3) == "no_change"
@@ -373,35 +395,64 @@ class TestQCOutput(MatSciTest):
         assert len(data["nbo_data"]["natural_populations"]) == 3
         assert len(data["nbo_data"]["hybridization_character"]) == 6
         assert len(data["nbo_data"]["perturbation_energy"]) == 2
-        assert data["nbo_data"]["natural_populations"][0]["Density"][5] == approx(-0.08624)
-        assert data["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][35] == "-0.7059"
-        next_to_last = list(data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"])[-2]
-        assert data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"][next_to_last] == approx(0.071)
+        assert data["nbo_data"]["natural_populations"][0]["Density"][5] == approx(
+            -0.08624
+        )
+        assert (
+            data["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][35]
+            == "-0.7059"
+        )
+        next_to_last = list(
+            data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"]
+        )[-2]
+        assert data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"][
+            next_to_last
+        ] == approx(0.071)
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][0] == "RY*"
 
     def test_nbo7_parsing(self):
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo7_1.qout").data
-        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][9] == approx(15.73)
+        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][
+            9
+        ] == approx(15.73)
         assert len(data["nbo_data"]["perturbation_energy"][0]["donor bond index"]) == 84
         assert len(data["nbo_data"]["perturbation_energy"][1]["donor bond index"]) == 29
 
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo7_2.qout").data
-        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13] == approx(32.93)
+        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][
+            13
+        ] == approx(32.93)
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][13] == "LV"
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][12] == "RY"
-        assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][12] == "Mg"
+        assert (
+            data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][12]
+            == "Mg"
+        )
 
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo7_3.qout").data
-        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13] == approx(34.54)
+        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][
+            13
+        ] == approx(34.54)
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][13] == "BD*"
-        assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][13] == "B"
-        assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 symbol"][13] == "Mg"
-        assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 number"][13] == 3
+        assert (
+            data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][13]
+            == "B"
+        )
+        assert (
+            data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 symbol"][13]
+            == "Mg"
+        )
+        assert (
+            data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 number"][13]
+            == 3
+        )
 
     def test_nbo5_vs_nbo7_hybridization_character(self):
         data5 = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo5_1.qout").data
         data7 = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo7_1.qout").data
-        assert len(data5["nbo_data"]["hybridization_character"]) == len(data7["nbo_data"]["hybridization_character"])
+        assert len(data5["nbo_data"]["hybridization_character"]) == len(
+            data7["nbo_data"]["hybridization_character"]
+        )
         assert (
             data5["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][9]
             == data7["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][9]
@@ -415,7 +466,9 @@ class TestQCOutput(MatSciTest):
 
     def test_nbo7_infinite_e2pert(self):
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo7_inf.qout").data
-        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][0] == float("inf")
+        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][
+            0
+        ] == float("inf")
 
     def test_cdft_parsing(self):
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/cdft_simple.qout").data
@@ -449,11 +502,21 @@ class TestQCOutput(MatSciTest):
         assert data["solvent_method"] == "ISOSVP"
         # ISOSVP parameters
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == approx(78.39)
-        assert data["solvent_data"]["isosvp"]["final_soln_phase_e"] == approx(-40.4850599393)
-        assert data["solvent_data"]["isosvp"]["solute_internal_e"] == approx(-40.4846329762)
-        assert data["solvent_data"]["isosvp"]["change_solute_internal_e"] == approx(0.0000121967)
-        assert data["solvent_data"]["isosvp"]["reaction_field_free_e"] == approx(-0.0004269631)
-        assert data["solvent_data"]["isosvp"]["total_solvation_free_e"] == approx(-0.0004147664)
+        assert data["solvent_data"]["isosvp"]["final_soln_phase_e"] == approx(
+            -40.4850599393
+        )
+        assert data["solvent_data"]["isosvp"]["solute_internal_e"] == approx(
+            -40.4846329762
+        )
+        assert data["solvent_data"]["isosvp"]["change_solute_internal_e"] == approx(
+            0.0000121967
+        )
+        assert data["solvent_data"]["isosvp"]["reaction_field_free_e"] == approx(
+            -0.0004269631
+        )
+        assert data["solvent_data"]["isosvp"]["total_solvation_free_e"] == approx(
+            -0.0004147664
+        )
 
         # CMIRS parameters
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is False
@@ -464,11 +527,21 @@ class TestQCOutput(MatSciTest):
 
         # ISOSVP parameters
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 10
-        assert data["solvent_data"]["isosvp"]["final_soln_phase_e"] == approx(-40.4850012952)
-        assert data["solvent_data"]["isosvp"]["solute_internal_e"] == approx(-40.4846362547)
-        assert data["solvent_data"]["isosvp"]["change_solute_internal_e"] == approx(0.0000089182)
-        assert data["solvent_data"]["isosvp"]["reaction_field_free_e"] == approx(-0.0003650405)
-        assert data["solvent_data"]["isosvp"]["total_solvation_free_e"] == approx(-0.0003561223)
+        assert data["solvent_data"]["isosvp"]["final_soln_phase_e"] == approx(
+            -40.4850012952
+        )
+        assert data["solvent_data"]["isosvp"]["solute_internal_e"] == approx(
+            -40.4846362547
+        )
+        assert data["solvent_data"]["isosvp"]["change_solute_internal_e"] == approx(
+            0.0000089182
+        )
+        assert data["solvent_data"]["isosvp"]["reaction_field_free_e"] == approx(
+            -0.0003650405
+        )
+        assert data["solvent_data"]["isosvp"]["total_solvation_free_e"] == approx(
+            -0.0003561223
+        )
 
         # CMIRS parameters
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is False
@@ -499,11 +572,21 @@ class TestQCOutput(MatSciTest):
 
         # ISOSVP parameters
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == approx(78.39)
-        assert data["solvent_data"]["isosvp"]["final_soln_phase_e"] == approx(-40.4752415075)
-        assert data["solvent_data"]["isosvp"]["solute_internal_e"] == approx(-40.4748535587)
-        assert data["solvent_data"]["isosvp"]["change_solute_internal_e"] == approx(0.0000122982)
-        assert data["solvent_data"]["isosvp"]["reaction_field_free_e"] == approx(-0.0003879488)
-        assert data["solvent_data"]["isosvp"]["total_solvation_free_e"] == approx(0.0037602703)
+        assert data["solvent_data"]["isosvp"]["final_soln_phase_e"] == approx(
+            -40.4752415075
+        )
+        assert data["solvent_data"]["isosvp"]["solute_internal_e"] == approx(
+            -40.4748535587
+        )
+        assert data["solvent_data"]["isosvp"]["change_solute_internal_e"] == approx(
+            0.0000122982
+        )
+        assert data["solvent_data"]["isosvp"]["reaction_field_free_e"] == approx(
+            -0.0003879488
+        )
+        assert data["solvent_data"]["isosvp"]["total_solvation_free_e"] == approx(
+            0.0037602703
+        )
 
         # CMIRS parameters
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"]
@@ -545,13 +628,21 @@ class TestQCOutput(MatSciTest):
 
         qc_out_read_optimization = QCOutput(f"{TEST_DIR}/6.1.1.opt.out.gz")
         qc_out_read_optimization._read_optimization_data()
-        assert qc_out_read_optimization.data["SCF_energy_in_the_final_basis_set"][-1] == approx(-76.36097614)
-        assert qc_out_read_optimization.data["Total_energy_in_the_final_basis_set"][-1] == approx(-76.36097614)
+        assert qc_out_read_optimization.data["SCF_energy_in_the_final_basis_set"][
+            -1
+        ] == approx(-76.36097614)
+        assert qc_out_read_optimization.data["Total_energy_in_the_final_basis_set"][
+            -1
+        ] == approx(-76.36097614)
 
         qc_out_read_frequency = QCOutput(f"{TEST_DIR}/6.1.1.freq.out.gz")
         qc_out_read_frequency._read_frequency_data()
-        assert qc_out_read_frequency.data["SCF_energy_in_the_final_basis_set"] == approx(-76.36097614)
-        assert qc_out_read_frequency.data["Total_energy_in_the_final_basis_set"] == approx(-76.36097614)
+        assert qc_out_read_frequency.data[
+            "SCF_energy_in_the_final_basis_set"
+        ] == approx(-76.36097614)
+        assert qc_out_read_frequency.data[
+            "Total_energy_in_the_final_basis_set"
+        ] == approx(-76.36097614)
 
 
 def test_gradient(tmp_path):

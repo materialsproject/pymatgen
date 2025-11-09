@@ -77,8 +77,12 @@ class TestPlanesUtils(MatSciTest):
         assert self.plane.is_in_plane(np.array([1, 1, 2.22]), 0.1)
         assert not self.plane.is_in_plane(np.array([1, 1, 2.22]), 0.001)
         assert self.plane.is_in_plane(self.p1 + self.plane.normal_vector * 1, 1.000001)
-        assert not self.plane.is_in_plane(self.p1 + self.plane.normal_vector * 1.00001, 1)
-        assert not self.plane.is_in_plane(self.p1 + self.plane.normal_vector * 1, 0.999999)
+        assert not self.plane.is_in_plane(
+            self.p1 + self.plane.normal_vector * 1.00001, 1
+        )
+        assert not self.plane.is_in_plane(
+            self.p1 + self.plane.normal_vector * 1, 0.999999
+        )
         assert self.plane.is_in_plane(self.plane.p1, 0.00001)
         assert self.plane.is_in_plane(self.plane.p2, 0.00001)
         assert self.plane.is_in_plane(self.plane.p3, 0.00001)
@@ -285,15 +289,21 @@ class TestPlanesUtils(MatSciTest):
         rng = np.random.default_rng()
         for zz in zzs:
             plist.append([rng.uniform(-20, 20), rng.uniform(-20, 20), zz])
-        distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta=0.25)
+        distances, indices_sorted, groups = plane.distances_indices_groups(
+            points=plist, delta=0.25
+        )
         assert indices_sorted == [5, 0, 1, 2, 6, 7, 9, 4, 3, 8]
         assert groups == [[5, 0, 1], [2, 6, 7], [9, 4, 3], [8]]
         assert_allclose(distances, zzs)
-        distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta_factor=0.1)
+        distances, indices_sorted, groups = plane.distances_indices_groups(
+            points=plist, delta_factor=0.1
+        )
         assert indices_sorted == [5, 0, 1, 2, 6, 7, 9, 4, 3, 8]
         assert groups == [[5, 0, 1, 2, 6, 7], [9, 4, 3], [8]]
         assert_allclose(distances, zzs)
-        distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta_factor=0.1, sign=True)
+        distances, indices_sorted, groups = plane.distances_indices_groups(
+            points=plist, delta_factor=0.1, sign=True
+        )
         assert indices_sorted == [
             (5, 0),
             (0, 1),
@@ -327,9 +337,13 @@ class TestPlanesUtils(MatSciTest):
         projected_2d = self.plane.project_and_to2dim(expected_projected_points, "mean")
         for ii, pp in enumerate(expected_projected_points):
             assert_allclose(pp, projected_points[ii], atol=1e-9)
-        for i1, i2 in itertools.combinations(list(range(len(expected_projected_points))), 2):
+        for i1, i2 in itertools.combinations(
+            list(range(len(expected_projected_points))), 2
+        ):
             assert np.isclose(
-                np.linalg.norm(expected_projected_points[i1] - expected_projected_points[i2]),
+                np.linalg.norm(
+                    expected_projected_points[i1] - expected_projected_points[i2]
+                ),
                 np.linalg.norm(projected_2d[i1] - projected_2d[i2]),
             )
         # Projections of random points (check on distances between the 3D points and the 2D points)
@@ -342,7 +356,9 @@ class TestPlanesUtils(MatSciTest):
             np.array([10, 8.3, -6.32]),
         ]
         projected_points = self.plane.projectionpoints(points_to_project)
-        mean_point = np.array([np.mean([pp[ii] for pp in points_to_project]) for ii in range(3)])
+        mean_point = np.array(
+            [np.mean([pp[ii] for pp in points_to_project]) for ii in range(3)]
+        )
         projected_2d = self.plane.project_and_to2dim(points_to_project, "mean")
         projected_2d_bis = self.plane.project_and_to2dim(points_to_project, mean_point)
         for ii, pp in enumerate(projected_2d):
@@ -376,9 +392,17 @@ class TestPlanesUtils(MatSciTest):
             assert self.plane.is_in_plane(pp, 0.0000001)
         projected_2d_points_000 = self.plane.project_and_to2dim(points, [0, 0, 0])
         projected_2d_points_mean = self.plane.project_and_to2dim(points, "mean")
-        for i1, i2 in itertools.combinations(list(range(len(projected_2d_points_000))), 2):
-            norm_000 = np.linalg.norm(projected_2d_points_000[i1] - projected_2d_points_000[i2])
-            norm_mean = np.linalg.norm(projected_2d_points_mean[i1] - projected_2d_points_mean[i2])
-            norm_xyz_projected = np.linalg.norm(projected_points[i1] - projected_points[i2])
+        for i1, i2 in itertools.combinations(
+            list(range(len(projected_2d_points_000))), 2
+        ):
+            norm_000 = np.linalg.norm(
+                projected_2d_points_000[i1] - projected_2d_points_000[i2]
+            )
+            norm_mean = np.linalg.norm(
+                projected_2d_points_mean[i1] - projected_2d_points_mean[i2]
+            )
+            norm_xyz_projected = np.linalg.norm(
+                projected_points[i1] - projected_points[i2]
+            )
             assert np.isclose(norm_000, norm_mean)
             assert np.isclose(norm_000, norm_xyz_projected)

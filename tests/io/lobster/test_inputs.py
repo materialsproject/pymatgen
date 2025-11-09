@@ -8,7 +8,13 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.lobster import Lobsterin
 from pymatgen.io.lobster.inputs import get_all_possible_basis_combinations
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
+from pymatgen.util.testing import (
+    FAKE_POTCAR_DIR,
+    TEST_FILES_DIR,
+    VASP_IN_DIR,
+    VASP_OUT_DIR,
+    MatSciTest,
+)
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
@@ -127,7 +133,9 @@ class TestLobsterin(MatSciTest):
             ValueError,
             match="No basis functions are provided. The program cannot calculate nbands.",
         ):
-            lobsterin2._get_nbands(structure=Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Fe3O4"))
+            lobsterin2._get_nbands(
+                structure=Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Fe3O4")
+            )
 
     def test_standard_settings(self):
         # test standard settings
@@ -265,7 +273,9 @@ class TestLobsterin(MatSciTest):
     def test_diff(self):
         # test diff
         assert self.Lobsterin.diff(self.Lobsterin2)["Different"] == {}
-        assert self.Lobsterin.diff(self.Lobsterin2)["Same"]["cohpstartenergy"] == approx(-15.0)
+        assert self.Lobsterin.diff(self.Lobsterin2)["Same"][
+            "cohpstartenergy"
+        ] == approx(-15.0)
 
         # test diff in both directions
         for entry in self.Lobsterin.diff(self.Lobsterin3)["Same"]:
@@ -279,7 +289,9 @@ class TestLobsterin(MatSciTest):
 
         assert (
             self.Lobsterin.diff(self.Lobsterin3)["Different"]["skipcohp"]["lobsterin1"]
-            == self.Lobsterin3.diff(self.Lobsterin)["Different"]["skipcohp"]["lobsterin2"]
+            == self.Lobsterin3.diff(self.Lobsterin)["Different"]["skipcohp"][
+                "lobsterin2"
+            ]
         )
 
     def test_diff_case_insensitivity(self):

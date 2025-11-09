@@ -661,7 +661,9 @@ class TestLobsterNeighbors:
         assert isinstance(sg, StructureGraph)
 
     def test_raises_extended_structure_graph(self):
-        with pytest.raises(ValueError, match="Algorithm can only work with ICOOPs, ICOBIs"):
+        with pytest.raises(
+            ValueError, match="Algorithm can only work with ICOOPs, ICOBIs"
+        ):
             self.chem_env_lobsterNaCl = LobsterNeighbors(
                 are_coops=False,
                 filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.NaCl.gz",
@@ -721,9 +723,16 @@ class TestLobsterNeighbors:
     def test_get_sum_icohps_between_neighbors_of_atom(self):
         # will only look at icohps between cations or anions
         self.chem_env_lobster1.get_info_icohps_to_neighbors(isites=[1])
-        assert self.chem_env_lobster1.get_info_icohps_between_neighbors(isites=[1])[2] == 1
-        assert self.chem_env_lobster1.get_info_icohps_between_neighbors(isites=[1])[0] == approx(-0.05507)
-        assert self.chem_env_lobster1.get_info_icohps_between_neighbors(isites=[0])[2] == 15
+        assert (
+            self.chem_env_lobster1.get_info_icohps_between_neighbors(isites=[1])[2] == 1
+        )
+        assert self.chem_env_lobster1.get_info_icohps_between_neighbors(isites=[1])[
+            0
+        ] == approx(-0.05507)
+        assert (
+            self.chem_env_lobster1.get_info_icohps_between_neighbors(isites=[0])[2]
+            == 15
+        )
         # use an example where this is easier to test (e.g., linear environment?)
 
         chemenv_here = LobsterNeighbors(
@@ -795,10 +804,12 @@ class TestLobsterNeighbors:
             additional_condition=1,
         )
         cohpcar_lobster_mp_190 = f"{TEST_DIR}/COHPCAR.lobster.mp-190.gz"
-        plot_label, summed_cohpcar_mp_190 = chem_env_lobster1.get_info_cohps_to_neighbors(
-            path_to_cohpcar=cohpcar_lobster_mp_190,
-            isites=[0],
-            only_bonds_to=["O"],
+        plot_label, summed_cohpcar_mp_190 = (
+            chem_env_lobster1.get_info_cohps_to_neighbors(
+                path_to_cohpcar=cohpcar_lobster_mp_190,
+                isites=[0],
+                only_bonds_to=["O"],
+            )
         )
         assert plot_label == "6 x O-Re (per bond)"
         assert isinstance(summed_cohpcar_mp_190, Cohp)
@@ -809,9 +820,9 @@ class TestLobsterNeighbors:
             only_bonds_to=None,
             per_bond=False,
         )[1]
-        assert np.sum([coph_thing.icohp[Spin.up], coph_thing.icohp[Spin.down]], axis=0)[300] == approx(
-            chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])[0]
-        )
+        assert np.sum([coph_thing.icohp[Spin.up], coph_thing.icohp[Spin.down]], axis=0)[
+            300
+        ] == approx(chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])[0])
 
         # summed_spin_channel
         coph_thing = chem_env_lobster1.get_info_cohps_to_neighbors(
@@ -821,22 +832,28 @@ class TestLobsterNeighbors:
             per_bond=False,
             summed_spin_channels=True,
         )[1]
-        assert coph_thing.icohp[Spin.up][300] == approx(chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])[0])
+        assert coph_thing.icohp[Spin.up][300] == approx(
+            chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])[0]
+        )
 
-        plot_label, summed_cohpcar_mp_190_Te = chem_env_lobster1.get_info_cohps_to_neighbors(
-            path_to_cohpcar=cohpcar_lobster_mp_190,
-            isites=[0],
-            only_bonds_to=["Te"],
+        plot_label, summed_cohpcar_mp_190_Te = (
+            chem_env_lobster1.get_info_cohps_to_neighbors(
+                path_to_cohpcar=cohpcar_lobster_mp_190,
+                isites=[0],
+                only_bonds_to=["Te"],
+            )
         )
 
         assert plot_label is None
         assert summed_cohpcar_mp_190_Te is None
 
-        plot_label, _summed_cohpcar_NaSi = self.chem_env_lobster0_NaSi.get_info_cohps_to_neighbors(
-            path_to_cohpcar=f"{TEST_DIR}/COHPCAR.lobster.NaSi.gz",
-            isites=[8],
-            onlycation_isites=False,
-            only_bonds_to=["Na"],
+        plot_label, _summed_cohpcar_NaSi = (
+            self.chem_env_lobster0_NaSi.get_info_cohps_to_neighbors(
+                path_to_cohpcar=f"{TEST_DIR}/COHPCAR.lobster.NaSi.gz",
+                isites=[8],
+                onlycation_isites=False,
+                only_bonds_to=["Na"],
+            )
         )
         assert plot_label == "1 x Na-Si (per bond)"
 
@@ -845,11 +862,13 @@ class TestLobsterNeighbors:
             fmt="LOBSTER",
             structure_file=f"{TEST_DIR}/POSCAR.NaSi.gz",
         )
-        plot_label_obj, _summed_cohpcar_NaSi_obj = self.chem_env_w_obj.get_info_cohps_to_neighbors(
-            obj_cohpcar=obj_cohpcar,
-            isites=[8],
-            onlycation_isites=False,
-            only_bonds_to=["Na"],
+        plot_label_obj, _summed_cohpcar_NaSi_obj = (
+            self.chem_env_w_obj.get_info_cohps_to_neighbors(
+                obj_cohpcar=obj_cohpcar,
+                isites=[8],
+                onlycation_isites=False,
+                only_bonds_to=["Na"],
+            )
         )
         assert plot_label_obj == "1 x Na-Si (per bond)"
 
@@ -909,5 +928,10 @@ class TestLobsterNeighbors:
             -0.54,
             -0.54,
         ]
-        assert_allclose(self.chem_env_w_obj.valences, [0.67] * 4 + [0.7] * 4 + [-0.7] * 4 + [-0.68] * 4)  # charge_obj
-        assert self.chem_env_lobster_NaSi_wo_charges.valences == [1] * 8 + [-1] * 8  # BVA
+        assert_allclose(
+            self.chem_env_w_obj.valences,
+            [0.67] * 4 + [0.7] * 4 + [-0.7] * 4 + [-0.68] * 4,
+        )  # charge_obj
+        assert (
+            self.chem_env_lobster_NaSi_wo_charges.valences == [1] * 8 + [-1] * 8
+        )  # BVA

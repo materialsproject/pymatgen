@@ -38,7 +38,10 @@ from __future__ import annotations
 
 import networkx as nx
 
-from pymatgen.util.graph_hashing import weisfeiler_lehman_graph_hash, weisfeiler_lehman_subgraph_hashes
+from pymatgen.util.graph_hashing import (
+    weisfeiler_lehman_graph_hash,
+    weisfeiler_lehman_subgraph_hashes,
+)
 
 
 def test_graph_hash():
@@ -60,8 +63,14 @@ def test_graph_hash():
     g2.add_edges_from(edges)
 
     assert weisfeiler_lehman_graph_hash(g1) == weisfeiler_lehman_graph_hash(g2)
-    assert weisfeiler_lehman_graph_hash(g1, edge_attr="label") == "c653d85538bcf041d88c011f4f905f10"
-    assert weisfeiler_lehman_graph_hash(g2, edge_attr="label") == "3dcd84af1ca855d0eff3c978d88e7ec7"
+    assert (
+        weisfeiler_lehman_graph_hash(g1, edge_attr="label")
+        == "c653d85538bcf041d88c011f4f905f10"
+    )
+    assert (
+        weisfeiler_lehman_graph_hash(g2, edge_attr="label")
+        == "3dcd84af1ca855d0eff3c978d88e7ec7"
+    )
 
 
 def test_subgraph_hashes():

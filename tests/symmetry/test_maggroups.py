@@ -112,7 +112,9 @@ x+1/2, -y+5/4, -z+3/4, -1
 x+3/4, -y+1/2, z+1/4, -1"""
 
         # TODO: the below check is failing, need someone to fix it, see issue 4207
-        warnings.warn("part of test_symmetry_ops is failing, see issue 4207", stacklevel=2)
+        warnings.warn(
+            "part of test_symmetry_ops is failing, see issue 4207", stacklevel=2
+        )
         # self.assert_str_content_equal(msg_1_symmops, msg_1_symmops_ref)
 
         msg_2_symmops = "\n".join(map(str, self.msg_2.symmetry_ops))
@@ -166,8 +168,12 @@ x+1/2, y, z, -1
             assert sg.crystal_system == msg.crystal_system
             for p in points:
                 pp_sg = np.array(sg.get_orbit(p))
-                pp_msg = np.array(msg.get_orbit(p, 0)[0])  # discarding magnetic moment information
-                pp_sg = pp_sg[np.lexsort(np.transpose(pp_sg)[::-1])]  # sorting arrays so we can compare them
+                pp_msg = np.array(
+                    msg.get_orbit(p, 0)[0]
+                )  # discarding magnetic moment information
+                pp_sg = pp_sg[
+                    np.lexsort(np.transpose(pp_sg)[::-1])
+                ]  # sorting arrays so we can compare them
                 pp_msg = pp_msg[np.lexsort(np.transpose(pp_msg)[::-1])]
                 assert_allclose(pp_sg, pp_msg)
 

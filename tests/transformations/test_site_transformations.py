@@ -42,7 +42,9 @@ class TestTranslateSitesTransformation(MatSciTest):
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
+        self.struct = Structure(
+            lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords
+        )
 
     def test_apply_transformation(self):
         trafo = TranslateSitesTransformation([0, 1], [0.1, 0.2, 0.3])
@@ -55,7 +57,9 @@ class TestTranslateSitesTransformation(MatSciTest):
         assert_allclose(struct[1].frac_coords, [0.375, 0.375, 0.375])
 
     def test_apply_transformation_site_by_site(self):
-        trafo = TranslateSitesTransformation([0, 1, 4], [[0.1, 0.2, 0.3], [-0.075, -0.075, -0.075], [0.1, -0.1, 0.05]])
+        trafo = TranslateSitesTransformation(
+            [0, 1, 4], [[0.1, 0.2, 0.3], [-0.075, -0.075, -0.075], [0.1, -0.1, 0.05]]
+        )
         struct = trafo.apply_transformation(self.struct)
         assert_allclose(struct[0].frac_coords, [0.1, 0.2, 0.3])
         assert_allclose(struct[1].frac_coords, [0.3, 0.3, 0.3])
@@ -68,7 +72,9 @@ class TestTranslateSitesTransformation(MatSciTest):
 
     def test_as_from_dict(self):
         d1 = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).as_dict()
-        d2 = TranslateSitesTransformation([0, 1], [[0.1, 0.2, 0.3], [-0.075, -0.075, -0.075]]).as_dict()
+        d2 = TranslateSitesTransformation(
+            [0, 1], [[0.1, 0.2, 0.3], [-0.075, -0.075, -0.075]]
+        ).as_dict()
         t1 = TranslateSitesTransformation.from_dict(d1)
         t2 = TranslateSitesTransformation.from_dict(d2)
         s1 = t1.apply_transformation(self.struct)
@@ -98,7 +104,9 @@ class TestReplaceSiteSpeciesTransformation:
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
+        self.struct = Structure(
+            lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords
+        )
 
     def test_apply_transformation(self):
         trafo = ReplaceSiteSpeciesTransformation({0: "Na"})
@@ -130,7 +138,9 @@ class TestRemoveSitesTransformation:
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
+        self.struct = Structure(
+            lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords
+        )
 
     def test_apply_transformation(self):
         trafo = RemoveSitesTransformation(range(2))
@@ -162,20 +172,30 @@ class TestInsertSitesTransformation:
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
+        self.struct = Structure(
+            lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords
+        )
 
     def test_apply_transformation(self):
-        trafo = InsertSitesTransformation(["Fe", "Mn"], [[0.0, 0.5, 0], [0.5, 0.2, 0.2]])
+        trafo = InsertSitesTransformation(
+            ["Fe", "Mn"], [[0.0, 0.5, 0], [0.5, 0.2, 0.2]]
+        )
         struct = trafo.apply_transformation(self.struct)
         assert struct.formula == "Li4 Mn1 Fe1 O4"
-        trafo = InsertSitesTransformation(["Fe", "Mn"], [[0.001, 0, 0], [0.1, 0.2, 0.2]])
+        trafo = InsertSitesTransformation(
+            ["Fe", "Mn"], [[0.001, 0, 0], [0.1, 0.2, 0.2]]
+        )
 
         # Test validate proximity
-        with pytest.raises(ValueError, match="New site is too close to an existing site!"):
+        with pytest.raises(
+            ValueError, match="New site is too close to an existing site!"
+        ):
             trafo.apply_transformation(self.struct)
 
     def test_as_from_dict(self):
-        dct = InsertSitesTransformation(["Fe", "Mn"], [[0.5, 0, 0], [0.1, 0.5, 0.2]]).as_dict()
+        dct = InsertSitesTransformation(
+            ["Fe", "Mn"], [[0.5, 0, 0], [0.1, 0.5, 0.2]]
+        ).as_dict()
         trafo = InsertSitesTransformation.from_dict(dct)
         struct = trafo.apply_transformation(self.struct)
         assert struct.formula == "Li4 Mn1 Fe1 O4"
@@ -199,7 +219,9 @@ class TestPartialRemoveSitesTransformation:
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
+        self.struct = Structure(
+            lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords
+        )
 
     def test_apply_transformation_complete(self):
         trafo = PartialRemoveSitesTransformation(
@@ -241,7 +263,9 @@ class TestPartialRemoveSitesTransformation:
         )
         struct = trafo.apply_transformation(self.struct)
         assert struct.formula == "Li2 O2"
-        trafo = PartialRemoveSitesTransformation([tuple(range(8))], [0.5], PartialRemoveSitesTransformation.ALGO_FAST)
+        trafo = PartialRemoveSitesTransformation(
+            [tuple(range(8))], [0.5], PartialRemoveSitesTransformation.ALGO_FAST
+        )
         struct = trafo.apply_transformation(self.struct)
         assert struct.formula == "Li2 O2"
 
@@ -262,7 +286,8 @@ class TestPartialRemoveSitesTransformation:
     def test_str(self):
         trafo = PartialRemoveSitesTransformation([tuple(range(4))], [0.5])
         assert (
-            str(trafo) == "PartialRemoveSitesTransformation : Indices and fraction to remove = [(0, 1, 2, 3)], ALGO = 1"
+            str(trafo)
+            == "PartialRemoveSitesTransformation : Indices and fraction to remove = [(0, 1, 2, 3)], ALGO = 1"
         )
 
 
@@ -278,7 +303,9 @@ class TestAddSitePropertyTransformation(MatSciTest):
             manually_set.add_site_property(prop, value)
         trans_set = trans.apply_transformation(struct)
         for prop in site_props:
-            assert_allclose(trans_set.site_properties[prop], manually_set.site_properties[prop])
+            assert_allclose(
+                trans_set.site_properties[prop], manually_set.site_properties[prop]
+            )
 
 
 class TestRadialSiteDistortionTransformation(MatSciTest):

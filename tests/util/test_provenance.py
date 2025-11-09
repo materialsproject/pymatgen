@@ -26,9 +26,7 @@ class TestStructureNL:
         self.s2 = Structure(np.eye(3, 3) * 3, ["Al"], [[0, 0, 0]])
         self.mol = Molecule(["He"], [[0, 0, 0]])
         # set up BibTeX strings
-        self.matproj = (
-            "@misc{MaterialsProject,\ntitle = {{Materials Project}},\nurl = {https://materialsproject.org}\n}"
-        )
+        self.matproj = "@misc{MaterialsProject,\ntitle = {{Materials Project}},\nurl = {https://materialsproject.org}\n}"
         self.pmg = (
             "@article{Ong2013,\n author = {Ong, "
             "Shyue Ping and Richards, William Davidson and Jain, "
@@ -59,10 +57,14 @@ class TestStructureNL:
         self.hulk = [{"name": "Hulk", "email": "hulk@avengers.com"}]
         self.america = "Captain America <captainamerica@avengers.com>"
         self.thor = [("Thor", "thor@avengers.com")]
-        self.duo = "Iron Man <ironman@avengers.com>, Black Widow <blackwidow@avengers.com>"
+        self.duo = (
+            "Iron Man <ironman@avengers.com>, Black Widow <blackwidow@avengers.com>"
+        )
 
         # set up HistoryNodes
-        self.valid_node = HistoryNode("DB 1", "www.db1URLgoeshere.com", {"db1_id": 12424})
+        self.valid_node = HistoryNode(
+            "DB 1", "www.db1URLgoeshere.com", {"db1_id": 12424}
+        )
         self.valid_node2 = {
             "name": "DB 2",
             "url": "www.db2URLgoeshere.com",
@@ -130,7 +132,9 @@ class TestStructureNL:
         assert struct_nl.history[0].url == "www.db1URLgoeshere.com"
         assert struct_nl.history[0].description == {"db1_id": 12424}
 
-        struct_nl = StructureNL(self.struct, self.hulk, history=[self.valid_node, self.valid_node2])
+        struct_nl = StructureNL(
+            self.struct, self.hulk, history=[self.valid_node, self.valid_node2]
+        )
         assert struct_nl.history[1].name == "DB 2"
         assert struct_nl.history[1].url == "www.db2URLgoeshere.com"
         assert struct_nl.history[1].description == {"db2_id": 12424}

@@ -89,16 +89,28 @@ class TestIon:
                 f"Expected {tup[1]} but got {Ion.from_formula(tup[0]).reduced_formula}"
             )
 
-        assert Ion.from_formula("Fe(OH)4+").get_reduced_formula_and_factor(hydrates=True) == ("FeO2.2H2O", 1)
-        assert Ion.from_formula("Zr(OH)4").get_reduced_formula_and_factor(hydrates=True) == ("ZrO2.2H2O", 1)
+        assert Ion.from_formula("Fe(OH)4+").get_reduced_formula_and_factor(
+            hydrates=True
+        ) == ("FeO2.2H2O", 1)
+        assert Ion.from_formula("Zr(OH)4").get_reduced_formula_and_factor(
+            hydrates=True
+        ) == ("ZrO2.2H2O", 1)
         assert Ion.from_formula("O").get_reduced_formula_and_factor(hydrates=False) == (
             "O",
             1,
         )
-        assert Ion.from_formula("O2").get_reduced_formula_and_factor(hydrates=False) == ("O2", 1)
-        assert Ion.from_formula("O3").get_reduced_formula_and_factor(hydrates=False) == ("O3", 1)
-        assert Ion.from_formula("O6").get_reduced_formula_and_factor(hydrates=False) == ("O3", 2)
-        assert Ion.from_formula("N8").get_reduced_formula_and_factor(hydrates=False) == ("N2", 4)
+        assert Ion.from_formula("O2").get_reduced_formula_and_factor(
+            hydrates=False
+        ) == ("O2", 1)
+        assert Ion.from_formula("O3").get_reduced_formula_and_factor(
+            hydrates=False
+        ) == ("O3", 1)
+        assert Ion.from_formula("O6").get_reduced_formula_and_factor(
+            hydrates=False
+        ) == ("O3", 2)
+        assert Ion.from_formula("N8").get_reduced_formula_and_factor(
+            hydrates=False
+        ) == ("N2", 4)
 
     def test_get_reduced_formula_and_factor_non_int_amounts(self):
         """Ensure get_reduced_formula_and_factor returns early for non-integer amounts."""
@@ -206,7 +218,9 @@ class TestIon:
         while other_z == random_z:
             other_z = rng.integers(1, 93)
         comp2 = Ion(Composition({fixed_el: 1, Element.from_Z(other_z): 0}), 1)
-        assert comp1 == comp2, f"Composition equality test failed. {comp1.formula} should be equal to {comp2.formula}"
+        assert comp1 == comp2, (
+            f"Composition equality test failed. {comp1.formula} should be equal to {comp2.formula}"
+        )
         assert hash(comp1) == hash(comp2), "Hash equality test failed!"
 
     def test_equality(self):
@@ -236,7 +250,9 @@ class TestIon:
         assert result.charge == 1
 
     def test_mul(self):
-        assert (self.comp[1] * 4).formula == "Mn4 O16 -4", "Incorrect composition after addition!"
+        assert (self.comp[1] * 4).formula == "Mn4 O16 -4", (
+            "Incorrect composition after addition!"
+        )
 
     def test_str(self):
         assert str(Ion.from_dict({"Mn": 1, "O": 4, "charge": -1})) == "Mn1 O4 -1"

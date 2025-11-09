@@ -46,13 +46,17 @@ class TestTrajectory(MatSciTest):
         )
 
     def _check_traj_equality(self, traj_1, traj_2):
-        if traj_1.lattice is not None and not np.allclose(traj_1.lattice, traj_2.lattice):
+        if traj_1.lattice is not None and not np.allclose(
+            traj_1.lattice, traj_2.lattice
+        ):
             return False
 
         if traj_1.species != traj_2.species:
             return False
 
-        return all(frame1 == frame2 for frame1, frame2 in zip(self.traj, traj_2, strict=False))
+        return all(
+            frame1 == frame2 for frame1, frame2 in zip(self.traj, traj_2, strict=False)
+        )
 
     def _get_lattice_species_and_coords(self):
         lattice = ((1, 0, 0), (0, 1, 0), (0, 0, 1))
@@ -74,8 +78,14 @@ class TestTrajectory(MatSciTest):
         return species, coords, 0, 1
 
     def test_single_index_slice(self):
-        assert all(self.traj[idx] == self.structures[idx] for idx in range(0, len(self.structures), 19))
-        assert all(self.traj_mols[idx] == self.molecules[idx] for idx in range(len(self.molecules)))
+        assert all(
+            self.traj[idx] == self.structures[idx]
+            for idx in range(0, len(self.structures), 19)
+        )
+        assert all(
+            self.traj_mols[idx] == self.molecules[idx]
+            for idx in range(len(self.molecules))
+        )
 
     def test_slice(self):
         sliced_traj = self.traj[2:99:3]
@@ -84,7 +94,10 @@ class TestTrajectory(MatSciTest):
         assert len(sliced_traj) == len(sliced_traj_from_structs), (
             f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
         )
-        assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
+        assert all(
+            sliced_traj[i] == sliced_traj_from_structs[i]
+            for i in range(len(sliced_traj))
+        )
 
         sliced_traj = self.traj[:-4:2]
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[:-4:2])
@@ -92,41 +105,65 @@ class TestTrajectory(MatSciTest):
         assert len(sliced_traj) == len(sliced_traj_from_structs), (
             f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
         )
-        assert all(sliced_traj[idx] == sliced_traj_from_structs[idx] for idx in range(len(sliced_traj)))
+        assert all(
+            sliced_traj[idx] == sliced_traj_from_structs[idx]
+            for idx in range(len(sliced_traj))
+        )
 
         sliced_traj = self.traj_mols[:2]
         sliced_traj_from_mols = Trajectory.from_molecules(self.molecules[:2])
 
-        assert len(sliced_traj) == len(sliced_traj_from_mols), f"{len(sliced_traj)=} != {len(sliced_traj_from_mols)=}"
-        assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
+        assert len(sliced_traj) == len(sliced_traj_from_mols), (
+            f"{len(sliced_traj)=} != {len(sliced_traj_from_mols)=}"
+        )
+        assert all(
+            sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj))
+        )
 
         sliced_traj = self.traj_mols[:-2]
         sliced_traj_from_mols = Trajectory.from_molecules(self.molecules[:-2])
 
-        assert len(sliced_traj) == len(sliced_traj_from_mols), f"{len(sliced_traj)=} != {len(sliced_traj_from_mols)=}"
-        assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
+        assert len(sliced_traj) == len(sliced_traj_from_mols), (
+            f"{len(sliced_traj)=} != {len(sliced_traj_from_mols)=}"
+        )
+        assert all(
+            sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj))
+        )
 
     def test_list_slice(self):
         sliced_traj = self.traj[[10, 30, 70]]
-        sliced_traj_from_structs = Trajectory.from_structures([self.structures[i] for i in [10, 30, 70]])
+        sliced_traj_from_structs = Trajectory.from_structures(
+            [self.structures[i] for i in [10, 30, 70]]
+        )
 
         assert len(sliced_traj) == len(sliced_traj_from_structs), (
             f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
         )
-        assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
+        assert all(
+            sliced_traj[i] == sliced_traj_from_structs[i]
+            for i in range(len(sliced_traj))
+        )
 
         sliced_traj = self.traj_mols[[1, 3]]
-        sliced_traj_from_mols = Trajectory.from_molecules([self.molecules[i] for i in [1, 3]])
+        sliced_traj_from_mols = Trajectory.from_molecules(
+            [self.molecules[i] for i in [1, 3]]
+        )
 
-        assert len(sliced_traj) == len(sliced_traj_from_mols), f"{len(sliced_traj)=} != {len(sliced_traj_from_mols)=}"
-        assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
+        assert len(sliced_traj) == len(sliced_traj_from_mols), (
+            f"{len(sliced_traj)=} != {len(sliced_traj_from_mols)=}"
+        )
+        assert all(
+            sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj))
+        )
 
     def test_conversion(self):
         # Convert to displacements and back, and then check structures.
         self.traj.to_displacements()
         self.traj.to_positions()
 
-        assert all(struct == self.structures[idx] for idx, struct in enumerate(self.traj))
+        assert all(
+            struct == self.structures[idx] for idx, struct in enumerate(self.traj)
+        )
 
         self.traj_mols.to_displacements()
         self.traj_mols.to_positions()
@@ -150,7 +187,9 @@ class TestTrajectory(MatSciTest):
                 "magmom": [5, 5],
             },
         ]
-        traj = Trajectory(lattice=lattice, species=species, coords=coords, site_properties=props)
+        traj = Trajectory(
+            lattice=lattice, species=species, coords=coords, site_properties=props
+        )
 
         # compare the overall site properties list
         assert traj.site_properties == props
@@ -186,7 +225,9 @@ class TestTrajectory(MatSciTest):
 
         props = [{"energy_per_atom": ene} for ene in [-3.0001, -3.0971, -3.0465]]
 
-        traj = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=props)
+        traj = Trajectory(
+            lattice=lattice, species=species, coords=coords, frame_properties=props
+        )
 
         # compare the overall site properties
         assert traj.frame_properties == props
@@ -198,7 +239,8 @@ class TestTrajectory(MatSciTest):
         species, coords, charge, spin = self._get_species_and_coords()
 
         props = [
-            {"SCF_energy_in_the_final_basis_set": ene} for ene in [-113.3256885788, -113.3260019471, -113.326006415]
+            {"SCF_energy_in_the_final_basis_set": ene}
+            for ene in [-113.3256885788, -113.3260019471, -113.326006415]
         ]
 
         traj = Trajectory(
@@ -224,15 +266,21 @@ class TestTrajectory(MatSciTest):
         traj = copy.deepcopy(self.traj)
 
         # Case of compatible trajectories
-        compatible_traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj_combine_test_1")
+        compatible_traj = Trajectory.from_file(
+            f"{VASP_OUT_DIR}/XDATCAR_traj_combine_test_1"
+        )
         traj.extend(compatible_traj)
 
-        full_traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj_combine_test_full")
+        full_traj = Trajectory.from_file(
+            f"{VASP_OUT_DIR}/XDATCAR_traj_combine_test_full"
+        )
         compatible_success = self._check_traj_equality(self.traj, full_traj)
 
         # Case of incompatible trajectories
         traj = copy.deepcopy(self.traj)
-        incompatible_traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj_combine_test_2")
+        incompatible_traj = Trajectory.from_file(
+            f"{VASP_OUT_DIR}/XDATCAR_traj_combine_test_2"
+        )
         incompatible_test_success = False
         try:
             traj.extend(incompatible_traj)
@@ -277,7 +325,9 @@ class TestTrajectory(MatSciTest):
         species, coords, charge, spin = self._get_species_and_coords()
 
         traj = copy.deepcopy(self.traj)
-        incompatible_traj = Trajectory(species=species, coords=coords, charge=charge, spin_multiplicity=spin)
+        incompatible_traj = Trajectory(
+            species=species, coords=coords, charge=charge, spin_multiplicity=spin
+        )
         incompatible_test_success = False
         try:
             traj.extend(incompatible_traj)
@@ -313,13 +363,21 @@ class TestTrajectory(MatSciTest):
             },
         ]
 
-        traj_1 = Trajectory(lattice=lattice, species=species, coords=coords, site_properties=props_1)
+        traj_1 = Trajectory(
+            lattice=lattice, species=species, coords=coords, site_properties=props_1
+        )
 
-        traj_2 = Trajectory(lattice=lattice, species=species, coords=coords, site_properties=props_2)
+        traj_2 = Trajectory(
+            lattice=lattice, species=species, coords=coords, site_properties=props_2
+        )
 
-        traj_3 = Trajectory(lattice=lattice, species=species, coords=coords, site_properties=props_3)
+        traj_3 = Trajectory(
+            lattice=lattice, species=species, coords=coords, site_properties=props_3
+        )
 
-        traj_4 = Trajectory(lattice=lattice, species=species, coords=coords, site_properties=None)
+        traj_4 = Trajectory(
+            lattice=lattice, species=species, coords=coords, site_properties=None
+        )
 
         # const & const (both constant and the same site properties)
         traj_combined = copy.deepcopy(traj_1)
@@ -390,14 +448,23 @@ class TestTrajectory(MatSciTest):
 
         # energy only properties
         props_1 = [{"energy": ene} for ene in energy_1]
-        traj_1 = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=props_1)
+        traj_1 = Trajectory(
+            lattice=lattice, species=species, coords=coords, frame_properties=props_1
+        )
 
         # energy and pressure properties
-        props_2 = [{"energy": e, "pressure": p} for e, p in zip(energy_2, pressure_2, strict=True)]
-        traj_2 = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=props_2)
+        props_2 = [
+            {"energy": e, "pressure": p}
+            for e, p in zip(energy_2, pressure_2, strict=True)
+        ]
+        traj_2 = Trajectory(
+            lattice=lattice, species=species, coords=coords, frame_properties=props_2
+        )
 
         # no properties
-        traj_3 = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=None)
+        traj_3 = Trajectory(
+            lattice=lattice, species=species, coords=coords, frame_properties=None
+        )
 
         # test combining two with different properties
         traj_combined = copy.deepcopy(traj_1)
@@ -428,7 +495,9 @@ class TestTrajectory(MatSciTest):
         for idx in range(10):
             displacement = rng.random(np.shape(structures[-1].frac_coords)) / 20
             new_coords = displacement + structures[-1].frac_coords
-            structures.append(Structure(structures[-1].lattice, structures[-1].species, new_coords))
+            structures.append(
+                Structure(structures[-1].lattice, structures[-1].species, new_coords)
+            )
             displacements[idx + 1, :, :] = displacement
 
         traj = Trajectory.from_structures(structures, constant_lattice=True)
@@ -443,7 +512,9 @@ class TestTrajectory(MatSciTest):
         structures = []
         rng = np.random.default_rng()
         for _ in range(10):
-            new_lattice = np.dot(structure.lattice.matrix, np.diag(1 + rng.random(3) / 20))
+            new_lattice = np.dot(
+                structure.lattice.matrix, np.diag(1 + rng.random(3) / 20)
+            )
             temp_struct = structure.copy()
             temp_struct.lattice = Lattice(new_lattice)
             structures.append(temp_struct)
@@ -452,14 +523,17 @@ class TestTrajectory(MatSciTest):
 
         # Check if lattices were properly stored
         assert all(
-            np.allclose(struct.lattice.matrix, structures[idx].lattice.matrix) for idx, struct in enumerate(traj)
+            np.allclose(struct.lattice.matrix, structures[idx].lattice.matrix)
+            for idx, struct in enumerate(traj)
         )
 
         # Check if the file is written correctly when lattice is not constant.
         traj.write_Xdatcar(filename=f"{self.tmp_path}/traj_test_XDATCAR")
 
         # Load trajectory from written XDATCAR and compare to original
-        written_traj = Trajectory.from_file(f"{self.tmp_path}/traj_test_XDATCAR", constant_lattice=False)
+        written_traj = Trajectory.from_file(
+            f"{self.tmp_path}/traj_test_XDATCAR", constant_lattice=False
+        )
         self._check_traj_equality(traj, written_traj)
 
     def test_as_from_dict(self):
@@ -491,7 +565,8 @@ class TestTrajectory(MatSciTest):
 
             # Check that ASE calculator properties are converted to frame properties
             assert all(
-                all(frame.get(k) is not None for k in ("energy", "forces", "stress")) for frame in traj.frame_properties
+                all(frame.get(k) is not None for k in ("energy", "forces", "stress"))
+                for frame in traj.frame_properties
             )
 
         except ImportError:
@@ -502,11 +577,15 @@ class TestTrajectory(MatSciTest):
                 Trajectory.from_file(f"{TEST_DIR}/LiMnO2_chgnet_relax.traj")
 
     def test_index_error(self):
-        with pytest.raises(IndexError, match="index=100 out of range, trajectory only has 100 frames"):
+        with pytest.raises(
+            IndexError, match="index=100 out of range, trajectory only has 100 frames"
+        ):
             self.traj[100]
         with pytest.raises(
             TypeError,
-            match=re.escape("bad index='test', expected one of [int, slice, list[int], numpy.ndarray]"),
+            match=re.escape(
+                "bad index='test', expected one of [int, slice, list[int], numpy.ndarray]"
+            ),
         ):
             self.traj["test"]
 
@@ -542,13 +621,19 @@ class TestTrajectory(MatSciTest):
         ]
         wrong_dim_coords = [[1.5, -0, 0, 1], [1.9, -1.2, 0, 1]]
 
-        with pytest.raises(ValueError, match=re.escape("lattice must have shape (M, 3, 3)!")):
+        with pytest.raises(
+            ValueError, match=re.escape("lattice must have shape (M, 3, 3)!")
+        ):
             Trajectory(species=species, coords=coords, lattice=short_lattice)
-        with pytest.raises(ValueError, match=re.escape("lattice must have shape (3, 3) or (M, 3, 3)")):
+        with pytest.raises(
+            ValueError, match=re.escape("lattice must have shape (3, 3) or (M, 3, 3)")
+        ):
             Trajectory(species=species, coords=coords, lattice=unphysical_lattice)
         with pytest.raises(ValueError, match="must have the same number of sites!"):
             Trajectory(species=species, coords=extra_coords, lattice=const_lattice)
-        with pytest.raises(ValueError, match=re.escape("coords must have shape (M, N, 3)")):
+        with pytest.raises(
+            ValueError, match=re.escape("coords must have shape (M, N, 3)")
+        ):
             Trajectory(species=species, coords=unphysical_coords, lattice=const_lattice)
         with pytest.raises(ValueError, match="coords must have 3 dimensions!"):
             Trajectory(species=species, coords=wrong_dim_coords, lattice=const_lattice)
@@ -563,7 +648,10 @@ class TestTrajectory(MatSciTest):
 
             # Ensure all frame properties and the magmoms are populated correctly
             assert all(
-                all(atoms.calc.get_property(k) is not None for k in ("energy", "forces", "stress", "magmoms"))
+                all(
+                    atoms.calc.get_property(k) is not None
+                    for k in ("energy", "forces", "stress", "magmoms")
+                )
                 for atoms in ase_traj
             )
 

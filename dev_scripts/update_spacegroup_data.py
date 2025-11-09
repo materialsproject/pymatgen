@@ -33,7 +33,11 @@ def convert_symmops_to_sg_encoding(symbol: str) -> str:
         str: symbol in the format of SYMM_DATA["space_group_encoding"] keys
     """
     symbol_representation = symbol.split(":")
-    representation = ":" + "".join(symbol_representation[1].split(" ")) if len(symbol_representation) > 1 else ""
+    representation = (
+        ":" + "".join(symbol_representation[1].split(" "))
+        if len(symbol_representation) > 1
+        else ""
+    )
 
     blickrichtungen = symbol_representation[0].split(" ")
     blickrichtungen_new = []
@@ -76,9 +80,9 @@ for k, v in SYMM_DATA["space_group_encoding"].items():
 SYMM_DATA["space_group_encoding"] = new_symm_data
 
 for sg_symbol in SYMM_DATA["space_group_encoding"]:
-    SYMM_DATA["space_group_encoding"][sg_symbol]["point_group"] = PointGroup.from_space_group(
-        sg_symbol=sg_symbol
-    ).symbol
+    SYMM_DATA["space_group_encoding"][sg_symbol]["point_group"] = (
+        PointGroup.from_space_group(sg_symbol=sg_symbol).symbol
+    )
 
 for spg in SYMM_OPS:
     if "(" in spg["hermann_mauguin"]:

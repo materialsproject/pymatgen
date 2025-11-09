@@ -48,7 +48,9 @@ class TestSiteSymmetries(MatSciTest):
         shared_ops = list(
             map(
                 list,
-                ss.get_shared_symmetry_operations(self.piezo_struct, ss.get_site_symmetries(self.piezo_struct)),
+                ss.get_shared_symmetry_operations(
+                    self.piezo_struct, ss.get_site_symmetries(self.piezo_struct)
+                ),
             )
         )
         assert shared_ops == self.shared_ops

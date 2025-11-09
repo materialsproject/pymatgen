@@ -70,9 +70,13 @@ class TestLatticeFromAbivars(MatSciTest):
         )
         assert_allclose(l3.matrix, abi_rprimd)
 
-        with pytest.raises(ValueError, match="angdeg and rprimd are mutually exclusive"):
+        with pytest.raises(
+            ValueError, match="angdeg and rprimd are mutually exclusive"
+        ):
             lattice_from_abivars(acell=[1, 1, 1], angdeg=(90, 90, 90), rprim=np.eye(3))
-        with pytest.raises(ValueError, match=r"Angles must be > 0 but got \[-90  90  90\]"):
+        with pytest.raises(
+            ValueError, match=r"Angles must be > 0 but got \[-90  90  90\]"
+        ):
             lattice_from_abivars(acell=[1, 1, 1], angdeg=(-90, 90, 90))
 
     def test_znucl_typat(self):
@@ -93,7 +97,9 @@ class TestLatticeFromAbivars(MatSciTest):
         # But it's possible to enforce a particular value of typat and znucl.
         enforce_znucl = [7, 31]
         enforce_typat = [2, 2, 1, 1]
-        enf_vars = structure_to_abivars(gan, enforce_znucl=enforce_znucl, enforce_typat=enforce_typat)
+        enf_vars = structure_to_abivars(
+            gan, enforce_znucl=enforce_znucl, enforce_typat=enforce_typat
+        )
         assert_array_equal(enf_vars["znucl"], enforce_znucl)
         assert_array_equal(enf_vars["typat"], enforce_typat)
         assert_array_equal(def_vars["xred"], enf_vars["xred"])
@@ -104,7 +110,9 @@ class TestLatticeFromAbivars(MatSciTest):
         for itype1, itype2 in zip(def_typat, enforce_typat, strict=True):
             assert def_znucl[itype1 - 1] == enforce_znucl[itype2 - 1]
 
-        with pytest.raises(ValueError, match="Both enforce_znucl and enforce_typat are required"):
+        with pytest.raises(
+            ValueError, match="Both enforce_znucl and enforce_typat are required"
+        ):
             structure_to_abivars(gan, enforce_znucl=enforce_znucl, enforce_typat=None)
 
 
@@ -197,8 +205,12 @@ class TestElectrons(MatSciTest):
 
 class TestKSampling(MatSciTest):
     def test_base(self):
-        monkhorst = KSampling.monkhorst((3, 3, 3), (0.5, 0.5, 0.5), 0, use_symmetries=False, use_time_reversal=False)
-        gamma_centered = KSampling.gamma_centered((3, 3, 3), use_symmetries=False, use_time_reversal=False)
+        monkhorst = KSampling.monkhorst(
+            (3, 3, 3), (0.5, 0.5, 0.5), 0, use_symmetries=False, use_time_reversal=False
+        )
+        gamma_centered = KSampling.gamma_centered(
+            (3, 3, 3), use_symmetries=False, use_time_reversal=False
+        )
 
         monkhorst.to_abivars()
 

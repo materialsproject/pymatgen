@@ -6,7 +6,9 @@ import itertools
 from math import factorial
 from random import shuffle
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+)
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
     LocalGeometryFinder,
@@ -22,7 +24,9 @@ __date__ = "Feb 20, 2016"
 if __name__ == "__main__":
     all_coord_geoms = AllCoordinationGeometries()
 
-    test = input('Standard ("s", all permutations for cn <= 6, 500 random permutations for cn > 6) or on demand')
+    test = input(
+        'Standard ("s", all permutations for cn <= 6, 500 random permutations for cn > 6) or on demand'
+    )
     if test == "s":
         perms_def = "standard"
     elif test == "o":
@@ -36,7 +40,9 @@ if __name__ == "__main__":
 
     for coordination in range(1, 13):
         print(f"IN COORDINATION {coordination}")
-        symbol_name_mapping = all_coord_geoms.get_symbol_name_mapping(coordination=coordination)
+        symbol_name_mapping = all_coord_geoms.get_symbol_name_mapping(
+            coordination=coordination
+        )
 
         if perms_def == "standard":
             test = "500" if coordination > 6 else "all"

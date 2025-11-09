@@ -137,7 +137,9 @@ class TestTEMCalculator(MatSciTest):
         tem_calc = TEMCalculator()
         lattice = Lattice.cubic(4.209)
         cubic = Structure(lattice, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-        nacl = Structure.from_spacegroup("Fm-3m", Lattice.cubic(5.692), ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        nacl = Structure.from_spacegroup(
+            "Fm-3m", Lattice.cubic(5.692), ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
         point = [(2, 1, 3)]
         point_nacl = [(4, 2, 0)]
         spacings = tem_calc.get_interplanar_spacings(cubic, point)
@@ -154,7 +156,9 @@ class TestTEMCalculator(MatSciTest):
     def test_cell_scattering_factors(self):
         # Test that fcc structure gives 0 intensity for mixed even, odd hkl.
         tem_calc = TEMCalculator()
-        nacl = Structure.from_spacegroup("Fm-3m", Lattice.cubic(5.692), ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        nacl = Structure.from_spacegroup(
+            "Fm-3m", Lattice.cubic(5.692), ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
         point = [(2, 1, 0)]
         spacings = tem_calc.get_interplanar_spacings(nacl, point)
         angles = tem_calc.bragg_angles(spacings)

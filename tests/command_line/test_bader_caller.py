@@ -65,12 +65,18 @@ class TestBaderAnalysis(MatSciTest):
     def test_from_path(self):
         # we need to create two copies of input files since monty decompressing files
         # deletes the compressed version which can't happen twice in same directory
-        shutil.copytree(TEST_DIR, direct_dir := f"{self.tmp_path}/direct", dirs_exist_ok=True)
-        shutil.copytree(TEST_DIR, from_path_dir := f"{self.tmp_path}/from_path", dirs_exist_ok=True)
+        shutil.copytree(
+            TEST_DIR, direct_dir := f"{self.tmp_path}/direct", dirs_exist_ok=True
+        )
+        shutil.copytree(
+            TEST_DIR, from_path_dir := f"{self.tmp_path}/from_path", dirs_exist_ok=True
+        )
         chgcar_path = f"{direct_dir}/CHGCAR.gz"
         chgref_path = f"{direct_dir}/_CHGCAR_sum.gz"
 
-        analysis = BaderAnalysis(chgcar_filename=chgcar_path, chgref_filename=chgref_path)
+        analysis = BaderAnalysis(
+            chgcar_filename=chgcar_path, chgref_filename=chgref_path
+        )
         analysis_from_path = BaderAnalysis.from_path(from_path_dir)
 
         for key, val_from_path in analysis_from_path.summary.items():

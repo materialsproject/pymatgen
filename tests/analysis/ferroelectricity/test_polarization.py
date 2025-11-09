@@ -20,7 +20,9 @@ bto_folders = ["nonpolar_polarization"]
 bto_folders += [f"interpolation_{idx}_polarization" for idx in range(8, 0, -1)]
 bto_folders += ["polar_polarization"]
 
-structures = [Structure.from_file(f"{TEST_DIR}/{folder}/POSCAR") for folder in bto_folders]
+structures = [
+    Structure.from_file(f"{TEST_DIR}/{folder}/POSCAR") for folder in bto_folders
+]
 
 ions = np.array(
     [
@@ -157,17 +159,27 @@ class TestPolarization(MatSciTest):
         self.decimal_tol = 5
 
     def test_from_outcars_and_structures(self):
-        polarization = Polarization.from_outcars_and_structures(self.outcars, self.structures)
-        p_elecs, p_ions = polarization.get_pelecs_and_pions(convert_to_muC_per_cm2=False)
+        polarization = Polarization.from_outcars_and_structures(
+            self.outcars, self.structures
+        )
+        p_elecs, p_ions = polarization.get_pelecs_and_pions(
+            convert_to_muC_per_cm2=False
+        )
         assert_allclose(p_elecs[0].ravel().tolist(), self.p_elecs[0].ravel().tolist())
         assert_allclose(p_elecs[-1].ravel().tolist(), self.p_elecs[-1].ravel().tolist())
-        assert_allclose(p_ions[0].ravel().tolist(), self.p_ions_outcar[0].ravel().tolist())
-        assert_allclose(p_ions[-1].ravel().tolist(), self.p_ions_outcar[-1].ravel().tolist())
+        assert_allclose(
+            p_ions[0].ravel().tolist(), self.p_ions_outcar[0].ravel().tolist()
+        )
+        assert_allclose(
+            p_ions[-1].ravel().tolist(), self.p_ions_outcar[-1].ravel().tolist()
+        )
         # Test for calc_ionic_from_zval=True
         polarization = Polarization.from_outcars_and_structures(
             self.outcars, self.structures, calc_ionic_from_zval=True
         )
-        p_elecs, p_ions = polarization.get_pelecs_and_pions(convert_to_muC_per_cm2=False)
+        p_elecs, p_ions = polarization.get_pelecs_and_pions(
+            convert_to_muC_per_cm2=False
+        )
         assert_allclose(p_elecs[0].ravel().tolist(), self.p_elecs[0].ravel().tolist())
         assert_allclose(p_elecs[-1].ravel().tolist(), self.p_elecs[-1].ravel().tolist())
         assert_allclose(p_ions[0].ravel().tolist(), self.p_ions[0].ravel().tolist())
@@ -219,42 +231,62 @@ class TestPolarization(MatSciTest):
         )
 
     def test_get_lattice_quanta(self):
-        quanta = self.polarization.get_lattice_quanta(convert_to_muC_per_cm2=True, all_in_polar=False)
+        quanta = self.polarization.get_lattice_quanta(
+            convert_to_muC_per_cm2=True, all_in_polar=False
+        )
         assert_allclose(quanta[0].ravel().tolist(), self.quanta[0].ravel().tolist())
         assert_allclose(quanta[-1].ravel().tolist(), self.quanta[-1].ravel().tolist())
         # For all_in_polar=True, quanta should be identical to polar quantum
-        quanta = self.polarization.get_lattice_quanta(convert_to_muC_per_cm2=True, all_in_polar=True)
+        quanta = self.polarization.get_lattice_quanta(
+            convert_to_muC_per_cm2=True, all_in_polar=True
+        )
         assert_allclose(quanta[0].ravel().tolist(), self.quanta[-1].ravel().tolist())
         assert_allclose(quanta[-1].ravel().tolist(), self.quanta[-1].ravel().tolist())
 
     def test_get_polarization_change(self):
-        change = self.polarization.get_polarization_change(convert_to_muC_per_cm2=True, all_in_polar=False)
+        change = self.polarization.get_polarization_change(
+            convert_to_muC_per_cm2=True, all_in_polar=False
+        )
         assert_allclose(change, self.change)
         # Because nonpolar polarization is (0, 0, 0), all_in_polar should have no effect on polarization change
-        change = self.polarization.get_polarization_change(convert_to_muC_per_cm2=True, all_in_polar=True)
+        change = self.polarization.get_polarization_change(
+            convert_to_muC_per_cm2=True, all_in_polar=True
+        )
         # No change up to 5 decimal
         assert_allclose(change, self.change, self.decimal_tol)
 
     def test_get_polarization_change_norm(self):
-        change_norm = self.polarization.get_polarization_change_norm(convert_to_muC_per_cm2=True, all_in_polar=False)
+        change_norm = self.polarization.get_polarization_change_norm(
+            convert_to_muC_per_cm2=True, all_in_polar=False
+        )
         assert change_norm == approx(self.change_norm)
         # Because nonpolar polarization is (0, 0, 0), all_in_polar should have no effect on polarization change norm
-        change = self.polarization.get_polarization_change(convert_to_muC_per_cm2=True, all_in_polar=True)
+        change = self.polarization.get_polarization_change(
+            convert_to_muC_per_cm2=True, all_in_polar=True
+        )
         # No change up to 5 decimal
         assert_allclose(change, self.change, self.decimal_tol)
 
     def test_max_spline_jumps(self):
-        max_jumps = self.polarization.max_spline_jumps(convert_to_muC_per_cm2=True, all_in_polar=False)
+        max_jumps = self.polarization.max_spline_jumps(
+            convert_to_muC_per_cm2=True, all_in_polar=False
+        )
         assert_allclose(self.max_jumps, max_jumps, atol=1e-7)
         # This will differ slightly
-        max_jumps = self.polarization.max_spline_jumps(convert_to_muC_per_cm2=True, all_in_polar=True)
+        max_jumps = self.polarization.max_spline_jumps(
+            convert_to_muC_per_cm2=True, all_in_polar=True
+        )
         assert_allclose(self.max_jumps_all_in_polar, max_jumps)
 
     def test_smoothness(self):
-        smoothness = self.polarization.smoothness(convert_to_muC_per_cm2=True, all_in_polar=False)
+        smoothness = self.polarization.smoothness(
+            convert_to_muC_per_cm2=True, all_in_polar=False
+        )
         assert_allclose(self.smoothness, smoothness, atol=1e-7)
         # This will differ slightly
-        smoothness = self.polarization.smoothness(convert_to_muC_per_cm2=True, all_in_polar=True)
+        smoothness = self.polarization.smoothness(
+            convert_to_muC_per_cm2=True, all_in_polar=True
+        )
         assert_allclose(self.smoothness_all_in_polar, smoothness)
 
 

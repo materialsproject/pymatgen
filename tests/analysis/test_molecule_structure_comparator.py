@@ -134,7 +134,9 @@ class TestMoleculeStructureComparator:
         assert d1 == d2
         thio1 = Molecule.from_file(f"{TEST_DIR}/thiophene1.xyz")
         # noinspection PyProtectedMember
-        msc2 = MoleculeStructureComparator(bond_length_cap=0.2, priority_bonds=msc1._get_bonds(thio1), priority_cap=0.5)
+        msc2 = MoleculeStructureComparator(
+            bond_length_cap=0.2, priority_bonds=msc1._get_bonds(thio1), priority_cap=0.5
+        )
         d1 = msc2.as_dict()
         d2 = MoleculeStructureComparator.from_dict(d1).as_dict()
         assert d1 == d2

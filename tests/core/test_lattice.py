@@ -45,11 +45,15 @@ class TestLattice(MatSciTest):
         lattice2 = Lattice(np.eye(3) * len_a)
         for ii in range(3):
             for jj in range(3):
-                assert lattice.matrix[ii][jj] == lattice2.matrix[ii][jj], "Inconsistent matrix from two inits!"
+                assert lattice.matrix[ii][jj] == lattice2.matrix[ii][jj], (
+                    "Inconsistent matrix from two inits!"
+                )
         assert_array_equal(self.cubic_partial_pbc.pbc, (True, True, False))
 
         for bad_pbc in [(True, True), (True, True, True, True), (True, True, 2)]:
-            with pytest.raises(ValueError, match="pbc must be a tuple of three True/False values, got"):
+            with pytest.raises(
+                ValueError, match="pbc must be a tuple of three True/False values, got"
+            ):
                 Lattice(np.eye(3), pbc=bad_pbc)
 
     def test_equal(self):
@@ -60,11 +64,14 @@ class TestLattice(MatSciTest):
                 assert (name1 == name2) == (latt1 == latt2)
 
         # ensure partial periodic boundaries is unequal to all full periodic boundaries
-        assert not any(self.cubic_partial_pbc == family for family in self.families.values())
+        assert not any(
+            self.cubic_partial_pbc == family for family in self.families.values()
+        )
 
     def test_format(self):
         assert (
-            format(self.lattice, ".3fl") == "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]"
+            format(self.lattice, ".3fl")
+            == "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]"
         )
         lattice_str = """10.000 0.000 0.000
 0.000 10.000 0.000
@@ -93,13 +100,19 @@ class TestLattice(MatSciTest):
         assert_allclose(frac_coord, rand_coord)
 
     def test_get_vector_along_lattice_directions(self):
-        lattice_mat = np.array([[0.5, 0.0, 0.0], [0.5, np.sqrt(3) / 2.0, 0.0], [0.0, 0.0, 1.0]])
+        lattice_mat = np.array(
+            [[0.5, 0.0, 0.0], [0.5, np.sqrt(3) / 2.0, 0.0], [0.0, 0.0, 1.0]]
+        )
         lattice = Lattice(lattice_mat)
         cart_coord = np.array([0.5, np.sqrt(3) / 4.0, 0.5])
         latt_coord = np.array([0.25, 0.5, 0.5])
         from_direct = lattice.get_fractional_coords(cart_coord) * lattice.lengths
-        assert_allclose(lattice.get_vector_along_lattice_directions(cart_coord), from_direct)
-        assert_allclose(lattice.get_vector_along_lattice_directions(cart_coord), latt_coord)
+        assert_allclose(
+            lattice.get_vector_along_lattice_directions(cart_coord), from_direct
+        )
+        assert_allclose(
+            lattice.get_vector_along_lattice_directions(cart_coord), latt_coord
+        )
         assert_array_equal(
             lattice.get_vector_along_lattice_directions(cart_coord).shape,
             [
@@ -107,14 +120,18 @@ class TestLattice(MatSciTest):
             ],
         )
         assert_array_equal(
-            lattice.get_vector_along_lattice_directions(cart_coord.reshape([1, 3])).shape,
+            lattice.get_vector_along_lattice_directions(
+                cart_coord.reshape([1, 3])
+            ).shape,
             [1, 3],
         )
 
     def test_d_hkl(self):
         cubic_copy = self.cubic.copy()
         hkl = (1, 2, 3)
-        d_hkl = ((hkl[0] ** 2 + hkl[1] ** 2 + hkl[2] ** 2) / (cubic_copy.a**2)) ** (-1 / 2)
+        d_hkl = ((hkl[0] ** 2 + hkl[1] ** 2 + hkl[2] ** 2) / (cubic_copy.a**2)) ** (
+            -1 / 2
+        )
         assert d_hkl == cubic_copy.d_hkl(hkl)
 
     def test_reciprocal_lattice(self):
@@ -127,8 +144,12 @@ class TestLattice(MatSciTest):
         )
 
         # Test the crystallographic version.
-        recip_lattice_crystallographic = self.lattice.reciprocal_lattice_crystallographic
-        assert_allclose(recip_lattice.matrix, recip_lattice_crystallographic.matrix * 2 * np.pi, 5)
+        recip_lattice_crystallographic = (
+            self.lattice.reciprocal_lattice_crystallographic
+        )
+        assert_allclose(
+            recip_lattice.matrix, recip_lattice_crystallographic.matrix * 2 * np.pi, 5
+        )
 
     def test_static_methods(self):
         expected_lengths = [3.840198, 3.84019885, 3.8401976]
@@ -162,8 +183,12 @@ class TestLattice(MatSciTest):
         """If alpha == 90 and beta == 90, two matrices are identical."""
 
         def _identical(a, b, c, alpha, beta, gamma):
-            mat1 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, vesta=False).matrix
-            mat2 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, vesta=True).matrix
+            mat1 = Lattice.from_parameters(
+                a, b, c, alpha, beta, gamma, vesta=False
+            ).matrix
+            mat2 = Lattice.from_parameters(
+                a, b, c, alpha, beta, gamma, vesta=True
+            ).matrix
             # self.assertArrayAlmostEqual(mat1, mat2)
             return ((mat1 - mat2) ** 2).sum() < 1e-6
 
@@ -180,7 +205,9 @@ class TestLattice(MatSciTest):
         reduced_latt = lattice.get_lll_reduced_lattice()
 
         expected = Lattice([[0, 1, 0], [1, 0, 1], [-2, 0, 1]])
-        assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
+        assert np.linalg.det(
+            np.linalg.solve(expected.matrix, reduced_latt.matrix)
+        ) == approx(1)
         assert_allclose(sorted(reduced_latt.abc), sorted(expected.abc))
         assert reduced_latt.volume == approx(lattice.volume)
         lattice = [
@@ -208,7 +235,9 @@ class TestLattice(MatSciTest):
             ]
         )
         reduced_latt = Lattice(lattice).get_lll_reduced_lattice()
-        assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
+        assert np.linalg.det(
+            np.linalg.solve(expected.matrix, reduced_latt.matrix)
+        ) == approx(1)
         assert_allclose(sorted(reduced_latt.abc), sorted(expected.abc))
 
         expected = Lattice([0.0, 10.0, 10.0, 10.0, 10.0, 0.0, 30.0, -30.0, 40.0])
@@ -217,7 +246,9 @@ class TestLattice(MatSciTest):
         lattice = lattice.reshape(3, 3)
         lattice = Lattice(lattice.T)
         reduced_latt = lattice.get_lll_reduced_lattice()
-        assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
+        assert np.linalg.det(
+            np.linalg.solve(expected.matrix, reduced_latt.matrix)
+        ) == approx(1)
         assert_allclose(sorted(reduced_latt.abc), sorted(expected.abc))
 
         random_latt = Lattice(np.random.default_rng().random((3, 3)))
@@ -226,7 +257,9 @@ class TestLattice(MatSciTest):
             assert reduced_random_latt.volume == approx(random_latt.volume)
 
     def test_get_niggli_reduced_lattice(self):
-        lattice = Lattice.from_parameters(3, 5.196, 2, 103 + 55 / 60, 109 + 28 / 60, 134 + 53 / 60)
+        lattice = Lattice.from_parameters(
+            3, 5.196, 2, 103 + 55 / 60, 109 + 28 / 60, 134 + 53 / 60
+        )
         reduced_cell = lattice.get_niggli_reduced_lattice()
         abc = reduced_cell.lengths
         angles = reduced_cell.angles
@@ -258,21 +291,29 @@ class TestLattice(MatSciTest):
         ]
         assert_allclose(lattice.get_niggli_reduced_lattice().matrix, expected)
 
-        lattice = Lattice.from_parameters(7.365450, 6.199506, 5.353878, 75.542191, 81.181757, 156.396627)
+        lattice = Lattice.from_parameters(
+            7.365450, 6.199506, 5.353878, 75.542191, 81.181757, 156.396627
+        )
         expected = [
             [2.578932, 0.826965, 0.000000],
             [-0.831059, 2.067413, 1.547813],
             [-0.458407, -2.480895, 1.129126],
         ]
-        assert_allclose(lattice.get_niggli_reduced_lattice().matrix, expected, atol=1e-5)
+        assert_allclose(
+            lattice.get_niggli_reduced_lattice().matrix, expected, atol=1e-5
+        )
 
-        lattice = Lattice([-0.2590, 1.1866, -0.1235, 2.2166, 1.0065, 0.7327, 1.1439, -0.4686, -0.0229])
+        lattice = Lattice(
+            [-0.2590, 1.1866, -0.1235, 2.2166, 1.0065, 0.7327, 1.1439, -0.4686, -0.0229]
+        )
         expected = [
             [-0.8849, -0.718, 0.1464],
             [0.1878, 0.7571, 0.902],
             [-0.4468, 0.4295, -1.0255],
         ]
-        assert_allclose(lattice.get_niggli_reduced_lattice().matrix, expected, atol=1e-5)
+        assert_allclose(
+            lattice.get_niggli_reduced_lattice().matrix, expected, atol=1e-5
+        )
 
     def test_find_mapping(self):
         matrix = [[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]]
@@ -288,7 +329,9 @@ class TestLattice(MatSciTest):
         aligned_out, rot_out, scale_out = mapping
         assert abs(np.linalg.det(rot)) == approx(1)
 
-        rotated = SymmOp.from_rotation_and_translation(rot_out).operate_multi(lattice.matrix)
+        rotated = SymmOp.from_rotation_and_translation(rot_out).operate_multi(
+            lattice.matrix
+        )
 
         assert_allclose(rotated, aligned_out.matrix)
         assert_allclose(np.dot(scale_out, latt2.matrix), aligned_out.matrix)
@@ -306,7 +349,9 @@ class TestLattice(MatSciTest):
         latt2 = Lattice(np.dot(rot, np.dot(scale, matrix).T).T)
 
         for aligned_out, rot_out, scale_out in lattice.find_all_mappings(latt2):
-            assert_allclose(np.inner(latt2.matrix, rot_out), aligned_out.matrix, atol=1e-12)
+            assert_allclose(
+                np.inner(latt2.matrix, rot_out), aligned_out.matrix, atol=1e-12
+            )
             assert_allclose(np.dot(scale_out, lattice.matrix), aligned_out.matrix)
             assert_allclose(aligned_out.parameters, latt2.parameters)
             assert not np.allclose(aligned_out.parameters, lattice.parameters)
@@ -385,7 +430,9 @@ class TestLattice(MatSciTest):
         frac_basis = np.eye(3)
 
         for lattice in self.families.values():
-            assert_allclose(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc, 5)
+            assert_allclose(
+                lattice.norm(lattice.matrix, frac_coords=False), lattice.abc, 5
+            )
             assert_allclose(lattice.norm(frac_basis), lattice.abc, 5)
             for idx, vec in enumerate(frac_basis):
                 length = lattice.norm(vec)
@@ -437,12 +484,16 @@ class TestLattice(MatSciTest):
 
         # ensure consistent return type if zip_results=False and no points in sphere are found
         # https://github.com/materialsproject/pymatgen/issues/3794
-        result = lattice.get_points_in_sphere(points, [0.5, 0.5, 0.5], 0.0001, zip_results=False)
+        result = lattice.get_points_in_sphere(
+            points, [0.5, 0.5, 0.5], 0.0001, zip_results=False
+        )
         assert isinstance(result, tuple)
         assert len(result) == 4
         assert all(len(arr) == 0 for arr in result)
         types = {*map(type, result)}
-        assert types == {np.ndarray}, f"Expected only np.ndarray, got {[t.__name__ for t in types]}"
+        assert types == {np.ndarray}, (
+            f"Expected only np.ndarray, got {[t.__name__ for t in types]}"
+        )
 
     def test_get_all_distances(self):
         frac_coords = np.array(
@@ -475,7 +526,9 @@ class TestLattice(MatSciTest):
         assert lattice.get_all_distances(f1, f2)[0, 0] == 0
 
         # test pbc
-        lattice_pbc = Lattice.from_parameters(8, 8, 4, 90, 76, 58, pbc=(True, True, False))
+        lattice_pbc = Lattice.from_parameters(
+            8, 8, 4, 90, 76, 58, pbc=(True, True, False)
+        )
         expected_pbc = np.array(
             [
                 [0.000, 3.015, 4.072, 3.519, 4.089],
@@ -542,7 +595,9 @@ class TestLattice(MatSciTest):
         assert_allclose(l1.matrix, l2.lll_matrix)
         assert_allclose(np.dot(l2.lll_mapping, l2.matrix), l1.matrix)
 
-        assert_allclose(np.dot(l2_frac_coords, l2.matrix), np.dot(l1_frac_coords, l1.matrix))
+        assert_allclose(
+            np.dot(l2_frac_coords, l2.matrix), np.dot(l1_frac_coords, l1.matrix)
+        )
 
         lll_frac_coords = l2.get_lll_frac_coords(l2_frac_coords)
 
@@ -563,7 +618,9 @@ class TestLattice(MatSciTest):
         assert cubic.get_miller_index_from_coords([s1, s2, s3]) == (2, 1, 1)
 
         # test on a hexagonal system
-        hexagonal = Lattice([[2.319, -4.01662582, 0.0], [2.319, 4.01662582, 0.0], [0.0, 0.0, 7.252]])
+        hexagonal = Lattice(
+            [[2.319, -4.01662582, 0.0], [2.319, 4.01662582, 0.0], [0.0, 0.0, 7.252]]
+        )
 
         s1 = np.array([2.319, 1.33887527, 6.3455])
         s2 = np.array([1.1595, 0.66943764, 4.5325])
@@ -575,13 +632,17 @@ class TestLattice(MatSciTest):
         cubic_from_flat = Lattice([10, 0, 0, 0, 10, 0, 0, 0, 10])
         sites = [[0.5, 0.8, 0.8], [0.5, 0.4, 0.2], [0.5, 0.3, 0.7]]
 
-        hkl = cubic_from_flat.get_miller_index_from_coords(sites, coords_are_cartesian=False)
+        hkl = cubic_from_flat.get_miller_index_from_coords(
+            sites, coords_are_cartesian=False
+        )
         assert hkl == (1, 0, 0)
 
         # test for more than 3 sites
         sites = [[0.5, 0.8, 0.8], [0.5, 0.4, 0.2], [0.5, 0.3, 0.7], [0.5, 0.1, 0.2]]
 
-        hkl = cubic_from_flat.get_miller_index_from_coords(sites, coords_are_cartesian=False)
+        hkl = cubic_from_flat.get_miller_index_from_coords(
+            sites, coords_are_cartesian=False
+        )
         assert hkl == (1, 0, 0)
 
     def test_points_in_spheres(self):
@@ -624,11 +685,15 @@ class TestLattice(MatSciTest):
         assert Lattice.selling_dist(Lattice.cubic(5), Lattice.cubic(5)) == 0
         hex_lattice = Lattice.hexagonal(5, 8)
         triclinic_lattice = Lattice.from_parameters(4, 10, 11, 100, 110, 80)
-        assert Lattice.selling_dist(hex_lattice, triclinic_lattice) == approx(76, abs=0.1)
-        assert Lattice.selling_dist(Lattice.tetragonal(10, 12), Lattice.tetragonal(10.1, 11.9)) == approx(3.7, abs=0.1)
-        assert Lattice.selling_dist(Lattice.cubic(5), Lattice.from_parameters(8, 10, 12, 80, 90, 95)) == approx(
-            125.99, abs=0.1
+        assert Lattice.selling_dist(hex_lattice, triclinic_lattice) == approx(
+            76, abs=0.1
         )
+        assert Lattice.selling_dist(
+            Lattice.tetragonal(10, 12), Lattice.tetragonal(10.1, 11.9)
+        ) == approx(3.7, abs=0.1)
+        assert Lattice.selling_dist(
+            Lattice.cubic(5), Lattice.from_parameters(8, 10, 12, 80, 90, 95)
+        ) == approx(125.99, abs=0.1)
 
     def test_selling_vector(self):
         a1 = 10

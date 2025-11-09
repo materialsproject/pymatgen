@@ -103,8 +103,12 @@ class TestElasticTensor(MatSciTest):
             assert getattr(self.elastic_tensor_1, k) == approx(v)
 
     def test_directional_elastic_mod(self):
-        assert self.elastic_tensor_1.directional_elastic_mod([1, 0, 0]) == approx(self.elastic_tensor_1.voigt[0, 0])
-        assert self.elastic_tensor_1.directional_elastic_mod([1, 1, 1]) == approx(73.624444444)
+        assert self.elastic_tensor_1.directional_elastic_mod([1, 0, 0]) == approx(
+            self.elastic_tensor_1.voigt[0, 0]
+        )
+        assert self.elastic_tensor_1.directional_elastic_mod([1, 1, 1]) == approx(
+            73.624444444
+        )
 
     def test_compliance_tensor(self):
         stress = self.elastic_tensor_1.calculate_stress([0.01] + [0] * 5)
@@ -155,7 +159,9 @@ class TestElasticTensor(MatSciTest):
                     assert getattr(self.elastic_tensor_1, key) == approx(val)
 
         # Test other sprop dict modes
-        struct_prop_dict = self.elastic_tensor_1.get_structure_property_dict(struct, include_base_props=False)
+        struct_prop_dict = self.elastic_tensor_1.get_structure_property_dict(
+            struct, include_base_props=False
+        )
         assert "k_vrh" not in struct_prop_dict
 
         # Test ValueError being raised for structure properties
@@ -174,7 +180,9 @@ class TestElasticTensor(MatSciTest):
             match="Bulk or shear modulus is negative, property cannot be determined",
         ):
             test_et.get_structure_property_dict(struct)
-        noval_sprop_dict = test_et.get_structure_property_dict(struct, ignore_errors=True)
+        noval_sprop_dict = test_et.get_structure_property_dict(
+            struct, ignore_errors=True
+        )
         assert noval_sprop_dict["snyder_ac"] is None
 
     def test_new(self):
@@ -187,7 +195,12 @@ class TestElasticTensor(MatSciTest):
         ) as warns:
             ElasticTensor(non_symm)
         assert (
-            sum("Input elastic tensor does not satisfy standard Voigt symmetries" in str(warn) for warn in warns) == 1
+            sum(
+                "Input elastic tensor does not satisfy standard Voigt symmetries"
+                in str(warn)
+                for warn in warns
+            )
+            == 1
         )
 
         bad_tensor1 = np.zeros((3, 3, 3))
@@ -201,7 +214,10 @@ class TestElasticTensor(MatSciTest):
             ElasticTensor(bad_tensor2)
 
     def test_from_pseudoinverse(self):
-        strain_list = [Strain.from_deformation(def_matrix) for def_matrix in self.def_stress_dict["deformations"]]
+        strain_list = [
+            Strain.from_deformation(def_matrix)
+            for def_matrix in self.def_stress_dict["deformations"]
+        ]
         stresses = list(self.def_stress_dict["stresses"])
         with pytest.warns(
             UserWarning,
@@ -224,7 +240,9 @@ class TestElasticTensor(MatSciTest):
     def test_from_independent_strains(self):
         strains = self.toec_dict["strains"]
         stresses = self.toec_dict["stresses"]
-        with pytest.warns(UserWarning, match="No eq state found, returning zero voigt stress") as warns:
+        with pytest.warns(
+            UserWarning, match="No eq state found, returning zero voigt stress"
+        ) as warns:
             et = ElasticTensor.from_independent_strains(strains, stresses)
         assert sum("No eq state found" in str(warn) for warn in warns) == 1
         assert sum("Extra strain states in strain-" in str(warn) for warn in warns) == 1
@@ -250,7 +268,9 @@ class TestElasticTensor(MatSciTest):
             ]
         )
 
-        assert film_elac.energy_density(dfm.green_lagrange_strain) == approx(0.00125664672793)
+        assert film_elac.energy_density(dfm.green_lagrange_strain) == approx(
+            0.00125664672793
+        )
 
         film_elac.energy_density(
             Strain.from_deformation(
@@ -272,13 +292,19 @@ class TestElasticTensorExpansion(MatSciTest):
         self.c2 = self.data_dict["C2_raw"]
         self.c3 = self.data_dict["C3_raw"]
         self.exp = ElasticTensorExpansion.from_voigt([self.c2, self.c3])
-        self.cu = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.623), ["Cu"], [[0] * 3])
+        self.cu = Structure.from_spacegroup(
+            "Fm-3m", Lattice.cubic(3.623), ["Cu"], [[0] * 3]
+        )
         indices = [(0, 0), (0, 1), (3, 3)]
         values = [167.8, 113.5, 74.5]
-        cu_c2 = ElasticTensor.from_values_indices(values, indices, structure=self.cu, populate=True)
+        cu_c2 = ElasticTensor.from_values_indices(
+            values, indices, structure=self.cu, populate=True
+        )
         indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2), (0, 3, 3), (0, 5, 5), (3, 4, 5)]
         values = [-1507, -965, -71, -7, -901, 45]
-        cu_c3 = Tensor.from_values_indices(values, indices, structure=self.cu, populate=True)
+        cu_c3 = Tensor.from_values_indices(
+            values, indices, structure=self.cu, populate=True
+        )
         self.exp_cu = ElasticTensorExpansion([cu_c2, cu_c3])
         cu_c4 = Tensor.from_voigt(self.data_dict["Cu_fourth_order"])
         self.exp_cu_4 = ElasticTensorExpansion([cu_c2, cu_c3, cu_c4])
@@ -322,7 +348,9 @@ class TestElasticTensorExpansion(MatSciTest):
 
     def test_thermal_expansion_coeff(self):
         # TODO get rid of duplicates
-        alpha_dp = self.exp_cu.thermal_expansion_coeff(self.cu, 300, mode="dulong-petit")
+        alpha_dp = self.exp_cu.thermal_expansion_coeff(
+            self.cu, 300, mode="dulong-petit"
+        )
         alpha_dp_ground_truth = 6.3471959e-07 * np.ones((3, 3))
         alpha_dp_ground_truth[np.diag_indices(3)] = 2.2875769e-7
         assert_allclose(alpha_dp_ground_truth, alpha_dp, atol=1e-4)
@@ -424,10 +452,14 @@ class TestDiffFit(MatSciTest):
             for idx in strain_ind:
                 vec[:, idx] = rand_values
             vecs[strain_ind] = vec
-        all_strains = [Strain.from_voigt(v).zeroed() for vec in vecs.values() for v in vec]
+        all_strains = [
+            Strain.from_voigt(v).zeroed() for vec in vecs.values() for v in vec
+        ]
         rng.shuffle(all_strains)
         all_stresses = [Stress.from_voigt(rng.random(6)).zeroed() for _ in all_strains]
-        strain_dict = {k.tobytes(): v for k, v in zip(all_strains, all_stresses, strict=True)}
+        strain_dict = {
+            k.tobytes(): v for k, v in zip(all_strains, all_stresses, strict=True)
+        }
         ss_dict = get_strain_state_dict(all_strains, all_stresses, add_eq=False)
         # Check length of ss_dict
         assert len(strain_inds) == len(ss_dict)
@@ -507,7 +539,9 @@ class TestDiffFit(MatSciTest):
     def test_generate_pseudo(self):
         strain_states = np.eye(6).tolist()
         for order in (2, 3, 4):
-            pseudo_inverses, absent_symbols = generate_pseudo(strain_states, order=order)
+            pseudo_inverses, absent_symbols = generate_pseudo(
+                strain_states, order=order
+            )
             assert len(pseudo_inverses) == order - 1
             assert pseudo_inverses[0].shape == (21, 36)
             assert len(absent_symbols) == len(pseudo_inverses)
@@ -522,9 +556,15 @@ class TestDiffFit(MatSciTest):
         # Get reduced dataset
         r_strains, r_pk_stresses = zip(*reduced, strict=True)
         c2 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=2)
-        c2, c3, _c4 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=4)
-        c2, c3 = diff_fit(self.strains, self.pk_stresses, self.data_dict["eq_stress"], order=3)
-        c2_red, c3_red = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=3)
+        c2, c3, _c4 = diff_fit(
+            r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=4
+        )
+        c2, c3 = diff_fit(
+            self.strains, self.pk_stresses, self.data_dict["eq_stress"], order=3
+        )
+        c2_red, c3_red = diff_fit(
+            r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=3
+        )
         assert_allclose(c2.voigt, self.data_dict["C2_raw"], atol=1e-5)
         assert_allclose(c3.voigt, self.data_dict["C3_raw"], atol=1e-5)
         assert_allclose(c2, c2_red, atol=1e-0)

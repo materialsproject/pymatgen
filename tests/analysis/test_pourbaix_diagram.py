@@ -61,7 +61,9 @@ class TestPourbaixEntry(MatSciTest):
         dct = self.px_sol.as_dict()
         sol_entry = self.px_sol.from_dict(dct)
         assert sol_entry.name == "Mn2O3(s)", "Wrong Entry!"
-        assert sol_entry.energy == self.px_sol.energy, "as_dict and from_dict energies unequal"
+        assert sol_entry.energy == self.px_sol.energy, (
+            "as_dict and from_dict energies unequal"
+        )
 
         # Ensure computed entry data persists
         entry = ComputedEntry("TiO2", energy=-20, data={"test": "test"})
@@ -82,7 +84,9 @@ class TestPourbaixEntry(MatSciTest):
         # TODO: More robust multi-entry test
         m_entry = MultiEntry([self.px_sol, self.px_ion])
         for attr in ["energy", "composition", "nPhi"]:
-            assert getattr(m_entry, attr) == getattr(self.px_sol, attr) + getattr(self.px_ion, attr)
+            assert getattr(m_entry, attr) == getattr(self.px_sol, attr) + getattr(
+                self.px_ion, attr
+            )
 
         # As dict, from dict
         m_entry_dict = m_entry.as_dict()
@@ -92,7 +96,8 @@ class TestPourbaixEntry(MatSciTest):
     def test_multi_entry_repr(self):
         m_entry = MultiEntry([self.px_sol, self.px_ion])
         assert (
-            repr(m_entry) == "PourbaixMultiEntry(energy=90.9717, npH=-14.0, nPhi=-13.0, nH2O=7.0, "
+            repr(m_entry)
+            == "PourbaixMultiEntry(energy=90.9717, npH=-14.0, nPhi=-13.0, nH2O=7.0, "
             "entry_id=[None, None], species='Mn2O3(s) + MnO4[-1]')"
         )
 
@@ -129,7 +134,9 @@ class TestPourbaixDiagram:
             "ZnH(s)",
         }, "List of stable entries for unfiltered pbx does not match"
 
-        pbx_low_conc = PourbaixDiagram(self.test_data["Zn"], conc_dict={"Zn": 1e-8}, filter_solids=True)
+        pbx_low_conc = PourbaixDiagram(
+            self.test_data["Zn"], conc_dict={"Zn": 1e-8}, filter_solids=True
+        )
         assert {entry.name for entry in pbx_low_conc.stable_entries} == {
             "Zn(HO)2(aq)",
             "Zn[2+]",
@@ -143,8 +150,14 @@ class TestPourbaixDiagram:
 
     def test_multicomponent(self):
         # Assure no ions get filtered at high concentration
-        ag_n = [entry for entry in self.test_data["Ag-Te-N"] if "Te" not in entry.composition]
-        highconc = PourbaixDiagram(ag_n, filter_solids=True, conc_dict={"Ag": 1e-5, "N": 1})
+        ag_n = [
+            entry
+            for entry in self.test_data["Ag-Te-N"]
+            if "Te" not in entry.composition
+        ]
+        highconc = PourbaixDiagram(
+            ag_n, filter_solids=True, conc_dict={"Ag": 1e-5, "N": 1}
+        )
         entry_sets = [set(entry.entry_id) for entry in highconc.stable_entries]
         assert {"mp-124", "ion-17"} in entry_sets
 
@@ -171,23 +184,39 @@ class TestPourbaixDiagram:
             [self.test_data["Ag-Te-N"][i] for i in [4, 18, 30]],
             weights=[1 / 3, 1 / 3, 1 / 3],
         )
-        assert pd_ternary.get_decomposition_energy(ag_te_n, 2, -1) == approx(2.767822855765)
-        assert pd_ternary.get_decomposition_energy(ag_te_n, 10, -2) == approx(3.756840056890625)
-        assert pd_ternary.get_decomposition_energy(ground_state_ag_with_ions, 2, -1) == approx(0)
+        assert pd_ternary.get_decomposition_energy(ag_te_n, 2, -1) == approx(
+            2.767822855765
+        )
+        assert pd_ternary.get_decomposition_energy(ag_te_n, 10, -2) == approx(
+            3.756840056890625
+        )
+        assert pd_ternary.get_decomposition_energy(
+            ground_state_ag_with_ions, 2, -1
+        ) == approx(0)
 
         # Test invocation of Pourbaix diagram from ternary data
         new_ternary = PourbaixDiagram(pd_ternary.all_entries)
         assert len(new_ternary.stable_entries) == 49
-        assert new_ternary.get_decomposition_energy(ag_te_n, 2, -1) == approx(2.767822855765)
-        assert new_ternary.get_decomposition_energy(ag_te_n, 10, -2) == approx(3.756840056890625)
-        assert new_ternary.get_decomposition_energy(ground_state_ag_with_ions, 2, -1) == approx(0)
+        assert new_ternary.get_decomposition_energy(ag_te_n, 2, -1) == approx(
+            2.767822855765
+        )
+        assert new_ternary.get_decomposition_energy(ag_te_n, 10, -2) == approx(
+            3.756840056890625
+        )
+        assert new_ternary.get_decomposition_energy(
+            ground_state_ag_with_ions, 2, -1
+        ) == approx(0)
 
         # Test processing of multi-entries with degenerate reaction, produced
         # a bug in a prior implementation
         entries = [
-            PourbaixEntry(ComputedEntry("VFe2Si", -1.8542253150000008), entry_id="mp-4595"),
+            PourbaixEntry(
+                ComputedEntry("VFe2Si", -1.8542253150000008), entry_id="mp-4595"
+            ),
             PourbaixEntry(ComputedEntry("Fe", 0), entry_id="mp-13"),
-            PourbaixEntry(ComputedEntry("V2Ir2", -2.141851640000006), entry_id="mp-569250"),
+            PourbaixEntry(
+                ComputedEntry("V2Ir2", -2.141851640000006), entry_id="mp-569250"
+            ),
             PourbaixEntry(
                 IonEntry(Ion.from_formula("Fe[2+]"), -0.7683100214319288),
                 entry_id="ion-0",
@@ -197,7 +226,9 @@ class TestPourbaixDiagram:
                 entry_id="ion-12",
             ),
         ]
-        comp_dict = Composition({"Fe": 1, "Ir": 1, "Li": 2, "Si": 1, "V": 2}).fractional_composition
+        comp_dict = Composition(
+            {"Fe": 1, "Ir": 1, "Li": 2, "Si": 1, "V": 2}
+        ).fractional_composition
 
         multi_entry = PourbaixDiagram.process_multientry(entries, prod_comp=comp_dict)
         assert multi_entry is None
@@ -220,7 +251,9 @@ class TestPourbaixDiagram:
         assert (result >= 0).all(), "Unstable energy has hull energy of 0 or less"
 
         # Test an unstable hydride to ensure HER correction works
-        assert self.pbx.get_decomposition_energy(entry, -3, -2) == approx(3.6979147983333)
+        assert self.pbx.get_decomposition_energy(entry, -3, -2) == approx(
+            3.6979147983333
+        )
         # Test a list of pHs
         self.pbx.get_decomposition_energy(entry, np.linspace(0, 2, 5), 2)
 
@@ -240,7 +273,9 @@ class TestPourbaixDiagram:
             filter_solids=True,
             comp_dict={"Na": 1, "Sn": 12, "C": 24},
         )
-        assert pbx.get_decomposition_energy(custom_ion_entry, 5, 2) == approx(2.1209002582, abs=1e-1)
+        assert pbx.get_decomposition_energy(custom_ion_entry, 5, 2) == approx(
+            2.1209002582, abs=1e-1
+        )
 
     def test_get_stable_entry(self):
         entry = self.pbx.get_stable_entry(0, 0)
@@ -317,7 +352,9 @@ class TestPourbaixPlotter:
         self.plotter.plot_entry_stability(entry, limits=[[-2, 14], [-3, 3]])
 
         # binary system
-        pd_binary = PourbaixDiagram(self.test_data["Ag-Te"], comp_dict={"Ag": 0.5, "Te": 0.5})
+        pd_binary = PourbaixDiagram(
+            self.test_data["Ag-Te"], comp_dict={"Ag": 0.5, "Te": 0.5}
+        )
         binary_plotter = PourbaixPlotter(pd_binary)
         ax = binary_plotter.plot_entry_stability(self.test_data["Ag-Te"][53])
         assert isinstance(ax, plt.Axes)

@@ -25,13 +25,19 @@ class TestRoundToSigfigs:
 
         for idx_val, val in enumerate(vals):
             for idx_sig, sig in enumerate(range(1, 6)):
-                assert math.isclose(round_to_sigfigs(val, sig), rounded_vals[idx_val][idx_sig])
+                assert math.isclose(
+                    round_to_sigfigs(val, sig), rounded_vals[idx_val][idx_sig]
+                )
 
     def test_exceptions(self):
-        with pytest.raises(ValueError, match="Number of significant figures must be positive"):
+        with pytest.raises(
+            ValueError, match="Number of significant figures must be positive"
+        ):
             round_to_sigfigs(3.5, -2)
 
-        with pytest.raises(TypeError, match="Number of significant figures must be integer"):
+        with pytest.raises(
+            TypeError, match="Number of significant figures must be integer"
+        ):
             round_to_sigfigs(3.5, 3.5)
 
 
@@ -52,5 +58,7 @@ class TestMakeSymmetricMatrixFromUpperTri:
 
     def test_invalid_val_length(self):
         for length in [x for x in range(10) if x != 6]:
-            with pytest.raises(ValueError, match=re.escape(f"Expect val of length 6, got ({length},)")):
+            with pytest.raises(
+                ValueError, match=re.escape(f"Expect val of length 6, got ({length},)")
+            ):
                 make_symmetric_matrix_from_upper_tri(range(length))

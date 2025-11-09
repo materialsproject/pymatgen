@@ -14,12 +14,16 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     SelfCSMNbSetWeight,
     SimplestChemenvStrategy,
 )
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
+    LocalGeometryFinder,
+)
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     LightStructureEnvironments,
     StructureEnvironments,
 )
-from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
+from pymatgen.analysis.chemenv.coordination_environments.voronoi import (
+    DetailedVoronoiContainer,
+)
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
@@ -92,7 +96,9 @@ class TestReadWriteChemenv(MatSciTest):
             [2.25, 0.99301365328679292],
         ]
 
-        assert_allclose(nb_set.voronoi_grid_surface_points(), nb_set_surface_points, atol=1e-8)
+        assert_allclose(
+            nb_set.voronoi_grid_surface_points(), nb_set_surface_points, atol=1e-8
+        )
 
         neighb_sites = nb_set.neighb_sites
         coords = [
@@ -127,7 +133,8 @@ class TestReadWriteChemenv(MatSciTest):
         assert nb_set_info["distances_mean"] == approx(1.62698328347)
 
         assert (
-            str(nb_set) == "Neighbors Set for site #6 :\n - Coordination number : 4\n - Voronoi indices : 1, 4, 5, 6\n"
+            str(nb_set)
+            == "Neighbors Set for site #6 :\n - Coordination number : 4\n - Voronoi indices : 1, 4, 5, 6\n"
         )
 
         assert nb_set == nb_set  # noqa: PLR0124
@@ -136,9 +143,13 @@ class TestReadWriteChemenv(MatSciTest):
 
     def test_strategies(self):
         simplest_strategy_1 = SimplestChemenvStrategy()
-        simplest_strategy_2 = SimplestChemenvStrategy(distance_cutoff=1.5, angle_cutoff=0.5)
+        simplest_strategy_2 = SimplestChemenvStrategy(
+            distance_cutoff=1.5, angle_cutoff=0.5
+        )
         assert simplest_strategy_1 != simplest_strategy_2
-        simplest_strategy_1_from_dict = SimplestChemenvStrategy.from_dict(simplest_strategy_1.as_dict())
+        simplest_strategy_1_from_dict = SimplestChemenvStrategy.from_dict(
+            simplest_strategy_1.as_dict()
+        )
         assert simplest_strategy_1, simplest_strategy_1_from_dict
 
         effective_csm_estimator = {
@@ -180,10 +191,16 @@ class TestReadWriteChemenv(MatSciTest):
             weight_estimator=weight_estimator,
             symmetry_measure_type=symmetry_measure_type,
         )
-        bias_weight = CNBiasNbSetWeight.linearly_equidistant(weight_cn1=1, weight_cn13=4)
-        bias_weight_2 = CNBiasNbSetWeight.linearly_equidistant(weight_cn1=1, weight_cn13=5)
+        bias_weight = CNBiasNbSetWeight.linearly_equidistant(
+            weight_cn1=1, weight_cn13=4
+        )
+        bias_weight_2 = CNBiasNbSetWeight.linearly_equidistant(
+            weight_cn1=1, weight_cn13=5
+        )
         angle_weight = AngleNbSetWeight()
-        nad_weight = NormalizedAngleDistanceNbSetWeight(average_type="geometric", aa=1, bb=1)
+        nad_weight = NormalizedAngleDistanceNbSetWeight(
+            average_type="geometric", aa=1, bb=1
+        )
         multi_weights_strategy_1 = MultiWeightsChemenvStrategy(
             dist_ang_area_weight=da_area_weight,
             self_csm_weight=self_csm_weight,
@@ -211,7 +228,9 @@ class TestReadWriteChemenv(MatSciTest):
             normalized_angle_distance_weight=nad_weight,
             symmetry_measure_type=symmetry_measure_type,
         )
-        multi_weights_strategy_1_from_dict = MultiWeightsChemenvStrategy.from_dict(multi_weights_strategy_1.as_dict())
+        multi_weights_strategy_1_from_dict = MultiWeightsChemenvStrategy.from_dict(
+            multi_weights_strategy_1.as_dict()
+        )
 
         assert multi_weights_strategy_1 == multi_weights_strategy_1_from_dict
         assert simplest_strategy_1 != multi_weights_strategy_1
@@ -227,10 +246,17 @@ class TestReadWriteChemenv(MatSciTest):
 
         valences = [site.specie.oxi_state for site in struct]
 
-        detailed_voronoi_container = DetailedVoronoiContainer(structure=struct, valences=valences)
+        detailed_voronoi_container = DetailedVoronoiContainer(
+            structure=struct, valences=valences
+        )
 
         with open(f"{self.tmp_path}/se.json", "wb") as file:
-            file.write(orjson.dumps(detailed_voronoi_container.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY))
+            file.write(
+                orjson.dumps(
+                    detailed_voronoi_container.as_dict(),
+                    option=orjson.OPT_SERIALIZE_NUMPY,
+                )
+            )
 
         with open(f"{self.tmp_path}/se.json", "rb") as file:
             dd = orjson.loads(file.read())

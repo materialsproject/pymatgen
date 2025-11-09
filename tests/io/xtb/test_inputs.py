@@ -38,5 +38,7 @@ class TestCRESTInput(MatSciTest):
             exp_con = file.read()
             assert (
                 exp_con.strip()
-                == cin.constrains_template(molecule=mol, reference_fnm="crest_in.xyz", constraints=constraints).strip()
+                == cin.constrains_template(
+                    molecule=mol, reference_fnm="crest_in.xyz", constraints=constraints
+                ).strip()
             )

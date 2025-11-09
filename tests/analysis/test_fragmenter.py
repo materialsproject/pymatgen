@@ -61,7 +61,9 @@ class TestFragmentMolecule(MatSciTest):
         cls.LiEC = Molecule.from_file(f"{TEST_DIR}/LiEC.xyz")
 
     def test_edges_given_pc_frag1(self):
-        fragmenter = Fragmenter(molecule=self.pc_frag1, edges=self.pc_frag1_edges, depth=0)
+        fragmenter = Fragmenter(
+            molecule=self.pc_frag1, edges=self.pc_frag1_edges, depth=0
+        )
         assert fragmenter.total_unique_fragments == 12
 
     def test_babel_pc_frag1(self):
@@ -69,13 +71,17 @@ class TestFragmentMolecule(MatSciTest):
         fragmenter = Fragmenter(molecule=self.pc_frag1, depth=0)
         assert fragmenter.total_unique_fragments == 12
 
-    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(
+        platform.system() == "Windows", reason="Tests for openbabel failing on Win"
+    )
     def test_babel_pc_old_defaults(self):
         pytest.importorskip("openbabel")
         fragmenter = Fragmenter(molecule=self.pc, open_rings=True)
         assert fragmenter.open_rings
         assert fragmenter.opt_steps == 10000
-        default_mol_graph = MoleculeGraph.from_local_env_strategy(self.pc, OpenBabelNN())
+        default_mol_graph = MoleculeGraph.from_local_env_strategy(
+            self.pc, OpenBabelNN()
+        )
         assert fragmenter.mol_graph == default_mol_graph
         assert fragmenter.total_unique_fragments == 13
 
@@ -84,7 +90,9 @@ class TestFragmentMolecule(MatSciTest):
         fragmenter = Fragmenter(molecule=self.pc)
         assert fragmenter.open_rings is False
         assert fragmenter.opt_steps == 10_000
-        default_mol_graph = MoleculeGraph.from_local_env_strategy(self.pc, OpenBabelNN())
+        default_mol_graph = MoleculeGraph.from_local_env_strategy(
+            self.pc, OpenBabelNN()
+        )
         assert fragmenter.mol_graph == default_mol_graph
         assert fragmenter.total_unique_fragments == 8
 
@@ -112,13 +120,19 @@ class TestFragmentMolecule(MatSciTest):
         fragmenter = Fragmenter(molecule=self.tfsi, depth=0)
         assert fragmenter.total_unique_fragments == 156
 
-    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(
+        platform.system() == "Windows", reason="Tests for openbabel failing on Win"
+    )
     def test_babel_pc_with_ro_depth_0_vs_depth_10(self):
         pytest.importorskip("openbabel")
-        fragmenter0 = Fragmenter(molecule=self.pc, depth=0, open_rings=True, opt_steps=1000)
+        fragmenter0 = Fragmenter(
+            molecule=self.pc, depth=0, open_rings=True, opt_steps=1000
+        )
         assert fragmenter0.total_unique_fragments == 411
 
-        fragmenter10 = Fragmenter(molecule=self.pc, depth=10, open_rings=True, opt_steps=1000)
+        fragmenter10 = Fragmenter(
+            molecule=self.pc, depth=10, open_rings=True, opt_steps=1000
+        )
         assert fragmenter10.total_unique_fragments == 509
 
         fragments_by_level = fragmenter10.fragments_by_level
@@ -130,10 +144,14 @@ class TestFragmentMolecule(MatSciTest):
             assert num_frags == num_frags_by_level[ii]
 
     def test_pc_depth_0_vs_depth_10(self):
-        fragmenter0 = Fragmenter(molecule=self.pc, edges=self.pc_edges, depth=0, open_rings=False)
+        fragmenter0 = Fragmenter(
+            molecule=self.pc, edges=self.pc_edges, depth=0, open_rings=False
+        )
         assert fragmenter0.total_unique_fragments == 295
 
-        fragmenter10 = Fragmenter(molecule=self.pc, edges=self.pc_edges, depth=10, open_rings=False)
+        fragmenter10 = Fragmenter(
+            molecule=self.pc, edges=self.pc_edges, depth=10, open_rings=False
+        )
         assert fragmenter10.total_unique_fragments == 63
 
         fragments_by_level = fragmenter10.fragments_by_level
@@ -156,7 +174,9 @@ class TestFragmentMolecule(MatSciTest):
         )
         assert frag2.new_unique_fragments == 295 - 12
 
-    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(
+        platform.system() == "Windows", reason="Tests for openbabel failing on Win"
+    )
     def test_pc_then_ec_depth_10(self):
         pytest.importorskip("openbabel")
         fragPC = Fragmenter(molecule=self.pc, depth=10, open_rings=True)

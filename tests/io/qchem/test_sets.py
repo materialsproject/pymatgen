@@ -16,7 +16,9 @@ from pymatgen.io.qchem.sets import (
 )
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
-__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
+__author__ = (
+    "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
+)
 __copyright__ = "Copyright 2018-2022, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Samuel Blau"
@@ -213,7 +215,9 @@ class TestQChemDictSet(MatSciTest):
             "theory": "cpcm",
             "vdwscale": "1.1",
         }
-        qc_input = QCInput(molecule=test_molecule, rem=rem, pcm=pcm, solvent={"dielectric": 10.0})
+        qc_input = QCInput(
+            molecule=test_molecule, rem=rem, pcm=pcm, solvent={"dielectric": 10.0}
+        )
         for k, v in qc_input.as_dict().items():
             assert v == test_dict[k]
 
@@ -646,7 +650,9 @@ class TestSinglePointSet(MatSciTest):
 
     def test_plots_init(self):
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pcm.qin").molecule
-        test_sp_set = SinglePointSet(molecule=test_molecule, smd_solvent="water", plot_cubes=True)
+        test_sp_set = SinglePointSet(
+            molecule=test_molecule, smd_solvent="water", plot_cubes=True
+        )
         ref_dict = {
             "job_type": "sp",
             "gen_scfman": "true",
@@ -783,7 +789,9 @@ class TestOptSet(MatSciTest):
 
     def test_v5_vs_v6(self):
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pcm.qin").molecule
-        v5_opt_set = OptSet(molecule=test_molecule, qchem_version=5, basis_set="def2-tzvpd", geom_opt={})
+        v5_opt_set = OptSet(
+            molecule=test_molecule, qchem_version=5, basis_set="def2-tzvpd", geom_opt={}
+        )
         ref_dict = {
             "job_type": "opt",
             "gen_scfman": "true",
@@ -804,7 +812,9 @@ class TestOptSet(MatSciTest):
         assert v5_opt_set.geom_opt == {"maxiter": "200"}
         assert v5_opt_set.molecule == test_molecule
 
-        v6_opt_set = OptSet(molecule=test_molecule, qchem_version=6, basis_set="def2-tzvpd", geom_opt={})
+        v6_opt_set = OptSet(
+            molecule=test_molecule, qchem_version=6, basis_set="def2-tzvpd", geom_opt={}
+        )
         ref_dict = {
             "job_type": "opt",
             "gen_scfman": "true",
@@ -1008,7 +1018,9 @@ class TestPESScanSet(MatSciTest):
     def test_init(self):
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pes_scan.qin").molecule
 
-        test_pes_scan = PESScanSet(molecule=test_molecule, scan_variables={"stre": ["3 6 1.5 1.9 0.01"]})
+        test_pes_scan = PESScanSet(
+            molecule=test_molecule, scan_variables={"stre": ["3 6 1.5 1.9 0.01"]}
+        )
         ref_dict = {
             "job_type": "pes_scan",
             "gen_scfman": "true",

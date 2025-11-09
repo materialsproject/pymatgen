@@ -123,7 +123,9 @@ task dft energy"""
         assert str(task) == answer
 
     def test_esp_task(self):
-        task = NwTask.esp_task(mol, charge=mol.charge, operation="", basis_set="6-311++G**")
+        task = NwTask.esp_task(
+            mol, charge=mol.charge, operation="", basis_set="6-311++G**"
+        )
         answer = """title "H4C1 esp "
 charge 0
 basis cartesian
@@ -138,9 +140,13 @@ task esp """
 class TestNwInput:
     def setup_method(self):
         tasks = [
-            NwTask.dft_task(mol, operation="optimize", xc="b3lyp", basis_set="6-31++G*"),
+            NwTask.dft_task(
+                mol, operation="optimize", xc="b3lyp", basis_set="6-31++G*"
+            ),
             NwTask.dft_task(mol, operation="freq", xc="b3lyp", basis_set="6-31++G*"),
-            NwTask.dft_task(mol, operation="energy", xc="b3lyp", basis_set="6-311++G**"),
+            NwTask.dft_task(
+                mol, operation="energy", xc="b3lyp", basis_set="6-311++G**"
+            ),
             NwTask.dft_task(
                 mol,
                 charge=mol.charge + 1,
@@ -384,7 +390,9 @@ task dft energy
         assert nwi.tasks[-1].theory == "dft"
         assert nwi.tasks[-1].basis_set["C"] == "6-311++G**"
 
-        str_inp_symm = str_inp.replace("geometry units angstroms", "geometry units angstroms\n symmetry c1")
+        str_inp_symm = str_inp.replace(
+            "geometry units angstroms", "geometry units angstroms\n symmetry c1"
+        )
 
         nwi_symm = NwInput.from_str(str_inp_symm)
         assert nwi_symm.geometry_options == ["units", "angstroms"]
@@ -405,15 +413,33 @@ class TestNwOutput:
         assert len(nw_output) == 5
         assert nw_output[0]["energies"][-1] == approx(-1102.6224491715582, abs=1e-2)
         assert nw_output[2]["energies"][-1] == approx(-1102.9986291578023, abs=1e-3)
-        assert nwo_cosmo[5]["energies"][0]["cosmo scf"] == approx(-11156.354030653656, abs=1e-3)
-        assert nwo_cosmo[5]["energies"][0]["gas phase"] == approx(-11153.374133394364, abs=1e-3)
-        assert nwo_cosmo[5]["energies"][0]["sol phase"] == approx(-11156.353632962995, abs=1e-2)
-        assert nwo_cosmo[6]["energies"][0]["cosmo scf"] == approx(-11168.818934311605, abs=1e-2)
-        assert nwo_cosmo[6]["energies"][0]["gas phase"] == approx(-11166.3624424611462, abs=1e-2)
-        assert nwo_cosmo[6]["energies"][0]["sol phase"] == approx(-11168.818934311605, abs=1e-2)
-        assert nwo_cosmo[7]["energies"][0]["cosmo scf"] == approx(-11165.227959110889, abs=1e-2)
-        assert nwo_cosmo[7]["energies"][0]["gas phase"] == approx(-11165.025443612385, abs=1e-2)
-        assert nwo_cosmo[7]["energies"][0]["sol phase"] == approx(-11165.227959110154, abs=1e-2)
+        assert nwo_cosmo[5]["energies"][0]["cosmo scf"] == approx(
+            -11156.354030653656, abs=1e-3
+        )
+        assert nwo_cosmo[5]["energies"][0]["gas phase"] == approx(
+            -11153.374133394364, abs=1e-3
+        )
+        assert nwo_cosmo[5]["energies"][0]["sol phase"] == approx(
+            -11156.353632962995, abs=1e-2
+        )
+        assert nwo_cosmo[6]["energies"][0]["cosmo scf"] == approx(
+            -11168.818934311605, abs=1e-2
+        )
+        assert nwo_cosmo[6]["energies"][0]["gas phase"] == approx(
+            -11166.3624424611462, abs=1e-2
+        )
+        assert nwo_cosmo[6]["energies"][0]["sol phase"] == approx(
+            -11168.818934311605, abs=1e-2
+        )
+        assert nwo_cosmo[7]["energies"][0]["cosmo scf"] == approx(
+            -11165.227959110889, abs=1e-2
+        )
+        assert nwo_cosmo[7]["energies"][0]["gas phase"] == approx(
+            -11165.025443612385, abs=1e-2
+        )
+        assert nwo_cosmo[7]["energies"][0]["sol phase"] == approx(
+            -11165.227959110154, abs=1e-2
+        )
 
         assert nw_output[1]["hessian"][0][0] == approx(4.60187e01)
         assert nw_output[1]["hessian"][1][2] == approx(-1.14030e-08)
@@ -455,10 +481,14 @@ class TestNwOutput:
         assert nw_output[1]["frequencies"][0][0] == approx(-70.47)
         assert len(nw_output[1]["frequencies"][0][1]) == 27
         assert nw_output[1]["frequencies"][-1][0] == approx(3696.74)
-        assert_allclose(nw_output[1]["frequencies"][-1][1][-1], (0.20498, -0.94542, -0.00073))
+        assert_allclose(
+            nw_output[1]["frequencies"][-1][1][-1], (0.20498, -0.94542, -0.00073)
+        )
         assert nw_output[1]["normal_frequencies"][1][0] == approx(-70.72)
         assert nw_output[1]["normal_frequencies"][3][0] == approx(-61.92)
-        assert_allclose(nw_output[1]["normal_frequencies"][1][1][-1], (0.00056, 0.00042, 0.06781))
+        assert_allclose(
+            nw_output[1]["normal_frequencies"][1][1][-1], (0.00056, 0.00042, 0.06781)
+        )
 
     def test_parse_tddft(self):
         nw_output = NwOutput(f"{TEST_DIR}/phen_tddft.log")

@@ -24,7 +24,10 @@ class TestPhononBandStructureSymmLine(MatSciTest):
         self.bs2 = PhononBandStructureSymmLine.from_dict(dct)
 
     def test_repr(self):
-        assert repr(self.bs) == "PhononBandStructureSymmLine(bands=(6, 204), labels=['Gamma', 'X', 'Y', 'Z'])"
+        assert (
+            repr(self.bs)
+            == "PhononBandStructureSymmLine(bands=(6, 204), labels=['Gamma', 'X', 'Y', 'Z'])"
+        )
         assert repr(self.bs2) == (
             r"PhononBandStructureSymmLine(bands=(6, 130), labels=['$\\Gamma$', 'X', 'W', 'K', 'L', 'U'])"
         )
@@ -46,7 +49,9 @@ class TestPhononBandStructureSymmLine(MatSciTest):
         )
         assert self.bs.has_eigendisplacements
 
-        assert_allclose(self.bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897])
+        assert_allclose(
+            self.bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897]
+        )
 
         assert self.bs.nb_bands == 6
         assert self.bs.nb_qpoints == 204
@@ -62,7 +67,9 @@ class TestPhononBandStructureSymmLine(MatSciTest):
 
         # test Gamma point imaginary frequency detection
         for tol in (0, 0.01, 0.02, 0.03, 0.04, 0.05):
-            assert self.bs.has_imaginary_gamma_freq(tol=tol) == (tol in (0.01, 0.02, 0.03)), f"{tol=}"
+            assert self.bs.has_imaginary_gamma_freq(tol=tol) == (
+                tol in (0.01, 0.02, 0.03)
+            ), f"{tol=}"
 
         for tol in (0, 0.01, 0.02, 0.03, 0.04, 0.05, 1, 10):
             assert self.bs2.has_imaginary_gamma_freq(tol=tol) is False, f"{tol=}"
@@ -70,7 +77,9 @@ class TestPhononBandStructureSymmLine(MatSciTest):
     def test_nac(self):
         assert self.bs.has_nac
         assert not self.bs2.has_nac
-        assert self.bs.get_nac_frequencies_along_dir([1, 1, 0])[3] == approx(4.6084532143)
+        assert self.bs.get_nac_frequencies_along_dir([1, 1, 0])[3] == approx(
+            4.6084532143
+        )
         assert self.bs.get_nac_frequencies_along_dir([0, 1, 1]) is None
         assert self.bs2.get_nac_frequencies_along_dir([0, 0, 1]) is None
         assert_allclose(

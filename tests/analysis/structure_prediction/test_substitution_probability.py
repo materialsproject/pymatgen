@@ -49,8 +49,12 @@ class TestSubstitutionProbability:
         s2 = Species("S", -2)
         li1 = Species("Li", 1)
         na1 = Species("Na", 1)
-        assert sp.prob(s2, o2) == approx(0.124342317272, abs=1e-5), "probability isn't correct"
-        assert sp.pair_corr(li1, na1) == approx(1.65425296864, abs=1e-5), "correlation isn't correct"
+        assert sp.prob(s2, o2) == approx(0.124342317272, abs=1e-5), (
+            "probability isn't correct"
+        )
+        assert sp.pair_corr(li1, na1) == approx(1.65425296864, abs=1e-5), (
+            "correlation isn't correct"
+        )
         prob = sp.cond_prob_list([o2, li1], [na1, li1])
         assert prob == approx(0.00102673915742, abs=1e-5), "probability isn't correct"
 
@@ -59,12 +63,16 @@ class TestSubstitutionPredictor:
     def test_prediction(self):
         sp = SubstitutionPredictor(threshold=8e-3)
         result = sp.list_prediction(["Na+", "Cl-"], to_this_composition=True)[5]
-        cond_prob = sp.p.cond_prob_list(list(result["substitutions"]), result["substitutions"].values())
+        cond_prob = sp.p.cond_prob_list(
+            list(result["substitutions"]), result["substitutions"].values()
+        )
         assert result["probability"] == approx(cond_prob)
         assert set(result["substitutions"].values()) == {"Na+", "Cl-"}
 
         result = sp.list_prediction(["Na+", "Cl-"], to_this_composition=False)[5]
-        cond_prob = sp.p.cond_prob_list(list(result["substitutions"]), result["substitutions"].values())
+        cond_prob = sp.p.cond_prob_list(
+            list(result["substitutions"]), result["substitutions"].values()
+        )
         assert result["probability"] == approx(cond_prob)
         assert set(result["substitutions"].values()) != {"Na+", "Cl-"}
 

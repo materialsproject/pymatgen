@@ -48,23 +48,31 @@ class TestWulffShape(MatSciTest):
             ["Nb", "Nb", "Nb", "Nb"],
             [[0, 0, 0], [0, 0.5, 0.5], [0.5, 0, 0.5], [0.5, 0.5, 0]],
         )
-        self.wulff_Nb = WulffShape(latt_Nb, miller_indices["mp-8636"], surface_energies["mp-8636"])
+        self.wulff_Nb = WulffShape(
+            latt_Nb, miller_indices["mp-8636"], surface_energies["mp-8636"]
+        )
 
         self.ucell_Ir = Structure(
             latt_Nb,
             ["Ir", "Ir", "Ir", "Ir"],
             [[0, 0, 0], [0, 0.5, 0.5], [0.5, 0, 0.5], [0.5, 0.5, 0]],
         )
-        self.wulff_Ir = WulffShape(latt_Ir, miller_indices["mp-101"], surface_energies["mp-101"])
+        self.wulff_Ir = WulffShape(
+            latt_Ir, miller_indices["mp-101"], surface_energies["mp-101"]
+        )
 
         self.ucell_Ti = Structure(
             latt_Ti,
             ["Ti", "Ti", "Ti"],
             [[0, 0, 0], [0.333333, 0.666667, 0.5], [0.666667, 0.333333, 0.5]],
         )
-        self.wulff_Ti = WulffShape(latt_Ti, miller_indices["mp-72"], surface_energies["mp-72"])
+        self.wulff_Ti = WulffShape(
+            latt_Ti, miller_indices["mp-72"], surface_energies["mp-72"]
+        )
         self.cube = WulffShape(Lattice.cubic(1), [(1, 0, 0)], [1])
-        self.hex_prism = WulffShape(Lattice.hexagonal(2.63, 5.21), [(0, 0, 1), (1, 0, 0)], [0.35, 0.53])
+        self.hex_prism = WulffShape(
+            Lattice.hexagonal(2.63, 5.21), [(0, 0, 1), (1, 0, 0)], [0.35, 0.53]
+        )
 
         self.surface_properties = surface_properties
 
@@ -131,7 +139,10 @@ class TestWulffShape(MatSciTest):
         for hkl in Nb_area_fraction_dict:
             assert Nb_area_fraction_dict[hkl] == (1 if hkl == (3, 1, 0) else 0)
 
-        assert self.wulff_Nb.miller_energy_dict[3, 1, 0] == self.wulff_Nb.weighted_surface_energy
+        assert (
+            self.wulff_Nb.miller_energy_dict[3, 1, 0]
+            == self.wulff_Nb.weighted_surface_energy
+        )
 
     def symmetry_test(self):
         # Maintains that all wulff shapes have the same point
@@ -165,9 +176,13 @@ class TestWulffShape(MatSciTest):
         }
         for mp_id, wulff in wulff_shapes.items():
             properties = self.surface_properties[mp_id]
-            assert round(wulff.weighted_surface_energy, 3) == round(properties["weighted_surface_energy"], 3)
+            assert round(wulff.weighted_surface_energy, 3) == round(
+                properties["weighted_surface_energy"], 3
+            )
             assert round(wulff.shape_factor, 3) == round(properties["shape_factor"], 3)
-            assert round(wulff.anisotropy, 3) == round(properties["surface_anisotropy"], 3)
+            assert round(wulff.anisotropy, 3) == round(
+                properties["surface_anisotropy"], 3
+            )
 
     def test_corner_and_edges(self):
         # Test if it is returning the correct number of corner and edges

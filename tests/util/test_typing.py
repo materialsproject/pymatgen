@@ -18,7 +18,11 @@ __email__ = "janosh@lbl.gov"
 
 
 def _type_str(some_type: Any) -> str:
-    return str(some_type).replace("typing.", "").replace("pymatgen.core.periodic_table.", "")
+    return (
+        str(some_type)
+        .replace("typing.", "")
+        .replace("pymatgen.core.periodic_table.", "")
+    )
 
 
 def test_entry_like():

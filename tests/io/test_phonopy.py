@@ -56,7 +56,9 @@ class TestPhonopyParser(MatSciTest):
         assert ph_bs.min_freq()[1] == approx(-0.03700895020)
         assert ph_bs.has_imaginary_freq()
         assert not ph_bs.has_imaginary_freq(tol=0.5)
-        assert_allclose(ph_bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897])
+        assert_allclose(
+            ph_bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897]
+        )
         assert ph_bs.nb_bands == 6
         assert ph_bs.nb_qpoints == 204
         assert_allclose(ph_bs.qpoints[1].frac_coords, [0.01, 0, 0])
@@ -108,8 +110,12 @@ class TestStructureConversion(MatSciTest):
         symbols_pmg = {*map(str, struct_pmg.composition)}
         symbols_pmg2 = {*map(str, struct_pmg_round_trip.composition)}
 
-        assert struct_ph.cell[1, 1] == approx(struct_pmg.lattice._matrix[1, 1], abs=1e-7)
-        assert struct_pmg.lattice._matrix[1, 1] == approx(struct_pmg_round_trip.lattice._matrix[1, 1], abs=1e-7)
+        assert struct_ph.cell[1, 1] == approx(
+            struct_pmg.lattice._matrix[1, 1], abs=1e-7
+        )
+        assert struct_pmg.lattice._matrix[1, 1] == approx(
+            struct_pmg_round_trip.lattice._matrix[1, 1], abs=1e-7
+        )
         assert symbols_pmg == set(struct_ph.symbols)
         assert symbols_pmg == symbols_pmg2
         assert_allclose(coords_ph[3], struct_pmg.frac_coords[3])
@@ -119,7 +125,10 @@ class TestStructureConversion(MatSciTest):
 
         # https://github.com/materialsproject/pymatgen/pull/3555
         assert list(struct_ph.magnetic_moments) == magmoms
-        assert struct_pmg_round_trip.site_properties["magmom"] == struct_pmg.site_properties["magmom"]
+        assert (
+            struct_pmg_round_trip.site_properties["magmom"]
+            == struct_pmg.site_properties["magmom"]
+        )
 
 
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
@@ -127,7 +136,9 @@ class TestGetDisplacedStructures(MatSciTest):
     def test_get_displaced_structures(self):
         pmg_s = Structure.from_file(f"{TEST_DIR}/POSCAR-unitcell", primitive=False)
         supercell_matrix = np.diag((2, 1, 2))
-        structures = get_displaced_structures(pmg_structure=pmg_s, atom_disp=0.01, supercell_matrix=supercell_matrix)
+        structures = get_displaced_structures(
+            pmg_structure=pmg_s, atom_disp=0.01, supercell_matrix=supercell_matrix
+        )
 
         assert len(structures) == 49
         assert_allclose(
@@ -142,7 +153,9 @@ class TestGetDisplacedStructures(MatSciTest):
         )
         assert len(structures[0]) == 128
         assert len(structures[10]) == 128
-        assert_allclose(structures[0].lattice._matrix, structures[8].lattice._matrix, atol=1e-8)
+        assert_allclose(
+            structures[0].lattice._matrix, structures[8].lattice._matrix, atol=1e-8
+        )
 
         # test writing output
         structures = get_displaced_structures(
@@ -220,9 +233,15 @@ class TestGruneisen:
 
         # check if a bit of the gruneisen parameters happens
 
-        assert self.bs_symm_line_1.gruneisen[0][0] != self.bs_symm_line_2.gruneisen[0][0]
-        with pytest.raises(ValueError, match="Please provide a structure or structure path"):
-            get_gruneisen_ph_bs_symm_line(gruneisen_path=f"{PHONON_DIR}/gruneisen/gruneisen_eq_plus_minus_InP.yaml")
+        assert (
+            self.bs_symm_line_1.gruneisen[0][0] != self.bs_symm_line_2.gruneisen[0][0]
+        )
+        with pytest.raises(
+            ValueError, match="Please provide a structure or structure path"
+        ):
+            get_gruneisen_ph_bs_symm_line(
+                gruneisen_path=f"{PHONON_DIR}/gruneisen/gruneisen_eq_plus_minus_InP.yaml"
+            )
 
     def test_gruneisen_parameter(self):
         self.gruneisenobject_Si = get_gruneisenparameter(
@@ -234,8 +253,12 @@ class TestGruneisen:
         assert self.gruneisenobject_Si.gruneisen[0][0] == approx(-0.1190736091)
 
         # catch the exception when no structure is present
-        with pytest.raises(ValueError, match="Please provide a structure or structure path"):
-            get_gruneisenparameter(f"{PHONON_DIR}/gruneisen/gruneisen_mesh_InP_without_struct.yaml")
+        with pytest.raises(
+            ValueError, match="Please provide a structure or structure path"
+        ):
+            get_gruneisenparameter(
+                f"{PHONON_DIR}/gruneisen/gruneisen_mesh_InP_without_struct.yaml"
+            )
 
 
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")

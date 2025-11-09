@@ -36,7 +36,9 @@ if __name__ == "__main__":
     # Choose the geometry
     all_cg = AllCoordinationGeometries()
     while True:
-        cg_symbol = input("Enter symbol of the geometry for which you want to get the explicit permutations : ")
+        cg_symbol = input(
+            "Enter symbol of the geometry for which you want to get the explicit permutations : "
+        )
         try:
             cg = all_cg[cg_symbol]
             break
@@ -59,8 +61,10 @@ if __name__ == "__main__":
     lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
 
     points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
-    csms, perms, algos, local2perfect_maps, perfect2local_maps = lgf.coordination_geometry_symmetry_measures_standard(
-        coordination_geometry=cg, algo=algo, points_perfect=points_perfect
+    csms, perms, algos, local2perfect_maps, perfect2local_maps = (
+        lgf.coordination_geometry_symmetry_measures_standard(
+            coordination_geometry=cg, algo=algo, points_perfect=points_perfect
+        )
     )
 
     csms_with_recorded_permutation: list[float] = []
@@ -90,8 +94,12 @@ if __name__ == "__main__":
     if test == "y":
         if len(cg.algorithms) != 1:
             raise ValueError("Multiple algorithms !")
-        cg._algorithms = [ExplicitPermutationsAlgorithm(permutations=explicit_permutations)]
+        cg._algorithms = [
+            ExplicitPermutationsAlgorithm(permutations=explicit_permutations)
+        ]
         new_geom_dir = "new_geometry_files"
         os.makedirs(new_geom_dir, exist_ok=True)
-        with open(f"{new_geom_dir}/{cg_symbol}.json", mode="w", encoding="utf-8") as file:
+        with open(
+            f"{new_geom_dir}/{cg_symbol}.json", mode="w", encoding="utf-8"
+        ) as file:
             json.dump(cg.as_dict(), file)

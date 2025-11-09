@@ -40,7 +40,9 @@ class TestBabelMolAdaptor:
         assert adaptor.pymatgen_mol.formula == "H4 C1"
 
     def test_from_file(self):
-        adaptor = BabelMolAdaptor.from_file(f"{TEST_FILES_DIR}/io/babel/Ethane_e.pdb", "pdb")
+        adaptor = BabelMolAdaptor.from_file(
+            f"{TEST_FILES_DIR}/io/babel/Ethane_e.pdb", "pdb"
+        )
         mol = adaptor.pymatgen_mol
         assert mol.formula == "H6 C2"
 
@@ -115,7 +117,9 @@ class TestBabelMolAdaptor:
         for site in opt_mol[1:]:
             assert site.distance(opt_mol[0]) == approx(1.09216, abs=1e-1)
 
-    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(
+        platform.system() == "Windows", reason="Tests for openbabel failing on Win"
+    )
     def test_confab_conformers(self):
         mol = pybel.readstring("smi", "CCCC").OBMol
         adaptor = BabelMolAdaptor(mol)

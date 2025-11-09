@@ -29,19 +29,27 @@ class TestEnumlibAdaptor(MatSciTest):
         structures = adaptor.structures
         assert len(structures) == 86
         for struct_trafo in structures:
-            assert struct_trafo.composition.get_atomic_fraction(Element("Li")) == approx(0.5 / 6.5)
-        adaptor = EnumlibAdaptor(sub_trans.apply_transformation(struct), 1, 2, refine_structure=True)
+            assert struct_trafo.composition.get_atomic_fraction(
+                Element("Li")
+            ) == approx(0.5 / 6.5)
+        adaptor = EnumlibAdaptor(
+            sub_trans.apply_transformation(struct), 1, 2, refine_structure=True
+        )
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 52
 
         sub_trans = SubstitutionTransformation({"Li": {"Li": 0.25}})
-        adaptor = EnumlibAdaptor(sub_trans.apply_transformation(struct), refine_structure=True)
+        adaptor = EnumlibAdaptor(
+            sub_trans.apply_transformation(struct), refine_structure=True
+        )
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 1
         for struct_trafo in structures:
-            assert struct_trafo.composition.get_atomic_fraction(Element("Li")) == approx(0.25 / 6.25)
+            assert struct_trafo.composition.get_atomic_fraction(
+                Element("Li")
+            ) == approx(0.25 / 6.25)
 
         # Make sure it works for completely disordered structures.
         struct = Structure(np.eye(3) * 10, [{"Fe": 0.5}], [[0, 0, 0]])
@@ -122,7 +130,11 @@ class TestEnumlibAdaptor(MatSciTest):
     def test_timeout(self):
         struct = Structure.from_file(f"{ENUMLIB_TEST_FILES_DIR}/test_timeout.json.gz")
 
-        adaptor = EnumlibAdaptor(struct, max_cell_size=10, timeout=0.05)  # timeout in minute
+        adaptor = EnumlibAdaptor(
+            struct, max_cell_size=10, timeout=0.05
+        )  # timeout in minute
 
-        with pytest.raises(TimeoutError, match="Enumeration took more than timeout 0.05 minutes"):
+        with pytest.raises(
+            TimeoutError, match="Enumeration took more than timeout 0.05 minutes"
+        ):
             adaptor.run()

@@ -12,7 +12,13 @@ from pytest import approx
 
 from pymatgen.core import Element, Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
-from pymatgen.electronic_structure.dos import DOS, CompleteDos, Dos, FermiDos, LobsterCompleteDos
+from pymatgen.electronic_structure.dos import (
+    DOS,
+    CompleteDos,
+    Dos,
+    FermiDos,
+    LobsterCompleteDos,
+)
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/dos"
@@ -27,13 +33,17 @@ class TestDos:
         assert self.dos.get_gap() == approx(2.0698, abs=1e-4)
         assert self.dos.get_interpolated_gap()[0] == approx(self.dos.get_gap())
         assert len(self.dos.energies) == 301
-        assert self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(
-            2.16815942458015, abs=1e-7
-        )
+        assert self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[
+            0
+        ] == approx(2.16815942458015, abs=1e-7)
         assert self.dos.get_cbm_vbm() == approx((3.8837, 1.8139), abs=1e-4)
 
-        assert self.dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
-        assert self.dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
+        assert self.dos.get_interpolated_value(9.9)[Spin.up] == approx(
+            1.744588888888891, abs=1e-7
+        )
+        assert self.dos.get_interpolated_value(9.9)[Spin.down] == approx(
+            1.756888888888886, abs=1e-7
+        )
         with pytest.raises(
             ValueError,
             match=r"1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
@@ -67,12 +77,17 @@ class TestFermiDos:
         T = 300
         fermi0 = self.dos.efermi
         fermi_range = [fermi0 - 0.5, fermi0, fermi0 + 2.0, fermi0 + 2.2]
-        dopings = [self.dos.get_doping(fermi_level=fermi_lvl, temperature=T) for fermi_lvl in fermi_range]
+        dopings = [
+            self.dos.get_doping(fermi_level=fermi_lvl, temperature=T)
+            for fermi_lvl in fermi_range
+        ]
         ref_dopings = [3.48077e21, 1.9235e18, -2.6909e16, -4.8723e19]
         for idx, c_ref in enumerate(ref_dopings):
             assert abs(dopings[idx] / c_ref - 1.0) <= 0.01
 
-        calc_fermis = [self.dos.get_fermi(concentration=c, temperature=T) for c in ref_dopings]
+        calc_fermis = [
+            self.dos.get_fermi(concentration=c, temperature=T) for c in ref_dopings
+        ]
         for j, f_ref in enumerate(fermi_range):
             assert calc_fermis[j] == approx(f_ref, abs=1e-4)
 
@@ -85,12 +100,20 @@ class TestFermiDos:
         assert old_vbm - new_vbm == approx((3.0 - old_gap) / 2.0)
         for idx, c_ref in enumerate(ref_dopings):
             if c_ref < 0:
-                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[idx] == approx(0.4651, abs=1e-2)
+                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[
+                    idx
+                ] == approx(0.4651, abs=1e-2)
             else:
-                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[idx] == approx(-0.4651, abs=1e-2)
+                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[
+                    idx
+                ] == approx(-0.4651, abs=1e-2)
 
-        assert sci_dos.get_fermi_interextrapolated(-1e26, 300) == approx(7.50533, abs=1e-4)
-        assert sci_dos.get_fermi_interextrapolated(1e26, 300) == approx(-1.41276, abs=1e-4)
+        assert sci_dos.get_fermi_interextrapolated(-1e26, 300) == approx(
+            7.50533, abs=1e-4
+        )
+        assert sci_dos.get_fermi_interextrapolated(1e26, 300) == approx(
+            -1.41276, abs=1e-4
+        )
         assert sci_dos.get_fermi_interextrapolated(0.0, 300) == approx(2.9069, abs=1e-4)
 
     def test_as_dict(self):
@@ -135,14 +158,16 @@ class TestCompleteDos:
         assert self.dos.get_gap() == approx(2.0698, abs=1e-4), "Wrong gap from dos!"
         assert self.dos.get_interpolated_gap()[0] == approx(self.dos.get_gap())
         assert len(self.dos.energies) == 301
-        assert self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(
-            2.16815942458015, abs=1e-7
-        )
+        assert self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[
+            0
+        ] == approx(2.16815942458015, abs=1e-7)
         spd_dos = self.dos.get_spd_dos()
         assert len(spd_dos) == 3
         el_dos = self.dos.get_element_dos()
         assert len(el_dos) == 4
-        sum_spd = spd_dos[OrbitalType.s] + spd_dos[OrbitalType.p] + spd_dos[OrbitalType.d]
+        sum_spd = (
+            spd_dos[OrbitalType.s] + spd_dos[OrbitalType.p] + spd_dos[OrbitalType.d]
+        )
         sum_element = None
         for pdos in el_dos.values():
             if sum_element is None:
@@ -152,13 +177,19 @@ class TestCompleteDos:
 
         # The sums of the SPD or the element doses should be the same.
         assert_allclose(sum_spd.energies, sum_element.energies, atol=1e-4)
-        assert_allclose(sum_spd.densities[Spin.up], sum_element.densities[Spin.up], atol=1e-4)
-        assert_allclose(sum_spd.densities[Spin.down], sum_element.densities[Spin.down], atol=1e-4)
+        assert_allclose(
+            sum_spd.densities[Spin.up], sum_element.densities[Spin.up], atol=1e-4
+        )
+        assert_allclose(
+            sum_spd.densities[Spin.down], sum_element.densities[Spin.down], atol=1e-4
+        )
 
         site = self.dos.structure[0]
         assert self.dos.get_site_dos(site) is not None
         assert sum(self.dos.get_site_dos(site).get_densities(Spin.up)) == approx(2.0391)
-        assert sum(self.dos.get_site_dos(site).get_densities(Spin.down)) == approx(2.0331999999999995)
+        assert sum(self.dos.get_site_dos(site).get_densities(Spin.down)) == approx(
+            2.0331999999999995
+        )
         assert self.dos.get_site_orbital_dos(site, Orbital.s) is not None
         egt2g = self.dos.get_site_t2g_eg_resolved_dos(site)
         assert sum(egt2g["e_g"].get_densities(Spin.up)) == approx(0.0)
@@ -168,8 +199,12 @@ class TestCompleteDos:
         assert sum(egt2g["t2g"].get_densities(Spin.up)) == approx(22.910399999999999)
         assert self.dos.get_cbm_vbm() == approx((3.8837, 1.8139), abs=1e-4)
 
-        assert self.dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
-        assert self.dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
+        assert self.dos.get_interpolated_value(9.9)[Spin.up] == approx(
+            1.744588888888891, abs=1e-7
+        )
+        assert self.dos.get_interpolated_value(9.9)[Spin.down] == approx(
+            1.756888888888886, abs=1e-7
+        )
         with pytest.raises(
             ValueError,
             match=r"1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
@@ -182,7 +217,9 @@ class TestCompleteDos:
         el_dos = dos.get_element_dos()
         assert len(el_dos) == 4
         spd_dos = dos.get_spd_dos()
-        sum_spd = spd_dos[OrbitalType.s] + spd_dos[OrbitalType.p] + spd_dos[OrbitalType.d]
+        sum_spd = (
+            spd_dos[OrbitalType.s] + spd_dos[OrbitalType.p] + spd_dos[OrbitalType.d]
+        )
         sum_element = None
         for pdos in el_dos.values():
             if sum_element is None:
@@ -194,7 +231,9 @@ class TestCompleteDos:
         assert_allclose(sum_spd.energies, sum_element.energies, atol=1e-4)
 
     def test_str(self):
-        assert str(self.dos).startswith("Complete DOS for Full Formula (Li1 Fe4 P4 O16)\nReduced Formula: LiFe4(PO4)4")
+        assert str(self.dos).startswith(
+            "Complete DOS for Full Formula (Li1 Fe4 P4 O16)\nReduced Formula: LiFe4(PO4)4"
+        )
 
     def test_as_dict(self):
         dos_dict = self.dos.as_dict()
@@ -218,7 +257,9 @@ class TestCompleteDos:
         band_center = dos.get_band_center(elements=[Element("Pd")])
         assert band_center == approx(-1.476449501704171)
 
-        band_center = dos.get_band_center(sites=[s for s in struct if s.species_string == "Pd"])
+        band_center = dos.get_band_center(
+            sites=[s for s in struct if s.species_string == "Pd"]
+        )
         assert band_center == approx(-1.476449501704171)
 
         band_center = dos.get_band_center(sites=[struct[-3]])
@@ -278,7 +319,9 @@ class TestCompleteDos:
 
     def test_get_dos_fp(self):
         # normalize is True
-        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        dos_fp = self.dos.get_dos_fp(
+            fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True
+        )
         bin_width = np.diff(dos_fp.energies)[0][0]
         assert max(dos_fp.energies[0]) <= 0
         assert min(dos_fp.energies[0]) >= -10
@@ -286,7 +329,9 @@ class TestCompleteDos:
         assert dos_fp.fp_type == "s"
         assert sum(dos_fp.densities * bin_width) == approx(1)
         # normalize is False
-        dos_fp2 = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=False)
+        dos_fp2 = self.dos.get_dos_fp(
+            fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=False
+        )
         bin_width2 = np.diff(dos_fp2.energies)[0][0]
         assert sum(dos_fp2.densities * bin_width2) == approx(7.279303571428509)
         assert dos_fp2.bin_width == approx(bin_width2)
@@ -303,37 +348,63 @@ class TestCompleteDos:
 
     def test_get_dos_fp_similarity(self):
         # Tanimoto
-        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        dos_fp2 = self.dos.get_dos_fp(fp_type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="tanimoto")
+        dos_fp = self.dos.get_dos_fp(
+            fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True
+        )
+        dos_fp2 = self.dos.get_dos_fp(
+            fp_type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True
+        )
+        similarity_index = self.dos.get_dos_fp_similarity(
+            dos_fp, dos_fp2, col=1, metric="tanimoto"
+        )
         assert similarity_index == approx(0.3342481451042263)
 
-        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        dos_fp2 = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="tanimoto")
+        dos_fp = self.dos.get_dos_fp(
+            fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True
+        )
+        dos_fp2 = self.dos.get_dos_fp(
+            fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True
+        )
+        similarity_index = self.dos.get_dos_fp_similarity(
+            dos_fp, dos_fp2, col=1, metric="tanimoto"
+        )
         assert similarity_index == approx(1)
 
         # Wasserstein
-        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        dos_fp2 = self.dos.get_dos_fp(fp_type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="wasserstein")
+        dos_fp = self.dos.get_dos_fp(
+            fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True
+        )
+        dos_fp2 = self.dos.get_dos_fp(
+            fp_type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True
+        )
+        similarity_index = self.dos.get_dos_fp_similarity(
+            dos_fp, dos_fp2, col=1, metric="wasserstein"
+        )
         assert similarity_index == approx(0.2668440595873588)
 
     def test_dos_fp_exceptions(self):
-        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        dos_fp2 = self.dos.get_dos_fp(fp_type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        dos_fp = self.dos.get_dos_fp(
+            fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True
+        )
+        dos_fp2 = self.dos.get_dos_fp(
+            fp_type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True
+        )
         # test exceptions
         with pytest.raises(
             ValueError,
             match="Cannot compute similarity index. When normalize=True, then please set metric=cosine-sim",
         ):
-            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="tanimoto", normalize=True)
+            self.dos.get_dos_fp_similarity(
+                dos_fp, dos_fp2, col=1, metric="tanimoto", normalize=True
+            )
         with pytest.raises(
             ValueError,
             match="Please recheck fp_type requested, either the orbital "
             "projections unavailable in input DOS or there's a typo in type.",
         ):
-            self.dos.get_dos_fp(fp_type="k", min_e=-10, max_e=0, n_bins=56, normalize=True)
+            self.dos.get_dos_fp(
+                fp_type="k", min_e=-10, max_e=0, n_bins=56, normalize=True
+            )
 
         valid_metrics = ("tanimoto", "wasserstein", "cosine-sim")
         metric = "Dot"
@@ -341,7 +412,9 @@ class TestCompleteDos:
             ValueError,
             match=re.escape(f"Invalid {metric=}, choose from {valid_metrics}."),
         ):
-            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric=metric, normalize=False)
+            self.dos.get_dos_fp_similarity(
+                dos_fp, dos_fp2, col=1, metric=metric, normalize=False
+            )
 
 
 class TestDOS(MatSciTest):
@@ -355,21 +428,29 @@ class TestDOS(MatSciTest):
         assert self.dos.get_gap() == approx(2.0698, abs=1e-4)
         assert self.dos.get_interpolated_gap()[0] == approx(self.dos.get_gap())
         assert len(self.dos.x) == 301
-        assert self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(
-            2.16815942458015, abs=1e-7
-        )
+        assert self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[
+            0
+        ] == approx(2.16815942458015, abs=1e-7)
         assert_allclose(self.dos.get_cbm_vbm(), (3.8837, 1.8139), atol=1e-4)
 
-        assert self.dos.get_interpolated_value(9.9)[0] == approx(1.744588888888891, abs=1e-7)
-        assert self.dos.get_interpolated_value(9.9)[1] == approx(1.756888888888886, abs=1e-7)
+        assert self.dos.get_interpolated_value(9.9)[0] == approx(
+            1.744588888888891, abs=1e-7
+        )
+        assert self.dos.get_interpolated_value(9.9)[1] == approx(
+            1.756888888888886, abs=1e-7
+        )
         with pytest.raises(
             ValueError,
             match=r"1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
         ):
             self.dos.get_interpolated_value(1000)
 
-        assert_allclose(self.dos.get_cbm_vbm(spin=Spin.up), (3.878307, 1.29909), atol=1e-4)
-        assert_allclose(self.dos.get_cbm_vbm(spin=Spin.down), (4.645041, 1.813966), atol=1e-4)
+        assert_allclose(
+            self.dos.get_cbm_vbm(spin=Spin.up), (3.878307, 1.29909), atol=1e-4
+        )
+        assert_allclose(
+            self.dos.get_cbm_vbm(spin=Spin.down), (4.645041, 1.813966), atol=1e-4
+        )
 
 
 class TestSpinPolarization:
@@ -399,7 +480,9 @@ class TestLobsterCompleteDos:
 
         with open(f"{TEST_DIR}/LobsterCompleteDos_MnO_nonspin.json", "rb") as file:
             data_MnO_nonspin = orjson.loads(file.read())
-        self.LobsterCompleteDOS_MnO_nonspin = LobsterCompleteDos.from_dict(data_MnO_nonspin)
+        self.LobsterCompleteDOS_MnO_nonspin = LobsterCompleteDos.from_dict(
+            data_MnO_nonspin
+        )
 
         with open(f"{TEST_DIR}/structure_MnO.json", "rb") as file:
             data_MnO = orjson.loads(file.read())
@@ -419,26 +502,34 @@ class TestLobsterCompleteDos:
         pdos_f_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
         pdos_f_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
         assert (
-            self.LobsterCompleteDOS_spin.get_site_orbital_dos(site=self.structure[0], orbital="2s").energies.tolist()
+            self.LobsterCompleteDOS_spin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2s"
+            ).energies.tolist()
             == energies_spin
         )
-        assert self.LobsterCompleteDOS_spin.get_site_orbital_dos(site=self.structure[0], orbital="2s").efermi == approx(
-            fermi
-        )
+        assert self.LobsterCompleteDOS_spin.get_site_orbital_dos(
+            site=self.structure[0], orbital="2s"
+        ).efermi == approx(fermi)
         assert (
-            self.LobsterCompleteDOS_spin.get_site_orbital_dos(site=self.structure[0], orbital="2s")
+            self.LobsterCompleteDOS_spin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2s"
+            )
             .densities[Spin.up]
             .tolist()
             == pdos_f_2s_up
         )
         assert (
-            self.LobsterCompleteDOS_spin.get_site_orbital_dos(site=self.structure[0], orbital="2s")
+            self.LobsterCompleteDOS_spin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2s"
+            )
             .densities[Spin.down]
             .tolist()
             == pdos_f_2s_down
         )
         assert (
-            self.LobsterCompleteDOS_spin.get_site_orbital_dos(site=self.structure[0], orbital="2p_z").energies.tolist()
+            self.LobsterCompleteDOS_spin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2p_z"
+            ).energies.tolist()
             == energies_spin
         )
         assert self.LobsterCompleteDOS_spin.get_site_orbital_dos(
@@ -446,19 +537,25 @@ class TestLobsterCompleteDos:
         ).efermi == approx(fermi)
 
         assert (
-            self.LobsterCompleteDOS_spin.get_site_orbital_dos(site=self.structure[0], orbital="2p_y")
+            self.LobsterCompleteDOS_spin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2p_y"
+            )
             .densities[Spin.up]
             .tolist()
             == pdos_f_2py_up
         )
         assert (
-            self.LobsterCompleteDOS_spin.get_site_orbital_dos(site=self.structure[0], orbital="2p_y")
+            self.LobsterCompleteDOS_spin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2p_y"
+            )
             .densities[Spin.down]
             .tolist()
             == pdos_f_2py_down
         )
         assert (
-            self.LobsterCompleteDOS_spin.get_site_orbital_dos(site=self.structure[0], orbital="2p_y").energies.tolist()
+            self.LobsterCompleteDOS_spin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2p_y"
+            ).energies.tolist()
             == energies_spin
         )
         assert self.LobsterCompleteDOS_spin.get_site_orbital_dos(
@@ -466,13 +563,17 @@ class TestLobsterCompleteDos:
         ).efermi == approx(fermi)
 
         assert (
-            self.LobsterCompleteDOS_spin.get_site_orbital_dos(site=self.structure[0], orbital="2p_z")
+            self.LobsterCompleteDOS_spin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2p_z"
+            )
             .densities[Spin.up]
             .tolist()
             == pdos_f_2pz_up
         )
         assert (
-            self.LobsterCompleteDOS_spin.get_site_orbital_dos(site=self.structure[0], orbital="2p_z")
+            self.LobsterCompleteDOS_spin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2p_z"
+            )
             .densities[Spin.down]
             .tolist()
             == pdos_f_2pz_down
@@ -482,17 +583,23 @@ class TestLobsterCompleteDos:
         ).efermi == approx(fermi)
 
         assert (
-            self.LobsterCompleteDOS_spin.get_site_orbital_dos(site=self.structure[0], orbital="2p_x").energies.tolist()
+            self.LobsterCompleteDOS_spin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2p_x"
+            ).energies.tolist()
             == energies_spin
         )
         assert (
-            self.LobsterCompleteDOS_spin.get_site_orbital_dos(site=self.structure[0], orbital="2p_x")
+            self.LobsterCompleteDOS_spin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2p_x"
+            )
             .densities[Spin.up]
             .tolist()
             == pdos_f_2px_up
         )
         assert (
-            self.LobsterCompleteDOS_spin.get_site_orbital_dos(site=self.structure[0], orbital="2p_x")
+            self.LobsterCompleteDOS_spin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2p_x"
+            )
             .densities[Spin.down]
             .tolist()
             == pdos_f_2px_down
@@ -509,14 +616,18 @@ class TestLobsterCompleteDos:
         pdos_f_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
 
         assert (
-            self.LobsterCompleteDOS_nonspin.get_site_orbital_dos(site=self.structure[0], orbital="2s").energies.tolist()
+            self.LobsterCompleteDOS_nonspin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2s"
+            ).energies.tolist()
             == energies_nonspin
         )
         assert self.LobsterCompleteDOS_nonspin.get_site_orbital_dos(
             site=self.structure[0], orbital="2s"
         ).efermi == approx(fermi)
         assert (
-            self.LobsterCompleteDOS_nonspin.get_site_orbital_dos(site=self.structure[0], orbital="2s")
+            self.LobsterCompleteDOS_nonspin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2s"
+            )
             .densities[Spin.up]
             .tolist()
             == pdos_f_2s
@@ -532,7 +643,9 @@ class TestLobsterCompleteDos:
             site=self.structure[0], orbital="2p_y"
         ).efermi == approx(fermi)
         assert (
-            self.LobsterCompleteDOS_nonspin.get_site_orbital_dos(site=self.structure[0], orbital="2p_y")
+            self.LobsterCompleteDOS_nonspin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2p_y"
+            )
             .densities[Spin.up]
             .tolist()
             == pdos_f_2py
@@ -548,7 +661,9 @@ class TestLobsterCompleteDos:
             site=self.structure[0], orbital="2p_z"
         ).efermi == approx(fermi)
         assert (
-            self.LobsterCompleteDOS_nonspin.get_site_orbital_dos(site=self.structure[0], orbital="2p_z")
+            self.LobsterCompleteDOS_nonspin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2p_z"
+            )
             .densities[Spin.up]
             .tolist()
             == pdos_f_2pz
@@ -564,7 +679,9 @@ class TestLobsterCompleteDos:
             site=self.structure[0], orbital="2p_x"
         ).efermi == approx(fermi)
         assert (
-            self.LobsterCompleteDOS_nonspin.get_site_orbital_dos(site=self.structure[0], orbital="2p_x")
+            self.LobsterCompleteDOS_nonspin.get_site_orbital_dos(
+                site=self.structure[0], orbital="2p_x"
+            )
             .densities[Spin.up]
             .tolist()
             == pdos_f_2px
@@ -586,46 +703,76 @@ class TestLobsterCompleteDos:
         pdos_mn_3dx2_down = [0.00000, 0.00000, 0.00454, 0.00356, 0.07195, 0.18442]
 
         pdos_mn_eg_up = (np.array(pdos_mn_3dx2_up) + np.array(pdos_mn_3dz2_up)).tolist()
-        pdos_mn_eg_down = (np.array(pdos_mn_3dx2_down) + np.array(pdos_mn_3dz2_down)).tolist()
-        pdos_mn_t2g_up = (np.array(pdos_mn_3dxy_up) + np.array(pdos_mn_3dxz_up) + np.array(pdos_mn_3dyz_up)).tolist()
+        pdos_mn_eg_down = (
+            np.array(pdos_mn_3dx2_down) + np.array(pdos_mn_3dz2_down)
+        ).tolist()
+        pdos_mn_t2g_up = (
+            np.array(pdos_mn_3dxy_up)
+            + np.array(pdos_mn_3dxz_up)
+            + np.array(pdos_mn_3dyz_up)
+        ).tolist()
         pdos_mn_t2g_down = (
-            np.array(pdos_mn_3dxy_down) + np.array(pdos_mn_3dxz_down) + np.array(pdos_mn_3dyz_down)
+            np.array(pdos_mn_3dxy_down)
+            + np.array(pdos_mn_3dxz_down)
+            + np.array(pdos_mn_3dyz_down)
         ).tolist()
 
         for iel, el in enumerate(
-            self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])["e_g"]
+            self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(
+                self.structure_MnO[1]
+            )["e_g"]
             .densities[Spin.up]
             .tolist()
         ):
             assert el == approx(pdos_mn_eg_up[iel])
         for iel, el in enumerate(
-            self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])["e_g"]
+            self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(
+                self.structure_MnO[1]
+            )["e_g"]
             .densities[Spin.down]
             .tolist()
         ):
             assert el == approx(pdos_mn_eg_down[iel])
         for iel, el in enumerate(
-            self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])["t2g"]
+            self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(
+                self.structure_MnO[1]
+            )["t2g"]
             .densities[Spin.up]
             .tolist()
         ):
             assert el == approx(pdos_mn_t2g_up[iel])
         for iel, el in enumerate(
-            self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])["t2g"]
+            self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(
+                self.structure_MnO[1]
+            )["t2g"]
             .densities[Spin.down]
             .tolist()
         ):
             assert el == approx(pdos_mn_t2g_down[iel])
         assert (
             energies
-            == self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])["e_g"].energies.tolist()
+            == self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(
+                self.structure_MnO[1]
+            )["e_g"].energies.tolist()
         )
         assert (
             energies
-            == self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])["t2g"].energies.tolist()
+            == self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(
+                self.structure_MnO[1]
+            )["t2g"].energies.tolist()
         )
-        assert efermi == self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])["e_g"].efermi
-        assert efermi == self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])["t2g"].efermi
+        assert (
+            efermi
+            == self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(
+                self.structure_MnO[1]
+            )["e_g"].efermi
+        )
+        assert (
+            efermi
+            == self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(
+                self.structure_MnO[1]
+            )["t2g"].efermi
+        )
 
         # without spin polarization
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
@@ -636,39 +783,49 @@ class TestLobsterCompleteDos:
         pdos_mn_3dx2 = [0.00000, 0.00000, 0.02817, 0.37594, 0.12669, 0.00194]
 
         pdos_mn_eg = (np.array(pdos_mn_3dx2) + np.array(pdos_mn_3dz2)).tolist()
-        pdos_mn_t2g = (np.array(pdos_mn_3dxy) + np.array(pdos_mn_3dxz) + np.array(pdos_mn_3dyz)).tolist()
+        pdos_mn_t2g = (
+            np.array(pdos_mn_3dxy) + np.array(pdos_mn_3dxz) + np.array(pdos_mn_3dyz)
+        ).tolist()
 
         for iel, el in enumerate(
-            self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])["e_g"]
+            self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(
+                self.structure_MnO[1]
+            )["e_g"]
             .densities[Spin.up]
             .tolist()
         ):
             assert el == approx(pdos_mn_eg[iel])
         for iel, el in enumerate(
-            self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])["t2g"]
+            self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(
+                self.structure_MnO[1]
+            )["t2g"]
             .densities[Spin.up]
             .tolist()
         ):
             assert el == approx(pdos_mn_t2g[iel])
         assert (
             energies_nonspin
-            == self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])[
-                "e_g"
-            ].energies.tolist()
+            == self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(
+                self.structure_MnO[1]
+            )["e_g"].energies.tolist()
         )
         assert (
             energies_nonspin
-            == self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])[
-                "t2g"
-            ].energies.tolist()
+            == self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(
+                self.structure_MnO[1]
+            )["t2g"].energies.tolist()
         )
         assert (
             efermi
-            == self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])["e_g"].efermi
+            == self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(
+                self.structure_MnO[1]
+            )["e_g"].efermi
         )
         assert (
             efermi
-            == self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])["t2g"].efermi
+            == self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(
+                self.structure_MnO[1]
+            )["t2g"].efermi
         )
 
     def test_get_spd_dos(self):
@@ -696,8 +853,14 @@ class TestLobsterCompleteDos:
         pdos_k_3px_up = [0.00000, 0.26447, 0.00000, 0.00172, 0.00000, 0.00000]
         pdos_k_3px_down = [0.00000, 0.26446, 0.00000, 0.00172, 0.00000, 0.00000]
 
-        pdos_s_up = (np.array(pdos_f_2s_up) + np.array(pdos_k_3s_up) + np.array(pdos_k_4s_up)).tolist()
-        pdos_s_down = (np.array(pdos_f_2s_down) + np.array(pdos_k_3s_down) + np.array(pdos_k_4s_down)).tolist()
+        pdos_s_up = (
+            np.array(pdos_f_2s_up) + np.array(pdos_k_3s_up) + np.array(pdos_k_4s_up)
+        ).tolist()
+        pdos_s_down = (
+            np.array(pdos_f_2s_down)
+            + np.array(pdos_k_3s_down)
+            + np.array(pdos_k_4s_down)
+        ).tolist()
         pdos_p_up = (
             np.array(pdos_f_2py_up)
             + np.array(pdos_f_2pz_up)
@@ -714,23 +877,36 @@ class TestLobsterCompleteDos:
             + np.array(pdos_k_3pz_down)
             + np.array(pdos_k_3px_down)
         ).tolist()
-        assert self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(0)].energies.tolist() == energies_spin
-        assert self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(0)].efermi == fermi
+        assert (
+            self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(0)].energies.tolist()
+            == energies_spin
+        )
+        assert (
+            self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(0)].efermi == fermi
+        )
 
         for ilistel, listel in enumerate(
-            self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(0)].densities[Spin.up].tolist()
+            self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(0)]
+            .densities[Spin.up]
+            .tolist()
         ):
             assert listel == approx(pdos_s_up[ilistel])
         for ilistel, listel in enumerate(
-            self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(0)].densities[Spin.down].tolist()
+            self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(0)]
+            .densities[Spin.down]
+            .tolist()
         ):
             assert listel == approx(pdos_s_down[ilistel])
         for ilistel, listel in enumerate(
-            self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(1)].densities[Spin.up].tolist()
+            self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(1)]
+            .densities[Spin.up]
+            .tolist()
         ):
             assert listel == approx(pdos_p_up[ilistel])
         for ilistel, listel in enumerate(
-            self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(1)].densities[Spin.down].tolist()
+            self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(1)]
+            .densities[Spin.down]
+            .tolist()
         ):
             assert listel == approx(pdos_p_down[ilistel])
 
@@ -749,7 +925,9 @@ class TestLobsterCompleteDos:
         pdos_k_3pz = [0.00000, 0.52891, 0.00000, 0.00345, 0.00000, 0.00000]
         pdos_k_3px = [0.00000, 0.52891, 0.00000, 0.00345, 0.00000, 0.00000]
 
-        pdos_s = (np.array(pdos_f_2s) + np.array(pdos_k_3s) + np.array(pdos_k_4s)).tolist()
+        pdos_s = (
+            np.array(pdos_f_2s) + np.array(pdos_k_3s) + np.array(pdos_k_4s)
+        ).tolist()
         pdos_p = (
             np.array(pdos_f_2py)
             + np.array(pdos_f_2pz)
@@ -758,14 +936,23 @@ class TestLobsterCompleteDos:
             + np.array(pdos_k_3pz)
             + np.array(pdos_k_3px)
         ).tolist()
-        assert self.LobsterCompleteDOS_nonspin.get_spd_dos()[OrbitalType(0)].energies.tolist() == energies_nonspin
+        assert (
+            self.LobsterCompleteDOS_nonspin.get_spd_dos()[
+                OrbitalType(0)
+            ].energies.tolist()
+            == energies_nonspin
+        )
 
         for ilistel, listel in enumerate(
-            self.LobsterCompleteDOS_nonspin.get_spd_dos()[OrbitalType(0)].densities[Spin.up].tolist()
+            self.LobsterCompleteDOS_nonspin.get_spd_dos()[OrbitalType(0)]
+            .densities[Spin.up]
+            .tolist()
         ):
             assert listel == approx(pdos_s[ilistel])
         for ilistel, listel in enumerate(
-            self.LobsterCompleteDOS_nonspin.get_spd_dos()[OrbitalType(1)].densities[Spin.up].tolist()
+            self.LobsterCompleteDOS_nonspin.get_spd_dos()[OrbitalType(1)]
+            .densities[Spin.up]
+            .tolist()
         ):
             assert listel == approx(pdos_p[ilistel])
 
@@ -784,42 +971,62 @@ class TestLobsterCompleteDos:
         pdos_f_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
 
         assert (
-            self.LobsterCompleteDOS_spin.get_element_spd_dos(el=Element("F"))[OrbitalType(0)].energies.tolist()
+            self.LobsterCompleteDOS_spin.get_element_spd_dos(el=Element("F"))[
+                OrbitalType(0)
+            ].energies.tolist()
             == energies_spin
         )
 
         assert (
-            self.LobsterCompleteDOS_spin.get_element_spd_dos(el=Element("F"))[OrbitalType(0)]
+            self.LobsterCompleteDOS_spin.get_element_spd_dos(el=Element("F"))[
+                OrbitalType(0)
+            ]
             .densities[Spin.up]
             .tolist()
             == pdos_f_2s_up
         )
         assert (
-            self.LobsterCompleteDOS_spin.get_element_spd_dos(el=Element("F"))[OrbitalType(0)]
+            self.LobsterCompleteDOS_spin.get_element_spd_dos(el=Element("F"))[
+                OrbitalType(0)
+            ]
             .densities[Spin.down]
             .tolist()
             == pdos_f_2s_down
         )
 
         for ilistel, listel in enumerate(
-            self.LobsterCompleteDOS_spin.get_element_spd_dos(el=Element("F"))[OrbitalType(1)]
+            self.LobsterCompleteDOS_spin.get_element_spd_dos(el=Element("F"))[
+                OrbitalType(1)
+            ]
             .densities[Spin.up]
             .tolist()
         ):
             assert listel == approx(
-                (np.array(pdos_f_2px_up) + np.array(pdos_f_2py_up) + np.array(pdos_f_2pz_up)).tolist()[ilistel]
+                (
+                    np.array(pdos_f_2px_up)
+                    + np.array(pdos_f_2py_up)
+                    + np.array(pdos_f_2pz_up)
+                ).tolist()[ilistel]
             )
 
         for ilistel, listel in enumerate(
-            self.LobsterCompleteDOS_spin.get_element_spd_dos(el=Element("F"))[OrbitalType(1)]
+            self.LobsterCompleteDOS_spin.get_element_spd_dos(el=Element("F"))[
+                OrbitalType(1)
+            ]
             .densities[Spin.down]
             .tolist()
         ):
             assert listel == approx(
-                (np.array(pdos_f_2px_down) + np.array(pdos_f_2py_down) + np.array(pdos_f_2pz_down)).tolist()[ilistel]
+                (
+                    np.array(pdos_f_2px_down)
+                    + np.array(pdos_f_2py_down)
+                    + np.array(pdos_f_2pz_down)
+                ).tolist()[ilistel]
             )
 
-        assert self.LobsterCompleteDOS_spin.get_element_spd_dos(el=Element("F"))[OrbitalType(0)].efermi == approx(fermi)
+        assert self.LobsterCompleteDOS_spin.get_element_spd_dos(el=Element("F"))[
+            OrbitalType(0)
+        ].efermi == approx(fermi)
 
         # without spin polarization
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
@@ -830,26 +1037,34 @@ class TestLobsterCompleteDos:
         pdos_f_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
 
         assert (
-            self.LobsterCompleteDOS_nonspin.get_element_spd_dos(el=Element("F"))[OrbitalType(0)].energies.tolist()
+            self.LobsterCompleteDOS_nonspin.get_element_spd_dos(el=Element("F"))[
+                OrbitalType(0)
+            ].energies.tolist()
             == energies_nonspin
         )
 
         assert (
-            self.LobsterCompleteDOS_nonspin.get_element_spd_dos(el=Element("F"))[OrbitalType(0)]
+            self.LobsterCompleteDOS_nonspin.get_element_spd_dos(el=Element("F"))[
+                OrbitalType(0)
+            ]
             .densities[Spin.up]
             .tolist()
             == pdos_f_2s
         )
 
         for ilistel, listel in enumerate(
-            self.LobsterCompleteDOS_nonspin.get_element_spd_dos(el=Element("F"))[OrbitalType(1)]
+            self.LobsterCompleteDOS_nonspin.get_element_spd_dos(el=Element("F"))[
+                OrbitalType(1)
+            ]
             .densities[Spin.up]
             .tolist()
         ):
             assert listel == approx(
-                (np.array(pdos_f_2px) + np.array(pdos_f_2py) + np.array(pdos_f_2pz)).tolist()[ilistel]
+                (
+                    np.array(pdos_f_2px) + np.array(pdos_f_2py) + np.array(pdos_f_2pz)
+                ).tolist()[ilistel]
             )
 
-        assert self.LobsterCompleteDOS_nonspin.get_element_spd_dos(el=Element("F"))[OrbitalType(0)].efermi == approx(
-            efermi
-        )
+        assert self.LobsterCompleteDOS_nonspin.get_element_spd_dos(el=Element("F"))[
+            OrbitalType(0)
+        ].efermi == approx(efermi)

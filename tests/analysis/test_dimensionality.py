@@ -86,13 +86,16 @@ class TestLarsenDimensionality(MatSciTest):
         assert dim == 3
 
         # test vertices returned correctly
-        dim, vertices = calculate_dimensionality_of_site(self.cscl, 0, inc_vertices=True)
+        dim, vertices = calculate_dimensionality_of_site(
+            self.cscl, 0, inc_vertices=True
+        )
         assert dim == 3
         assert len(vertices) == 4
 
     def test_zero_d_to_molecule_graph(self):
         comp_graphs = [
-            self.mol_structure.graph.subgraph(c) for c in nx.weakly_connected_components(self.mol_structure.graph)
+            self.mol_structure.graph.subgraph(c)
+            for c in nx.weakly_connected_components(self.mol_structure.graph)
         ]
 
         mol_graph = zero_d_graph_to_molecule_graph(self.mol_structure, comp_graphs[0])
@@ -102,14 +105,19 @@ class TestLarsenDimensionality(MatSciTest):
         assert len(mol_graph.molecule) == 3
 
         # test catching non zero dimensionality graphs
-        comp_graphs = [self.graphite.graph.subgraph(c) for c in nx.weakly_connected_components(self.graphite.graph)]
+        comp_graphs = [
+            self.graphite.graph.subgraph(c)
+            for c in nx.weakly_connected_components(self.graphite.graph)
+        ]
         with pytest.raises(ValueError, match="Graph component is not zero-dimensional"):
             zero_d_graph_to_molecule_graph(self.graphite, comp_graphs[0])
 
         # test for a troublesome structure
         struct = loadfn(f"{TEST_FILES_DIR}/analysis/dimensionality/PH7CN3O3F.json.gz")
         bs = CrystalNN().get_bonded_structure(struct)
-        comp_graphs = [bs.graph.subgraph(c) for c in nx.weakly_connected_components(bs.graph)]
+        comp_graphs = [
+            bs.graph.subgraph(c) for c in nx.weakly_connected_components(bs.graph)
+        ]
         mol_graph = zero_d_graph_to_molecule_graph(bs, comp_graphs[0])
         assert len(mol_graph.molecule) == 12
 

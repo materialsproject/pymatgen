@@ -14,7 +14,9 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, MatSciTest
 class TestCifTransmuter(MatSciTest):
     def test_init(self):
         trafos = [SubstitutionTransformation({"Fe": "Mn", "Fe2+": "Mn2+"})]
-        tsc = CifTransmuter.from_filenames([f"{TEST_FILES_DIR}/cif/MultiStructure.cif"], trafos)
+        tsc = CifTransmuter.from_filenames(
+            [f"{TEST_FILES_DIR}/cif/MultiStructure.cif"], trafos
+        )
         assert len(tsc) == 2
         expected = {"Mn", "O", "Li", "P"}
         for s in tsc:
@@ -25,7 +27,9 @@ class TestCifTransmuter(MatSciTest):
 class TestPoscarTransmuter(MatSciTest):
     def test_init(self):
         trafos = [SubstitutionTransformation({"Fe": "Mn"})]
-        tsc = PoscarTransmuter.from_filenames([f"{VASP_IN_DIR}/POSCAR", f"{VASP_IN_DIR}/POSCAR"], trafos)
+        tsc = PoscarTransmuter.from_filenames(
+            [f"{VASP_IN_DIR}/POSCAR", f"{VASP_IN_DIR}/POSCAR"], trafos
+        )
         assert len(tsc) == 2
         expected = {"Mn", "O", "P"}
         for substitution in tsc:
@@ -37,8 +41,12 @@ class TestPoscarTransmuter(MatSciTest):
         tsc.append_transformation(RemoveSpeciesTransformation("O"))
         assert len(tsc[0].final_structure) == 8
 
-        tsc.append_transformation(SubstitutionTransformation({"Fe": {"Fe2+": 0.25, "Mn3+": 0.75}, "P": "P5+"}))
-        tsc.append_transformation(OrderDisorderedStructureTransformation(), extend_collection=50)
+        tsc.append_transformation(
+            SubstitutionTransformation({"Fe": {"Fe2+": 0.25, "Mn3+": 0.75}, "P": "P5+"})
+        )
+        tsc.append_transformation(
+            OrderDisorderedStructureTransformation(), extend_collection=50
+        )
         assert len(tsc) == 4
 
         trafo = SuperTransformation(
@@ -52,19 +60,31 @@ class TestPoscarTransmuter(MatSciTest):
         assert len(tsc) == 12
         for x in tsc:
             # should be 4 trans + starting structure
-            assert len(x) == 5, "something might be wrong with the number of transformations in the history"
+            assert len(x) == 5, (
+                "something might be wrong with the number of transformations in the history"
+            )
 
         # test the filter
-        tsc.apply_filter(ContainsSpecieFilter(["Zn2+", "Be2+", "Mn4+"], strict_compare=True, AND=False))
+        tsc.apply_filter(
+            ContainsSpecieFilter(
+                ["Zn2+", "Be2+", "Mn4+"], strict_compare=True, AND=False
+            )
+        )
         assert len(tsc) == 8
-        assert tsc.transformed_structures[0].as_dict()["history"][-1]["@class"] == "ContainsSpecieFilter"
+        assert (
+            tsc.transformed_structures[0].as_dict()["history"][-1]["@class"]
+            == "ContainsSpecieFilter"
+        )
 
         tsc.apply_filter(ContainsSpecieFilter(["Be2+"]))
         assert len(tsc) == 4
 
         # Test set_parameter and add_tag.
         tsc.set_parameter("para1", "hello")
-        assert tsc.transformed_structures[0].as_dict()["other_parameters"]["para1"] == "hello"
+        assert (
+            tsc.transformed_structures[0].as_dict()["other_parameters"]["para1"]
+            == "hello"
+        )
         tsc.add_tags(["world", "universe"])
         assert tsc.transformed_structures[0].as_dict()["other_parameters"]["tags"] == [
             "world",

@@ -15,7 +15,9 @@ TEST_DIR = f"{TEST_FILES_DIR}/core/grain_boundary"
 
 class TestGrainBoundary(MatSciTest):
     def setup_method(self):
-        self.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")
+        self.Cu_conv = Structure.from_file(
+            f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif"
+        )
         GB_Cu_conv = GrainBoundaryGenerator(self.Cu_conv)
         self.Cu_GB1 = GB_Cu_conv.gb_from_parameters(
             [1, 2, 3],
@@ -43,7 +45,9 @@ class TestGrainBoundary(MatSciTest):
         assert_allclose(self.Cu_GB2.ab_shift, [0.2, 0.2])
         assert self.Cu_GB1.gb_plane == (1, 3, 1)
         assert self.Cu_GB2.gb_plane == (1, 2, 3)
-        assert_allclose(self.Cu_GB1.init_cell.lattice.matrix, self.Cu_conv.lattice.matrix)
+        assert_allclose(
+            self.Cu_GB1.init_cell.lattice.matrix, self.Cu_conv.lattice.matrix
+        )
 
     def test_copy(self):
         Cu_GB1_copy = self.Cu_GB1.copy()
@@ -53,7 +57,9 @@ class TestGrainBoundary(MatSciTest):
         assert Cu_GB1_copy.rotation_angle == approx(self.Cu_GB1.rotation_angle)
         assert Cu_GB1_copy.rotation_axis == self.Cu_GB1.rotation_axis
         assert Cu_GB1_copy.gb_plane == self.Cu_GB1.gb_plane
-        assert_allclose(Cu_GB1_copy.init_cell.lattice.matrix, self.Cu_GB1.init_cell.lattice.matrix)
+        assert_allclose(
+            Cu_GB1_copy.init_cell.lattice.matrix, self.Cu_GB1.init_cell.lattice.matrix
+        )
         assert_allclose(
             Cu_GB1_copy.oriented_unit_cell.lattice.matrix,
             self.Cu_GB1.oriented_unit_cell.lattice.matrix,
@@ -66,11 +72,15 @@ class TestGrainBoundary(MatSciTest):
 
     def test_top_grain(self):
         assert len(self.Cu_GB1) == len(self.Cu_GB1.top_grain) * 2
-        assert_allclose(self.Cu_GB1.lattice.matrix, self.Cu_GB1.top_grain.lattice.matrix)
+        assert_allclose(
+            self.Cu_GB1.lattice.matrix, self.Cu_GB1.top_grain.lattice.matrix
+        )
 
     def test_bottom_grain(self):
         assert len(self.Cu_GB1) == len(self.Cu_GB1.bottom_grain) * 2
-        assert_allclose(self.Cu_GB1.lattice.matrix, self.Cu_GB1.bottom_grain.lattice.matrix)
+        assert_allclose(
+            self.Cu_GB1.lattice.matrix, self.Cu_GB1.bottom_grain.lattice.matrix
+        )
 
     def test_coincidents(self):
         assert len(self.Cu_GB1) / self.Cu_GB1.sigma == len(self.Cu_GB1.coincidents)
@@ -85,7 +95,9 @@ class TestGrainBoundary(MatSciTest):
         assert Cu_GB1_new.rotation_angle == approx(self.Cu_GB1.rotation_angle)
         assert Cu_GB1_new.rotation_axis == self.Cu_GB1.rotation_axis
         assert Cu_GB1_new.gb_plane == self.Cu_GB1.gb_plane
-        assert_allclose(Cu_GB1_new.init_cell.lattice.matrix, self.Cu_GB1.init_cell.lattice.matrix)
+        assert_allclose(
+            Cu_GB1_new.init_cell.lattice.matrix, self.Cu_GB1.init_cell.lattice.matrix
+        )
         assert_allclose(
             Cu_GB1_new.oriented_unit_cell.lattice.matrix,
             self.Cu_GB1.oriented_unit_cell.lattice.matrix,
@@ -96,7 +108,9 @@ class TestGrainBoundary(MatSciTest):
         assert Cu_GB2_new.rotation_angle == approx(self.Cu_GB2.rotation_angle)
         assert Cu_GB2_new.rotation_axis == self.Cu_GB2.rotation_axis
         assert Cu_GB2_new.gb_plane == self.Cu_GB2.gb_plane
-        assert_allclose(Cu_GB2_new.init_cell.lattice.matrix, self.Cu_GB2.init_cell.lattice.matrix)
+        assert_allclose(
+            Cu_GB2_new.init_cell.lattice.matrix, self.Cu_GB2.init_cell.lattice.matrix
+        )
         assert_allclose(
             Cu_GB2_new.oriented_unit_cell.lattice.matrix,
             self.Cu_GB2.oriented_unit_cell.lattice.matrix,
@@ -109,22 +123,30 @@ class TestGrainBoundaryGenerator(MatSciTest):
     def setup_class(cls):
         cls.Cu_prim = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_primitive.cif")
         cls.GB_Cu_prim = GrainBoundaryGenerator(cls.Cu_prim)
-        cls.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")
+        cls.Cu_conv = Structure.from_file(
+            f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif"
+        )
         cls.GB_Cu_conv = GrainBoundaryGenerator(cls.Cu_conv)
         cls.Be = Structure.from_file(f"{TEST_DIR}/Be_mp-87_conventional_standard.cif")
         cls.GB_Be = GrainBoundaryGenerator(cls.Be)
         cls.Pa = Structure.from_file(f"{TEST_DIR}/Pa_mp-62_conventional_standard.cif")
         cls.GB_Pa = GrainBoundaryGenerator(cls.Pa)
-        cls.Br = Structure.from_file(f"{TEST_DIR}/Br_mp-23154_conventional_standard.cif")
+        cls.Br = Structure.from_file(
+            f"{TEST_DIR}/Br_mp-23154_conventional_standard.cif"
+        )
         cls.GB_Br = GrainBoundaryGenerator(cls.Br)
         cls.Bi = Structure.from_file(f"{TEST_DIR}/Bi_mp-23152_primitive.cif")
         cls.GB_Bi = GrainBoundaryGenerator(cls.Bi)
 
     def test_gb_from_parameters(self):
         # from fcc primitive cell,axis[1,2,3],sigma 9.
-        gb_cu_123_prim1 = self.GB_Cu_prim.gb_from_parameters([1, 2, 3], 123.74898859588858, expand_times=2)
+        gb_cu_123_prim1 = self.GB_Cu_prim.gb_from_parameters(
+            [1, 2, 3], 123.74898859588858, expand_times=2
+        )
         lat_mat1 = gb_cu_123_prim1.lattice.matrix
-        c_vec1 = np.cross(lat_mat1[0], lat_mat1[1]) / np.linalg.norm(np.cross(lat_mat1[0], lat_mat1[1]))
+        c_vec1 = np.cross(lat_mat1[0], lat_mat1[1]) / np.linalg.norm(
+            np.cross(lat_mat1[0], lat_mat1[1])
+        )
         c_len1 = np.dot(lat_mat1[2], c_vec1)
         vol_ratio = gb_cu_123_prim1.volume / self.Cu_prim.volume
         assert vol_ratio == approx(9 * 2 * 2, abs=1e-8)
@@ -133,14 +155,20 @@ class TestGrainBoundaryGenerator(MatSciTest):
             [1, 2, 3], 123.74898859588858, expand_times=4, vacuum_thickness=1.5
         )
         lat_mat2 = gb_cu_123_prim2.lattice.matrix
-        c_vec2 = np.cross(lat_mat2[0], lat_mat2[1]) / np.linalg.norm(np.cross(lat_mat2[0], lat_mat2[1]))
+        c_vec2 = np.cross(lat_mat2[0], lat_mat2[1]) / np.linalg.norm(
+            np.cross(lat_mat2[0], lat_mat2[1])
+        )
         c_len2 = np.dot(lat_mat2[2], c_vec2)
         assert (c_len2 - 1.5 * 2) / c_len1 == approx(2)
 
         # test normal
-        gb_cu_123_prim3 = self.GB_Cu_prim.gb_from_parameters([1, 2, 3], 123.74898859588858, expand_times=2, normal=True)
+        gb_cu_123_prim3 = self.GB_Cu_prim.gb_from_parameters(
+            [1, 2, 3], 123.74898859588858, expand_times=2, normal=True
+        )
         lat_mat3 = gb_cu_123_prim3.lattice.matrix
-        c_vec3 = np.cross(lat_mat3[0], lat_mat3[1]) / np.linalg.norm(np.cross(lat_mat3[0], lat_mat3[1]))
+        c_vec3 = np.cross(lat_mat3[0], lat_mat3[1]) / np.linalg.norm(
+            np.cross(lat_mat3[0], lat_mat3[1])
+        )
         ab_len3 = np.linalg.norm(np.cross(lat_mat3[2], c_vec3))
         assert ab_len3 == approx(0)
 
@@ -194,16 +222,26 @@ class TestGrainBoundaryGenerator(MatSciTest):
         assert np.dot(lat_mat1[0], [1, 2, 1]) == approx(0)
         assert np.dot(lat_mat1[1], [1, 2, 1]) == approx(0)
         # test volume associated with sigma value
-        gb_Be_111_2 = self.GB_Be.gb_from_parameters([1, 1, 1], 147.36310249644626, ratio=[5, 2], expand_times=4)
+        gb_Be_111_2 = self.GB_Be.gb_from_parameters(
+            [1, 1, 1], 147.36310249644626, ratio=[5, 2], expand_times=4
+        )
         vol_ratio = gb_Be_111_2.volume / self.Be.volume
         assert vol_ratio == approx(19 * 2 * 4)
         # test ratio = None, axis [0,0,1], sigma 7
-        gb_Be_111_3 = self.GB_Be.gb_from_parameters([0, 0, 1], 21.786789298261812, ratio=[5, 2], expand_times=4)
-        gb_Be_111_4 = self.GB_Be.gb_from_parameters([0, 0, 1], 21.786789298261812, ratio=None, expand_times=4)
+        gb_Be_111_3 = self.GB_Be.gb_from_parameters(
+            [0, 0, 1], 21.786789298261812, ratio=[5, 2], expand_times=4
+        )
+        gb_Be_111_4 = self.GB_Be.gb_from_parameters(
+            [0, 0, 1], 21.786789298261812, ratio=None, expand_times=4
+        )
         assert gb_Be_111_3.lattice.abc == gb_Be_111_4.lattice.abc
         assert gb_Be_111_3.lattice.angles == gb_Be_111_4.lattice.angles
-        gb_Be_111_5 = self.GB_Be.gb_from_parameters([3, 1, 0], 180.0, ratio=[5, 2], expand_times=4)
-        gb_Be_111_6 = self.GB_Be.gb_from_parameters([3, 1, 0], 180.0, ratio=None, expand_times=4)
+        gb_Be_111_5 = self.GB_Be.gb_from_parameters(
+            [3, 1, 0], 180.0, ratio=[5, 2], expand_times=4
+        )
+        gb_Be_111_6 = self.GB_Be.gb_from_parameters(
+            [3, 1, 0], 180.0, ratio=None, expand_times=4
+        )
         assert gb_Be_111_5.lattice.abc == gb_Be_111_6.lattice.abc
         assert gb_Be_111_5.lattice.angles == gb_Be_111_6.lattice.angles
 
@@ -291,7 +329,9 @@ class TestGrainBoundaryGenerator(MatSciTest):
 
     def test_enum_sigma_ort(self):
         true_100 = [41, 37, 39, 5, 15, 17, 13, 3, 25, 29]
-        sigma_100 = list(GrainBoundaryGenerator.enum_sigma_ort(50, [1, 0, 0], [270, 30, 29]))
+        sigma_100 = list(
+            GrainBoundaryGenerator.enum_sigma_ort(50, [1, 0, 0], [270, 30, 29])
+        )
 
         assert sorted(true_100) == sorted(sigma_100)
 
@@ -324,10 +364,14 @@ class TestGrainBoundaryGenerator(MatSciTest):
 
     def test_get_rotation_angle_from_sigma(self):
         true_angle = [12.680383491819821, 167.3196165081802]
-        angle = GrainBoundaryGenerator.get_rotation_angle_from_sigma(41, [1, 0, 0], lat_type="o", ratio=[270, 30, 29])
+        angle = GrainBoundaryGenerator.get_rotation_angle_from_sigma(
+            41, [1, 0, 0], lat_type="o", ratio=[270, 30, 29]
+        )
         assert_allclose(true_angle, angle)
         close_angle = [36.86989764584403, 143.13010235415598]
-        angle = GrainBoundaryGenerator.get_rotation_angle_from_sigma(6, [1, 0, 0], lat_type="o", ratio=[270, 30, 29])
+        angle = GrainBoundaryGenerator.get_rotation_angle_from_sigma(
+            6, [1, 0, 0], lat_type="o", ratio=[270, 30, 29]
+        )
         assert_allclose(close_angle, angle)
 
 
@@ -368,8 +412,12 @@ class TestInterface(MatSciTest):
 
         assert_allclose(interface.gap, 2.0)
 
-        max_sub_c = np.max(np.array([site.frac_coords for site in interface.substrate])[:, 2])
-        min_film_c = np.min(np.array([site.frac_coords for site in interface.film])[:, 2])
+        max_sub_c = np.max(
+            np.array([site.frac_coords for site in interface.substrate])[:, 2]
+        )
+        min_film_c = np.min(
+            np.array([site.frac_coords for site in interface.film])[:, 2]
+        )
         gap = (min_film_c - max_sub_c) * interface.lattice.c
         assert_allclose(interface.gap, gap)
 
@@ -377,8 +425,12 @@ class TestInterface(MatSciTest):
 
         assert_allclose(interface.gap, 3.0)
 
-        max_sub_c = np.max(np.array([site.frac_coords for site in interface.substrate])[:, 2])
-        min_film_c = np.min(np.array([site.frac_coords for site in interface.film])[:, 2])
+        max_sub_c = np.max(
+            np.array([site.frac_coords for site in interface.substrate])[:, 2]
+        )
+        min_film_c = np.min(
+            np.array([site.frac_coords for site in interface.film])[:, 2]
+        )
         gap = (min_film_c - max_sub_c) * interface.lattice.c
         assert_allclose(interface.gap, gap)
 
@@ -408,16 +460,26 @@ class TestInterface(MatSciTest):
     def test_get_shifts_based_on_adsorbate_sites(self):
         # Only testing two tolerances as there appears to be significant numerical noise in this method
         assert len(self.interface.get_shifts_based_on_adsorbate_sites()) == 42
-        assert len(self.interface.get_shifts_based_on_adsorbate_sites(tolerance=20.0)) == 1
+        assert (
+            len(self.interface.get_shifts_based_on_adsorbate_sites(tolerance=20.0)) == 1
+        )
 
     def test_from_slabs(self):
         si_struct = self.get_structure("Si")
         sio2_struct = self.get_structure("SiO2")
-        si_conventional = SpacegroupAnalyzer(si_struct).get_conventional_standard_structure()
-        sio2_conventional = SpacegroupAnalyzer(sio2_struct).get_conventional_standard_structure()
+        si_conventional = SpacegroupAnalyzer(
+            si_struct
+        ).get_conventional_standard_structure()
+        sio2_conventional = SpacegroupAnalyzer(
+            sio2_struct
+        ).get_conventional_standard_structure()
 
-        si_slab = SlabGenerator(si_conventional, (1, 1, 1), 5, 10, reorient_lattice=True).get_slab()
-        sio2_slab = SlabGenerator(sio2_conventional, (1, 0, 0), 5, 10, reorient_lattice=True).get_slab()
+        si_slab = SlabGenerator(
+            si_conventional, (1, 1, 1), 5, 10, reorient_lattice=True
+        ).get_slab()
+        sio2_slab = SlabGenerator(
+            sio2_conventional, (1, 0, 0), 5, 10, reorient_lattice=True
+        ).get_slab()
 
         interface = Interface.from_slabs(film_slab=si_slab, substrate_slab=sio2_slab)
         assert isinstance(interface, Interface)

@@ -8,7 +8,11 @@ from pytest import approx
 
 from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line, get_gruneisenparameter
 from pymatgen.phonon.gruneisen import GruneisenParameter
-from pymatgen.phonon.plotter import GruneisenPhononBandStructureSymmLine, GruneisenPhononBSPlotter, GruneisenPlotter
+from pymatgen.phonon.plotter import (
+    GruneisenPhononBandStructureSymmLine,
+    GruneisenPhononBSPlotter,
+    GruneisenPlotter,
+)
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 try:
@@ -36,10 +40,15 @@ class TestGruneisenPhononBandStructureSymmLine(MatSciTest):
 
     def test_ph_plot_w_gruneisen(self):
         plotter = GruneisenPhononBSPlotter(bs=self.bs_symm_line)
-        ax = plotter.get_plot_gs(plot_ph_bs_with_gruneisen=True, units="THz", cmap=["red", "royalblue"])
+        ax = plotter.get_plot_gs(
+            plot_ph_bs_with_gruneisen=True, units="THz", cmap=["red", "royalblue"]
+        )
         assert ax.get_ylabel() == "Frequencies (THz)"
         assert ax.get_xlabel() == "$\\mathrm{Wave\\ Vector}$"
-        assert ax.get_figure()._localaxes[-1].get_ylabel() == "$\\gamma \\ \\mathrm{(logarithmized)}$"
+        assert (
+            ax.get_figure()._localaxes[-1].get_ylabel()
+            == "$\\gamma \\ \\mathrm{(logarithmized)}$"
+        )
         assert len(ax._children) == plotter.n_bands + 1  # check for number of bands
         # check for x and y data is really the band-structure data
         for inx, band in enumerate(plotter._bs.bands):
@@ -64,7 +73,9 @@ class TestGruneisenPhononBandStructureSymmLine(MatSciTest):
             linscale=1,
         )
 
-        assert max(norm.inverse(ax.get_figure()._localaxes[-1].get_yticks())) == approx(max_gruneisen)
+        assert max(norm.inverse(ax.get_figure()._localaxes[-1].get_yticks())) == approx(
+            max_gruneisen
+        )
         assert isinstance(ax, plt.Axes)
 
     def test_as_dict_from_dict(self):
@@ -122,21 +133,37 @@ class TestGruneisenParameter(MatSciTest):
 
     def test_average_gruneisen(self):
         assert self.gruneisen_obj.average_gruneisen() == approx(1.164231026696211)
-        assert self.gruneisen_obj.average_gruneisen(squared=False) == approx(0.849759667411049)
-        assert self.gruneisen_obj.average_gruneisen(limit_frequencies="debye") == approx(0.848865124114612)
-        assert self.gruneisen_obj.average_gruneisen(limit_frequencies="acoustic") == approx(1.283180896570312)
+        assert self.gruneisen_obj.average_gruneisen(squared=False) == approx(
+            0.849759667411049
+        )
+        assert self.gruneisen_obj.average_gruneisen(
+            limit_frequencies="debye"
+        ) == approx(0.848865124114612)
+        assert self.gruneisen_obj.average_gruneisen(
+            limit_frequencies="acoustic"
+        ) == approx(1.283180896570312)
         assert self.gruneisen_obj_Si.average_gruneisen() == approx(1.1090815951892143)
 
     def test_thermal_conductivity_slack(self):
-        assert self.gruneisen_obj.thermal_conductivity_slack() == approx(77.97582174520458)
-        assert self.gruneisen_obj.thermal_conductivity_slack(t=300) == approx(88.94562145031158)
-        assert self.gruneisen_obj_Si.thermal_conductivity_slack(t=300) == approx(127.69008331982265)
+        assert self.gruneisen_obj.thermal_conductivity_slack() == approx(
+            77.97582174520458
+        )
+        assert self.gruneisen_obj.thermal_conductivity_slack(t=300) == approx(
+            88.94562145031158
+        )
+        assert self.gruneisen_obj_Si.thermal_conductivity_slack(t=300) == approx(
+            127.69008331982265
+        )
 
     def test_debye_temp_phonopy(self):
         # This is the correct conversion when starting from THz in the debye_freq
-        assert self.gruneisen_obj_small.debye_temp_phonopy() == approx(473.31932718764284)
+        assert self.gruneisen_obj_small.debye_temp_phonopy() == approx(
+            473.31932718764284
+        )
 
     def test_acoustic_debye_temp(self):
-        assert self.gruneisen_obj_small.acoustic_debye_temp == approx(317.54811309631845)
+        assert self.gruneisen_obj_small.acoustic_debye_temp == approx(
+            317.54811309631845
+        )
         assert self.gruneisen_obj.acoustic_debye_temp == approx(342.2046198151735)
         assert self.gruneisen_obj_Si.acoustic_debye_temp == approx(526.0725636300882)

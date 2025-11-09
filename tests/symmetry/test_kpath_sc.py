@@ -26,7 +26,11 @@ class TestBandStructureSC(MatSciTest):
         for idx in range(230):
             sg_num = idx + 1
             if sg_num in triclinic:
-                lattice = Lattice(np.diag((3.0233057319441246, 7.9850357844548681, 8.1136762279561818)))
+                lattice = Lattice(
+                    np.diag(
+                        (3.0233057319441246, 7.9850357844548681, 8.1136762279561818)
+                    )
+                )
             elif sg_num in monoclinic:
                 lattice = Lattice.monoclinic(2, 9, 1, 99)
             elif sg_num in orthorhombic:
@@ -41,7 +45,9 @@ class TestBandStructureSC(MatSciTest):
                 lattice = Lattice.cubic(2)
 
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
-            _ = KPathSetyawanCurtarolo(struct)  # Throws error if something doesn't work, causing test to fail.
+            _ = KPathSetyawanCurtarolo(
+                struct
+            )  # Throws error if something doesn't work, causing test to fail.
 
         struct_file_path = f"{TEST_DIR}/ICSD_170.cif"
         struct = Structure.from_file(struct_file_path)
@@ -58,7 +64,9 @@ class TestBandStructureSC(MatSciTest):
         kpoints = kpath._kpath["kpoints"]
         labels = list(kpoints)
 
-        assert sorted(labels) == sorted(["\\Gamma", "A", "A_1", "R", "S", "T", "X", "X_1", "Y", "Z"])
+        assert sorted(labels) == sorted(
+            ["\\Gamma", "A", "A_1", "R", "S", "T", "X", "X_1", "Y", "Z"]
+        )
 
         assert list(kpoints["\\Gamma"]) == [0, 0, 0]
 

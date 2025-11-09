@@ -12,7 +12,9 @@ BeautifulSoup = pytest.importorskip("bs4").BeautifulSoup
 
 
 try:
-    response = requests.get("https://www.vasp.at/wiki/index.php/The_VASP_Manual", timeout=5)
+    response = requests.get(
+        "https://www.vasp.at/wiki/index.php/The_VASP_Manual", timeout=5
+    )
     website_down = response.status_code != 200
     reason = f"VASP manual returned status {response.status_code}"
 except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as e:

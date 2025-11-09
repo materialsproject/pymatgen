@@ -7,7 +7,9 @@ from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 class TestIRDielectricTensor(MatSciTest):
     def setup_method(self):
-        self.ir_spectra = loadfn(f"{TEST_FILES_DIR}/phonon/dos/ir_spectra_mp-991652_DDB.json")
+        self.ir_spectra = loadfn(
+            f"{TEST_FILES_DIR}/phonon/dos/ir_spectra_mp-991652_DDB.json"
+        )
 
     def test_basic(self):
         self.ir_spectra.write_json(f"{self.tmp_path}/test.json")

@@ -104,7 +104,9 @@ class TestAdfKey:
             "converge",
             [("e", 1.0e-3), ("grad", 3.0e-4), ("rad", 1.0e-2), ("angle", 0.5)],
         )
-        geo = AdfKey("geometry", subkeys=[smooth, optim, iterations, step, hessupd, converge])
+        geo = AdfKey(
+            "geometry", subkeys=[smooth, optim, iterations, step, hessupd, converge]
+        )
         assert str(geo) == geometry_string
         assert str(AdfKey.from_dict(geo.as_dict())) == geometry_string
         assert geo.has_subkey("optim")
@@ -114,7 +116,9 @@ class TestAdfKey:
         assert str(geo) == "GEOMETRY\nEND\n"
 
     def test_subkeys_subkeys(self):
-        atom_dep_quality = AdfKey("AtomDepQuality", subkeys=[AdfKey("10", ["good"]), AdfKey("12", ["normal"])])
+        atom_dep_quality = AdfKey(
+            "AtomDepQuality", subkeys=[AdfKey("10", ["good"]), AdfKey("12", ["normal"])]
+        )
         zlmfit = AdfKey("zlmfit", subkeys=[atom_dep_quality])
         assert str(zlmfit) == zlm_fit_string
         assert str(AdfKey.from_dict(zlmfit.as_dict())) == zlm_fit_string

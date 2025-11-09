@@ -85,7 +85,9 @@ class TestCohp:
             Spin.up: False,
             Spin.down: False,
         }
-        assert self.cohp.has_antibnd_states_below_efermi(spin=Spin.up, limit=0.5) == {Spin.up: False}
+        assert self.cohp.has_antibnd_states_below_efermi(spin=Spin.up, limit=0.5) == {
+            Spin.up: False
+        }
 
 
 class TestIcohpValue:
@@ -159,7 +161,10 @@ class TestIcohpValue:
 
     def test_str(self):
         # without spin polarization
-        assert str(self.icohpvalue) == "ICOHP 1 between K1 and F2 ([-1, 0, 0]): -2.0 eV (Spin up)"
+        assert (
+            str(self.icohpvalue)
+            == "ICOHP 1 between K1 and F2 ([-1, 0, 0]): -2.0 eV (Spin up)"
+        )
 
         # with spin polarization
         expected = "ICOHP 1 between K1 and F2 ([-1, 0, 0]): -1.1 eV (Spin up) and -1.0 eV (Spin down)"
@@ -321,25 +326,35 @@ class TestCombinedIcohp:
         # with spin polarization
         # summed spin
         # ICOHPs
-        assert self.icohpcollection_Fe.get_icohp_by_label("1") == approx(-0.10218 - 0.19701)
-        assert self.icohpcollection_Fe.get_icohp_by_label("2") == approx(-0.28485 - 0.58279)
+        assert self.icohpcollection_Fe.get_icohp_by_label("1") == approx(
+            -0.10218 - 0.19701
+        )
+        assert self.icohpcollection_Fe.get_icohp_by_label("2") == approx(
+            -0.28485 - 0.58279
+        )
 
         # Spin up
         # ICOHPs
-        assert self.icohpcollection_Fe.get_icohp_by_label("1", summed_spin_channels=False) == approx(-0.10218)
-        assert self.icohpcollection_Fe.get_icohp_by_label("2", summed_spin_channels=False) == approx(-0.28485)
+        assert self.icohpcollection_Fe.get_icohp_by_label(
+            "1", summed_spin_channels=False
+        ) == approx(-0.10218)
+        assert self.icohpcollection_Fe.get_icohp_by_label(
+            "2", summed_spin_channels=False
+        ) == approx(-0.28485)
 
         # Spin down
         # ICOHPs
-        assert self.icohpcollection_Fe.get_icohp_by_label("1", summed_spin_channels=False, spin=Spin.down) == approx(
-            -0.19701
-        )
-        assert self.icohpcollection_Fe.get_icohp_by_label("2", summed_spin_channels=False, spin=Spin.down) == approx(
-            -0.58279
-        )
+        assert self.icohpcollection_Fe.get_icohp_by_label(
+            "1", summed_spin_channels=False, spin=Spin.down
+        ) == approx(-0.19701)
+        assert self.icohpcollection_Fe.get_icohp_by_label(
+            "2", summed_spin_channels=False, spin=Spin.down
+        ) == approx(-0.58279)
 
         # orbitalwise
-        assert self.icohpcollection_orbitalwise.get_icohp_by_label("1", orbitals="2s-6s") == approx(0.0494)
+        assert self.icohpcollection_orbitalwise.get_icohp_by_label(
+            "1", orbitals="2s-6s"
+        ) == approx(0.0494)
         assert self.icohpcollection_orbitalwise.get_icohp_by_label(
             "1", orbitals="2s-6s", spin=Spin.up, summed_spin_channels=False
         ) == approx(0.0247)
@@ -360,7 +375,9 @@ class TestCombinedIcohp:
         sum1 = (-0.10218 - 0.19701 - 0.28485 - 0.58279) / 2.0
         sum2 = (-0.10218 - 0.28485) / 2.0
         sum3 = (-0.19701 - 0.58279) / 2.0
-        assert self.icohpcollection_Fe.get_summed_icohp_by_label_list(["1", "2"], divisor=2.0) == approx(sum1)
+        assert self.icohpcollection_Fe.get_summed_icohp_by_label_list(
+            ["1", "2"], divisor=2.0
+        ) == approx(sum1)
         assert self.icohpcollection_Fe.get_summed_icohp_by_label_list(
             ["1", "2"], summed_spin_channels=False, divisor=2.0
         ) == approx(sum2)
@@ -456,14 +473,21 @@ class TestCombinedIcohp:
             "orbitals": None,
         }
 
-        dict_KF = self.icohpcollection_KF.get_icohp_dict_by_bondlengths(minbondlength=0.0, maxbondlength=8.0)
+        dict_KF = self.icohpcollection_KF.get_icohp_dict_by_bondlengths(
+            minbondlength=0.0, maxbondlength=8.0
+        )
         for key, value in sorted(dict_KF.items()):
             v = value.as_dict()
             if "@version" in v:
                 v.pop("@version")
             assert v == icohpvalue[key]
 
-        assert self.icohpcollection_KF.get_icohp_dict_by_bondlengths(minbondlength=0.0, maxbondlength=1.0) == {}
+        assert (
+            self.icohpcollection_KF.get_icohp_dict_by_bondlengths(
+                minbondlength=0.0, maxbondlength=1.0
+            )
+            == {}
+        )
 
         # with spin polarization
         icohpvalue_spin = {}
@@ -496,14 +520,18 @@ class TestCombinedIcohp:
             "orbitals": None,
         }
 
-        dict_Fe = self.icohpcollection_Fe.get_icohp_dict_by_bondlengths(minbondlength=0.0, maxbondlength=8.0)
+        dict_Fe = self.icohpcollection_Fe.get_icohp_dict_by_bondlengths(
+            minbondlength=0.0, maxbondlength=8.0
+        )
         for key, value in sorted(dict_Fe.items()):
             v = value.as_dict()
             if "@version" in v:
                 v.pop("@version")
             assert v == icohpvalue_spin[key]
 
-        dict_Fe2 = self.icohpcollection_Fe.get_icohp_dict_by_bondlengths(minbondlength=2.5, maxbondlength=2.9)
+        dict_Fe2 = self.icohpcollection_Fe.get_icohp_dict_by_bondlengths(
+            minbondlength=2.5, maxbondlength=2.9
+        )
         assert len(dict_Fe2) == 1
         for key, value in sorted(dict_Fe2.items()):
             v = value.as_dict()
@@ -644,9 +672,15 @@ class TestCombinedIcohp:
             minbondlength=3.0,
             maxbondlength=8.0,
         )
-        dict_KF_7 = self.icohpcollection_KF.get_icohp_dict_of_site(site=0, only_bonds_to=["K"])
-        dict_KF_8 = self.icohpcollection_KF.get_icohp_dict_of_site(site=1, only_bonds_to=["K"])
-        dict_KF_9 = self.icohpcollection_KF.get_icohp_dict_of_site(site=1, only_bonds_to=["F"])
+        dict_KF_7 = self.icohpcollection_KF.get_icohp_dict_of_site(
+            site=0, only_bonds_to=["K"]
+        )
+        dict_KF_8 = self.icohpcollection_KF.get_icohp_dict_of_site(
+            site=1, only_bonds_to=["K"]
+        )
+        dict_KF_9 = self.icohpcollection_KF.get_icohp_dict_of_site(
+            site=1, only_bonds_to=["F"]
+        )
 
         assert len(dict_KF_2) == 6
         assert len(dict_KF_3) == 0
@@ -776,22 +810,28 @@ class TestCombinedIcohp:
         # summed spin
         # ICOHPs
         assert self.icohpcollection_Fe.extremum_icohpvalue() == approx(-0.86764)
-        assert self.icoopcollection_Fe.extremum_icohpvalue() == approx(-0.09842999999999999)
+        assert self.icoopcollection_Fe.extremum_icohpvalue() == approx(
+            -0.09842999999999999
+        )
         # ICOOPs
         # spin up
         # ICOHPs
-        assert self.icohpcollection_Fe.extremum_icohpvalue(summed_spin_channels=False) == approx(-0.28485)
+        assert self.icohpcollection_Fe.extremum_icohpvalue(
+            summed_spin_channels=False
+        ) == approx(-0.28485)
         # ICOOPs
-        assert self.icoopcollection_Fe.extremum_icohpvalue(summed_spin_channels=False) == approx(-0.04087)
+        assert self.icoopcollection_Fe.extremum_icohpvalue(
+            summed_spin_channels=False
+        ) == approx(-0.04087)
         # spin down
         # ICOHPs
-        assert self.icohpcollection_Fe.extremum_icohpvalue(summed_spin_channels=False, spin=Spin.down) == approx(
-            -0.58279
-        )
+        assert self.icohpcollection_Fe.extremum_icohpvalue(
+            summed_spin_channels=False, spin=Spin.down
+        ) == approx(-0.58279)
         # ICOOPs
-        assert self.icoopcollection_Fe.extremum_icohpvalue(summed_spin_channels=False, spin=Spin.down) == approx(
-            -0.05756
-        )
+        assert self.icoopcollection_Fe.extremum_icohpvalue(
+            summed_spin_channels=False, spin=Spin.down
+        ) == approx(-0.05756)
 
 
 class TestCompleteCohp(MatSciTest):
@@ -811,15 +851,21 @@ class TestCompleteCohp(MatSciTest):
         # Lobster 3.0
         filepath = f"{TEST_DIR}/complete_cohp_forb.json"
         with open(filepath, "rb") as file:
-            self.cohp_lobster_forb_dict = CompleteCohp.from_dict(orjson.loads(file.read()))
+            self.cohp_lobster_forb_dict = CompleteCohp.from_dict(
+                orjson.loads(file.read())
+            )
 
             # Lobster 2.0
         filepath = f"{TEST_DIR}/COPL.BiSe"
         structure = f"{TEST_DIR}/CTRL.BiSe"
-        self.cohp_lmto = CompleteCohp.from_file("lmto", filename=filepath, structure_file=structure)
+        self.cohp_lmto = CompleteCohp.from_file(
+            "lmto", filename=filepath, structure_file=structure
+        )
         filepath = f"{TEST_DIR}/COHPCAR.lobster.gz"
         structure = f"{TEST_DIR}/POSCAR"
-        self.cohp_lobster = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
+        self.cohp_lobster = CompleteCohp.from_file(
+            "lobster", filename=filepath, structure_file=structure
+        )
         # with open(f"{TEST_DIR}/complete_cohp_lobster.json", "w", encoding="utf-8") as file:
         #     json.dump(self.cohp_lobster.as_dict(), file)
         filepath = f"{TEST_DIR}/COOPCAR.lobster.BiSe.gz"
@@ -829,15 +875,21 @@ class TestCompleteCohp(MatSciTest):
         )
         filepath = f"{TEST_DIR}/COHPCAR.lobster.orbitalwise.gz"
         structure = f"{TEST_DIR}/POSCAR.orbitalwise"
-        self.cohp_orb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
+        self.cohp_orb = CompleteCohp.from_file(
+            "lobster", filename=filepath, structure_file=structure
+        )
         # with open(f"{TEST_DIR}/complete_cohp_orbitalwise.json", "w", encoding="utf-8") as file:
         #     json.dump(self.cohp_orb.as_dict(), file)
         filepath = f"{TEST_DIR}/COHPCAR.lobster.notot.orbitalwise.gz"
-        self.cohp_notot = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
+        self.cohp_notot = CompleteCohp.from_file(
+            "lobster", filename=filepath, structure_file=structure
+        )
         # Lobster 3.0
         filepath = f"{TEST_DIR}/COHPCAR.lobster.Na2UO4.gz"
         structure = f"{TEST_DIR}/POSCAR.Na2UO4"
-        self.cohp_lobster_forb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
+        self.cohp_lobster_forb = CompleteCohp.from_file(
+            "lobster", filename=filepath, structure_file=structure
+        )
 
         # spinpolarized case:
         filepath = f"{TEST_DIR}/environments/COHPCAR.lobster.mp-190.gz"
@@ -849,7 +901,9 @@ class TestCompleteCohp(MatSciTest):
         filepath = f"{TEST_DIR}/COBICAR.lobster.gz"
         structure = f"{TEST_DIR}/POSCAR.COBI"
 
-        self.cobi = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure, are_cobis=True)
+        self.cobi = CompleteCohp.from_file(
+            "lobster", filename=filepath, structure_file=structure, are_cobis=True
+        )
 
         # COBI multi-center
         filepath = f"{TEST_DIR}/COBICAR.lobster.GeTe.multi.orbitalwise.full"
@@ -983,7 +1037,9 @@ class TestCompleteCohp(MatSciTest):
         }
         all_cohps_lobster = self.cohp_lobster.all_cohps
         for bond, val in icohp_ef_dict.items():
-            icohp_ef = all_cohps_lobster[bond].get_interpolated_value(self.cohp_lobster.efermi, integrated=True)
+            icohp_ef = all_cohps_lobster[bond].get_interpolated_value(
+                self.cohp_lobster.efermi, integrated=True
+            )
             assert val == icohp_ef
 
         icoop_ef_dict = {
@@ -1001,7 +1057,9 @@ class TestCompleteCohp(MatSciTest):
         }
         all_coops_lobster = self.coop_lobster.all_cohps
         for bond, val in icoop_ef_dict.items():
-            icoop_ef = all_coops_lobster[bond].get_interpolated_value(self.coop_lobster.efermi, integrated=True)
+            icoop_ef = all_coops_lobster[bond].get_interpolated_value(
+                self.coop_lobster.efermi, integrated=True
+            )
             assert val == icoop_ef
 
     def test_get_cohp_by_label(self):
@@ -1009,9 +1067,15 @@ class TestCompleteCohp(MatSciTest):
         assert self.cohp_orb.get_cohp_by_label("1").energies[5] == approx(-11.47187)
         assert not self.cohp_orb.get_cohp_by_label("1").are_coops
         assert self.cohp_orb.get_cohp_by_label("1").cohp[Spin.up][0] == approx(0.0)
-        assert self.cohp_orb.get_cohp_by_label("1").cohp[Spin.up][300] == approx(0.03392)
-        assert self.cohp_orb.get_cohp_by_label("average").cohp[Spin.up][230] == approx(-0.08792)
-        assert self.cohp_orb.get_cohp_by_label("average").energies[230] == approx(-0.19368000000000007)
+        assert self.cohp_orb.get_cohp_by_label("1").cohp[Spin.up][300] == approx(
+            0.03392
+        )
+        assert self.cohp_orb.get_cohp_by_label("average").cohp[Spin.up][230] == approx(
+            -0.08792
+        )
+        assert self.cohp_orb.get_cohp_by_label("average").energies[230] == approx(
+            -0.19368000000000007
+        )
         assert not self.cohp_orb.get_cohp_by_label("average").are_coops
         # test methods from super class that could be overwritten
         assert self.cohp_orb.get_icohp()[Spin.up][3] == approx(0.0)
@@ -1019,87 +1083,121 @@ class TestCompleteCohp(MatSciTest):
 
     def test_get_cohp_by_label_summed_spin(self):
         # files without spin polarization
-        assert self.cohp_orb.get_cohp_by_label("1", summed_spin_channels=True).energies[0] == approx(-11.7225)
-        assert self.cohp_orb.get_cohp_by_label("1", summed_spin_channels=True).energies[5] == approx(-11.47187)
-        assert not self.cohp_orb.get_cohp_by_label("1", summed_spin_channels=True).are_coops
-        assert self.cohp_orb.get_cohp_by_label("1", summed_spin_channels=True).cohp[Spin.up][0] == approx(0.0)
-        assert self.cohp_orb.get_cohp_by_label("1", summed_spin_channels=True).cohp[Spin.up][300] == approx(0.03392)
-        assert self.cohp_orb.get_cohp_by_label("average", summed_spin_channels=True).cohp[Spin.up][230] == approx(
-            -0.08792
-        )
-        assert self.cohp_orb.get_cohp_by_label("average", summed_spin_channels=True).energies[230] == approx(
-            -0.19368000000000007
-        )
-        assert not self.cohp_orb.get_cohp_by_label("average", summed_spin_channels=True).are_coops
+        assert self.cohp_orb.get_cohp_by_label("1", summed_spin_channels=True).energies[
+            0
+        ] == approx(-11.7225)
+        assert self.cohp_orb.get_cohp_by_label("1", summed_spin_channels=True).energies[
+            5
+        ] == approx(-11.47187)
+        assert not self.cohp_orb.get_cohp_by_label(
+            "1", summed_spin_channels=True
+        ).are_coops
+        assert self.cohp_orb.get_cohp_by_label("1", summed_spin_channels=True).cohp[
+            Spin.up
+        ][0] == approx(0.0)
+        assert self.cohp_orb.get_cohp_by_label("1", summed_spin_channels=True).cohp[
+            Spin.up
+        ][300] == approx(0.03392)
+        assert self.cohp_orb.get_cohp_by_label(
+            "average", summed_spin_channels=True
+        ).cohp[Spin.up][230] == approx(-0.08792)
+        assert self.cohp_orb.get_cohp_by_label(
+            "average", summed_spin_channels=True
+        ).energies[230] == approx(-0.19368000000000007)
+        assert not self.cohp_orb.get_cohp_by_label(
+            "average", summed_spin_channels=True
+        ).are_coops
 
         # file with spin polarization
-        assert self.cohp_lobster_spin_polarized.get_cohp_by_label("1", summed_spin_channels=False).cohp[Spin.up][
-            300
-        ] * 2 == approx(
-            self.cohp_lobster_spin_polarized.get_cohp_by_label("1", summed_spin_channels=True).cohp[Spin.up][300]
+        assert self.cohp_lobster_spin_polarized.get_cohp_by_label(
+            "1", summed_spin_channels=False
+        ).cohp[Spin.up][300] * 2 == approx(
+            self.cohp_lobster_spin_polarized.get_cohp_by_label(
+                "1", summed_spin_channels=True
+            ).cohp[Spin.up][300]
         )
-        assert self.cohp_lobster_spin_polarized.get_cohp_by_label("1", summed_spin_channels=False).cohp[Spin.down][
-            300
-        ] * 2 == approx(
-            self.cohp_lobster_spin_polarized.get_cohp_by_label("1", summed_spin_channels=True).cohp[Spin.up][300]
+        assert self.cohp_lobster_spin_polarized.get_cohp_by_label(
+            "1", summed_spin_channels=False
+        ).cohp[Spin.down][300] * 2 == approx(
+            self.cohp_lobster_spin_polarized.get_cohp_by_label(
+                "1", summed_spin_channels=True
+            ).cohp[Spin.up][300]
         )
-        assert self.cohp_lobster_spin_polarized.get_cohp_by_label("1", summed_spin_channels=True).energies[0] == approx(
-            -15.03759 + 1.96204
-        )
-        assert self.cohp_lobster_spin_polarized.get_cohp_by_label("1", summed_spin_channels=True).energies[5] == approx(
-            -14.78697 + 1.96204
-        )
-        assert not self.cohp_lobster_spin_polarized.get_cohp_by_label("1", summed_spin_channels=True).are_coops
+        assert self.cohp_lobster_spin_polarized.get_cohp_by_label(
+            "1", summed_spin_channels=True
+        ).energies[0] == approx(-15.03759 + 1.96204)
+        assert self.cohp_lobster_spin_polarized.get_cohp_by_label(
+            "1", summed_spin_channels=True
+        ).energies[5] == approx(-14.78697 + 1.96204)
+        assert not self.cohp_lobster_spin_polarized.get_cohp_by_label(
+            "1", summed_spin_channels=True
+        ).are_coops
 
     def test_get_summed_cohp_by_label_list(self):
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"]).energies[0] == approx(-11.7225)
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"]).energies[0] == approx(-11.7225)
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"]).energies[5] == approx(-11.47187)
-        assert not self.cohp_orb.get_summed_cohp_by_label_list(["1"]).are_coops
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"]).cohp[Spin.up][0] == approx(0.0)
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"]).cohp[Spin.up][0] == approx(0.0)
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"]).cohp[Spin.up][300] == approx(0.03392 * 2.0)
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], divisor=2).cohp[Spin.up][300] == approx(0.03392)
-
-    def test_get_summed_cohp_by_label_list_summed_spin(self):
-        # files without spin polarization
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"], summed_spin_channels=True).energies[0] == approx(
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"]).energies[0] == approx(
             -11.7225
         )
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], summed_spin_channels=True).energies[0] == approx(
-            -11.7225
-        )
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"], summed_spin_channels=True).energies[5] == approx(
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"]).energies[
+            0
+        ] == approx(-11.7225)
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"]).energies[5] == approx(
             -11.47187
         )
-        assert not self.cohp_orb.get_summed_cohp_by_label_list(["1"], summed_spin_channels=True).are_coops
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"], summed_spin_channels=True).cohp[Spin.up][0] == approx(
-            0.0
-        )
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], summed_spin_channels=True).cohp[Spin.up][
+        assert not self.cohp_orb.get_summed_cohp_by_label_list(["1"]).are_coops
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"]).cohp[Spin.up][
             0
         ] == approx(0.0)
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], summed_spin_channels=True).cohp[Spin.up][
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"]).cohp[Spin.up][
+            0
+        ] == approx(0.0)
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"]).cohp[Spin.up][
             300
         ] == approx(0.03392 * 2.0)
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], summed_spin_channels=True, divisor=2).cohp[
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], divisor=2).cohp[
             Spin.up
         ][300] == approx(0.03392)
 
+    def test_get_summed_cohp_by_label_list_summed_spin(self):
+        # files without spin polarization
+        assert self.cohp_orb.get_summed_cohp_by_label_list(
+            ["1"], summed_spin_channels=True
+        ).energies[0] == approx(-11.7225)
+        assert self.cohp_orb.get_summed_cohp_by_label_list(
+            ["1", "1"], summed_spin_channels=True
+        ).energies[0] == approx(-11.7225)
+        assert self.cohp_orb.get_summed_cohp_by_label_list(
+            ["1"], summed_spin_channels=True
+        ).energies[5] == approx(-11.47187)
+        assert not self.cohp_orb.get_summed_cohp_by_label_list(
+            ["1"], summed_spin_channels=True
+        ).are_coops
+        assert self.cohp_orb.get_summed_cohp_by_label_list(
+            ["1"], summed_spin_channels=True
+        ).cohp[Spin.up][0] == approx(0.0)
+        assert self.cohp_orb.get_summed_cohp_by_label_list(
+            ["1", "1"], summed_spin_channels=True
+        ).cohp[Spin.up][0] == approx(0.0)
+        assert self.cohp_orb.get_summed_cohp_by_label_list(
+            ["1", "1"], summed_spin_channels=True
+        ).cohp[Spin.up][300] == approx(0.03392 * 2.0)
+        assert self.cohp_orb.get_summed_cohp_by_label_list(
+            ["1", "1"], summed_spin_channels=True, divisor=2
+        ).cohp[Spin.up][300] == approx(0.03392)
+
         # file with spin polarization
-        assert self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_list(["1"], summed_spin_channels=False).cohp[
-            Spin.up
-        ][300] * 2 == approx(
-            self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_list(["1"], summed_spin_channels=True).cohp[
-                Spin.up
-            ][300]
+        assert self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_list(
+            ["1"], summed_spin_channels=False
+        ).cohp[Spin.up][300] * 2 == approx(
+            self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_list(
+                ["1"], summed_spin_channels=True
+            ).cohp[Spin.up][300]
         )
-        assert self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_list(["1"], summed_spin_channels=False).cohp[
-            Spin.down
-        ][300] * 2 == approx(
-            self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_list(["1"], summed_spin_channels=True).cohp[
-                Spin.up
-            ][300]
+        assert self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_list(
+            ["1"], summed_spin_channels=False
+        ).cohp[Spin.down][300] * 2 == approx(
+            self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_list(
+                ["1"], summed_spin_channels=True
+            ).cohp[Spin.up][300]
         )
         assert self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_list(
             ["1", "1"], summed_spin_channels=True
@@ -1114,25 +1212,39 @@ class TestCompleteCohp(MatSciTest):
     def test_get_summed_cohp_by_label_and_orbital_list(self):
         ref = self.cohp_orb.orb_res_cohp["1"]["4s-4px"]
         ref2 = self.cohp_orb.orb_res_cohp["1"]["4px-4pz"]
-        cohp_label = self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1"], ["4s-4px"])
-        cohp_label2 = self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1", "1"], ["4s-4px", "4s-4px"])
+        cohp_label = self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(
+            ["1"], ["4s-4px"]
+        )
+        cohp_label2 = self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(
+            ["1", "1"], ["4s-4px", "4s-4px"]
+        )
         cohp_label2x = self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(
             ["1", "1"], ["4s-4px", "4s-4px"], divisor=2
         )
-        cohp_label3 = self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1", "1"], ["4px-4pz", "4s-4px"])
+        cohp_label3 = self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(
+            ["1", "1"], ["4px-4pz", "4s-4px"]
+        )
 
         assert_allclose(cohp_label.cohp[Spin.up], ref["COHP"][Spin.up])
         assert_allclose(cohp_label2.cohp[Spin.up], ref["COHP"][Spin.up] * 2.0)
-        assert_allclose(cohp_label3.cohp[Spin.up], ref["COHP"][Spin.up] + ref2["COHP"][Spin.up])
+        assert_allclose(
+            cohp_label3.cohp[Spin.up], ref["COHP"][Spin.up] + ref2["COHP"][Spin.up]
+        )
         assert_allclose(cohp_label.icohp[Spin.up], ref["ICOHP"][Spin.up])
         assert_allclose(cohp_label2.icohp[Spin.up], ref["ICOHP"][Spin.up] * 2.0)
         assert_allclose(cohp_label2x.icohp[Spin.up], ref["ICOHP"][Spin.up])
-        assert_allclose(cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] + ref2["ICOHP"][Spin.up])
+        assert_allclose(
+            cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] + ref2["ICOHP"][Spin.up]
+        )
         expected_msg = "label_list and orbital_list don't have the same length"
         with pytest.raises(ValueError, match=expected_msg):
-            self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1"], ["4px-4pz", "4s-4px"])
+            self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(
+                ["1"], ["4px-4pz", "4s-4px"]
+            )
         with pytest.raises(ValueError, match=expected_msg):
-            self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1", "2"], ["4s-4px"])
+            self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(
+                ["1", "2"], ["4s-4px"]
+            )
 
     def test_get_summed_cohp_by_label_and_orbital_list_summed_spin_channels(self):
         ref = self.cohp_orb.orb_res_cohp["1"]["4s-4px"]
@@ -1152,40 +1264,60 @@ class TestCompleteCohp(MatSciTest):
 
         assert_allclose(cohp_label.cohp[Spin.up], ref["COHP"][Spin.up])
         assert_allclose(cohp_label2.cohp[Spin.up], ref["COHP"][Spin.up] * 2.0)
-        assert_allclose(cohp_label3.cohp[Spin.up], ref["COHP"][Spin.up] + ref2["COHP"][Spin.up])
+        assert_allclose(
+            cohp_label3.cohp[Spin.up], ref["COHP"][Spin.up] + ref2["COHP"][Spin.up]
+        )
         assert_allclose(cohp_label.icohp[Spin.up], ref["ICOHP"][Spin.up])
         assert_allclose(cohp_label2.icohp[Spin.up], ref["ICOHP"][Spin.up] * 2.0)
         assert_allclose(cohp_label2x.icohp[Spin.up], ref["ICOHP"][Spin.up])
-        assert_allclose(cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] + ref2["ICOHP"][Spin.up])
+        assert_allclose(
+            cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] + ref2["ICOHP"][Spin.up]
+        )
         expected_msg = "label_list and orbital_list don't have the same length"
         with pytest.raises(ValueError, match=expected_msg):
             self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(
                 ["1"], ["4px-4pz", "4s-4px"], summed_spin_channels=True
             )
         with pytest.raises(ValueError, match=expected_msg):
-            self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1", "2"], ["4s-4px"], summed_spin_channels=True)
+            self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(
+                ["1", "2"], ["4s-4px"], summed_spin_channels=True
+            )
 
         # files with spin polarization
-        assert self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_and_orbital_list(
-            ["1"], ["6s-6s"], summed_spin_channels=False
-        ).cohp[Spin.up][300] * 2 == approx(
+        assert (
+            self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_and_orbital_list(
+                ["1"], ["6s-6s"], summed_spin_channels=False
+            ).cohp[Spin.up][300]
+            * 2
+            == approx(
+                self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_and_orbital_list(
+                    ["1"], ["6s-6s"], summed_spin_channels=True
+                ).cohp[Spin.up][300]
+            )
+        )
+        assert (
+            self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_and_orbital_list(
+                ["1"], ["6s-6s"], summed_spin_channels=False
+            ).cohp[Spin.down][300]
+            * 2
+            == approx(
+                self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_and_orbital_list(
+                    ["1"], ["6s-6s"], summed_spin_channels=True
+                ).cohp[Spin.up][300]
+            )
+        )
+        assert (
             self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_and_orbital_list(
                 ["1"], ["6s-6s"], summed_spin_channels=True
-            ).cohp[Spin.up][300]
+            ).energies[0]
+            == approx(-15.03759 + 1.96204)
         )
-        assert self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_and_orbital_list(
-            ["1"], ["6s-6s"], summed_spin_channels=False
-        ).cohp[Spin.down][300] * 2 == approx(
+        assert (
             self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_and_orbital_list(
                 ["1"], ["6s-6s"], summed_spin_channels=True
-            ).cohp[Spin.up][300]
+            ).energies[5]
+            == approx(-14.78697 + 1.96204)
         )
-        assert self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_and_orbital_list(
-            ["1"], ["6s-6s"], summed_spin_channels=True
-        ).energies[0] == approx(-15.03759 + 1.96204)
-        assert self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_and_orbital_list(
-            ["1"], ["6s-6s"], summed_spin_channels=True
-        ).energies[5] == approx(-14.78697 + 1.96204)
         assert not self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_and_orbital_list(
             ["1"], ["6s-6s"], summed_spin_channels=True
         ).are_coops
@@ -1215,18 +1347,25 @@ class TestCompleteCohp(MatSciTest):
         assert cohp_label.cohp == ref["COHP"]
         assert cohp_label.icohp == ref["ICOHP"]
         orbitals = [[Orbital.s, Orbital.px], ["s", "px"], [0, 3]]
-        cohps = [self.cohp_orb.get_orbital_resolved_cohp("1", [[4, orb[0]], [4, orb[1]]]) for orb in orbitals]
+        cohps = [
+            self.cohp_orb.get_orbital_resolved_cohp("1", [[4, orb[0]], [4, orb[1]]])
+            for orb in orbitals
+        ]
         for cohp in cohps:
             assert cohp.as_dict() == cohp_label.as_dict()
 
     def test_orbital_resolved_cohp_summed_spin_channels(self):
         ref = self.cohp_orb.orb_res_cohp["1"]["4s-4px"]
-        cohp_label = self.cohp_orb.get_orbital_resolved_cohp("1", "4s-4px", summed_spin_channels=True)
+        cohp_label = self.cohp_orb.get_orbital_resolved_cohp(
+            "1", "4s-4px", summed_spin_channels=True
+        )
         assert cohp_label.cohp == ref["COHP"]
         assert cohp_label.icohp == ref["ICOHP"]
         orbitals = [[Orbital.s, Orbital.px], ["s", "px"], [0, 3]]
         cohps = [
-            self.cohp_orb.get_orbital_resolved_cohp("1", [[4, orb[0]], [4, orb[1]]], summed_spin_channels=True)
+            self.cohp_orb.get_orbital_resolved_cohp(
+                "1", [[4, orb[0]], [4, orb[1]]], summed_spin_channels=True
+            )
             for orb in orbitals
         ]
 
@@ -1237,16 +1376,16 @@ class TestCompleteCohp(MatSciTest):
         assert self.cohp_lobster_spin_polarized.get_orbital_resolved_cohp(
             "1", "6s-6s", summed_spin_channels=False
         ).cohp[Spin.up][300] * 2 == approx(
-            self.cohp_lobster_spin_polarized.get_orbital_resolved_cohp("1", "6s-6s", summed_spin_channels=True).cohp[
-                Spin.up
-            ][300]
+            self.cohp_lobster_spin_polarized.get_orbital_resolved_cohp(
+                "1", "6s-6s", summed_spin_channels=True
+            ).cohp[Spin.up][300]
         )
         assert self.cohp_lobster_spin_polarized.get_orbital_resolved_cohp(
             "1", "6s-6s", summed_spin_channels=False
         ).cohp[Spin.down][300] * 2 == approx(
-            self.cohp_lobster_spin_polarized.get_orbital_resolved_cohp("1", "6s-6s", summed_spin_channels=True).cohp[
-                Spin.up
-            ][300]
+            self.cohp_lobster_spin_polarized.get_orbital_resolved_cohp(
+                "1", "6s-6s", summed_spin_channels=True
+            ).cohp[Spin.up][300]
         )
         assert self.cohp_lobster_spin_polarized.get_orbital_resolved_cohp(
             "1", "6s-6s", summed_spin_channels=True
@@ -1263,11 +1402,15 @@ class TestMethod:
     def setup_method(self):
         filepath = f"{TEST_DIR}/COHPCAR.lobster.gz"
         structure = f"{TEST_DIR}/POSCAR"
-        self.cohp_lobster = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
+        self.cohp_lobster = CompleteCohp.from_file(
+            "lobster", filename=filepath, structure_file=structure
+        )
 
         filepath = f"{TEST_DIR}/COHPCAR.lobster.orbitalwise.gz"
         structure = f"{TEST_DIR}/POSCAR.orbitalwise"
-        self.cohp_orb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
+        self.cohp_orb = CompleteCohp.from_file(
+            "lobster", filename=filepath, structure_file=structure
+        )
 
         filepath = f"{TEST_DIR}/environments/COHPCAR.lobster.mp-190.gz"
         structure = f"{TEST_DIR}/environments/POSCAR.mp_190.gz"

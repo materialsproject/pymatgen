@@ -32,7 +32,9 @@ class TestExcitingInput(MatSciTest):
         frac_coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
         assert_allclose(lattice, exc_input.structure.lattice.matrix.tolist())
         assert atoms == [site.specie.symbol for site in exc_input.structure]
-        assert frac_coords == [site.frac_coords.tolist() for site in exc_input.structure]
+        assert frac_coords == [
+            site.frac_coords.tolist() for site in exc_input.structure
+        ]
 
     def test_write_string(self):
         # Test for the string export of structure into the exciting input xml schema
@@ -135,7 +137,9 @@ class TestExcitingInput(MatSciTest):
 
     def test_param_dict(self):
         coords = [[0.0, 0.0, 0.0], [0.75, 0.5, 0.75]]
-        lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
+        lattice = Lattice.from_parameters(
+            a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60
+        )
         struct = Structure(lattice, ["Si", "Si"], coords)
         param_dict = {
             "grst": {
@@ -153,7 +157,10 @@ class TestExcitingInput(MatSciTest):
                 "broad": "0.07",
                 "tevout": "true",
                 "energywindow": {"intv": "0.0 1.0", "points": "1200"},
-                "screening": {"screentype": "full", "nempty": "100"},  # codespell:ignore: nempty
+                "screening": {
+                    "screentype": "full",
+                    "nempty": "100",
+                },  # codespell:ignore: nempty
                 "BSE": {"bsetype": "singlet", "nstlbse": "1 5 1 4"},
             },
         }
@@ -172,7 +179,9 @@ class TestExcitingInput(MatSciTest):
 
         # "scale" is float, direct compare might give surprising results
         ref_scale = float(re.search(r'scale="([-+]?\d*\.\d+|\d+)"', ref_list.pop(7))[1])
-        test_scale = float(re.search(r'scale="([-+]?\d*\.\d+|\d+)"', test_list.pop(7))[1])
+        test_scale = float(
+            re.search(r'scale="([-+]?\d*\.\d+|\d+)"', test_list.pop(7))[1]
+        )
 
         assert ref_list == test_list
         assert math.isclose(ref_scale, test_scale)

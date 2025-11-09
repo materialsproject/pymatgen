@@ -45,17 +45,25 @@ class TestNEBAnalysis(MatSciTest):
         assert_allclose(neb_analysis1.forces, neb_analysis1_from_json_data.forces)
         assert neb_analysis1.structures == neb_analysis1_from_json_data.structures
 
-        assert_allclose(neb_analysis1.get_extrema()[1][0], (0.50023335723480078, 325.20043063935128))
+        assert_allclose(
+            neb_analysis1.get_extrema()[1][0], (0.50023335723480078, 325.20043063935128)
+        )
 
         neb_analysis1.setup_spline(zero_slope_saddle=True)
-        assert_allclose(neb_analysis1.get_extrema()[1][0], (0.50023335723480078, 325.20003984140203))
+        assert_allclose(
+            neb_analysis1.get_extrema()[1][0], (0.50023335723480078, 325.20003984140203)
+        )
         with open(f"{TEST_DIR}/neb2/neb_analysis2.json", "rb") as file:
             neb_analysis2_dict = orjson.loads(file.read())
         neb_analysis2 = NEBAnalysis.from_dict(neb_analysis2_dict)
-        assert_allclose(neb_analysis2.get_extrema()[1][0], (0.37255257367467326, 562.40825334519991))
+        assert_allclose(
+            neb_analysis2.get_extrema()[1][0], (0.37255257367467326, 562.40825334519991)
+        )
 
         neb_analysis2.setup_spline(zero_slope_saddle=True)
-        assert_allclose(neb_analysis2.get_extrema()[1][0], (0.30371133723478794, 528.46229631648691))
+        assert_allclose(
+            neb_analysis2.get_extrema()[1][0], (0.30371133723478794, 528.46229631648691)
+        )
 
     def test_combine_neb_plots(self):
         neb_dir = f"{TEST_DIR}/neb1/neb"

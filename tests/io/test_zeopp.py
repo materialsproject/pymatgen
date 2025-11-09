@@ -73,7 +73,9 @@ class TestZeoCssr:
 class TestZeoCssrOxi:
     def setup_method(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
-        structure = BVAnalyzer().get_oxi_state_decorated_structure(Structure.from_file(filepath))
+        structure = BVAnalyzer().get_oxi_state_decorated_structure(
+            Structure.from_file(filepath)
+        )
         self.zeo_cssr = ZeoCssr(structure)
 
     def test_str(self):
@@ -123,7 +125,9 @@ class TestZeoVoronoiXYZ:
             [-0.513360, 0.889165, -0.363000],
         ]
         prop = [0.4, 0.2, 0.2, 0.2, 0.2]
-        self.mol = Molecule(["C", "H", "H", "H", "H"], coords, site_properties={"voronoi_radius": prop})
+        self.mol = Molecule(
+            ["C", "H", "H", "H", "H"], coords, site_properties={"voronoi_radius": prop}
+        )
         self.xyz = ZeoVoronoiXYZ(self.mol)
 
     def test_str(self):
@@ -158,8 +162,8 @@ class TestGetVoronoiNodes:
         assert len(self.rad_dict) == len(self.structure.composition)
 
     def test_get_voronoi_nodes(self):
-        vor_node_struct, vor_edge_center_struct, vor_face_center_struct = get_voronoi_nodes(
-            self.structure, self.rad_dict
+        vor_node_struct, vor_edge_center_struct, vor_face_center_struct = (
+            get_voronoi_nodes(self.structure, self.rad_dict)
         )
         assert isinstance(vor_node_struct, Structure)
         assert isinstance(vor_edge_center_struct, Structure)
@@ -185,7 +189,9 @@ class TestGetFreeSphereParams:
         # Zeo results can change in future. Hence loose comparison
         assert free_sph_params["inc_sph_max_dia"] == approx(2.58251, abs=1e-1)
         assert free_sph_params["free_sph_max_dia"] == approx(1.29452, abs=1e-1)
-        assert free_sph_params["inc_sph_along_free_sph_path_max_dia"] == approx(2.58251, abs=1e-1)
+        assert free_sph_params["inc_sph_along_free_sph_path_max_dia"] == approx(
+            2.58251, abs=1e-1
+        )
 
 
 class TestGetHighAccuracyVoronoiNodes:
@@ -223,8 +229,8 @@ class TestGetVoronoiNodesMultiOxi:
         self.rad_dict = dict(zip(el, radii, strict=True))
 
     def test_get_voronoi_nodes(self):
-        vor_node_struct, vor_edge_center_struct, vor_face_center_struct = get_voronoi_nodes(
-            self.structure, self.rad_dict
+        vor_node_struct, vor_edge_center_struct, vor_face_center_struct = (
+            get_voronoi_nodes(self.structure, self.rad_dict)
         )
         assert isinstance(vor_node_struct, Structure)
         assert isinstance(vor_edge_center_struct, Structure)

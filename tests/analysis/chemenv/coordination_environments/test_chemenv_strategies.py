@@ -18,7 +18,9 @@ __author__ = "waroquiers"
 class TestStrategyOptions(MatSciTest):
     def test_options(self):
         # DistanceCutoffFloat
-        with pytest.raises(ValueError, match=r"Distance cutoff should be between 1 and \+infinity"):
+        with pytest.raises(
+            ValueError, match=r"Distance cutoff should be between 1 and \+infinity"
+        ):
             DistanceCutoffFloat(0.5)
         dc1 = DistanceCutoffFloat(1.2)
         dc1_dict = dc1.as_dict()
@@ -26,7 +28,9 @@ class TestStrategyOptions(MatSciTest):
         assert dc1 == dc2
 
         # AngleCutoffFloat
-        with pytest.raises(ValueError, match="Angle cutoff should be between 0 and 1, got 1.2"):
+        with pytest.raises(
+            ValueError, match="Angle cutoff should be between 0 and 1, got 1.2"
+        ):
             AngleCutoffFloat(1.2)
         ac1 = AngleCutoffFloat(0.3)
         ac1_dict = ac1.as_dict()
@@ -47,7 +51,9 @@ class TestStrategyOptions(MatSciTest):
         # AdditionalConditions
         with pytest.raises(ValueError, match="Additional condition 5 is not allowed"):
             AdditionalConditionInt(5)
-        with pytest.raises(ValueError, match="Additional condition 0.458 is not an integer"):
+        with pytest.raises(
+            ValueError, match="Additional condition 0.458 is not an integer"
+        ):
             AdditionalConditionInt(0.458)
         acd1 = AdditionalConditionInt(3)
         acd1_dict = acd1.as_dict()
@@ -73,13 +79,17 @@ class TestStrategyOptions(MatSciTest):
         simplest_strategy.set_option("distance_cutoff", 1.5)
         assert simplest_strategy.distance_cutoff == approx(1.5)
 
-        with pytest.raises(ValueError, match=r"Distance cutoff should be between 1 and \+infinity"):
+        with pytest.raises(
+            ValueError, match=r"Distance cutoff should be between 1 and \+infinity"
+        ):
             simplest_strategy.set_option("distance_cutoff", 0.5)
 
         simplest_strategy.set_option("angle_cutoff", 0.2)
         assert simplest_strategy.angle_cutoff == approx(0.2)
 
-        with pytest.raises(ValueError, match="Angle cutoff should be between 0 and 1, got 1.5"):
+        with pytest.raises(
+            ValueError, match="Angle cutoff should be between 0 and 1, got 1.5"
+        ):
             simplest_strategy.set_option("angle_cutoff", 1.5)
 
         simplest_strategy.setup_options(
@@ -97,10 +107,14 @@ class TestStrategyOptions(MatSciTest):
             ValueError,
             match="Continuous symmetry measure limits should be between 0 and 100, got -0.1",
         ):
-            simplest_strategy.setup_options({"continuous_symmetry_measure_cutoff": -0.1})
+            simplest_strategy.setup_options(
+                {"continuous_symmetry_measure_cutoff": -0.1}
+            )
 
         with pytest.raises(
             ValueError,
             match="Continuous symmetry measure limits should be between 0 and 100, got 100.1",
         ):
-            simplest_strategy.setup_options({"continuous_symmetry_measure_cutoff": 100.1})
+            simplest_strategy.setup_options(
+                {"continuous_symmetry_measure_cutoff": 100.1}
+            )

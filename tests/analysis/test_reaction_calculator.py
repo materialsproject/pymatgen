@@ -7,7 +7,12 @@ import numpy as np
 import pytest
 from pytest import approx
 
-from pymatgen.analysis.reaction_calculator import BalancedReaction, ComputedReaction, Reaction, ReactionError
+from pymatgen.analysis.reaction_calculator import (
+    BalancedReaction,
+    ComputedReaction,
+    Reaction,
+    ReactionError,
+)
 from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 
@@ -86,7 +91,10 @@ class TestReaction:
             Composition("Li2O"),
         ]
 
-        assert str(Reaction(reactants, products)) == "La2Zr2O7 + 6 LiCoO2 -> La2O3 + 3 Co2O3 + 2 Li2ZrO3 + Li2O"
+        assert (
+            str(Reaction(reactants, products))
+            == "La2Zr2O7 + 6 LiCoO2 -> La2O3 + 3 Co2O3 + 2 Li2ZrO3 + Li2O"
+        )
 
         reactants = [Composition("La2O3"), Composition("Co2O3"), Composition("Li2ZrO3")]
         products = [
@@ -95,7 +103,8 @@ class TestReaction:
             Composition("Li3CoO3"),
         ]
         assert (
-            str(Reaction(reactants, products)) == "La2O3 + 0.3333 Co2O3 + 2 Li2ZrO3 -> Li2O + La2Zr2O7 + 0.6667 Li3CoO3"
+            str(Reaction(reactants, products))
+            == "La2O3 + 0.3333 Co2O3 + 2 Li2ZrO3 -> Li2O + La2Zr2O7 + 0.6667 Li3CoO3"
         )
 
         reactants = [Composition("La2O3"), Composition("Co2O3"), Composition("Li2ZrO3")]
@@ -106,7 +115,8 @@ class TestReaction:
             Composition("Li3CoO3"),
         ]
         assert (
-            str(Reaction(reactants, products)) == "La2O3 + 0.3333 Co2O3 + 2 Li2ZrO3 -> Li2O + La2Zr2O7 + 0.6667 Li3CoO3"
+            str(Reaction(reactants, products))
+            == "La2O3 + 0.3333 Co2O3 + 2 Li2ZrO3 -> Li2O + La2Zr2O7 + 0.6667 Li3CoO3"
         )
 
         reactants = [Composition("La2O3"), Composition("Co2O3"), Composition("Li2ZrO3")]
@@ -118,7 +128,8 @@ class TestReaction:
             Composition("XeNe"),
         ]
         assert (
-            str(Reaction(reactants, products)) == "La2O3 + 0.3333 Co2O3 + 2 Li2ZrO3 -> Li2O + La2Zr2O7 + 0.6667 Li3CoO3"
+            str(Reaction(reactants, products))
+            == "La2O3 + 0.3333 Co2O3 + 2 Li2ZrO3 -> Li2O + La2Zr2O7 + 0.6667 Li3CoO3"
         )
 
         reactants = [Composition("LiCoO2")]
@@ -129,7 +140,10 @@ class TestReaction:
             Composition("Li1F1"),
             Composition("Co1F3"),
         ]
-        assert str(Reaction(reactants, products)) == "1.667 LiCoO2 + 0.3333 CoF3 -> Co2O3 + 0.3333 Li2O + LiF"
+        assert (
+            str(Reaction(reactants, products))
+            == "1.667 LiCoO2 + 0.3333 CoF3 -> Co2O3 + 0.3333 Li2O + LiF"
+        )
 
         # this test can fail because of numerical rank calculation issues
         reactants = [Composition("LiCoO2"), Composition("Li2O1")]
@@ -230,7 +244,9 @@ class TestReaction:
         rxn = Reaction(reactants, products)
 
         assert Composition("O2") in rxn.products, "O not in products!"
-        assert Composition("Li3Fe2(PO4)3") in rxn.reactants, "Li3Fe2(PO4)4 not in reactants!"
+        assert Composition("Li3Fe2(PO4)3") in rxn.reactants, (
+            "Li3Fe2(PO4)4 not in reactants!"
+        )
         assert str(rxn) == "0.3333 Li3Fe2(PO4)3 + 0.1667 Fe2O3 -> 0.25 O2 + LiFePO4"
         assert rxn.normalized_repr == "4 Li3Fe2(PO4)3 + 2 Fe2O3 -> 3 O2 + 12 LiFePO4"
         assert rxn.calculate_energy(energies) == approx(-0.48333333, abs=1e-5)
@@ -325,7 +341,9 @@ class TestBalancedReaction:
             {"O2": 0.5, "Li(NiO2)2": 1, "NiO": 1},
         )
 
-        assert rxn == BalancedReaction.from_str("1.000 Li(NiO2)3 -> 0.500 O2 + 1.000 Li(NiO2)2 + 1.000 NiO")
+        assert rxn == BalancedReaction.from_str(
+            "1.000 Li(NiO2)3 -> 0.500 O2 + 1.000 Li(NiO2)2 + 1.000 NiO"
+        )
 
     def test_remove_spectator_species(self):
         rxn = BalancedReaction(
@@ -439,7 +457,9 @@ class TestComputedReaction:
         prods = list(filter(lambda e: e.reduced_formula == "Li2O2", entries))
 
         rxn_with_uncertainty = ComputedReaction(reactants, prods)
-        assert rxn_with_uncertainty.calculated_reaction_energy_uncertainty == approx(0.5 * 0.0744)
+        assert rxn_with_uncertainty.calculated_reaction_energy_uncertainty == approx(
+            0.5 * 0.0744
+        )
 
     def test_calculated_reaction_energy_uncertainty_for_no_uncertainty(self):
         # test that reaction_energy_uncertainty property doesn't cause errors

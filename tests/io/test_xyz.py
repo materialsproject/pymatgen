@@ -21,7 +21,9 @@ class TestXYZ:
         ]
         coords2 = [[x + 10.0 for x in atom] for atom in coords]
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
-        self.multi_mols = [Molecule(["C", "H", "H", "H", "H"], coords) for coords in [coords, coords2]]
+        self.multi_mols = [
+            Molecule(["C", "H", "H", "H", "H"], coords) for coords in [coords, coords2]
+        ]
         self.xyz = XYZ(self.mol)
         self.multi_xyz = XYZ(self.multi_mols)
 

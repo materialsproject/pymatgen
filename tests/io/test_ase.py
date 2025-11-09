@@ -95,13 +95,21 @@ def test_get_atoms_from_structure_dyn():
     atoms = AseAtomsAdaptor.get_atoms(STRUCTURE)
     assert len(atoms.constraints) == 0
     rng = np.random.default_rng(seed=1234)
-    sel_dyn = [[rng.random() < 0.5, rng.random() < 0.5, rng.random() < 0.5] for _ in STRUCTURE]
+    sel_dyn = [
+        [rng.random() < 0.5, rng.random() < 0.5, rng.random() < 0.5] for _ in STRUCTURE
+    ]
     STRUCTURE.add_site_property("selective_dynamics", sel_dyn)
     atoms = AseAtomsAdaptor.get_atoms(STRUCTURE)
     for c in atoms.constraints:
         assert isinstance(c, ase.constraints.FixAtoms | ase.constraints.FixCartesian)
-        ase_mask = c.mask if isinstance(c, ase.constraints.FixCartesian) else [True, True, True]
-        assert len(c.index) == len([mask for mask in sel_dyn if np.array_equal(mask, ~np.array(ase_mask))])
+        ase_mask = (
+            c.mask
+            if isinstance(c, ase.constraints.FixCartesian)
+            else [True, True, True]
+        )
+        assert len(c.index) == len(
+            [mask for mask in sel_dyn if np.array_equal(mask, ~np.array(ase_mask))]
+        )
 
 
 def test_get_atoms_from_structure_spacegroup():
@@ -116,7 +124,10 @@ def test_get_atoms_from_structure_spacegroup():
 
     # Check that space group matches
     assert atoms.info["spacegroup"].no == STRUCTURE.properties["spacegroup"]["number"]
-    assert atoms.info["spacegroup"].setting == STRUCTURE.properties["spacegroup"]["setting"]
+    assert (
+        atoms.info["spacegroup"].setting
+        == STRUCTURE.properties["spacegroup"]["setting"]
+    )
 
 
 def test_get_atoms_from_molecule():
@@ -199,7 +210,10 @@ def test_get_structure_mag():
 
     atoms = ase.io.read(f"{VASP_OUT_DIR}/OUTCAR.gz")
     structure = AseAtomsAdaptor.get_structure(atoms)
-    assert structure.site_properties["final_magmom"] == atoms.get_magnetic_moments().tolist()
+    assert (
+        structure.site_properties["final_magmom"]
+        == atoms.get_magnetic_moments().tolist()
+    )
     assert "magmom" not in structure.site_properties
     assert "initial_magmoms" not in structure.site_properties
 
@@ -238,7 +252,9 @@ def test_get_structure_dyn(select_dyn):
 def test_get_structure_spacegroup():
     # set up Atoms object with spacegroup information
     a = 4.05
-    atoms = ase.spacegroup.crystal("Al", [(0, 0, 0)], spacegroup=225, cellpar=[a, a, a, 90, 90, 90])
+    atoms = ase.spacegroup.crystal(
+        "Al", [(0, 0, 0)], spacegroup=225, cellpar=[a, a, a, 90, 90, 90]
+    )
     assert "spacegroup" in atoms.info
     assert isinstance(atoms.info["spacegroup"], ase.spacegroup.Spacegroup)
 
@@ -249,7 +265,10 @@ def test_get_structure_spacegroup():
 
     # Test that spacegroup info matches
     assert atoms.info["spacegroup"].no == structure.properties["spacegroup"]["number"]
-    assert atoms.info["spacegroup"].setting == structure.properties["spacegroup"]["setting"]
+    assert (
+        atoms.info["spacegroup"].setting
+        == structure.properties["spacegroup"]["setting"]
+    )
 
 
 def test_get_molecule():
@@ -424,5 +443,7 @@ def test_no_ase_err():
         importlib.reload(pymatgen.io.ase)
         from pymatgen.io.ase import MSONAtoms
 
-        with pytest.raises(PackageNotFoundError, match="AseAtomsAdaptor requires the ASE package."):
+        with pytest.raises(
+            PackageNotFoundError, match="AseAtomsAdaptor requires the ASE package."
+        ):
             MSONAtoms()

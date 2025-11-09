@@ -59,7 +59,9 @@ TITLE sites: 4
 
     def test_get_feff_atoms(self):
         atoms = str(self.mp_xanes.atoms)
-        assert atoms.splitlines()[3].split()[4] == self.absorbing_atom, "failed to create ATOMS string"
+        assert atoms.splitlines()[3].split()[4] == self.absorbing_atom, (
+            "failed to create ATOMS string"
+        )
 
     def test_to_and_from_dict(self):
         dct = self.mp_xanes.as_dict()
@@ -71,7 +73,9 @@ TITLE sites: 4
         tags_dict_ans["COREHOLE"] = "RPA"
         tags_dict_ans["EDGE"] = "L1"
         user_tag_settings = {"COREHOLE": "RPA", "EDGE": "L1"}
-        mp_xanes_2 = MPXANESSet(self.absorbing_atom, self.structure, user_tag_settings=user_tag_settings)
+        mp_xanes_2 = MPXANESSet(
+            self.absorbing_atom, self.structure, user_tag_settings=user_tag_settings
+        )
         assert mp_xanes_2.tags.as_dict() == tags_dict_ans
 
     def test_eels_to_from_dict(self):
@@ -133,7 +137,9 @@ TITLE sites: 4
 
     def test_reciprocal_tags_and_input(self):
         user_tag_settings = {"RECIPROCAL": "", "KMESH": "1000"}
-        elnes = MPELNESSet(self.absorbing_atom, self.structure, user_tag_settings=user_tag_settings)
+        elnes = MPELNESSet(
+            self.absorbing_atom, self.structure, user_tag_settings=user_tag_settings
+        )
         assert "RECIPROCAL" in elnes.tags
         assert elnes.tags["TARGET"] == 3
         assert elnes.tags["KMESH"] == "1000"
@@ -184,8 +190,12 @@ TITLE sites: 4
     def test_post_feffset(self):
         self.mp_xanes.write_input(f"{self.tmp_path}/xanes_3")
         feff_dict_input = FEFFDictSet.from_directory(f"{self.tmp_path}/xanes_3")
-        assert feff_dict_input.tags == Tags.from_file(f"{self.tmp_path}/xanes_3/feff.inp")
-        assert str(feff_dict_input.header()) == str(Header.from_file(f"{self.tmp_path}/xanes_3/HEADER"))
+        assert feff_dict_input.tags == Tags.from_file(
+            f"{self.tmp_path}/xanes_3/feff.inp"
+        )
+        assert str(feff_dict_input.header()) == str(
+            Header.from_file(f"{self.tmp_path}/xanes_3/HEADER")
+        )
         feff_dict_input.write_input(f"{self.tmp_path}/xanes_3_regen")
         origin_tags = Tags.from_file(f"{self.tmp_path}/xanes_3/PARAMETERS")
         output_tags = Tags.from_file(f"{self.tmp_path}/xanes_3_regen/PARAMETERS")
@@ -200,7 +210,9 @@ TITLE sites: 4
         assert origin_tags == output_tags
         assert original_mole_shell == output_mole_shell
 
-        reci_mp_xanes = MPXANESSet(self.absorbing_atom, self.structure, user_tag_settings={"RECIPROCAL": ""})
+        reci_mp_xanes = MPXANESSet(
+            self.absorbing_atom, self.structure, user_tag_settings={"RECIPROCAL": ""}
+        )
         reci_mp_xanes.write_input(f"{self.tmp_path}/xanes_reci")
         feff_reci_input = FEFFDictSet.from_directory(f"{self.tmp_path}/xanes_reci")
         assert "RECIPROCAL" in feff_reci_input.tags
@@ -222,13 +234,21 @@ TITLE sites: 4
 
     def test_post_dist_diff(self):
         feff_dict_input = FEFFDictSet.from_directory(f"{FEFF_TEST_DIR}/feff_dist_test")
-        assert feff_dict_input.tags == Tags.from_file(f"{FEFF_TEST_DIR}/feff_dist_test/feff.inp")
-        assert str(feff_dict_input.header()) == str(Header.from_file(f"{FEFF_TEST_DIR}/feff_dist_test/HEADER"))
+        assert feff_dict_input.tags == Tags.from_file(
+            f"{FEFF_TEST_DIR}/feff_dist_test/feff.inp"
+        )
+        assert str(feff_dict_input.header()) == str(
+            Header.from_file(f"{FEFF_TEST_DIR}/feff_dist_test/HEADER")
+        )
         feff_dict_input.write_input(f"{self.tmp_path}/feff_dist_regen")
         origin_tags = Tags.from_file(f"{FEFF_TEST_DIR}/feff_dist_test/PARAMETERS")
         output_tags = Tags.from_file(f"{self.tmp_path}/feff_dist_regen/PARAMETERS")
-        origin_mole = Atoms.cluster_from_file(f"{FEFF_TEST_DIR}/feff_dist_test/feff.inp")
-        output_mole = Atoms.cluster_from_file(f"{self.tmp_path}/feff_dist_regen/feff.inp")
+        origin_mole = Atoms.cluster_from_file(
+            f"{FEFF_TEST_DIR}/feff_dist_test/feff.inp"
+        )
+        output_mole = Atoms.cluster_from_file(
+            f"{self.tmp_path}/feff_dist_regen/feff.inp"
+        )
         original_mole_dist = np.array(origin_mole.distance_matrix[0, :])
         output_mole_dist = np.array(output_mole.distance_matrix[0, :])
         original_mole_shell = [x.species_string for x in origin_mole]
@@ -239,7 +259,9 @@ TITLE sites: 4
         assert original_mole_shell == output_mole_shell
 
     def test_big_radius(self):
-        struct = Structure.from_spacegroup("Pm-3m", Lattice.cubic(3.033043), ["Ti", "O"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        struct = Structure.from_spacegroup(
+            "Pm-3m", Lattice.cubic(3.033043), ["Ti", "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
         dict_set = FEFFDictSet(
             absorbing_atom="Ti",
             structure=struct,

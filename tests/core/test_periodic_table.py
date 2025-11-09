@@ -269,7 +269,9 @@ class TestElement(MatSciTest):
 
         for elements, (attr, expected) in bool_attrs.items():
             for elem in elements:
-                assert getattr(Element(elem), attr) is expected, f"{elem=} {attr=}, {expected=}"
+                assert getattr(Element(elem), attr) is expected, (
+                    f"{elem=} {attr=}, {expected=}"
+                )
 
         keys = (
             "atomic_mass",
@@ -359,7 +361,9 @@ class TestElement(MatSciTest):
         el1 = Element.Fe
         el2 = Element.Na
         ellist = [el1, el2]
-        assert ellist == deepcopy(ellist), "Deepcopy operation doesn't produce exact copy"
+        assert ellist == deepcopy(ellist), (
+            "Deepcopy operation doesn't produce exact copy"
+        )
 
     def test_radii(self):
         el = Element.Pd
@@ -430,7 +434,9 @@ class TestSpecies(MatSciTest):
         assert Species("Mn", 4).ionic_radius == approx(0.67)
 
     def test_eq(self):
-        assert self.specie1 == self.specie3, "Static and actual constructor gives unequal result!"
+        assert self.specie1 == self.specie3, (
+            "Static and actual constructor gives unequal result!"
+        )
         assert self.specie1 != self.specie2, "Fe2+ should not be equal to Fe3+"
         assert self.specie4 != self.specie3
         assert self.specie1 != Element("Fe")
@@ -449,7 +455,9 @@ class TestSpecies(MatSciTest):
 
     def test_deepcopy(self):
         elem_list = [Species("Fe4+"), Species("Na1+")]
-        assert elem_list == deepcopy(elem_list), "Deepcopy operation doesn't produce exact copy."
+        assert elem_list == deepcopy(elem_list), (
+            "Deepcopy operation doesn't produce exact copy."
+        )
 
     def test_pickle(self):
         assert self.specie1 == pickle.loads(pickle.dumps(self.specie1))
@@ -481,7 +489,9 @@ class TestSpecies(MatSciTest):
                 match=f"Invalid element {symbol} for crystal field calculation",
             ):
                 Species(elem).get_crystal_field_spin()
-        with pytest.raises(AttributeError, match="Invalid oxidation state 10 for element Fe"):
+        with pytest.raises(
+            AttributeError, match="Invalid oxidation state 10 for element Fe"
+        ):
             Species("Fe", 10).get_crystal_field_spin()
         with pytest.raises(ValueError, match="Invalid coordination or spin config"):
             Species("Fe", 2).get_crystal_field_spin("hex")
@@ -494,7 +504,9 @@ class TestSpecies(MatSciTest):
         assert Species("Li").get_nmr_quadrupole_moment() == approx(-0.808)
         assert Species("Li").get_nmr_quadrupole_moment("Li-7") == approx(-40.1)
         assert Species("Si").get_nmr_quadrupole_moment() == approx(0)
-        with pytest.raises(ValueError, match="No quadrupole moment for isotope='Li-109'"):
+        with pytest.raises(
+            ValueError, match="No quadrupole moment for isotope='Li-109'"
+        ):
             Species("Li").get_nmr_quadrupole_moment("Li-109")
 
     def test_get_shannon_radius(self):
@@ -610,10 +622,14 @@ class TestSpecies(MatSciTest):
 
         # alkali metals, all p
         for el in ["Na", "K", "Rb", "Cs"]:
-            assert Species(el, 1).electronic_structure.split(".")[-1][1::] == "p6", f"Failure for {el} +1"
+            assert Species(el, 1).electronic_structure.split(".")[-1][1::] == "p6", (
+                f"Failure for {el} +1"
+            )
 
         for el in ["Ca", "Mg", "Ba", "Sr"]:
-            assert Species(el, 2).electronic_structure.split(".")[-1][1::] == "p6", f"Failure for {el} +2"
+            assert Species(el, 2).electronic_structure.split(".")[-1][1::] == "p6", (
+                f"Failure for {el} +2"
+            )
 
         # valence shell should be f (l=3) for all lanthanide ions except La+3 and Lu+3
         for el in [
@@ -640,7 +656,10 @@ class TestSpecies(MatSciTest):
                 n_electron_el = sum(orb[-1] for orb in el.full_electronic_structure)
                 # Some species miss `full_electronic_structure` data
                 try:
-                    n_electron_sp = sum(orb[-1] for orb in Species(el.symbol, ox).full_electronic_structure)
+                    n_electron_sp = sum(
+                        orb[-1]
+                        for orb in Species(el.symbol, ox).full_electronic_structure
+                    )
                 except ValueError:
                     continue
 
@@ -662,7 +681,9 @@ class TestSpecies(MatSciTest):
             ("Tc3.498+", "Tc", 3.498),
         ],
     )
-    def test_symbol_oxi_state_str(self, symbol_oxi, expected_element, expected_oxi_state):
+    def test_symbol_oxi_state_str(
+        self, symbol_oxi, expected_element, expected_oxi_state
+    ):
         species = Species(symbol_oxi)
         assert species._el.symbol == expected_element
         assert species._oxi_state == approx(expected_oxi_state, rel=1.0e-6)
@@ -676,11 +697,17 @@ class TestSpecies(MatSciTest):
 class TestDummySpecies:
     def test_init(self):
         self.specie1 = DummySpecies("X")
-        with pytest.raises(ValueError, match="Xe contains Xe, which is a valid element symbol"):
+        with pytest.raises(
+            ValueError, match="Xe contains Xe, which is a valid element symbol"
+        ):
             DummySpecies("Xe")
-        with pytest.raises(ValueError, match="Xec contains Xe, which is a valid element symbol"):
+        with pytest.raises(
+            ValueError, match="Xec contains Xe, which is a valid element symbol"
+        ):
             DummySpecies("Xec")
-        with pytest.raises(ValueError, match="Vac contains V, which is a valid element symbol"):
+        with pytest.raises(
+            ValueError, match="Vac contains V, which is a valid element symbol"
+        ):
             DummySpecies("Vac")
         self.specie2 = DummySpecies("X", 2, spin=3)
         assert self.specie2.spin == 3
@@ -721,7 +748,10 @@ class TestDummySpecies:
         # This error message is Python version dependent
         # 3.10: can't set attribute 'spin'
         # 3.11+: property 'spin' of 'Species' object has no setter
-        with pytest.raises(AttributeError, match=r"(can't set attribute|'Species' object has no setter)"):
+        with pytest.raises(
+            AttributeError,
+            match=r"(can't set attribute|'Species' object has no setter)",
+        ):
             sp.spin = 6
         assert sp.spin == 5
 

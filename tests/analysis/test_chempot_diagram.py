@@ -22,12 +22,18 @@ class TestChemicalPotentialDiagram(MatSciTest):
     def setup_method(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.cpd_ternary, self.cpd_ternary_formal = (
-            ChemicalPotentialDiagram(entries=self.entries, default_min_limit=-25, formal_chempots=formal)
+            ChemicalPotentialDiagram(
+                entries=self.entries, default_min_limit=-25, formal_chempots=formal
+            )
             for formal in [False, True]
         )
         elements = {Element("Fe"), Element("O")}
-        binary_entries = [entry for entry in self.entries if set(entry.elements) <= elements]
-        self.cpd_binary = ChemicalPotentialDiagram(entries=binary_entries, default_min_limit=-25, formal_chempots=False)
+        binary_entries = [
+            entry for entry in self.entries if set(entry.elements) <= elements
+        ]
+        self.cpd_binary = ChemicalPotentialDiagram(
+            entries=binary_entries, default_min_limit=-25, formal_chempots=False
+        )
 
     def test_dim(self):
         assert self.cpd_binary.dim == 2
@@ -35,7 +41,9 @@ class TestChemicalPotentialDiagram(MatSciTest):
         assert self.cpd_ternary_formal.dim == 3
 
     def test_el_refs(self):
-        el_refs = {elem: entry.energy for elem, entry in self.cpd_ternary.el_refs.items()}
+        el_refs = {
+            elem: entry.energy for elem, entry in self.cpd_ternary.el_refs.items()
+        }
 
         elems = [Element("Li"), Element("Fe"), Element("O")]
         energies = [-1.91301487, -6.5961471, -25.54966885]
@@ -44,7 +52,10 @@ class TestChemicalPotentialDiagram(MatSciTest):
         assert el_refs == approx(correct_el_refs)
 
     def test_el_refs_formal(self):
-        el_refs = {elem: entry.energy for elem, entry in self.cpd_ternary_formal.el_refs.items()}
+        el_refs = {
+            elem: entry.energy
+            for elem, entry in self.cpd_ternary_formal.el_refs.items()
+        }
         elems = [Element("Li"), Element("Fe"), Element("O")]
         energies = [0, 0, 0]
         correct_el_refs = dict(zip(elems, energies, strict=True))

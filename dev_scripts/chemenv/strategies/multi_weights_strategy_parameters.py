@@ -18,7 +18,9 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     NormalizedAngleDistanceNbSetWeight,
     SelfCSMNbSetWeight,
 )
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+)
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
     LocalGeometryFinder,
@@ -52,7 +54,9 @@ class CoordinationEnvironmentMorphing:
         self.initial_environment_symbol = initial_environment_symbol
         self.expected_final_environment_symbol = expected_final_environment_symbol
         self.morphing_description = morphing_description
-        self.coordination_geometry = all_cg.get_geometry_from_mp_symbol(initial_environment_symbol)
+        self.coordination_geometry = all_cg.get_geometry_from_mp_symbol(
+            initial_environment_symbol
+        )
         self.abstract_geometry = AbstractGeometry.from_cg(self.coordination_geometry)
 
     @classmethod
@@ -86,7 +90,9 @@ class CoordinationEnvironmentMorphing:
             morphing_description=morphing_description,
         )
 
-    def figure_fractions(self, weights_options: dict, morphing_factors: Sequence[float] | None = None) -> None:
+    def figure_fractions(
+        self, weights_options: dict, morphing_factors: Sequence[float] | None = None
+    ) -> None:
         """Plot the fractions of the initial and final coordination environments as a
         function of the morphing factor.
 
@@ -120,7 +126,9 @@ class CoordinationEnvironmentMorphing:
             print(struct)
             # Get the StructureEnvironments
             lgf.setup_structure(structure=struct)
-            se = lgf.compute_structure_environments(only_indices=[0], valences=fake_valences)
+            se = lgf.compute_structure_environments(
+                only_indices=[0], valences=fake_valences
+            )
             strategy.set_structure_environments(structure_environments=se)
             result = strategy.get_site_coordination_environments_fractions(
                 site=se.structure[0],
@@ -171,7 +179,9 @@ class CoordinationEnvironmentMorphing:
 
         for morphing in self.morphing_description:
             if morphing["site_type"] != "neighbor":
-                raise ValueError(f'Key "site_type" is {morphing["site_type"]} while it can only be neighbor')
+                raise ValueError(
+                    f'Key "site_type" is {morphing["site_type"]} while it can only be neighbor'
+                )
 
             site_idx = morphing["ineighbor"] + 1
             if morphing["expansion_origin"] == "central_site":
@@ -179,9 +189,13 @@ class CoordinationEnvironmentMorphing:
             vector = bare_points[site_idx] - origin
             coords[site_idx] += vector * (morphing_factor - 1.0)
 
-        return Structure(lattice=lattice, species=species, coords=coords, coords_are_cartesian=True)
+        return Structure(
+            lattice=lattice, species=species, coords=coords, coords_are_cartesian=True
+        )
 
-    def estimate_parameters(self, dist_factor_min, dist_factor_max, symmetry_measure_type="csm_wcs_ctwcc"):
+    def estimate_parameters(
+        self, dist_factor_min, dist_factor_max, symmetry_measure_type="csm_wcs_ctwcc"
+    ):
         only_symbols = [
             self.initial_environment_symbol,
             self.expected_final_environment_symbol,
@@ -195,14 +209,20 @@ class CoordinationEnvironmentMorphing:
         # Get the StructureEnvironments for the structure with dist_factor_min
         struct = self.get_structure(morphing_factor=dist_factor_min)
         lgf.setup_structure(structure=struct)
-        se = lgf.compute_structure_environments(only_indices=[0], valences=fake_valences, only_symbols=only_symbols)
+        se = lgf.compute_structure_environments(
+            only_indices=[0], valences=fake_valences, only_symbols=only_symbols
+        )
         csm_info = se.get_csms(isite=0, mp_symbol=self.initial_environment_symbol)
         if len(csm_info) == 0:
             raise ValueError(f"No csm found for {self.initial_environment_symbol}")
         csm_info.sort(key=lambda x: x["other_symmetry_measures"][symmetry_measure_type])
-        csm_initial_min_dist = csm_info[0]["other_symmetry_measures"][symmetry_measure_type]
+        csm_initial_min_dist = csm_info[0]["other_symmetry_measures"][
+            symmetry_measure_type
+        ]
 
-        csm_info = se.get_csms(isite=0, mp_symbol=self.expected_final_environment_symbol)
+        csm_info = se.get_csms(
+            isite=0, mp_symbol=self.expected_final_environment_symbol
+        )
         if len(csm_info) == 0:
             raise ValueError(f"No csm found for {self.initial_environment_symbol}")
         csm_info.sort(key=lambda x: x["other_symmetry_measures"][symmetry_measure_type])
@@ -213,14 +233,20 @@ class CoordinationEnvironmentMorphing:
         # Get the StructureEnvironments for the structure with dist_factor_max
         struct = self.get_structure(morphing_factor=dist_factor_max)
         lgf.setup_structure(structure=struct)
-        se = lgf.compute_structure_environments(only_indices=[0], valences=fake_valences, only_symbols=only_symbols)
+        se = lgf.compute_structure_environments(
+            only_indices=[0], valences=fake_valences, only_symbols=only_symbols
+        )
         csm_info = se.get_csms(isite=0, mp_symbol=self.initial_environment_symbol)
         if len(csm_info) == 0:
             raise ValueError(f"No csm found for {self.initial_environment_symbol}")
         csm_info.sort(key=lambda x: x["other_symmetry_measures"][symmetry_measure_type])
-        csm_initial_max_dist = csm_info[0]["other_symmetry_measures"][symmetry_measure_type]
+        csm_initial_max_dist = csm_info[0]["other_symmetry_measures"][
+            symmetry_measure_type
+        ]
 
-        csm_info = se.get_csms(isite=0, mp_symbol=self.expected_final_environment_symbol)
+        csm_info = se.get_csms(
+            isite=0, mp_symbol=self.expected_final_environment_symbol
+        )
         if len(csm_info) == 0:
             raise ValueError(f"No csm found for {self.initial_environment_symbol}")
         csm_info.sort(key=lambda x: x["other_symmetry_measures"][symmetry_measure_type])
@@ -276,10 +302,14 @@ class CoordinationEnvironmentMorphing:
             symmetry_measure_type=symmetry_measure_type,
         )
 
-        bias_weight = CNBiasNbSetWeight.linearly_equidistant(weight_cn1=1.0, weight_cn13=4.0)
+        bias_weight = CNBiasNbSetWeight.linearly_equidistant(
+            weight_cn1=1.0, weight_cn13=4.0
+        )
         angle_weight = AngleNbSetWeight()
 
-        nad_weight = NormalizedAngleDistanceNbSetWeight(average_type="geometric", aa=1, bb=1)
+        nad_weight = NormalizedAngleDistanceNbSetWeight(
+            average_type="geometric", aa=1, bb=1
+        )
 
         return {
             "DistAngArea": da_area_weight,
@@ -326,14 +356,18 @@ if __name__ == "__main__":
             expected_final_environment_symbol=ce2,
             neighbors_indices=n_indices,
         )
-        params = morph.estimate_parameters(dist_factor_min=min_dist, dist_factor_max=max_dist)
+        params = morph.estimate_parameters(
+            dist_factor_min=min_dist, dist_factor_max=max_dist
+        )
         print(f"For pair {ce1} to {ce2}, parameters are : ")
         print(params)
         self_weight_max_csms[cn_pair].append(params["self_weight_max_csm"])
         delta_csm_mins[cn_pair].append(params["delta_csm_min"])
         all_self_max_csms.append(params["self_weight_max_csm"])
         all_delta_csm_mins.append(params["delta_csm_min"])
-        self_weight_max_csms_per_cn[ce1.split(":")[1]].append(params["self_weight_max_csm"])
+        self_weight_max_csms_per_cn[ce1.split(":")[1]].append(
+            params["self_weight_max_csm"]
+        )
 
     fig = plt.figure(1)
     ax = fig.add_subplot(111)
@@ -346,7 +380,9 @@ if __name__ == "__main__":
             self_weight_max_csms[cn_pair],
             "rx",
         )
-        ax.plot(idx * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+")
+        ax.plot(
+            idx * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+"
+        )
 
     ax.set_xticks(range(len(all_cn_pairs)))
     ax.set_xticklabels(all_cn_pairs, rotation="vertical")
@@ -373,7 +409,9 @@ if __name__ == "__main__":
     for idx, cn_pair in enumerate(all_cn_pairs):
         if len(delta_csm_mins[cn_pair]) == 0:
             continue
-        subplot3.plot(idx * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+")
+        subplot3.plot(
+            idx * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+"
+        )
 
     subplot3.set_xticks(range(len(all_cn_pairs)))
     subplot3.set_xticklabels(all_cn_pairs, rotation="vertical")

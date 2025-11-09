@@ -13,7 +13,10 @@ def test_convenience_imports():
     assert ph.CompletePhononDos == dos.CompletePhononDos
     assert ph.GruneisenParameter == gru.GruneisenParameter
     assert ph.GruneisenPhononBandStructure == gru.GruneisenPhononBandStructure
-    assert ph.GruneisenPhononBandStructureSymmLine == gru.GruneisenPhononBandStructureSymmLine
+    assert (
+        ph.GruneisenPhononBandStructureSymmLine
+        == gru.GruneisenPhononBandStructureSymmLine
+    )
     assert ph.PhononDosPlotter == plotter.PhononDosPlotter
     assert ph.PhononBSPlotter == plotter.PhononBSPlotter
     assert ph.GruneisenPlotter == plotter.GruneisenPlotter

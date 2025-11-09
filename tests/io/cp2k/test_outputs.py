@@ -47,11 +47,15 @@ class TestCp2kOutput:
     def test_band(self):
         """Can parse bandstructure files."""
         assert self.out.band_structure
-        assert self.out.band_structure.get_band_gap().get("energy") == approx(0.27940141999999923)
+        assert self.out.band_structure.get_band_gap().get("energy") == approx(
+            0.27940141999999923
+        )
 
     def test_dos(self):
         """Can parse dos files."""
-        assert self.out.data["pdos"]["Si_1"]["s"]["efermi"] == approx(-6.7370756409404455)
+        assert self.out.data["pdos"]["Si_1"]["s"]["efermi"] == approx(
+            -6.7370756409404455
+        )
         assert self.out.data["tdos"].energies[0] == approx(-6.781065751604123)
 
     def test_chi(self):

@@ -27,4 +27,6 @@ class TestLibxcFunc(MatSciTest):
     def test_repr(self):
         """Test LibxcFunc.__repr__"""
         xc = LibxcFunc.LDA_C_HL
-        assert repr(xc) == "LibxcFunc(name='LDA_C_HL', kind='CORRELATION', family='LDA')"
+        assert (
+            repr(xc) == "LibxcFunc(name='LDA_C_HL', kind='CORRELATION', family='LDA')"
+        )

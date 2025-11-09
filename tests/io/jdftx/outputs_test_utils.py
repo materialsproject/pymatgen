@@ -42,7 +42,11 @@ def object_matchall_known_simple(obj: Any, knowndict: dict):
 
 
 def assert_slices_attribute_error(
-    init_meth: Callable, init_var: Any, varname: str, slicename: str, assert_2layer_error: bool = False
+    init_meth: Callable,
+    init_var: Any,
+    varname: str,
+    slicename: str,
+    assert_2layer_error: bool = False,
 ):
     """Assert raises AttributeError upon certain conditions for slices attribute.
 
@@ -78,12 +82,20 @@ def assert_slices_attribute_error(
         getattr(obj, varname)
 
 
-def assert_slices_1layer_attribute_error(init_meth: Callable, init_var: Any, varname: str, slicename: str):
-    assert_slices_attribute_error(init_meth, init_var, varname, slicename, assert_2layer_error=False)
+def assert_slices_1layer_attribute_error(
+    init_meth: Callable, init_var: Any, varname: str, slicename: str
+):
+    assert_slices_attribute_error(
+        init_meth, init_var, varname, slicename, assert_2layer_error=False
+    )
 
 
-def assert_slices_2layer_attribute_error(init_meth: Callable, init_var: Any, varname: str, slicename: str):
-    assert_slices_attribute_error(init_meth, init_var, varname, slicename, assert_2layer_error=True)
+def assert_slices_2layer_attribute_error(
+    init_meth: Callable, init_var: Any, varname: str, slicename: str
+):
+    assert_slices_attribute_error(
+        init_meth, init_var, varname, slicename, assert_2layer_error=True
+    )
 
 
 ################################################################################
@@ -128,7 +140,9 @@ def jdftxoutfile_matches_known(joutfile: JDFTXOutfile, known: dict):
 
 
 ex_out_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "test_jdftx_out_files"
-ex_out_file_sections_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "test_jdftx_out_file_sections"
+ex_out_file_sections_dir = (
+    Path(TEST_FILES_DIR) / "io" / "jdftx" / "test_jdftx_out_file_sections"
+)
 ex_calc_dirs_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "test_jdftx_calc_dirs"
 
 n2_ex_calc_dir = ex_calc_dirs_dir / Path("N2")
@@ -137,7 +151,16 @@ n2_ex_calc_dir_known_paths = {
     "eigenvals": n2_ex_calc_dir / Path("eigenvals"),
 }
 n2_ex_calc_dir_bandprojections_metadata = {
-    "orb_label_list": ["N#1(s)", "N#1(py)", "N#1(pz)", "N#1(px)", "N#2(s)", "N#2(py)", "N#2(pz)", "N#2(px)"],
+    "orb_label_list": [
+        "N#1(s)",
+        "N#1(py)",
+        "N#1(pz)",
+        "N#1(px)",
+        "N#2(s)",
+        "N#2(py)",
+        "N#2(pz)",
+        "N#2(px)",
+    ],
     "shape": (54, 15, 8),
     "first val": -0.1331527 + 0.5655596j,
 }
@@ -149,7 +172,15 @@ nh3_ex_calc_dir_known_paths = {
     "eigenvals": nh3_ex_calc_dir / Path("eigenvals"),
 }
 nh3_ex_calc_dir_bandprojections_metadata = {
-    "orb_label_list": ["N#1(s)", "N#1(py)", "N#1(pz)", "N#1(px)", "H#1(s)", "H#2(s)", "H#3(s)"],
+    "orb_label_list": [
+        "N#1(s)",
+        "N#1(py)",
+        "N#1(pz)",
+        "N#1(px)",
+        "H#1(s)",
+        "H#2(s)",
+        "H#3(s)",
+    ],
     "shape": (16, 14, 7),
     "first val": -0.0688767 + 0.9503786j,
 }
@@ -396,10 +427,14 @@ ex_jstruc_slice1_known = {
     "strain_00": 10.0,
     "stress_00": -1.69853e-06 * Ha_to_eV / bohr_to_ang**3,
     "nAtoms": 8,
-    "posn0": np.array([0.000011000000000, 2.394209000000000, 1.474913000000000]) * bohr_to_ang,
-    "force0": np.array([0.000003219385226, 0.000024941936105, -0.000004667309539]) * (Ha_to_eV / bohr_to_ang),
-    "posn-1": np.array([0.000007000000000, 9.175312000000002, 4.423851000000000]) * bohr_to_ang,
-    "force-1": np.array([0.000000021330734, -0.000015026361853, -0.000010315177459]) * (Ha_to_eV / bohr_to_ang),
+    "posn0": np.array([0.000011000000000, 2.394209000000000, 1.474913000000000])
+    * bohr_to_ang,
+    "force0": np.array([0.000003219385226, 0.000024941936105, -0.000004667309539])
+    * (Ha_to_eV / bohr_to_ang),
+    "posn-1": np.array([0.000007000000000, 9.175312000000002, 4.423851000000000])
+    * bohr_to_ang,
+    "force-1": np.array([0.000000021330734, -0.000015026361853, -0.000010315177459])
+    * (Ha_to_eV / bohr_to_ang),
     "ox0": 0.048,
     "mag0": 0.000,
     "ox-1": -0.034,
@@ -440,10 +475,14 @@ ex_jstruc_slice2_known = {
     "strain_00": 10.0,
     "stress_00": -1.69853e-06 * Ha_to_eV / bohr_to_ang**3,
     "nAtoms": 8,
-    "posn0": np.array([0.000011000000000, 2.394209000000000, 1.474913000000000]) * bohr_to_ang,
-    "force0": np.array([0.000003219385226, 0.000024941936105, -0.000004667309539]) * (Ha_to_eV / bohr_to_ang),
-    "posn-1": np.array([0.000007000000000, 9.175312000000002, 4.423851000000000]) * bohr_to_ang,
-    "force-1": np.array([0.000000021330734, -0.000015026361853, -0.000010315177459]) * (Ha_to_eV / bohr_to_ang),
+    "posn0": np.array([0.000011000000000, 2.394209000000000, 1.474913000000000])
+    * bohr_to_ang,
+    "force0": np.array([0.000003219385226, 0.000024941936105, -0.000004667309539])
+    * (Ha_to_eV / bohr_to_ang),
+    "posn-1": np.array([0.000007000000000, 9.175312000000002, 4.423851000000000])
+    * bohr_to_ang,
+    "force-1": np.array([0.000000021330734, -0.000015026361853, -0.000010315177459])
+    * (Ha_to_eV / bohr_to_ang),
     "ox0": 0.048,
     "mag0": 0.000,
     "ox-1": -0.034,

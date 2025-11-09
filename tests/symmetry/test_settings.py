@@ -42,7 +42,9 @@ class TestJonesFaithfulTransformation:
         for test_string in self.test_strings:
             jft = JonesFaithfulTransformation.from_transformation_str(test_string)
             assert jft == jft.inverse.inverse
-            assert jft.transformation_string == jft.inverse.inverse.transformation_string
+            assert (
+                jft.transformation_string == jft.inverse.inverse.transformation_string
+            )
 
     def test_transform_lattice(self):
         lattice = Lattice.cubic(5)
@@ -181,9 +183,13 @@ y,-x,-z+1/2
         jft = JonesFaithfulTransformation.from_transformation_str(self.test_strings[1])
 
         input_symm_ops = [SymmOp.from_xyz_str(s) for s in input_symm_ops.split()]
-        ref_transformed_symm_ops = [SymmOp.from_xyz_str(s) for s in ref_transformed_symm_ops.split()]
+        ref_transformed_symm_ops = [
+            SymmOp.from_xyz_str(s) for s in ref_transformed_symm_ops.split()
+        ]
 
         transformed_symm_ops = [jft.transform_symmop(op) for op in input_symm_ops]
 
-        for transformed_op, ref_transformed_op in zip(transformed_symm_ops, ref_transformed_symm_ops, strict=True):
+        for transformed_op, ref_transformed_op in zip(
+            transformed_symm_ops, ref_transformed_symm_ops, strict=True
+        ):
             assert transformed_op == ref_transformed_op

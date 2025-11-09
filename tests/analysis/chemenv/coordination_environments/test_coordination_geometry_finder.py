@@ -12,7 +12,9 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     SimpleAbundanceChemenvStrategy,
     SimplestChemenvStrategy,
 )
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+)
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
     LocalGeometryFinder,
@@ -39,7 +41,9 @@ class TestCoordinationGeometryFinder(MatSciTest):
     def test_abstract_geometry(self):
         cg_ts3 = self.lgf.allcg["TS:3"]
         cg_tet = self.lgf.allcg["T:4"]
-        abstract_geom = AbstractGeometry.from_cg(cg=cg_ts3, centering_type="central_site")
+        abstract_geom = AbstractGeometry.from_cg(
+            cg=cg_ts3, centering_type="central_site"
+        )
         assert_allclose(abstract_geom.centre, [0.0, 0.0, 0.0])
         abstract_geom = AbstractGeometry.from_cg(cg=cg_ts3, centering_type="centroid")
         assert_allclose(abstract_geom.centre, [0.0, 0.0, 0.33333333333])
@@ -73,7 +77,9 @@ class TestCoordinationGeometryFinder(MatSciTest):
 
         tio2_struct = self.get_structure("TiO2")
 
-        envs = self.lgf.compute_coordination_environments(structure=tio2_struct, indices=[0])
+        envs = self.lgf.compute_coordination_environments(
+            structure=tio2_struct, indices=[0]
+        )
         assert envs[0][0]["csm"] == approx(1.5309987846957258)
         assert envs[0][0]["ce_fraction"] == approx(1.0)
         assert envs[0][0]["ce_symbol"] == "O:6"
@@ -90,13 +96,17 @@ class TestCoordinationGeometryFinder(MatSciTest):
         assert self.lgf.icentral_site == 0
         assert self.lgf.indices == list(range(1, 6))
 
-        self.lgf.setup_explicit_indices_local_geometry(explicit_indices=[3, 5, 2, 0, 1, 4])
+        self.lgf.setup_explicit_indices_local_geometry(
+            explicit_indices=[3, 5, 2, 0, 1, 4]
+        )
         assert self.lgf.icentral_site == 0
         assert self.lgf.indices == [4, 6, 3, 1, 2, 5]
 
         LiFePO4_struct = self.get_structure("LiFePO4")
         site_idx = 10
-        envs_LiFePO4 = self.lgf.compute_coordination_environments(structure=LiFePO4_struct, indices=[site_idx])
+        envs_LiFePO4 = self.lgf.compute_coordination_environments(
+            structure=LiFePO4_struct, indices=[site_idx]
+        )
         assert envs_LiFePO4[site_idx][0]["csm"] == approx(0.140355832317)
         nbs_coords = [
             np.array([6.16700437, -4.55194317, -5.89031356]),
@@ -196,7 +206,9 @@ class TestCoordinationGeometryFinder(MatSciTest):
         }
 
         for coordination in range(1, 21):
-            for mp_symbol in allcg.get_implemented_geometries(coordination=coordination, returned="mp_symbol"):
+            for mp_symbol in allcg.get_implemented_geometries(
+                coordination=coordination, returned="mp_symbol"
+            ):
                 cg = allcg.get_geometry_from_mp_symbol(mp_symbol=mp_symbol)
                 self.lgf.allcg = AllCoordinationGeometries(only_symbols=[mp_symbol])
                 self.lgf.setup_test_perfect_environment(

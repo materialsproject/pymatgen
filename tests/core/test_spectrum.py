@@ -15,8 +15,12 @@ class TestSpectrum(MatSciTest):
         self.spec1 = Spectrum(np.arange(0, 10, 0.1), rng.standard_normal(100))
         self.spec2 = Spectrum(np.arange(0, 10, 0.1), rng.standard_normal(100))
 
-        self.multi_spec1 = Spectrum(np.arange(0, 10, 0.1), rng.standard_normal((100, 2)))
-        self.multi_spec2 = Spectrum(np.arange(0, 10, 0.1), rng.standard_normal((100, 2)))
+        self.multi_spec1 = Spectrum(
+            np.arange(0, 10, 0.1), rng.standard_normal((100, 2))
+        )
+        self.multi_spec2 = Spectrum(
+            np.arange(0, 10, 0.1), rng.standard_normal((100, 2))
+        )
 
     def test_normalize(self):
         self.spec1.normalize(mode="max")
@@ -35,7 +39,9 @@ class TestSpectrum(MatSciTest):
     def test_operators(self):
         scaled_spect = 3 * self.spec1 + self.spec2
         assert_allclose(scaled_spect.y, 3 * self.spec1.y + self.spec2.y)
-        assert self.spec1.get_interpolated_value(0.05) == approx((self.spec1.y[0] + self.spec1.y[1]) / 2)
+        assert self.spec1.get_interpolated_value(0.05) == approx(
+            (self.spec1.y[0] + self.spec1.y[1]) / 2
+        )
 
         scaled_spect = self.spec1 - self.spec2
         assert_allclose(scaled_spect.y, self.spec1.y - self.spec2.y)

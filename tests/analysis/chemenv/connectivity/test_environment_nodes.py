@@ -31,7 +31,9 @@ class TestEnvironmentNodes(MatSciTest):
 
     def test_as_dict(self):
         struct = self.get_structure("SiO2")
-        env_node = EnvironmentNode(central_site=struct[2], i_central_site=2, ce_symbol="T:4")
+        env_node = EnvironmentNode(
+            central_site=struct[2], i_central_site=2, ce_symbol="T:4"
+        )
 
         env_node_from_dict = EnvironmentNode.from_dict(env_node.as_dict())
         assert env_node.everything_equal(env_node_from_dict)
@@ -42,5 +44,7 @@ class TestEnvironmentNodes(MatSciTest):
 
     def test_str(self):
         struct = self.get_structure("SiO2")
-        env_node = EnvironmentNode(central_site=struct[2], i_central_site=2, ce_symbol="T:4")
+        env_node = EnvironmentNode(
+            central_site=struct[2], i_central_site=2, ce_symbol="T:4"
+        )
         assert str(env_node) == "Node #2 Si (T:4)"

@@ -88,7 +88,9 @@ class TestAbinitInput(MatSciTest):
         with pytest.raises(inp.Error):
             inp.set_vars(unit_cell)
 
-        with pytest.raises(TypeError, match="type dict does not have `to_abivars` method"):
+        with pytest.raises(
+            TypeError, match="type dict does not have `to_abivars` method"
+        ):
             inp.add_abiobjects({})
 
         with pytest.raises(KeyError, match="key='foo' not in self"):
@@ -129,7 +131,9 @@ class TestAbinitInput(MatSciTest):
 
         # Ambiguous list of pseudos.
         with pytest.raises(BasicAbinitInput.Error):
-            BasicAbinitInput(si_structure, pseudos=abiref_files("14si.pspnc", "14si.4.hgh"))
+            BasicAbinitInput(
+                si_structure, pseudos=abiref_files("14si.pspnc", "14si.4.hgh")
+            )
 
         # Pseudos do not match structure.
         with pytest.raises(BasicAbinitInput.Error):
@@ -151,7 +155,9 @@ class TestAbinitInput(MatSciTest):
 
     def test_helper_functions(self):
         """Testing BasicAbinitInput helper functions."""
-        inp = BasicAbinitInput(structure=abiref_file("si.cif"), pseudos="14si.pspnc", pseudo_dir=TEST_DIR)
+        inp = BasicAbinitInput(
+            structure=abiref_file("si.cif"), pseudos="14si.pspnc", pseudo_dir=TEST_DIR
+        )
 
         inp.set_kmesh(ngkpt=(1, 2, 3), shiftk=(1, 2, 3, 4, 5, 6))
         assert inp["kptopt"] == 1
@@ -180,7 +186,9 @@ class TestMultiDataset(MatSciTest):
         with pytest.raises(ValueError, match="ndtset=-1 cannot be <=0"):
             BasicMultiDataset(structure=structure, pseudos=pseudo, ndtset=-1)
 
-        multi = BasicMultiDataset(structure=structure, pseudos=pseudo, pseudo_dir=pseudo_dir)
+        multi = BasicMultiDataset(
+            structure=structure, pseudos=pseudo, pseudo_dir=pseudo_dir
+        )
 
         assert len(multi) == 1
         assert multi.ndtset == 1
@@ -256,7 +264,9 @@ class TestShiftMode(MatSciTest):
         gamma = ShiftMode.GammaCentered
         assert ShiftMode.from_object("G") == gamma
         assert ShiftMode.from_object(gamma) == gamma
-        with pytest.raises(TypeError, match="The object provided is not handled: type dict"):
+        with pytest.raises(
+            TypeError, match="The object provided is not handled: type dict"
+        ):
             ShiftMode.from_object({})
 
 
@@ -268,7 +278,9 @@ class TestFactory(MatSciTest):
 
     def test_gs_input(self):
         """Testing gs_input factory."""
-        inp = gs_input(self.si_structure, self.si_pseudo, kppa=10, ecut=10, spin_mode="polarized")
+        inp = gs_input(
+            self.si_structure, self.si_pseudo, kppa=10, ecut=10, spin_mode="polarized"
+        )
         str(inp)
         assert inp["nsppol"] == 2
         assert inp["nband"] == 14
@@ -317,7 +329,9 @@ class TestFactory(MatSciTest):
 
     def test_ion_ioncell_relax_input(self):
         """Testing ion_ioncell_relax_input factory."""
-        multi = ion_ioncell_relax_input(self.si_structure, self.si_pseudo, kppa=10, ecut=2)
+        multi = ion_ioncell_relax_input(
+            self.si_structure, self.si_pseudo, kppa=10, ecut=2
+        )
 
         str(multi)
         ion_inp, ioncell_inp = multi.split_datasets()

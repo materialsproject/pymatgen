@@ -48,7 +48,12 @@ class TestChargemolAnalysis:
             "element": Element("Cl"),
         }
         assert ca.bond_order_dict[1]["bonded_to"][-1]["direction"] == (-1, 0, 0)
-        assert ca.get_property_decorated_structure().site_properties["partial_charge_ddec6"] == ca.ddec_charges
+        assert (
+            ca.get_property_decorated_structure().site_properties[
+                "partial_charge_ddec6"
+            ]
+            == ca.ddec_charges
+        )
 
     def test_parse_chargemol2(self):
         test_dir = f"{TEST_DIR}/spin_polarized"
@@ -62,7 +67,9 @@ class TestChargemolAnalysis:
                 [0.0, 0.027857, -0.010944],
             ],
         )
-        assert ca.summary["ddec"]["bond_order_dict"][0]["bonded_to"][0]["spin_polarization"] == approx(0.0490)
+        assert ca.summary["ddec"]["bond_order_dict"][0]["bonded_to"][0][
+            "spin_polarization"
+        ] == approx(0.0490)
         assert ca.summary["ddec"]["spin_moments"] == ca.ddec_spin_moments
         assert ca.natoms is None
         assert ca.structure is None

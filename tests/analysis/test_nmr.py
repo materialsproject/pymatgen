@@ -66,7 +66,9 @@ class TestElectricFieldGradient(MatSciTest):
         )
 
     def test_attributes(self):
-        efg = ElectricFieldGradient([[11.11, 1.371, 2.652], [1.371, 3.635, -3.572], [2.652, -3.572, -14.746]])
+        efg = ElectricFieldGradient(
+            [[11.11, 1.371, 2.652], [1.371, 3.635, -3.572], [2.652, -3.572, -14.746]]
+        )
         assert efg.V_yy == approx(11.516, abs=1e-3)
         assert efg.V_xx == approx(4.204, abs=1e-3)
         assert efg.V_zz == approx(-15.721, abs=1e-3)

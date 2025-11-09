@@ -16,7 +16,9 @@ def test_pmg_structure():
             "POSCAR_Li2O_test",
         ],
     )
-    assert os.path.isfile("POSCAR_Li2O_test"), "Output file 'POSCAR_Li2O_test' not found"
+    assert os.path.isfile("POSCAR_Li2O_test"), (
+        "Output file 'POSCAR_Li2O_test' not found"
+    )
 
     pmg.main(
         [

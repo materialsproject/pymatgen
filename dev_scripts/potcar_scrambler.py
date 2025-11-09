@@ -45,7 +45,9 @@ class PotcarScrambler:
             scrambled_potcar_str = self.scramble_single_potcar(psp)
             self.scrambled_potcars_str += scrambled_potcar_str
 
-    def _rand_float_from_str_with_prec(self, input_str: str, bloat: float = 1.5) -> float:
+    def _rand_float_from_str_with_prec(
+        self, input_str: str, bloat: float = 1.5
+    ) -> float:
         """Generate a random float from str to replace true values."""
         n_prec: int = len(input_str.split(".")[1])
         bd: float = max(1.0, bloat * abs(float(input_str)))  # ensure we don't get 0
@@ -95,7 +97,9 @@ class PotcarScrambler:
                 needs_sha256 = True
                 continue
 
-            if ("Error from kinetic energy argument (eV)" in line) or ("END of PSCTR-controll parameters" in line):
+            if ("Error from kinetic energy argument (eV)" in line) or (
+                "END of PSCTR-controll parameters" in line
+            ):
                 # start to scramble values, logic described above
                 scramble_values = True
 
@@ -145,13 +149,18 @@ def generate_fake_potcar_libraries() -> None:
     need a library of fake POTCARs which do not violate copyright
     """
     mp_relax_set = _load_yaml_config("MPRelaxSet")
-    psp_variants = [mp_relax_set["POTCAR"][element] for element in mp_relax_set["POTCAR"]]
+    psp_variants = [
+        mp_relax_set["POTCAR"][element] for element in mp_relax_set["POTCAR"]
+    ]
 
     output_dir = "./fake_potcar_library/"
     shutil.rmtree(output_dir, ignore_errors=True)
 
     vasp_psp_dir = SETTINGS.get("PMG_VASP_PSP_DIR")
-    src_dirs = [f"{vasp_psp_dir}/{func_dir}" for func_dir in PotcarSingle.functional_dir.values()]
+    src_dirs = [
+        f"{vasp_psp_dir}/{func_dir}"
+        for func_dir in PotcarSingle.functional_dir.values()
+    ]
 
     if not any(map(os.path.isdir, src_dirs)):
         raise RuntimeError(f"No input POTCAR library found, tried {src_dirs}")
@@ -167,7 +176,9 @@ def generate_fake_potcar_libraries() -> None:
                 zpath(f"{func_dir}/{psp_name}/POTCAR"),
             ]
             if not any(map(os.path.isfile, paths_to_try)):
-                warnings.warn(f"Could not find {psp_name} in {paths_to_try}", stacklevel=2)
+                warnings.warn(
+                    f"Could not find {psp_name} in {paths_to_try}", stacklevel=2
+                )
             for potcar_path in paths_to_try:
                 if os.path.isfile(potcar_path):
                     os.makedirs(rebase_dir, exist_ok=True)

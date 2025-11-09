@@ -167,7 +167,9 @@ class TestPackmolSet(MatSciTest):
 
     def test_same_names(self):
         """Test failure when names are the same."""
-        with pytest.raises(ValueError, match=r"Names of the molecules should all be different."):
+        with pytest.raises(
+            ValueError, match=r"Names of the molecules should all be different."
+        ):
             PackmolBoxGen().get_input_set(
                 molecules=[
                     {"name": "water", "number": 10, "coords": water},
@@ -215,7 +217,9 @@ class TestPackmolSet(MatSciTest):
         mol_matcher = MoleculeMatcher()
 
         # deterministic output
-        pw = PackmolBoxGen(seed=1, inputfile="input.in", outputfile="output.xyz").get_input_set(
+        pw = PackmolBoxGen(
+            seed=1, inputfile="input.in", outputfile="output.xyz"
+        ).get_input_set(
             # self.tmp_path,
             molecules=[
                 {"name": "water", "number": 10, "coords": water},
@@ -230,7 +234,9 @@ class TestPackmolSet(MatSciTest):
         assert mol_matcher.fit(out1, out2)
 
         # randomly generated structures
-        pw = PackmolBoxGen(seed=-1, inputfile="input.in", outputfile="output.xyz").get_input_set(
+        pw = PackmolBoxGen(
+            seed=-1, inputfile="input.in", outputfile="output.xyz"
+        ).get_input_set(
             molecules=[
                 {"name": "water", "number": 10, "coords": water},
                 {"name": "ethanol", "number": 20, "coords": ethanol},
@@ -288,10 +294,17 @@ class TestPackmolSet(MatSciTest):
             ).get_input_set(
                 molecules=[
                     {"name": "water", "number": 10, "coords": water, "constraints": []},
-                    {"name": "ethanol", "number": 20, "coords": ethanol, "constraints": ["inside sphere 1 2 3 4"]},
+                    {
+                        "name": "ethanol",
+                        "number": 20,
+                        "coords": ethanol,
+                        "constraints": ["inside sphere 1 2 3 4"],
+                    },
                 ],
             )
-        with pytest.raises(ValueError, match=r"Wrong packmol constraint: outsdie sphere 1 2 3 4"):
+        with pytest.raises(
+            ValueError, match=r"Wrong packmol constraint: outsdie sphere 1 2 3 4"
+        ):
             PackmolBoxGen(
                 inputfile="input.in",
                 outputfile=Path("output.xyz"),
@@ -304,22 +317,17 @@ class TestPackmolSet(MatSciTest):
                         "coords": water,
                         "constraints": ["outsdie sphere 1 2 3 4"],  # typo
                     },
-                    {"name": "ethanol", "number": 20, "coords": ethanol, "constraints": ["inside sphere 1 2 3 4"]},
+                    {
+                        "name": "ethanol",
+                        "number": 20,
+                        "coords": ethanol,
+                        "constraints": ["inside sphere 1 2 3 4"],
+                    },
                 ],
             )
-        with pytest.raises(ValueError, match=r"Either specify individual constraints or box."):
-            PackmolBoxGen(
-                inputfile="input.in",
-                outputfile=Path("output.xyz"),
-                stdoutfile=Path("stdout.txt"),
-            ).get_input_set(
-                molecules=[
-                    {"name": "water", "number": 10, "coords": water, "constraints": ["outside sphere 1 2 3 4"]},
-                    {"name": "ethanol", "number": 20, "coords": ethanol, "constraints": ["inside sphere 1 2 3 4"]},
-                ],
-                box=[0, 0, 0, 5, 5, 5],
-            )
-        with pytest.raises(ValueError, match=r"You must use individual_constraints to use atoms_constraints."):
+        with pytest.raises(
+            ValueError, match=r"Either specify individual constraints or box."
+        ):
             PackmolBoxGen(
                 inputfile="input.in",
                 outputfile=Path("output.xyz"),
@@ -330,12 +338,45 @@ class TestPackmolSet(MatSciTest):
                         "name": "water",
                         "number": 10,
                         "coords": water,
-                        "atoms_constraints": [{"indices": [0, 2], "constraints": ["outside sphere 1 2 3 4"]}],
+                        "constraints": ["outside sphere 1 2 3 4"],
+                    },
+                    {
+                        "name": "ethanol",
+                        "number": 20,
+                        "coords": ethanol,
+                        "constraints": ["inside sphere 1 2 3 4"],
+                    },
+                ],
+                box=[0, 0, 0, 5, 5, 5],
+            )
+        with pytest.raises(
+            ValueError,
+            match=r"You must use individual_constraints to use atoms_constraints.",
+        ):
+            PackmolBoxGen(
+                inputfile="input.in",
+                outputfile=Path("output.xyz"),
+                stdoutfile=Path("stdout.txt"),
+            ).get_input_set(
+                molecules=[
+                    {
+                        "name": "water",
+                        "number": 10,
+                        "coords": water,
+                        "atoms_constraints": [
+                            {
+                                "indices": [0, 2],
+                                "constraints": ["outside sphere 1 2 3 4"],
+                            }
+                        ],
                     },
                     {"name": "ethanol", "number": 20, "coords": ethanol},
                 ],
             )
-        with pytest.raises(ValueError, match=r"Wrong packmol constraint for specific atoms: outsdie sphere 1 2 3 4"):
+        with pytest.raises(
+            ValueError,
+            match=r"Wrong packmol constraint for specific atoms: outsdie sphere 1 2 3 4",
+        ):
             PackmolBoxGen(
                 inputfile="input.in",
                 outputfile=Path("output.xyz"),
@@ -347,9 +388,19 @@ class TestPackmolSet(MatSciTest):
                         "number": 10,
                         "coords": water,
                         "constraints": ["inside cube 0 0 0 5"],
-                        "atoms_constraints": [{"indices": [0, 2], "constraints": ["outsdie sphere 1 2 3 4"]}],
+                        "atoms_constraints": [
+                            {
+                                "indices": [0, 2],
+                                "constraints": ["outsdie sphere 1 2 3 4"],
+                            }
+                        ],
                     },
-                    {"name": "ethanol", "number": 20, "coords": ethanol, "constraints": ["inside cube 0 0 0 5"]},
+                    {
+                        "name": "ethanol",
+                        "number": 20,
+                        "coords": ethanol,
+                        "constraints": ["inside cube 0 0 0 5"],
+                    },
                 ],
             )
 
@@ -363,7 +414,12 @@ class TestPackmolSet(MatSciTest):
             stdoutfile=Path("stdout.txt"),
         ).get_input_set(
             molecules=[
-                {"name": "helium", "number": 10, "coords": helium, "constraints": ["inside sphere 0 0 0 5"]},
+                {
+                    "name": "helium",
+                    "number": 10,
+                    "coords": helium,
+                    "constraints": ["inside sphere 0 0 0 5"],
+                },
                 {
                     "name": "xeon",
                     "number": 100,
@@ -406,7 +462,10 @@ class TestPackmolSet(MatSciTest):
                     "constraints": ["inside sphere 0 0 0 10"],
                     "atoms_constraints": [
                         {"indices": [2], "constraints": ["inside sphere 0 0 0 5"]},
-                        {"indices": [0, 1], "constraints": ["outside sphere 0 0 0 5.5"]},
+                        {
+                            "indices": [0, 1],
+                            "constraints": ["outside sphere 0 0 0 5.5"],
+                        },
                     ],
                 },
             ],

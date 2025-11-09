@@ -111,7 +111,9 @@ class TestSpacegroupAnalyzer(MatSciTest):
                 for site in structure:
                     new_frac = fop.operate(site.frac_coords)
                     new_cart = op.operate(site.coords)
-                    assert_allclose(structure.lattice.get_fractional_coords(new_cart), new_frac)
+                    assert_allclose(
+                        structure.lattice.get_fractional_coords(new_cart), new_frac
+                    )
                     found = False
                     new_site = PeriodicSite(
                         site.species,
@@ -131,7 +133,9 @@ class TestSpacegroupAnalyzer(MatSciTest):
                 random_ccoord = structure.lattice.get_cartesian_coords(random_fcoord)
                 new_frac = fop.operate(random_fcoord)
                 new_cart = op.operate(random_ccoord)
-                assert_allclose(structure.lattice.get_fractional_coords(new_cart), new_frac)
+                assert_allclose(
+                    structure.lattice.get_fractional_coords(new_cart), new_frac
+                )
 
     def test_get_point_group_operations_uniq(self):
         # https://github.com/materialsproject/pymatgen/pull/2942
@@ -174,7 +178,9 @@ class TestSpacegroupAnalyzer(MatSciTest):
         symprec = 1e-1
 
         sga = SpacegroupAnalyzer(Co8, symprec=symprec)
-        magmoms = [0] * len(Co8)  # bad magmoms, see https://github.com/materialsproject/pymatgen/pull/2727
+        magmoms = [0] * len(
+            Co8
+        )  # bad magmoms, see https://github.com/materialsproject/pymatgen/pull/2727
         sga._cell = (*sga._cell, magmoms)
         with pytest.raises(
             ValueError,
@@ -207,7 +213,9 @@ class TestSpacegroupAnalyzer(MatSciTest):
         structure.add_site_property("magmom", [1.0] * len(structure))
         sg = SpacegroupAnalyzer(structure, 0.01)
         refined_struct = sg.get_refined_structure(keep_site_properties=True)
-        assert_allclose(refined_struct.site_properties["magmom"], [1.0] * len(refined_struct))
+        assert_allclose(
+            refined_struct.site_properties["magmom"], [1.0] * len(refined_struct)
+        )
 
         structure = self.get_structure("Li2O")
         structure.add_site_property("magmom", [1.0] * len(structure))
@@ -220,9 +228,13 @@ class TestSpacegroupAnalyzer(MatSciTest):
             site.properties["magmom"] = 1.0 if site.specie.name == "Dy" else -1.0
         sg = SpacegroupAnalyzer(structure, symprec=1e-2)
         refined_struct = sg.get_refined_structure(keep_site_properties=True)
-        assert len(refined_struct) != len(structure), "this test is only interesting if the number of sites changes"
+        assert len(refined_struct) != len(structure), (
+            "this test is only interesting if the number of sites changes"
+        )
         for site in refined_struct:
-            assert (1.0 if site.specie.name == "Dy" else -1.0) == site.properties["magmom"]
+            assert (1.0 if site.specie.name == "Dy" else -1.0) == site.properties[
+                "magmom"
+            ]
 
     def test_symmetrized_structure(self):
         symm_struct = self.sg.get_symmetrized_structure()
@@ -253,7 +265,9 @@ class TestSpacegroupAnalyzer(MatSciTest):
 
         ss = SymmetrizedStructure.from_dict(dct)
         assert ss.wyckoff_symbols[0] == "16h"
-        assert str(ss).startswith("SymmetrizedStructure\nFull Formula (Li20.2 Ge2.06 P3.94 S24)\nReduced Formula: ")
+        assert str(ss).startswith(
+            "SymmetrizedStructure\nFull Formula (Li20.2 Ge2.06 P3.94 S24)\nReduced Formula: "
+        )
 
     def test_find_primitive(self):
         """F mol -3 mol Li2O testing of converting to primitive cell."""
@@ -271,14 +285,19 @@ class TestSpacegroupAnalyzer(MatSciTest):
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure)
         primitive_structure = spga.find_primitive(keep_site_properties=True)
-        assert_allclose(primitive_structure.site_properties["magmom"], [1.0] * len(primitive_structure))
+        assert_allclose(
+            primitive_structure.site_properties["magmom"],
+            [1.0] * len(primitive_structure),
+        )
 
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure)
         primitive_structure = spga.find_primitive(keep_site_properties=False)
         assert primitive_structure.site_properties.get("magmom") is None
 
-        structure = Structure.from_spacegroup("Fm-3m", np.eye(3) * 5.6, ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        structure = Structure.from_spacegroup(
+            "Fm-3m", np.eye(3) * 5.6, ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
         for site in structure:
             site.properties["magmom"] = 1.0 if site.specie.name == "Na" else -1.0
         sg = SpacegroupAnalyzer(structure, symprec=1e-2)
@@ -287,7 +306,9 @@ class TestSpacegroupAnalyzer(MatSciTest):
             "this test is only interesting if the number of sites changes"
         )
         for site in primitive_structure:
-            assert (1.0 if site.specie.name == "Na" else -1.0) == site.properties["magmom"]
+            assert (1.0 if site.specie.name == "Na" else -1.0) == site.properties[
+                "magmom"
+            ]
 
     def test_get_ir_reciprocal_mesh(self):
         grid = self.sg.get_ir_reciprocal_mesh()
@@ -342,18 +363,24 @@ class TestSpacegroupAnalyzer(MatSciTest):
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conventional = spga.get_conventional_standard_structure()
         assert conventional.lattice.angles == (90, 90, 90)
-        assert conventional.lattice.lengths == approx([3.1790663399999999, 9.9032878699999998, 3.5372412099999999])
+        assert conventional.lattice.lengths == approx(
+            [3.1790663399999999, 9.9032878699999998, 3.5372412099999999]
+        )
 
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/monoc_1028.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conventional = spga.get_conventional_standard_structure()
         assert conventional.lattice.angles == approx([90, 117.53832420192903, 90])
-        assert conventional.lattice.lengths == approx([14.033435583000625, 3.96052850731, 6.8743926325200002])
+        assert conventional.lattice.lengths == approx(
+            [14.033435583000625, 3.96052850731, 6.8743926325200002]
+        )
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/hex_1170.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conventional = spga.get_conventional_standard_structure()
         assert conventional.lattice.angles == approx([90, 90, 120])
-        assert conventional.lattice.lengths == approx([3.699919902005897, 3.699919902005897, 6.9779585500000003])
+        assert conventional.lattice.lengths == approx(
+            [3.699919902005897, 3.699919902005897, 6.9779585500000003]
+        )
 
         STRUCTURE = f"{TEST_FILES_DIR}/symmetry/analyzer/tric_684654.json"
 
@@ -370,13 +397,19 @@ class TestSpacegroupAnalyzer(MatSciTest):
         structure = Structure.from_file(STRUCTURE)
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
-        conventional = spga.get_conventional_standard_structure(keep_site_properties=True)
-        assert_allclose(conventional.site_properties["magmom"], [1.0] * len(conventional))
+        conventional = spga.get_conventional_standard_structure(
+            keep_site_properties=True
+        )
+        assert_allclose(
+            conventional.site_properties["magmom"], [1.0] * len(conventional)
+        )
 
         structure = Structure.from_file(STRUCTURE)
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
-        conventional = spga.get_conventional_standard_structure(keep_site_properties=False)
+        conventional = spga.get_conventional_standard_structure(
+            keep_site_properties=False
+        )
         assert conventional.site_properties.get("magmom") is None
 
         mono_struct = Structure(
@@ -388,13 +421,23 @@ class TestSpacegroupAnalyzer(MatSciTest):
                 ]
             ),
             species=["O"] * 3,
-            coords=np.array([[0.5, 0.5, 0.66666667], [0.5, 0.0, 0.0], [0.5, 0.0, 0.33333333]]),
+            coords=np.array(
+                [[0.5, 0.5, 0.66666667], [0.5, 0.0, 0.0], [0.5, 0.0, 0.33333333]]
+            ),
         )
         sga = SpacegroupAnalyzer(mono_struct)
-        assert abs(np.linalg.det(sga.get_symmetry_dataset().primitive_lattice)) == approx(307.03126)
-        assert abs(np.linalg.det(sga.get_primitive_standard_structure().lattice.matrix)) == approx(307.03126)
-        assert abs(np.linalg.det(sga.get_conventional_standard_structure().lattice.matrix)) == approx(307.03126)
-        assert abs(np.linalg.det(sga.get_refined_structure().lattice.matrix)) == approx(307.03126)
+        assert abs(
+            np.linalg.det(sga.get_symmetry_dataset().primitive_lattice)
+        ) == approx(307.03126)
+        assert abs(
+            np.linalg.det(sga.get_primitive_standard_structure().lattice.matrix)
+        ) == approx(307.03126)
+        assert abs(
+            np.linalg.det(sga.get_conventional_standard_structure().lattice.matrix)
+        ) == approx(307.03126)
+        assert abs(np.linalg.det(sga.get_refined_structure().lattice.matrix)) == approx(
+            307.03126
+        )
 
     def test_get_primitive_standard_structure(self):
         for file_name, expected_angles, expected_abc in [
@@ -465,7 +508,9 @@ class TestSpacegroupAnalyzer(MatSciTest):
         assert spg_analyzer.get_hall() == "-I 4 2"
 
     def test_bad_structure(self):
-        struct = Structure(Lattice.cubic(5), ["H", "H"], [[0.0, 0.0, 0.0], [0.001, 0.0, 0.0]])
+        struct = Structure(
+            Lattice.cubic(5), ["H", "H"], [[0.0, 0.0, 0.0], [0.001, 0.0, 0.0]]
+        )
         with pytest.raises(SymmetryUndeterminedError):
             SpacegroupAnalyzer(struct, 0.1)
 
@@ -473,7 +518,9 @@ class TestSpacegroupAnalyzer(MatSciTest):
 class TestSpacegroup:
     def setup_method(self):
         self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
-        self.sg1 = SpacegroupAnalyzer(self.structure, 0.001).get_space_group_operations()
+        self.sg1 = SpacegroupAnalyzer(
+            self.structure, 0.001
+        ).get_space_group_operations()
 
     def test_are_symmetrically_equivalent(self):
         sites1 = [self.structure[idx] for idx in (0, 1)]
@@ -702,7 +749,9 @@ class TestPointGroupAnalyzer(MatSciTest):
             ir_mesh = spga.get_ir_reciprocal_mesh((4, 4, 4))
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
-            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh]), strict=True):
+            for expected, weight in zip(
+                weights, spga.get_kpoint_weights([i[0] for i in ir_mesh]), strict=True
+            ):
                 assert weight == approx(expected)
 
         for name in ("SrTiO3", "LiFePO4", "Graphite"):
@@ -711,7 +760,9 @@ class TestPointGroupAnalyzer(MatSciTest):
             ir_mesh = spga.get_ir_reciprocal_mesh((1, 2, 3))
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
-            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh]), strict=True):
+            for expected, weight in zip(
+                weights, spga.get_kpoint_weights([i[0] for i in ir_mesh]), strict=True
+            ):
                 assert weight == approx(expected)
 
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.xml.gz")

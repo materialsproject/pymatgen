@@ -47,7 +47,8 @@ def test_energy_adjustment_repr():
     ):
         ea = EnergyAdjustment(10, cls=cls)
         assert (
-            repr(ea) == "EnergyAdjustment(name='Manual adjustment', value=10.0, uncertainty=nan, description='', "
+            repr(ea)
+            == "EnergyAdjustment(name='Manual adjustment', value=10.0, uncertainty=nan, description='', "
             f"generated_by='{label}')"
         )
 
@@ -90,12 +91,17 @@ def test_composition_energy_adjustment():
 
 
 def test_temp_energy_adjustment():
-    ea = TemperatureEnergyAdjustment(-0.1, 298, 5, uncertainty_per_deg=0, name="entropy")
+    ea = TemperatureEnergyAdjustment(
+        -0.1, 298, 5, uncertainty_per_deg=0, name="entropy"
+    )
     assert ea.name == "entropy"
     assert ea.value == approx(-0.1 * 298 * 5)
     assert ea.n_atoms == 5
     assert ea.temp == 298
-    assert ea.explain == "Temperature-based energy adjustment (-0.1000 eV/K/atom x 298 K x 5 atoms)"
+    assert (
+        ea.explain
+        == "Temperature-based energy adjustment (-0.1000 eV/K/atom x 298 K x 5 atoms)"
+    )
     assert "uncertainty=0.0" in repr(ea)
     ea_dct = ea.as_dict()
     ea2 = TemperatureEnergyAdjustment.from_dict(ea_dct)
@@ -131,7 +137,9 @@ class TestComputedEntry:
 
     def test_per_atom_props(self):
         entry = ComputedEntry("Fe6O9", 6.9)
-        entry.energy_adjustments.append(CompositionEnergyAdjustment(-0.5, 9, uncertainty_per_atom=0.1, name="O"))
+        entry.energy_adjustments.append(
+            CompositionEnergyAdjustment(-0.5, 9, uncertainty_per_atom=0.1, name="O")
+        )
         assert entry.energy == approx(2.4)
         assert entry.energy_per_atom == approx(2.4 / 15)
         assert entry.uncorrected_energy == approx(6.9)
@@ -181,14 +189,18 @@ class TestComputedEntry:
         dct = self.entry6.as_dict()
         entry = ComputedEntry.from_dict(dct)
         assert entry.uncorrected_energy == approx(6.9)
-        assert entry.energy_adjustments[0].value == self.entry6.energy_adjustments[0].value
+        assert (
+            entry.energy_adjustments[0].value == self.entry6.energy_adjustments[0].value
+        )
 
     def test_as_from_dict_with_adjustment_2(self):
         """Modern case where correction was provided manually."""
         dct = self.entry7.as_dict()
         entry = ComputedEntry.from_dict(dct)
         assert entry.uncorrected_energy == approx(6.9)
-        assert entry.energy_adjustments[0].value == self.entry7.energy_adjustments[0].value
+        assert (
+            entry.energy_adjustments[0].value == self.entry7.energy_adjustments[0].value
+        )
 
     def test_as_from_dict_with_adjustment_3(self):
         """
@@ -265,7 +277,9 @@ class TestComputedEntry:
 
 class TestComputedStructureEntry:
     def setup_method(self):
-        self.entry = ComputedStructureEntry(vasp_run.final_structure, vasp_run.final_energy, parameters=vasp_run.incar)
+        self.entry = ComputedStructureEntry(
+            vasp_run.final_structure, vasp_run.final_energy, parameters=vasp_run.incar
+        )
 
     def test_energy(self):
         assert self.entry.energy == approx(-269.38319884)
@@ -535,4 +549,6 @@ class TestGibbsComputedStructureEntry:
         for entry in self.entries_with_temps.values():
             copied = copy.deepcopy(entry)
             normed_entry = copied.normalize(mode="atom")
-            assert copied.uncorrected_energy == approx(normed_entry.uncorrected_energy * self.num_atoms)
+            assert copied.uncorrected_energy == approx(
+                normed_entry.uncorrected_energy * self.num_atoms
+            )

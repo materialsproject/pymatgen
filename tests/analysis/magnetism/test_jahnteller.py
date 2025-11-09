@@ -80,7 +80,9 @@ class TestJahnTeller:
         assert magnitude == "none"
 
     def test_jahn_teller_structure_analysis(self):
-        LiFePO4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/LiFePO4.cif", primitive=True)
+        LiFePO4 = Structure.from_file(
+            f"{TEST_FILES_DIR}/cif/LiFePO4.cif", primitive=True
+        )
 
         Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif", primitive=True)
 
@@ -113,7 +115,9 @@ class TestJahnTeller:
         }
         jt_predicted = self.jt.get_analysis(LiFePO4)
         # order does not matter
-        jt_predicted["sites"][0]["ligand_bond_lengths"] = set(jt_predicted["sites"][0]["ligand_bond_lengths"])
+        jt_predicted["sites"][0]["ligand_bond_lengths"] = set(
+            jt_predicted["sites"][0]["ligand_bond_lengths"]
+        )
         assert LiFePO4_analysis == jt_predicted
 
     def test_mu_so(self):

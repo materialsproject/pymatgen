@@ -3,7 +3,10 @@ from __future__ import annotations
 import pytest
 from pytest import approx
 
-from pymatgen.analysis.structure_prediction.volume_predictor import DLSVolumePredictor, RLSVolumePredictor
+from pymatgen.analysis.structure_prediction.volume_predictor import (
+    DLSVolumePredictor,
+    RLSVolumePredictor,
+)
 from pymatgen.core import Structure
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
@@ -81,7 +84,9 @@ class TestDLSVolumePredictor(MatSciTest):
     def test_predict(self):
         vol_pred = DLSVolumePredictor()
         p_fast = DLSVolumePredictor(cutoff=0.0)  # for speed on compressed cells
-        p_nolimit = DLSVolumePredictor(min_scaling=None, max_scaling=None)  # no limits on scaling
+        p_nolimit = DLSVolumePredictor(
+            min_scaling=None, max_scaling=None
+        )  # no limits on scaling
 
         fen = Structure.from_file(f"{TEST_DIR}/FeN_mp-6988.cif")
 

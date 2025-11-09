@@ -114,7 +114,9 @@ class TestCorrectionCalculator:
         exp_path = f"{TEST_DIR}/exp_compounds_norm.json.gz"
         calc_path = f"{TEST_DIR}/calc_compounds_norm.json.gz"
 
-        calculator = CorrectionCalculator(max_error=1, exclude_polyanions=[], allow_unstable=True)
+        calculator = CorrectionCalculator(
+            max_error=1, exclude_polyanions=[], allow_unstable=True
+        )
         corrections = calculator.compute_from_files(exp_path, calc_path)
 
         assert corrections == self.warnings_allowed_corrections

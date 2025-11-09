@@ -20,12 +20,20 @@ class TestInterfaceBuilder(MatSciTest):
     def setup_class(cls):
         si_struct = cls.get_structure("Si")
         sio2_struct = cls.get_structure("SiO2")
-        cls.si_conventional = SpacegroupAnalyzer(si_struct).get_conventional_standard_structure()
-        cls.sio2_conventional = SpacegroupAnalyzer(sio2_struct).get_conventional_standard_structure()
+        cls.si_conventional = SpacegroupAnalyzer(
+            si_struct
+        ).get_conventional_standard_structure()
+        cls.sio2_conventional = SpacegroupAnalyzer(
+            sio2_struct
+        ).get_conventional_standard_structure()
 
     def test_utils(self):
-        assert_allclose(from_2d_to_3d([[1, 2], [3, 4]]), [[1, 2, 0], [3, 4, 0], [0, 0, 1]])
-        assert_allclose(get_2d_transform([[1, 0], [0, 1]], [[1, 2], [3, 4]]), [[1, 2], [3, 4]])
+        assert_allclose(
+            from_2d_to_3d([[1, 2], [3, 4]]), [[1, 2, 0], [3, 4, 0], [0, 0, 1]]
+        )
+        assert_allclose(
+            get_2d_transform([[1, 0], [0, 1]], [[1, 2], [3, 4]]), [[1, 2], [3, 4]]
+        )
         assert_allclose(
             get_rot_3d_for_2d([[1, 0, 0], [0, 1, 0]], [[1, 1, 0], [0, 1, 1]]),
             [
@@ -46,7 +54,10 @@ class TestInterfaceBuilder(MatSciTest):
         assert len(builder.terminations) == 2
         # SP: this test is super fragile and the result fluctuates between 6, 30 and 42 for
         # no apparent reason. The author should fix this.
-        assert len(list(builder.get_interfaces(termination=("O2_Pmmm_1", "Si_R-3m_1")))) >= 6
+        assert (
+            len(list(builder.get_interfaces(termination=("O2_Pmmm_1", "Si_R-3m_1"))))
+            >= 6
+        )
 
 
 class TestCoherentInterfaceBuilder:

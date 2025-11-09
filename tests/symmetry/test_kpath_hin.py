@@ -26,7 +26,9 @@ class TestKPathSeek(MatSciTest):
         for idx in range(230):
             sg_num = idx + 1
             if sg_num in triclinic:
-                lattice = Lattice([[3.02330573, 1, 0], [0, 7.98503578, 1], [0, 1.2, 8.11367622]])
+                lattice = Lattice(
+                    [[3.02330573, 1, 0], [0, 7.98503578, 1], [0, 1.2, 8.11367622]]
+                )
             elif sg_num in monoclinic:
                 lattice = Lattice.monoclinic(2, 9, 1, 99)
             elif sg_num in orthorhombic:
@@ -41,7 +43,9 @@ class TestKPathSeek(MatSciTest):
                 lattice = Lattice.cubic(2)
 
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
-            kpath = KPathSeek(struct)  # Throws error if something doesn't work, causing test to fail.
+            kpath = KPathSeek(
+                struct
+            )  # Throws error if something doesn't work, causing test to fail.
             _ = kpath.get_kpoints()
 
     def test_kpath_acentered(self):
@@ -92,13 +96,19 @@ class TestKPathSeek(MatSciTest):
 
         assert kpoints["R_2"] == approx([0.0, 0.5, -0.5])
 
-        assert kpoints["DELTA_0"] == approx([-0.25308641975308643, 0.25308641975308643, 0.0])
+        assert kpoints["DELTA_0"] == approx(
+            [-0.25308641975308643, 0.25308641975308643, 0.0]
+        )
 
         assert kpoints["F_0"] == approx([0.25308641975308643, 0.7469135802469136, 0.0])
 
-        assert kpoints["B_0"] == approx([-0.25308641975308643, 0.25308641975308643, 0.5])
+        assert kpoints["B_0"] == approx(
+            [-0.25308641975308643, 0.25308641975308643, 0.5]
+        )
 
-        assert kpoints["B_2"] == approx([-0.25308641975308643, 0.25308641975308643, -0.5])
+        assert kpoints["B_2"] == approx(
+            [-0.25308641975308643, 0.25308641975308643, -0.5]
+        )
 
         assert kpoints["G_0"] == approx([0.25308641975308643, 0.7469135802469136, 0.5])
 

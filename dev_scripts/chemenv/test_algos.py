@@ -9,7 +9,9 @@ from random import shuffle
 
 import numpy as np
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+)
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
     LocalGeometryFinder,
@@ -26,7 +28,9 @@ if __name__ == "__main__":
     all_cg = AllCoordinationGeometries()
 
     while True:
-        cg_symbol = input("Enter symbol of the geometry for which you want to get the explicit permutations : ")
+        cg_symbol = input(
+            "Enter symbol of the geometry for which you want to get the explicit permutations : "
+        )
         try:
             cg = all_cg[cg_symbol]
             break
@@ -71,7 +75,9 @@ if __name__ == "__main__":
         for algo in cg.algorithms:
             print(algo)
             if algo.algorithm_type == "EXPLICIT_PERMUTATIONS":
-                raise ValueError("Do something for the explicit ones ... (these should anyway be by far ok!)")
+                raise ValueError(
+                    "Do something for the explicit ones ... (these should anyway be by far ok!)"
+                )
 
             results = lgf.coordination_geometry_symmetry_measures_separation_plane(
                 coordination_geometry=cg,

@@ -13,13 +13,16 @@ from pymatgen.util.testing import MatSciTest
 class TestStress(MatSciTest):
     def setup_method(self):
         self.rand_stress = Stress(np.random.default_rng().standard_normal((3, 3)))
-        self.symm_stress = Stress([[0.51, 2.29, 2.42], [2.29, 5.14, 5.07], [2.42, 5.07, 5.33]])
+        self.symm_stress = Stress(
+            [[0.51, 2.29, 2.42], [2.29, 5.14, 5.07], [2.42, 5.07, 5.33]]
+        )
         self.non_symm = Stress([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]])
 
     def test_properties(self):
         # mean_stress
         assert self.rand_stress.mean_stress == approx(
-            (self.rand_stress[0, 0] + self.rand_stress[1, 1] + self.rand_stress[2, 2]) / 3
+            (self.rand_stress[0, 0] + self.rand_stress[1, 1] + self.rand_stress[2, 2])
+            / 3
         )
         assert self.symm_stress.mean_stress == approx(3.66)
         # deviator_stress
@@ -62,6 +65,10 @@ class TestStress(MatSciTest):
         ) as warns:
             _ = self.non_symm.voigt
         assert (
-            sum("Tensor is not symmetric, information may be lost in Voigt conversion" in str(warn) for warn in warns)
+            sum(
+                "Tensor is not symmetric, information may be lost in Voigt conversion"
+                in str(warn)
+                for warn in warns
+            )
             == 1
         )

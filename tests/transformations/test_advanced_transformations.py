@@ -88,11 +88,16 @@ class TestSuperTransformation:
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
+        struct = Structure(
+            lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords
+        )
         struct_trafo = trafo.apply_transformation(struct, return_ranked_list=True)
 
         for s_and_t in struct_trafo:
-            assert s_and_t["transformation"].apply_transformation(struct) == s_and_t["structure"]
+            assert (
+                s_and_t["transformation"].apply_transformation(struct)
+                == s_and_t["structure"]
+            )
 
     @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
     def test_apply_transformation_mult(self):
@@ -147,7 +152,9 @@ class TestChargeBalanceTransformation:
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
+        struct = Structure(
+            lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords
+        )
         struct_trafo = trafo.apply_transformation(struct)
 
         assert struct_trafo.charge == approx(0, abs=1e-5)
@@ -157,13 +164,17 @@ class TestChargeBalanceTransformation:
 class TestEnumerateStructureTransformation:
     def test_apply_transformation(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
-        enum_trans2 = EnumerateStructureTransformation(refine_structure=True, sort_criteria="nsites")
+        enum_trans2 = EnumerateStructureTransformation(
+            refine_structure=True, sort_criteria="nsites"
+        )
         struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         expected = [1, 3, 1]
         for idx, frac in enumerate([0.25, 0.5, 0.75]):
             trans = SubstitutionTransformation({"Fe": {"Fe": frac}})
             struct_trafo = trans.apply_transformation(struct)
-            oxi_trans = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
+            oxi_trans = OxidationStateDecorationTransformation(
+                {"Li": 1, "Fe": 2, "P": 5, "O": -2}
+            )
             struct_trafo = oxi_trans.apply_transformation(struct_trafo)
             all_structs = enum_trans.apply_transformation(struct_trafo, 100)
             assert len(all_structs) == expected[idx]
@@ -188,7 +199,9 @@ class TestEnumerateStructureTransformation:
     @pytest.mark.xfail(reason="dgl don't support torch 2.4.1+, #4073")
     def test_m3gnet(self):
         pytest.importorskip("matgl")
-        enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
+        enum_trans = EnumerateStructureTransformation(
+            refine_structure=True, sort_criteria="m3gnet_relax"
+        )
         struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
         struct_trafo = trans.apply_transformation(struct)
@@ -218,7 +231,9 @@ class TestEnumerateStructureTransformation:
             energy = float(relax_results["trajectory"].energies[-1])
             return relax_results["final_structure"], energy
 
-        enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria=sort_criteria)
+        enum_trans = EnumerateStructureTransformation(
+            refine_structure=True, sort_criteria=sort_criteria
+        )
         struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
         struct_trafo = trans.apply_transformation(struct)
@@ -240,7 +255,9 @@ class TestEnumerateStructureTransformation:
             [{"Li": 0.2, "Na": 0.2, "K": 0.6}, {"O": 1}],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
         )
-        est = EnumerateStructureTransformation(max_cell_size=None, max_disordered_sites=5)
+        est = EnumerateStructureTransformation(
+            max_cell_size=None, max_disordered_sites=5
+        )
         lst = est.apply_transformation(s_orig, return_ranked_list=100)
         assert len(lst) == 9
         for d in lst:
@@ -255,7 +272,9 @@ class TestEnumerateStructureTransformation:
 
 class TestSubstitutionPredictorTransformation:
     def test_apply_transformation(self):
-        trafo = SubstitutionPredictorTransformation(threshold=1e-3, alpha=-5, lambda_table=get_table())
+        trafo = SubstitutionPredictorTransformation(
+            threshold=1e-3, alpha=-5, lambda_table=get_table()
+        )
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5]]
         lattice = [
             [3.8401979337, 0.00, 0.00],
@@ -268,7 +287,9 @@ class TestSubstitutionPredictorTransformation:
         assert len(outputs) == 4, "incorrect number of structures"
 
     def test_as_dict(self):
-        trafo = SubstitutionPredictorTransformation(threshold=2, alpha=-2, lambda_table=get_table())
+        trafo = SubstitutionPredictorTransformation(
+            threshold=2, alpha=-2, lambda_table=get_table()
+        )
         dct = trafo.as_dict()
         trafo = SubstitutionPredictorTransformation.from_dict(dct)
         assert trafo.threshold == 2, "incorrect threshold passed through dict"
@@ -283,7 +304,9 @@ class TestMagOrderingTransformation(MatSciTest):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         self.NiO = Structure.from_spacegroup(225, lattice, species, coords)
 
-        lattice = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
+        lattice = Lattice(
+            [[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]]
+        )
         species = ["Ni", "Ni", "O", "O"]
         coords = [[0.5, 0, 0.5], [0, 0, 0], [0.25, 0.5, 0.25], [0.75, 0.5, 0.75]]
         self.NiO_AFM_111 = Structure(lattice, species, coords)
@@ -299,7 +322,9 @@ class TestMagOrderingTransformation(MatSciTest):
         trans = AutoOxiStateDecorationTransformation()
         self.Fe3O4_oxi = trans.apply_transformation(self.Fe3O4)
 
-        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Li8Fe2NiCoO8.cif").remove_oxidation_states()
+        self.Li8Fe2NiCoO8 = Structure.from_file(
+            f"{TEST_FILES_DIR}/cif/Li8Fe2NiCoO8.cif"
+        ).remove_oxidation_states()
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
@@ -326,13 +351,23 @@ class TestMagOrderingTransformation(MatSciTest):
         assert len(all_structs) == 12
 
         trans = MagOrderingTransformation({"Ni": 5})
-        all_structs = trans.apply_transformation(self.NiO.get_primitive_structure(), return_ranked_list=10)
+        all_structs = trans.apply_transformation(
+            self.NiO.get_primitive_structure(), return_ranked_list=10
+        )
 
-        assert_allclose(self.NiO_AFM_111.lattice.parameters, all_structs[0]["structure"].lattice.parameters)
-        assert_allclose(self.NiO_AFM_001.lattice.parameters, all_structs[1]["structure"].lattice.parameters)
+        assert_allclose(
+            self.NiO_AFM_111.lattice.parameters,
+            all_structs[0]["structure"].lattice.parameters,
+        )
+        assert_allclose(
+            self.NiO_AFM_001.lattice.parameters,
+            all_structs[1]["structure"].lattice.parameters,
+        )
 
     def test_ferrimagnetic(self):
-        trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75, max_cell_size=1)
+        trans = MagOrderingTransformation(
+            {"Fe": 5}, order_parameter=0.75, max_cell_size=1
+        )
         struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         spg_analyzer = SpacegroupAnalyzer(struct, 0.1)
         struct = spg_analyzer.get_refined_structure()
@@ -382,7 +417,9 @@ class TestMagOrderingTransformation(MatSciTest):
         # using this 'sorted' syntax because exact order of sites in first
         # returned structure varies between machines: we just want to ensure
         # that the order parameter is accurate
-        assert sorted(str(all_structs[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=5"])
+        assert sorted(str(all_structs[idx].specie) for idx in range(2)) == sorted(
+            ["Fe2+,spin=5", "Fe2+,spin=5"]
+        )
         assert sorted(str(all_structs[idx].specie) for idx in range(2, 6)) == sorted(
             ["Fe3+,spin=5", "Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5"]
         )
@@ -397,7 +434,9 @@ class TestMagOrderingTransformation(MatSciTest):
         ]
         trans = MagOrderingTransformation(mag_types, order_parameter=order_parameters)
         all_structs = trans.apply_transformation(self.Fe3O4_oxi)
-        assert sorted(str(all_structs[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=-5", "Fe2+,spin=-5"])
+        assert sorted(str(all_structs[idx].specie) for idx in range(2)) == sorted(
+            ["Fe2+,spin=-5", "Fe2+,spin=-5"]
+        )
         assert sorted(str(all_structs[idx].specie) for idx in range(2, 6)) == sorted(
             ["Fe3+,spin=5", "Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5"]
         )
@@ -410,7 +449,9 @@ class TestMagOrderingTransformation(MatSciTest):
         ]
         trans = MagOrderingTransformation(mag_types, order_parameter=order_parameters)
         all_structs = trans.apply_transformation(self.Fe3O4_oxi)
-        assert sorted(str(all_structs[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=-5"])
+        assert sorted(str(all_structs[idx].specie) for idx in range(2)) == sorted(
+            ["Fe2+,spin=5", "Fe2+,spin=-5"]
+        )
         assert sorted(str(all_structs[idx].specie) for idx in range(2, 6)) == sorted(
             ["Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5", "Fe3+,spin=-5"]
         )
@@ -442,7 +483,9 @@ class TestMagOrderingTransformation(MatSciTest):
         assert sorted(str(all_structs[idx].specie) for idx in range(4)) == sorted(
             ["Fe,spin=-5", "Fe,spin=-5", "Fe,spin=5", "Fe,spin=5"]
         )
-        assert sorted(str(all_structs[idx].specie) for idx in range(4, 6)) == sorted(["Fe,spin=5", "Fe,spin=5"])
+        assert sorted(str(all_structs[idx].specie) for idx in range(4, 6)) == sorted(
+            ["Fe,spin=5", "Fe,spin=5"]
+        )
 
         # now ordering on both sites, equivalent to order_parameter = 0.5
         mag_types = {"Fe2+": 5, "Fe3+": 5}
@@ -453,7 +496,9 @@ class TestMagOrderingTransformation(MatSciTest):
         trans = MagOrderingTransformation(mag_types, order_parameter=order_parameters)
         all_structs = trans.apply_transformation(self.Fe3O4_oxi, return_ranked_list=10)
         struct = all_structs[0]["structure"]
-        assert sorted(str(struct[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=-5"])
+        assert sorted(str(struct[idx].specie) for idx in range(2)) == sorted(
+            ["Fe2+,spin=5", "Fe2+,spin=-5"]
+        )
         assert sorted(str(struct[idx].specie) for idx in range(2, 6)) == sorted(
             ["Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5", "Fe3+,spin=5"]
         )
@@ -468,7 +513,9 @@ class TestMagOrderingTransformation(MatSciTest):
         trans = MagOrderingTransformation(mag_types, order_parameter=order_parameters)
         all_structs = trans.apply_transformation(self.Fe3O4_oxi, return_ranked_list=100)
         struct = all_structs[0]["structure"]
-        assert sorted(str(struct[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=-5"])
+        assert sorted(str(struct[idx].specie) for idx in range(2)) == sorted(
+            ["Fe2+,spin=5", "Fe2+,spin=-5"]
+        )
         assert sorted(str(struct[idx].specie) for idx in range(2, 6)) == sorted(
             ["Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5", "Fe3+,spin=-5"]
         )
@@ -476,11 +523,15 @@ class TestMagOrderingTransformation(MatSciTest):
 
         # now order on multiple species
         mag_types = {"Fe2+": 5, "Fe3+": 5}
-        order_parameters = [MagOrderParameterConstraint(0.5, species_constraints=["Fe2+", "Fe3+"])]
+        order_parameters = [
+            MagOrderParameterConstraint(0.5, species_constraints=["Fe2+", "Fe3+"])
+        ]
         trans = MagOrderingTransformation(mag_types, order_parameter=order_parameters)
         all_structs = trans.apply_transformation(self.Fe3O4_oxi, return_ranked_list=10)
         struct = all_structs[0]["structure"]
-        assert sorted(str(struct[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=-5"])
+        assert sorted(str(struct[idx].specie) for idx in range(2)) == sorted(
+            ["Fe2+,spin=5", "Fe2+,spin=-5"]
+        )
         assert sorted(str(struct[idx].specie) for idx in range(2, 6)) == sorted(
             ["Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5", "Fe3+,spin=5"]
         )
@@ -503,7 +554,9 @@ class TestDopingTransformation(MatSciTest):
 
         # Aliovalent doping with vacancies
         for dopant, n_structures in [("Al3+", 2), ("N3-", 235), ("Cl-", 8)]:
-            trafo = DopingTransformation(dopant, min_length=4, alio_tol=1, max_structures_per_enum=1000)
+            trafo = DopingTransformation(
+                dopant, min_length=4, alio_tol=1, max_structures_per_enum=1000
+            )
             ss = trafo.apply_transformation(structure, 1000)
             assert len(ss) == n_structures
             for d in ss:
@@ -538,7 +591,9 @@ class TestDopingTransformation(MatSciTest):
             assert d["structure"].formula == "Sr7 Ti6 Nb2 O24"
 
     def test_as_from_dict(self):
-        trans = DopingTransformation("Al3+", min_length=5, alio_tol=1, codopant=False, max_structures_per_enum=1)
+        trans = DopingTransformation(
+            "Al3+", min_length=5, alio_tol=1, codopant=False, max_structures_per_enum=1
+        )
         dct = trans.as_dict()
         # Check JSON encodability
         _ = orjson.dumps(dct).decode()
@@ -572,7 +627,9 @@ class TestSlabTransformation(MatSciTest):
 
 class TestGrainBoundaryTransformation(MatSciTest):
     def test_apply_transformation(self):
-        Al_bulk = Structure.from_spacegroup("Fm-3m", Lattice.cubic(2.8575585), ["Al"], [[0, 0, 0]])
+        Al_bulk = Structure.from_spacegroup(
+            "Fm-3m", Lattice.cubic(2.8575585), ["Al"], [[0, 0, 0]]
+        )
         gb_gen_params_s5 = {
             "rotation_axis": [1, 0, 0],
             "rotation_angle": 53.13010235415599,
@@ -606,10 +663,14 @@ class TestDisorderedOrderedTransformation(MatSciTest):
 class TestSQSTransformation(MatSciTest):
     def test_apply_transformation(self):
         pzt_structs = loadfn(f"{TEST_FILES_DIR}/io/atat/mcsqs/pzt-structs.json")
-        trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
+        trans = SQSTransformation(
+            scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0
+        )
         # nonsensical example just for testing purposes
         struct = self.get_structure("Pb2TiZrO6").copy()
-        struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
+        struct.replace_species(
+            {"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}}
+        )
         struct_out = trans.apply_transformation(struct)
         matches = [struct_out.matches(s) for s in pzt_structs]
         assert any(matches)
@@ -629,14 +690,23 @@ class TestSQSTransformation(MatSciTest):
 
             trans = SQSTransformation(**sqs_kwargs)
             struct = self.get_structure("Pb2TiZrO6").copy()
-            struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
-            ranked_list_out = trans.apply_transformation(struct, return_ranked_list=True)
-            matches = [ranked_list_out[0]["structure"].matches(struct) for struct in pzt_structs_2]
+            struct.replace_species(
+                {"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}}
+            )
+            ranked_list_out = trans.apply_transformation(
+                struct, return_ranked_list=True
+            )
+            matches = [
+                ranked_list_out[0]["structure"].matches(struct)
+                for struct in pzt_structs_2
+            ]
             assert any(matches)
             assert len(ranked_list_out) == n_structs_expected
 
     def test_spin(self):
-        trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
+        trans = SQSTransformation(
+            scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0
+        )
 
         # nonsensical example just for testing purposes
         struct = self.get_structure("Pb2TiZrO6").copy()
@@ -650,7 +720,9 @@ class TestSQSTransformation(MatSciTest):
 
 @pytest.mark.skipif(ClusterSpace is None, reason="icet not installed.")
 class TestSQSTransformationIcet(MatSciTest):
-    stored_run: dict = loadfn(f"{TEST_FILES_DIR}/transformations/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz")
+    stored_run: dict = loadfn(
+        f"{TEST_FILES_DIR}/transformations/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz"
+    )
     scaling: int = 8
 
     def test_icet_import(self):
@@ -674,7 +746,9 @@ class TestSQSTransformationIcet(MatSciTest):
             instances=2,
             best_only=False,
         )
-        sqs_structure = sqs.apply_transformation(self.stored_run["disordered_structure"], return_ranked_list=1)
+        sqs_structure = sqs.apply_transformation(
+            self.stored_run["disordered_structure"], return_ranked_list=1
+        )
         for key in ("structure", "objective_function"):
             assert sqs_structure[0][key] == self.stored_run[key]
 
@@ -685,11 +759,17 @@ class TestSQSTransformationIcet(MatSciTest):
             icet_sqs_kwargs={"n_steps": 5},
             instances=2,
         )
-        sqs_structure = sqs.apply_transformation(self.stored_run["disordered_structure"], return_ranked_list=False)
+        sqs_structure = sqs.apply_transformation(
+            self.stored_run["disordered_structure"], return_ranked_list=False
+        )
         assert isinstance(sqs_structure, Structure)
-        assert len(sqs_structure) == self.scaling * len(self.stored_run["disordered_structure"])
+        assert len(sqs_structure) == self.scaling * len(
+            self.stored_run["disordered_structure"]
+        )
 
-        sqs_output = sqs.apply_transformation(self.stored_run["disordered_structure"], return_ranked_list=1)
+        sqs_output = sqs.apply_transformation(
+            self.stored_run["disordered_structure"], return_ranked_list=1
+        )
 
         assert isinstance(sqs_output, list)
         assert len(sqs_output) == 1
@@ -706,7 +786,9 @@ class TestCubicSupercellTransformation(MatSciTest):
         max_atoms = 1000
 
         # Test the transformation without constraining trans_mat to be diagonal
-        supercell_generator = CubicSupercellTransformation(min_atoms=min_atoms, max_atoms=max_atoms, min_length=13.0)
+        supercell_generator = CubicSupercellTransformation(
+            min_atoms=min_atoms, max_atoms=max_atoms, min_length=13.0
+        )
         superstructure = supercell_generator.apply_transformation(structure)
 
         n_atoms = len(superstructure)
@@ -716,7 +798,9 @@ class TestCubicSupercellTransformation(MatSciTest):
             superstructure.lattice.matrix[0],
             [1.49656087e01, -1.11448000e-03, 9.04924836e00],
         )
-        assert_allclose(superstructure.lattice.matrix[1], [-0.95005506, 14.95766342, 10.01819773])
+        assert_allclose(
+            superstructure.lattice.matrix[1], [-0.95005506, 14.95766342, 10.01819773]
+        )
         assert_allclose(
             superstructure.lattice.matrix[2],
             [3.69130000e-02, 4.09320200e-02, 5.90830153e01],
@@ -738,7 +822,9 @@ class TestCubicSupercellTransformation(MatSciTest):
             force_diagonal=True,
         )
         _ = diagonal_supercell_generator.apply_transformation(structure2)
-        assert_array_equal(diagonal_supercell_generator.transformation_matrix, np.eye(3) * 4)
+        assert_array_equal(
+            diagonal_supercell_generator.transformation_matrix, np.eye(3) * 4
+        )
 
         # test force_90_degrees
         structure2 = self.get_structure("Si")
@@ -750,7 +836,9 @@ class TestCubicSupercellTransformation(MatSciTest):
             min_length=13.0,
             force_90_degrees=True,
         )
-        transformed_structure = diagonal_supercell_generator.apply_transformation(structure2)
+        transformed_structure = diagonal_supercell_generator.apply_transformation(
+            structure2
+        )
         assert_allclose(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
 
         structure = self.get_structure("BaNiO3")
@@ -792,7 +880,9 @@ class TestCubicSupercellTransformation(MatSciTest):
             max_length=25,
         )
 
-        transformed_orthorhombic = supercell_generator_orthorhombic.apply_transformation(structure)
+        transformed_orthorhombic = (
+            supercell_generator_orthorhombic.apply_transformation(structure)
+        )
 
         assert_array_equal(
             supercell_generator_orthorhombic.transformation_matrix,
@@ -804,8 +894,12 @@ class TestCubicSupercellTransformation(MatSciTest):
             supercell_generator_cubic.transformation_matrix,
             supercell_generator_orthorhombic.transformation_matrix,
         )
-        assert not np.allclose(transformed_cubic.lattice.angles, transformed_orthorhombic.lattice.angles)
-        assert not np.allclose(transformed_orthorhombic.lattice.abc, transformed_cubic.lattice.abc)
+        assert not np.allclose(
+            transformed_cubic.lattice.angles, transformed_orthorhombic.lattice.angles
+        )
+        assert not np.allclose(
+            transformed_orthorhombic.lattice.abc, transformed_cubic.lattice.abc
+        )
 
         structure = self.get_structure("Si")
         min_atoms = 100
@@ -831,7 +925,9 @@ class TestCubicSupercellTransformation(MatSciTest):
             max_length=25,
         )
 
-        transformed_orthorhombic = supercell_generator_orthorhombic.apply_transformation(structure)
+        transformed_orthorhombic = (
+            supercell_generator_orthorhombic.apply_transformation(structure)
+        )
 
         assert_array_equal(
             supercell_generator_orthorhombic.transformation_matrix,
@@ -843,9 +939,13 @@ class TestCubicSupercellTransformation(MatSciTest):
             supercell_generator_cubic.transformation_matrix,
             supercell_generator_orthorhombic.transformation_matrix,
         )
-        assert not np.allclose(transformed_orthorhombic.lattice.abc, transformed_cubic.lattice.abc)
+        assert not np.allclose(
+            transformed_orthorhombic.lattice.abc, transformed_cubic.lattice.abc
+        )
         # only angels are expected to be the same because of `force_90_degrees = True`
-        assert_allclose(transformed_cubic.lattice.angles, transformed_orthorhombic.lattice.angles)
+        assert_allclose(
+            transformed_cubic.lattice.angles, transformed_orthorhombic.lattice.angles
+        )
 
 
 class TestAddAdsorbateTransformation(MatSciTest):

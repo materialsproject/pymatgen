@@ -25,7 +25,9 @@ class TestHeisenbergMapper:
             ordered_structures = list(c["structure"])
             ordered_structures = [Structure.from_dict(d) for d in ordered_structures]
             epa = list(c["energy_per_atom"])
-            energies = [e * len(s) for (e, s) in zip(epa, ordered_structures, strict=True)]
+            energies = [
+                e * len(s) for (e, s) in zip(epa, ordered_structures, strict=True)
+            ]
 
             hm = HeisenbergMapper(ordered_structures, energies, cutoff=5.0, tol=0.02)
             cls.hms.append(hm)

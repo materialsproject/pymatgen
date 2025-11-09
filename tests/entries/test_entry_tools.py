@@ -8,7 +8,11 @@ from monty.serialization import dumpfn, loadfn
 
 from pymatgen.core import Element
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.entries.entry_tools import EntrySet, group_entries_by_composition, group_entries_by_structure
+from pymatgen.entries.entry_tools import (
+    EntrySet,
+    group_entries_by_composition,
+    group_entries_by_structure,
+)
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/entries"
@@ -63,7 +67,9 @@ class TestEntrySet(MatSciTest):
             assert {Element.Li, Element.O}.issuperset(ent.composition)
         with pytest.raises(
             ValueError,
-            match=re.escape("['F', 'Fe'] is not a subset of ['Fe', 'Li', 'O', 'P'], extra: {'F'}"),
+            match=re.escape(
+                "['F', 'Fe'] is not a subset of ['Fe', 'Li', 'O', 'P'], extra: {'F'}"
+            ),
         ):
             self.entry_set.get_subset_in_chemsys(["Fe", "F"])
 
@@ -84,6 +90,10 @@ class TestEntrySet(MatSciTest):
         # Check if ground states have the lowest energy per atom for each composition
         for gs in ground_states:
             same_comp_entries = [
-                ent for ent in self.entry_set if ent.composition.reduced_formula == gs.composition.reduced_formula
+                ent
+                for ent in self.entry_set
+                if ent.composition.reduced_formula == gs.composition.reduced_formula
             ]
-            assert gs.energy_per_atom <= min(entry.energy_per_atom for entry in same_comp_entries)
+            assert gs.energy_per_atom <= min(
+                entry.energy_per_atom for entry in same_comp_entries
+            )

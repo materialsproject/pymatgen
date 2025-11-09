@@ -16,7 +16,10 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 class TestPseudo(MatSciTest):
     def setup_method(self):
         nc_pseudo_fnames = defaultdict(list)
-        nc_pseudo_fnames["Si"] = [f"{TEST_DIR}/{file}" for file in ("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")]
+        nc_pseudo_fnames["Si"] = [
+            f"{TEST_DIR}/{file}"
+            for file in ("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")
+        ]
 
         self.nc_pseudos = defaultdict(list)
         self.paw_pseudos = defaultdict(list)
@@ -200,7 +203,12 @@ class TestPseudo(MatSciTest):
 class TestPseudoTable(MatSciTest):
     def test_methods(self):
         """Test PseudoTable methods."""
-        table = PseudoTable([f"{TEST_DIR}/{file}" for file in ("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")])
+        table = PseudoTable(
+            [
+                f"{TEST_DIR}/{file}"
+                for file in ("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")
+            ]
+        )
         assert str(table)
         assert len(table) == 3
         for pseudo in table:
@@ -220,5 +228,7 @@ class TestPseudoTable(MatSciTest):
         assert len(selected) == len(table)
         assert selected.__class__ is table.__class__
 
-        with pytest.raises(ValueError, match=r"Found multiple occurrences of symbol\(s\) Si"):
+        with pytest.raises(
+            ValueError, match=r"Found multiple occurrences of symbol\(s\) Si"
+        ):
             table.pseudos_with_symbols("Si")

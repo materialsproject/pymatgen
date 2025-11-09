@@ -27,7 +27,9 @@ class TestDopantPrediction:
         self.tin_dioxide.add_oxidation_state_by_element({"Sn": 4, "O": -2})
 
     def test_dopants_from_substitution_probabilities(self):
-        dopants = get_dopants_from_substitution_probabilities(self.tin_dioxide, num_dopants=5)
+        dopants = get_dopants_from_substitution_probabilities(
+            self.tin_dioxide, num_dopants=5
+        )
 
         assert "n_type" in dopants
         assert "p_type" in dopants
@@ -45,11 +47,15 @@ class TestDopantPrediction:
         assert dopants["p_type"][0]["original_species"] == Species("Sn", 4)
 
         # test oxidation sign matching
-        dopants = get_dopants_from_substitution_probabilities(self.tin_dioxide, num_dopants=15, match_oxi_sign=False)
+        dopants = get_dopants_from_substitution_probabilities(
+            self.tin_dioxide, num_dopants=15, match_oxi_sign=False
+        )
         assert dopants["n_type"][14]["dopant_species"] == Species("Li", 1)
         assert dopants["n_type"][14]["original_species"] == Species("O", -2)
 
-        dopants = get_dopants_from_substitution_probabilities(self.tin_dioxide, num_dopants=15, match_oxi_sign=True)
+        dopants = get_dopants_from_substitution_probabilities(
+            self.tin_dioxide, num_dopants=15, match_oxi_sign=True
+        )
         assert dopants["n_type"][14]["dopant_species"] != Species("Li", 1)
 
     def test_dopants_from_shannon_radii(self):

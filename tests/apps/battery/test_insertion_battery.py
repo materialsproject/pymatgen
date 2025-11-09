@@ -5,7 +5,10 @@ import json
 from monty.json import MontyDecoder, MontyEncoder
 from pytest import approx
 
-from pymatgen.apps.battery.insertion_battery import InsertionElectrode, InsertionVoltagePair
+from pymatgen.apps.battery.insertion_battery import (
+    InsertionElectrode,
+    InsertionVoltagePair,
+)
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.testing import TEST_FILES_DIR
 
@@ -56,7 +59,9 @@ class TestInsertionElectrode:
         assert self.ie_LTO.get_capacity_grav(1, 3) == approx(154.374325225)
 
         # test alternate normalization option
-        assert self.ie_LTO.get_capacity_grav(1, 3, use_overall_normalization=False) == approx(160.803169506)
+        assert self.ie_LTO.get_capacity_grav(
+            1, 3, use_overall_normalization=False
+        ) == approx(160.803169506)
         assert self.ie_LTO.get_summary_dict() is not None
 
         assert self.ie_MVO.get_capacity_grav() == approx(281.845548242)
@@ -74,8 +79,16 @@ class TestInsertionElectrode:
 
     def test_entries(self):
         # test that the proper number of sub-electrodes are returned
-        assert len(self.ie_LTO.get_sub_electrodes(adjacent_only=False, include_myself=True)) == 3
-        assert len(self.ie_LTO.get_sub_electrodes(adjacent_only=True, include_myself=True)) == 2
+        assert (
+            len(
+                self.ie_LTO.get_sub_electrodes(adjacent_only=False, include_myself=True)
+            )
+            == 3
+        )
+        assert (
+            len(self.ie_LTO.get_sub_electrodes(adjacent_only=True, include_myself=True))
+            == 2
+        )
 
     def test_get_all_entries(self):
         self.ie_LTO.get_all_entries()
@@ -117,7 +130,9 @@ class TestInsertionElectrode:
         assert dct["stability_discharge"] == approx(0.33379544031249786)
         assert dct["muO2_data"]["mp-714969"][0]["chempot"] == approx(-4.93552791875)
 
-        assert dct["adj_pairs"][0]["muO2_data"]["mp-714969"][0]["chempot"] == approx(-4.93552791875)
+        assert dct["adj_pairs"][0]["muO2_data"]["mp-714969"][0]["chempot"] == approx(
+            -4.93552791875
+        )
         assert dct["framework_formula"] == "MoO2"
         assert dct["adj_pairs"][1]["framework_formula"] == "MoO2"
 
@@ -131,13 +146,19 @@ class TestInsertionElectrode:
                 ents.append(ent)
             return ents
 
-        ie_CMO_no_struct = InsertionElectrode.from_entries(remove_structure(self.entries_CMO), self.entry_Ca)
+        ie_CMO_no_struct = InsertionElectrode.from_entries(
+            remove_structure(self.entries_CMO), self.entry_Ca
+        )
         dct = ie_CMO_no_struct.get_summary_dict()
         assert dct["stability_charge"] == approx(0.2346574583333325)
         assert dct["stability_discharge"] == approx(0.33379544031249786)
         assert dct["muO2_data"]["mp-714969"][0]["chempot"] == approx(-4.93552791875)
 
-        ie_LTO_no_struct = InsertionElectrode.from_entries(self.entries_LTO, self.entry_Li, strip_structures=True)
-        vols_no_struct = [ient.data["volume"] for ient in ie_LTO_no_struct.get_all_entries()]
+        ie_LTO_no_struct = InsertionElectrode.from_entries(
+            self.entries_LTO, self.entry_Li, strip_structures=True
+        )
+        vols_no_struct = [
+            ient.data["volume"] for ient in ie_LTO_no_struct.get_all_entries()
+        ]
         vols_struct = [ient.structure.volume for ient in self.ie_LTO.get_all_entries()]
         assert vols_no_struct == approx(vols_struct, rel=1e-3)

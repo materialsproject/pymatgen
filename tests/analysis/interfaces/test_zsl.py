@@ -26,7 +26,9 @@ __date__ = "2/5/16"
 class TestZSLGen(MatSciTest):
     def setup_method(self):
         # Film VO2
-        self.film = SpacegroupAnalyzer(self.get_structure("VO2"), symprec=0.1).get_conventional_standard_structure()
+        self.film = SpacegroupAnalyzer(
+            self.get_structure("VO2"), symprec=0.1
+        ).get_conventional_standard_structure()
 
         # Substrate TiO2
         self.substrate = SpacegroupAnalyzer(
@@ -52,20 +54,30 @@ class TestZSLGen(MatSciTest):
             np.array([[1, 0, 0], [0, 2.01, 0]], dtype=float),
         )
 
-        matches = list(zsl_gen(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2]))
+        matches = list(
+            zsl_gen(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2])
+        )
         assert len(matches) == 8
 
     def test_bidirectional(self):
-        z = ZSLGenerator(max_area_ratio_tol=0.05, max_angle_tol=0.05, max_length_tol=0.05)
+        z = ZSLGenerator(
+            max_area_ratio_tol=0.05, max_angle_tol=0.05, max_length_tol=0.05
+        )
 
-        matches = list(z(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2]))
+        matches = list(
+            z(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2])
+        )
         assert len(matches) == 60
 
-        matches = list(z(self.substrate.lattice.matrix[:2], self.film.lattice.matrix[:2]))
+        matches = list(
+            z(self.substrate.lattice.matrix[:2], self.film.lattice.matrix[:2])
+        )
         assert len(matches) == 52
 
         z.bidirectional = True
-        matches = list(z(self.substrate.lattice.matrix[:2], self.film.lattice.matrix[:2]))
+        matches = list(
+            z(self.substrate.lattice.matrix[:2], self.film.lattice.matrix[:2])
+        )
         assert len(matches) == 60
 
         for match in matches:

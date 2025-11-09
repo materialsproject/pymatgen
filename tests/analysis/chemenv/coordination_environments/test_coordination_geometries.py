@@ -35,24 +35,35 @@ class TestCoordinationGeometries(MatSciTest):
         assert len(sep_plane_algos_oct[0].safe_separation_permutations()) == 24
         assert len(sep_plane_algos_oct[1].safe_separation_permutations()) == 36
 
-        sep_plane_algos_oct_0 = SeparationPlane.from_dict(sep_plane_algos_oct[0].as_dict())
+        sep_plane_algos_oct_0 = SeparationPlane.from_dict(
+            sep_plane_algos_oct[0].as_dict()
+        )
         assert sep_plane_algos_oct[0].plane_points == sep_plane_algos_oct_0.plane_points
         assert sep_plane_algos_oct[0].mirror_plane == sep_plane_algos_oct_0.mirror_plane
-        assert sep_plane_algos_oct[0].ordered_plane == sep_plane_algos_oct_0.ordered_plane
+        assert (
+            sep_plane_algos_oct[0].ordered_plane == sep_plane_algos_oct_0.ordered_plane
+        )
         assert sep_plane_algos_oct[0].point_groups == sep_plane_algos_oct_0.point_groups
-        assert sep_plane_algos_oct[0].ordered_point_groups == sep_plane_algos_oct_0.ordered_point_groups
+        assert (
+            sep_plane_algos_oct[0].ordered_point_groups
+            == sep_plane_algos_oct_0.ordered_point_groups
+        )
         assert all(
-            np.array_equal(perm, sep_plane_algos_oct_0.explicit_optimized_permutations[idx])
-            for idx, perm in enumerate(sep_plane_algos_oct[0].explicit_optimized_permutations)
+            np.array_equal(
+                perm, sep_plane_algos_oct_0.explicit_optimized_permutations[idx]
+            )
+            for idx, perm in enumerate(
+                sep_plane_algos_oct[0].explicit_optimized_permutations
+            )
         )
 
-        expected_str = (
-            "Separation plane algorithm with the following reference separation :\n[[4]] | [[0, 2, 1, 3]] | [[5]]"
-        )
+        expected_str = "Separation plane algorithm with the following reference separation :\n[[4]] | [[0, 2, 1, 3]] | [[5]]"
         assert str(sep_plane_algos_oct[0]) == expected_str
 
     def test_hints(self):
-        hints = CoordinationGeometry.NeighborsSetsHints(hints_type="single_cap", options={"cap_index": 2, "csm_max": 8})
+        hints = CoordinationGeometry.NeighborsSetsHints(
+            hints_type="single_cap", options={"cap_index": 2, "csm_max": 8}
+        )
         csm_hints = hints.hints({"csm": 12.0})
         assert csm_hints == []
 
@@ -68,7 +79,8 @@ class TestCoordinationGeometries(MatSciTest):
         for p1, p2 in zip(cg_oct.points, cg_oct2.points, strict=True):
             assert p1 == approx(p2)
         assert (
-            str(cg_oct) == "Coordination geometry type : Octahedron (IUPAC: OC-6 || IUCr: [6o])\n"
+            str(cg_oct)
+            == "Coordination geometry type : Octahedron (IUPAC: OC-6 || IUCr: [6o])\n"
             "\n"
             "  - coordination number : 6\n"
             "  - list of points :\n"
@@ -105,7 +117,9 @@ class TestCoordinationGeometries(MatSciTest):
             [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, -1.0, 0.0]],
             [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]],
         ]
-        assert_allclose(cg_oct.faces(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), faces)
+        assert_allclose(
+            cg_oct.faces(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), faces
+        )
 
         faces = [
             [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
@@ -133,7 +147,9 @@ class TestCoordinationGeometries(MatSciTest):
             [[0.0, 1.0, 0.0], [0.0, -1.0, 0.0]],
             [[0.0, 1.0, 0.0], [0.0, 0.0, -1.0]],
         ]
-        assert_allclose(cg_oct.edges(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), edges)
+        assert_allclose(
+            cg_oct.edges(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), edges
+        )
 
         edges = [
             [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0]],
@@ -158,7 +174,8 @@ class TestCoordinationGeometries(MatSciTest):
 
         pmeshes = cg_oct.get_pmeshes(sites=sites)
         assert (
-            pmeshes[0]["pmesh_string"] == "14\n     0.00000000      0.00000000      1.00000000\n"
+            pmeshes[0]["pmesh_string"]
+            == "14\n     0.00000000      0.00000000      1.00000000\n"
             "     0.00000000      0.00000000     -1.00000000\n"
             "     1.00000000      0.00000000      0.00000000\n"
             "    -1.00000000      0.00000000      0.00000000\n"
@@ -185,7 +202,8 @@ class TestCoordinationGeometries(MatSciTest):
             "  - coordination number : 1\n"
             "  - list of points :\n"
             "    - [0.0, 0.0, 1.0]\n"
-            "------------------------------------------------------------\n\n" in str(all_cg)
+            "------------------------------------------------------------\n\n"
+            in str(all_cg)
         )
 
         assert (
@@ -267,7 +285,9 @@ class TestCoordinationGeometries(MatSciTest):
 
         assert len(all_cg.get_geometries()) == 68
         assert len(all_cg.get_geometries(coordination=3)) == 3
-        assert sorted(all_cg.get_geometries(returned="mp_symbol")) == sorted(all_symbols)
+        assert sorted(all_cg.get_geometries(returned="mp_symbol")) == sorted(
+            all_symbols
+        )
         assert sorted(all_cg.get_geometries(returned="mp_symbol", coordination=3)) == [
             "TL:3",
             "TS:3",
@@ -284,7 +304,9 @@ class TestCoordinationGeometries(MatSciTest):
             "TL:3": 3,
             "TS:3": 3,
         }
-        assert sorted(all_cg.get_implemented_geometries(coordination=4, returned="mp_symbol")) == [
+        assert sorted(
+            all_cg.get_implemented_geometries(coordination=4, returned="mp_symbol")
+        ) == [
             "S:4",
             "SS:4",
             "SY:4",
@@ -300,18 +322,34 @@ class TestCoordinationGeometries(MatSciTest):
         ]
 
         assert all_cg.get_geometry_from_name("Octahedron").mp_symbol == cg_oct.mp_symbol
-        with pytest.raises(LookupError, match=re.escape("No coordination geometry found with name 'Octahedran'")):
+        with pytest.raises(
+            LookupError,
+            match=re.escape("No coordination geometry found with name 'Octahedran'"),
+        ):
             all_cg.get_geometry_from_name("Octahedran")
 
-        assert all_cg.get_geometry_from_IUPAC_symbol("OC-6").mp_symbol == cg_oct.mp_symbol
-        with pytest.raises(LookupError, match=re.escape("No coordination geometry found with IUPAC symbol 'OC-7'")):
+        assert (
+            all_cg.get_geometry_from_IUPAC_symbol("OC-6").mp_symbol == cg_oct.mp_symbol
+        )
+        with pytest.raises(
+            LookupError,
+            match=re.escape("No coordination geometry found with IUPAC symbol 'OC-7'"),
+        ):
             all_cg.get_geometry_from_IUPAC_symbol("OC-7")
 
-        assert all_cg.get_geometry_from_IUCr_symbol("[6o]").mp_symbol == cg_oct.mp_symbol
-        with pytest.raises(LookupError, match=re.escape("No coordination geometry found with IUCr symbol '[6oct]'")):
+        assert (
+            all_cg.get_geometry_from_IUCr_symbol("[6o]").mp_symbol == cg_oct.mp_symbol
+        )
+        with pytest.raises(
+            LookupError,
+            match=re.escape("No coordination geometry found with IUCr symbol '[6oct]'"),
+        ):
             all_cg.get_geometry_from_IUCr_symbol("[6oct]")
 
-        with pytest.raises(LookupError, match=re.escape("No coordination geometry found with mp_symbol 'O:7'")):
+        with pytest.raises(
+            LookupError,
+            match=re.escape("No coordination geometry found with mp_symbol 'O:7'"),
+        ):
             all_cg.get_geometry_from_mp_symbol("O:7")
 
         assert (

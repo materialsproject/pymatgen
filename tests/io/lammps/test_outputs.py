@@ -74,7 +74,14 @@ class TestFunc:
         assert len(comb) == 6
         # first comb run
         comb0 = comb[0]
-        assert list(comb0.columns) == ["Step", "Temp", "TotEng", "PotEng", "E_vdwl", "E_coul"]
+        assert list(comb0.columns) == [
+            "Step",
+            "Temp",
+            "TotEng",
+            "PotEng",
+            "E_vdwl",
+            "E_coul",
+        ]
         assert len(comb0) == 6
         comb0_data = [
             [0, 1, -4.6295947, -4.6297237, -4.6297237, 0],
@@ -107,7 +114,14 @@ class TestFunc:
         assert len(ehex) == 3
         ehex0, ehex1, ehex2 = ehex
         # ehex run #1
-        assert list(ehex0.columns) == ["Step", "Temp", "E_pair", "E_mol", "TotEng", "Press"]
+        assert list(ehex0.columns) == [
+            "Step",
+            "Temp",
+            "E_pair",
+            "E_mol",
+            "TotEng",
+            "Press",
+        ]
         assert len(ehex0) == 11
         ehex0_data = [
             [0, 1.35, -4.1241917, 0, -2.0994448, -3.1961612],
@@ -123,7 +137,14 @@ class TestFunc:
         ]
         assert_allclose(ehex1.iloc[[0, -1]], ehex1_data)
         # ehex run #3
-        assert list(ehex2.columns) == ["Step", "Temp", "c_Thot", "c_Tcold", "v_tdiff", "f_ave"]
+        assert list(ehex2.columns) == [
+            "Step",
+            "Temp",
+            "c_Thot",
+            "c_Tcold",
+            "v_tdiff",
+            "f_ave",
+        ]
         assert len(ehex2) == 21
         ehex2_data = [
             [11000, 1.3794051, 1.6903393, 1.0515688, 0, 0],

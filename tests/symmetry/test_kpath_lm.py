@@ -46,11 +46,15 @@ class TestKPathLatimerMunro(MatSciTest):
                 lattice = Lattice.cubic(2)
 
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
-            _ = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
+            _ = KPathLatimerMunro(
+                struct
+            )  # Throws error if something doesn't work, causing test to fail.
 
         struct_file_path = f"{TEST_FILES_DIR}/cif/AgO_kpath_test.cif"
         struct = Structure.from_file(struct_file_path)
-        _ = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
+        _ = KPathLatimerMunro(
+            struct
+        )  # Throws error if something doesn't work, causing test to fail.
 
     def test_kpath_acentered(self):
         species = ["K", "La", "Ti"]
@@ -58,13 +62,17 @@ class TestKPathLatimerMunro(MatSciTest):
         lattice = Lattice.orthorhombic(2, 9, 1)
         struct = Structure.from_spacegroup(38, lattice, species, coords)
         sga = SpacegroupAnalyzer(struct)
-        struct_prim = sga.get_primitive_standard_structure(international_monoclinic=False)
+        struct_prim = sga.get_primitive_standard_structure(
+            international_monoclinic=False
+        )
         kpath = KPathLatimerMunro(struct_prim)
 
         kpoints = kpath._kpath["kpoints"]
         labels = list(kpoints)
 
-        assert sorted(labels) == sorted(["a", "b", "c", "d", "d_{1}", "e", "f", "q", "q_{1}", "Γ"])
+        assert sorted(labels) == sorted(
+            ["a", "b", "c", "d", "d_{1}", "e", "f", "q", "q_{1}", "Γ"]
+        )
 
         assert kpoints["a"] == approx([0.0, 0.5, 0.0])
 
@@ -78,13 +86,13 @@ class TestKPathLatimerMunro(MatSciTest):
 
         assert kpoints["e"] == approx([0.0, 0.5, 0.5])
 
-        assert kpoints["d_{1}"] == approx([0.2530864197530836, 0.25308641975308915, 0.0]) or kpoints["d"] == approx(
+        assert kpoints["d_{1}"] == approx(
             [0.2530864197530836, 0.25308641975308915, 0.0]
-        )
+        ) or kpoints["d"] == approx([0.2530864197530836, 0.25308641975308915, 0.0])
 
-        assert kpoints["q_{1}"] == approx([0.2530864197530836, 0.25308641975308915, 0.5]) or kpoints["q"] == approx(
+        assert kpoints["q_{1}"] == approx(
             [0.2530864197530836, 0.25308641975308915, 0.5]
-        )
+        ) or kpoints["q"] == approx([0.2530864197530836, 0.25308641975308915, 0.5])
 
     def test_magnetic_kpath_generation(self):
         struct_file_path = f"{TEST_FILES_DIR}/io/cif/mcif/LaMnO3_magnetic.mcif"
@@ -93,7 +101,9 @@ class TestKPathLatimerMunro(MatSciTest):
         col_spin_orig = mga.get_structure_with_spin()
         col_spin_orig.add_spin_by_site([0.0] * 20)
         col_spin_sym = SpacegroupAnalyzer(col_spin_orig)
-        col_spin_prim = col_spin_sym.get_primitive_standard_structure(international_monoclinic=False)
+        col_spin_prim = col_spin_sym.get_primitive_standard_structure(
+            international_monoclinic=False
+        )
 
         magmom_vec_list = [np.zeros(3) for site in col_spin_prim]
         magmom_vec_list[4:8] = [
@@ -107,7 +117,9 @@ class TestKPathLatimerMunro(MatSciTest):
         kpath = KPathLatimerMunro(col_spin_prim, has_magmoms=True)
 
         kpoints = kpath._kpath["kpoints"]
-        assert sorted(kpoints) == sorted(["a", "b", "c", "d", "d_{1}", "e", "f", "g", "g_{1}", "Γ"])
+        assert sorted(kpoints) == sorted(
+            ["a", "b", "c", "d", "d_{1}", "e", "f", "g", "g_{1}", "Γ"]
+        )
 
         assert kpoints["e"] == approx([-0.5, 0.0, 0.5])
 
@@ -125,4 +137,6 @@ class TestKPathLatimerMunro(MatSciTest):
 
         assert kpoints["Γ"] == approx([0, 0, 0])
 
-        assert kpoints["d_{1}"] == approx([-0.5, -0.5, 0.0]) or kpoints["d"] == approx([-0.5, -0.5, 0.0])
+        assert kpoints["d_{1}"] == approx([-0.5, -0.5, 0.0]) or kpoints["d"] == approx(
+            [-0.5, -0.5, 0.0]
+        )

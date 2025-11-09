@@ -60,10 +60,28 @@ def test_get_joutstructures_start_idx():
     This function just matches line with a matched pattern.
     """
     start_flag = "barbie"
-    assert _get_joutstructures_start_idx(["ken", "barbie"], out_slice_start_flag=start_flag) == 1
-    assert _get_joutstructures_start_idx(["ken", "(unrelated stuff) barbie"], out_slice_start_flag=start_flag) == 1
-    assert _get_joutstructures_start_idx(["barbie", "ken"], out_slice_start_flag=start_flag) == 0
-    assert _get_joutstructures_start_idx(["ken", "ken"], out_slice_start_flag=start_flag) is None
+    assert (
+        _get_joutstructures_start_idx(
+            ["ken", "barbie"], out_slice_start_flag=start_flag
+        )
+        == 1
+    )
+    assert (
+        _get_joutstructures_start_idx(
+            ["ken", "(unrelated stuff) barbie"], out_slice_start_flag=start_flag
+        )
+        == 1
+    )
+    assert (
+        _get_joutstructures_start_idx(
+            ["barbie", "ken"], out_slice_start_flag=start_flag
+        )
+        == 0
+    )
+    assert (
+        _get_joutstructures_start_idx(["ken", "ken"], out_slice_start_flag=start_flag)
+        is None
+    )
 
 
 def test_find_jdftx_out_file(tmp_path):
@@ -73,7 +91,9 @@ def test_find_jdftx_out_file(tmp_path):
     It tests the behavior to make sure the correct errors are raised on directories without and out file
     and directories with multiple out files. And out file must match "*.out" or "out" exactly.
     """
-    with pytest.raises(FileNotFoundError, match="No JDFTx out file found in directory."):
+    with pytest.raises(
+        FileNotFoundError, match="No JDFTx out file found in directory."
+    ):
         _find_jdftx_out_file(tmp_path)
     write_mt_file(tmp_path, "test.out")
     assert _find_jdftx_out_file(tmp_path) == tmp_path / "test.out"
@@ -84,5 +104,7 @@ def test_find_jdftx_out_file(tmp_path):
     write_mt_file(tmp_path, "out")
     assert _find_jdftx_out_file(tmp_path) == tmp_path / "out"
     write_mt_file(tmp_path, "tinyout.out")
-    with pytest.raises(FileNotFoundError, match="Multiple JDFTx out files found in directory."):
+    with pytest.raises(
+        FileNotFoundError, match="Multiple JDFTx out files found in directory."
+    ):
         _find_jdftx_out_file(tmp_path)

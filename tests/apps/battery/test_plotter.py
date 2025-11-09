@@ -24,7 +24,9 @@ class TestVoltageProfilePlotter:
 
         with open(f"{TEST_DIR}/FeF3_batt.json", encoding="utf-8") as file:
             entries = json.load(file, cls=MontyDecoder)
-        self.ce_FF = ConversionElectrode.from_composition_and_entries(Composition("FeF3"), entries)
+        self.ce_FF = ConversionElectrode.from_composition_and_entries(
+            Composition("FeF3"), entries
+        )
 
     def test_name(self):
         plotter = VoltageProfilePlotter(xaxis="frac_x")

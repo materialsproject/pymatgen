@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from pytest import approx
 
-from pymatgen.analysis.energy_models import EwaldElectrostaticModel, IsingModel, SymmetryModel
+from pymatgen.analysis.energy_models import (
+    EwaldElectrostaticModel,
+    IsingModel,
+    SymmetryModel,
+)
 from pymatgen.core import Species
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -26,7 +30,9 @@ class TestEwaldElectrostaticModel:
 
         model = EwaldElectrostaticModel()
         # large tolerance because scipy constants changed between 0.16.1 and 0.17
-        assert model.get_energy(struct) == approx(-264.66364858, abs=1e-2)  # Result from GULP
+        assert model.get_energy(struct) == approx(
+            -264.66364858, abs=1e-2
+        )  # Result from GULP
         s2 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Li2O.cif")
         assert model.get_energy(s2) == approx(-145.39050015844839, abs=1e-4)
 

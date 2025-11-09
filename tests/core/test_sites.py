@@ -16,7 +16,9 @@ class TestSite(MatSciTest):
     def setup_method(self):
         self.ordered_site = Site("Fe", [0.25, 0.35, 0.45])
         self.disordered_site = Site({"Fe": 0.5, "Mn": 0.5}, [0.25, 0.35, 0.45])
-        self.propertied_site = Site("Fe2+", [0.25, 0.35, 0.45], {"magmom": 5.1, "charge": 4.2})
+        self.propertied_site = Site(
+            "Fe2+", [0.25, 0.35, 0.45], {"magmom": 5.1, "charge": 4.2}
+        )
         self.propertied_magmom_vec_site = Site(
             "Fe2+",
             [0.25, 0.35, 0.45],
@@ -60,7 +62,9 @@ class TestSite(MatSciTest):
 
     def test_distance(self):
         ord_site = self.ordered_site
-        assert np.linalg.norm([0.25, 0.35, 0.45]) == ord_site.distance_from_point([0, 0, 0])
+        assert np.linalg.norm([0.25, 0.35, 0.45]) == ord_site.distance_from_point(
+            [0, 0, 0]
+        )
         assert ord_site.distance(self.disordered_site) == 0
 
     def test_pickle(self):
@@ -85,14 +89,18 @@ class TestPeriodicSite(MatSciTest):
         self.si = Element("Si")
         self.site = PeriodicSite("Fe", [0.25, 0.35, 0.45], self.lattice)
         self.site2 = PeriodicSite({"Si": 0.5}, [0, 0, 0], self.lattice)
-        assert self.site2.species == Composition({Element("Si"): 0.5}), "Inconsistent site created!"
+        assert self.site2.species == Composition({Element("Si"): 0.5}), (
+            "Inconsistent site created!"
+        )
         self.propertied_site = PeriodicSite(
             Species("Fe", 2),
             [0.25, 0.35, 0.45],
             self.lattice,
             properties={"magmom": 5.1, "charge": 4.2},
         )
-        self.labeled_site = PeriodicSite("Fe", [0.25, 0.35, 0.45], self.lattice, label="site label")
+        self.labeled_site = PeriodicSite(
+            "Fe", [0.25, 0.35, 0.45], self.lattice, label="site label"
+        )
         self.dummy_site = PeriodicSite("X", [0, 0, 0], self.lattice)
 
     def test_properties(self):
@@ -115,7 +123,9 @@ class TestPeriodicSite(MatSciTest):
         assert self.site.distance(other_site) == approx(6.22494979899)
 
     def test_distance_from_point(self):
-        assert self.site.distance_from_point([0.1, 0.1, 0.1]) == approx(6.0564015718906887)
+        assert self.site.distance_from_point([0.1, 0.1, 0.1]) == approx(
+            6.0564015718906887
+        )
 
     def test_distance_and_image(self):
         other_site = PeriodicSite("Fe", np.array([1, 1, 1]), self.lattice)
@@ -129,18 +139,25 @@ class TestPeriodicSite(MatSciTest):
         lattice = Lattice(np.eye(3))
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
-        assert get_distance_and_image_old(site1, site2)[0] == approx(site1.distance_and_image(site2)[0])
+        assert get_distance_and_image_old(site1, site2)[0] == approx(
+            site1.distance_and_image(site2)[0]
+        )
         lattice = Lattice.from_parameters(1, 0.01, 1, 10, 10, 10)
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
-        assert get_distance_and_image_old(site1, site2)[0] > site1.distance_and_image(site2)[0]
+        assert (
+            get_distance_and_image_old(site1, site2)[0]
+            > site1.distance_and_image(site2)[0]
+        )
         site2 = PeriodicSite("Fe", np.random.default_rng().random(3), lattice)
         dist_old, jimage_old = get_distance_and_image_old(site1, site2)
         dist_new, jimage_new = site1.distance_and_image(site2)
-        assert dist_old - dist_new > -1e-8, "New distance algo should give smaller answers!"
-        assert not (abs(dist_old - dist_new) < 1e-8) ^ (jimage_old == jimage_new).all(), (
-            "If old dist == new dist, images must be the same!"
+        assert dist_old - dist_new > -1e-8, (
+            "New distance algo should give smaller answers!"
         )
+        assert (
+            not (abs(dist_old - dist_new) < 1e-8) ^ (jimage_old == jimage_new).all()
+        ), "If old dist == new dist, images must be the same!"
         lattice = Lattice.from_parameters(3.0, 3.1, 10.0, 2.96, 2.0, 1.0)
         site = PeriodicSite("Fe", [0.1, 0.1, 0.1], lattice)
         site2 = PeriodicSite("Fe", [0.99, 0.99, 0.99], lattice)
@@ -150,11 +167,19 @@ class TestPeriodicSite(MatSciTest):
 
     def test_is_periodic_image(self):
         other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.45]), self.lattice)
-        assert self.site.is_periodic_image(other), "This other site should be a periodic image."
+        assert self.site.is_periodic_image(other), (
+            "This other site should be a periodic image."
+        )
         other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), self.lattice)
-        assert not self.site.is_periodic_image(other), "This other site should not be a periodic image."
-        other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.45]), Lattice.rhombohedral(2, 60))
-        assert not self.site.is_periodic_image(other), "Different lattices should not be periodic images."
+        assert not self.site.is_periodic_image(other), (
+            "This other site should not be a periodic image."
+        )
+        other = PeriodicSite(
+            "Fe", np.array([1.25, 2.35, 4.45]), Lattice.rhombohedral(2, 60)
+        )
+        assert not self.site.is_periodic_image(other), (
+            "Different lattices should not be periodic images."
+        )
 
     def test_equality(self):
         assert self.site == self.site
@@ -241,8 +266,14 @@ class TestPeriodicSite(MatSciTest):
         assert_allclose(site.frac_coords, [0.015, 0.0325, 0.05])
 
     def test_repr(self):
-        assert repr(self.propertied_site) == "PeriodicSite: Fe2+ (2.5, 3.5, 4.5) [0.25, 0.35, 0.45]"
-        assert repr(self.labeled_site) == "PeriodicSite: site label (Fe) (2.5, 3.5, 4.5) [0.25, 0.35, 0.45]"
+        assert (
+            repr(self.propertied_site)
+            == "PeriodicSite: Fe2+ (2.5, 3.5, 4.5) [0.25, 0.35, 0.45]"
+        )
+        assert (
+            repr(self.labeled_site)
+            == "PeriodicSite: site label (Fe) (2.5, 3.5, 4.5) [0.25, 0.35, 0.45]"
+        )
 
     def test_str(self):
         assert str(self.site) == "[2.5 3.5 4.5] Fe"
@@ -281,6 +312,8 @@ def get_distance_and_image_old(site1, site2, jimage=None):
     if jimage is None:
         # Old algorithm
         jimage = -np.array(np.around(site2.frac_coords - site1.frac_coords), int)
-    mapped_vec = site1.lattice.get_cartesian_coords(jimage + site2.frac_coords - site1.frac_coords)
+    mapped_vec = site1.lattice.get_cartesian_coords(
+        jimage + site2.frac_coords - site1.frac_coords
+    )
     dist = np.linalg.norm(mapped_vec)
     return dist, jimage

@@ -7,7 +7,15 @@ import pytest
 from pytest import approx
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core import Composition, DummySpecies, Element, Lattice, Species, Structure, SymmOp
+from pymatgen.core import (
+    Composition,
+    DummySpecies,
+    Element,
+    Lattice,
+    Species,
+    Structure,
+    SymmOp,
+)
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.cif import CifBlock, CifParser, CifWriter
 from pymatgen.symmetry.structure import SymmetrizedStructure
@@ -139,7 +147,10 @@ long quotes
 actually going to end now
 ;"""
         cb = CifBlock.from_str(cif_str)
-        assert cb["_thing"] == " long quotes  ;  still in the quote  ; actually going to end now"
+        assert (
+            cb["_thing"]
+            == " long quotes  ;  still in the quote  ; actually going to end now"
+        )
 
     def test_long_loop(self):
         data = {
@@ -174,7 +185,9 @@ class TestCifIO(MatSciTest):
         with open(f"{TEST_FILES_DIR}/cif/V2O3.cif", encoding="utf-8") as f:
             cif_text = f.read()
 
-        with pytest.warns(DeprecationWarning, match="Initializing CifParser from StringIO"):
+        with pytest.warns(
+            DeprecationWarning, match="Initializing CifParser from StringIO"
+        ):
             parser = CifParser(StringIO(cif_text))
 
         for struct in parser.parse_structures():
@@ -200,7 +213,9 @@ class TestCifIO(MatSciTest):
         # test for disordered structures
         parser = CifParser(f"{TEST_FILES_DIR}/cif/Li10GeP2S12.cif")
         for struct in parser.parse_structures():
-            assert struct.formula == "Li20.2 Ge2.06 P3.94 S24", "Incorrectly parsed cif."
+            assert struct.formula == "Li20.2 Ge2.06 P3.94 S24", (
+                "Incorrectly parsed cif."
+            )
 
         with open(f"{TEST_FILES_DIR}/cif/FePO4.cif", encoding="utf-8") as cif_file:
             cif_str = cif_file.read()
@@ -232,7 +247,9 @@ class TestCifIO(MatSciTest):
         parser = CifParser(f"{TEST_FILES_DIR}/cif/bad_superflat_inf_loop.cif.gz")
         with (
             pytest.raises(ValueError, match="Invalid CIF file with no structures"),
-            pytest.warns(UserWarning, match="Å below threshold, double check your structure."),
+            pytest.warns(
+                UserWarning, match="Å below threshold, double check your structure."
+            ),
         ):
             parser.parse_structures()
 
@@ -249,7 +266,10 @@ class TestCifIO(MatSciTest):
         assert set(sym_structure.labels) == {"O1", "Li1"}
 
     def test_no_sym_ops(self):
-        with open(f"{TEST_FILES_DIR}/cif/Li2O.cif") as fin, open("test.cif", "w") as fout:
+        with (
+            open(f"{TEST_FILES_DIR}/cif/Li2O.cif") as fin,
+            open("test.cif", "w") as fout,
+        ):
             for line_num, line in enumerate(fin, start=1):
                 # Skip "_symmetry_equiv_pos_as_xyz", "_symmetry_space_group_name_H-M"
                 # and "_symmetry_Int_Tables_number" sections such that
@@ -262,7 +282,10 @@ class TestCifIO(MatSciTest):
         # Need `parse_structures` call to update `symmetry_operations`
         _structure = parser.parse_structures(primitive=False, symmetrized=False)[0]
         assert parser.symmetry_operations[0] == SymmOp.from_xyz_str("x, y, z")
-        assert any("No _symmetry_equiv_pos_as_xyz type key found" in msg for msg in parser.warnings)
+        assert any(
+            "No _symmetry_equiv_pos_as_xyz type key found" in msg
+            for msg in parser.warnings
+        )
 
     def test_site_symbol_preference(self):
         parser = CifParser(f"{TEST_FILES_DIR}/cif/site_type_symbol_test.cif")
@@ -278,7 +301,9 @@ class TestCifIO(MatSciTest):
             "parsed structure unlikely to be suitable for use "
             "in calculations unless hydrogens added." in parser.warnings
         )
-        parser = CifParser(f"{TEST_FILES_DIR}/cif/cif_implicit_hydrogens_cod_1011130.cif")
+        parser = CifParser(
+            f"{TEST_FILES_DIR}/cif/cif_implicit_hydrogens_cod_1011130.cif"
+        )
         struct = parser.parse_structures()[0]
         assert (
             "Structure has implicit hydrogens defined, "
@@ -307,7 +332,9 @@ class TestCifIO(MatSciTest):
         parser2 = CifParser(f"{TEST_FILES_DIR}/cif/Fe3O4.cif")
         struct2 = parser2.parse_structures(primitive=False)[0]
 
-        expected_site_names2 = {*"O1 O2 O3 O4 O5 O6 O7 O8 Fe9 Fe10 Fe11 Fe12 Fe13 Fe14".split()}
+        expected_site_names2 = {
+            *"O1 O2 O3 O4 O5 O6 O7 O8 Fe9 Fe10 Fe11 Fe12 Fe13 Fe14".split()
+        }
         assert set(struct2.labels) == expected_site_names2
 
     def test_cif_writer_labeled(self):
@@ -589,7 +616,9 @@ loop_
     def test_cif_writer_without_refinement(self):
         si2 = Structure.from_file(f"{TEST_FILES_DIR}/io/abinit/si.cif")
 
-        writer = CifWriter(si2, symprec=1e-3, significant_figures=10, refine_struct=False)
+        writer = CifWriter(
+            si2, symprec=1e-3, significant_figures=10, refine_struct=False
+        )
         cif_str = str(writer)
         assert "Fd-3m" in cif_str
         same_si2 = CifParser.from_str(cif_str).parse_structures()[0]
@@ -612,7 +641,9 @@ loop_
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        struct = Structure(lattice, [dummy_spec, {si3: 0.5, dummy_spec: 0.5}, si4], coords)
+        struct = Structure(
+            lattice, [dummy_spec, {si3: 0.5, dummy_spec: 0.5}, si4], coords
+        )
         writer = CifWriter(struct)
         answer = """# generated using pymatgen
 data_X1.5Si1.5
@@ -665,7 +696,9 @@ loop_
 
     def test_missing_atom_site_type_with_oxi_states(self):
         parser = CifParser(f"{TEST_FILES_DIR}/cif/P24Ru4H252C296S24N16.cif")
-        comp = Composition({"S0+": 24, "Ru0+": 4, "H0+": 252, "C0+": 296, "N0+": 16, "P0+": 24})
+        comp = Composition(
+            {"S0+": 24, "Ru0+": 4, "H0+": 252, "C0+": 296, "N0+": 16, "P0+": 24}
+        )
         for struct in parser.parse_structures(primitive=False):
             assert struct.composition == comp
 
@@ -792,7 +825,9 @@ loop_
 
     def test_not_check_occu(self):
         # Test large occupancy with check_occu turned off
-        with open(f"{TEST_FILES_DIR}/cif/site_type_symbol_test.cif", encoding="utf-8") as cif_file:
+        with open(
+            f"{TEST_FILES_DIR}/cif/site_type_symbol_test.cif", encoding="utf-8"
+        ) as cif_file:
             cif_str = cif_file.read()
         cif_str = cif_str.replace("Te    Te 1.0000", "Te_label    Te 10.0", 1)
 
@@ -904,7 +939,9 @@ Si1 Si 0 0 0 1 0.0
             parser.parse_structures()
 
     def test_no_check_occu(self):
-        with open(f"{TEST_FILES_DIR}/cif/site_type_symbol_test.cif", encoding="utf-8") as cif_file:
+        with open(
+            f"{TEST_FILES_DIR}/cif/site_type_symbol_test.cif", encoding="utf-8"
+        ) as cif_file:
             cif_str = cif_file.read()
         cif_str = cif_str.replace("Te    Te 1.0000", "Te    Te 1.5000", 1)
 
@@ -974,14 +1011,25 @@ Si1 Si 0 0 0 1 0.0
         with open(f"{TEST_FILES_DIR}/cif/LiFePO4.cif", encoding="utf-8") as file:
             cif_str = file.read()
         # remove only key that gives info about CIF composition in this file
-        cif_str = "\n".join([line for line in cif_str.split("\n") if "_atom_site_type_symbol" not in line])
+        cif_str = "\n".join(
+            [
+                line
+                for line in cif_str.split("\n")
+                if "_atom_site_type_symbol" not in line
+            ]
+        )
         test_cif_file = f"{self.tmp_path}/test_broken.cif"
         with open(test_cif_file, "w+", encoding="utf-8") as file:
             file.write(cif_str)
 
         cif = CifParser(test_cif_file)
-        failure_reason = cif.check(Structure.from_file(f"{TEST_FILES_DIR}/cif/LiFePO4.cif"))
-        assert failure_reason == "Cannot determine chemical composition from CIF! 'NoneType' object is not iterable"
+        failure_reason = cif.check(
+            Structure.from_file(f"{TEST_FILES_DIR}/cif/LiFePO4.cif")
+        )
+        assert (
+            failure_reason
+            == "Cannot determine chemical composition from CIF! 'NoneType' object is not iterable"
+        )
 
     def test_invalid_cif_composition(self):
         with open(f"{TEST_FILES_DIR}/cif/LiFePO4.cif", encoding="utf-8") as file:
@@ -993,7 +1041,9 @@ Si1 Si 0 0 0 1 0.0
             file.write(cif_str.replace("Li", "X"))
 
         cif = CifParser(test_cif_file)
-        failure_reason = cif.check(Structure.from_file(f"{TEST_FILES_DIR}/cif/LiFePO4.cif"))
+        failure_reason = cif.check(
+            Structure.from_file(f"{TEST_FILES_DIR}/cif/LiFePO4.cif")
+        )
         assert failure_reason == "'X' is not a valid Element"
 
     def test_skipping_relative_stoichiometry_check(self):
@@ -1002,7 +1052,10 @@ Si1 Si 0 0 0 1 0.0
         failure_reason = cif.check(struct)
         assert failure_reason is None
         assert len(cif.warnings) == 2
-        assert cif.warnings[-1] == "Skipping relative stoichiometry check because CIF does not contain formula keys."
+        assert (
+            cif.warnings[-1]
+            == "Skipping relative stoichiometry check because CIF does not contain formula keys."
+        )
 
     def test_cif_writer_site_properties(self):
         # check CifWriter(write_site_properties=True) adds Structure site properties to
@@ -1022,8 +1075,12 @@ class TestMagCif(MatSciTest):
     def setup_method(self):
         self.mcif = CifParser(f"{MCIF_TEST_DIR}/magnetic.example.NiO.mcif")
         self.mcif_ncl = CifParser(f"{MCIF_TEST_DIR}/magnetic.ncl.example.GdB4.mcif")
-        self.mcif_incommensurate = CifParser(f"{MCIF_TEST_DIR}/magnetic.incommensurate.example.Cr.mcif")
-        self.mcif_disordered = CifParser(f"{MCIF_TEST_DIR}/magnetic.disordered.example.CuMnO2.mcif")
+        self.mcif_incommensurate = CifParser(
+            f"{MCIF_TEST_DIR}/magnetic.incommensurate.example.Cr.mcif"
+        )
+        self.mcif_disordered = CifParser(
+            f"{MCIF_TEST_DIR}/magnetic.disordered.example.CuMnO2.mcif"
+        )
         self.mcif_ncl2 = CifParser(f"{MCIF_TEST_DIR}/Mn3Ge_IR2.mcif")
 
     def test_mcif_detection(self):
@@ -1089,7 +1146,9 @@ Gd1 5.05 5.05 0.0"""
 
         # example with non-collinear spin
         s_ncl = self.mcif_ncl.parse_structures(primitive=False)[0]
-        s_ncl_from_msg = CifParser.from_str(mag_cif_str).parse_structures(primitive=False)[0]
+        s_ncl_from_msg = CifParser.from_str(mag_cif_str).parse_structures(
+            primitive=False
+        )[0]
         assert s_ncl.formula == "Gd4 B16"
         assert not Magmom.are_collinear(s_ncl.site_properties["magmom"])
 
@@ -1116,7 +1175,9 @@ Gd1 5.05 5.05 0.0"""
         s_ncl.add_site_property("magmom", float_magmoms)
         cw = CifWriter(s_ncl, write_magmoms=True)
 
-        with open(f"{MCIF_TEST_DIR}/GdB4-str-magnitudes-ref.mcif", encoding="utf-8") as file:
+        with open(
+            f"{MCIF_TEST_DIR}/GdB4-str-magnitudes-ref.mcif", encoding="utf-8"
+        ) as file:
             cw_ref_str_magnitudes = file.read()
 
         assert str(cw).strip() == cw_ref_str_magnitudes.strip()
@@ -1129,12 +1190,16 @@ Gd1 5.05 5.05 0.0"""
         assert list_magmoms[1][1] == approx(2.9580396704363183)
 
         # test creating a structure without oxidation state doesn't raise errors
-        s_manual = Structure(Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        s_manual = Structure(
+            Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
         s_manual.add_spin_by_site([1, -1])
         cw = CifWriter(s_manual, write_magmoms=True)
 
         # check oxidation state
-        with open(f"{MCIF_TEST_DIR}/CsCl-manual-oxi-ref.mcif", encoding="utf-8") as file:
+        with open(
+            f"{MCIF_TEST_DIR}/CsCl-manual-oxi-ref.mcif", encoding="utf-8"
+        ) as file:
             cw_manual_oxi_string = file.read()
         s_manual.add_oxidation_state_by_site([1, 1])
         cw = CifWriter(s_manual, write_magmoms=True)

@@ -10,7 +10,12 @@ import pytest
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsData
-from pymatgen.io.lammps.inputs import LammpsInputFile, LammpsRun, LammpsTemplateGen, write_lammps_inputs
+from pymatgen.io.lammps.inputs import (
+    LammpsInputFile,
+    LammpsRun,
+    LammpsTemplateGen,
+    write_lammps_inputs,
+)
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
@@ -34,7 +39,10 @@ class TestLammpsInputFile(MatSciTest):
                     ("units", "metal"),
                     ("atom_style", "full"),
                     ("dimension", "3"),
-                    ("pair_style", "hybrid/overlay morse 15 coul/long 15"),  # codespell:ignore coul
+                    (
+                        "pair_style",
+                        "hybrid/overlay morse 15 coul/long 15",
+                    ),  # codespell:ignore coul
                     ("kspace_style", "ewald 1e-4"),
                     ("boundary", "p p p"),
                     ("#", "2) System definition"),
@@ -67,17 +75,47 @@ class TestLammpsInputFile(MatSciTest):
         lmp_input = LammpsInputFile().from_file(self.filename)
         string = lmp_input.get_str()
         assert "# LAMMPS input generated from LammpsInputFile with pymatgen v" in string
-        assert "\nunits metal\natom_style full\ndimension 3\npair_style hybrid/overlay morse 15 coul/long" in string
-        assert "15\nkspace_style ewald 1e-4\nboundary p p p\n# 2) System definition" in string
-        assert "\nread_data run_init.data\nset type 1 charge 0.8803\nset type 2 charge" in string
-        assert "1.2570\nset type 3 charge 1.2580\nset type 4 charge -1.048\nneigh_modify" in string
-        assert "every 1 delay 5 check yes\n# 3) Simulation settings\npair_coeff 1 1" in string
-        assert "morse 0.0580 3.987 3.404\npair_coeff 1 4 morse 0.0408 1.399 3.204\npair_coeff" in string
-        assert "2 4 morse 0.3147 2.257 2.409\npair_coeff 3 4 morse 0.4104 2.329 2.200\npair_coeff" in string
-        assert "4 4 morse 0.0241 1.359 4.284\npair_coeff * * coul/long\n# Part A : energy" in string
-        assert "minimization\nthermo 1\nthermo_style custom step lx ly lz press pxx pyy pzz" in string
+        assert (
+            "\nunits metal\natom_style full\ndimension 3\npair_style hybrid/overlay morse 15 coul/long"
+            in string
+        )
+        assert (
+            "15\nkspace_style ewald 1e-4\nboundary p p p\n# 2) System definition"
+            in string
+        )
+        assert (
+            "\nread_data run_init.data\nset type 1 charge 0.8803\nset type 2 charge"
+            in string
+        )
+        assert (
+            "1.2570\nset type 3 charge 1.2580\nset type 4 charge -1.048\nneigh_modify"
+            in string
+        )
+        assert (
+            "every 1 delay 5 check yes\n# 3) Simulation settings\npair_coeff 1 1"
+            in string
+        )
+        assert (
+            "morse 0.0580 3.987 3.404\npair_coeff 1 4 morse 0.0408 1.399 3.204\npair_coeff"
+            in string
+        )
+        assert (
+            "2 4 morse 0.3147 2.257 2.409\npair_coeff 3 4 morse 0.4104 2.329 2.200\npair_coeff"
+            in string
+        )
+        assert (
+            "4 4 morse 0.0241 1.359 4.284\npair_coeff * * coul/long\n# Part A : energy"
+            in string
+        )
+        assert (
+            "minimization\nthermo 1\nthermo_style custom step lx ly lz press pxx pyy pzz"
+            in string
+        )
         assert "pe\ndump dmp all atom 5 run.dump\nmin_style cg\nfix 1 all" in string
-        assert "box/relax iso 0.0 vmax 0.001\nminimize 1.0e-16 1.0e-16 5000 10000\nwrite_data run.data" in string
+        assert (
+            "box/relax iso 0.0 vmax 0.001\nminimize 1.0e-16 1.0e-16 5000 10000\nwrite_data run.data"
+            in string
+        )
 
     def test_from_str(self):
         string = """# LGPS
@@ -134,7 +172,9 @@ write_data run.data"""
             "Stage 6",
         ]
 
-        lmp_input.stages.append({"stage_name": "New stage", "commands": [("units", "metal")]})
+        lmp_input.stages.append(
+            {"stage_name": "New stage", "commands": [("units", "metal")]}
+        )
         assert lmp_input.stages_names == [
             "Comment 1",
             "1) Initialization",
@@ -192,7 +232,9 @@ write_data run.data"""
         assert lmp_input.get_args("units") == "atomic"
 
         lmp_input2 = lmp_input
-        lmp_input2.set_args(command="set", argument="new set 2", how=2, stage_name="Stage 1")
+        lmp_input2.set_args(
+            command="set", argument="new set 2", how=2, stage_name="Stage 1"
+        )
         assert lmp_input.stages == lmp_input2.stages
         lmp_input2.set_args(command="set", argument="new set", how="first")
         assert lmp_input.get_args("set")[0] == "new set"
@@ -200,7 +242,9 @@ write_data run.data"""
 
         lmp_input3 = LammpsInputFile().from_file(self.filename, keep_stages=True)
         lmp_input4 = LammpsInputFile().from_file(self.filename, keep_stages=True)
-        lmp_input4.set_args(command="set", argument="new set 2", how=2, stage_name="Stage 1")
+        lmp_input4.set_args(
+            command="set", argument="new set 2", how=2, stage_name="Stage 1"
+        )
         assert lmp_input3.stages == lmp_input4.stages
         lmp_input4.set_args(
             command="set",
@@ -208,19 +252,29 @@ write_data run.data"""
             how="first",
             stage_name="2) System definition",
         )
-        assert lmp_input4.get_args("set", stage_name="2) System definition")[0] == "new set 2"
-        assert lmp_input4.get_args("set", stage_name="2) System definition")[1] == "type 2 charge 1.2570"
+        assert (
+            lmp_input4.get_args("set", stage_name="2) System definition")[0]
+            == "new set 2"
+        )
+        assert (
+            lmp_input4.get_args("set", stage_name="2) System definition")[1]
+            == "type 2 charge 1.2570"
+        )
 
     def test_add_stage(self):
         lmp_input = LammpsInputFile()
         lmp_input.add_stage(commands="units metal")
-        assert lmp_input.stages == [{"stage_name": "Stage 1", "commands": [("units", "metal")]}]
+        assert lmp_input.stages == [
+            {"stage_name": "Stage 1", "commands": [("units", "metal")]}
+        ]
         lmp_input.add_stage(commands={"pair_style": "eam"}, stage_name="Pair style")
         assert lmp_input.stages == [
             {"stage_name": "Stage 1", "commands": [("units", "metal")]},
             {"stage_name": "Pair style", "commands": [("pair_style", "eam")]},
         ]
-        lmp_input.add_stage(commands=["boundary p p p", "atom_style full"], stage_name="Cell")
+        lmp_input.add_stage(
+            commands=["boundary p p p", "atom_style full"], stage_name="Cell"
+        )
         assert lmp_input.stages == [
             {"stage_name": "Stage 1", "commands": [("units", "metal")]},
             {"stage_name": "Pair style", "commands": [("pair_style", "eam")]},
@@ -477,7 +531,9 @@ write_data run.data"""
         ]
 
         lmp_input = LammpsInputFile().from_file(self.filename, keep_stages=True)
-        lmp_input._add_command(command="set type 1 charge 0.0", stage_name="1) Initialization")
+        lmp_input._add_command(
+            command="set type 1 charge 0.0", stage_name="1) Initialization"
+        )
         lmp_input.remove_command("set")
         assert lmp_input.stages == [
             {"stage_name": "Comment 1", "commands": [("#", "LGPS")]},
@@ -559,7 +615,9 @@ write_data run.data"""
 
     def test_add_command(self):
         lmp_input = LammpsInputFile()
-        lmp_input.stages.append({"stage_name": "Init", "commands": [("units", "metal")]})
+        lmp_input.stages.append(
+            {"stage_name": "Init", "commands": [("units", "metal")]}
+        )
         lmp_input._add_command(stage_name="Init", command="boundary p p p")
         assert lmp_input.stages == [
             {
@@ -589,7 +647,9 @@ write_data run.data"""
                 "commands": [("units", "metal"), ("boundary", "p p p")],
             }
         ]
-        lmp_input.add_commands(stage_name="Init", commands=["atom_style full", "dimension 3"])
+        lmp_input.add_commands(
+            stage_name="Init", commands=["atom_style full", "dimension 3"]
+        )
         assert lmp_input.stages == [
             {
                 "stage_name": "Init",
@@ -601,7 +661,9 @@ write_data run.data"""
                 ],
             }
         ]
-        lmp_input.add_commands(stage_name="Init", commands={"kspace_style": "ewald 1e-4"})
+        lmp_input.add_commands(
+            stage_name="Init", commands={"kspace_style": "ewald 1e-4"}
+        )
         assert lmp_input.stages == [
             {
                 "stage_name": "Init",
@@ -618,7 +680,9 @@ write_data run.data"""
     def test_add_comment(self):
         lmp_input = LammpsInputFile()
         lmp_input._add_comment(comment="First comment")
-        assert lmp_input.stages == [{"stage_name": "Comment 1", "commands": [("#", "First comment")]}]
+        assert lmp_input.stages == [
+            {"stage_name": "Comment 1", "commands": [("#", "First comment")]}
+        ]
         lmp_input._add_comment(comment="Sub comment", stage_name="Comment 1")
         assert lmp_input.stages == [
             {
@@ -626,7 +690,9 @@ write_data run.data"""
                 "commands": [("#", "First comment"), ("#", "Sub comment")],
             }
         ]
-        lmp_input.stages.append({"stage_name": "Init", "commands": [("units", "metal")]})
+        lmp_input.stages.append(
+            {"stage_name": "Init", "commands": [("units", "metal")]}
+        )
         lmp_input._add_comment(comment="Inline comment", stage_name="Init")
         assert lmp_input.stages == [
             {
@@ -642,7 +708,9 @@ write_data run.data"""
 
 class TestLammpsRun(MatSciTest):
     def test_md(self):
-        struct = Structure.from_spacegroup(225, Lattice.cubic(3.62126), ["Cu"], [[0, 0, 0]])
+        struct = Structure.from_spacegroup(
+            225, Lattice.cubic(3.62126), ["Cu"], [[0, 0, 0]]
+        )
         ld = LammpsData.from_structure(struct, atom_style="atomic")
         ff = "pair_style eam\npair_coeff * * Cu_u3.eam"
         md = LammpsRun.md(data=ld, force_field=ff, temperature=1600.0, nsteps=10000)
@@ -697,7 +765,9 @@ class TestFunc(MatSciTest):
         with open(f"{TEST_DIR}/kappa.txt", encoding="utf-8") as file:
             kappa_template = file.read()
         kappa_settings = {"method": "heat"}
-        write_lammps_inputs(output_dir="heat", script_template=kappa_template, settings=kappa_settings)
+        write_lammps_inputs(
+            output_dir="heat", script_template=kappa_template, settings=kappa_settings
+        )
         with open(f"{self.tmp_path}/heat/in.lammps", encoding="utf-8") as file:
             kappa_script = file.read()
         fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
@@ -721,8 +791,12 @@ class TestFunc(MatSciTest):
         # write data file from obj
         obj = LammpsData.from_file(src, atom_style="atomic")
         with pytest.warns(FutureWarning):
-            write_lammps_inputs(output_dir="obj", script_template=peptide_script, data=obj)
-        obj_read = LammpsData.from_file(f"{self.tmp_path}/obj/data.peptide", atom_style="atomic")
+            write_lammps_inputs(
+                output_dir="obj", script_template=peptide_script, data=obj
+            )
+        obj_read = LammpsData.from_file(
+            f"{self.tmp_path}/obj/data.peptide", atom_style="atomic"
+        )
         pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
         pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
 
@@ -764,6 +838,8 @@ class TestLammpsTemplateGen(MatSciTest):
         assert isinstance(lis["data.peptide"], LammpsData)
         lis.write_input(self.tmp_path / "obj")
 
-        obj_read = LammpsData.from_file(str(self.tmp_path / "obj" / "data.peptide"), atom_style="atomic")
+        obj_read = LammpsData.from_file(
+            str(self.tmp_path / "obj" / "data.peptide"), atom_style="atomic"
+        )
         pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
         pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)

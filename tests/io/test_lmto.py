@@ -35,7 +35,9 @@ class TestCtrl(MatSciTest):
     def test_structure(self):
         bise_poscar = Structure.from_file(f"{TEST_DIR}/POSCAR.BiSe")
         assert bise_poscar.matches(self.ref_bise.structure)
-        assert self.ref_bise == LMTOCtrl(self.ref_bise.structure, header="Bi6Se6, hexagonal")
+        assert self.ref_bise == LMTOCtrl(
+            self.ref_bise.structure, header="Bi6Se6, hexagonal"
+        )
 
     def test_read_write(self):
         ctrl_path = f"{self.tmp_path}/CTRL.tmp"
@@ -69,8 +71,12 @@ class TestCopl(MatSciTest):
             "Se7-Se8": (3.364, (6, 7)),
         }
         for bond in self.copl_bise.cohp_data:
-            assert self.copl_bise.cohp_data[bond]["length"] == lengths_sites_bise[bond][0]
-            assert self.copl_bise.cohp_data[bond]["sites"] == lengths_sites_bise[bond][1]
+            assert (
+                self.copl_bise.cohp_data[bond]["length"] == lengths_sites_bise[bond][0]
+            )
+            assert (
+                self.copl_bise.cohp_data[bond]["sites"] == lengths_sites_bise[bond][1]
+            )
         labels_fe = ["Fe1-Fe1"] + [f"Fe1-Fe1-{i}" for i in range(1, 8)]
         assert sorted(self.copl_fe.cohp_data) == labels_fe
         for bond in labels_fe:
@@ -82,11 +88,16 @@ class TestCopl(MatSciTest):
         assert self.copl_bise_eV.efermi == approx(-2.3433)
         assert self.copl_fe.efermi == approx(-0.085683)
         ener_eV = np.array(
-            [round_to_sigfigs(energy, 5) for energy in self.copl_bise.energies * Ry_to_eV],
+            [
+                round_to_sigfigs(energy, 5)
+                for energy in self.copl_bise.energies * Ry_to_eV
+            ],
             dtype=float,
         )
         assert_allclose(ener_eV, self.copl_bise_eV.energies)
         copl_icohp = self.copl_bise.cohp_data["Bi1-Se7"]["ICOHP"][Spin.up]
-        icohp = np.array([round_to_sigfigs(i, 5) for i in copl_icohp * Ry_to_eV], dtype=float)
+        icohp = np.array(
+            [round_to_sigfigs(i, 5) for i in copl_icohp * Ry_to_eV], dtype=float
+        )
         icohp_eV = self.copl_bise_eV.cohp_data["Bi1-Se7"]["ICOHP"][Spin.up]
         assert_allclose(icohp, icohp_eV)

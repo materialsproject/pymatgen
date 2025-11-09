@@ -18,7 +18,9 @@ def test_get_optimade_structure_roundtrip():
     assert optimade_structure["attributes"]["elements"] == ["Fe", "O", "P"]
     assert optimade_structure["attributes"]["nelements"] == 3
     assert optimade_structure["attributes"]["chemical_formula_reduced"] == "FeO4P"
-    assert optimade_structure["attributes"]["species_at_sites"] == 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"]
+    assert optimade_structure["attributes"]["species_at_sites"] == 4 * ["Fe"] + 4 * [
+        "P"
+    ] + 16 * ["O"]
     assert_allclose(
         np.abs(optimade_structure["attributes"]["lattice_vectors"]),
         np.abs(STRUCTURE.lattice.matrix),

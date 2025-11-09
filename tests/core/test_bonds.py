@@ -4,7 +4,12 @@ import pytest
 from pytest import approx
 
 from pymatgen.core import Element, Site
-from pymatgen.core.bonds import CovalentBond, get_bond_length, get_bond_order, obtain_all_bond_lengths
+from pymatgen.core.bonds import (
+    CovalentBond,
+    get_bond_length,
+    get_bond_order,
+    obtain_all_bond_lengths,
+)
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -53,13 +58,17 @@ class TestFunc:
         assert get_bond_length("C", "Br", 1) == approx(1.85)
 
     def test_obtain_all_bond_lengths(self):
-        assert obtain_all_bond_lengths("C", "C") == approx({1.0: 1.54, 2.0: 1.34, 3.0: 1.2})
+        assert obtain_all_bond_lengths("C", "C") == approx(
+            {1.0: 1.54, 2.0: 1.34, 3.0: 1.2}
+        )
         with pytest.raises(ValueError, match="No bond data for elements Br - C"):
             obtain_all_bond_lengths("Br", Element("C"))
         assert obtain_all_bond_lengths("C", Element("Br"), 1.76) == approx({1: 1.76})
         bond_lengths_dict = obtain_all_bond_lengths("C", "N")
         bond_lengths_dict[4] = 999
-        assert obtain_all_bond_lengths("C", "N") == approx({1.0: 1.47, 2.0: 1.3, 3.0: 1.16})
+        assert obtain_all_bond_lengths("C", "N") == approx(
+            {1.0: 1.47, 2.0: 1.3, 3.0: 1.16}
+        )
 
     def test_get_bond_order(self):
         assert get_bond_order("C", "C", 1) == approx(3)
@@ -71,9 +80,13 @@ class TestFunc:
         assert get_bond_order("C", "C", 2.5) == approx(0)
         assert get_bond_order("C", "C", 9999) == approx(0)
         assert get_bond_order("C", "Br", 1.9, default_bl=1.9) == approx(1)
-        assert get_bond_order("C", "Br", 2, default_bl=1.9) == approx(0.7368421052631575)
+        assert get_bond_order("C", "Br", 2, default_bl=1.9) == approx(
+            0.7368421052631575
+        )
         assert get_bond_order("C", "Br", 1.9, tol=0.5, default_bl=1.9) == approx(1)
-        assert get_bond_order("C", "Br", 2, tol=0.5, default_bl=1.9) == approx(0.894736842105263)
+        assert get_bond_order("C", "Br", 2, tol=0.5, default_bl=1.9) == approx(
+            0.894736842105263
+        )
         with pytest.raises(ValueError, match="No bond data for elements Br - C"):
             get_bond_order("C", "Br", 1.9)
         assert get_bond_order("N", "N", 1.25) == approx(2)

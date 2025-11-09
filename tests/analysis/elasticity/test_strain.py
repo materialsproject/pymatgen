@@ -4,7 +4,12 @@ import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 
-from pymatgen.analysis.elasticity.strain import Deformation, DeformedStructureSet, Strain, convert_strain_to_deformation
+from pymatgen.analysis.elasticity.strain import (
+    Deformation,
+    DeformedStructureSet,
+    Strain,
+    convert_strain_to_deformation,
+)
 from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.util.testing import MatSciTest
@@ -20,7 +25,9 @@ class TestDeformation(MatSciTest):
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        self.structure = Structure(lattice, ["Si", "Si"], [[0, 0, 0], [0.75, 0.5, 0.75]])
+        self.structure = Structure(
+            lattice, ["Si", "Si"], [[0, 0, 0], [0.75, 0.5, 0.75]]
+        )
 
     def test_properties(self):
         # green_lagrange_strain
@@ -68,15 +75,25 @@ class TestDeformation(MatSciTest):
             atol=1e-7,
         )
         # Check coordinates
-        assert_allclose(strained_norm.sites[1].coords, [3.91700189, 1.224e-06, 2.3516318], atol=1e-7)
-        assert_allclose(strained_ind.sites[1].coords, [3.84019793, 1.224e-6, 2.3516318], atol=1e-7)
-        assert_allclose(strained_non.sites[1].coords, [3.8872306, 1.224e-6, 2.3516318], atol=1e-7)
+        assert_allclose(
+            strained_norm.sites[1].coords, [3.91700189, 1.224e-06, 2.3516318], atol=1e-7
+        )
+        assert_allclose(
+            strained_ind.sites[1].coords, [3.84019793, 1.224e-6, 2.3516318], atol=1e-7
+        )
+        assert_allclose(
+            strained_non.sites[1].coords, [3.8872306, 1.224e-6, 2.3516318], atol=1e-7
+        )
 
         # Check convention for applying transformation
-        for vec, defo_vec in zip(self.structure.lattice.matrix, strained_non.lattice.matrix, strict=True):
+        for vec, defo_vec in zip(
+            self.structure.lattice.matrix, strained_non.lattice.matrix, strict=True
+        ):
             new_vec = np.dot(self.non_ind_defo, np.transpose(vec))
             assert_allclose(new_vec, defo_vec)
-        for coord, defo_coord in zip(self.structure.cart_coords, strained_non.cart_coords, strict=True):
+        for coord, defo_coord in zip(
+            self.structure.cart_coords, strained_non.cart_coords, strict=True
+        ):
             new_coord = np.dot(self.non_ind_defo, np.transpose(coord))
             assert_allclose(new_coord, defo_coord)
 
@@ -86,13 +103,17 @@ class TestStrain(MatSciTest):
         self.norm_str = Strain.from_deformation([[1.02, 0, 0], [0, 1, 0], [0, 0, 1]])
         self.ind_str = Strain.from_deformation([[1, 0.02, 0], [0, 1, 0], [0, 0, 1]])
 
-        self.non_ind_str = Strain.from_deformation([[1, 0.02, 0.02], [0, 1, 0], [0, 0, 1]])
+        self.non_ind_str = Strain.from_deformation(
+            [[1, 0.02, 0.02], [0, 1, 0], [0, 0, 1]]
+        )
 
         self.no_dfm = Strain([[0, 0.01, 0], [0.01, 0.0002, 0], [0, 0, 0]])
 
     def test_new(self):
         test_strain = Strain([[0, 0.01, 0], [0.01, 0.0002, 0], [0, 0, 0]])
-        assert_allclose(test_strain, test_strain.get_deformation_matrix().green_lagrange_strain)
+        assert_allclose(
+            test_strain, test_strain.get_deformation_matrix().green_lagrange_strain
+        )
         with pytest.raises(
             ValueError,
             match="Strain must be initialized with a symmetric array or a Voigt-notation vector",
@@ -121,10 +142,16 @@ class TestStrain(MatSciTest):
 
     def test_properties(self):
         # deformation matrix
-        assert_allclose(self.ind_str.get_deformation_matrix(), [[1, 0.02, 0], [0, 1, 0], [0, 0, 1]])
+        assert_allclose(
+            self.ind_str.get_deformation_matrix(), [[1, 0.02, 0], [0, 1, 0], [0, 0, 1]]
+        )
         symm_dfm = Strain(self.no_dfm).get_deformation_matrix(shape="symmetric")
-        assert_allclose(symm_dfm, [[0.99995, 0.0099995, 0], [0.0099995, 1.00015, 0], [0, 0, 1]])
-        assert_allclose(self.no_dfm.get_deformation_matrix(), [[1, 0.02, 0], [0, 1, 0], [0, 0, 1]])
+        assert_allclose(
+            symm_dfm, [[0.99995, 0.0099995, 0], [0.0099995, 1.00015, 0], [0, 0, 1]]
+        )
+        assert_allclose(
+            self.no_dfm.get_deformation_matrix(), [[1, 0.02, 0], [0, 1, 0], [0, 0, 1]]
+        )
 
         # voigt
         assert_allclose(self.non_ind_str.voigt, [0, 0.0002, 0.0002, 0.0004, 0.02, 0.02])

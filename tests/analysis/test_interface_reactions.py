@@ -8,7 +8,10 @@ from pandas import DataFrame
 from plotly.graph_objects import Figure
 from scipy.spatial import ConvexHull
 
-from pymatgen.analysis.interface_reactions import GrandPotentialInterfacialReactivity, InterfacialReactivity
+from pymatgen.analysis.interface_reactions import (
+    GrandPotentialInterfacialReactivity,
+    InterfacialReactivity,
+)
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.core.composition import Composition, Element
@@ -145,7 +148,9 @@ class TestInterfaceReaction:
             match="Please use the GrandPotentialInterfacialReactivity "
             "class for interfacial reactions with open elements!",
         ):
-            _ = InterfacialReactivity(Composition("Li2O2"), Composition("Li"), pd=self.gpd, norm=True)
+            _ = InterfacialReactivity(
+                Composition("Li2O2"), Composition("Li"), pd=self.gpd, norm=True
+            )
         with pytest.raises(
             TypeError,
             match="Please provide non-grand phase diagram to compute no_mixing_energy!",
@@ -190,7 +195,9 @@ class TestInterfaceReaction:
         assert test1, f"_get_entry_energy: energy for {comp.reduced_formula} is wrong!"
         # Test normal functionality
         comp = Composition("MnO2")
-        test2 = np.isclose(InterfacialReactivity._get_entry_energy(self.pd, comp), -30, atol=1e-3)
+        test2 = np.isclose(
+            InterfacialReactivity._get_entry_energy(self.pd, comp), -30, atol=1e-3
+        )
         assert test2, f"_get_entry_energy: energy for {comp.reduced_formula} is wrong!"
 
     def test_get_grand_potential(self):
@@ -268,7 +275,10 @@ class TestInterfaceReaction:
 
     def test_reverse_convert(self):
         test_array = [(0.5, 1, 3), (0.4, 2, 3), (0, 1, 9), (1, 2, 7)]
-        result = [InterfacialReactivity._reverse_convert(x, f1, f2) for x, f1, f2 in test_array]
+        result = [
+            InterfacialReactivity._reverse_convert(x, f1, f2)
+            for x, f1, f2 in test_array
+        ]
         answer = [0.25, 0.3076923, 0, 1]
         assert_allclose(
             result,
@@ -278,10 +288,14 @@ class TestInterfaceReaction:
 
     def test_products_property(self):
         test1 = sorted(self.irs[0].products) == sorted(["MnO2", "O2", "Mn"])
-        assert test1, "decomposition products gets error for reaction not involving chempots species!"
+        assert test1, (
+            "decomposition products gets error for reaction not involving chempots species!"
+        )
 
         test2 = sorted(self.irs[3].products) == sorted(["Li", "MnO2", "Mn", "Li2O"])
-        assert test2, "decomposition products gets error for reaction involving chempots species!"
+        assert test2, (
+            "decomposition products gets error for reaction involving chempots species!"
+        )
 
     def test_get_kinks(self):
         def test_get_kinks_helper(
@@ -363,14 +377,24 @@ class TestInterfaceReaction:
                 # the kinks and make sure
                 # 1. all points are below the end points
                 # 2. all points are on the convex hull.
-                relative_vectors_1 = [(x - x_kink[0], e - energy_kink[0]) for x, e in points]
-                relative_vectors_2 = [(x - x_kink[-1], e - energy_kink[-1]) for x, e in points]
-                relative_vectors = zip(relative_vectors_1, relative_vectors_2, strict=True)
-                positions = [v1[0] * v2[1] - v1[1] * v2[0] for v1, v2 in relative_vectors]
+                relative_vectors_1 = [
+                    (x - x_kink[0], e - energy_kink[0]) for x, e in points
+                ]
+                relative_vectors_2 = [
+                    (x - x_kink[-1], e - energy_kink[-1]) for x, e in points
+                ]
+                relative_vectors = zip(
+                    relative_vectors_1, relative_vectors_2, strict=True
+                )
+                positions = [
+                    v1[0] * v2[1] - v1[1] * v2[0] for v1, v2 in relative_vectors
+                ]
                 assert np.all(np.array(positions) <= 0)
 
                 hull = ConvexHull(points)
-                assert len(hull.vertices) == len(points), "Error: Generating non-convex plot!"
+                assert len(hull.vertices) == len(points), (
+                    "Error: Generating non-convex plot!"
+                )
 
         for ir in self.irs:
             test_convexity_helper(ir)
@@ -379,23 +403,31 @@ class TestInterfaceReaction:
         # expected reaction1: 0.5 O2 + 0.5 Mn -> 0.5 MnO2
         reaction1 = self.irs[0]._get_reaction(0.5)
         test1 = np.isclose(self.irs[0]._get_original_composition_ratio(reaction1), 0.5)
-        assert test1, "_get_original_composition_ratio: reaction not involving chempots species gets error!"
+        assert test1, (
+            "_get_original_composition_ratio: reaction not involving chempots species gets error!"
+        )
 
         #  expected reaction2: 0.5 Mn + 0.5 Li2O -> Li + 0.25 MnO2 + 0.25 Mn
         reaction2 = self.irs[3]._get_reaction(0.666666)
         test2 = np.isclose(self.irs[3]._get_original_composition_ratio(reaction2), 0.5)
-        assert test2, "_get_original_composition_ratio: reaction involving chempots species gets error!"
+        assert test2, (
+            "_get_original_composition_ratio: reaction involving chempots species gets error!"
+        )
 
     def test_get_critical_original_kink_ratio(self):
         test1 = np.allclose(self.irs[0].get_critical_original_kink_ratio(), [0, 0.5, 1])
         assert test1, "get_critical_original_kink_ratio: gets error!"
-        test2 = np.allclose(self.irs[10].get_critical_original_kink_ratio(), [0, 0.5, 1])
+        test2 = np.allclose(
+            self.irs[10].get_critical_original_kink_ratio(), [0, 0.5, 1]
+        )
         assert test2, "get_critical_original_kink_ratio: gets error!"
         test3 = np.allclose(self.irs[11].get_critical_original_kink_ratio(), [0, 1])
         assert test3, "get_critical_original_kink_ratio: gets error!"
         test4 = np.allclose(self.irs[2].get_critical_original_kink_ratio(), [0, 0.5, 1])
         assert test4, "get_critical_original_kink_ratio: gets error!"
-        test5 = np.allclose(self.irs[3].get_critical_original_kink_ratio(), [0, 0.66666, 1])
+        test5 = np.allclose(
+            self.irs[3].get_critical_original_kink_ratio(), [0, 0.66666, 1]
+        )
         assert test5, "get_critical_original_kink_ratio: gets error!"
 
     def test_labels(self):

@@ -30,7 +30,9 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/pwmat"
 )
 def test_line_locator(exclusion: str, expected_idx: int):
     filepath = f"{TEST_DIR}/MOVEMENT.lzma"
-    aim_idx = LineLocator.locate_all_lines(file_path=filepath, content="FORCE", exclusion=exclusion)[0]
+    aim_idx = LineLocator.locate_all_lines(
+        file_path=filepath, content="FORCE", exclusion=exclusion
+    )[0]
     assert aim_idx == expected_idx
 
 
@@ -40,7 +42,9 @@ def test_line_locator(exclusion: str, expected_idx: int):
 )
 def test_list_locator(exclusion: str, expected_idx: int):
     strs_lst = ["Average Force=  0.12342E+01", "Force"]
-    aim_idx = ListLocator.locate_all_lines(strs_lst=strs_lst, content="FORCE", exclusion=exclusion)[0]
+    aim_idx = ListLocator.locate_all_lines(
+        strs_lst=strs_lst, content="FORCE", exclusion=exclusion
+    )[0]
     assert aim_idx == expected_idx
 
 
@@ -55,9 +59,18 @@ class TestACstrExtractor(MatSciTest):
             assert ac_extractor.lattice[idx] == ac_str_extractor.get_lattice()[idx]
         for idx in range(ac_extractor.n_atoms):
             assert ac_extractor.types[idx] == ac_str_extractor.get_types()[idx]
-            assert ac_extractor.coords[idx * 3 + 0] == ac_str_extractor.get_coords()[idx * 3 + 0]
-            assert ac_extractor.coords[idx * 3 + 1] == ac_str_extractor.get_coords()[idx * 3 + 1]
-            assert ac_extractor.coords[idx * 3 + 2] == ac_str_extractor.get_coords()[idx * 3 + 2]
+            assert (
+                ac_extractor.coords[idx * 3 + 0]
+                == ac_str_extractor.get_coords()[idx * 3 + 0]
+            )
+            assert (
+                ac_extractor.coords[idx * 3 + 1]
+                == ac_str_extractor.get_coords()[idx * 3 + 1]
+            )
+            assert (
+                ac_extractor.coords[idx * 3 + 2]
+                == ac_str_extractor.get_coords()[idx * 3 + 2]
+            )
             assert ac_extractor.magmoms[idx] == ac_str_extractor.get_magmoms()[idx]
 
 
@@ -80,7 +93,9 @@ class TestAtomConfig(MatSciTest):
         tmp_file = f"{self.tmp_path}/atom.config.testing.lzma"
         atom_config.write_file(tmp_file)
         tmp_atom_config = AtomConfig.from_file(filepath)
-        assert_allclose(atom_config.structure.lattice.abc, tmp_atom_config.structure.lattice.abc, 5)
+        assert_allclose(
+            atom_config.structure.lattice.abc, tmp_atom_config.structure.lattice.abc, 5
+        )
 
 
 class TestGenKpt(MatSciTest):
@@ -113,7 +128,9 @@ class TestHighSymmetryPoint(MatSciTest):
         pytest.importorskip("seekpath")
         filepath = f"{TEST_DIR}/atom.config"
         structure = Structure.from_file(filepath)
-        high_symmetry_points = HighSymmetryPoint.from_structure(structure, dim=2, density=0.01)
+        high_symmetry_points = HighSymmetryPoint.from_structure(
+            structure, dim=2, density=0.01
+        )
         assert list(high_symmetry_points.kpath) == ["kpoints", "path"]
         assert len(high_symmetry_points.kpath["path"]) == 1
         assert high_symmetry_points.density == approx(0.0628318530)
@@ -149,4 +166,6 @@ def test_err_msg_on_seekpath_not_installed():
             RuntimeError,
             match="SeeK-path needs to be installed to use the convention of Hinuma et al",
         ):
-            GenKpt.from_structure(Structure.from_file(f"{TEST_DIR}/atom.config"), dim=2, density=0.01)
+            GenKpt.from_structure(
+                Structure.from_file(f"{TEST_DIR}/atom.config"), dim=2, density=0.01
+            )

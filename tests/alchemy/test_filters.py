@@ -20,7 +20,9 @@ class TestContainsSpecieFilter(MatSciTest):
     def test_filtering(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0], [0, -2.0, 3.0]])
-        struct = Structure(lattice, [{"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}] * 4, coords)
+        struct = Structure(
+            lattice, [{"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}] * 4, coords
+        )
 
         species1 = [Species("Si5+"), Species("Mg2+")]
         f1 = ContainsSpecieFilter(species1, strict_compare=True, AND=False)
@@ -71,7 +73,9 @@ class TestSpecieProximityFilter(MatSciTest):
 
 class TestRemoveDuplicatesFilter:
     def setup_method(self):
-        with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json", encoding="utf-8") as file:
+        with open(
+            f"{TEST_FILES_DIR}/entries/TiO2_entries.json", encoding="utf-8"
+        ) as file:
             entries = json.load(file, cls=MontyDecoder)
         self._struct_list = [entry.structure for entry in entries]
         self._sm = StructureMatcher()
@@ -85,12 +89,16 @@ class TestRemoveDuplicatesFilter:
     def test_as_from_dict(self):
         fil = RemoveDuplicatesFilter()
         dct = fil.as_dict()
-        assert isinstance(RemoveDuplicatesFilter().from_dict(dct), RemoveDuplicatesFilter)
+        assert isinstance(
+            RemoveDuplicatesFilter().from_dict(dct), RemoveDuplicatesFilter
+        )
 
 
 class TestRemoveExistingFilter:
     def setup_method(self):
-        with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json", encoding="utf-8") as file:
+        with open(
+            f"{TEST_FILES_DIR}/entries/TiO2_entries.json", encoding="utf-8"
+        ) as file:
             entries = json.load(file, cls=MontyDecoder)
         self._struct_list = [entry.structure for entry in entries]
         self._sm = StructureMatcher()

@@ -152,7 +152,9 @@ class TestSpaceGroup:
 
     def test_get_orbit(self):
         sg = SpaceGroup("Fm-3m")
-        rand_percent = np.random.default_rng().integers(0, 100, size=(3,), endpoint=True) / 100
+        rand_percent = (
+            np.random.default_rng().integers(0, 100, size=(3,), endpoint=True) / 100
+        )
         assert len(sg.get_orbit(rand_percent)) <= sg.order
 
     def test_get_orbit_and_generators(self):
@@ -222,7 +224,9 @@ class TestSpaceGroup:
 
     def test_symmops(self):
         sg = SpaceGroup("Pnma")
-        op = SymmOp.from_rotation_and_translation([[1, 0, 0], [0, -1, 0], [0, 0, -1]], [0.5, 0.5, 0.5])
+        op = SymmOp.from_rotation_and_translation(
+            [[1, 0, 0], [0, -1, 0], [0, 0, -1]], [0.5, 0.5, 0.5]
+        )
         assert op in sg.symmetry_ops
 
     def test_other_settings(self):
@@ -234,7 +238,9 @@ class TestSpaceGroup:
 
     def test_subgroup_supergroup(self):
         assert SpaceGroup("Pma2").is_subgroup(SpaceGroup("Pccm"))
-        assert not SpaceGroup.from_int_number(229).is_subgroup(SpaceGroup.from_int_number(230))
+        assert not SpaceGroup.from_int_number(229).is_subgroup(
+            SpaceGroup.from_int_number(230)
+        )
         assert SpaceGroup("P3").is_subgroup(SpaceGroup("P3"))  # Added after #3937
         assert SpaceGroup("Fm-3m").is_subgroup(SpaceGroup("Pm-3m"))  # Added after #3937
 
@@ -291,4 +297,7 @@ class TestSpaceGroup:
 
     def test_import(self):
         # Ensure no circular import
-        subprocess.run([sys.executable, "-c", "from pymatgen.symmetry.groups import SpaceGroup"], check=True)
+        subprocess.run(
+            [sys.executable, "-c", "from pymatgen.symmetry.groups import SpaceGroup"],
+            check=True,
+        )

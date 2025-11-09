@@ -67,17 +67,24 @@ class TestPolymer:
         )
 
     def test_polymer_chain_lengths(self):
-        assert len(self.peo_polymer.molecule) == len(self.peo_head) + (self.n_units - 2) * len(self.peo_bulk) + len(
-            self.peo_tail
-        )
+        assert len(self.peo_polymer.molecule) == len(self.peo_head) + (
+            self.n_units - 2
+        ) * len(self.peo_bulk) + len(self.peo_tail)
         assert len(self.peo_polymer.molecule) == len(self.peo_polymer_linear.molecule)
 
     def test_polymer_chain_topologies(self):
         topology_random = Topology.from_bonding(self.peo_polymer.molecule)
         topology_linear = Topology.from_bonding(self.peo_polymer_linear.molecule)
-        assert topology_linear.topologies["Bonds"] != topology_random.topologies["Bonds"]
-        assert topology_linear.topologies["Angles"] != topology_random.topologies["Angles"]
-        assert topology_linear.topologies["Dihedrals"] != topology_random.topologies["Dihedrals"]
+        assert (
+            topology_linear.topologies["Bonds"] != topology_random.topologies["Bonds"]
+        )
+        assert (
+            topology_linear.topologies["Angles"] != topology_random.topologies["Angles"]
+        )
+        assert (
+            topology_linear.topologies["Dihedrals"]
+            != topology_random.topologies["Dihedrals"]
+        )
 
 
 class TestPackmolOutput:
@@ -109,10 +116,12 @@ class TestPackmolOutput:
 
     def test_packed_molecule(self):
         assert len(self.cocktail) == sum(
-            len(mol) * self.packmol_config[idx]["number"] for idx, mol in enumerate(self.mols)
+            len(mol) * self.packmol_config[idx]["number"]
+            for idx, mol in enumerate(self.mols)
         )
         atoms = (
-            self.ethanol_atoms * self.packmol_config[0]["number"] + self.water_atoms * self.packmol_config[1]["number"]
+            self.ethanol_atoms * self.packmol_config[0]["number"]
+            + self.water_atoms * self.packmol_config[1]["number"]
         )
         atoms_ans = [str(site.specie) for site in self.cocktail]
         assert atoms == atoms_ans

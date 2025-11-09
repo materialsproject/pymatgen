@@ -45,19 +45,25 @@ class TestDosPlotter(MatSciTest):
     def test_add_dos_dict(self):
         dct = self.plotter.get_dos_dict()
         assert len(dct) == 0
-        self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
+        self.plotter.add_dos_dict(
+            self.dos.get_element_dos(), key_sort_func=lambda x: x.X
+        )
         dct = self.plotter.get_dos_dict()
         assert len(dct) == 4
 
     def test_get_dos_dict(self):
-        self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
+        self.plotter.add_dos_dict(
+            self.dos.get_element_dos(), key_sort_func=lambda x: x.X
+        )
         dct = self.plotter.get_dos_dict()
         assert list(dct) == ["Li", "Fe", "P", "O"]
 
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_get_plot(self):
-        self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
+        self.plotter.add_dos_dict(
+            self.dos.get_element_dos(), key_sort_func=lambda x: x.X
+        )
         ax = self.plotter.get_plot()
         assert len(ax.lines) == 2
         out_path = f"{self.tmp_path}/dosplot.png"
@@ -67,15 +73,21 @@ class TestDosPlotter(MatSciTest):
     def test_get_plot_limits(self):
         # Tests limit determination and if inverted_axes case
         # reproduces the same energy and DOS axis limits
-        self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
+        self.plotter.add_dos_dict(
+            self.dos.get_element_dos(), key_sort_func=lambda x: x.X
+        )
         # Contains energy and DOS limits and expected results
         with open(f"{BAND_TEST_DIR}/../plotter/complete_dos_limits.json", "rb") as file:
             limits_results = orjson.loads(file.read())
 
         for item in limits_results:
-            ax = self.plotter.get_plot(xlim=item["energy_limit"], ylim=item["DOS_limit"])
+            ax = self.plotter.get_plot(
+                xlim=item["energy_limit"], ylim=item["DOS_limit"]
+            )
             param_dict = self.get_plot_attributes(ax)
-            ax_invert = self.plotter.get_plot(invert_axes=True, xlim=item["DOS_limit"], ylim=item["energy_limit"])
+            ax_invert = self.plotter.get_plot(
+                invert_axes=True, xlim=item["DOS_limit"], ylim=item["energy_limit"]
+            )
             param_dict_invert = self.get_plot_attributes(ax_invert)
             assert item["energy_result"] == approx(param_dict["xaxis_limits"])
             assert item["energy_result"] == approx(param_dict_invert["yaxis_limits"])
@@ -92,14 +104,18 @@ class TestDosPlotter(MatSciTest):
 
 class TestBSPlotter(MatSciTest):
     def setup_method(self):
-        with open(f"{BAND_TEST_DIR}/CaO_2605_bandstructure.json", encoding="utf-8") as file:
+        with open(
+            f"{BAND_TEST_DIR}/CaO_2605_bandstructure.json", encoding="utf-8"
+        ) as file:
             dct = orjson.loads(file.read())
             self.bs = BandStructureSymmLine.from_dict(dct)
             self.plotter = BSPlotter(self.bs)
 
         assert len(self.plotter._bs) == 1, "wrong number of band objects"
 
-        with open(f"{BAND_TEST_DIR}/N2_12103_bandstructure.json", encoding="utf-8") as file:
+        with open(
+            f"{BAND_TEST_DIR}/N2_12103_bandstructure.json", encoding="utf-8"
+        ) as file:
             dct = orjson.loads(file.read())
             self.sbs_sc = BandStructureSymmLine.from_dict(dct)
 
@@ -121,10 +137,18 @@ class TestBSPlotter(MatSciTest):
         assert steps_idx == [0, 121, 132, 143], "wrong list of steps idx"
 
     def test_rescale_distances(self):
-        rescaled_distances = self.plotter_multi._rescale_distances(self.sbs_sc, self.sbs_met)
-        assert len(rescaled_distances) == len(self.sbs_met.distance), "wrong length of distances list"
-        assert rescaled_distances[-1] == approx(6.5191398067252875), "wrong last distance value"
-        assert rescaled_distances[148] == self.sbs_sc.distance[19], "wrong distance at high symm k-point"
+        rescaled_distances = self.plotter_multi._rescale_distances(
+            self.sbs_sc, self.sbs_met
+        )
+        assert len(rescaled_distances) == len(self.sbs_met.distance), (
+            "wrong length of distances list"
+        )
+        assert rescaled_distances[-1] == approx(6.5191398067252875), (
+            "wrong last distance value"
+        )
+        assert rescaled_distances[148] == self.sbs_sc.distance[19], (
+            "wrong distance at high symm k-point"
+        )
 
     def test_interpolate_bands(self):
         data = self.plotter.bs_plot_data()
@@ -138,24 +162,38 @@ class TestBSPlotter(MatSciTest):
         assert int_energies[0].shape == (16, 100), "wrong length of distances list"
 
     def test_bs_plot_data(self):
-        assert len(self.plotter.bs_plot_data()["distances"]) == 10, "wrong number of sequences of branches"
+        assert len(self.plotter.bs_plot_data()["distances"]) == 10, (
+            "wrong number of sequences of branches"
+        )
         assert len(self.plotter.bs_plot_data()["distances"][0]) == 16, (
             "wrong number of distances in the first sequence of branches"
         )
-        assert sum(len(dist) for dist in self.plotter.bs_plot_data()["distances"]) == 160, "wrong number of distances"
+        assert (
+            sum(len(dist) for dist in self.plotter.bs_plot_data()["distances"]) == 160
+        ), "wrong number of distances"
 
         length = len(self.plotter.bs_plot_data(split_branches=False)["distances"][0])
-        assert length == 144, "wrong number of distances in the first sequence of branches"
+        assert length == 144, (
+            "wrong number of distances in the first sequence of branches"
+        )
 
         length = len(self.plotter.bs_plot_data(split_branches=False)["distances"])
-        assert length == 2, "wrong number of distances in the first sequence of branches"
+        assert length == 2, (
+            "wrong number of distances in the first sequence of branches"
+        )
 
-        assert self.plotter.bs_plot_data()["ticks"]["label"][5] == "K", "wrong tick label"
-        assert len(self.plotter.bs_plot_data()["ticks"]["label"]) == 19, "wrong number of tick labels"
+        assert self.plotter.bs_plot_data()["ticks"]["label"][5] == "K", (
+            "wrong tick label"
+        )
+        assert len(self.plotter.bs_plot_data()["ticks"]["label"]) == 19, (
+            "wrong number of tick labels"
+        )
 
     def test_get_ticks(self):
         assert self.plotter.get_ticks()["label"][5] == "K", "wrong tick label"
-        assert self.plotter.get_ticks()["distance"][5] == approx(2.406607625322699), "wrong tick distance"
+        assert self.plotter.get_ticks()["distance"][5] == approx(2.406607625322699), (
+            "wrong tick distance"
+        )
 
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
@@ -189,7 +227,10 @@ class TestBSPlotterProjected:
             self.bs_Cu2O = BandStructureSymmLine.from_dict(orjson.loads(file.read()))
         self.plotter_Cu2O = BSPlotterProjected(self.bs_Cu2O)
 
-        with open(f"{TEST_FILES_DIR}/electronic_structure/boltztrap2/PbTe_bandstructure.json", "rb") as file:
+        with open(
+            f"{TEST_FILES_DIR}/electronic_structure/boltztrap2/PbTe_bandstructure.json",
+            "rb",
+        ) as file:
             self.bs_PbTe = BandStructureSymmLine.from_dict(orjson.loads(file.read()))
 
     def test_methods(self):
@@ -197,7 +238,9 @@ class TestBSPlotterProjected:
         # it can actually execute.
         self.plotter_Cu2O.get_elt_projected_plots()
         self.plotter_Cu2O.get_elt_projected_plots_color()
-        axes = self.plotter_Cu2O.get_projected_plots_dots({"Cu": ["d", "s"], "O": ["p"]})
+        axes = self.plotter_Cu2O.get_projected_plots_dots(
+            {"Cu": ["d", "s"], "O": ["p"]}
+        )
         assert len(axes) == 4, f"{len(axes)=}"
         assert len(axes[0].get_lines()) == 4903, f"{len(axes[0].get_lines())=}"
         assert len(axes[-1].get_lines()) == 0, f"{len(axes[-1].get_lines())=}"
@@ -222,7 +265,9 @@ class TestBSDOSPlotter:
     def test_methods(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz")
         plotter = BSDOSPlotter()
-        band_struct = vasp_run.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_Si_bands")
+        band_struct = vasp_run.get_band_structure(
+            kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_Si_bands"
+        )
         ax = plotter.get_plot(band_struct)
         assert isinstance(ax, plt.Axes)
         plt.close()
@@ -231,10 +276,15 @@ class TestBSDOSPlotter:
         assert isinstance(dos_ax, plt.Axes)
         plt.close("all")
 
-        with open(f"{TEST_FILES_DIR}/electronic_structure/plotter/SrBa2Sn2O7.json", "rb") as file:
+        with open(
+            f"{TEST_FILES_DIR}/electronic_structure/plotter/SrBa2Sn2O7.json", "rb"
+        ) as file:
             band_struct_dict = orjson.loads(file.read())
         # generate random projections
-        data_structure = [[[[0 for _ in range(12)] for _ in range(9)] for _ in range(70)] for _ in range(90)]
+        data_structure = [
+            [[[0 for _ in range(12)] for _ in range(9)] for _ in range(70)]
+            for _ in range(90)
+        ]
         band_struct_dict["projections"]["1"] = data_structure
         dct = band_struct_dict["projections"]["1"]
         rng = np.random.default_rng()
@@ -258,8 +308,12 @@ class TestBSDOSPlotter:
 
 class TestPlotBZ:
     def setup_method(self):
-        self.rec_latt = Structure.from_file(f"{TEST_FILES_DIR}/io/cssr/Si.cssr").lattice.reciprocal_lattice
-        self.kpath = [[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5], [0.5, 0.25, 0.75], [0.375, 0.375, 0.75]]]
+        self.rec_latt = Structure.from_file(
+            f"{TEST_FILES_DIR}/io/cssr/Si.cssr"
+        ).lattice.reciprocal_lattice
+        self.kpath = [
+            [[0.0, 0.0, 0.0], [0.5, 0.0, 0.5], [0.5, 0.25, 0.75], [0.375, 0.375, 0.75]]
+        ]
         self.labels = {
             "\\Gamma": [0.0, 0.0, 0.0],
             "K": [0.375, 0.375, 0.75],
@@ -310,136 +364,212 @@ class TestBoltztrapPlotter:
     def test_plot_carriers(self):
         ax = self.plotter.plot_carriers()
         assert len(ax.get_lines()) == 7, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.0702422655947665), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(6.525490122298364e22), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.0702422655947665), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(6.525490122298364e22), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_complexity_factor_mu(self):
         pytest.importorskip("fdint")
         ax = self.plotter.plot_complexity_factor_mu()
         assert len(ax.get_lines()) == 2, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.0702422655947665), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(0.004708835456903449), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.0702422655947665), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(0.004708835456903449), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_conductivity_dop(self):
         ax = self.plotter.plot_conductivity_dop()
         assert len(ax.get_lines()) == 8, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(1e15), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(0.3801957596666667), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(1e15), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(0.3801957596666667), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_conductivity_mu(self):
         ax = self.plotter.plot_conductivity_mu()
         assert len(ax.get_lines()) == 9, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.0702422655947665), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(1965.1306), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.0702422655947665), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(1965.1306), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_conductivity_temp(self):
         ax = self.plotter.plot_conductivity_temp()
         assert len(ax.get_lines()) == 6, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(100), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(0.3801957596666667), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(100), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(0.3801957596666667), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_dos(self):
         ax = self.plotter.plot_dos()
         assert len(ax.get_lines()) == 3, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.4197044934588674), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(0.0), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.4197044934588674), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(0.0), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_eff_mass_dop(self):
         ax = self.plotter.plot_eff_mass_dop()
         assert len(ax.get_lines()) == 8, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(1e15), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(1.4231240011719886), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(1e15), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(1.4231240011719886), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_eff_mass_temp(self):
         ax = self.plotter.plot_eff_mass_temp()
         assert len(ax.get_lines()) == 6, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(100), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(1.4231240011719886), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(100), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(1.4231240011719886), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_hall_carriers(self):
         ax = self.plotter.plot_hall_carriers()
         assert len(ax.get_lines()) == 7, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.0702422655947665), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(9.538187273102463e17), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.0702422655947665), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(9.538187273102463e17), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_power_factor_dop(self):
         ax = self.plotter.plot_power_factor_dop()
         assert len(ax.get_lines()) == 8, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(1e15), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(0.40606868935796925), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(1e15), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(0.40606868935796925), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_power_factor_mu(self):
         ax = self.plotter.plot_power_factor_mu()
         assert len(ax.get_lines()) == 9, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.0702422655947665), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(365.5514594136157), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.0702422655947665), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(365.5514594136157), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_power_factor_temp(self):
         ax = self.plotter.plot_power_factor_temp()
         assert len(ax.get_lines()) == 6, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(100), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(0.40606868935796925), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(100), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(0.40606868935796925), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_seebeck_dop(self):
         ax = self.plotter.plot_seebeck_dop()
         assert len(ax.get_lines()) == 8, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(1e15), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(1050.8197666666667), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(1e15), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(1050.8197666666667), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_seebeck_eff_mass_mu(self):
         pytest.importorskip("fdint")
         ax = self.plotter.plot_seebeck_eff_mass_mu()
         assert len(ax.get_lines()) == 2, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.0702422655947665), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(6412.881888198197), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.0702422655947665), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(6412.881888198197), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_seebeck_mu(self):
         ax = self.plotter.plot_seebeck_mu()
         assert len(ax.get_lines()) == 9, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.0702422655947665), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(-433.11096000000003), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.0702422655947665), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(-433.11096000000003), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_seebeck_temp(self):
         ax = self.plotter.plot_seebeck_temp()
         assert len(ax.get_lines()) == 6, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(100), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(1050.8197666666667), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(100), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(1050.8197666666667), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_zt_dop(self):
         ax = self.plotter.plot_zt_dop()
         assert len(ax.get_lines()) == 8, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(1e15), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(4.060682863129955e-05), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(1e15), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(4.060682863129955e-05), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_zt_mu(self):
         ax = self.plotter.plot_zt_mu()
         assert len(ax.get_lines()) == 9, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.0702422655947665), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(0.2153839699235254), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(-2.0702422655947665), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(0.2153839699235254), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_zt_temp(self):
         ax = self.plotter.plot_zt_temp()
         assert len(ax.get_lines()) == 6, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(100), "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == approx(4.060682863129955e-05), "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(100), (
+            "wrong 0 data in line 0"
+        )
+        assert ax.get_lines()[0].get_data()[1][0] == approx(4.060682863129955e-05), (
+            "wrong 1 data in line 0"
+        )
         plt.close()
 
 
@@ -480,7 +610,9 @@ class TestCohpPlotter(MatSciTest):
         d_coop = self.coop_plot.get_cohp_dict()
         assert len(d_coop) == 0
         bonds = self.coop.bonds
-        self.coop_plot.add_cohp_dict(self.coop.all_cohps, key_sort_func=lambda x: sortkeys(bonds[x]["sites"]))
+        self.coop_plot.add_cohp_dict(
+            self.coop.all_cohps, key_sort_func=lambda x: sortkeys(bonds[x]["sites"])
+        )
         d_coop = self.coop_plot.get_cohp_dict()
         assert len(d_coop) == 11
         assert list(self.coop_plot._cohps) == sorted_keys

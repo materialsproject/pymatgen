@@ -218,7 +218,9 @@ $end"""
             "stre": ["1 2 1.0 2.0 0.05", "3 4 1.5 2.0 0.05"],
             "bend": ["7 8 9 90 120 10"],
         }
-        with pytest.raises(ValueError, match="Q-Chem only supports PES_SCAN with two or less variables"):
+        with pytest.raises(
+            ValueError, match="Q-Chem only supports PES_SCAN with two or less variables"
+        ):
             QCInput.scan_template(bad_scan)
 
     def test_van_der_waals_template(self):
@@ -231,7 +233,9 @@ $end"""
 $end"""
         assert vdw_test_atomic == vdw_actual_atomic
 
-        vdw_test_sequential = QCInput.van_der_waals_template(vdw_params, mode="sequential")
+        vdw_test_sequential = QCInput.van_der_waals_template(
+            vdw_params, mode="sequential"
+        )
         vdw_actual_sequential = """$van_der_waals
 2
    1 1.2
@@ -239,7 +243,9 @@ $end"""
 $end"""
         assert vdw_test_sequential == vdw_actual_sequential
         mode = "invalid"
-        with pytest.raises(ValueError, match=f"Invalid {mode=}, must be 'atomic' or 'sequential'"):
+        with pytest.raises(
+            ValueError, match=f"Invalid {mode=}, must be 'atomic' or 'sequential'"
+        ):
             QCInput.van_der_waals_template(vdw_params, mode=mode)
 
     def test_cdft_template(self):
@@ -1233,7 +1239,10 @@ $end"""
         test_path = f"{TEST_DIR}/test.qin"
         ref_path = f"{TEST_DIR}/test_ref.qin"
 
-        with open(ref_path, encoding="utf-8") as ref_file, open(test_path, encoding="utf-8") as test_file:
+        with (
+            open(ref_path, encoding="utf-8") as ref_file,
+            open(test_path, encoding="utf-8") as test_file,
+        ):
             for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 # By default, if this statement fails the offending line will be printed
                 assert l_test == l_ref
@@ -1248,7 +1257,10 @@ $end"""
         test_path = f"{TEST_DIR}/test_vdw.qin"
         ref_path = f"{TEST_DIR}/test_ref_vdw.qin"
 
-        with open(ref_path, encoding="utf-8") as ref_file, open(test_path, encoding="utf-8") as test_file:
+        with (
+            open(ref_path, encoding="utf-8") as ref_file,
+            open(test_path, encoding="utf-8") as test_file,
+        ):
             for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 # By default, if this statement fails the offending line will be printed
                 assert l_test == l_ref
@@ -1261,7 +1273,10 @@ $end"""
         qcinp = QCInput.from_file(f"{TEST_DIR}/new_qchem_files/nbo7.qin")
         qcinp.write_file(test_path)
 
-        with open(test_path, encoding="utf-8") as ref_file, open(ref_path, encoding="utf-8") as test_file:
+        with (
+            open(test_path, encoding="utf-8") as ref_file,
+            open(ref_path, encoding="utf-8") as test_file,
+        ):
             for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 # By default, if this statement fails the offending line will be printed
                 assert l_test == l_ref
@@ -1274,7 +1289,10 @@ $end"""
         test_path = f"{TEST_DIR}/new_qchem_files/e2pert.qin"
         ref_path = f"{TEST_DIR}/test_e2pert.qin"
 
-        with open(ref_path, encoding="utf-8") as ref_file, open(test_path, encoding="utf-8") as test_file:
+        with (
+            open(ref_path, encoding="utf-8") as ref_file,
+            open(test_path, encoding="utf-8") as test_file,
+        ):
             for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 assert l_test == l_ref
 
@@ -1286,7 +1304,10 @@ $end"""
         test_path = f"{TEST_DIR}/new_qchem_files/custom_smd.qin"
         ref_path = f"{TEST_DIR}/test_custom_smd.qin"
 
-        with open(ref_path, encoding="utf-8") as ref_file, open(test_path, encoding="utf-8") as test_file:
+        with (
+            open(ref_path, encoding="utf-8") as ref_file,
+            open(test_path, encoding="utf-8") as test_file,
+        ):
             for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 assert l_test == l_ref
 

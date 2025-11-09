@@ -19,7 +19,8 @@ ex_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "example_files"
 
 
 @pytest.mark.parametrize(
-    ("eslice", "eknowns"), [(ex_slice1, ex_jstruc_slice1_known), (ex_slice2, ex_jstruc_slice2_known)]
+    ("eslice", "eknowns"),
+    [(ex_slice1, ex_jstruc_slice1_known), (ex_slice2, ex_jstruc_slice2_known)],
 )
 def test_jstructure(eslice: list[str], eknowns: dict):
     """Test the JOutStructure class.
@@ -67,7 +68,8 @@ def test_jstructure(eslice: list[str], eknowns: dict):
 
 
 @pytest.mark.parametrize(
-    ("eslice", "eknowns"), [(ex_slice1, ex_jstruc_slice1_known), (ex_slice2, ex_jstruc_slice2_known)]
+    ("eslice", "eknowns"),
+    [(ex_slice1, ex_jstruc_slice1_known), (ex_slice2, ex_jstruc_slice2_known)],
 )
 def test_jstructure_structure(eslice: list[str], eknowns: dict):
     jst = JOutStructure._from_text_slice(eslice, opt_type=eknowns["opt_type"])

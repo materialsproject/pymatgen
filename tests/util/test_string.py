@@ -58,12 +58,17 @@ class TestFunc:
         assert latexify_spacegroup("P2_1/c") == "P2$_{1}$/c"
 
     def test_htmlify(self):
-        assert htmlify("Li3Fe2(PO4)3") == "Li<sub>3</sub>Fe<sub>2</sub>(PO<sub>4</sub>)<sub>3</sub>"
+        assert (
+            htmlify("Li3Fe2(PO4)3")
+            == "Li<sub>3</sub>Fe<sub>2</sub>(PO<sub>4</sub>)<sub>3</sub>"
+        )
         assert htmlify("Li0.2Na0.8Cl") == "Li<sub>0.2</sub>Na<sub>0.8</sub>Cl"
 
     def test_unicodeify(self):
         assert unicodeify("Li3Fe2(PO4)3") == "Li₃Fe₂(PO₄)₃"
-        with pytest.raises(ValueError, match="unicode character exists for subscript period"):
+        with pytest.raises(
+            ValueError, match="unicode character exists for subscript period"
+        ):
             unicodeify("Li0.2Na0.8Cl")
         assert unicodeify_species("O2+") == "O²⁺"
         assert unicodeify_spacegroup("F-3m") == "F3̅m"
@@ -106,7 +111,9 @@ class TestFunc:
         abc = "a,b,c"
         assert xyz == transformation_to_string(matrix, translation)
         assert ms == transformation_to_string(matrix, translation, c="m")
-        assert abc == transformation_to_string(matrix, translation, components=("a", "b", "c"))
+        assert abc == transformation_to_string(
+            matrix, translation, components=("a", "b", "c")
+        )
 
         matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
         translation = [11, 12, 13]

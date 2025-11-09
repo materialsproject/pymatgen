@@ -102,7 +102,9 @@ TEST_STRUCTS = [
         coords=[[0, 0, 0], [0.25, 0.25, 0.25]],
     ),
     Structure(  # ZnO wurtzite structure
-        lattice=Lattice.from_parameters(a=3.8227, b=3.8227, c=6.2607, alpha=90, beta=90, gamma=120),
+        lattice=Lattice.from_parameters(
+            a=3.8227, b=3.8227, c=6.2607, alpha=90, beta=90, gamma=120
+        ),
         species=["Zn", "O", "Zn", "O"],
         coords=[
             [1 / 3, 2 / 3, 0],
@@ -114,7 +116,13 @@ TEST_STRUCTS = [
     Structure(
         lattice=[[3.9, 0, 0], [0, 3.9, 0], [0, 0, 3.9]],
         species=["Sr", "Ti", "O", "O", "O"],
-        coords=[[0, 0, 0], [0.5, 0.5, 0.5], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5]],
+        coords=[
+            [0, 0, 0],
+            [0.5, 0.5, 0.5],
+            [0.5, 0.5, 0],
+            [0.5, 0, 0.5],
+            [0, 0.5, 0.5],
+        ],
     ),
     Structure(
         lattice=[[5.76, 0, 0], [0, 5.76, 0], [0, 0, 5.76]],
@@ -144,7 +152,9 @@ TEST_PROTOSTRUCTURES = [
 ]
 
 
-@pytest.mark.parametrize(("structure", "expected"), zip(TEST_STRUCTS, TEST_PROTOSTRUCTURES, strict=False))
+@pytest.mark.parametrize(
+    ("structure", "expected"), zip(TEST_STRUCTS, TEST_PROTOSTRUCTURES, strict=False)
+)
 def test_get_protostructure_label_from_spglib(structure, expected):
     """Check that spglib gives correct protostructure label simple cases."""
     assert get_protostructure_label_from_spglib(structure) == expected
@@ -158,23 +168,39 @@ def test_get_protostructure_label_from_spglib_edge_case():
 
     assert defaults["init_symprec"].default == 0.1
 
-    spg_analyzer = SpacegroupAnalyzer(struct, symprec=defaults["init_symprec"].default, angle_tolerance=5)
+    spg_analyzer = SpacegroupAnalyzer(
+        struct, symprec=defaults["init_symprec"].default, angle_tolerance=5
+    )
 
     raises_str = "Invalid WP multiplicities - A2B3C_hP6_191_c_2g_a:Pa-Tc-U, expected U(PaTc3)2 to be UPa2Tc3"
     with pytest.raises(ValueError, match=re.escape(raises_str)):
         get_protostructure_label_from_spg_analyzer(spg_analyzer, raise_errors=True)
 
-    assert get_protostructure_label_from_spg_analyzer(spg_analyzer, raise_errors=False) == raises_str
+    assert (
+        get_protostructure_label_from_spg_analyzer(spg_analyzer, raise_errors=False)
+        == raises_str
+    )
 
     # Test that it gives invalid protostructure if fallback is None.
     with pytest.raises(ValueError, match=re.escape(raises_str)):
-        get_protostructure_label_from_spglib(struct, raise_errors=True, fallback_symprec=None)
+        get_protostructure_label_from_spglib(
+            struct, raise_errors=True, fallback_symprec=None
+        )
 
-    assert get_protostructure_label_from_spglib(struct, raise_errors=False, fallback_symprec=None) == raises_str
+    assert (
+        get_protostructure_label_from_spglib(
+            struct, raise_errors=False, fallback_symprec=None
+        )
+        == raises_str
+    )
 
-    assert get_protostructure_label_from_spglib(struct, raise_errors=True) == ("A2B3C_hP6_191_c_g_a:Pa-Tc-U")
+    assert get_protostructure_label_from_spglib(struct, raise_errors=True) == (
+        "A2B3C_hP6_191_c_g_a:Pa-Tc-U"
+    )
 
-    assert get_protostructure_label_from_spglib(struct, raise_errors=False) == ("A2B3C_hP6_191_c_g_a:Pa-Tc-U")
+    assert get_protostructure_label_from_spglib(struct, raise_errors=False) == (
+        "A2B3C_hP6_191_c_g_a:Pa-Tc-U"
+    )
 
 
 @pytest.mark.parametrize(
@@ -224,7 +250,10 @@ def test_get_prototype_from_protostructure(protostructure_label, expected):
     element_wyckoff = "_".join(wyckoffs)
 
     isopointal_element_wyckoffs = list(
-        {element_wyckoff.translate(str.maketrans(trans)) for trans in WYCKOFF_POSITION_RELAB_DICT[spg_num]}
+        {
+            element_wyckoff.translate(str.maketrans(trans))
+            for trans in WYCKOFF_POSITION_RELAB_DICT[spg_num]
+        }
     )
 
     protostructure_labels = [
@@ -254,12 +283,19 @@ def test_get_prototype_from_protostructure(protostructure_label, expected):
         ),
     ],
 )
-def test_get_protostructures_from_aflow_label_and_composition(aflow_label, composition, expected):
-    protostructures = get_protostructures_from_aflow_label_and_composition(aflow_label, Composition(composition))
+def test_get_protostructures_from_aflow_label_and_composition(
+    aflow_label, composition, expected
+):
+    protostructures = get_protostructures_from_aflow_label_and_composition(
+        aflow_label, Composition(composition)
+    )
     assert set(protostructures) == set(expected.split(" "))
 
     # check the round trip
-    assert all(get_prototype_from_protostructure(protostructure) == aflow_label for protostructure in protostructures)
+    assert all(
+        get_prototype_from_protostructure(protostructure) == aflow_label
+        for protostructure in protostructures
+    )
 
 
 @pytest.mark.parametrize(
@@ -271,7 +307,10 @@ def test_get_protostructures_from_aflow_label_and_composition(aflow_label, compo
         (
             {"a": 1, "b": 1, "c": 1},
             {"x": 1, "y": 1, "z": 1},
-            [dict(zip(["a", "b", "c"], perm, strict=False)) for perm in permutations(["x", "y", "z"])],
+            [
+                dict(zip(["a", "b", "c"], perm, strict=False))
+                for perm in permutations(["x", "y", "z"])
+            ],
         ),
         # Test case 3: No valid translations (different values)
         ({"a": 1, "b": 2}, {"x": 1, "y": 3}, []),
@@ -317,7 +356,9 @@ def test_get_prototype_formula_from_composition(composition: str, expected: str)
     ("protostructure_label", "expected"),
     [("AB3C_oP20_62_c_cd_a:Ni-O-Yb", "NiO3Yb")],
 )
-def test_get_formula_from_protostructure_label(protostructure_label: str, expected: str):
+def test_get_formula_from_protostructure_label(
+    protostructure_label: str, expected: str
+):
     assert get_formula_from_protostructure_label(protostructure_label) == expected
 
 
@@ -325,8 +366,13 @@ def test_get_formula_from_protostructure_label(protostructure_label: str, expect
     ("anonymous_formula", "prototype_formula"),
     [("AB", "AB"), ("A2B", "AB2"), ("A3B2CD4", "AB2C3D4")],
 )
-def test_get_anonymous_formula_from_prototype_formula(anonymous_formula: str, prototype_formula: str):
-    assert get_anonymous_formula_from_prototype_formula(anonymous_formula) == prototype_formula
+def test_get_anonymous_formula_from_prototype_formula(
+    anonymous_formula: str, prototype_formula: str
+):
+    assert (
+        get_anonymous_formula_from_prototype_formula(anonymous_formula)
+        == prototype_formula
+    )
 
 
 @pytest.mark.parametrize(
@@ -343,13 +389,20 @@ def test_count_distinct_wyckoff_letters(protostructure_label, expected):
 
 
 @pytest.mark.skipif(which("aflow") is None, reason="AFLOW CLI not installed")
-@pytest.mark.parametrize(("structure", "expected"), zip(TEST_STRUCTS, TEST_PROTOSTRUCTURES, strict=False))
+@pytest.mark.parametrize(
+    ("structure", "expected"), zip(TEST_STRUCTS, TEST_PROTOSTRUCTURES, strict=False)
+)
 def test_get_protostructure_label_from_aflow(structure, expected):
     """Check that AFLOW CLI gives correct protostructure label simple cases."""
-    assert get_protostructure_label_from_aflow(structure, aflow_executable=which("aflow")) == expected
+    assert (
+        get_protostructure_label_from_aflow(structure, aflow_executable=which("aflow"))
+        == expected
+    )
 
 
-@pytest.mark.parametrize(("structure", "expected"), zip(TEST_STRUCTS, TEST_PROTOSTRUCTURES, strict=False))
+@pytest.mark.parametrize(
+    ("structure", "expected"), zip(TEST_STRUCTS, TEST_PROTOSTRUCTURES, strict=False)
+)
 def test_get_protostructure_label_from_moyopy(structure, expected):
     """Check that moyopy gives correct protostructure label simple cases."""
     assert get_protostructure_label_from_moyopy(structure) == expected, (
@@ -358,7 +411,9 @@ def test_get_protostructure_label_from_moyopy(structure, expected):
 
 
 @pytest.mark.skipif(pyxtal is None, reason="pyxtal not installed")
-@pytest.mark.xfail(reason="pyxtal is non-deterministic and symmetry can increase in random crystal")
+@pytest.mark.xfail(
+    reason="pyxtal is non-deterministic and symmetry can increase in random crystal"
+)
 @pytest.mark.parametrize(
     "protostructure",
     PROTOSTRUCTURE_SET,
@@ -370,16 +425,22 @@ def test_moyopy_spglib_consistency(protostructure):
     moyopy_label = get_protostructure_label_from_moyopy(struct)
     spglib_label = get_protostructure_label_from_spglib(struct)
 
-    assert moyopy_label == spglib_label, f"spglib moyopy protostructure mismatch for {protostructure}"
+    assert moyopy_label == spglib_label, (
+        f"spglib moyopy protostructure mismatch for {protostructure}"
+    )
 
 
 @pytest.mark.skipif(pyxtal is None, reason="pyxtal not installed")
-@pytest.mark.xfail(reason="pyxtal is non-deterministic and symmetry can increase in random crystal")
+@pytest.mark.xfail(
+    reason="pyxtal is non-deterministic and symmetry can increase in random crystal"
+)
 @pytest.mark.parametrize(
     ("protostructure", "method"),
     list(product(PROTOSTRUCTURE_SET, ["spglib", "moyopy"])),
 )
-def test_get_random_structure_for_protostructure_roundtrip(protostructure: str, method: str):
+def test_get_random_structure_for_protostructure_roundtrip(
+    protostructure: str, method: str
+):
     """Check roundtrip for generating a random structure from a prototype string"""
     assert protostructure == get_protostructure_label(
         get_random_structure_for_protostructure(protostructure),

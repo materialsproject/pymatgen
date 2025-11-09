@@ -10,7 +10,9 @@ import json
 
 import numpy as np
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+)
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
     LocalGeometryFinder,
@@ -21,7 +23,9 @@ if __name__ == "__main__":
     # Choose the geometry
     all_cg = AllCoordinationGeometries()
     while True:
-        cg_symbol = input("Enter symbol of the geometry for which you want to get the explicit permutations : ")
+        cg_symbol = input(
+            "Enter symbol of the geometry for which you want to get the explicit permutations : "
+        )
         try:
             cg = all_cg[cg_symbol]
             break
@@ -74,8 +78,12 @@ if __name__ == "__main__":
         ):
             if found:
                 break
-            for ipoints in itertools.combinations(sep_plane_algo.plane_points, n_points):
-                points_combination = [lgf.local_geometry.coords[ipoint] for ipoint in ipoints]
+            for ipoints in itertools.combinations(
+                sep_plane_algo.plane_points, n_points
+            ):
+                points_combination = [
+                    lgf.local_geometry.coords[ipoint] for ipoint in ipoints
+                ]
                 if n_points == 2:
                     if collinear(
                         points_combination[0],
@@ -107,11 +115,15 @@ if __name__ == "__main__":
                     found = True
                     break
                 elif n_points > 3:
-                    local_plane = Plane.from_npoints(points_combination, best_fit="least_square_distance")
+                    local_plane = Plane.from_npoints(
+                        points_combination, best_fit="least_square_distance"
+                    )
                     found = True
                     break
                 else:
-                    raise ValueError("Wrong number of points to initialize separation plane")
+                    raise ValueError(
+                        "Wrong number of points to initialize separation plane"
+                    )
 
         points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
         # Actual test of the permutations
@@ -159,5 +171,9 @@ if __name__ == "__main__":
     if test == "y":
         cg._algorithms = new_algos
         cg_dict = cg.as_dict()
-        with open(f"../coordination_geometries_files_new/{cg_symbol}.json", mode="w", encoding="utf-8") as file:
+        with open(
+            f"../coordination_geometries_files_new/{cg_symbol}.json",
+            mode="w",
+            encoding="utf-8",
+        ) as file:
             json.dump(cg_dict, file)

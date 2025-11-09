@@ -39,11 +39,18 @@ def test_jdftxinfile_structuregen():
 @pytest.mark.parametrize(
     ("infile_fname", "bool_func"),
     [
-        (ex_infile1_fname, lambda jif: all(jif["kpoint-folding"][x] == 1 for x in jif["kpoint-folding"])),
+        (
+            ex_infile1_fname,
+            lambda jif: all(
+                jif["kpoint-folding"][x] == 1 for x in jif["kpoint-folding"]
+            ),
+        ),
         (ex_infile1_fname, lambda jif: jif["elec-n-bands"] == 15),
     ],
 )
-def test_JDFTXInfile_known_lambda(infile_fname: str, bool_func: Callable[[JDFTXInfile], bool]):
+def test_JDFTXInfile_known_lambda(
+    infile_fname: str, bool_func: Callable[[JDFTXInfile], bool]
+):
     jif = JDFTXInfile.from_file(infile_fname)
     assert bool_func(jif)
 
@@ -75,8 +82,12 @@ def test_JDFTXInfile_from_dict(tmp_path) -> None:
     JDFTXInfile_self_consistency_tester(jif2, tmp_path)
 
 
-@pytest.mark.parametrize("infile_fname", [ex_infile3_fname, ex_infile1_fname, ex_infile2_fname])
-def test_JDFTXInfile_self_consistency_fromfile(infile_fname: PathLike, tmp_path) -> None:
+@pytest.mark.parametrize(
+    "infile_fname", [ex_infile3_fname, ex_infile1_fname, ex_infile2_fname]
+)
+def test_JDFTXInfile_self_consistency_fromfile(
+    infile_fname: PathLike, tmp_path
+) -> None:
     """Test that JDFTXInfile objects with different assortments of tags survive inter-conversion done within
     "JDFTXInfile_self_consistency_tester"""
     jif = JDFTXInfile.from_file(infile_fname)
@@ -134,7 +145,12 @@ def test_JDFTXInfile_expected_exceptions():
         jif["barbie"] = "ken"
     # non-repeating tags raise value-errors when appended
     tag = "initial-state"
-    with pytest.raises(ValueError, match=re.escape(f"The tag '{tag}' cannot be repeated and thus cannot be appended")):
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            f"The tag '{tag}' cannot be repeated and thus cannot be appended"
+        ),
+    ):
         jif.append_tag(tag, "$VAR")
     # Phonon and Wannier tags raise value-errors at _preprocess_line
     with pytest.raises(ValueError, match="Phonon functionality has not been added!"):
@@ -159,10 +175,15 @@ def test_JDFTXInfile_expected_exceptions():
     with pytest.raises(ValueError, match=re.escape(err_str)):
         JDFTXInfile.from_str(f"include {_filename}\n", path_parent=ex_in_files_dir)
     # JDFTXInfile cannot be constructed without lattice and ion tags
-    with pytest.raises(ValueError, match="This input file is missing required structure tags"):
+    with pytest.raises(
+        ValueError, match="This input file is missing required structure tags"
+    ):
         JDFTXInfile.from_str("dump End DOS\n")
     # "barbie" here is supposed to be "list-to-dict" or "dict-to-list"
-    with pytest.raises(ValueError, match="Conversion type barbie is not 'list-to-dict' or 'dict-to-list'"):
+    with pytest.raises(
+        ValueError,
+        match="Conversion type barbie is not 'list-to-dict' or 'dict-to-list'",
+    ):
         jif._needs_conversion("barbie", ["ken"])
     # Setting tags with unfixable values immediately raises an error
     tag = "exchange-params"
@@ -202,7 +223,9 @@ def test_JDFTXInfile_niche_cases():
     tag_object = get_tag_object(tag)
     value = "gga"
     params = jif.as_dict()
-    err_str = f"The '{tag}' tag appears multiple times in this input when it should not!"
+    err_str = (
+        f"The '{tag}' tag appears multiple times in this input when it should not!"
+    )
     with pytest.raises(ValueError, match=err_str):
         jif._store_value(params, tag_object, tag, value)
     struct = jif.to_pmg_structure(jif)
@@ -232,7 +255,9 @@ def test_JDFTXInfile_add_method():
     assert val_old != val_new
     jif2[key] = val_new
     jif4 = jif + jif2
-    assert_same_value(jif4[key], val_new)  # Make sure addition chooses second value for non-repeatable tags
+    assert_same_value(
+        jif4[key], val_new
+    )  # Make sure addition chooses second value for non-repeatable tags
     del jif4
     jif2.append_tag("dump", "Fluid State")
     jif.append_tag("dump", "Fluid Berry")
@@ -252,7 +277,9 @@ def test_JDFTXInfile_add_method():
     assert jif3[key_add]["mu"] == pytest.approx(val_add)
 
 
-@pytest.mark.parametrize(("infile_fname", "knowns"), [(ex_infile1_fname, ex_infile1_knowns)])
+@pytest.mark.parametrize(
+    ("infile_fname", "knowns"), [(ex_infile1_fname, ex_infile1_knowns)]
+)
 def test_JDFTXInfile_knowns_simple(infile_fname: PathLike, knowns: dict):
     """Test that known values that can be tested with assert_same_value are correct"""
     jif = JDFTXInfile.from_file(infile_fname)
@@ -527,7 +554,9 @@ def test_jdftxstructure_lattice_conversion(value_str: str):
     i = mft_lattice_tag.get_format_index_for_str_value("lattice", value_str)
     tag_object = mft_lattice_tag.format_options[i]
     parsed_tag = tag_object.read("lattice", value_str)
-    infile = JDFTXInfile.from_str("lattice " + value_str + "\n ion H 0.0 0.0 0.0 0", dont_require_structure=True)
+    infile = JDFTXInfile.from_str(
+        "lattice " + value_str + "\n ion H 0.0 0.0 0.0 0", dont_require_structure=True
+    )
     if "modification" in parsed_tag:
         with pytest.raises(NotImplementedError):
             _ = infile.to_pmg_structure(infile)
@@ -535,7 +564,9 @@ def test_jdftxstructure_lattice_conversion(value_str: str):
         structure = infile.to_pmg_structure(infile)
         for var in test_vars:
             if var in parsed_tag:
-                assert_same_value(float(getattr(structure.lattice, var)), float(parsed_tag[var]))
+                assert_same_value(
+                    float(getattr(structure.lattice, var)), float(parsed_tag[var])
+                )
 
 
 def test_jdftxinfile_comparison():
@@ -547,13 +578,19 @@ def test_jdftxinfile_comparison():
     default_test_tag = "davidson-band-ratio"
     default_test_val = default_inputs[default_test_tag]
     jif1[default_test_tag] = default_test_val
-    assert not len(jif1.get_differing_tags(jif1copy))  # Even though jif1copy doesn't have the tag,
+    assert not len(
+        jif1.get_differing_tags(jif1copy)
+    )  # Even though jif1copy doesn't have the tag,
     # it won't be recognized as a difference since it is in the default_inputs and matches the default value
     jif1copy["elec-n-bands"] = 20001
-    assert len(jif1.get_filtered_differing_tags(jif1copy))  # Change in elec-n-bands should be recognized
+    assert len(
+        jif1.get_filtered_differing_tags(jif1copy)
+    )  # Change in elec-n-bands should be recognized
     assert not len(
         jif1.get_filtered_differing_tags(jif1copy, exclude_tags=["elec-n-bands"])
     )  # Specific tags can be filtered out
     assert not len(
-        jif1.get_filtered_differing_tags(jif1copy, exclude_tag_categories=["electronic"])
+        jif1.get_filtered_differing_tags(
+            jif1copy, exclude_tag_categories=["electronic"]
+        )
     )  # Tag categories can be filtered out

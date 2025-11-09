@@ -5,7 +5,13 @@ import pytest
 from pytest import approx
 
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.io.cp2k.sets import SETTINGS, Cp2kValidationError, DftSet, GaussianTypeOrbitalBasisSet, GthPotential
+from pymatgen.io.cp2k.sets import (
+    SETTINGS,
+    Cp2kValidationError,
+    DftSet,
+    GaussianTypeOrbitalBasisSet,
+    GthPotential,
+)
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 CP2K_TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
@@ -37,8 +43,13 @@ Si_gth_pot = """Si GTH-BLYP-q4 GTH-BLYP
                                     3.01160535
 0.50279207    1     2.33241791"""
 
-BASIS_AND_POTENTIAL: dict[str, dict[str, GaussianTypeOrbitalBasisSet | GthPotential]] = {
-    "Si": {"basis": GaussianTypeOrbitalBasisSet.from_str(Si_gto_basis), "potential": GthPotential.from_str(Si_gth_pot)},
+BASIS_AND_POTENTIAL: dict[
+    str, dict[str, GaussianTypeOrbitalBasisSet | GthPotential]
+] = {
+    "Si": {
+        "basis": GaussianTypeOrbitalBasisSet.from_str(Si_gto_basis),
+        "potential": GthPotential.from_str(Si_gth_pot),
+    },
     "Fe": {
         "basis": GaussianTypeOrbitalBasisSet.from_str(Si_gto_basis.replace("Si", "Fe")),
         "potential": GthPotential.from_str(Si_gth_pot.replace("Si", "Fe")),
@@ -57,11 +68,15 @@ class TestDftSet(MatSciTest):
             "potential_type": "Pseudopotential",
             "functional": None,
         }
-        dft_set = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE")
+        dft_set = DftSet(
+            Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE"
+        )
 
         # Basis sets / potentials by name
         basis_and_potential = {"Si": {"basis": "SZV-GTH-q4", "potential": "GTH-PBE-q4"}}
-        dft_set = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE")
+        dft_set = DftSet(
+            Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE"
+        )
 
         # Basis sets / potentials by name with ADMM
         basis_and_potential = {
@@ -71,7 +86,9 @@ class TestDftSet(MatSciTest):
                 "aux_basis": "cFIT3",
             }
         }
-        dft_set = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE")
+        dft_set = DftSet(
+            Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE"
+        )
         basis_sets = dft_set["force_eval"]["subsys"]["Si_1"].get("basis_set")
         assert any("AUX_FIT" in b.values for b in basis_sets)
         assert any("cFIT3" in b.values for b in basis_sets)
@@ -83,9 +100,13 @@ class TestDftSet(MatSciTest):
                 "potential": "21e2f468a18404ff6119fe801da81e43",
             }
         }
-        dft_set = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE")
+        dft_set = DftSet(
+            Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE"
+        )
 
-        set_kwargs = dict.fromkeys(("print_pdos", "print_dos", "print_v_hartree", "print_e_density"), False)
+        set_kwargs = dict.fromkeys(
+            ("print_pdos", "print_dos", "print_v_hartree", "print_e_density"), False
+        )
         dft_set = DftSet(
             Si_structure,
             basis_and_potential=BASIS_AND_POTENTIAL,
@@ -137,9 +158,14 @@ class TestDftSet(MatSciTest):
             dft_set.validate()
 
         # Test non-periodic settings
-        dft_set = DftSet(molecule, basis_and_potential=basis_and_potential, xc_functionals="PBE")
+        dft_set = DftSet(
+            molecule, basis_and_potential=basis_and_potential, xc_functionals="PBE"
+        )
         assert dft_set.check("force_eval/dft/poisson")
-        assert dft_set["force_eval"]["dft"]["poisson"].get("periodic").values[0].upper() == "NONE"
+        assert (
+            dft_set["force_eval"]["dft"]["poisson"].get("periodic").values[0].upper()
+            == "NONE"
+        )
 
     def test_kind_magnetization(self) -> None:
         """Test different ways of setting kind (i.e. element-specific) initial magnetization."""
@@ -157,7 +183,10 @@ class TestDftSet(MatSciTest):
         )
         fe1_kind = dft_set["force_eval"]["subsys"]["Fe_1"]
         fe2_kind = dft_set["force_eval"]["subsys"]["Fe_2"]
-        assert {fe1_kind["magnetization"].values[0], fe2_kind["magnetization"].values[0]} == {2.0, -2.0}
+        assert {
+            fe1_kind["magnetization"].values[0],
+            fe2_kind["magnetization"].values[0],
+        } == {2.0, -2.0}
 
         # Test 2: Setting via element defaults
         element_defaults = {"Fe": {"magnetization": 4.0}}
@@ -180,7 +209,10 @@ class TestDftSet(MatSciTest):
         )
         fe1_kind = dft_set["force_eval"]["subsys"]["Fe_1"]
         fe2_kind = dft_set["force_eval"]["subsys"]["Fe_2"]
-        assert {fe1_kind["magnetization"].values[0], fe2_kind["magnetization"].values[0]} == {2.0, -2.0}
+        assert {
+            fe1_kind["magnetization"].values[0],
+            fe2_kind["magnetization"].values[0],
+        } == {2.0, -2.0}
 
     def test_cell_parameters(self) -> None:
         """Test that cell parameters are properly set when provided."""
@@ -190,7 +222,12 @@ class TestDftSet(MatSciTest):
             "MULTIPLE_UNIT_CELL": [2, 2, 2],
         }
 
-        dft_set = DftSet(Si_structure, basis_and_potential=BASIS_AND_POTENTIAL, xc_functionals="PBE", cell=cell_params)
+        dft_set = DftSet(
+            Si_structure,
+            basis_and_potential=BASIS_AND_POTENTIAL,
+            xc_functionals="PBE",
+            cell=cell_params,
+        )
 
         # Check that cell parameters were properly set
         subsys = dft_set["force_eval"]["subsys"]
@@ -200,7 +237,9 @@ class TestDftSet(MatSciTest):
         assert cell_section["multiple_unit_cell"].values == ([2, 2, 2],)
 
         # Test without cell parameters (default behavior)
-        dft_set = DftSet(Si_structure, basis_and_potential=BASIS_AND_POTENTIAL, xc_functionals="PBE")
+        dft_set = DftSet(
+            Si_structure, basis_and_potential=BASIS_AND_POTENTIAL, xc_functionals="PBE"
+        )
 
         # Check that only default cell parameters exist
         subsys = dft_set["force_eval"]["subsys"]

@@ -120,7 +120,9 @@ class TestThermalDisplacement(MatSciTest):
         )
 
     def test_u1_u2_u3(self):
-        assert self.thermal.U1U2U3[0].sort() == approx(np.array([2.893872e-03, 5.691239e-03, 6.854889e-03]).sort())
+        assert self.thermal.U1U2U3[0].sort() == approx(
+            np.array([2.893872e-03, 5.691239e-03, 6.854889e-03]).sort()
+        )
 
     def test_ustar(self):
         Ustar = self.thermal.Ustar
@@ -265,12 +267,16 @@ class TestThermalDisplacement(MatSciTest):
 
     def test_compute_directionality_quality_criterion(self):
         assert_allclose(
-            self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["vector0"],
+            self.thermal.compute_directionality_quality_criterion(self.thermal)[0][
+                "vector0"
+            ],
             [-0.6502072, 0.67306922, 0.35243215],
         )
 
         assert_allclose(
-            self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["vector1"],
+            self.thermal.compute_directionality_quality_criterion(self.thermal)[0][
+                "vector1"
+            ],
             [-0.6502072, 0.67306922, 0.35243215],
         )
 
@@ -302,10 +308,16 @@ class TestThermalDisplacement(MatSciTest):
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR"),
             temperature=0.0,
         )
-        assert self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["angle"] == approx(0.0)
+        assert self.thermal.compute_directionality_quality_criterion(self.thermal)[0][
+            "angle"
+        ] == approx(0.0)
         assert_allclose(
-            self.thermal.compute_directionality_quality_criterion(thermal)[0]["vector0"],
-            self.thermal.compute_directionality_quality_criterion(thermal)[1]["vector1"],
+            self.thermal.compute_directionality_quality_criterion(thermal)[0][
+                "vector0"
+            ],
+            self.thermal.compute_directionality_quality_criterion(thermal)[1][
+                "vector1"
+            ],
         )
 
     def test_angle(self):
@@ -319,13 +331,19 @@ class TestThermalDisplacement(MatSciTest):
         # test creation of structure with site properties
         structure = self.thermal.to_structure_with_site_properties_Ucif()
         # test reading of structure with site properties
-        new_thermals = ThermalDisplacementMatrices.from_structure_with_site_properties_Ucif(structure)
+        new_thermals = (
+            ThermalDisplacementMatrices.from_structure_with_site_properties_Ucif(
+                structure
+            )
+        )
         assert_allclose(
             self.thermal.thermal_displacement_matrix_cart,
             new_thermals.thermal_displacement_matrix_cart,
             atol=1e-9,
         )
-        assert_allclose(self.thermal.structure.frac_coords, new_thermals.structure.frac_coords)
+        assert_allclose(
+            self.thermal.structure.frac_coords, new_thermals.structure.frac_coords
+        )
         assert_allclose(self.thermal.structure.volume, new_thermals.structure.volume)
 
     def test_visualization_directionality_criterion(self):
@@ -347,5 +365,7 @@ class TestThermalDisplacement(MatSciTest):
             new_thermals[0].thermal_displacement_matrix_cif_matrixform,
             self.thermal.Ucif,
         )
-        assert_allclose(new_thermals[0].structure.frac_coords, self.thermal.structure.frac_coords)
+        assert_allclose(
+            new_thermals[0].structure.frac_coords, self.thermal.structure.frac_coords
+        )
         assert_allclose(new_thermals[0].structure.volume, self.thermal.structure.volume)

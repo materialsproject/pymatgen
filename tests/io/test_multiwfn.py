@@ -30,7 +30,9 @@ def test_parse_single_cp():
         name1, desc1 = parse_cp(contents)
 
         contents_split = [line.split() for line in contents]
-        conditionals = {k: v for k, v in QTAIM_CONDITIONALS.items() if k != "connected_bond_paths"}
+        conditionals = {
+            k: v for k, v in QTAIM_CONDITIONALS.items() if k != "connected_bond_paths"
+        }
         name2, desc2 = extract_info_from_cp_text(contents_split, "atom", conditionals)
 
         assert name1 == name2
@@ -42,7 +44,9 @@ def test_parse_single_cp():
         assert desc1["element"] == "N"
         # TODO: should we be returning this as an integer?
         assert desc1["number"] == "2"
-        assert desc1["pos_ang"] == approx([1.626104042116, -1.859508691395, -0.405402516863])
+        assert desc1["pos_ang"] == approx(
+            [1.626104042116, -1.859508691395, -0.405402516863]
+        )
         assert desc1["density_total"] == approx(183.1401128)
         assert "connected_bond_paths" not in desc1
 

@@ -69,21 +69,39 @@ class TestKpoint:
 
 class TestBandStructureSymmLine(MatSciTest):
     def setup_method(self):
-        self.bs: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu2O_361_bandstructure.json")
-        self.bs2: BandStructureSymmLine = loadfn(f"{TEST_DIR}/CaO_2605_bandstructure.json")
-        self.bs_spin: BandStructureSymmLine = loadfn(f"{TEST_DIR}/NiO_19009_bandstructure.json")
-        self.bs_cbm0: BandStructureSymmLine = loadfn(f"{TEST_DIR}/InN_22205_bandstructure.json")
-        self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
-        self.bs_diff_spins: BandStructureSymmLine = loadfn(f"{TEST_DIR}/VBr2_971787_bandstructure.json")
+        self.bs: BandStructureSymmLine = loadfn(
+            f"{TEST_DIR}/Cu2O_361_bandstructure.json"
+        )
+        self.bs2: BandStructureSymmLine = loadfn(
+            f"{TEST_DIR}/CaO_2605_bandstructure.json"
+        )
+        self.bs_spin: BandStructureSymmLine = loadfn(
+            f"{TEST_DIR}/NiO_19009_bandstructure.json"
+        )
+        self.bs_cbm0: BandStructureSymmLine = loadfn(
+            f"{TEST_DIR}/InN_22205_bandstructure.json"
+        )
+        self.bs_cu: BandStructureSymmLine = loadfn(
+            f"{TEST_DIR}/Cu_30_bandstructure.json"
+        )
+        self.bs_diff_spins: BandStructureSymmLine = loadfn(
+            f"{TEST_DIR}/VBr2_971787_bandstructure.json"
+        )
 
     def test_basic(self):
-        assert_allclose(self.bs.projections[Spin.up][10][12][0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        assert_allclose(
+            self.bs.projections[Spin.up][10][12][0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        )
         assert_allclose(
             self.bs.projections[Spin.up][25][0][Orbital.dyz.value],
             [0.0, 0.0, 0.0011, 0.0219, 0.0219, 0.069],
         )
-        assert self.bs.get_projection_on_elements()[Spin.up][25][10]["O"] == approx(0.0328)
-        assert self.bs.get_projection_on_elements()[Spin.up][22][25]["Cu"] == approx(0.8327)
+        assert self.bs.get_projection_on_elements()[Spin.up][25][10]["O"] == approx(
+            0.0328
+        )
+        assert self.bs.get_projection_on_elements()[Spin.up][22][25]["Cu"] == approx(
+            0.8327
+        )
         proj = self.bs.get_projections_on_elements_and_orbitals({"Cu": ["s", "d"]})
         assert proj[Spin.up][25][0]["Cu"]["s"] == approx(0.0027)
         assert proj[Spin.up][25][0]["Cu"]["d"] == approx(0.8495999999999999)
@@ -143,18 +161,30 @@ class TestBandStructureSymmLine(MatSciTest):
         assert cbm["energy"] == approx(5.8709), "wrong CBM energy"
         assert cbm["band_index"][Spin.up][0] == 8, "wrong CBM band index"
         assert cbm["kpoint_index"][0] == 15, "wrong CBM kpoint index"
-        assert cbm["kpoint"].frac_coords[0] == approx(0.5), "wrong CBM kpoint frac coords"
-        assert cbm["kpoint"].frac_coords[1] == approx(0.0), "wrong CBM kpoint frac coords"
-        assert cbm["kpoint"].frac_coords[2] == approx(0.5), "wrong CBM kpoint frac coords"
+        assert cbm["kpoint"].frac_coords[0] == approx(0.5), (
+            "wrong CBM kpoint frac coords"
+        )
+        assert cbm["kpoint"].frac_coords[1] == approx(0.0), (
+            "wrong CBM kpoint frac coords"
+        )
+        assert cbm["kpoint"].frac_coords[2] == approx(0.5), (
+            "wrong CBM kpoint frac coords"
+        )
         assert cbm["kpoint"].label == "X", "wrong CBM kpoint label"
         cbm_spin = self.bs_spin.get_cbm()
         assert cbm_spin["energy"] == approx(8.0458), "wrong CBM energy"
         assert cbm_spin["band_index"][Spin.up][0] == 12, "wrong CBM band index"
         assert len(cbm_spin["band_index"][Spin.down]) == 0, "wrong CBM band index"
         assert cbm_spin["kpoint_index"][0] == 0, "wrong CBM kpoint index"
-        assert cbm_spin["kpoint"].frac_coords[0] == approx(0.0), "wrong CBM kpoint frac coords"
-        assert cbm_spin["kpoint"].frac_coords[1] == approx(0.0), "wrong CBM kpoint frac coords"
-        assert cbm_spin["kpoint"].frac_coords[2] == approx(0.0), "wrong CBM kpoint frac coords"
+        assert cbm_spin["kpoint"].frac_coords[0] == approx(0.0), (
+            "wrong CBM kpoint frac coords"
+        )
+        assert cbm_spin["kpoint"].frac_coords[1] == approx(0.0), (
+            "wrong CBM kpoint frac coords"
+        )
+        assert cbm_spin["kpoint"].frac_coords[2] == approx(0.0), (
+            "wrong CBM kpoint frac coords"
+        )
         assert cbm_spin["kpoint"].label == "\\Gamma", "wrong CBM kpoint label"
 
     def test_get_vbm(self):
@@ -163,9 +193,15 @@ class TestBandStructureSymmLine(MatSciTest):
         assert len(vbm["band_index"][Spin.up]) == 3, "wrong VBM number of bands"
         assert vbm["band_index"][Spin.up][0] == 5, "wrong VBM band index"
         assert vbm["kpoint_index"][0] == 0, "wrong VBM kpoint index"
-        assert vbm["kpoint"].frac_coords[0] == approx(0.0), "wrong VBM kpoint frac coords"
-        assert vbm["kpoint"].frac_coords[1] == approx(0.0), "wrong VBM kpoint frac coords"
-        assert vbm["kpoint"].frac_coords[2] == approx(0.0), "wrong VBM kpoint frac coords"
+        assert vbm["kpoint"].frac_coords[0] == approx(0.0), (
+            "wrong VBM kpoint frac coords"
+        )
+        assert vbm["kpoint"].frac_coords[1] == approx(0.0), (
+            "wrong VBM kpoint frac coords"
+        )
+        assert vbm["kpoint"].frac_coords[2] == approx(0.0), (
+            "wrong VBM kpoint frac coords"
+        )
         assert vbm["kpoint"].label == "\\Gamma", "wrong VBM kpoint label"
         vbm_spin = self.bs_spin.get_vbm()
         assert vbm_spin["energy"] == approx(5.731), "wrong VBM energy"
@@ -173,9 +209,15 @@ class TestBandStructureSymmLine(MatSciTest):
         assert len(vbm_spin["band_index"][Spin.down]) == 0, "wrong VBM number of bands"
         assert vbm_spin["band_index"][Spin.up][0] == 10, "wrong VBM band index"
         assert vbm_spin["kpoint_index"][0] == 79, "wrong VBM kpoint index"
-        assert vbm_spin["kpoint"].frac_coords[0] == approx(0.5), "wrong VBM kpoint frac coords"
-        assert vbm_spin["kpoint"].frac_coords[1] == approx(0.5), "wrong VBM kpoint frac coords"
-        assert vbm_spin["kpoint"].frac_coords[2] == approx(0.5), "wrong VBM kpoint frac coords"
+        assert vbm_spin["kpoint"].frac_coords[0] == approx(0.5), (
+            "wrong VBM kpoint frac coords"
+        )
+        assert vbm_spin["kpoint"].frac_coords[1] == approx(0.5), (
+            "wrong VBM kpoint frac coords"
+        )
+        assert vbm_spin["kpoint"].frac_coords[2] == approx(0.5), (
+            "wrong VBM kpoint frac coords"
+        )
         assert vbm_spin["kpoint"].label == "L", "wrong VBM kpoint label"
 
     def test_get_band_gap(self):
@@ -195,7 +237,9 @@ class TestBandStructureSymmLine(MatSciTest):
         cbm_k = bs.get_cbm()["kpoint"].frac_coords
         vbm_k = bs.get_vbm()["kpoint"].frac_coords
         assert bs.get_kpoint_degeneracy(cbm_k) is None
-        bs.structure: BandStructureSymmLine = loadfn(f"{TEST_DIR}/CaO_2605_structure.json")
+        bs.structure: BandStructureSymmLine = loadfn(
+            f"{TEST_DIR}/CaO_2605_structure.json"
+        )
         assert bs.get_kpoint_degeneracy(cbm_k) == 3
         assert bs.get_kpoint_degeneracy(vbm_k) == 1
         cbm_eqs = bs.get_sym_eq_kpoints(cbm_k)
@@ -234,7 +278,9 @@ class TestBandStructureSymmLine(MatSciTest):
         with open(f"{TEST_DIR}/bs_ZnS_old.json", "rb") as file:
             dct = orjson.loads(file.read())
             bs_old = BandStructureSymmLine.from_dict(dct)
-            assert bs_old.get_projection_on_elements()[Spin.up][0][0]["Zn"] == approx(0.0971)
+            assert bs_old.get_projection_on_elements()[Spin.up][0][0]["Zn"] == approx(
+                0.0971
+            )
 
     def test_apply_scissor_insulator(self):
         # test applying a scissor operator to a metal
@@ -259,8 +305,12 @@ class TestBandStructureSymmLine(MatSciTest):
 
 class TestReconstructBandStructure(MatSciTest):
     def setup_method(self):
-        self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
-        self.bs_cu2: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
+        self.bs_cu: BandStructureSymmLine = loadfn(
+            f"{TEST_DIR}/Cu_30_bandstructure.json"
+        )
+        self.bs_cu2: BandStructureSymmLine = loadfn(
+            f"{TEST_DIR}/Cu_30_bandstructure.json"
+        )
 
     def test_reconstruct_band_structure(self):
         bs = get_reconstructed_band_structure([self.bs_cu, self.bs_cu2])
@@ -272,7 +322,9 @@ class TestReconstructBandStructure(MatSciTest):
             parse_projected_eigen=True,
             parse_potcar_file=True,
         )
-        bs = bsv.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_band", line_mode=True)
+        bs = bsv.get_band_structure(
+            kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_band", line_mode=True
+        )
         bs.get_projection_on_elements()
 
 
@@ -301,7 +353,9 @@ class TestLobsterBandStructureSymmLine(MatSciTest):
         assert bs_p.efermi == approx(1.06470288)
 
         lattice = bs_p.lattice_rec.as_dict()
-        assert lattice["matrix"][0] == approx([1.2511575194890285, 0.7223560132915973, 0.0])
+        assert lattice["matrix"][0] == approx(
+            [1.2511575194890285, 0.7223560132915973, 0.0]
+        )
         assert lattice["matrix"][1] == approx([0.0, 1.4447123171425553, 0.0])
         assert lattice["matrix"][2] == approx([0.0, 0.0, 1.1399248502312707])
         assert bs_p.kpoints[8].frac_coords == approx([0.09090909, 0.0, 0.0])
@@ -311,44 +365,52 @@ class TestLobsterBandStructureSymmLine(MatSciTest):
         assert bs_p.distance[30] == approx(0.49251552363382556)
         assert bs_p.branches[0]["name"], "\\Gamma-K"
         assert bs_p.get_band_gap()["energy"] == approx(5.6739999999999995)
-        assert bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064))
-        assert bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"] == approx(0.003)
-        assert bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"] == approx(
-            0.002 * 3 + 0.003 * 3
+        assert bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(
+            3 * (0.001 + 0.064)
         )
-        dict_here = bs_p.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][
+        assert bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][
             0
-        ]
+        ][0]["Si"]["3p"] == approx(0.003)
+        assert bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][
+            0
+        ]["O"]["2p"] == approx(0.002 * 3 + 0.003 * 3)
+        dict_here = bs_p.get_projections_on_elements_and_orbitals(
+            {"Si": ["3s", "3p"], "O": ["2s", "2p"]}
+        )[Spin.up][0][0]
         assert dict_here["Si"]["3s"] == approx(0.192)
         assert dict_here["Si"]["3p"] == approx(0.003)
         assert dict_here["O"]["2s"] == approx(0.792)
         assert dict_here["O"]["2p"] == approx(0.015)
 
-        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064))
-        assert bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"] == approx(
-            0.003
+        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(
+            3 * (0.001 + 0.064)
         )
-        assert bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"] == approx(
-            0.002 * 3 + 0.003 * 3
-        )
-
-        dict_here = bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][
+        assert bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[
+            Spin.up
+        ][0][0]["Si"]["3p"] == approx(0.003)
+        assert bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][
             0
-        ][0]
+        ][0]["O"]["2p"] == approx(0.002 * 3 + 0.003 * 3)
+
+        dict_here = bs_spin.get_projections_on_elements_and_orbitals(
+            {"Si": ["3s", "3p"], "O": ["2s", "2p"]}
+        )[Spin.up][0][0]
         assert dict_here["Si"]["3s"] == approx(0.192)
         assert dict_here["Si"]["3p"] == approx(0.003)
         assert dict_here["O"]["2s"] == approx(0.792)
         assert dict_here["O"]["2p"] == approx(0.015)
-        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064))
-        assert bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.down][0][0]["Si"]["3p"] == approx(
-            0.003
+        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(
+            3 * (0.001 + 0.064)
         )
-        assert bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.down][0][0]["O"]["2p"] == approx(
-            0.002 * 3 + 0.003 * 3
-        )
-        dict_here = bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[
+        assert bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[
             Spin.down
-        ][0][0]
+        ][0][0]["Si"]["3p"] == approx(0.003)
+        assert bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[
+            Spin.down
+        ][0][0]["O"]["2p"] == approx(0.002 * 3 + 0.003 * 3)
+        dict_here = bs_spin.get_projections_on_elements_and_orbitals(
+            {"Si": ["3s", "3p"], "O": ["2s", "2p"]}
+        )[Spin.down][0][0]
         assert dict_here["Si"]["3s"] == approx(0.192)
         assert dict_here["Si"]["3p"] == approx(0.003)
         assert dict_here["O"]["2s"] == approx(0.792)
@@ -400,18 +462,30 @@ class TestLobsterBandStructureSymmLine(MatSciTest):
         assert cbm["energy"] == approx(6.3037028799999995), "wrong CBM energy"
         assert cbm["band_index"][Spin.up][0] == 24, "wrong CBM band index"
         assert cbm["kpoint_index"][0] == 0, "wrong CBM kpoint index"
-        assert cbm["kpoint"].frac_coords[0] == approx(0.0), "wrong CBM kpoint frac coords"
-        assert cbm["kpoint"].frac_coords[1] == approx(0.0), "wrong CBM kpoint frac coords"
-        assert cbm["kpoint"].frac_coords[2] == approx(0.0), "wrong CBM kpoint frac coords"
+        assert cbm["kpoint"].frac_coords[0] == approx(0.0), (
+            "wrong CBM kpoint frac coords"
+        )
+        assert cbm["kpoint"].frac_coords[1] == approx(0.0), (
+            "wrong CBM kpoint frac coords"
+        )
+        assert cbm["kpoint"].frac_coords[2] == approx(0.0), (
+            "wrong CBM kpoint frac coords"
+        )
         assert cbm["kpoint"].label == "\\Gamma", "wrong CBM kpoint label"
         cbm_spin = self.bs_spin.get_cbm()
         assert cbm_spin["energy"] == approx(6.30370274), "wrong CBM energy"
         assert cbm_spin["band_index"][Spin.up][0] == 24, "wrong CBM band index"
         assert len(cbm_spin["band_index"][Spin.down]) == 1, "wrong CBM band index"
         assert cbm_spin["kpoint_index"][0] == 0, "wrong CBM kpoint index"
-        assert cbm_spin["kpoint"].frac_coords[0] == approx(0.0), "wrong CBM kpoint frac coords"
-        assert cbm_spin["kpoint"].frac_coords[1] == approx(0.0), "wrong CBM kpoint frac coords"
-        assert cbm_spin["kpoint"].frac_coords[2] == approx(0.0), "wrong CBM kpoint frac coords"
+        assert cbm_spin["kpoint"].frac_coords[0] == approx(0.0), (
+            "wrong CBM kpoint frac coords"
+        )
+        assert cbm_spin["kpoint"].frac_coords[1] == approx(0.0), (
+            "wrong CBM kpoint frac coords"
+        )
+        assert cbm_spin["kpoint"].frac_coords[2] == approx(0.0), (
+            "wrong CBM kpoint frac coords"
+        )
         assert cbm_spin["kpoint"].label == "\\Gamma", "wrong CBM kpoint label"
 
     def test_get_vbm(self):
@@ -420,9 +494,9 @@ class TestLobsterBandStructureSymmLine(MatSciTest):
         assert len(vbm["band_index"][Spin.up]) == 1, "wrong VBM number of bands"
         assert vbm["band_index"][Spin.up][0] == 23, "wrong VBM band index"
         assert vbm["kpoint_index"][0] == 68, "wrong VBM kpoint index"
-        assert vbm["kpoint"].frac_coords == approx([0.34615384615385, 0.30769230769231, 0.0]), (
-            "wrong VBM kpoint frac coords"
-        )
+        assert vbm["kpoint"].frac_coords == approx(
+            [0.34615384615385, 0.30769230769231, 0.0]
+        ), "wrong VBM kpoint frac coords"
         assert vbm["kpoint"].label is None, "wrong VBM kpoint label"
         vbm_spin = self.bs_spin.get_vbm()
         assert vbm_spin["energy"] == approx(0.6297027399999999), "wrong VBM energy"
@@ -430,19 +504,23 @@ class TestLobsterBandStructureSymmLine(MatSciTest):
         assert len(vbm_spin["band_index"][Spin.down]) == 1, "wrong VBM number of bands"
         assert vbm_spin["band_index"][Spin.up][0] == 23, "wrong VBM band index"
         assert vbm_spin["kpoint_index"][0] == 68, "wrong VBM kpoint index"
-        assert vbm_spin["kpoint"].frac_coords == approx([0.34615384615385, 0.30769230769231, 0.0]), (
-            "wrong VBM kpoint frac coords"
-        )
+        assert vbm_spin["kpoint"].frac_coords == approx(
+            [0.34615384615385, 0.30769230769231, 0.0]
+        ), "wrong VBM kpoint frac coords"
         assert vbm_spin["kpoint"].label is None, "wrong VBM kpoint label"
 
     def test_get_band_gap(self):
         bg = self.bs_p.get_band_gap()
         assert bg["energy"] == approx(5.6739999999999995), "wrong gap energy"
-        assert bg["transition"] == "(0.346,0.308,0.000)-\\Gamma", "wrong kpoint transition"
+        assert bg["transition"] == "(0.346,0.308,0.000)-\\Gamma", (
+            "wrong kpoint transition"
+        )
         assert not bg["direct"], "wrong nature of the gap"
         bg_spin = self.bs_spin.get_band_gap()
         assert bg_spin["energy"] == approx(5.674), "wrong gap energy"
-        assert bg_spin["transition"] == "(0.346,0.308,0.000)-\\Gamma", "wrong kpoint transition"
+        assert bg_spin["transition"] == "(0.346,0.308,0.000)-\\Gamma", (
+            "wrong kpoint transition"
+        )
         assert not bg_spin["direct"], "wrong nature of the gap"
 
     def test_get_sym_eq_kpoints_and_degeneracy(self):

@@ -4,7 +4,11 @@ import pytest
 from numpy.testing import assert_allclose
 
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-from pymatgen.analysis.chemenv.utils.graph_utils import MultiGraphCycle, SimpleGraphCycle, get_delta
+from pymatgen.analysis.chemenv.utils.graph_utils import (
+    MultiGraphCycle,
+    SimpleGraphCycle,
+    get_delta,
+)
 from pymatgen.util.testing import MatSciTest
 
 __author__ = "waroquiers"
@@ -145,7 +149,9 @@ class TestGraphUtils(MatSciTest):
 
         #   two identical 3-nodes cycles
         edges = [(0, 2), (4, 2), (0, 4), (0, 2), (4, 2), (0, 4)]
-        with pytest.raises(ValueError, match="SimpleGraphCycle is not valid : Duplicate nodes."):
+        with pytest.raises(
+            ValueError, match="SimpleGraphCycle is not valid : Duplicate nodes."
+        ):
             SimpleGraphCycle.from_edges(edges=edges, edges_are_ordered=False)
 
         #   two cycles in from_edges
@@ -173,7 +179,9 @@ class TestGraphUtils(MatSciTest):
         assert len(sg_cycle) == 7
 
         # Check validation at instance creation time
-        with pytest.raises(ValueError, match="SimpleGraphCycle is not valid : Duplicate nodes."):
+        with pytest.raises(
+            ValueError, match="SimpleGraphCycle is not valid : Duplicate nodes."
+        ):
             SimpleGraphCycle([0, 2, 4, 6, 2])
 
         # Check the validate method
@@ -304,7 +312,9 @@ class TestGraphUtils(MatSciTest):
         ):
             sgc.order(raise_on_fail=True)
 
-        sgc = SimpleGraphCycle([FakeNodeWithEqLtMethods(85)], validate=False, ordered=False)
+        sgc = SimpleGraphCycle(
+            [FakeNodeWithEqLtMethods(85)], validate=False, ordered=False
+        )
         assert not sgc.ordered
         sgc.order()
         assert sgc.ordered
@@ -361,14 +371,20 @@ class TestGraphUtils(MatSciTest):
             ValueError,
             match="MultiGraphCycle is not valid : Number of nodes different from number of edge indices.",
         ):
-            MultiGraphCycle([0, 2, 4], [0, 0])  # number of nodes is different from number of edge_indices
-        with pytest.raises(ValueError, match="MultiGraphCycle is not valid : Duplicate nodes."):
+            MultiGraphCycle(
+                [0, 2, 4], [0, 0]
+            )  # number of nodes is different from number of edge_indices
+        with pytest.raises(
+            ValueError, match="MultiGraphCycle is not valid : Duplicate nodes."
+        ):
             MultiGraphCycle([0, 2, 4, 3, 2], [0, 0, 0, 0, 0])  # duplicated nodes
         with pytest.raises(
             ValueError,
             match="MultiGraphCycle is not valid : Cycles with two nodes cannot use the same edge for the cycle.",
         ):
-            MultiGraphCycle([3, 5], [1, 1])  # number of nodes is different from number of edge_indices
+            MultiGraphCycle(
+                [3, 5], [1, 1]
+            )  # number of nodes is different from number of edge_indices
 
         # Testing equality
 
@@ -455,7 +471,9 @@ class TestGraphUtils(MatSciTest):
 
         # Empty cycle not valid
         mgc = MultiGraphCycle([], edge_indices=[], validate=False, ordered=False)
-        with pytest.raises(ValueError, match="MultiGraphCycle is not valid : Empty cycle is not valid."):
+        with pytest.raises(
+            ValueError, match="MultiGraphCycle is not valid : Empty cycle is not valid."
+        ):
             mgc.validate()
 
         # Multi graph cycle with duplicate nodes not valid
@@ -465,7 +483,9 @@ class TestGraphUtils(MatSciTest):
             validate=False,
             ordered=False,
         )
-        with pytest.raises(ValueError, match="MultiGraphCycle is not valid : Duplicate nodes."):
+        with pytest.raises(
+            ValueError, match="MultiGraphCycle is not valid : Duplicate nodes."
+        ):
             mgc.validate()
 
         # Multi graph cycle with two nodes cannot use the same edge
@@ -660,8 +680,12 @@ class TestGraphUtils(MatSciTest):
                 edge_indices=list(i_edges),
             )
             str_nodes = ", ".join(str(i) for i in i_nodes)
-            assert mgc.nodes == nodes_ref, f"Nodes not equal for inodes = ({', '.join([str(i) for i in i_nodes])})"
-            assert mgc.edge_indices == edges_ref, f"Edges not equal for inodes = ({str_nodes})"
+            assert mgc.nodes == nodes_ref, (
+                f"Nodes not equal for inodes = ({', '.join([str(i) for i in i_nodes])})"
+            )
+            assert mgc.edge_indices == edges_ref, (
+                f"Edges not equal for inodes = ({str_nodes})"
+            )
 
 
 class TestEnvironmentNodesGraphUtils(MatSciTest):

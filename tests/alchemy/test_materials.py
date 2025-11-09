@@ -41,9 +41,13 @@ class TestTransformedStructure(MatSciTest):
         ]
         struct = Structure(lattice, ["Si4+", "Si4+"], coords)
         t_struct = TransformedStructure(struct, [])
-        t_struct.append_transformation(SupercellTransformation.from_scaling_factors(2, 1, 1))
+        t_struct.append_transformation(
+            SupercellTransformation.from_scaling_factors(2, 1, 1)
+        )
         alt = t_struct.append_transformation(
-            PartialRemoveSpecieTransformation("Si4+", 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE),
+            PartialRemoveSpecieTransformation(
+                "Si4+", 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE
+            ),
             5,
         )
         assert len(alt) == 2
@@ -113,10 +117,14 @@ class TestTransformedStructure(MatSciTest):
 
     def test_snl(self):
         self.trans.set_parameter("author", "will")
-        with pytest.warns(UserWarning, match="discarded during type conversion to SNL") as warns:
+        with pytest.warns(
+            UserWarning, match="discarded during type conversion to SNL"
+        ) as warns:
             struct_nl = self.trans.to_snl([("will", "will@test.com")])
 
-        assert len(warns) >= 1, f"Warning not raised on type conversion with other_parameters {len(warns)=}"
+        assert len(warns) >= 1, (
+            f"Warning not raised on type conversion with other_parameters {len(warns)=}"
+        )
         assert (
             str(warns[0].message)
             == "Data in TransformedStructure.other_parameters discarded during type conversion to SNL"
@@ -126,7 +134,11 @@ class TestTransformedStructure(MatSciTest):
         assert t_struct.history[-1]["@class"] == "SubstitutionTransformation"
 
         hist = ("testname", "testURL", {"test": "testing"})
-        struct_nl = StructureNL(t_struct.final_structure, [("will", "will@test.com")], history=[hist])
-        t_struct = TransformedStructure.from_snl(struct_nl).to_snl([("notwill", "notwill@test.com")])
+        struct_nl = StructureNL(
+            t_struct.final_structure, [("will", "will@test.com")], history=[hist]
+        )
+        t_struct = TransformedStructure.from_snl(struct_nl).to_snl(
+            [("notwill", "notwill@test.com")]
+        )
         assert t_struct.history == [hist]
         assert t_struct.authors == [("notwill", "notwill@test.com")]

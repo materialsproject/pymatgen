@@ -24,7 +24,9 @@ from pymatgen.util.testing import (
     PymatgenTest,
 )
 
-warnings.filterwarnings("ignore", message="PymatgenTest is deprecated", category=FutureWarning)
+warnings.filterwarnings(
+    "ignore", message="PymatgenTest is deprecated", category=FutureWarning
+)
 
 
 class TestPymatgenTest(PymatgenTest):
@@ -45,7 +47,11 @@ def test_paths():
     assert os.path.isdir(VASP_OUT_DIR)
 
     assert os.path.isdir(FAKE_POTCAR_DIR)
-    assert any(f.startswith("POTCAR") for _root, _dir, files in os.walk(FAKE_POTCAR_DIR) for f in files)
+    assert any(
+        f.startswith("POTCAR")
+        for _root, _dir, files in os.walk(FAKE_POTCAR_DIR)
+        for f in files
+    )
 
 
 class TestTmpDir(MatSciTest):
@@ -102,18 +108,26 @@ class TestAssertMSONable(MatSciTest):
             self.assert_msonable(non_msonable)
 
         # Test `test_is_subclass` is False (dict don't have `as_dict` method)
-        with pytest.raises(AttributeError, match="'dict' object has no attribute 'as_dict'"):
+        with pytest.raises(
+            AttributeError, match="'dict' object has no attribute 'as_dict'"
+        ):
             self.assert_msonable(non_msonable, test_is_subclass=False)
 
     def test_cannot_reconstruct(self):
         """Patch the `from_dict` method of `Kpoints` to return a corrupted object"""
         kpts_obj = Kpoints.monkhorst_automatic((2, 2, 2), [0, 0, 0])
 
-        with patch.object(Kpoints, "from_dict", side_effect=lambda d: Kpoints(comment="Corrupted Object")):
+        with patch.object(
+            Kpoints,
+            "from_dict",
+            side_effect=lambda d: Kpoints(comment="Corrupted Object"),
+        ):
             reconstructed_obj = Kpoints.from_dict(kpts_obj.as_dict())
             assert reconstructed_obj.comment == "Corrupted Object"
 
-            with pytest.raises(ValueError, match="Kpoints object could not be reconstructed accurately"):
+            with pytest.raises(
+                ValueError, match="Kpoints object could not be reconstructed accurately"
+            ):
                 self.assert_msonable(kpts_obj)
 
     def test_not_round_trip(self):
@@ -123,7 +137,9 @@ class TestAssertMSONable(MatSciTest):
         class NotAKpoints:
             pass
 
-        with patch.object(MontyDecoder, "process_decoded", side_effect=lambda d: NotAKpoints()) as mock_decoder:
+        with patch.object(
+            MontyDecoder, "process_decoded", side_effect=lambda d: NotAKpoints()
+        ) as mock_decoder:
             with pytest.raises(
                 TypeError,
                 match="The reconstructed NotAKpoints object is not a subclass of Kpoints",
@@ -160,7 +176,9 @@ class TestMatSciTest(MatSciTest):
         assert isinstance(structure, Structure)
 
         # Test non-existent structure
-        with pytest.raises(FileNotFoundError, match="structure for non-existent doesn't exist"):
+        with pytest.raises(
+            FileNotFoundError, match="structure for non-existent doesn't exist"
+        ):
             structure = self.get_structure("non-existent")
 
     def test_serialize_with_pickle(self):

@@ -17,7 +17,9 @@ if not (mp_api_key := SETTINGS.get("PMG_MAPI_KEY")):
     pytest.skip("PMG_MAPI_KEY not set", allow_module_level=True)
 
 if len(mp_api_key) != 32:
-    pytest.fail(f"Invalid/old MP API key, expected key length 32, got {len(mp_api_key)}")
+    pytest.fail(
+        f"Invalid/old MP API key, expected key length 32, got {len(mp_api_key)}"
+    )
 
 MP_URL: str = "https://api.materialsproject.org"
 
@@ -30,7 +32,9 @@ if mp_api_down:
     pytest.skip("MP API is down", allow_module_level=True)
 
 if importlib.util.find_spec("pymatgen.analysis.alloys") is None:
-    pytest.skip("pymatgen-analysis-alloys plugin is not installed", allow_module_level=True)
+    pytest.skip(
+        "pymatgen-analysis-alloys plugin is not installed", allow_module_level=True
+    )
 
 
 @pytest.fixture(scope="module")
@@ -46,7 +50,9 @@ def test_get_summary(mprester):
     doc = mprester.get_summary_by_material_id(mid)
     assert doc["formula_pretty"] == "Fe2O3"
 
-    doc = mprester.summary.search(material_ids="mp-19770,mp-19017", _fields="formula_pretty,energy_above_hull")
+    doc = mprester.summary.search(
+        material_ids="mp-19770,mp-19017", _fields="formula_pretty,energy_above_hull"
+    )
     assert len(doc) == 2
     assert len(doc[0]) == 2
     assert doc[0]["energy_above_hull"] >= 0
@@ -76,13 +82,17 @@ def test_get_entries_and_in_chemsys(mprester):
     assert len(entries) > 1000
 
     entries2 = mprester.get_entries(
-        syms2, property_data=["formation_energy_per_atom", "uncorrected_energy_per_atom"], summary_data=["band_gap"]
+        syms2,
+        property_data=["formation_energy_per_atom", "uncorrected_energy_per_atom"],
+        summary_data=["band_gap"],
     )
     for entry in entries2:
         assert isinstance(entry, ComputedEntry)
         assert set(entry.elements).issubset(elements)
         assert "formation_energy_per_atom" in entry.data
-        assert entry.data["uncorrected_energy_per_atom"] == pytest.approx(entry.uncorrected_energy_per_atom, abs=1e-3)
+        assert entry.data["uncorrected_energy_per_atom"] == pytest.approx(
+            entry.uncorrected_energy_per_atom, abs=1e-3
+        )
         assert "band_gap" in entry.data["summary"]
     assert len(entries2) < 1000
 

@@ -23,7 +23,11 @@ from .outputs_test_utils import ex_jstep_lines2 as ex_lines2
 
 def is_right_known(val: Any, ex_known_val: Any):
     if isinstance(val, type(ex_known_val)):
-        result = ex_known_val == approx(val) if isinstance(val, float) else ex_known_val == val
+        result = (
+            ex_known_val == approx(val)
+            if isinstance(val, float)
+            else ex_known_val == val
+        )
     else:
         result = False
     return result
@@ -63,7 +67,12 @@ def test_JElStep_known(
     etype: str,
     eitertype,
 ):
-    ex_lines_collect = [exiter_line, exfill_line, exsubspace_line, ""]  # Empty line added for coverage
+    ex_lines_collect = [
+        exiter_line,
+        exfill_line,
+        exsubspace_line,
+        "",
+    ]  # Empty line added for coverage
     jei = JElStep._from_lines_collect(ex_lines_collect, eitertype, etype)
     str(jei)
     ex_known = {}

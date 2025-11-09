@@ -105,9 +105,14 @@ def parse_yaml(file: PathLike) -> list[Property]:
         print(f"  - Found property: '{prop_name}' ")
 
         if "data" not in prop_info:
-            raise ValueError(f"Missing 'data' block for property '{prop_name}' in YAML {file}")
+            raise ValueError(
+                f"Missing 'data' block for property '{prop_name}' in YAML {file}"
+            )
 
-        data = {Element(elem): ElemPropertyValue(value=val) for elem, val in prop_info["data"].items()}
+        data = {
+            Element(elem): ElemPropertyValue(value=val)
+            for elem, val in prop_info["data"].items()
+        }
 
         result.append(
             Property(
@@ -154,7 +159,9 @@ def parse_csv(
     # Try to locate the column named "element" (case-insensitive)
     data_df = pd.read_csv(file)
     try:
-        index_col = data_df.columns[data_df.columns.str.lower().str.strip() == "element"][0]
+        index_col = data_df.columns[
+            data_df.columns.str.lower().str.strip() == "element"
+        ][0]
     except IndexError as exc:
         raise ValueError(f"Could not find an 'element' column in CSV: {file}") from exc
 
@@ -174,7 +181,9 @@ def parse_csv(
                     try:
                         value = transform(value)
                     except (ValueError, TypeError):
-                        warnings.warn(f"Cannot transform {value=}, keep as string", stacklevel=2)
+                        warnings.warn(
+                            f"Cannot transform {value=}, keep as string", stacklevel=2
+                        )
                         value = str(value)
 
                 data[Element(symbol)] = ElemPropertyValue(value=value)
@@ -217,7 +226,9 @@ def parse_ionic_radii(
 
             # Collect non-empty fields
             ox_state_data = {
-                ox: float(val) for ox, val in row.items() if ox not in {"Element", "Spin"} and val.strip() != ""
+                ox: float(val)
+                for ox, val in row.items()
+                if ox not in {"Element", "Spin"} and val.strip() != ""
             }
 
             result[prop_name][elem] = ElemPropertyValue(value=ox_state_data)
@@ -225,7 +236,10 @@ def parse_ionic_radii(
             if spin == "hs":
                 result[prop_base][elem] = ElemPropertyValue(value=ox_state_data)
 
-    return [Property(name=name, unit=unit, data=data, reference=reference) for name, data in result.items()]
+    return [
+        Property(name=name, unit=unit, data=data, reference=reference)
+        for name, data in result.items()
+    ]
 
 
 def parse_shannon_radii(
@@ -250,7 +264,9 @@ def parse_shannon_radii(
     print(f"Parsing Shannon radii file: '{file}'")
     print("  - Provide property: 'Shannon radii'")
 
-    nested_per_element: dict[Element, dict[str, dict[str, dict[str, dict[str, float]]]]] = {}
+    nested_per_element: dict[
+        Element, dict[str, dict[str, dict[str, dict[str, float]]]]
+    ] = {}
 
     with open(file, newline="", encoding="utf-8-sig") as f:
         for row in csv.DictReader(f):
@@ -259,19 +275,24 @@ def parse_shannon_radii(
             coordination: str = row["Coordination"].strip()
             spin: Literal["Low Spin", "High Spin", ""] = row["Spin State"].strip()
 
-            nested_per_element.setdefault(elem, {}).setdefault(charge, {}).setdefault(coordination, {})[spin] = {
+            nested_per_element.setdefault(elem, {}).setdefault(charge, {}).setdefault(
+                coordination, {}
+            )[spin] = {
                 "crystal_radius": float(row["Crystal Radius"]),
                 "ionic_radius": float(row["Ionic Radius"]),
             }
 
     # Flatten into {Element: ElemPropertyValue} mapping
     data: dict[Element, ElemPropertyValue] = {
-        elem: ElemPropertyValue(value=nested_data) for elem, nested_data in nested_per_element.items()
+        elem: ElemPropertyValue(value=nested_data)
+        for elem, nested_data in nested_per_element.items()
     }
     return Property(name="Shannon radii", data=data, unit=unit, reference=reference)
 
 
-def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity", unit: str = "eV") -> Property:
+def get_and_parse_electronic_affinities(
+    prop_name: str = "Electron affinity", unit: str = "eV"
+) -> Property:
     """Get electronic affinities from Wikipedia and save a local YAML copy."""
     yaml_path: str = f"{RESOURCES_DIR}/_electron_affinities.yaml"
 
@@ -290,7 +311,8 @@ def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity", un
     ea_df: pd.DataFrame = next(
         table
         for table in tables
-        if f"{prop_name} (kJ/mol)" in table.columns and table["Name"].astype(str).str.contains("Hydrogen").any()
+        if f"{prop_name} (kJ/mol)" in table.columns
+        and table["Name"].astype(str).str.contains("Hydrogen").any()
     )
 
     # Drop superheavy elements (currently Z > 118)
@@ -327,7 +349,9 @@ def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity", un
         prop_name: {
             "unit": unit,
             "reference": url,
-            "data": {el.name: val for el, val in sorted(data.items(), key=lambda x: x[0].Z)},
+            "data": {
+                el.name: val for el, val in sorted(data.items(), key=lambda x: x[0].Z)
+            },
         }
     }
 
@@ -369,7 +393,11 @@ def generate_iupac_ordering() -> Property:
         ([16], range(6, 1, -1)),  # Po -> O
         ([17], range(6, 1, -1)),  # At -> F
     ]
-    orders: list[tuple[int, int]] = [item for sublist in (list(product(x, y)) for x, y in _orders) for item in sublist]
+    orders: list[tuple[int, int]] = [
+        item
+        for sublist in (list(product(x, y)) for x, y in _orders)
+        for item in sublist
+    ]
 
     iupac_ordering_dict: dict[Element, ElemPropertyValue] = {
         Element.from_row_and_group(row, group): ElemPropertyValue(value=index)
@@ -417,13 +445,17 @@ def generate_yaml_and_json(
     for prop in properties:
         # Sort elements by atomic number (Z)
         sorted_data: dict[str, Any] = dict(
-            sorted(((elem.name, val.value) for elem, val in prop.data.items()), key=lambda pair: Element(pair[0]).Z)
+            sorted(
+                ((elem.name, val.value) for elem, val in prop.data.items()),
+                key=lambda pair: Element(pair[0]).Z,
+            )
         )
 
         # Apply factor to data to be consistent with final JSON
         if prop.factor is not None:
             sorted_data = {
-                k: apply_factor_and_round(v, prop.factor, SIGNIFICANT_DIGITS) for k, v in sorted_data.items()
+                k: apply_factor_and_round(v, prop.factor, SIGNIFICANT_DIGITS)
+                for k, v in sorted_data.items()
             }
 
         prop_dict = {
@@ -476,7 +508,9 @@ def main():
         *parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
         *parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
         *parse_yaml(f"{RESOURCES_DIR}/nmr_quadrupole_moment.yaml"),
-        *parse_yaml(f"{RESOURCES_DIR}/ground_level_and_ionization_energies_nist.yaml"),  # Parsed from HTML
+        *parse_yaml(
+            f"{RESOURCES_DIR}/ground_level_and_ionization_energies_nist.yaml"
+        ),  # Parsed from HTML
         get_and_parse_electronic_affinities(),
         *parse_csv(
             f"{RESOURCES_DIR}/radii.csv",
@@ -485,7 +519,9 @@ def main():
             reference="https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)",
         ),
         *parse_ionic_radii(
-            f"{RESOURCES_DIR}/ionic_radii.csv", unit="ang", reference="https://en.wikipedia.org/wiki/Ionic_radius"
+            f"{RESOURCES_DIR}/ionic_radii.csv",
+            unit="ang",
+            reference="https://en.wikipedia.org/wiki/Ionic_radius",
         ),
         parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.csv", unit="ang"),
         generate_iupac_ordering(),

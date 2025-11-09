@@ -8,17 +8,23 @@ from pymatgen.util.testing import MatSciTest
 
 try:
     # 403 is returned when server detects bot-like behavior
-    mp_website_down = requests.get(OptimadeRester.aliases["mp"], timeout=60).status_code not in (200, 403)
+    mp_website_down = requests.get(
+        OptimadeRester.aliases["mp"], timeout=60
+    ).status_code not in (200, 403)
 except requests.exceptions.ConnectionError:
     mp_website_down = True
 
 try:
-    optimade_providers_down = requests.get("https://providers.optimade.org", timeout=60).status_code not in (200, 403)
+    optimade_providers_down = requests.get(
+        "https://providers.optimade.org", timeout=60
+    ).status_code not in (200, 403)
 except requests.exceptions.ConnectionError:
     optimade_providers_down = True
 
 try:
-    mc3d_down = requests.get(OptimadeRester.aliases["mcloud.mc3d"] + "/v1/info", timeout=60).status_code not in (
+    mc3d_down = requests.get(
+        OptimadeRester.aliases["mcloud.mc3d"] + "/v1/info", timeout=60
+    ).status_code not in (
         200,
         403,
         301,
@@ -27,7 +33,9 @@ except requests.exceptions.ConnectionError:
     mc3d_down = True
 
 try:
-    mc2d_down = requests.get(OptimadeRester.aliases["mcloud.mc2d"] + "/v1/info", timeout=60).status_code not in (
+    mc2d_down = requests.get(
+        OptimadeRester.aliases["mcloud.mc2d"] + "/v1/info", timeout=60
+    ).status_code not in (
         200,
         403,
         301,
@@ -63,8 +71,12 @@ class TestOptimade(MatSciTest):
 
         field_set = {"nsites", "nelements"}
         with OptimadeRester("mp") as optimade:
-            extra_fields_single = optimade.get_snls(**base_query, additional_response_fields="nsites")
-            extra_fields_set = optimade.get_snls(**base_query, additional_response_fields=field_set)
+            extra_fields_single = optimade.get_snls(
+                **base_query, additional_response_fields="nsites"
+            )
+            extra_fields_set = optimade.get_snls(
+                **base_query, additional_response_fields=field_set
+            )
 
         if "mp" in extra_fields_single and "mp" in structs:
             assert len(structs["mp"]) == len(extra_fields_single["mp"])
@@ -78,7 +90,9 @@ class TestOptimade(MatSciTest):
             struct_nl_set = next(iter(extra_fields_set["mp"].values()))
             assert field_set <= {*struct_nl_set.data["_optimade"]}
 
-    @pytest.mark.skipif(mc3d_down or mc2d_down, reason="At least one MC OPTIMADE API is down.")
+    @pytest.mark.skipif(
+        mc3d_down or mc2d_down, reason="At least one MC OPTIMADE API is down."
+    )
     def test_get_structures_mcloud(self):
         with OptimadeRester(["mcloud.mc2d", "mcloud.mc3d"]) as optimade:
             structs = optimade.get_structures(elements=["B", "N"], nelements=2)
@@ -90,7 +104,9 @@ class TestOptimade(MatSciTest):
         test_struct = next(iter(structs["mcloud.mc3d"].values()))
         assert [str(el) for el in test_struct.types_of_species] == ["B", "N"]
 
-    @pytest.mark.skipif(optimade_providers_down, reason="OPTIMADE providers list is down.")
+    @pytest.mark.skipif(
+        optimade_providers_down, reason="OPTIMADE providers list is down."
+    )
     def test_update_aliases(self):
         with OptimadeRester() as optimade:
             optimade.refresh_aliases()

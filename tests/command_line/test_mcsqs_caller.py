@@ -17,7 +17,9 @@ __email__ = "handongling@berkeley.edu, rwoodsrobinson@lbl.gov"
 TEST_DIR = f"{TEST_FILES_DIR}/io/atat/mcsqs"
 
 
-@pytest.mark.skipif(not (which("mcsqs") and which("str2cif")), reason="mcsqs executable not present")
+@pytest.mark.skipif(
+    not (which("mcsqs") and which("str2cif")), reason="mcsqs executable not present"
+)
 class TestMcsqsCaller(MatSciTest):
     def setup_method(self):
         self.pzt_structs = loadfn(f"{TEST_DIR}/pzt-structs.json")
@@ -27,8 +29,12 @@ class TestMcsqsCaller(MatSciTest):
 
     def test_mcsqs_caller_supercell(self):
         struct = self.struct.copy()
-        struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
-        sqs = run_mcsqs(struct, {2: 6, 3: 4}, scaling=[2, 1, 1], search_time=0.01, instances=1)
+        struct.replace_species(
+            {"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}}
+        )
+        sqs = run_mcsqs(
+            struct, {2: 6, 3: 4}, scaling=[2, 1, 1], search_time=0.01, instances=1
+        )
 
         matches = [sqs.bestsqs.matches(s) for s in self.pzt_structs]
         assert any(matches)
@@ -50,7 +56,9 @@ class TestMcsqsCaller(MatSciTest):
 
     def test_mcsqs_caller_total_atoms(self):
         struct = self.struct.copy()
-        struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
+        struct.replace_species(
+            {"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}}
+        )
         sqs = run_mcsqs(struct, {2: 6, 3: 4}, scaling=2, search_time=0.01, instances=1)
 
         matches = [sqs.bestsqs.matches(s) for s in self.pzt_structs2]
@@ -58,8 +66,12 @@ class TestMcsqsCaller(MatSciTest):
 
     def test_mcsqs_caller_total_atoms_auto_instances(self):
         struct = self.struct.copy()
-        struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
-        sqs = run_mcsqs(struct, {2: 6, 3: 4}, scaling=2, search_time=0.01, instances=None)
+        struct.replace_species(
+            {"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}}
+        )
+        sqs = run_mcsqs(
+            struct, {2: 6, 3: 4}, scaling=2, search_time=0.01, instances=None
+        )
 
         matches = [sqs.bestsqs.matches(s) for s in self.pzt_structs2]
         assert any(matches)
@@ -68,7 +80,9 @@ class TestMcsqsCaller(MatSciTest):
         # explicitly test with four instances
 
         struct = self.struct.copy()
-        struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
+        struct.replace_species(
+            {"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}}
+        )
         sqs = run_mcsqs(struct, {2: 6, 3: 4}, scaling=2, search_time=0.01, instances=4)
 
         matches = [sqs.bestsqs.matches(s) for s in self.pzt_structs2]
@@ -101,7 +115,9 @@ class TestMcsqsCaller(MatSciTest):
     @pytest.mark.xfail(reason="Fix later #4455")
     def test_mcsqs_caller_runtime_error(self):
         struct = self.struct.copy()
-        struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
+        struct.replace_species(
+            {"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}}
+        )
         struct.replace_species({"Pb": {"Ti": 0.2, "Pb": 0.8}})
         struct.replace_species({"O": {"F": 0.8, "O": 0.2}})
         with pytest.raises(RuntimeError, match="mcsqs exited before timeout reached"):

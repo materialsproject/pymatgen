@@ -138,7 +138,9 @@ def test_openff_back_and_forth():
 
     cco_openff_2 = mol_graph_to_openff_mol(cco_mol_graph_1)
 
-    assert tk.Molecule.is_isomorphic_with(cco_openff, cco_openff_2, bond_order_matching=True)
+    assert tk.Molecule.is_isomorphic_with(
+        cco_openff, cco_openff_2, bond_order_matching=True
+    )
     assert max(bond.bond_order for bond in cco_openff_2.bonds) == 2
 
 
@@ -242,7 +244,9 @@ def test_create_openff_mol_geometry_path(mol_files):
 def test_create_openff_mol_partial_charges_no_geometry():
     smile = "CCO"
     partial_charges = [-0.4, 0.2, 0.2]
-    with pytest.raises(ValueError, match="geometries must be set if partial_charges is set"):
+    with pytest.raises(
+        ValueError, match="geometries must be set if partial_charges is set"
+    ):
         create_openff_mol(smile, partial_charges=partial_charges)
 
 
@@ -250,5 +254,7 @@ def test_create_openff_mol_partial_charges_length_mismatch(mol_files):
     smile = "CCO"
     geometry = mol_files["CCO_xyz"]
     partial_charges = [-0.4, 0.2]
-    with pytest.raises(ValueError, match="partial charges must have same length & order as geometry"):
+    with pytest.raises(
+        ValueError, match="partial charges must have same length & order as geometry"
+    ):
         create_openff_mol(smile, geometry, partial_charges=partial_charges)

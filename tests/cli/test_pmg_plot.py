@@ -58,4 +58,6 @@ def test_plot_wrong_arg(capsys):
 
     assert exc_info.value.code == 2
     captured = capsys.readouterr()
-    assert "one of the arguments -d/--dos -c/--chgint -x/--xrd is required" in captured.err
+    assert (
+        "one of the arguments -d/--dos -c/--chgint -x/--xrd is required" in captured.err
+    )

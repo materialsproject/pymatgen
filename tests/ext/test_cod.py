@@ -13,7 +13,10 @@ TIMEOUT = 10 if os.getenv("CI") else 60
 
 
 try:
-    WEBSITE_DOWN = requests.get("https://www.crystallography.net", timeout=TIMEOUT).status_code != 200
+    WEBSITE_DOWN = (
+        requests.get("https://www.crystallography.net", timeout=TIMEOUT).status_code
+        != 200
+    )
 except (
     requests.exceptions.ConnectionError,
     requests.exceptions.Timeout,

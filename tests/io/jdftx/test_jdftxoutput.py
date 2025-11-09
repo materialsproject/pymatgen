@@ -24,7 +24,10 @@ _implemented_store_vars = [v for v in implemented_store_vars if v != "bandstruct
 
 @pytest.mark.parametrize(
     ("calc_dir", "known_paths"),
-    [(n2_ex_calc_dir, n2_ex_calc_dir_known_paths), (nh3_ex_calc_dir, nh3_ex_calc_dir_known_paths)],
+    [
+        (n2_ex_calc_dir, n2_ex_calc_dir_known_paths),
+        (nh3_ex_calc_dir, nh3_ex_calc_dir_known_paths),
+    ],
 )
 def test_known_paths(calc_dir: Path, known_paths: dict):
     """Test that the known paths are correct."""

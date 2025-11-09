@@ -11,7 +11,9 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     MultiWeightsChemenvStrategy,
     SimplestChemenvStrategy,
 )
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
+    LocalGeometryFinder,
+)
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     LightStructureEnvironments,
     StructureEnvironments,
@@ -32,9 +34,15 @@ class TestStructureEnvironments(MatSciTest):
         struct_envs = StructureEnvironments.from_dict(dct)
         isite = 6
         _csm_and_maps_fig, csm_and_maps_ax = struct_envs.get_csm_and_maps(isite=isite)
-        assert_allclose(csm_and_maps_ax.lines[0].get_xydata().flatten(), [0, 0.53499332])
-        assert_allclose(csm_and_maps_ax.lines[1].get_xydata().flatten(), [1, 0.47026441])
-        assert_allclose(csm_and_maps_ax.lines[2].get_xydata().flatten(), [2, 0.00988778], atol=1e-8)
+        assert_allclose(
+            csm_and_maps_ax.lines[0].get_xydata().flatten(), [0, 0.53499332]
+        )
+        assert_allclose(
+            csm_and_maps_ax.lines[1].get_xydata().flatten(), [1, 0.47026441]
+        )
+        assert_allclose(
+            csm_and_maps_ax.lines[2].get_xydata().flatten(), [2, 0.00988778], atol=1e-8
+        )
 
         _envs_fig, envs_ax = struct_envs.get_environments_figure(isite=isite)
         assert_allclose(
@@ -103,7 +111,9 @@ class TestStructureEnvironments(MatSciTest):
 
         assert len(ce) == 4
 
-        symbol, min_geometry = ce.minimum_geometry(symmetry_measure_type="csm_wocs_ctwocc")
+        symbol, min_geometry = ce.minimum_geometry(
+            symmetry_measure_type="csm_wocs_ctwocc"
+        )
         assert symbol == "T:4"
         assert min_geometry["symmetry_measure"] == approx(0.00988778424054)
 
@@ -116,7 +126,9 @@ class TestStructureEnvironments(MatSciTest):
             ],
         )
         assert min_geometry["detailed_voronoi_index"] == {"index": 0, "cn": 4}
-        assert min_geometry["other_symmetry_measures"]["scaling_factor_wocs_ctwocc"] == approx(1.627060)
+        assert min_geometry["other_symmetry_measures"][
+            "scaling_factor_wocs_ctwocc"
+        ] == approx(1.627060)
 
         assert "csm1 (with central site) : 0.00988" in str(ce)
         assert "csm2 (without central site) : 0.00981" in str(ce)
@@ -127,9 +139,13 @@ class TestStructureEnvironments(MatSciTest):
         assert "csm1 (with central site) : 34.644" in str(ce)
         assert "csm2 (without central site) : 32.466" in str(ce)
 
-        min_geoms = ce.minimum_geometries(symmetry_measure_type="csm_wocs_ctwocc", max_csm=12)
+        min_geoms = ce.minimum_geometries(
+            symmetry_measure_type="csm_wocs_ctwocc", max_csm=12
+        )
         assert len(min_geoms) == 2
-        min_geoms = ce.minimum_geometries(symmetry_measure_type="csm_wocs_ctwcc", max_csm=12)
+        min_geoms = ce.minimum_geometries(
+            symmetry_measure_type="csm_wocs_ctwcc", max_csm=12
+        )
         assert len(min_geoms) == 1
         min_geoms = ce.minimum_geometries(n=3)
         assert len(min_geoms) == 3
@@ -191,13 +207,17 @@ class TestStructureEnvironments(MatSciTest):
         assert_allclose(neighbors[2].coords, [2.75513098, 2.54465207, -0.70467298])
         assert_allclose(neighbors[3].coords, [0.82616785, 3.65833945, 0.70467298])
 
-        site_idx, d_equiv_site, d_this_site, sym = lse.strategy.equivalent_site_index_and_transform(neighbors[0])
+        site_idx, d_equiv_site, d_this_site, sym = (
+            lse.strategy.equivalent_site_index_and_transform(neighbors[0])
+        )
         assert site_idx == 0
         assert_allclose(d_equiv_site, [0, 0, 0])
         assert_allclose(d_this_site, [0, 0, -1])
         assert_allclose(sym.affine_matrix, np.eye(4))
 
-        site_idx, d_equiv_site, d_this_site, sym = lse.strategy.equivalent_site_index_and_transform(neighbors[1])
+        site_idx, d_equiv_site, d_this_site, sym = (
+            lse.strategy.equivalent_site_index_and_transform(neighbors[1])
+        )
         assert site_idx == 3
         assert_allclose(d_equiv_site, [0, 0, 0])
         assert_allclose(d_this_site, [0, 0, 0], atol=1e-9)
@@ -205,9 +225,13 @@ class TestStructureEnvironments(MatSciTest):
 
         assert stats["atom_coordination_environments_present"] == {"Si": {"T:4": 3}}
         assert stats["coordination_environments_atom_present"] == {"T:4": {"Si": 3}}
-        assert stats["fraction_atom_coordination_environments_present"] == {"Si": {"T:4": 1}}
+        assert stats["fraction_atom_coordination_environments_present"] == {
+            "Si": {"T:4": 1}
+        }
 
-        site_info_ce = lse.get_site_info_for_specie_ce(specie=Species("Si4+"), ce_symbol="T:4")
+        site_info_ce = lse.get_site_info_for_specie_ce(
+            specie=Species("Si4+"), ce_symbol="T:4"
+        )
         assert_allclose(site_info_ce["fractions"], [1, 1, 1])
         assert_allclose(
             site_info_ce["csms"],
@@ -223,9 +247,15 @@ class TestStructureEnvironments(MatSciTest):
         assert not lse.contains_only_one_anion_atom("I")
         assert lse.site_contains_environment(isite=isite, ce_symbol="T:4")
         assert not lse.site_contains_environment(isite=isite, ce_symbol="S:4")
-        assert not lse.structure_contains_atom_environment(atom_symbol="Si", ce_symbol="S:4")
-        assert lse.structure_contains_atom_environment(atom_symbol="Si", ce_symbol="T:4")
-        assert not lse.structure_contains_atom_environment(atom_symbol="O", ce_symbol="T:4")
+        assert not lse.structure_contains_atom_environment(
+            atom_symbol="Si", ce_symbol="S:4"
+        )
+        assert lse.structure_contains_atom_environment(
+            atom_symbol="Si", ce_symbol="T:4"
+        )
+        assert not lse.structure_contains_atom_environment(
+            atom_symbol="O", ce_symbol="T:4"
+        )
         assert lse.uniquely_determines_coordination_environments
         assert lse == lse  # noqa: PLR0124
 
@@ -240,7 +270,9 @@ class TestStructureEnvironments(MatSciTest):
             structure_environments=struct_envs,
             valences="undefined",
         )
-        assert lse_multi.coordination_environments[isite][0]["csm"] == approx(0.009887784240541068)
+        assert lse_multi.coordination_environments[isite][0]["csm"] == approx(
+            0.009887784240541068
+        )
         assert lse_multi.coordination_environments[isite][0]["ce_fraction"] == approx(1)
         assert lse_multi.coordination_environments[isite][0]["ce_symbol"] == "T:4"
 
@@ -252,5 +284,7 @@ class TestStructureEnvironments(MatSciTest):
         local_geom_finder.setup_structure(structure=struct)
         envs = local_geom_finder.compute_structure_environments()
 
-        lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=envs)
+        lse = LightStructureEnvironments.from_structure_environments(
+            strategy=strategy, structure_environments=envs
+        )
         assert len(lse.coordination_environments) == len(struct)

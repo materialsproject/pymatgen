@@ -86,7 +86,8 @@ def test_none_on_partial(ex_outfile_path: Path):
     texts0 = texts[:-1]
 
     slices = [
-        JDFTXOutfileSlice._from_out_slice(text, is_bgw=False, none_on_error=False) for i, text in enumerate(texts0)
+        JDFTXOutfileSlice._from_out_slice(text, is_bgw=False, none_on_error=False)
+        for i, text in enumerate(texts0)
     ]
     outfile1 = JDFTXOutfile(slices=slices)
     slices.append(None)
@@ -100,17 +101,28 @@ def test_none_on_partial(ex_outfile_path: Path):
 
 
 @pytest.mark.parametrize(
-    ("example_vib_outfile_path", "example_vib_modes_known", "example_vib_nrg_components"),
+    (
+        "example_vib_outfile_path",
+        "example_vib_modes_known",
+        "example_vib_nrg_components",
+    ),
     [
         (example_vib_outfile_path, example_vib_modes_known, example_vib_nrg_components),
     ],
 )
 def test_vib_parse(
-    example_vib_outfile_path: Path, example_vib_modes_known: list[dict], example_vib_nrg_components: dict
+    example_vib_outfile_path: Path,
+    example_vib_modes_known: list[dict],
+    example_vib_nrg_components: dict,
 ):
     """
     Test that the vibration modes are parsed correctly from the outfile.
     """
     jdftxoutfile = JDFTXOutfile.from_file(example_vib_outfile_path)
-    assert_same_value(jdftxoutfile.slices[-1].vibrational_modes, example_vib_modes_known)
-    assert_same_value(jdftxoutfile.slices[-1].vibrational_energy_components, example_vib_nrg_components)
+    assert_same_value(
+        jdftxoutfile.slices[-1].vibrational_modes, example_vib_modes_known
+    )
+    assert_same_value(
+        jdftxoutfile.slices[-1].vibrational_energy_components,
+        example_vib_nrg_components,
+    )

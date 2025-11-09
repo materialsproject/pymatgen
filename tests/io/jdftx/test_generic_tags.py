@@ -15,7 +15,10 @@ from pymatgen.io.jdftx.generic_tags import (
     StrTag,
     TagContainer,
 )
-from pymatgen.io.jdftx.jdftxinfile_master_format import get_dump_tag_container, get_tag_object
+from pymatgen.io.jdftx.jdftxinfile_master_format import (
+    get_dump_tag_container,
+    get_tag_object,
+)
 
 from .shared_test_utils import assert_same_value
 
@@ -53,17 +56,23 @@ def test_bool_tag():
     # Values with spaces are impossible to interpret as bools
     tag = "barbie"
     value = "this string has spaces"
-    with pytest.raises(ValueError, match=f"'{value}' for '{tag}' should not have a space in it!"):
+    with pytest.raises(
+        ValueError, match=f"'{value}' for '{tag}' should not have a space in it!"
+    ):
         bool_tag.read(tag, value)
     # Value errors should be raised if value cannot be conveniently converted to a bool
     value = "non-bool-like"
-    with pytest.raises(ValueError, match=f"Could not set '{value}' as True/False for tag '{tag}'!"):
+    with pytest.raises(
+        ValueError, match=f"Could not set '{value}' as True/False for tag '{tag}'!"
+    ):
         bool_tag.read(tag, value)
     # bool_tag = BoolTag(write_value=True)
     # Only values appearing in the "_TF_options" map can be converted to bool (allows for yes/no to be interpreted
     # as bools)
     value = "not-appearing-in-read-TF-options"
-    with pytest.raises(ValueError, match=f"Could not set '{value}' as True/False for tag '{tag}'!"):
+    with pytest.raises(
+        ValueError, match=f"Could not set '{value}' as True/False for tag '{tag}'!"
+    ):
         bool_tag.read(tag, value)
 
 
@@ -75,11 +84,17 @@ def test_abstract_tag_inheritor():
     value = "ken"
     # Abstract-tag inheritors should raise the following error for calling get_list_representation unless
     # they have implemented the method (bool_tag does not and should not)
-    with pytest.raises(ValueError, match=f"Tag object with tag '{tag}' has no get_list_representation method"):
+    with pytest.raises(
+        ValueError,
+        match=f"Tag object with tag '{tag}' has no get_list_representation method",
+    ):
         bool_tag.get_list_representation(tag, value)
     # Abstract-tag inheritors should raise the following error for calling get_dict_representation unless
     # they have implemented the method (bool_tag does not and should not)
-    with pytest.raises(ValueError, match=f"Tag object with tag '{tag}' has no get_dict_representation method"):
+    with pytest.raises(
+        ValueError,
+        match=f"Tag object with tag '{tag}' has no get_dict_representation method",
+    ):
         bool_tag.get_dict_representation(tag, value)
     # "_validate_repeat" is only called if "can_repeat" is True, but must raise an error if value is not a list
     with pytest.raises(TypeError):
@@ -91,18 +106,26 @@ def test_str_tag():
     # Values with spaces are rejected as spaces are occasionally used as delimiters in input files
     tag = "barbie"
     value = "ken, allan"
-    with pytest.raises(ValueError, match=f"'{value}' for '{tag}' should not have a space in it!"):
+    with pytest.raises(
+        ValueError, match=f"'{value}' for '{tag}' should not have a space in it!"
+    ):
         str_tag.read(tag, value)
     # Values that cannot be converted to strings have a safety net error message
     value = Unstringable()
     print_value = "(unstringable)"
-    with pytest.raises(TypeError, match=re.escape(f"Value '{print_value}' for '{tag}' should be a string!")):
+    with pytest.raises(
+        TypeError,
+        match=re.escape(f"Value '{print_value}' for '{tag}' should be a string!"),
+    ):
         str_tag.read(tag, value)
     # "str_tag" here was initiated with only "ken" as an option, so "allan" should raise an error
     # (barbie is the tagname, not the value)
     value = "allan"
     with pytest.raises(
-        ValueError, match=re.escape(f"The string value '{value}' must be one of {str_tag.options} for tag '{tag}'")
+        ValueError,
+        match=re.escape(
+            f"The string value '{value}' must be one of {str_tag.options} for tag '{tag}'"
+        ),
     ):
         str_tag.read(tag, value)
     # If both the tagname and value are written, two tokens are to be written
@@ -125,15 +148,21 @@ def test_int_tag():
     # Values with spaces are rejected as spaces are occasionally used as delimiters in input files
     value = "ken, allan"
     tag = "barbie"
-    with pytest.raises(ValueError, match=f"'{value}' for '{tag}' should not have a space in it!"):
+    with pytest.raises(
+        ValueError, match=f"'{value}' for '{tag}' should not have a space in it!"
+    ):
         int_tag.read(tag, value)
     # Values passed to "read" must be strings
     value = {}
-    with pytest.raises(TypeError, match=f"Value '{value}' for '{tag}' should be a string!"):
+    with pytest.raises(
+        TypeError, match=f"Value '{value}' for '{tag}' should be a string!"
+    ):
         int_tag.read(tag, value)
     # Values must be able to be type-cast to an integer
     value = "ken"  # (ken is not an integer)
-    with pytest.raises(ValueError, match=f"Could not set value '{value}' to an int for tag '{tag}'!"):
+    with pytest.raises(
+        ValueError, match=f"Could not set value '{value}' to an int for tag '{tag}'!"
+    ):
         int_tag.read(tag, value)
 
 
@@ -141,15 +170,21 @@ def test_float_tag():
     float_tag = FloatTag()
     tag = "barbie"
     value = "ken, allan"
-    with pytest.raises(ValueError, match=f"'{value}' for '{tag}' should not have a space in it!"):
+    with pytest.raises(
+        ValueError, match=f"'{value}' for '{tag}' should not have a space in it!"
+    ):
         float_tag.read(tag, value)
     with pytest.raises(TypeError):
         float_tag.read(tag, {})
     value = "ken"  # (ken is not an number)
-    with pytest.raises(ValueError, match=f"Could not set value '{value}' to a float for tag '{tag}'!"):
+    with pytest.raises(
+        ValueError, match=f"Could not set value '{value}' to a float for tag '{tag}'!"
+    ):
         float_tag.read(tag, value)
     value = "1.2.3"  # (1.2.3 cannot be a float)
-    with pytest.raises(ValueError, match=f"Could not set value '{value}' to a float for tag '{tag}'!"):
+    with pytest.raises(
+        ValueError, match=f"Could not set value '{value}' to a float for tag '{tag}'!"
+    ):
         float_tag.read("barbie", "1.2.3")
 
 
@@ -158,7 +193,10 @@ def test_initmagmomtag():
     tag = "tag"
     value = Unstringable()
     print_value = "(unstringable)"
-    with pytest.raises(TypeError, match=re.escape(f"Value '{print_value}' for '{tag}' should be a string!")):
+    with pytest.raises(
+        TypeError,
+        match=re.escape(f"Value '{print_value}' for '{tag}' should be a string!"),
+    ):
         initmagmomtag.read(tag, value)
     assert initmagmomtag.read("tag", "42") == "42"
     assert initmagmomtag.write("magtag", 42) == "magtag 42 "
@@ -190,7 +228,11 @@ def test_tagcontainer_validation():
     # issues with converting values to the correct type should only raise a warning within validate_value_type
     with pytest.warns(Warning, match="Invalid value"):
         tagcontainer.validate_value_type(
-            f"{tag}", {f"{repeatable_str_subtag}": ["1"], f"{non_repeatable_int_subtag}": f"{non_intable_value}"}
+            f"{tag}",
+            {
+                f"{repeatable_str_subtag}": ["1"],
+                f"{non_repeatable_int_subtag}": f"{non_intable_value}",
+            },
         )
     # _validate_single_entry for TagContainer should raise an error if the value is not a dict
     with pytest.raises(TypeError):
@@ -201,7 +243,9 @@ def test_tagcontainer_validation():
     value = [{"ken": 1}, {"ken": 2, "allan": 3}]
     with pytest.raises(
         ValueError,
-        match=re.escape(f"The values '{value}' for tag '{tag}' provided in a list of lists have different lengths"),
+        match=re.escape(
+            f"The values '{value}' for tag '{tag}' provided in a list of lists have different lengths"
+        ),
     ):
         tagcontainer.validate_value_type(tag, value)
 
@@ -222,17 +266,31 @@ def test_tagcontainer_mixed_nesting():
 
 def tagcontainer_mixed_nesting_tester(tagcontainer, tag, str_subtag, int_subtag):
     list_of_dicts_and_lists = [{str_subtag: "b"}, [[int_subtag, 1]]]
-    list_of_dicts_and_lists_err = f"tag '{tag}' with value '{list_of_dicts_and_lists}' cannot have"
+    list_of_dicts_and_lists_err = (
+        f"tag '{tag}' with value '{list_of_dicts_and_lists}' cannot have"
+    )
     " nested lists/dicts mixed with bool/str/int/floats!"
     list_of_dicts_of_strs_and_ints = [{str_subtag: "b"}, {int_subtag: 1}]
-    list_of_dicts_of_strs_and_ints_err = f"tag '{tag}' with value '{list_of_dicts_of_strs_and_ints}' "
+    list_of_dicts_of_strs_and_ints_err = (
+        f"tag '{tag}' with value '{list_of_dicts_of_strs_and_ints}' "
+    )
     "cannot have nested dicts mixed with bool/str/int/floats!"
     list_of_lists_of_strs_and_ints = [[str_subtag, "b"], [int_subtag, 1]]
-    list_of_lists_of_strs_and_ints_err = f"tag '{tag}' with value '{list_of_lists_of_strs_and_ints}' "
+    list_of_lists_of_strs_and_ints_err = (
+        f"tag '{tag}' with value '{list_of_lists_of_strs_and_ints}' "
+    )
     "cannot have nested lists mixed with bool/str/int/floats!"
     for value, err_str in zip(
-        [list_of_dicts_and_lists, list_of_dicts_of_strs_and_ints, list_of_lists_of_strs_and_ints],
-        [list_of_dicts_and_lists_err, list_of_dicts_of_strs_and_ints_err, list_of_lists_of_strs_and_ints_err],
+        [
+            list_of_dicts_and_lists,
+            list_of_dicts_of_strs_and_ints,
+            list_of_lists_of_strs_and_ints,
+        ],
+        [
+            list_of_dicts_and_lists_err,
+            list_of_dicts_of_strs_and_ints_err,
+            list_of_lists_of_strs_and_ints_err,
+        ],
         strict=False,
     ):
         with pytest.raises(
@@ -273,8 +331,12 @@ def test_tagcontainer_read():
         can_repeat=True,
         write_tagname=True,
         subtags={
-            required_subtag: StrTag(optional=False, write_tagname=True, write_value=True),
-            optional_subtag: IntTag(optional=True, write_tagname=True, write_value=True),
+            required_subtag: StrTag(
+                optional=False, write_tagname=True, write_value=True
+            ),
+            optional_subtag: IntTag(
+                optional=True, write_tagname=True, write_value=True
+            ),
         },
     )
     with pytest.raises(
@@ -312,7 +374,9 @@ def test_tagcontainer_write():
         f"{tag} {repeatable_str_subtag} a {repeatable_str_subtag} b ",
     )
     tagcontainer.subtags[repeatable_str_subtag].write_tagname = False
-    assert_same_value(tagcontainer.write(tag, {repeatable_str_subtag: ["a", "b"]}), f"{tag} a b ")
+    assert_same_value(
+        tagcontainer.write(tag, {repeatable_str_subtag: ["a", "b"]}), f"{tag} a b "
+    )
     # Lists are reserved for repeatable tagcontainers
     value = [{"ken": 1}]
     with pytest.raises(
@@ -351,13 +415,18 @@ def test_tagcontainer_list_dict_conversion():
     notadict = f"True {bottom_subtag2} False"
     value = {top_subtag: notadict}
     with pytest.raises(
-        ValueError, match=re.escape(f"The subtag {top_subtag} is not a dict: '{notadict}', so could not be converted")
+        ValueError,
+        match=re.escape(
+            f"The subtag {top_subtag} is not a dict: '{notadict}', so could not be converted"
+        ),
     ):
         tagcontainer._make_list(value)
     # Despite bottom_subtag2 have "write_tagname" set to True, it is not written in the list for _make_list
     # (obviously this is dangerous and this method should be avoided)
     assert_same_value(
-        tagcontainer._make_list({top_subtag: {bottom_subtag1: "True", bottom_subtag2: "False"}}),
+        tagcontainer._make_list(
+            {top_subtag: {bottom_subtag1: "True", bottom_subtag2: "False"}}
+        ),
         [top_subtag, "True", "False"],
     )
     value = {top_subtag: {bottom_subtag1: {"True": True}, bottom_subtag2: "False"}}
@@ -404,8 +473,12 @@ def test_booltagcontainer():
     not_a_subtag = "alan"
     btc = BoolTagContainer(
         subtags={
-            required_subtag: BoolTag(optional=False, write_tagname=True, write_value=False),
-            optional_subtag: BoolTag(optional=True, write_tagname=True, write_value=False),
+            required_subtag: BoolTag(
+                optional=False, write_tagname=True, write_value=False
+            ),
+            optional_subtag: BoolTag(
+                optional=True, write_tagname=True, write_value=False
+            ),
         },
     )
     with pytest.raises(
@@ -475,7 +548,9 @@ def test_boundary_checking():
             "skipper": FloatTag(ub=1.0, ub_incl=True, lb=-1.0, lb_incl=False),
         },
     )
-    valid, errors = tagcontainer.validate_value_bounds(tag, {"ken": -1.0, "allan": "notanumber", "skipper": 2.0})
+    valid, errors = tagcontainer.validate_value_bounds(
+        tag, {"ken": -1.0, "allan": "notanumber", "skipper": 2.0}
+    )
     assert valid is False
     assert "allan" not in errors
     assert "ken" in errors
@@ -497,13 +572,29 @@ def test_tag_is_equal_to():
     inttag2 = IntTag()
     booltag1 = BoolTag()
     booltag2 = BoolTag()
-    tagcont1 = TagContainer(subtags={"strtag": strtag1, "floattag": floattag1, "inttag": inttag1, "booltag": booltag1})
-    tagcont2 = TagContainer(subtags={"strtag": strtag2, "floattag": floattag2, "inttag": inttag2, "booltag": booltag2})
+    tagcont1 = TagContainer(
+        subtags={
+            "strtag": strtag1,
+            "floattag": floattag1,
+            "inttag": inttag1,
+            "booltag": booltag1,
+        }
+    )
+    tagcont2 = TagContainer(
+        subtags={
+            "strtag": strtag2,
+            "floattag": floattag2,
+            "inttag": inttag2,
+            "booltag": booltag2,
+        }
+    )
     # Make sure tags of different types are not equal
     assert not strtag1.is_equal_to("", floattag1, 1.0)
     assert not strtag1.is_equal_to("", inttag1, 1)
     assert not strtag1.is_equal_to("", booltag1, True)  # noqa: FBT003
-    assert not strtag1.is_equal_to("", tagcont1, {"strtag": "a", "floattag": 1.0, "inttag": 1, "booltag": True})
+    assert not strtag1.is_equal_to(
+        "", tagcont1, {"strtag": "a", "floattag": 1.0, "inttag": 1, "booltag": True}
+    )
     # Test some str tag equalities
     assert strtag1.is_equal_to(" a", strtag2, "a")
     assert not strtag1.is_equal_to(" a", strtag2, "b")
@@ -535,13 +626,18 @@ def test_tag_is_equal_to():
         {"strtag": "a", "floattag": 2.0, "inttag": 1, "booltag": True},
     )
     # Test expected error raising
-    with pytest.raises(ValueError, match="Values must be in dictionary format for TagContainer comparison"):
+    with pytest.raises(
+        ValueError,
+        match="Values must be in dictionary format for TagContainer comparison",
+    ):
         tagcont1.is_equal_to(
             {"strtag": "a", "floattag": 1.0, "inttag": 1, "booltag": True},
             tagcont2,
             ["strtag", "a", "floattag", 1.0, "inttag", 1, "booltag", True],
         )
-    with pytest.raises(ValueError, match="Both values must be strings for StrTag comparison"):
+    with pytest.raises(
+        ValueError, match="Both values must be strings for StrTag comparison"
+    ):
         strtag1.is_equal_to(" a", strtag2, 1.0)
     mfgtag = MultiformatTag(
         format_options=[FloatTag(), IntTag()],

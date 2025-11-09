@@ -111,7 +111,9 @@ class TestLinearAssignment:
 
         assert min_cost_0 == min_cost_1
 
-        with pytest.raises(ValueError, match="cost matrix must have at least as many columns as rows"):
+        with pytest.raises(
+            ValueError, match="cost matrix must have at least as many columns as rows"
+        ):
             _ = get_linear_assignment_solution(costs_0.T)
 
     def test_another_case(self):
@@ -267,7 +269,9 @@ class TestLinearAssignment:
 
 class TestStructureMatcher(MatSciTest):
     def setup_method(self):
-        with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json", encoding="utf-8") as file:
+        with open(
+            f"{TEST_FILES_DIR}/entries/TiO2_entries.json", encoding="utf-8"
+        ) as file:
             entries = json.load(file, cls=MontyDecoder)
         self.struct_list = [ent.structure for ent in entries]
         self.oxi_structs = [
@@ -278,7 +282,9 @@ class TestStructureMatcher(MatSciTest):
     def test_ignore_species(self):
         s1 = Structure.from_file(f"{TEST_FILES_DIR}/cif/LiFePO4.cif")
         s2 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
-        matcher = StructureMatcher(ignored_species=["Li"], primitive_cell=False, attempt_supercell=True)
+        matcher = StructureMatcher(
+            ignored_species=["Li"], primitive_cell=False, attempt_supercell=True
+        )
         assert matcher.fit(s1, s2)
         assert matcher.fit_anonymous(s1, s2)
         groups = matcher.group_structures([s1, s2])
@@ -289,7 +295,10 @@ class TestStructureMatcher(MatSciTest):
         assert ss1.reduced_formula == "LiFePO4"
 
         assert {
-            k.symbol: v.symbol for k, v in matcher.get_best_electronegativity_anonymous_mapping(s1, s2).items()
+            k.symbol: v.symbol
+            for k, v in matcher.get_best_electronegativity_anonymous_mapping(
+                s1, s2
+            ).items()
         } == {
             "Fe": "Fe",
             "P": "P",
@@ -319,7 +328,9 @@ class TestStructureMatcher(MatSciTest):
         assert sm._get_supercell_size(s2, s1) == (1, True)
 
         sm = StructureMatcher(supercell_size="invalid")
-        with pytest.raises(ValueError, match="Can't parse Element or Species from 'invalid'"):
+        with pytest.raises(
+            ValueError, match="Can't parse Element or Species from 'invalid'"
+        ):
             sm._get_supercell_size(s1, s2)
 
     def test_cmp_fstruct(self):
@@ -331,7 +342,9 @@ class TestStructureMatcher(MatSciTest):
         mask = np.array([[False, False]])
         mask2 = np.array([[True, False]])
 
-        with pytest.raises(ValueError, match=r"len\(s1\)=1 must be larger than len\(s2\)=2"):
+        with pytest.raises(
+            ValueError, match=r"len\(s1\)=1 must be larger than len\(s2\)=2"
+        ):
             sm._cmp_fstruct(s2, s1, frac_tol, mask.T)
         with pytest.raises(ValueError, match="mask has incorrect shape"):
             sm._cmp_fstruct(s1, s2, frac_tol, mask.T)
@@ -356,7 +369,9 @@ class TestStructureMatcher(MatSciTest):
         n1 = (len(s1) / lattice.volume) ** (1 / 3)
         n2 = (len(s2) / lattice.volume) ** (1 / 3)
 
-        with pytest.raises(ValueError, match=r"len\(s1\)=1 must be larger than len\(s2\)=2"):
+        with pytest.raises(
+            ValueError, match=r"len\(s1\)=1 must be larger than len\(s2\)=2"
+        ):
             sm._cart_dists(s2, s1, lattice, mask.T, n2)
         with pytest.raises(ValueError, match="mask has incorrect shape"):
             sm._cart_dists(s1, s2, lattice, mask.T, n1)
@@ -481,7 +496,9 @@ class TestStructureMatcher(MatSciTest):
         assert sm.fit(self.struct_list[0], self.struct_list[1])
 
         # Test rotational/translational invariance
-        op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, translation_vec=[0.4, 0.7, 0.9])
+        op = SymmOp.from_axis_angle_and_translation(
+            [0, 0, 1], 30, translation_vec=[0.4, 0.7, 0.9]
+        )
         self.struct_list[1].apply_operation(op)
         assert sm.fit(self.struct_list[0], self.struct_list[1])
 
@@ -526,7 +543,9 @@ class TestStructureMatcher(MatSciTest):
         assert sm.get_rms_anonymous(struct1, struct2)[0] == approx(0)
 
         # test symmetric
-        sm_coarse = sm = StructureMatcher(comparator=ElementComparator(), ltol=0.6, stol=0.6, angle_tol=6)
+        sm_coarse = sm = StructureMatcher(
+            comparator=ElementComparator(), ltol=0.6, stol=0.6, angle_tol=6
+        )
 
         struct1 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_fit_symm_s1")
         struct2 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_fit_symm_s2")
@@ -562,7 +581,10 @@ class TestStructureMatcher(MatSciTest):
 
     def test_mix(self):
         structures = list(map(self.get_structure, ["Li2O", "Li2O2", "LiFePO4"]))
-        structures += [Structure.from_file(f"{VASP_IN_DIR}/{fname}") for fname in ["POSCAR_Li2O", "POSCAR_LiFePO4"]]
+        structures += [
+            Structure.from_file(f"{VASP_IN_DIR}/{fname}")
+            for fname in ["POSCAR_Li2O", "POSCAR_LiFePO4"]
+        ]
         sm = StructureMatcher(comparator=ElementComparator())
         groups = sm.group_structures(structures)
         for group in groups:
@@ -589,7 +611,9 @@ class TestStructureMatcher(MatSciTest):
         assert sm2.as_dict() == dct
 
     def test_no_scaling(self):
-        sm = StructureMatcher(ltol=0.1, stol=0.1, angle_tol=2, scale=False, comparator=ElementComparator())
+        sm = StructureMatcher(
+            ltol=0.1, stol=0.1, angle_tol=2, scale=False, comparator=ElementComparator()
+        )
         assert sm.fit(self.struct_list[0], self.struct_list[1])
 
         assert sm.get_rms_dist(self.struct_list[0], self.struct_list[1])[0] < 0.0008
@@ -639,7 +663,9 @@ class TestStructureMatcher(MatSciTest):
             attempt_supercell=False,
         )
         lattice = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s1 = Structure(
+            lattice, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]]
+        )
         s2 = Structure(
             lattice,
             ["Si", "Si", "Ag"],
@@ -648,7 +674,9 @@ class TestStructureMatcher(MatSciTest):
 
         s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, niggli=False)
         assert s1_supercell is True
-        match = sm._strict_match(s1, s2, fu, s1_supercell=True, use_rms=True, break_on_match=False)
+        match = sm._strict_match(
+            s1, s2, fu, s1_supercell=True, use_rms=True, break_on_match=False
+        )
         scale_matrix = match[2]
         s2.make_supercell(scale_matrix)
         fc = s2.frac_coords + match[3]
@@ -673,7 +701,9 @@ class TestStructureMatcher(MatSciTest):
 
         s1, s2, fu, _s1_supercell = sm._preprocess(s1, s2, niggli=False)
 
-        match = sm._strict_match(s1, s2, fu, s1_supercell=False, use_rms=True, break_on_match=False)
+        match = sm._strict_match(
+            s1, s2, fu, s1_supercell=False, use_rms=True, break_on_match=False
+        )
         scale_matrix = match[2]
         s2.make_supercell(scale_matrix)
         s2.translate_sites(range(len(s2)), match[3])
@@ -703,7 +733,9 @@ class TestStructureMatcher(MatSciTest):
             supercell_size="volume",
         )
         lattice = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(lattice, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
+        s1 = Structure(
+            lattice, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]]
+        )
         s1.make_supercell([2, 1, 1])
         s2 = Structure(
             lattice,
@@ -777,10 +809,14 @@ class TestStructureMatcher(MatSciTest):
         )
 
         lattice = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(lattice, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
+        s1 = Structure(
+            lattice, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]]
+        )
 
         l2 = Lattice.orthorhombic(1.01, 2.01, 3.01)
-        s2 = Structure(l2, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
+        s2 = Structure(
+            l2, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]]
+        )
         s2.make_supercell([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
 
         result = sm.get_s2_like_s1(s1, s2)
@@ -799,7 +835,9 @@ class TestStructureMatcher(MatSciTest):
             allow_subset=True,
         )
         lattice = Lattice.orthorhombic(1, 2, 3)
-        struct1 = Structure(lattice, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
+        struct1 = Structure(
+            lattice, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]]
+        )
         struct1.make_supercell([2, 1, 1])
         struct2 = Structure(
             lattice,
@@ -837,7 +875,9 @@ class TestStructureMatcher(MatSciTest):
 
         lattice = Lattice.orthorhombic(1, 2, 3)
 
-        s1 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s1 = Structure(
+            lattice, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]]
+        )
         s1.make_supercell([2, 1, 1])
         s2 = Structure(
             lattice,
@@ -847,7 +887,9 @@ class TestStructureMatcher(MatSciTest):
         result = sm.get_supercell_matrix(s1, s2)
         assert (result == [[-2, 0, 0], [0, 1, 0], [0, 0, 1]]).all()
 
-        s1 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s1 = Structure(
+            lattice, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]]
+        )
         s1.make_supercell([[1, -1, 0], [0, 0, -1], [0, 1, 0]])
 
         s2 = Structure(
@@ -883,7 +925,9 @@ class TestStructureMatcher(MatSciTest):
             allow_subset=True,
         )
         lattice = Lattice.orthorhombic(10, 20, 30)
-        s1 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s1 = Structure(
+            lattice, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]]
+        )
         s2 = Structure(lattice, ["Si", "Ag"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
         result = sm.get_s2_like_s1(s1, s2)
 
@@ -891,10 +935,14 @@ class TestStructureMatcher(MatSciTest):
         assert len(find_in_coord_list_pbc(result.frac_coords, [0.7, 0.4, 0.5])) == 1
 
         # test with fewer species in s2
-        s1 = Structure(lattice, ["Si", "Ag", "Si"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s1 = Structure(
+            lattice, ["Si", "Ag", "Si"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]]
+        )
         s2 = Structure(lattice, ["Si", "Si"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
         result = sm.get_s2_like_s1(s1, s2)
-        mindists = np.min(s1.lattice.get_all_distances(s1.frac_coords, result.frac_coords), axis=0)
+        mindists = np.min(
+            s1.lattice.get_all_distances(s1.frac_coords, result.frac_coords), axis=0
+        )
         assert np.max(mindists) < 1e-6
 
         assert len(find_in_coord_list_pbc(result.frac_coords, [0, 0, 0.1])) == 1
@@ -902,14 +950,20 @@ class TestStructureMatcher(MatSciTest):
 
         # test with not enough sites in s1
         # test with fewer species in s2
-        s1 = Structure(lattice, ["Si", "Ag", "Cl"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s1 = Structure(
+            lattice, ["Si", "Ag", "Cl"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]]
+        )
         s2 = Structure(lattice, ["Si", "Si"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
         assert sm.get_s2_like_s1(s1, s2) is None
 
     def test_out_of_cell_s2_like_s1(self):
         lattice = Lattice.cubic(5)
-        s1 = Structure(lattice, ["Si", "Ag", "Si"], [[0, 0, -0.02], [0, 0, 0.001], [0.7, 0.4, 0.5]])
-        s2 = Structure(lattice, ["Si", "Ag", "Si"], [[0, 0, 0.98], [0, 0, 0.99], [0.7, 0.4, 0.5]])
+        s1 = Structure(
+            lattice, ["Si", "Ag", "Si"], [[0, 0, -0.02], [0, 0, 0.001], [0.7, 0.4, 0.5]]
+        )
+        s2 = Structure(
+            lattice, ["Si", "Ag", "Si"], [[0, 0, 0.98], [0, 0, 0.99], [0.7, 0.4, 0.5]]
+        )
         new_s2 = StructureMatcher(primitive_cell=False).get_s2_like_s1(s1, s2)
         dists = np.sum((s1.cart_coords - new_s2.cart_coords) ** 2, axis=-1) ** 0.5
         assert np.max(dists) < 0.1
@@ -948,7 +1002,9 @@ class TestStructureMatcher(MatSciTest):
         assert not sm_sites.fit(prim, supercell)
         assert sm_atoms.fit(prim, supercell)
 
-        with pytest.raises(ValueError, match="Struct1 must be the supercell, not the other way around"):
+        with pytest.raises(
+            ValueError, match="Struct1 must be the supercell, not the other way around"
+        ):
             sm_atoms.get_s2_like_s1(prim, supercell)
         assert len(sm_atoms.get_s2_like_s1(supercell, prim)) == 4
 
@@ -980,7 +1036,9 @@ class TestStructureMatcher(MatSciTest):
         ls = Lattice.orthorhombic(20, 20, 30)
         scoords = [[0, 0, 0], [0.5, 0, 0], [0.25, 0.5, 0.5], [0.75, 0.5, 0.5]]
         s1 = Structure(lp, ["Na", "Cl"], pcoords)
-        s2 = Structure(ls, [{"Na": 0.5}, {"Na": 0.5}, {"Cl": 0.5}, {"Cl": 0.5}], scoords)
+        s2 = Structure(
+            ls, [{"Na": 0.5}, {"Na": 0.5}, {"Cl": 0.5}, {"Cl": 0.5}], scoords
+        )
 
         assert sm_sites.fit(s1, s2)
         assert not sm_atoms.fit(s1, s2)

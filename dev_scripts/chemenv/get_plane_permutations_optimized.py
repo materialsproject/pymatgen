@@ -16,7 +16,9 @@ from random import shuffle
 import numpy as np
 import tabulate
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+)
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
     LocalGeometryFinder,
@@ -157,7 +159,9 @@ if __name__ == "__main__":
 
         cg = all_cg[cg_symbol]
 
-        print(f"Getting explicit permutations for geometry {cg.name!r} (symbol : {cg_symbol!r})\n")
+        print(
+            f"Getting explicit permutations for geometry {cg.name!r} (symbol : {cg_symbol!r})\n"
+        )
 
         # Setup of the local geometry finder
         lgf = LocalGeometryFinder()
@@ -180,7 +184,9 @@ if __name__ == "__main__":
             algo._permutations = algo.explicit_permutations
             algo.minimum_number_of_points = 4
             if algo.algorithm_type == "EXPLICIT_PERMUTATIONS":
-                raise ValueError("Do something for the explicit ones ... (these should anyway be by far ok!)")
+                raise ValueError(
+                    "Do something for the explicit ones ... (these should anyway be by far ok!)"
+                )
             if algo.explicit_optimized_permutations is None:
                 eop = "no"
             else:
@@ -198,7 +204,9 @@ if __name__ == "__main__":
                 f"{len(algo.explicit_permutations)} explicit permutations"
             )
             if algo.other_plane_points is None:
-                input("Multiplicity and other plane points is not defined for this algorithm !")
+                input(
+                    "Multiplicity and other plane points is not defined for this algorithm !"
+                )
 
             # Setup of safe permutations
             permutations = algo.safe_separation_permutations(
@@ -221,8 +229,12 @@ if __name__ == "__main__":
                     printing_volume=printing_volume,
                 )
 
-                points_combination = [lgf.local_geometry._coords[ii] for ii in plane_point_indices]
-                local_plane = Plane.from_npoints(points_combination, best_fit="least_square_distance")
+                points_combination = [
+                    lgf.local_geometry._coords[ii] for ii in plane_point_indices
+                ]
+                local_plane = Plane.from_npoints(
+                    points_combination, best_fit="least_square_distance"
+                )
 
                 # Actual test of the permutations
                 csms, perms, algos, sep_perms = lgf._cg_csm_separation_plane(
@@ -246,7 +258,9 @@ if __name__ == "__main__":
                 for icsm, csm in enumerate(csms):
                     found = False
                     for csm2 in csms_with_recorded_permutation:
-                        if np.isclose(csm["symmetry_measure"], csm2["symmetry_measure"], rtol=0.0):
+                        if np.isclose(
+                            csm["symmetry_measure"], csm2["symmetry_measure"], rtol=0.0
+                        ):
                             found = True
                             break
                     if not found:
@@ -269,8 +283,12 @@ if __name__ == "__main__":
                         print("Explicit permutations per plane :")
                         for eppp in explicit_permutations_per_plane:
                             print(eppp)
-                        raise ValueError("Explicit permutations different from one plane to another !")
-            algo.explicit_permutations = [list(perm) for perm in list(explicit_permutations_per_plane[0])]
+                        raise ValueError(
+                            "Explicit permutations different from one plane to another !"
+                        )
+            algo.explicit_permutations = [
+                list(perm) for perm in list(explicit_permutations_per_plane[0])
+            ]
             algo.explicit_permutations.sort()
             algo.explicit_permutations = np.array(algo.explicit_permutations)
             print(f"Explicit permutations found ({len(algo.explicit_permutations)})")
@@ -292,7 +310,9 @@ if __name__ == "__main__":
             elif test == "q":
                 raise SystemExit(0)
         # 2. Optimization of the permutations
-        print(f"Getting explicit optimized permutations for geometry {cg.name!r} (symbol : {cg_symbol!r})\n")
+        print(
+            f"Getting explicit optimized permutations for geometry {cg.name!r} (symbol : {cg_symbol!r})\n"
+        )
         perms_used_algos: list[dict] = [{} for _ in cg.algorithms]
 
         # Loop on algorithms
@@ -305,7 +325,9 @@ if __name__ == "__main__":
                 f"side_1 : [{', '.join(map(str, algo.point_groups[1]))}])"
             )
             if algo.algorithm_type == "EXPLICIT_PERMUTATIONS":
-                raise ValueError("Do something for the explicit ones ... (these should anyway be by far ok!)")
+                raise ValueError(
+                    "Do something for the explicit ones ... (these should anyway be by far ok!)"
+                )
 
             # Definition of the facets
             all_planes_point_indices = [algo.plane_points]
@@ -318,7 +340,9 @@ if __name__ == "__main__":
                 perms_iterator = itertools.permutations(indices)
                 n_permutations = factorial(cg.coordination_number)
             elif permutations_setup_type == "n":
-                if n_permutations and n_permutations >= factorial(cg.coordination_number):
+                if n_permutations and n_permutations >= factorial(
+                    cg.coordination_number
+                ):
                     perms_iterator = itertools.permutations(indices)
                     n_permutations = factorial(cg.coordination_number)
                 else:
@@ -327,7 +351,9 @@ if __name__ == "__main__":
                     )
             elif permutations_setup_type in ["x", "y"] and n_perm_factor:
                 n_permutations = n_perm_factor * len(algo.explicit_permutations)
-                if permutations_setup_type == "y" and n_permutations >= factorial(cg.coordination_number):
+                if permutations_setup_type == "y" and n_permutations >= factorial(
+                    cg.coordination_number
+                ):
                     perms_iterator = itertools.permutations(indices)
                     n_permutations = factorial(cg.coordination_number)
                 else:
@@ -361,17 +387,27 @@ if __name__ == "__main__":
 
                 # Loop on the facets
                 separation_permutations = []
-                for idx_plane, plane_point_indices in enumerate(all_planes_point_indices):
+                for idx_plane, plane_point_indices in enumerate(
+                    all_planes_point_indices
+                ):
                     prt2(
                         string=f"In plane {idx_plane} ({'-'.join(str(pp) for pp in plane_point_indices)})",
                         printing_volume=printing_volume,
                     )
 
                     # Setup of separation plane
-                    perm_plane_points_indices = [indices_perm.index(plane_point) for plane_point in plane_point_indices]
+                    perm_plane_points_indices = [
+                        indices_perm.index(plane_point)
+                        for plane_point in plane_point_indices
+                    ]
                     shuffle(perm_plane_points_indices)
-                    points_combination = [lgf.local_geometry._coords[ii] for ii in perm_plane_points_indices]
-                    local_plane = Plane.from_npoints(points_combination, best_fit="least_square_distance")
+                    points_combination = [
+                        lgf.local_geometry._coords[ii]
+                        for ii in perm_plane_points_indices
+                    ]
+                    local_plane = Plane.from_npoints(
+                        points_combination, best_fit="least_square_distance"
+                    )
 
                     # Get the results for this algorithm and plane
                     csms, perms, algos, sep_perms = lgf._cg_csm_separation_plane(
@@ -431,9 +467,13 @@ if __name__ == "__main__":
             explicit_optimized_permutations.sort()
             print(explicit_optimized_permutations)
             print()
-            test = input(f'Set optimized permutations for algorithm {idx} ? ("y" to confirm)')
+            test = input(
+                f'Set optimized permutations for algorithm {idx} ? ("y" to confirm)'
+            )
             if test == "y":
-                algo.explicit_optimized_permutations = np.array(explicit_optimized_permutations)
+                algo.explicit_optimized_permutations = np.array(
+                    explicit_optimized_permutations
+                )
 
         test = input(
             f"Save coordination geometry {cg.name!r} (symbol {cg_symbol!r}) and new explicit and optimized "
@@ -442,5 +482,7 @@ if __name__ == "__main__":
         if test == "y":
             new_geom_dir = "new_geometry_files"
             os.makedirs(new_geom_dir, exist_ok=True)
-            with open(f"{new_geom_dir}/{cg_symbol}.json", mode="w", encoding="utf-8") as file:
+            with open(
+                f"{new_geom_dir}/{cg_symbol}.json", mode="w", encoding="utf-8"
+            ) as file:
                 json.dump(cg.as_dict(), file)

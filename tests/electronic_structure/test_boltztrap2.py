@@ -50,7 +50,9 @@ class TestVasprunBSLoader:
 
         self.loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
         assert self.loader_sp is not None
-        self.loader_sp = VasprunBSLoader(BAND_STRUCT_SPIN, VASP_RUN_SPIN.final_structure)
+        self.loader_sp = VasprunBSLoader(
+            BAND_STRUCT_SPIN, VASP_RUN_SPIN.final_structure
+        )
         assert self.loader_sp is not None
         self.loader_sp = VasprunBSLoader.from_file(VASP_RUN_FILE_SPIN)
         assert self.loader_sp is not None
@@ -78,13 +80,17 @@ class TestVasprunBSLoader:
         assert self.loader.get_volume() == approx(477.6256714925874, abs=1e-5)
 
 
-@pytest.mark.filterwarnings("ignore:BandstructureLoader is deprecated:DeprecationWarning")
+@pytest.mark.filterwarnings(
+    "ignore:BandstructureLoader is deprecated:DeprecationWarning"
+)
 class TestBandstructureLoader:
     def setup_method(self):
         self.loader = BandstructureLoader(BAND_STRUCT, VASP_RUN.structures[-1])
         assert self.loader is not None
 
-        self.loader_sp = BandstructureLoader(BAND_STRUCT_SPIN, VASP_RUN_SPIN.structures[-1])
+        self.loader_sp = BandstructureLoader(
+            BAND_STRUCT_SPIN, VASP_RUN_SPIN.structures[-1]
+        )
         assert self.loader_sp is not None
         assert self.loader_sp.ebands_all.shape == (24, 198)
 
@@ -248,7 +254,9 @@ class TestBztTransportProperties:
         # non spin polarized
         loader = VasprunBSLoader(VASP_RUN)
         bztInterp = BztInterpolator(loader, lpfac=2)
-        self.bztTransp = BztTransportProperties(bztInterp, temp_r=np.arange(300, 600, 100))
+        self.bztTransp = BztTransportProperties(
+            bztInterp, temp_r=np.arange(300, 600, 100)
+        )
         assert self.bztTransp is not None
 
         self.bztTransp = BztTransportProperties(
@@ -262,7 +270,9 @@ class TestBztTransportProperties:
         # spin polarized
         loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
-        self.bztTransp_sp = BztTransportProperties(bztInterp_sp, temp_r=np.arange(300, 600, 100))
+        self.bztTransp_sp = BztTransportProperties(
+            bztInterp_sp, temp_r=np.arange(300, 600, 100)
+        )
         assert self.bztTransp_sp is not None
 
     def test_properties(self):

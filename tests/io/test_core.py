@@ -46,7 +46,9 @@ class FakeClass:
 
 class TestInputFile(MatSciTest):
     def test_file_io(self):
-        with pytest.raises(FileNotFoundError, match="No such file or directory: 'fakepath.cif'"):
+        with pytest.raises(
+            FileNotFoundError, match="No such file or directory: 'fakepath.cif'"
+        ):
             StructInputFile.from_file("fakepath.cif")
 
         sif = StructInputFile.from_file(f"{TEST_FILES_DIR}/cif/Li.cif")
@@ -73,7 +75,9 @@ class TestInputSet(MatSciTest):
 
     def test_mapping(self):
         sif1, sif2, sif3 = self.sif1, self.sif2, self.sif3
-        inp_set = InputSet({"cif1": sif1, "cif2": sif2, "cif3": sif3}, kwarg1=1, kwarg2="hello")
+        inp_set = InputSet(
+            {"cif1": sif1, "cif2": sif2, "cif3": sif3}, kwarg1=1, kwarg2="hello"
+        )
 
         assert len(inp_set) == 3
         assert inp_set.kwarg1 == 1
@@ -82,7 +86,9 @@ class TestInputSet(MatSciTest):
             _ = inp_set.kwarg3
         expected = [("cif1", sif1), ("cif2", sif2), ("cif3", sif3)]
 
-        for (fname, contents), (exp_fname, exp_contents) in zip(inp_set.items(), expected, strict=True):
+        for (fname, contents), (exp_fname, exp_contents) in zip(
+            inp_set.items(), expected, strict=True
+        ):
             assert fname == exp_fname
             assert contents is exp_contents
 
@@ -100,7 +106,9 @@ class TestInputSet(MatSciTest):
 
         assert len(inp_set) == 2
         expected = [("cif1", sif1), ("cif3", sif3)]
-        for (fname, contents), (exp_fname, exp_contents) in zip(inp_set.items(), expected, strict=True):
+        for (fname, contents), (exp_fname, exp_contents) in zip(
+            inp_set.items(), expected, strict=True
+        ):
             assert fname == exp_fname
             assert contents is exp_contents
 
@@ -111,11 +119,15 @@ class TestInputSet(MatSciTest):
 
         inp_set2 = InputSet({"cif1": sif1, "cif2": sif2}, kwarg1=1, kwarg2="hello")
 
-        inp_set3 = InputSet({"cif1": sif1, "cif2": sif2, "cif3": sif3}, kwarg1=1, kwarg2="hello")
+        inp_set3 = InputSet(
+            {"cif1": sif1, "cif2": sif2, "cif3": sif3}, kwarg1=1, kwarg2="hello"
+        )
 
         inp_set4 = InputSet({"cif1": sif1, "cif2": sif2}, kwarg1=1, kwarg2="goodbye")
 
-        inp_set5 = InputSet({"cif1": sif1, "cif2": sif2}, kwarg1=1, kwarg2="hello", kwarg3="goodbye")
+        inp_set5 = InputSet(
+            {"cif1": sif1, "cif2": sif2}, kwarg1=1, kwarg2="hello", kwarg3="goodbye"
+        )
 
         assert inp_set.as_dict() == inp_set2.as_dict()
         assert inp_set.as_dict() != inp_set3.as_dict()
@@ -133,23 +145,35 @@ class TestInputSet(MatSciTest):
         assert temp_inp_set.kwarg1 == 1
         assert temp_inp_set.kwarg2 == "hello"
         assert temp_inp_set._kwargs == inp_set._kwargs
-        for (fname, contents), (fname2, contents2) in zip(temp_inp_set.items(), inp_set.items(), strict=True):
+        for (fname, contents), (fname2, contents2) in zip(
+            temp_inp_set.items(), inp_set.items(), strict=True
+        ):
             assert fname == fname2
             assert contents.structure == contents2.structure
 
     def test_write(self):
-        inp_set = InputSet({"cif1": self.sif1, "cif2": self.sif2}, kwarg1=1, kwarg2="hello")
-        inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=False)
+        inp_set = InputSet(
+            {"cif1": self.sif1, "cif2": self.sif2}, kwarg1=1, kwarg2="hello"
+        )
+        inp_set.write_input(
+            directory="input_dir", make_dir=True, overwrite=True, zip_inputs=False
+        )
         assert os.path.isfile("input_dir/cif1")
         assert os.path.isfile("input_dir/cif2")
         assert len(os.listdir("input_dir")) == 2
         with pytest.raises(FileExistsError, match="cif1"):
-            inp_set.write_input(directory="input_dir", make_dir=True, overwrite=False, zip_inputs=False)
-        inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=True)
+            inp_set.write_input(
+                directory="input_dir", make_dir=True, overwrite=False, zip_inputs=False
+            )
+        inp_set.write_input(
+            directory="input_dir", make_dir=True, overwrite=True, zip_inputs=True
+        )
         assert len(os.listdir("input_dir")) == 1
         assert os.path.isfile(f"input_dir/{type(inp_set).__name__}.zip")
         with pytest.raises(FileNotFoundError, match="input_dir2"):
-            inp_set.write_input(directory="input_dir2", make_dir=False, overwrite=True, zip_inputs=False)
+            inp_set.write_input(
+                directory="input_dir2", make_dir=False, overwrite=True, zip_inputs=False
+            )
 
     def test_write_from_str(self):
         inp_set = InputSet(
@@ -159,7 +183,9 @@ class TestInputSet(MatSciTest):
                 "file_from_str_cast": FakeClass(a="Aha", b="Beh"),
             }
         )
-        inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=False)
+        inp_set.write_input(
+            directory="input_dir", make_dir=True, overwrite=True, zip_inputs=False
+        )
         assert os.path.isfile("input_dir/cif1")
         assert os.path.isfile("input_dir/file_from_str")
         assert os.path.isfile("input_dir/file_from_str_cast")

@@ -449,7 +449,9 @@ class TestArrayWithUnit(MatSciTest):
         for obj in objects_without_unit:
             assert not hasattr(obj, "unit")
 
-        with pytest.raises(UnitError, match="Adding different types of units is not allowed"):
+        with pytest.raises(
+            UnitError, match="Adding different types of units is not allowed"
+        ):
             _ = ene_ha + time_s
 
         with pytest.raises(UnitError, match="Subtracting different units"):

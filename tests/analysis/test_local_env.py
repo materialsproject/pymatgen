@@ -101,10 +101,14 @@ class TestVoronoiNN(MatSciTest):
         assert len(self.nn.get_voronoi_polyhedra(self.struct, 0).items()) == 8
 
     def test_get_cn(self):
-        site_0_coord_num = self.nn.get_cn(self.struct, 0, use_weights=True, on_disorder="take_max_species")
+        site_0_coord_num = self.nn.get_cn(
+            self.struct, 0, use_weights=True, on_disorder="take_max_species"
+        )
         assert site_0_coord_num == approx(5.809265748999465, abs=1e-7)
 
-        site_0_coord_num = self.nn_sic.get_cn(self.s_sic, 0, use_weights=True, on_disorder="take_max_species")
+        site_0_coord_num = self.nn_sic.get_cn(
+            self.s_sic, 0, use_weights=True, on_disorder="take_max_species"
+        )
         assert site_0_coord_num == approx(4.5381161643940668, abs=1e-7)
 
     def test_get_coordinated_sites(self):
@@ -139,8 +143,12 @@ class TestVoronoiNN(MatSciTest):
         # Test the 2nd NN shell
         nns = self.nn.get_nn_shell_info(struct, 0, 2)
         assert len(nns) == 18
-        assert_allclose([1] * 6, [x["weight"] for x in nns if max(np.abs(x["image"])) == 2])
-        assert_allclose([2] * 12, [x["weight"] for x in nns if max(np.abs(x["image"])) == 1])
+        assert_allclose(
+            [1] * 6, [x["weight"] for x in nns if max(np.abs(x["image"])) == 2]
+        )
+        assert_allclose(
+            [2] * 12, [x["weight"] for x in nns if max(np.abs(x["image"])) == 1]
+        )
 
         # Test the 3rd NN shell
         nns = self.nn.get_nn_shell_info(struct, 0, 3)
@@ -161,14 +169,18 @@ class TestVoronoiNN(MatSciTest):
         self.nn.weight = "area"
         nns = self.nn.get_nn_shell_info(cscl, 0, 1)
         assert len(nns) == 14
-        assert np.isclose([x["weight"] for x in nns], 0.125 / 0.32476).sum() == 6  # Square faces
+        assert (
+            np.isclose([x["weight"] for x in nns], 0.125 / 0.32476).sum() == 6
+        )  # Square faces
         assert np.isclose([x["weight"] for x in nns], 1).sum() == 8
 
         nns = self.nn.get_nn_shell_info(cscl, 0, 2)
         # Weight of getting back on to own site
         #  Square-square hop: 6*5 options times (0.125/0.32476)^2 weight each
         #  Hex-hex hop: 8*7 options times 1 weight each
-        assert np.sum([x["weight"] for x in nns if x["site_index"] == 0]) == approx(60.4444, abs=1e-3)
+        assert np.sum([x["weight"] for x in nns if x["site_index"] == 0]) == approx(
+            60.4444, abs=1e-3
+        )
 
     def test_adj_neighbors(self):
         # Make a simple cubic structure
@@ -183,7 +195,9 @@ class TestVoronoiNN(MatSciTest):
             assert len(nn_info["adj_neighbors"]) == 4
 
             for adj_key in nn_info["adj_neighbors"]:
-                assert np.dot(nn_info["normal"], neighbors[adj_key]["normal"]) == approx(0)
+                assert np.dot(
+                    nn_info["normal"], neighbors[adj_key]["normal"]
+                ) == approx(0)
 
     def test_all_at_once(self):
         # Get all of the sites for LiFePO4
@@ -317,7 +331,10 @@ class TestOpenBabelNN(MatSciTest):
         # not aromatic
         # Instead of searching for aromatic bonds, we check that bonds are
         # detected in the same way from both sides
-        assert strategy.get_nn_info(self.benzene, 0)[0]["weight"] == strategy.get_nn_info(self.benzene, 1)[0]["weight"]
+        assert (
+            strategy.get_nn_info(self.benzene, 0)[0]["weight"]
+            == strategy.get_nn_info(self.benzene, 1)[0]["weight"]
+        )
 
     def test_nn_length(self):
         strategy = OpenBabelNN(order=False)
@@ -330,7 +347,9 @@ class TestOpenBabelNN(MatSciTest):
         assert c_bonds[0]["weight"] == approx(1.41, abs=1e-2)
         assert h_bonds[0]["weight"] == approx(1.02, abs=1e-2)
 
-        assert strategy.get_nn_info(self.acetylene, 0)[0]["weight"] == approx(1.19, abs=1e-2)
+        assert strategy.get_nn_info(self.acetylene, 0)[0]["weight"] == approx(
+            1.19, abs=1e-2
+        )
 
 
 class TestCovalentBondNN(MatSciTest):
@@ -411,7 +430,9 @@ class TestMiniDistNN(MatSciTest):
         self.lifepo4.add_oxidation_state_by_guess()
 
     def test_all_nn_classes(self):
-        assert MinimumDistanceNN(cutoff=5, get_all_sites=True).get_cn(self.cscl, 0) == 14
+        assert (
+            MinimumDistanceNN(cutoff=5, get_all_sites=True).get_cn(self.cscl, 0) == 14
+        )
         assert MinimumDistanceNN().get_cn(self.diamond, 0) == 4
         assert MinimumDistanceNN().get_cn(self.nacl, 0) == 6
         assert MinimumDistanceNN().get_cn(self.lifepo4, 0) == 6
@@ -568,7 +589,9 @@ class TestMotifIdentification(MatSciTest):
         assert site_is_of_motif_type(self.square_pyramid, 0) == "square pyramidal"
         for idx in range(1, len(self.square_pyramid)):
             assert site_is_of_motif_type(self.square_pyramid, idx) == "unrecognized"
-        assert site_is_of_motif_type(self.trigonal_bipyramid, 0) == "trigonal bipyramidal"
+        assert (
+            site_is_of_motif_type(self.trigonal_bipyramid, 0) == "trigonal bipyramidal"
+        )
         for idx in range(1, len(self.trigonal_bipyramid)):
             assert site_is_of_motif_type(self.trigonal_bipyramid, idx) == "unrecognized"
 
@@ -578,9 +601,22 @@ class TestMotifIdentification(MatSciTest):
         assert len(get_neighbors_of_site_with_index(self.cscl, 0)) == 8
         assert len(get_neighbors_of_site_with_index(self.diamond, 0, delta=0.01)) == 4
         assert len(get_neighbors_of_site_with_index(self.diamond, 0, cutoff=6)) == 4
-        assert len(get_neighbors_of_site_with_index(self.diamond, 0, approach="voronoi")) == 4
-        assert len(get_neighbors_of_site_with_index(self.diamond, 0, approach="min_OKeeffe")) == 4
-        assert len(get_neighbors_of_site_with_index(self.diamond, 0, approach="min_VIRE")) == 4
+        assert (
+            len(get_neighbors_of_site_with_index(self.diamond, 0, approach="voronoi"))
+            == 4
+        )
+        assert (
+            len(
+                get_neighbors_of_site_with_index(
+                    self.diamond, 0, approach="min_OKeeffe"
+                )
+            )
+            == 4
+        )
+        assert (
+            len(get_neighbors_of_site_with_index(self.diamond, 0, approach="min_VIRE"))
+            == 4
+        )
 
 
 class TestNearNeighbor(MatSciTest):
@@ -1063,7 +1099,9 @@ class TestLocalStructOrderParams(MatSciTest):
         assert op_vals[2] == approx(1)
 
         # T-shape motif.
-        op_vals = ops_101.get_order_parameters(self.T_shape, 0, indices_neighs=[1, 2, 3])
+        op_vals = ops_101.get_order_parameters(
+            self.T_shape, 0, indices_neighs=[1, 2, 3]
+        )
         assert op_vals[23] == approx(1)
 
         # Cubic structure.
@@ -1122,13 +1160,17 @@ class TestLocalStructOrderParams(MatSciTest):
         assert op_vals[10] == approx(1)
 
         # Pentagonal planar.
-        op_vals = ops_101.get_order_parameters(self.pentagonal_planar.sites, 0, indices_neighs=[1, 2, 3, 4, 5])
+        op_vals = ops_101.get_order_parameters(
+            self.pentagonal_planar.sites, 0, indices_neighs=[1, 2, 3, 4, 5]
+        )
         assert op_vals[12] == approx(0.1260699690)
         assert op_vals[16] == approx(1)
         assert op_vals[31] == approx(1)
 
         # Trigonal pyramid motif.
-        op_vals = ops_101.get_order_parameters(self.trigonal_pyramid, 0, indices_neighs=[1, 2, 3, 4])
+        op_vals = ops_101.get_order_parameters(
+            self.trigonal_pyramid, 0, indices_neighs=[1, 2, 3, 4]
+        )
         assert op_vals[18] == approx(1)
 
         # Square pyramid motif.
@@ -1138,40 +1180,58 @@ class TestLocalStructOrderParams(MatSciTest):
         assert op_vals[17] == approx(1)
 
         # Pentagonal pyramid motif.
-        op_vals = ops_101.get_order_parameters(self.pentagonal_pyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6])
+        op_vals = ops_101.get_order_parameters(
+            self.pentagonal_pyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6]
+        )
         assert op_vals[19] == approx(1)
 
         # Hexagonal pyramid motif.
-        op_vals = ops_101.get_order_parameters(self.hexagonal_pyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7])
+        op_vals = ops_101.get_order_parameters(
+            self.hexagonal_pyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7]
+        )
         assert op_vals[20] == approx(1)
 
         # Trigonal bipyramidal.
-        op_vals = ops_101.get_order_parameters(self.trigonal_bipyramidal.sites, 0, indices_neighs=[1, 2, 3, 4, 5])
+        op_vals = ops_101.get_order_parameters(
+            self.trigonal_bipyramidal.sites, 0, indices_neighs=[1, 2, 3, 4, 5]
+        )
         assert op_vals[12] == approx(1)
 
         # Pentagonal bipyramidal.
-        op_vals = ops_101.get_order_parameters(self.pentagonal_bipyramid.sites, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7])
+        op_vals = ops_101.get_order_parameters(
+            self.pentagonal_bipyramid.sites, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7]
+        )
         assert op_vals[21] == approx(1)
 
         # Hexagonal bipyramid motif.
-        op_vals = ops_101.get_order_parameters(self.hexagonal_bipyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7, 8])
+        op_vals = ops_101.get_order_parameters(
+            self.hexagonal_bipyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7, 8]
+        )
         assert op_vals[22] == approx(1)
 
         # Cuboctahedral motif.
-        op_vals = ops_101.get_order_parameters(self.cuboctahedron, 0, indices_neighs=list(range(1, 13)))
+        op_vals = ops_101.get_order_parameters(
+            self.cuboctahedron, 0, indices_neighs=list(range(1, 13))
+        )
         assert op_vals[24] == approx(1)
         assert op_vals[32] == approx(1)
 
         # See-saw motif.
-        op_vals = ops_101.get_order_parameters(self.see_saw_rect, 0, indices_neighs=list(range(1, 5)))
+        op_vals = ops_101.get_order_parameters(
+            self.see_saw_rect, 0, indices_neighs=list(range(1, 5))
+        )
         assert op_vals[25] == approx(1)
 
         # Hexagonal planar motif.
-        op_vals = ops_101.get_order_parameters(self.hexagonal_planar, 0, indices_neighs=[1, 2, 3, 4, 5, 6])
+        op_vals = ops_101.get_order_parameters(
+            self.hexagonal_planar, 0, indices_neighs=[1, 2, 3, 4, 5, 6]
+        )
         assert op_vals[26] == approx(1)
 
         # Square face capped trigonal prism.
-        op_vals = ops_101.get_order_parameters(self.sq_face_capped_trig_pris, 0, indices_neighs=list(range(1, 8)))
+        op_vals = ops_101.get_order_parameters(
+            self.sq_face_capped_trig_pris, 0, indices_neighs=list(range(1, 8))
+        )
         assert op_vals[34] == approx(1)
 
         # Test providing explicit neighbor lists.
@@ -1200,7 +1260,9 @@ class TestCrystalNN(MatSciTest):
 
     def test_sanity(self):
         cnn = CrystalNN()
-        expected_msg = "The weighted_cn parameter and use_weights parameter should match"
+        expected_msg = (
+            "The weighted_cn parameter and use_weights parameter should match"
+        )
         with pytest.raises(ValueError, match=expected_msg):
             cnn.get_cn(self.lifepo4, 0, use_weights=True)
 
@@ -1243,7 +1305,9 @@ class TestCrystalNN(MatSciTest):
         ]
         # fmt: on
         struct = self.lifepo4.copy().remove_oxidation_states()
-        cn_array = [cnn.get_cn(struct, idx, use_weights=True) for idx in range(len(struct))]
+        cn_array = [
+            cnn.get_cn(struct, idx, use_weights=True) for idx in range(len(struct))
+        ]
 
         assert_allclose(expected_array, cn_array, 2)
 
@@ -1277,15 +1341,21 @@ class TestCrystalNN(MatSciTest):
         bonded_struct = cnn.get_bonded_structure(struct)
 
         sites_shifted = [[1.0, 0.2, 0.2], [0, 0, 0]]
-        struct_shifted = Structure([7, 0, 0, 0, 7, 0, 0, 0, 7], ["I"] * len(sites_shifted), sites_shifted)
+        struct_shifted = Structure(
+            [7, 0, 0, 0, 7, 0, 0, 0, 7], ["I"] * len(sites_shifted), sites_shifted
+        )
         bonded_struct_shifted = cnn.get_bonded_structure(struct_shifted)
 
-        assert len(bonded_struct.get_connected_sites(0)) == len(bonded_struct_shifted.get_connected_sites(0))
+        assert len(bonded_struct.get_connected_sites(0)) == len(
+            bonded_struct_shifted.get_connected_sites(0)
+        )
 
     def test_get_cn(self):
         cnn = CrystalNN()
 
-        site_0_coord_num = cnn.get_cn(self.disordered_struct, 0, on_disorder="take_max_species")
+        site_0_coord_num = cnn.get_cn(
+            self.disordered_struct, 0, on_disorder="take_max_species"
+        )
         site_0_coord_num_strict_majority = cnn.get_cn(
             self.disordered_struct_with_majority, 0, on_disorder="take_majority_strict"
         )
@@ -1306,7 +1376,9 @@ class TestCrystalNN(MatSciTest):
     def test_get_bonded_structure(self):
         cnn = CrystalNN()
 
-        structure_graph = cnn.get_bonded_structure(self.disordered_struct, on_disorder="take_max_species")
+        structure_graph = cnn.get_bonded_structure(
+            self.disordered_struct, on_disorder="take_max_species"
+        )
         structure_graph_strict_majority = cnn.get_bonded_structure(
             self.disordered_struct_with_majority, on_disorder="take_majority_strict"
         )
@@ -1316,13 +1388,19 @@ class TestCrystalNN(MatSciTest):
 
         assert isinstance(structure_graph, StructureGraph)
         assert len(structure_graph) == 2
-        assert structure_graph == structure_graph_strict_majority == structure_graph_drop_majority
+        assert (
+            structure_graph
+            == structure_graph_strict_majority
+            == structure_graph_drop_majority
+        )
 
         with pytest.raises(
             ValueError,
             match="Site 0 has no majority species, the max species is Fe with occupancy 0.4",
         ):
-            cnn.get_bonded_structure(self.disordered_struct, 0, on_disorder="take_majority_strict")
+            cnn.get_bonded_structure(
+                self.disordered_struct, 0, on_disorder="take_majority_strict"
+            )
 
         expected_msg = "Generating StructureGraphs for disordered Structures is unsupported. Pass on_disorder="
         with pytest.raises(ValueError, match=expected_msg):
@@ -1456,7 +1534,9 @@ class TestMetalEdgeExtender(MatSciTest):
         mol_graph = metal_edge_extender(self.water_cluster_K, metals={"K"}, cutoff=2.5)
         assert len(mol_graph.graph.edges) == 4
 
-        extended_graph = metal_edge_extender(self.water_cluster_K, metals={"K"}, cutoff=4.5)
+        extended_graph = metal_edge_extender(
+            self.water_cluster_K, metals={"K"}, cutoff=4.5
+        )
         assert len(extended_graph.graph.edges) == 7
 
         # if None, should auto-detect Li
@@ -1465,7 +1545,9 @@ class TestMetalEdgeExtender(MatSciTest):
 
     def test_custom_coordinators(self):
         # leave out Oxygen, graph should not change
-        extended_mol_graph = metal_edge_extender(self.LiEC_graph, coordinators={"N", "F", "S", "Cl"})
+        extended_mol_graph = metal_edge_extender(
+            self.LiEC_graph, coordinators={"N", "F", "S", "Cl"}
+        )
         assert len(extended_mol_graph.graph.edges) == 11
         # empty coordinators should exit cleanly with no change
         extended_mol_graph = metal_edge_extender(self.LiEC_graph, coordinators={})

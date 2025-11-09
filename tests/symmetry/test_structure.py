@@ -14,7 +14,9 @@ class TestSymmetrizedStructure(MatSciTest):
             coords=((0, 0, 0), (0.5, 0.5, 0.5)),
         )
 
-        self.symm_structure = SpacegroupAnalyzer(self.structure).get_symmetrized_structure()
+        self.symm_structure = SpacegroupAnalyzer(
+            self.structure
+        ).get_symmetrized_structure()
 
     def test_str_repr(self):
         assert str(self.symm_structure) == repr(self.symm_structure)
@@ -33,4 +35,6 @@ class TestSymmetrizedStructure(MatSciTest):
 
     def test_find_equivalent_sites(self):
         site = self.symm_structure.sites[0]
-        assert self.symm_structure.find_equivalent_sites(site) == self.symm_structure.sites
+        assert (
+            self.symm_structure.find_equivalent_sites(site) == self.symm_structure.sites
+        )

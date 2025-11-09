@@ -77,7 +77,9 @@ class TestXRDCalculator(MatSciTest):
         assert len(xrd) == 18
 
         # Test with and without Debye-Waller factor
-        tungsten = Structure(Lattice.cubic(3.1653), ["W"] * 2, [[0, 0, 0], [0.5, 0.5, 0.5]])
+        tungsten = Structure(
+            Lattice.cubic(3.1653), ["W"] * 2, [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
         xrd = xrd_calc.get_pattern(tungsten, scaled=False)
         assert xrd.x[0] == approx(40.294828554672264)
         assert xrd.y[0] == approx(2414237.5633093244)

@@ -76,7 +76,9 @@ class TestPiezoSensitivity(MatSciTest):
         assert_allclose(ist.ist, self.IST)
 
     def test_force_constant_matrix(self):
-        fcmt = ForceConstantMatrix(self.piezo_struct, self.FCM, self.point_ops, self.shared_ops)
+        fcmt = ForceConstantMatrix(
+            self.piezo_struct, self.FCM, self.point_ops, self.shared_ops
+        )
         assert_allclose(fcmt.fcm, self.FCM)
 
     def test_get_bec_operations(self):
@@ -95,7 +97,9 @@ class TestPiezoSensitivity(MatSciTest):
             for j in range(len(self.BEC_operations[i][2])):
                 assert_allclose(
                     rand_BEC[self.BEC_operations[i][0]],
-                    self.BEC_operations[i][2][j].transform_tensor(rand_BEC[self.BEC_operations[i][1]]),
+                    self.BEC_operations[i][2][j].transform_tensor(
+                        rand_BEC[self.BEC_operations[i][1]]
+                    ),
                     atol=1e-3,
                 )
 
@@ -107,12 +111,16 @@ class TestPiezoSensitivity(MatSciTest):
             for j in range(len(self.IST_operations[i])):
                 assert_allclose(
                     rand_IST[i],
-                    self.IST_operations[i][j][1].transform_tensor(rand_IST[self.IST_operations[i][j][0]]),
+                    self.IST_operations[i][j][1].transform_tensor(
+                        rand_IST[self.IST_operations[i][j][0]]
+                    ),
                     atol=1e-3,
                 )
 
     def test_get_fcm_operations(self):
-        fcm = ForceConstantMatrix(self.piezo_struct, self.FCM, self.point_ops, self.shared_ops)
+        fcm = ForceConstantMatrix(
+            self.piezo_struct, self.FCM, self.point_ops, self.shared_ops
+        )
         # update test file
         # with open(f"{TEST_DIR}/fcmops.pkl", "wb") as file:
         #     pickle.dump(fcm.get_FCM_operations(), file)
@@ -120,7 +128,9 @@ class TestPiezoSensitivity(MatSciTest):
         assert np.all(fcm.FCM_operations == self.FCM_operations)
 
     def test_get_unstable_fcm(self):
-        fcm = ForceConstantMatrix(self.piezo_struct, self.FCM, self.point_ops, self.shared_ops)
+        fcm = ForceConstantMatrix(
+            self.piezo_struct, self.FCM, self.point_ops, self.shared_ops
+        )
         fcm.get_FCM_operations()
         rand_FCM = fcm.get_unstable_FCM()
         rand_FCM = np.reshape(rand_FCM, (10, 3, 10, 3)).swapaxes(1, 2)
@@ -135,7 +145,9 @@ class TestPiezoSensitivity(MatSciTest):
                 )
 
     def test_get_fcm_symmetry(self):
-        fcm = ForceConstantMatrix(self.piezo_struct, self.FCM, self.point_ops, self.shared_ops)
+        fcm = ForceConstantMatrix(
+            self.piezo_struct, self.FCM, self.point_ops, self.shared_ops
+        )
         fcm.get_FCM_operations()
 
         fcm = fcm.get_symmetrized_FCM(np.random.default_rng().random((30, 30)))
@@ -151,7 +163,9 @@ class TestPiezoSensitivity(MatSciTest):
                 )
 
     def test_get_asum_fcm(self):
-        fcm = ForceConstantMatrix(self.piezo_struct, self.FCM, self.point_ops, self.shared_ops)
+        fcm = ForceConstantMatrix(
+            self.piezo_struct, self.FCM, self.point_ops, self.shared_ops
+        )
         fcm.get_FCM_operations()
         rand_FCM = fcm.get_unstable_FCM()
         rand_FCM = fcm.get_asum_FCM(rand_FCM)
@@ -177,7 +191,9 @@ class TestPiezoSensitivity(MatSciTest):
             assert_allclose(sum2, np.zeros([3, 3]), atol=1e-5)
 
     def test_get_stable_fcm(self):
-        fcm = ForceConstantMatrix(self.piezo_struct, self.FCM, self.point_ops, self.shared_ops)
+        fcm = ForceConstantMatrix(
+            self.piezo_struct, self.FCM, self.point_ops, self.shared_ops
+        )
         fcm.get_FCM_operations()
         rand_FCM = fcm.get_unstable_FCM()
         rand_FCM1 = fcm.get_stable_FCM(rand_FCM)
@@ -214,7 +230,9 @@ class TestPiezoSensitivity(MatSciTest):
     )
     def test_rand_fcm(self):
         pytest.importorskip("phonopy")
-        fcm = ForceConstantMatrix(self.piezo_struct, self.FCM, self.point_ops, self.shared_ops)
+        fcm = ForceConstantMatrix(
+            self.piezo_struct, self.FCM, self.point_ops, self.shared_ops
+        )
         fcm.get_FCM_operations()
         rand_FCM = fcm.get_rand_FCM()
         structure = get_phonopy_structure(self.piezo_struct)
@@ -281,7 +299,9 @@ class TestPiezoSensitivity(MatSciTest):
             for jj in range(len(self.BEC_operations[ii][2])):
                 assert_allclose(
                     rand_BEC[self.BEC_operations[ii][0]],
-                    self.BEC_operations[ii][2][jj].transform_tensor(rand_BEC[self.BEC_operations[ii][1]]),
+                    self.BEC_operations[ii][2][jj].transform_tensor(
+                        rand_BEC[self.BEC_operations[ii][1]]
+                    ),
                     atol=1e-3,
                 )
 
@@ -289,7 +309,9 @@ class TestPiezoSensitivity(MatSciTest):
             for jj in range(len(self.IST_operations[ii])):
                 assert_allclose(
                     rand_IST[ii],
-                    self.IST_operations[ii][jj][1].transform_tensor(rand_IST[self.IST_operations[ii][jj][0]]),
+                    self.IST_operations[ii][jj][1].transform_tensor(
+                        rand_IST[self.IST_operations[ii][jj][0]]
+                    ),
                     atol=1e-3,
                 )
 

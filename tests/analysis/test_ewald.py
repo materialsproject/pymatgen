@@ -23,11 +23,19 @@ class TestEwaldSummation:
         assert ham.point_energy == approx(-620.22598358035918, abs=1e-4)
         assert ham.total_energy == approx(-1123.00766, abs=1e-1)
         assert ham.forces[0, 0] == approx(-1.98818620e-01, abs=1e-4)
-        assert sum(sum(abs(ham.forces))) == approx(915.925354346, abs=1e-4), "Forces incorrect"
-        assert sum(sum(ham.real_space_energy_matrix)) == approx(ham.real_space_energy, abs=1e-4)
-        assert sum(sum(ham.reciprocal_space_energy_matrix)) == approx(ham.reciprocal_space_energy, abs=1e-4)
+        assert sum(sum(abs(ham.forces))) == approx(915.925354346, abs=1e-4), (
+            "Forces incorrect"
+        )
+        assert sum(sum(ham.real_space_energy_matrix)) == approx(
+            ham.real_space_energy, abs=1e-4
+        )
+        assert sum(sum(ham.reciprocal_space_energy_matrix)) == approx(
+            ham.reciprocal_space_energy, abs=1e-4
+        )
         assert sum(ham.point_energy_matrix) == approx(ham.point_energy, abs=1e-4)
-        assert sum(sum(ham.total_energy_matrix)) + ham._charged_cell_energy == approx(ham.total_energy, abs=1e-2)
+        assert sum(sum(ham.total_energy_matrix)) + ham._charged_cell_energy == approx(
+            ham.total_energy, abs=1e-2
+        )
 
         with pytest.raises(
             ValueError,
@@ -100,7 +108,9 @@ class TestEwaldMinimizer:
         e_min = EwaldMinimizer(matrix, m_list, 50)
 
         assert len(e_min.output_lists) == 15, "Wrong number of permutations returned"
-        assert e_min.minimized_sum == approx(111.63, abs=1e-3), "Returned wrong minimum value"
+        assert e_min.minimized_sum == approx(111.63, abs=1e-3), (
+            "Returned wrong minimum value"
+        )
         assert len(e_min.best_m_list) == 6, "Returned wrong number of permutations"
 
     def test_site(self):

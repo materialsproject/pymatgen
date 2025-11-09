@@ -31,8 +31,12 @@ PMG_CORE_DIR = os.path.dirname(pymatgen.core.__file__)
 
 class TestSlab(MatSciTest):
     def setup_method(self):
-        zno1 = Structure.from_file(f"{TEST_FILES_DIR}/surfaces/ZnO-wz.cif", primitive=False)
-        zno55 = SlabGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False, center_slab=False).get_slab()
+        zno1 = Structure.from_file(
+            f"{TEST_FILES_DIR}/surfaces/ZnO-wz.cif", primitive=False
+        )
+        zno55 = SlabGenerator(
+            zno1, [1, 0, 0], 5, 5, lll_reduce=False, center_slab=False
+        ).get_slab()
 
         Ti = Structure(
             Lattice.hexagonal(4.6, 2.82),
@@ -66,7 +70,9 @@ class TestSlab(MatSciTest):
         self.zno55 = zno55
         self.non_laue = non_laue
         self.hydrogen = Structure(Lattice.cubic(3), ["H"], [[0, 0, 0]])
-        self.li_bcc = Structure(Lattice.cubic(3.51004), ["Li", "Li"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        self.li_bcc = Structure(
+            Lattice.cubic(3.51004), ["Li", "Li"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
 
     def test_init(self):
         zno_slab = Slab(
@@ -170,7 +176,9 @@ class TestSlab(MatSciTest):
         for boolean in [True, False]:
             # We will also set the slab to be centered and
             # off centered in order to test the center of mass
-            slab_gen = SlabGenerator(self.ag_fcc, (3, 1, 0), 10, 10, center_slab=boolean)
+            slab_gen = SlabGenerator(
+                self.ag_fcc, (3, 1, 0), 10, 10, center_slab=boolean
+            )
             slab = slab_gen.get_slabs()[0]
             surf_sites_dict = slab.get_surface_sites()
             assert len(surf_sites_dict["top"]) == len(surf_sites_dict["bottom"])
@@ -243,7 +251,9 @@ class TestSlab(MatSciTest):
             assert symmetric_count == len(slabs)
 
         # Check if we can generate symmetric slabs from bulk with no inversion
-        all_non_laue_slabs = generate_all_slabs(self.non_laue, 1, 15, 15, symmetrize=True)
+        all_non_laue_slabs = generate_all_slabs(
+            self.non_laue, 1, 15, 15, symmetrize=True
+        )
         assert len(all_non_laue_slabs) > 0
 
     def test_get_symmetric_sites(self):
@@ -327,7 +337,9 @@ class TestSlab(MatSciTest):
             primitive=True,
         )
         slab = slabs[0]
-        dict_str = orjson.dumps(slab.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
+        dict_str = orjson.dumps(
+            slab.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY
+        ).decode()
         d = orjson.loads(dict_str)
         assert slab == Slab.from_dict(d)
 
@@ -388,7 +400,9 @@ class TestSlabGenerator(MatSciTest):
         gen = SlabGenerator(fcc, [1, 1, 1], 10, 10, max_normal_search=1)
         slab = gen.get_slab()
         assert len(slab) == 6
-        gen = SlabGenerator(fcc, [1, 1, 1], 10, 10, primitive=False, max_normal_search=1)
+        gen = SlabGenerator(
+            fcc, [1, 1, 1], 10, 10, primitive=False, max_normal_search=1
+        )
         slab_non_prim = gen.get_slab()
         assert len(slab_non_prim) == len(slab) * 4
 
@@ -440,7 +454,9 @@ class TestSlabGenerator(MatSciTest):
         fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         for miller in [(1, 0, 0), (1, 1, 0), (1, 1, 1), (2, 1, 1)]:
             gen = SlabGenerator(fcc, miller, 10, 10)
-            gen_normal = SlabGenerator(fcc, miller, 10, 10, max_normal_search=max(miller))
+            gen_normal = SlabGenerator(
+                fcc, miller, 10, 10, max_normal_search=max(miller)
+            )
             slab = gen_normal.get_slab()
             assert slab.lattice.alpha == 90
             assert slab.lattice.beta == 90
@@ -449,7 +465,9 @@ class TestSlabGenerator(MatSciTest):
         graphite = self.get_structure("Graphite")
         for miller in [(1, 0, 0), (1, 1, 0), (0, 0, 1), (2, 1, 1)]:
             gen = SlabGenerator(graphite, miller, 10, 10)
-            gen_normal = SlabGenerator(graphite, miller, 10, 10, max_normal_search=max(miller))
+            gen_normal = SlabGenerator(
+                graphite, miller, 10, 10, max_normal_search=max(miller)
+            )
             assert len(gen_normal.oriented_unit_cell) >= len(gen.oriented_unit_cell)
 
         sc = Structure(
@@ -481,14 +499,21 @@ class TestSlabGenerator(MatSciTest):
         assert len(gen.get_slabs(bonds={("P", "O"): 3, ("Fe", "O"): 3})) == 0
 
         # If we allow some broken bonds, there are a few slabs.
-        assert len(gen.get_slabs(bonds={("P", "O"): 3, ("Fe", "O"): 3}, max_broken_bonds=2)) == 2
+        assert (
+            len(
+                gen.get_slabs(bonds={("P", "O"): 3, ("Fe", "O"): 3}, max_broken_bonds=2)
+            )
+            == 2
+        )
 
         # At this threshold, only the origin and center Li results in
         # clustering. All other sites are non-clustered. So the of
         # slabs is of sites in LiFePO4 unit cell - 2 + 1.
         assert len(gen.get_slabs(tol=1e-4, ftol=1e-4)) == 15
 
-        LiCoO2 = Structure.from_file(f"{TEST_FILES_DIR}/surfaces/icsd_LiCoO2.cif", primitive=False)
+        LiCoO2 = Structure.from_file(
+            f"{TEST_FILES_DIR}/surfaces/icsd_LiCoO2.cif", primitive=False
+        )
         gen = SlabGenerator(LiCoO2, [0, 0, 1], 10, 10)
         lco = gen.get_slabs(bonds={("Co", "O"): 3})
         assert len(lco) == 1
@@ -508,8 +533,12 @@ class TestSlabGenerator(MatSciTest):
         # min_slab_size and min_vac_size will give us the same number of atoms
         n_atoms = []
         for a_len in [1, 1.4, 2.5, 3.6]:
-            struct = Structure.from_spacegroup("Im-3m", Lattice.cubic(a_len), ["Fe"], [[0, 0, 0]])
-            slab_gen = SlabGenerator(struct, (1, 1, 1), 10, 10, in_unit_planes=True, max_normal_search=2)
+            struct = Structure.from_spacegroup(
+                "Im-3m", Lattice.cubic(a_len), ["Fe"], [[0, 0, 0]]
+            )
+            slab_gen = SlabGenerator(
+                struct, (1, 1, 1), 10, 10, in_unit_planes=True, max_normal_search=2
+            )
             n_atoms.append(len(slab_gen.get_slab()))
         # Check if the number of atoms in all slabs is the same
         for n_a in n_atoms:
@@ -522,14 +551,18 @@ class TestSlabGenerator(MatSciTest):
         # in other Miller indices can cause some ambiguity when choosing a
         # higher tolerance.
         n_slabs = {(0, 0, 1): 5, (0, 1, 0): 3, (1, 0, 0): 7}
-        TeI = Structure.from_file(f"{TEST_FILES_DIR}/surfaces/icsd_TeI.cif", primitive=False)
+        TeI = Structure.from_file(
+            f"{TEST_FILES_DIR}/surfaces/icsd_TeI.cif", primitive=False
+        )
         for k, v in n_slabs.items():
             triclinic_TeI = SlabGenerator(TeI, k, 10, 10)
             TeI_slabs = triclinic_TeI.get_slabs()
             assert v == len(TeI_slabs)
 
     def test_get_orthogonal_c_slab(self):
-        TeI = Structure.from_file(f"{TEST_FILES_DIR}/surfaces/icsd_TeI.cif", primitive=False)
+        TeI = Structure.from_file(
+            f"{TEST_FILES_DIR}/surfaces/icsd_TeI.cif", primitive=False
+        )
         triclinic_TeI = SlabGenerator(TeI, (0, 0, 1), 10, 10)
         TeI_slabs = triclinic_TeI.get_slabs()
         slab = TeI_slabs[0]
@@ -538,7 +571,9 @@ class TestSlabGenerator(MatSciTest):
         assert norm_slab.lattice.angles[1] == approx(90)
 
     def test_get_orthogonal_c_slab_site_props(self):
-        TeI = Structure.from_file(f"{TEST_FILES_DIR}/surfaces/icsd_TeI.cif", primitive=False)
+        TeI = Structure.from_file(
+            f"{TEST_FILES_DIR}/surfaces/icsd_TeI.cif", primitive=False
+        )
         triclinic_TeI = SlabGenerator(TeI, (0, 0, 1), 10, 10)
         TeI_slabs = triclinic_TeI.get_slabs()
         slab = TeI_slabs[0]
@@ -587,7 +622,9 @@ class TestSlabGenerator(MatSciTest):
         # For a low symmetry primitive_elemental system such as
         # R-3m, there should be some non-symmetric slabs
         # without using non-stoichiometric_symmetrized_slab
-        slabs = generate_all_slabs(self.Dy, 1, 30, 30, center_slab=True, symmetrize=True)
+        slabs = generate_all_slabs(
+            self.Dy, 1, 30, 30, center_slab=True, symmetrize=True
+        )
         for s in slabs:
             assert s.is_symmetric()
             assert len(s) > len(self.Dy)
@@ -602,13 +639,17 @@ class TestSlabGenerator(MatSciTest):
         # check if top sites are moved to the bottom
         top_index = [ss[1] for ss in surface_sites["top"]]
         slab = slab_gen.move_to_other_side(slab, top_index)
-        all_bottom = [slab[i].frac_coords[2] < slab.center_of_mass[2] for i in top_index]
+        all_bottom = [
+            slab[i].frac_coords[2] < slab.center_of_mass[2] for i in top_index
+        ]
         assert all(all_bottom)
 
         # check if bottom sites are moved to the top
         bottom_index = [ss[1] for ss in surface_sites["bottom"]]
         slab = slab_gen.move_to_other_side(slab, bottom_index)
-        all_top = [slab[i].frac_coords[2] > slab.center_of_mass[2] for i in bottom_index]
+        all_top = [
+            slab[i].frac_coords[2] > slab.center_of_mass[2] for i in bottom_index
+        ]
         assert all(all_top)
 
     def test_bonds_broken(self):
@@ -644,7 +685,9 @@ class TestReconstructionGenerator(MatSciTest):
         species = ["Fe"]
         coords = [[0, 0, 0]]
         self.Fe = Structure.from_spacegroup("Im-3m", lattice, species, coords)
-        self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500), ["Si"], [(0, 0, 0.5)])
+        self.Si = Structure.from_spacegroup(
+            "Fd-3m", Lattice.cubic(5.430500), ["Si"], [(0, 0, 0.5)]
+        )
 
         with open(f"{PMG_CORE_DIR}/reconstructions_archive.json", "rb") as data_file:
             self.rec_archive = orjson.loads(data_file.read())
@@ -697,7 +740,9 @@ class TestReconstructionGenerator(MatSciTest):
         s2 = recon2.get_unreconstructed_slabs()[0]
         assert get_d(s1) == approx(get_d(s2))
 
-    @pytest.mark.xfail(reason="This test relies on neighbor orders and is hard coded. Disable temporarily")
+    @pytest.mark.xfail(
+        reason="This test relies on neighbor orders and is hard coded. Disable temporarily"
+    )
     def test_previous_reconstructions(self):
         # Test to see if we generated all reconstruction types correctly and nothing changes
 
@@ -719,19 +764,33 @@ class TestReconstructionGenerator(MatSciTest):
                 el = self.Si[0].species_string
 
             slabs = rec.build_slabs()
-            struct = Structure.from_file(f"{TEST_FILES_DIR}/surfaces/reconstructions/{el}_{idx}.cif")
-            assert any(len(match.group_structures([struct, slab])) == 1 for slab in slabs)
+            struct = Structure.from_file(
+                f"{TEST_FILES_DIR}/surfaces/reconstructions/{el}_{idx}.cif"
+            )
+            assert any(
+                len(match.group_structures([struct, slab])) == 1 for slab in slabs
+            )
 
 
 class TestMillerIndexFinder(MatSciTest):
     def setup_method(self):
-        self.cscl = Structure.from_spacegroup("Pm-3m", Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-        self.Fe = Structure.from_spacegroup("Im-3m", Lattice.cubic(2.82), ["Fe"], [[0, 0, 0]])
+        self.cscl = Structure.from_spacegroup(
+            "Pm-3m", Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
+        self.Fe = Structure.from_spacegroup(
+            "Im-3m", Lattice.cubic(2.82), ["Fe"], [[0, 0, 0]]
+        )
         mg_lattice = Lattice.from_parameters(3.2, 3.2, 5.13, 90, 90, 120)
-        self.Mg = Structure(mg_lattice, ["Mg", "Mg"], [[1 / 3, 2 / 3, 1 / 4], [2 / 3, 1 / 3, 3 / 4]])
+        self.Mg = Structure(
+            mg_lattice, ["Mg", "Mg"], [[1 / 3, 2 / 3, 1 / 4], [2 / 3, 1 / 3, 3 / 4]]
+        )
         self.lifepo4 = self.get_structure("LiFePO4")
-        self.tei = Structure.from_file(f"{TEST_FILES_DIR}/surfaces/icsd_TeI.cif", primitive=False)
-        self.LiCoO2 = Structure.from_file(f"{TEST_FILES_DIR}/surfaces/icsd_LiCoO2.cif", primitive=False)
+        self.tei = Structure.from_file(
+            f"{TEST_FILES_DIR}/surfaces/icsd_TeI.cif", primitive=False
+        )
+        self.LiCoO2 = Structure.from_file(
+            f"{TEST_FILES_DIR}/surfaces/icsd_LiCoO2.cif", primitive=False
+        )
 
         self.p1 = Structure(
             Lattice.from_parameters(3, 4, 5, 31, 43, 50),
@@ -776,15 +835,17 @@ class TestMillerIndexFinder(MatSciTest):
         assert len(indices) == 12
 
         # Now try a trigonal system.
-        indices = get_symmetrically_distinct_miller_indices(self.trig_bi, 2, return_hkil=True)
+        indices = get_symmetrically_distinct_miller_indices(
+            self.trig_bi, 2, return_hkil=True
+        )
         assert len(indices) == 17
         assert all(len(hkl) == 4 for hkl in indices)
 
         # Test to see if the output with max_index i is a subset of the output with max_index i+1
         for idx in range(1, 4):
-            assert set(get_symmetrically_distinct_miller_indices(self.trig_bi, idx)) <= set(
-                get_symmetrically_distinct_miller_indices(self.trig_bi, idx + 1)
-            )
+            assert set(
+                get_symmetrically_distinct_miller_indices(self.trig_bi, idx)
+            ) <= set(get_symmetrically_distinct_miller_indices(self.trig_bi, idx + 1))
 
     def test_get_symmetrically_equivalent_miller_indices(self):
         # Tests to see if the function obtains all equivalent hkl for cubic (100)
@@ -800,8 +861,12 @@ class TestMillerIndexFinder(MatSciTest):
         assert all(hkl in indices for hkl in indices001)
 
         # Tests to see if it captures expanded Miller indices in the family e.g. (001) == (002)
-        hcp_indices_100 = get_symmetrically_equivalent_miller_indices(self.Mg, (1, 0, 0))
-        hcp_indices_200 = get_symmetrically_equivalent_miller_indices(self.Mg, (2, 0, 0))
+        hcp_indices_100 = get_symmetrically_equivalent_miller_indices(
+            self.Mg, (1, 0, 0)
+        )
+        hcp_indices_200 = get_symmetrically_equivalent_miller_indices(
+            self.Mg, (2, 0, 0)
+        )
         assert len(hcp_indices_100) * 2 == len(hcp_indices_200)
         assert len(hcp_indices_100) == 6
         assert all(len(hkl) == 4 for hkl in hcp_indices_100)
@@ -821,10 +886,14 @@ class TestMillerIndexFinder(MatSciTest):
         # No slabs if we don't allow broken Cs-Cl
         assert len(slabs) == 0
 
-        slabs = generate_all_slabs(self.cscl, 1, 10, 10, bonds={("Cs", "Cl"): 4}, max_broken_bonds=100)
+        slabs = generate_all_slabs(
+            self.cscl, 1, 10, 10, bonds={("Cs", "Cl"): 4}, max_broken_bonds=100
+        )
         assert len(slabs) == 3
 
-        slabs2 = generate_all_slabs(self.lifepo4, 1, 10, 10, bonds={("P", "O"): 3, ("Fe", "O"): 3})
+        slabs2 = generate_all_slabs(
+            self.lifepo4, 1, 10, 10, bonds={("P", "O"): 3, ("Fe", "O"): 3}
+        )
         assert len(slabs2) == 0
 
         # There should be only one possible stable surfaces, all of which are
@@ -835,11 +904,15 @@ class TestMillerIndexFinder(MatSciTest):
         for s in slabs3:
             assert s.miller_index == mill
 
-        slabs1 = generate_all_slabs(self.lifepo4, 1, 10, 10, tol=0.1, bonds={("P", "O"): 3})
+        slabs1 = generate_all_slabs(
+            self.lifepo4, 1, 10, 10, tol=0.1, bonds={("P", "O"): 3}
+        )
         assert len(slabs1) == 4
 
         # Now we test this out for repair_broken_bonds()
-        slabs1_repair = generate_all_slabs(self.lifepo4, 1, 10, 10, tol=0.1, bonds={("P", "O"): 3}, repair=True)
+        slabs1_repair = generate_all_slabs(
+            self.lifepo4, 1, 10, 10, tol=0.1, bonds={("P", "O"): 3}, repair=True
+        )
         assert len(slabs1_repair) > len(slabs1)
 
         # Lets see if there are no broken PO4 polyhedrons

@@ -3,7 +3,11 @@ from __future__ import annotations
 import pytest
 from pytest import approx
 
-from pymatgen.analysis.bond_valence import BVAnalyzer, calculate_bv_sum, calculate_bv_sum_unordered
+from pymatgen.analysis.bond_valence import (
+    BVAnalyzer,
+    calculate_bv_sum,
+    calculate_bv_sum_unordered,
+)
 from pymatgen.core import Composition, Species, Structure
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
@@ -35,7 +39,11 @@ class TestBVAnalyzer(MatSciTest):
             ValueError,
             match="Structure contains elements not in set of BV parameters: {Element Xe}",
         ):
-            self.analyzer.get_valences(self.get_structure("Li10GeP2S12").replace_species({"Li": "Xe"}, in_place=False))
+            self.analyzer.get_valences(
+                self.get_structure("Li10GeP2S12").replace_species(
+                    {"Li": "Xe"}, in_place=False
+                )
+            )
 
     def test_get_oxi_state_structure(self):
         struct = Structure.from_file(f"{TEST_DIR}/LiMn2O4.json")

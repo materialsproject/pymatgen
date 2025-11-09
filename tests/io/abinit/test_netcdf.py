@@ -41,7 +41,9 @@ class TestEtsfReader(MatSciTest):
 
         ref_float_values = {
             "etotal": -8.85911566912484,
-            "primitive_vectors": np.reshape([0, 5.125, 5.125, 5.125, 0, 5.125, 5.125, 5.125, 0], (3, 3)),
+            "primitive_vectors": np.reshape(
+                [0, 5.125, 5.125, 5.125, 0, 5.125, 5.125, 5.125, 0], (3, 3)
+            ),
         }
 
         with EtsfReader(path) as data:
@@ -85,7 +87,9 @@ class TestEtsfReader(MatSciTest):
 
     @pytest.mark.skipif(netCDF4 is None, reason="Requires NetCDF4")
     @pytest.mark.xfail(
-        sys.platform.startswith("linux") and os.getenv("CI") and netCDF4.__version__ >= "1.6.5",
+        sys.platform.startswith("linux")
+        and os.getenv("CI")
+        and netCDF4.__version__ >= "1.6.5",
         reason="Fails with netCDF4 >= 1.6.5 on Ubuntu CI",
     )
     @pytest.mark.parametrize(
