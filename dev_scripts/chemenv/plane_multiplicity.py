@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+)
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
