@@ -89,4 +89,3 @@ include-package-data = false
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["pymatgen"]
-

@@ -101,4 +101,3 @@ disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defi
 [[tool.mypy.overrides]]
 module = ["requests.*", "tabulate.*", "monty.*", "matplotlib.*"]
 ignore_missing_imports = true
-

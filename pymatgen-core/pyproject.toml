@@ -172,4 +172,3 @@ exclude = ['src/pymatgen/io/cp2k', 'src/pymatgen/io/lammps']
 [[tool.mypy.overrides]]
 module = ["requests.*", "tabulate.*", "monty.*", "matplotlib.*"]
 ignore_missing_imports = true
-
