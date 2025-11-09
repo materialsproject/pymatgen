@@ -5,8 +5,9 @@ requires = [
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#build-time-dependency
     "numpy>=2.1.0",
     "setuptools>=65.0.0",
+    "wheel",
 ]
-build-backend = "setuptools.build_meta"
+build-backend = "setuptools.build_meta:__legacy__"
 
 
 [project]
@@ -123,6 +124,9 @@ include-package-data = false
 where = ["src"]
 include = ["pymatgen", "pymatgen.*"]
 exclude = ["pymatgen.analysis*", "pymatgen.apps*", "pymatgen.cli*"]
+
+# Cython extensions are defined in setup.py
+# setuptools.build_meta will automatically use setup.py if it exists
 
 # Note: structure_matcher.py has been moved from pymatgen.analysis to pymatgen.core
 # It is accessible as pymatgen.core.structure_matcher after installation
