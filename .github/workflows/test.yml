@@ -8,6 +8,10 @@ on:
     paths:
       [
         "src/**/*.*",
+        "pymatgen-core/**/*.*",
+        "pymatgen-analysis/**/*.*",
+        "pymatgen-apps/**/*.*",
+        "pymatgen-meta/**/*.*",
         "tests/**/*.*",
         ".github/workflows/*",
         "pyproject.toml",
@@ -18,6 +22,10 @@ on:
     paths:
       [
         "src/**/*.*",
+        "pymatgen-core/**/*.*",
+        "pymatgen-analysis/**/*.*",
+        "pymatgen-apps/**/*.*",
+        "pymatgen-meta/**/*.*",
         "tests/**/*.*",
         ".github/workflows/*",
         "pyproject.toml",
@@ -30,7 +38,7 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  test-core:
     # Prevent this action from running on forks
     if: github.repository == 'materialsproject/pymatgen'
     defaults:
@@ -47,22 +55,22 @@ jobs:
           - os: windows-latest
             python: "3.10"  # Test lowest supported Python version
             resolution: lowest-direct
-            extras: optional,prototypes
+            extras: optional
           - os: windows-latest
             python: "3.11"
             resolution: highest
-            extras: prototypes,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
+            extras: optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
           - os: macos-latest
             python: "3.13"
             resolution: lowest-direct
-            extras: prototypes # test with only required dependencies installed
+            extras: "" # test with only required dependencies installed
           - os: ubuntu-latest
             python: "3.14"  # Test highest supported Python version
             resolution: highest
-            extras: prototypes,optional
+            extras: optional
 
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
-        # update durations file with `pytest --store-durations --durations-path tests/files/.pytest-split-durations`
+        # update durations file with `pytest --store-durations --durations-path pymatgen-core/tests/files/.pytest-split-durations`
         split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     runs-on: ${{ matrix.config.os }}
@@ -90,11 +98,11 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v6
 
-      - name: Install pymatgen and dependencies via uv
+      - name: Install pymatgen-core and dependencies via uv
         run: |
-          # Install from wheels to test the content
+          cd pymatgen-core
           uv build --wheel --no-build-logs
-          WHEEL_FILE=$(ls dist/pymatgen*.whl)
+          WHEEL_FILE=$(ls dist/pymatgen-core*.whl)
           uv pip install $WHEEL_FILE[${{matrix.config.extras}}] --group test \
             --resolution=${{matrix.config.resolution}}
 
@@ -110,19 +118,173 @@ jobs:
         if: (matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest') && steps.optbin-cache.outputs.cache-hit != 'true'
         run: bash .github/workflows/_install_opt_unit_deps.sh "$OPT_BIN_DIR"
 
-      - name: pytest split ${{ matrix.split }}
+      - name: pytest core split ${{ matrix.split }}
         env:
           MPLBACKEND: Agg # non-interactive backend for matplotlib
           PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
-          PMG_TEST_FILES_DIR: "${{ github.workspace }}/tests/files"
+          PMG_TEST_FILES_DIR: "${{ github.workspace }}/pymatgen-core/tests/files"
           PYTHONWARNDEFAULTENCODING: "true" # PEP 597: Enable optional EncodingWarning
         run: |
+          cd pymatgen-core
           pytest tests \
             -n auto --splits 10 --group ${{ matrix.split }} \
-            --durations-path tests/files/.pytest-split-durations \
+            --durations-path tests/files/.pytest-split-durations
+
+  test-analysis:
+    # Prevent this action from running on forks
+    if: github.repository == 'materialsproject/pymatgen'
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    needs: test-core
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - os: ubuntu-latest
+            python: "3.14"
+            resolution: highest
+            extras: optional,prototypes
+        split: [1, 2, 3, 4, 5]
+
+    runs-on: ${{ matrix.config.os }}
+    env:
+      OPT_BIN_DIR: ${{ github.workspace }}/opt/bin
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v5
+
+      - name: Create mamba environment
+        uses: mamba-org/setup-micromamba@main
+        with:
+          environment-name: pmg
+          cache-environment: true
+          create-args: >-
+            python=${{ matrix.config.python }}
+
+      - name: Install ubuntu-only conda dependencies
+        if: matrix.config.os == 'ubuntu-latest'
+        run: |
+          micromamba install -n pmg -c conda-forge bader enumlib \
+            packmol pygraphviz tblite --yes
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install pymatgen-analysis and dependencies via uv
+        run: |
+          cd pymatgen-core
+          uv build --wheel --no-build-logs
+          uv pip install dist/pymatgen-core*.whl --group test --resolution=${{matrix.config.resolution}}
+          cd ../pymatgen-analysis
+          uv build --wheel --no-build-logs
+          WHEEL_FILE=$(ls dist/pymatgen-analysis*.whl)
+          uv pip install $WHEEL_FILE[${{matrix.config.extras}}] --group test \
+            --resolution=${{matrix.config.resolution}}
+
+      - name: Restore cache for optional Ubuntu/MacOS dependencies
+        if: matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest'
+        id: optbin-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.OPT_BIN_DIR }}
+          key: opt-bin-${{ runner.os }}-${{ hashFiles('.github/workflows/_install_opt_unit_deps.sh') }}
+
+      - name: Build optional Ubuntu/MacOS dependencies (when cache misses)
+        if: (matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest') && steps.optbin-cache.outputs.cache-hit != 'true'
+        run: bash .github/workflows/_install_opt_unit_deps.sh "$OPT_BIN_DIR"
+
+      - name: pytest analysis split ${{ matrix.split }}
+        env:
+          MPLBACKEND: Agg
+          PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+          PMG_TEST_FILES_DIR: "${{ github.workspace }}/pymatgen-analysis/tests/files"
+          PYTHONWARNDEFAULTENCODING: "true"
+        run: |
+          cd pymatgen-analysis
+          pytest tests \
+            -n auto --splits 5 --group ${{ matrix.split }}
+
+  test-apps:
+    # Prevent this action from running on forks
+    if: github.repository == 'materialsproject/pymatgen'
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    needs: test-analysis
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - os: ubuntu-latest
+            python: "3.14"
+            resolution: highest
+            extras: optional
+        split: [1, 2, 3]
+
+    runs-on: ${{ matrix.config.os }}
+    env:
+      OPT_BIN_DIR: ${{ github.workspace }}/opt/bin
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v5
+
+      - name: Create mamba environment
+        uses: mamba-org/setup-micromamba@main
+        with:
+          environment-name: pmg
+          cache-environment: true
+          create-args: >-
+            python=${{ matrix.config.python }}
+
+      - name: Install ubuntu-only conda dependencies
+        if: matrix.config.os == 'ubuntu-latest'
+        run: |
+          micromamba install -n pmg -c conda-forge bader enumlib \
+            packmol pygraphviz tblite --yes
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install pymatgen-apps and dependencies via uv
+        run: |
+          cd pymatgen-core
+          uv build --wheel --no-build-logs
+          uv pip install dist/pymatgen-core*.whl --group test --resolution=${{matrix.config.resolution}}
+          cd ../pymatgen-analysis
+          uv build --wheel --no-build-logs
+          uv pip install dist/pymatgen-analysis*.whl --group test --resolution=${{matrix.config.resolution}}
+          cd ../pymatgen-apps
+          uv build --wheel --no-build-logs
+          WHEEL_FILE=$(ls dist/pymatgen-apps*.whl)
+          uv pip install $WHEEL_FILE[${{matrix.config.extras}}] --group test \
+            --resolution=${{matrix.config.resolution}}
+
+      - name: Restore cache for optional Ubuntu/MacOS dependencies
+        if: matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest'
+        id: optbin-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.OPT_BIN_DIR }}
+          key: opt-bin-${{ runner.os }}-${{ hashFiles('.github/workflows/_install_opt_unit_deps.sh') }}
+
+      - name: Build optional Ubuntu/MacOS dependencies (when cache misses)
+        if: (matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest') && steps.optbin-cache.outputs.cache-hit != 'true'
+        run: bash .github/workflows/_install_opt_unit_deps.sh "$OPT_BIN_DIR"
+
+      - name: pytest apps split ${{ matrix.split }}
+        env:
+          MPLBACKEND: Agg
+          PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+          PMG_TEST_FILES_DIR: "${{ github.workspace }}/pymatgen-apps/tests/files"
+          PYTHONWARNDEFAULTENCODING: "true"
+        run: |
+          cd pymatgen-apps
+          pytest tests \
+            -n auto --splits 3 --group ${{ matrix.split }}
 
   trigger_atomate2_ci:
-    needs: test
+    needs: [test-core, test-analysis, test-apps]
     runs-on: ubuntu-latest
     # Only run if changes are pushed to master
     if: github.ref == 'refs/heads/master'
@@ -141,7 +303,7 @@ jobs:
 
   all_pass:
     # This step is added to indicate all the tests have passed to make it easier to do auto-merge of PRs.
-    needs: test
+    needs: [test-core, test-analysis, test-apps]
     runs-on: ubuntu-latest
     steps:
       - name: Echo
