@@ -1,0 +1,175 @@
+[build-system]
+requires = [
+    "Cython>=0.29.23",
+    # Building against NPY2 will support both NPY1 and NPY2
+    # https://numpy.org/devdocs/dev/depending_on_numpy.html#build-time-dependency
+    "numpy>=2.1.0",
+    "setuptools>=65.0.0",
+]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "pymatgen-core"
+authors = [{ name = "Pymatgen Development Team", email = "ongsp@ucsd.edu" }]
+maintainers = [
+    { name = "Matthew Horton", email = "m.k.horton@gmail.com" },
+    { name = "Shyue Ping Ong", email = "ongsp@ucsd.edu" },
+]
+description = """
+Core pymatgen package providing fundamental materials science objects and I/O.
+This package contains the core functionality of pymatgen without analysis tools.
+"""
+readme = "../README.md"
+requires-python = ">=3.10"
+keywords = [
+    "ABINIT",
+    "VASP",
+    "crystal",
+    "electronic",
+    "gaussian",
+    "materials",
+    "nwchem",
+    "project",
+    "qchem",
+    "science",
+    "structure",
+]
+license = { text = "MIT" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "bibtexparser>=1.4.0",
+    "joblib>=1",
+    "matplotlib>=3.8",
+    "monty>=2025.1.9",
+    "networkx>=2.7",
+    # NumPy documentation suggests pinning the current major version as the C API is used
+    # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
+    "numpy>=1.25.0,<3",
+    "orjson>=3.10,<4",
+    "palettable>=3.3.3",
+    "pandas>=2",
+    "plotly>=5.0.0",
+    "requests>=2.30",
+    "ruamel.yaml>=0.17.0",
+    "scipy>=1.13.0",
+    # scipy<1.14.1 is incompatible with NumPy 2.0 on Windows
+    # https://github.com/scipy/scipy/issues/21052
+    "scipy>=1.14.1; platform_system == 'Windows'",
+    "spglib>=2.5",
+    "sympy>=1.3",
+    "tabulate>=0.9",
+    "tqdm>=4.60",
+    "uncertainties>=3.1.4",
+]
+version = "2025.10.7"
+
+[project.urls]
+Homepage = "https://pymatgen.org"
+Documentation = "https://pymatgen.org"
+Repository = "https://github.com/materialsproject/pymatgen"
+Issues = "https://github.com/materialsproject/pymatgen/issues"
+Pypi = "https://pypi.org/project/pymatgen-core"
+
+[project.optional-dependencies]
+abinit = ["netcdf4>=1.7.2"]
+ase = ["ase>=3.23.0"]
+matcalc = [
+    "matcalc>=0.4.0; python_version<'3.13'",
+    "matgl>=1.2.7; python_version<'3.13'",
+]
+mlp = ["matgl>=1.2.7 ; python_version<'3.13'"]
+numba = ["numba>=0.55; python_version<'3.14'"]
+numpy-v1 = ["numpy>=1.25.0,<2"]
+optional = [
+    "beautifulsoup4",
+    "f90nml>=1.1.2",
+    "h5py>=3.11.0",
+    "jarvis-tools>=2020.7.14",
+    "phonopy>=2.33.3",
+    "seekpath>=2.0.1",
+]
+symmetry = ["moyopy[interface]>=0.3", "spglib>=2.5"]
+vis = ["vtk>=6.0.0; python_version<'3.14'"]
+zeopp = ["pyzeo; platform_system != 'Windows'"]
+
+# Scripts moved to pymatgen-apps
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["pymatgen", "pymatgen.*"]
+exclude = ["pymatgen.analysis*", "pymatgen.apps*", "pymatgen.cli*"]
+
+# Note: structure_matcher.py has been moved from pymatgen.analysis to pymatgen.core
+# It is accessible as pymatgen.core.structure_matcher after installation
+
+[tool.setuptools.package-data]
+"pymatgen.entries" = ["*.json.gz", "*.yaml", "data/*.json"]
+"pymatgen.core" = ["*.json", "*.json.gz"]
+"pymatgen" = ["py.typed"]
+"pymatgen.io.vasp" = ["*.json", "*.json.bz2", "*.json.gz", "*.yaml"]
+"pymatgen.io.feff" = ["*.yaml"]
+"pymatgen.io.cp2k" = ["*.yaml"]
+"pymatgen.io.lobster" = ["lobster_basis/*.yaml"]
+"pymatgen.command_line" = ["*"]
+"pymatgen.util" = ["*.json", "structures/*.json"]
+"pymatgen.vis" = ["*.yaml"]
+"pymatgen.io.lammps" = ["CoeffsDataType.yaml", "templates/*.template"]
+"pymatgen.symmetry" = ["*.json", "*.sqlite", "*.yaml"]
+
+[tool.ruff]
+line-length = 120
+output-format = "concise"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "ANN", "ARG", "BLE", "C90", "COM", "CPY", "EM", "ERA", "FIX", "G", "INP", "N", "PTH", "SLF", "T20", "TD",
+    "B023", "B904", "C408", "D105", "D205", "D212", "FBT001", "FBT002", "PD011", "PERF203", "PLC0415",
+    "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR1702", "PLR2004", "PLW1641", "PLW2901", "PT013",
+    "RUF043", "S110", "S112", "S311", "S314", "S603", "S607", "SIM105", "SIM905", "TRY003", "TRY300", "TRY301",
+]
+pydocstyle.convention = "google"
+isort.required-imports = ["from __future__ import annotations"]
+isort.split-on-trailing-comma = false
+isort.known-first-party = ["pymatgen"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**" = ["ANN201", "D", "PLR2004", "PLR6301", "S101", "S301"]
+"src/pymatgen/io/*" = ["D"]
+"dev_scripts/*" = ["D"]
+
+[tool.mypy]
+mypy_path = "src"
+ignore_missing_imports = true
+namespace_packages = true
+no_implicit_optional = false
+disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "call-overload", "index"]
+exclude = ['src/pymatgen/io/cp2k', 'src/pymatgen/io/lammps']
+
+[[tool.mypy.overrides]]
+module = ["requests.*", "tabulate.*", "monty.*", "matplotlib.*"]
+ignore_missing_imports = true
+

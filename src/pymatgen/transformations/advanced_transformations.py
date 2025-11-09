@@ -21,7 +21,7 @@ from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.energy_models import SymmetryModel
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.analysis.local_env import MinimumDistanceNN
-from pymatgen.analysis.structure_matcher import SpinComparator, StructureMatcher
+from pymatgen.core.structure_matcher import SpinComparator, StructureMatcher
 from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionPredictor
 from pymatgen.command_line.enumlib_caller import EnumError, EnumlibAdaptor
 from pymatgen.command_line.mcsqs_caller import run_mcsqs

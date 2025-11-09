@@ -1,0 +1,35 @@
+# Sample input script template for MD
+
+# Initialization
+
+units           metal
+atom_style      atomic
+
+# Atom definition
+
+read_data       md.data
+#read_restart    md.restart
+
+# Force field settings (consult official document for detailed formats)
+
+$force_field
+
+# Create velocities
+velocity        all create $temperature 142857 mom yes rot yes dist gaussian
+
+# Ensemble constraints
+#fix             1 all nve
+fix             1 all nvt temp $temperature $temperature 0.1
+#fix             1 all npt temp $temperature $temperature 0.1 iso $pressure $pressure 1.0
+
+# Various operations within timestepping
+#fix             ...
+#compute         ...
+
+# Output settings
+#thermo_style    custom ...  # control the thermo data type to output
+thermo          100  # output thermo data every N steps
+#dump            1 all atom 100 traj.*.gz  # dump a snapshot every 100 steps
+
+# Actions
+run             $nsteps

@@ -18,7 +18,7 @@ from monty.json import MSONable
 from monty.serialization import loadfn
 from scipy.linalg import polar
 
-from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

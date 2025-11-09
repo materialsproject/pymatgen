@@ -1,0 +1,43 @@
+Name: MP
+Advanced:
+  UCorrections:
+    O:
+      Mn: -1.68085015096   #Fit to MnO, Mn3O4 and MnO2 (BURP:-1.687)
+      Fe: -2.733           #Fit to FeO and Fe2O3 (Fe3O4 probably wrong)
+      Co: -1.874           #Fit to CoO, Co3O4 (BURP:-1.751)
+      Cr: -2.013           #Fit to Cr2O3 (CrO3 missing) (BURP: -2.067)
+      Mo: -3.531           #Fit to MoO3 and MoO2 (BURP: -2.668)
+      W:  -4.351           #Fit to WO2 and WO3 (BURP: -2.762)
+      V:  -1.682           #Fit to V2O3 and V2O5 (VO2 fit is way off) (BURP: -1.764)
+      Ni: -2.164           #Based on burp version as of Feb 28 2011
+    F:
+      Mn: -1.68085015096   #Fit to MnO, Mn3O4 and MnO2 (BURP:-1.687)
+      Fe: -2.733           #Fit to FeO and Fe2O3 (Fe3O4 probably wrong)
+      Co: -1.874           #Fit to CoO, Co3O4 (BURP:-1.751)
+      Cr: -2.013           #Fit to Cr2O3 (CrO3 missing) (BURP: -2.067)
+      Mo: -3.531           #Fit to MoO3 and MoO2 (BURP: -2.668)
+      W:  -4.351           #Fit to WO2 and WO3 (BURP: -2.762)
+      V:  -1.682           #Fit to V2O3 and V2O5 (VO2 fit is way off) (BURP: -1.764)
+      Ni: -2.164           #Based on burp version as of Feb 28 2011
+
+  #Fit energies for elements.  Note that these must be energies per atom!
+  #Document the fits PROPERLY. Fits by default are done over all alkali, alkali earth, and Al.
+  #The whole set is ("Li", "Na","K","Rb", "Cs", "Mg", "Ca","Sr", "Ba","Al")
+  #Last update: Sep 13 2011 by Shyue Ping Ong
+  CompoundEnergies:
+    #O2:  -4.22986844926    #Fit to all except Cs, which is a serious outlier
+    N2:  -7.95247218762    #Fit to Li3N, Mg3N2, Ca3N2, AlN
+    F2:  -1.42055013381    #Fit to all.
+    Cl2: -1.25385097674    #Fit to all except AlCl3, which is not present in the database.
+    H2:  -3.23973666138
+
+
+OxideCorrections:
+  oxide:       -0.70229    #Oxide Corrections fit to Li2O, Na2O, K2O, Rb2O, MgO, CaO, SrO, BaO, Al2O3 on 09/18
+  peroxide:    -0.46622    #Peroxide Corrections fit to Li2O2, Na2O2, K2O2, SrO2 on 09/18
+  superoxide:  -0.14598    #Superoxide Corrections fit to CsO2, NaO2, KO2 on 09/18
+  ozonide:     0.00
+
+
+SulfideCorrections:
+  sulfide:     -0.66346     #Sulfide Correction fit to Li2S, Na2S, K2S, Rb2S, CsS, MgS, CaS, BaS, Al2S3.

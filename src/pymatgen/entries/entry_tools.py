@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 
 from pymatgen.analysis.phase_diagram import PDEntry
-from pymatgen.analysis.structure_matcher import SpeciesComparator, StructureMatcher
+from pymatgen.core.structure_matcher import SpeciesComparator, StructureMatcher
 from pymatgen.core import Composition, Element
 
 if TYPE_CHECKING:

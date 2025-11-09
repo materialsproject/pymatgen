@@ -1,0 +1,92 @@
+[build-system]
+requires = ["setuptools>=65.0.0"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "pymatgen"
+authors = [{ name = "Pymatgen Development Team", email = "ongsp@ucsd.edu" }]
+maintainers = [
+    { name = "Matthew Horton", email = "m.k.horton@gmail.com" },
+    { name = "Shyue Ping Ong", email = "ongsp@ucsd.edu" },
+]
+description = """
+Python Materials Genomics is a robust materials analysis code that defines core object representations for structures
+and molecules with support for many electronic structure codes. It is currently the core analysis code powering the
+Materials Project (https://materialsproject.org).
+
+This is a meta-package that installs pymatgen-core, pymatgen-analysis, and pymatgen-apps.
+"""
+readme = "../README.md"
+requires-python = ">=3.10"
+keywords = [
+    "ABINIT",
+    "VASP",
+    "analysis",
+    "crystal",
+    "diagrams",
+    "electronic",
+    "gaussian",
+    "materials",
+    "nwchem",
+    "phase",
+    "project",
+    "qchem",
+    "science",
+    "structure",
+]
+license = { text = "MIT" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "pymatgen-core>=2025.10.7",
+    "pymatgen-analysis>=2025.10.7",
+    "pymatgen-apps>=2025.10.7",
+]
+version = "2025.10.7"
+
+[project.urls]
+Homepage = "https://pymatgen.org"
+Documentation = "https://pymatgen.org"
+Repository = "https://github.com/materialsproject/pymatgen"
+Issues = "https://github.com/materialsproject/pymatgen/issues"
+Pypi = "https://pypi.org/project/pymatgen"
+
+[project.optional-dependencies]
+# Forward optional dependencies from sub-packages
+abinit = ["pymatgen-core[abinit]"]
+ase = ["pymatgen-core[ase]"]
+matcalc = ["pymatgen-core[matcalc]"]
+mlp = ["pymatgen-core[mlp]"]
+numba = ["pymatgen-core[numba]"]
+numpy-v1 = ["pymatgen-core[numpy-v1]"]
+optional = [
+    "pymatgen-core[optional]",
+    "pymatgen-analysis[optional]",
+]
+prototypes = ["pymatgen-analysis[prototypes]"]
+symmetry = ["pymatgen-core[symmetry]"]
+vis = ["pymatgen-core[vis]"]
+zeopp = ["pymatgen-core[zeopp]"]
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["pymatgen"]
+

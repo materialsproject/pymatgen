@@ -29,7 +29,7 @@ from monty.fractions import lcm
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 
-from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, PeriodicSite, Structure, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list

@@ -1,0 +1,104 @@
+[build-system]
+requires = [
+    "setuptools>=65.0.0",
+]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "pymatgen-apps"
+authors = [{ name = "Pymatgen Development Team", email = "ongsp@ucsd.edu" }]
+maintainers = [
+    { name = "Matthew Horton", email = "m.k.horton@gmail.com" },
+    { name = "Shyue Ping Ong", email = "ongsp@ucsd.edu" },
+]
+description = """
+Applications and command-line interfaces for pymatgen. This package provides
+battery analysis tools, borg workflows, and CLI utilities.
+"""
+readme = "../README.md"
+requires-python = ">=3.10"
+keywords = [
+    "battery",
+    "cli",
+    "materials",
+    "applications",
+]
+license = { text = "MIT" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "pymatgen-core>=2025.10.7",
+    "pymatgen-analysis>=2025.10.7",
+]
+version = "2025.10.7"
+
+[project.urls]
+Homepage = "https://pymatgen.org"
+Documentation = "https://pymatgen.org"
+Repository = "https://github.com/materialsproject/pymatgen"
+Issues = "https://github.com/materialsproject/pymatgen/issues"
+Pypi = "https://pypi.org/project/pymatgen-apps"
+
+[project.scripts]
+pmg = "pymatgen.cli.pmg:main"
+feff_plot_cross_section = "pymatgen.cli.feff_plot_cross_section:main"
+feff_plot_dos = "pymatgen.cli.feff_plot_dos:main"
+get_environment = "pymatgen.cli.get_environment:main"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["pymatgen.apps", "pymatgen.apps.*", "pymatgen.cli", "pymatgen.cli.*"]
+
+[tool.ruff]
+line-length = 120
+output-format = "concise"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "ANN", "ARG", "BLE", "C90", "COM", "CPY", "EM", "ERA", "FIX", "G", "INP", "N", "PTH", "SLF", "T20", "TD",
+    "B023", "B904", "C408", "D105", "D205", "D212", "FBT001", "FBT002", "PD011", "PERF203", "PLC0415",
+    "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR1702", "PLR2004", "PLW1641", "PLW2901", "PT013",
+    "RUF043", "S110", "S112", "S311", "S314", "S603", "S607", "SIM105", "SIM905", "TRY003", "TRY300", "TRY301",
+]
+pydocstyle.convention = "google"
+isort.required-imports = ["from __future__ import annotations"]
+isort.split-on-trailing-comma = false
+isort.known-first-party = ["pymatgen"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**" = ["ANN201", "D", "PLR2004", "PLR6301", "S101", "S301"]
+
+[tool.mypy]
+mypy_path = "src"
+ignore_missing_imports = true
+namespace_packages = true
+no_implicit_optional = false
+disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "call-overload", "index"]
+
+[[tool.mypy.overrides]]
+module = ["requests.*", "tabulate.*", "monty.*", "matplotlib.*"]
+ignore_missing_imports = true
+

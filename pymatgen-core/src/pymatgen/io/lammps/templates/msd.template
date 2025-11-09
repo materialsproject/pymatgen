@@ -1,0 +1,33 @@
+# 1) Initialization
+units $units
+atom_style $atom_style
+dimension $dimension
+boundary $boundary
+
+# 2) System definition
+read_data $read_data
+neigh_modify every 1 delay 5 check yes
+group AtId type $type
+
+# 3) Simulation settings
+$force_field
+
+# 4) MSD
+thermo $ndump
+timestep $timestep
+
+reset_timestep 0
+dump dmp all atom $ndump run.dump
+
+compute MSD AtId msd
+fix myave all ave/time $ndump 1 $ndump c_MSD file MSD.yaml mode vector
+fix myfit all vector $ndump c_MSD[4]
+
+variable Dfit equal slope(f_myfit)/(1000*dt)/6*1e-5/$ndump
+variable Dcoeff equal c_MSD[4]/(step*dt*1000+0.000001)/6*1e-5
+
+thermo_style custom step temp epair press c_MSD[1] c_MSD[2] c_MSD[3] c_MSD[4] v_Dcoeff v_Dfit
+
+fix mynvt all nvt temp $temperature $temperature 0.1
+run $nsteps
+write_data run_msd.data

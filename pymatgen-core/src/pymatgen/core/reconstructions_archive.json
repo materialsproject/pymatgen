@@ -1,0 +1,441 @@
+{
+ "fcc_110_missing_row_1x2": {
+  "name": "fcc_110_missing_row_1x2",
+  "description": "This is the (2x1) reconstruction for the fcc (110)                     slab, also known as the missing-row reconstruction.",
+  "reference": "Zhang, J. M., Zhang, M. Y., & Xu, K. W. (2009). Missing row reconstruction on                     three low index surfaces of ten FCC metals. Crystal Research and Technology, 44(3), 275\u2013280.",
+  "spacegroup": {
+   "symbol": "Fm-3m",
+   "number": 225
+  },
+  "miller_index": [
+   1,
+   1,
+   0
+  ],
+  "Woods_notation": "p(1x2)",
+  "transformation_matrix": [
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    2,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "SlabGenerator_parameters": {
+   "center_slab": true,
+   "max_normal_search": 1
+  },
+  "points_to_remove": [
+   [
+    0.5,
+    0.25,
+    0
+   ]
+  ]
+ },
+ "fcc_100_missing_row_1x1": {
+  "name": "fcc_100_missing_row_1x1",
+  "description": "This is the (2x1) reconstruction for the fcc (100)                     slab, also known as the missing-row reconstruction.",
+  "reference": "Zhang, J. M., Zhang, M. Y., & Xu, K. W. (2009). Missing row reconstruction on                     three low index surfaces of ten FCC metals. Crystal Research and Technology, 44(3), 275\u2013280.",
+  "spacegroup": {
+   "symbol": "Fm-3m",
+   "number": 225
+  },
+  "miller_index": [
+   1,
+   0,
+   0
+  ],
+  "Woods_notation": "c(1x1)",
+  "transformation_matrix": [
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "SlabGenerator_parameters": {
+   "center_slab": true,
+   "max_normal_search": 1,
+   "primitive": false
+  },
+  "points_to_remove": [
+   [
+    0.5,
+    0.25,
+    0
+   ]
+  ]
+ },
+ "fcc_111_missing_row_1x2": {
+  "name": "fcc_111_missing_row_1x2",
+  "description": "This is the (2x1) reconstruction for the fcc (111)                     slab, also known as the missing-row reconstruction.",
+  "reference": "Zhang, J. M., Zhang, M. Y., & Xu, K. W. (2009). Missing row reconstruction on                     three low index surfaces of ten FCC metals. Crystal Research and Technology, 44(3), 275\u2013280.",
+  "spacegroup": {
+   "symbol": "Fm-3m",
+   "number": 225
+  },
+  "miller_index": [
+   1,
+   1,
+   1
+  ],
+  "Woods_notation": "p(1x2)",
+  "transformation_matrix": [
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    2,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "SlabGenerator_parameters": {
+   "center_slab": true,
+   "max_normal_search": 1
+  },
+  "points_to_remove": [
+   [
+    0.5,
+    0.25,
+    0
+   ]
+  ]
+ },
+ "fcc_111_adatom_t_1x1": {
+  "name": "fcc_111_adatom_t_1x1",
+  "description": "This is the (1x1) reconstruction for the fcc (111)                     slab on the top (t) site.",
+  "reference": "Crljen, Z., Lazic, P., Sokcevic, D., & Brako, R. (2003).                     Relaxation and reconstruction on (111) surfaces of Au, Pt, and Cu.                     Physical Review B, 68(19), 195411.",
+  "spacegroup": {
+   "symbol": "Fm-3m",
+   "number": 225
+  },
+  "miller_index": [
+   1,
+   1,
+   1
+  ],
+  "Woods_notation": "p(1x1)",
+  "transformation_matrix": [
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "SlabGenerator_parameters": {
+   "center_slab": true,
+   "max_normal_search": 1
+  },
+  "points_to_add": [
+   [
+    0.0,
+    0.0,
+    1
+   ]
+  ]
+ },
+ "fcc_111_adatom_h_1x1": {
+  "name": "fcc_111_adatom_h_1x1",
+  "description": "This is the (1x1) reconstruction for the fcc (111)                     slab on the hcp (h) site.",
+  "reference": "Crljen, Z., Lazic, P., Sokcevic, D., & Brako, R. (2003).                     Relaxation and reconstruction on (111) surfaces of Au, Pt, and Cu.                     Physical Review B, 68(19), 195411.",
+  "base_reconstruction": "fcc_111_adatom_t_1x1",
+  "points_to_add": [
+   [
+    0.66667,
+    0.33333,
+    1
+   ]
+  ]
+ },
+ "fcc_111_adatom_ft_1x1": {
+  "name": "fcc_111_adatom_ft_1x1",
+  "description": "This is the (1x1) reconstruction for the fcc (111)                     slab with an adatom between the fcc and top (ft) site.",
+  "reference": "Crljen, Z., Lazic, P., Sokcevic, D., & Brako, R. (2003).                     Relaxation and reconstruction on (111) surfaces of Au, Pt, and Cu.                     Physical Review B, 68(19), 195411.",
+  "base_reconstruction": "fcc_111_adatom_t_1x1",
+  "points_to_add": [
+   [
+    0.166665,
+    0.333335,
+    1
+   ]
+  ]
+ },
+ "fcc_111_adatom_ht_1x1": {
+  "name": "fcc_111_adatom_ht_1x1",
+  "description": "This is the (1x1) reconstruction for the fcc (111)                     slab with an adatom between the hcp and top (ht) site.",
+  "reference": "Crljen, Z., Lazic, P., Sokcevic, D., & Brako, R. (2003).                     Relaxation and reconstruction on (111) surfaces of Au, Pt, and Cu.                     Physical Review B, 68(19), 195411.",
+  "base_reconstruction": "fcc_111_adatom_t_1x1",
+  "points_to_add": [
+   [
+    0.333335,
+    0.166665,
+    1
+   ]
+  ]
+ },
+ "fcc_111_adatom_bridge_1x1": {
+  "name": "fcc_111_adatom_bridge_1x1",
+  "description": "This is the (1x1) reconstruction for the fcc (111)                     slab with an adatom on the bridge site.",
+  "reference": "Crljen, Z., Lazic, P., Sokcevic, D., & Brako, R. (2003).                     Relaxation and reconstruction on (111) surfaces of Au, Pt, and Cu.                     Physical Review B, 68(19), 195411.",
+  "base_reconstruction": "fcc_111_adatom_t_1x1",
+  "points_to_add": [
+   [
+    0.5,
+    0.5,
+    1
+   ]
+  ]
+ },
+ "bcc_100_zigzag_rt2xrt2": {
+  "name": "bcc_100_zigzag_rt2xrt2",
+  "description": "This is the (rt2xrt2) reconstruction for the body-centered (100)                     slab. The surface sites are arranged in a zig-zag pattern along the diagonal of                     the primitive slab.",
+  "reference": "Yonehara, K., & Schmidt, L. D. (1971). A LEED study of structures                     produced by H2 on (100) W. Surface Science, 25(2), 238\u2013260.",
+  "spacegroup": {
+   "symbol": "Im-3m",
+   "number": 229
+  },
+  "miller_index": [
+   1,
+   0,
+   0
+  ],
+  "Woods_notation": "p(rt2xrt2)",
+  "transformation_matrix": [
+   [
+    1,
+    1,
+    0
+   ],
+   [
+    -1,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "SlabGenerator_parameters": {
+   "center_slab": true,
+   "max_normal_search": 1
+  },
+  "points_to_add": [
+   [
+    0.0,
+    0.08789,
+    1
+   ],
+   [
+    0.5,
+    0.41211,
+    1
+   ]
+  ]
+ },
+ "diamond_100_2x1": {
+  "name": "diamond_100_2x1",
+  "description": "This is the (2x1) reconstruction for the diamond (100)                     slab. The surface sites are rearranged such that they form a dimer with                     each other and two back bonds with the layer of atoms below.",
+  "reference": "Schlier, R. E., & Farnsworth, H. E. (1959). Structure and                     Adsorption Characteristics of Clean Surfaces of Germanium and Silicon.                     The Journal of Chemical Physics, 30(4), 917.",
+  "spacegroup": {
+   "symbol": "Fd-3m",
+   "number": 227
+  },
+  "miller_index": [
+   1,
+   0,
+   0
+  ],
+  "Woods_notation": "p(2x1)",
+  "transformation_matrix": [
+   [
+    2,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "SlabGenerator_parameters": {
+   "center_slab": true,
+   "max_normal_search": 1
+  },
+  "points_to_remove": [
+   [
+    0.5,
+    0.5,
+    0
+   ],
+   [
+    0,
+    0.5,
+    0
+   ]
+  ],
+  "points_to_add": [
+   [
+    0.05709,
+    0.5,
+    0.1
+   ],
+   [
+    0.34289,
+    0.5,
+    -0.5
+   ]
+  ]
+ },
+ "diamond_110_1x1": {
+  "name": "diamond_110_1x1",
+  "description": "This is the (1x1) reconstruction for the diamond (110)                     slab. The surface sites are rearranged such that they form a chain with                     each other and the layer of atoms below.",
+  "reference": "Schlier, R. E., & Farnsworth, H. E. (1959). Structure and                     Adsorption Characteristics of Clean Surfaces of Germanium and Silicon.                     The Journal of Chemical Physics, 30(4), 917.",
+  "spacegroup": {
+   "symbol": "Fd-3m",
+   "number": 227
+  },
+  "miller_index": [
+   1,
+   1,
+   0
+  ],
+  "Woods_notation": "p(1x1)",
+  "transformation_matrix": [
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "SlabGenerator_parameters": {
+   "center_slab": true,
+   "max_normal_search": 1
+  },
+  "points_to_add": [
+   [
+    0.5,
+    0.21526,
+    1.07
+   ],
+   [
+    0,
+    0.42367,
+    0.755
+   ]
+  ]
+ },
+ "diamond_111_1x2": {
+  "name": "diamond_111_1x2",
+  "description": "This is the (1x2) reconstruction for the diamond (111)                     slab. The surface sites are rearranged such that they form a pi-bonded chain.",
+  "reference": "A. Stekolnikov, J. Furthmuller, F. Bechstedt, Absolute surface                      energies of group-IV semiconductors: Dependence on orientation                      and reconstruction, Phys. Rev. B. 65 (2002) 1-10.",
+  "spacegroup": {
+   "symbol": "Fd-3m",
+   "number": 227
+  },
+  "miller_index": [
+   1,
+   1,
+   1
+  ],
+  "Woods_notation": "p(1x2)",
+  "transformation_matrix": [
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    2,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "SlabGenerator_parameters": {
+   "center_slab": true,
+   "max_normal_search": 1
+  },
+  "points_to_add": [
+   [
+    0.54968,
+    0.03888,
+    2.75
+   ],
+   [
+    0.83446,
+    0.83157,
+    2.75
+   ],
+   [
+    0.83928,
+    0.33563,
+    4.75
+   ],
+   [
+    0.50345,
+    0.49975,
+    3.834
+   ]
+  ]
+ }
+}

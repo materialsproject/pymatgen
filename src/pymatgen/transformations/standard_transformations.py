@@ -14,7 +14,7 @@ import numpy as np
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
-from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.structure_matcher import StructureMatcher
 from pymatgen.core import Composition, get_el_sp
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Lattice, Structure
