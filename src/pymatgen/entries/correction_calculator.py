@@ -4,6 +4,7 @@ entries given to the CorrectionCalculator constructor.
 
 from __future__ import annotations
 
+import logging
 import os
 import warnings
 
@@ -16,6 +17,8 @@ from scipy.optimize import curve_fit
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 from pymatgen.analysis.structure_analyzer import sulfide_type
 from pymatgen.core import Composition, Element
+
+logger = logging.getLogger(__name__)
 
 
 class CorrectionCalculator:
@@ -292,14 +295,14 @@ class CorrectionCalculator:
             layout=dict(title="Residual Errors", yaxis=dict(title="Residual Error (eV/atom)")),
         )
 
-        print("Residual Error:")
-        print(f"Median = {np.median(abs_errors)}")
-        print(f"Mean = {np.mean(abs_errors)}")
-        print(f"Std Dev = {np.std(abs_errors)}")
-        print("Original Error:")
-        print(f"Median = {abs(np.median(self.diffs))}")
-        print(f"Mean = {abs(np.mean(self.diffs))}")
-        print(f"Std Dev = {np.std(self.diffs)}")
+        logger.info("Residual Error:")
+        logger.info(f"Median = {np.median(abs_errors)}")
+        logger.info(f"Mean = {np.mean(abs_errors)}")
+        logger.info(f"Std Dev = {np.std(abs_errors)}")
+        logger.info("Original Error:")
+        logger.info(f"Median = {abs(np.median(self.diffs))}")
+        logger.info(f"Mean = {abs(np.mean(self.diffs))}")
+        logger.info(f"Std Dev = {np.std(self.diffs)}")
 
         return fig
 
@@ -361,14 +364,14 @@ class CorrectionCalculator:
             ),
         )
 
-        print("Residual Error:")
-        print(f"Median = {np.median(np.array(abs_errors))}")
-        print(f"Mean = {np.mean(np.array(abs_errors))}")
-        print(f"Std Dev = {np.std(np.array(abs_errors))}")
-        print("Original Error:")
-        print(f"Median = {abs(np.median(np.array(diffs_cpy)))}")
-        print(f"Mean = {abs(np.mean(np.array(diffs_cpy)))}")
-        print(f"Std Dev = {np.std(np.array(diffs_cpy))}")
+        logger.info("Residual Error:")
+        logger.info(f"Median = {np.median(np.array(abs_errors))}")
+        logger.info(f"Mean = {np.mean(np.array(abs_errors))}")
+        logger.info(f"Std Dev = {np.std(np.array(abs_errors))}")
+        logger.info("Original Error:")
+        logger.info(f"Median = {abs(np.median(np.array(diffs_cpy)))}")
+        logger.info(f"Mean = {abs(np.mean(np.array(diffs_cpy)))}")
+        logger.info(f"Std Dev = {np.std(np.array(diffs_cpy))}")
 
         return fig
 

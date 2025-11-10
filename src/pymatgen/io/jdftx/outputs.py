@@ -305,7 +305,7 @@ class JDFTXOutputs:
         Returns:
             dict | None:
         """
-        lmax, norbmax = self._get_lmax()
+        _lmax, norbmax = self._get_lmax()
         if norbmax is None:
             return None
         if self.orb_label_list is None:

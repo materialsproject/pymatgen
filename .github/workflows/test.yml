@@ -5,10 +5,24 @@ name: test
 on:
   push:
     branches: [master]
-    paths: ["src/**/*.*", "tests/**/*.*", ".github/workflows/*" ,"pyproject.toml", "setup.py"]
+    paths:
+      [
+        "src/**/*.*",
+        "tests/**/*.*",
+        ".github/workflows/*",
+        "pyproject.toml",
+        "setup.py",
+      ]
   pull_request:
     branches: [master]
-    paths: ["src/**/*.*", "tests/**/*.*", ".github/workflows/*", "pyproject.toml", "setup.py" ]
+    paths:
+      [
+        "src/**/*.*",
+        "tests/**/*.*",
+        ".github/workflows/*",
+        "pyproject.toml",
+        "setup.py",
+      ]
   workflow_dispatch:
   workflow_call: # make this workflow reusable by release.yml
 
@@ -25,26 +39,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Maximize CI coverage of different platforms and python versions while minimizing the
-        # total number of jobs. We run all pytest splits with the oldest supported python
-        # version (currently 3.10) on windows (seems most likely to surface errors) and with
-        # newest version (currently 3.13) on ubuntu (to get complete coverage on unix).
+        # Maximize CI coverage of different platforms and Python versions while minimizing the
+        # total number of jobs. We run all pytest splits with the oldest supported Python
+        # version on windows (most likely to surface errors) and with
+        # newest version on Ubuntu (to get complete coverage).
         config:
           - os: windows-latest
-            python: "3.10"
-            resolution: highest
+            python: "3.10"  # Test lowest supported Python version
+            resolution: lowest-direct
             extras: optional,prototypes
           - os: windows-latest
             python: "3.11"
             resolution: highest
             extras: prototypes,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
           - os: macos-latest
-            python: "3.12"
+            python: "3.13"
             resolution: lowest-direct
             extras: prototypes # test with only required dependencies installed
           - os: ubuntu-latest
-            python: "3.13"
-            resolution: lowest-direct
+            python: "3.14"  # Test highest supported Python version
+            resolution: highest
             extras: prototypes,optional
 
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
@@ -53,10 +67,10 @@ jobs:
 
     runs-on: ${{ matrix.config.os }}
     env:
-      OPT_BIN_DIR: ${{ github.workspace }}/opt/bin  # for optional Unix dependencies
+      OPT_BIN_DIR: ${{ github.workspace }}/opt/bin # for optional Ubuntu dependencies
     steps:
       - name: Check out repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Create mamba environment
         uses: mamba-org/setup-micromamba@main
@@ -74,7 +88,7 @@ jobs:
             # openff-toolkit # TODO: doesn't support Python 3.13 yet
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v6
 
       - name: Install pymatgen and dependencies via uv
         run: |
@@ -98,13 +112,13 @@ jobs:
 
       - name: pytest split ${{ matrix.split }}
         env:
-          MPLBACKEND: Agg  # non-interactive backend for matplotlib
+          MPLBACKEND: Agg # non-interactive backend for matplotlib
           PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
           PMG_TEST_FILES_DIR: "${{ github.workspace }}/tests/files"
-          PYTHONWARNDEFAULTENCODING: "true"  # PEP 597: Enable optional EncodingWarning
+          PYTHONWARNDEFAULTENCODING: "true" # PEP 597: Enable optional EncodingWarning
         run: |
           pytest tests \
-            --splits 10 --group ${{ matrix.split }} \
+            -n auto --splits 10 --group ${{ matrix.split }} \
             --durations-path tests/files/.pytest-split-durations \
 
   trigger_atomate2_ci:

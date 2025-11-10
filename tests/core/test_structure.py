@@ -2025,7 +2025,6 @@ direct
         matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed = struct.relax()
-        print(relaxed.lattice.a)
         assert relaxed.lattice.a == approx(3.860516230545545, rel=0.01)  # allow 1% error
         assert isinstance(relaxed.calc, matgl.ext.ase.PESCalculator)
         for key, val in {"type": "optimization", "optimizer": "FIRE"}.items():
@@ -2046,7 +2045,7 @@ direct
     def test_relax_m3gnet_with_traj(self):
         pytest.importorskip("matgl")
         struct = self.get_structure("Si")
-        relaxed, trajectory = struct.relax(return_trajectory=True)
+        relaxed, _trajectory = struct.relax(return_trajectory=True)
         assert relaxed.lattice.a == approx(3.867626620642243, abs=0.039)
         # assert sorted(trajectory.__dict__) == expected_attrs
         # for key in expected_attrs:
