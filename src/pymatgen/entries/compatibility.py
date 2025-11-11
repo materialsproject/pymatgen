@@ -77,6 +77,7 @@ if (
     raise RuntimeError("MP2020Compatibility.yaml expected to have the same Hubbard U corrections for O and F")
 
 AnyComputedEntry: TypeAlias = ComputedEntry | ComputedStructureEntry
+TypeVarAnyEntry = TypeVar("TypeVarAnyEntry", bound=AnyComputedEntry)
 
 
 class CompatibilityError(Exception):
@@ -577,10 +578,10 @@ class Compatibility(MSONable, abc.ABC):
 
     def process_entry(
         self,
-        entry: ComputedEntry,
+        entry: TypeVarAnyEntry,
         inplace: bool = True,
         **kwargs,
-    ) -> ComputedEntry | None:
+    ) -> TypeVarAnyEntry | None:
         """Process a single entry with the chosen Corrections.
         Note that this method may change the original entry.
 
@@ -662,13 +663,13 @@ class Compatibility(MSONable, abc.ABC):
 
     def process_entries(
         self,
-        entries: AnyComputedEntry | list[AnyComputedEntry],
+        entries: TypeVarAnyEntry | list[TypeVarAnyEntry],
         clean: bool = True,
         verbose: bool = False,
         inplace: bool = True,
         n_workers: int = 1,
         on_error: Literal["ignore", "warn", "raise"] = "ignore",
-    ) -> list[AnyComputedEntry]:
+    ) -> list[TypeVarAnyEntry]:
         """Process a sequence of entries with the chosen Compatibility scheme.
 
         Warning: This method changes entries in place! All changes can be undone and original entries
@@ -1570,13 +1571,13 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
     def process_entries(
         self,
-        entries: list[AnyComputedEntry],
+        entries: list[TypeVarAnyEntry],
         clean: bool = False,
         verbose: bool = False,
         inplace: bool = True,
         n_workers: int = 1,
         on_error: Literal["ignore", "warn", "raise"] = "ignore",
-    ) -> list[AnyComputedEntry]:
+    ) -> list[TypeVarAnyEntry]:
         """Process a sequence of entries with the chosen Compatibility scheme.
 
         Args:
