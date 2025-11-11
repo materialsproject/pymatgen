@@ -596,21 +596,21 @@ class Compatibility(MSONable, abc.ABC):
         if not inplace:
             entry = copy.deepcopy(entry)
 
-        _entry: tuple[ComputedEntry, bool] | None = self._process_entry_inplace(entry, **kwargs)
+        _entry: tuple[TypeVarAnyEntry, bool] | None = self._process_entry_inplace(entry, **kwargs)
 
         return _entry[0] if _entry is not None else None
 
     def _process_entry_inplace(
         self,
-        entry: AnyComputedEntry,
+        entry: TypeVarAnyEntry,
         clean: bool = True,
         on_error: Literal["ignore", "warn", "raise"] = "ignore",
-    ) -> tuple[ComputedEntry, bool] | None:
+    ) -> tuple[TypeVarAnyEntry, bool] | None:
         """Process a single entry with the chosen Corrections.
         Note that this method will change the original entry.
 
         Args:
-            entry (AnyComputedEntry): An AnyComputedEntry object.
+            entry (TypeVarAnyEntry): A TypeVarAnyEntry object.
             clean (bool): Whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Defaults to True.
@@ -618,7 +618,7 @@ class Compatibility(MSONable, abc.ABC):
                 raises CompatibilityError. Defaults to "ignore".
 
         Returns:
-            tuple[AnyComputedEntry, ignore_entry (bool)] if entry is compatible, else None.
+            tuple[TypeVarAnyEntry, ignore_entry (bool)] if entry is compatible, else None.
         """
         ignore_entry: bool = False
         # If clean, remove all previous adjustments from the entry
@@ -696,7 +696,7 @@ class Compatibility(MSONable, abc.ABC):
         if isinstance(entries, ComputedEntry):  # True for ComputedStructureEntry too
             entries = [entries]
 
-        processed_entry_list: list[AnyComputedEntry] = []
+        processed_entry_list: list[TypeVarAnyEntry] = []
 
         # if inplace = False, process entries on a copy
         if not inplace:
