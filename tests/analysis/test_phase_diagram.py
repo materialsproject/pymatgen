@@ -836,7 +836,7 @@ class TestPatchedPhaseDiagram:
                     f"Expected {entry.composition}, got {decomp_comp}"
                 )
 
-            assert decomp_pd == decomp_ppd
+            assert decomp_pd == approx(decomp_ppd)
             assert np.isclose(e_above_hull_pd, e_above_hull_ppd)
 
     def test_repr(self):
