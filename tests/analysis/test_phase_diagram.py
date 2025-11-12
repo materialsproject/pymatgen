@@ -647,10 +647,29 @@ class TestPhaseDiagram(MatSciTest):
         assert MontyDecoder().process_decoded(pd_dict).as_dict() == pd_dict
 
         for entry in self.pd.all_entries:
-            _decomp_rpd, e_above_hull_rppd = reconstructed_pd.get_decomp_and_e_above_hull(entry)
-            _decomp_pd, e_above_hull_ppd = self.pd.get_decomp_and_e_above_hull(entry)
-            # assert decomp_rpd == decomp_pd, f"Decomposition for {entry} is not correct!"
-            assert np.isclose(e_above_hull_rppd, e_above_hull_ppd)
+            # NOTE: allow_negative=True is necessary due to fp errors we see in the decomposition
+            decomp_rpd, e_above_hull_rppd = reconstructed_pd.get_decomp_and_e_above_hull(entry, allow_negative=True)
+            decomp_pd, e_above_hull_ppd = self.pd.get_decomp_and_e_above_hull(entry)
+
+            # Check that decompositions sum to the original composition
+            for decomp, name in [(decomp_pd, "pd"), (decomp_rpd, "rpd")]:
+                decomp_comp = Composition({})
+                for e, amount in decomp.items():
+                    comp_scaled = e.composition.fractional_composition * amount
+                    decomp_comp += comp_scaled
+                assert decomp_comp.almost_equals(
+                    entry.composition.fractional_composition, rtol=0, atol=Composition.amount_tolerance
+                ), (
+                    f"Decomposition for {entry} from {name} does not sum to original composition! "
+                    f"Expected {entry.composition}, got {decomp_comp}"
+                )
+
+            # Compare decompositions by matching entries by composition
+            # since serialization creates new entry objects with potentially slightly different energies
+            decomp_pd_by_comp = {e.composition: amount for e, amount in decomp_pd.items()}
+            decomp_rpd_by_comp = {e.composition: amount for e, amount in decomp_rpd.items()}
+            assert decomp_pd_by_comp == approx(decomp_rpd_by_comp), f"Decomposition for {entry} is not correct!"
+            assert np.isclose(e_above_hull_rppd, e_above_hull_ppd, rtol=1e-4, atol=1e-4)
 
     def test_read_json(self):
         dumpfn(self.pd, f"{self.tmp_path}/pd.json")
@@ -847,19 +866,19 @@ class TestPatchedPhaseDiagram:
         assert ppd_dict["@module"] == type(self.ppd).__module__
         assert ppd_dict["@class"] == type(self.ppd).__name__
 
-        # # Check new format with computed_data and deduplicated entries
-        # assert "computed_data" in ppd_dict
-        # computed_data = ppd_dict["computed_data"]
-        # assert "unique_entries" in computed_data
-        # assert "all_entries" in computed_data
-        # assert isinstance(computed_data["all_entries"], list)
-        # assert all(isinstance(idx, int) for idx in computed_data["all_entries"])
+        # Check new format with computed_data and deduplicated entries
+        assert "computed_data" in ppd_dict
+        computed_data = ppd_dict["computed_data"]
+        assert "unique_entries" in computed_data
+        assert "all_entries" in computed_data
+        assert isinstance(computed_data["all_entries"], list)
+        assert all(isinstance(idx, int) for idx in computed_data["all_entries"])
 
-        # # Verify entries can be reconstructed from indices
-        # unique_entries = [MontyDecoder().process_decoded(entry) for entry in computed_data["unique_entries"]]
-        # reconstructed_entries = [unique_entries[idx] for idx in computed_data["all_entries"]]
-        # assert len(reconstructed_entries) == len(self.ppd.all_entries)
-        # assert ppd_dict["elements"] == [elem.symbol for elem in self.ppd.elements]
+        # Verify entries can be reconstructed from indices
+        unique_entries = [MontyDecoder().process_decoded(entry) for entry in computed_data["unique_entries"]]
+        reconstructed_entries = [unique_entries[idx] for idx in computed_data["all_entries"]]
+        assert len(reconstructed_entries) == len(self.ppd.all_entries)
+        assert ppd_dict["elements"] == [elem.symbol for elem in self.ppd.elements]
 
         reconstructed_ppd = PatchedPhaseDiagram.from_dict(ppd_dict)
         reconstructed_dict = reconstructed_ppd.as_dict()
@@ -873,7 +892,7 @@ class TestPatchedPhaseDiagram:
                 (self.ppd, "ppd"),
                 (reconstructed_ppd, "rppd"),
             ]:
-                decomp, e_above_hull = pd.get_decomp_and_e_above_hull(entry, check_stable=True)
+                decomp, e_above_hull = pd.get_decomp_and_e_above_hull(entry, check_stable=True, allow_negative=True)
                 decomp_comp = Composition({})
                 for e, amount in decomp.items():
                     comp_scaled = e.composition.fractional_composition * amount

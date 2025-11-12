@@ -10,7 +10,7 @@ import re
 import warnings
 from collections import defaultdict
 from functools import lru_cache
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -43,6 +43,8 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
+    from pymatgen.util.typing import CompositionLike
+
 logger = logging.getLogger(__name__)
 
 with open(
@@ -69,14 +71,14 @@ class PDEntry(Entry):
 
     def __init__(
         self,
-        composition: Composition,
+        composition: CompositionLike,
         energy: float,
         name: str | None = None,
         attribute: object = None,
     ):
         """
         Args:
-            composition (Composition): Composition
+            composition (CompositionLike): Composition
             energy (float): Energy for composition.
             name (str): Optional parameter to name the entry. Defaults
                 to the reduced chemical formula.
@@ -341,8 +343,8 @@ class PhaseDiagram(MSONable):
 
     def __init__(
         self,
-        entries: Sequence[PDEntry] | set[PDEntry],
-        elements: Sequence[Element] = (),
+        entries: Collection[Entry],
+        elements: Collection[Element] = (),
         *,
         computed_data: dict[str, Any] | None = None,
     ) -> None:
@@ -375,6 +377,7 @@ class PhaseDiagram(MSONable):
 
             # Update keys to be Element objects in case they are strings in pre-computed data
             computed_data["el_refs"] = [(Element(el_str), entry) for el_str, entry in computed_data["el_refs"]]
+
         self.computed_data = computed_data
         self.facets = computed_data["facets"]
         self.simplexes = computed_data["simplexes"]
@@ -392,14 +395,27 @@ class PhaseDiagram(MSONable):
 
         qhull_entry_indices = [self.all_entries.index(e) for e in self.qhull_entries]
 
+        # Create a copy of computed_data to avoid modifying the original
+        computed_data = self.computed_data.copy()
+        computed_data["elements"] = [el.symbol for el in self.elements]
+        computed_data["el_refs"] = [(el.symbol, entry.as_dict()) for el, entry in computed_data["el_refs"]]
+        computed_data["all_entries"] = [e.as_dict() for e in computed_data["all_entries"]]
+        computed_data["qhull_entries"] = qhull_entry_indices
+        computed_data["qhull_data"] = (
+            computed_data["qhull_data"].tolist()
+            if isinstance(computed_data["qhull_data"], np.ndarray)
+            else computed_data["qhull_data"]
+        )
+        computed_data["facets"] = [list(facet) for facet in computed_data["facets"]]
+        computed_data["simplexes"] = [
+            {**s.as_dict(), "coords": s.as_dict()["coords"].tolist()} for s in computed_data["simplexes"]
+        ]
+
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "elements": [e.as_dict() for e in self.elements],
-            "computed_data": self.computed_data
-            | {
-                "qhull_entries": qhull_entry_indices,
-            },
+            "elements": [el.symbol for el in self.elements],
+            "computed_data": computed_data,
         }
 
     @classmethod
@@ -412,7 +428,7 @@ class PhaseDiagram(MSONable):
             PhaseDiagram
         """
         computed_data = dct.get("computed_data")
-        elements = [Element.from_dict(elem) for elem in dct["elements"]]
+        elements = [Element(elem) for elem in dct["elements"]]
 
         # for backwards compatibility, check for old format
         if "all_entries" in dct:
@@ -420,9 +436,14 @@ class PhaseDiagram(MSONable):
         else:
             entries = [MontyDecoder().process_decoded(entry) for entry in computed_data["all_entries"]]
 
-            complete_qhull_entries = [computed_data["all_entries"][i] for i in computed_data["qhull_entries"]]
-
-            computed_data = computed_data | {"qhull_entries": complete_qhull_entries}
+            # Reconstruct computed_data to match _compute() format: (str, Entry) tuples for el_refs
+            computed_data = computed_data.copy()
+            computed_data["qhull_entries"] = [entries[i] for i in computed_data["qhull_entries"]]
+            computed_data["elements"] = [Element(el) for el in computed_data["elements"]]
+            # Keep el_refs as (str, Entry) format to match _compute() output
+            computed_data["el_refs"] = [
+                (el_str, MontyDecoder().process_decoded(entry)) for el_str, entry in computed_data["el_refs"]
+            ]
 
         return cls(entries, elements, computed_data=computed_data)
 
@@ -435,9 +456,9 @@ class PhaseDiagram(MSONable):
 
         entries = sorted(self.entries, key=lambda e: e.composition.reduced_composition)
 
-        el_refs: dict[Element, PDEntry] = {}
-        min_entries: list[PDEntry] = []
-        all_entries: list[PDEntry] = []
+        el_refs: dict[Element, Entry] = {}
+        min_entries: list[Entry] = []
+        all_entries: list[Entry] = []
         for composition, group_iter in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
             group = list(group_iter)
             min_entry = min(group, key=lambda e: e.energy_per_atom)
@@ -887,6 +908,9 @@ class PhaseDiagram(MSONable):
 
         # Handle elemental materials
         if entry.is_element:
+            # If stable_only=True, use check_stable=True for fast path
+            if stable_only:
+                kwargs.setdefault("check_stable", True)
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True, **kwargs)
 
         # Select space to compare against
@@ -980,7 +1004,7 @@ class PhaseDiagram(MSONable):
         """
         return self.get_decomp_and_phase_separation_energy(entry, **kwargs)[1]
 
-    def get_composition_chempots(self, comp):
+    def get_composition_chempots(self, comp: Composition) -> dict[Element, float]:
         """Get the chemical potentials for all elements at a given composition.
 
         Args:
@@ -992,7 +1016,7 @@ class PhaseDiagram(MSONable):
         facet = self._get_facet_and_simplex(comp)[0]
         return self._get_facet_chempots(facet)
 
-    def get_all_chempots(self, comp):
+    def get_all_chempots(self, comp: Composition) -> dict[str, dict[Element, float]]:
         """Get chemical potentials at a given composition.
 
         Args:
@@ -1010,7 +1034,7 @@ class PhaseDiagram(MSONable):
 
         return chempots
 
-    def get_transition_chempots(self, element):
+    def get_transition_chempots(self, element: Element) -> tuple[float, ...]:
         """Get the critical chemical potentials for an element in the Phase
         Diagram.
 
@@ -1029,7 +1053,7 @@ class PhaseDiagram(MSONable):
             chempots = self._get_facet_chempots(facet)
             critical_chempots.append(chempots[element])
 
-        clean_pots = []
+        clean_pots: list[float] = []
         for c in sorted(critical_chempots):
             if len(clean_pots) == 0 or not math.isclose(
                 c, clean_pots[-1], abs_tol=PhaseDiagram.numerical_tol, rel_tol=0
@@ -1038,7 +1062,7 @@ class PhaseDiagram(MSONable):
         clean_pots.reverse()
         return tuple(clean_pots)
 
-    def get_critical_compositions(self, comp1, comp2):
+    def get_critical_compositions(self, comp1: Composition, comp2: Composition) -> list[Composition]:
         """Get the critical compositions along the tieline between two
         compositions. I.e. where the decomposition products change.
         The endpoints are also returned.
@@ -1098,7 +1122,7 @@ class PhaseDiagram(MSONable):
 
         return [Composition((elem, val) for elem, val in zip(pd_els, m, strict=True)) for m in cs]
 
-    def get_element_profile(self, element, comp, comp_tol=1e-5):
+    def get_element_profile(self, element: Element, comp: Composition, comp_tol: float = 1e-5) -> list[dict[str, Any]]:
         """
         Provides the element evolution data for a composition. For example, can be used
         to analyze Li conversion voltages by varying mu_Li and looking at the phases
@@ -1199,7 +1223,9 @@ class PhaseDiagram(MSONable):
 
         return chempot_ranges
 
-    def getmu_vertices_stability_phase(self, target_comp, dep_elt, tol_en=1e-2):
+    def getmu_vertices_stability_phase(
+        self, target_comp: Composition, dep_elt: Element, tol_en: float = 1e-2
+    ) -> list[dict[Element, float]] | None:
         """Get a set of chemical potentials corresponding to the vertices of
         the simplex in the chemical potential phase diagram.
         The simplex is built using all elements in the target_composition
@@ -1233,11 +1259,11 @@ class PhaseDiagram(MSONable):
             if elem.composition.reduced_composition == target_comp.reduced_composition:
                 multiplier = elem.composition[dep_elt] / target_comp[dep_elt]
                 ef = elem.energy / multiplier
-                all_coords = []
+                all_coords: list[dict[Element, float]] = []
                 for simplex in chempots:
                     for v in simplex._coords:
                         elements = [elem for elem in self.elements if elem != dep_elt]
-                        res = {}
+                        res: dict[Element, float] = {}
                         for idx, el in enumerate(elements):
                             res[el] = v[idx] + mu_ref[idx]
                         res[dep_elt] = (np.dot(v + mu_ref, coeff) + ef) / target_comp[dep_elt]
@@ -1257,7 +1283,9 @@ class PhaseDiagram(MSONable):
                 return all_coords
         return None
 
-    def get_chempot_range_stability_phase(self, target_comp, open_elt):
+    def get_chempot_range_stability_phase(
+        self, target_comp: Composition, open_elt: Element
+    ) -> dict[Element, tuple[float, float]]:
         """Get a set of chemical potentials corresponding to the max and min
         chemical potential of the open element for a given composition. It is
         quite common to have for instance a ternary oxide (e.g., ABO3) for
@@ -1408,18 +1436,27 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
        doi:10.1016/j.elecom.2010.01.010
     """
 
-    def __init__(self, entries, chempots, elements=None, *, computed_data=None):
+    def __init__(
+        self,
+        entries: Collection[Entry],
+        chempots: dict[Element, float],
+        elements: Collection[Element] | None = None,
+        *,
+        computed_data: dict[str, Any] | None = None,
+    ):
         """Standard constructor for grand potential phase diagram.
 
+        TODO: update serialization here.
+
         Args:
-            entries ([PDEntry]): A list of PDEntry-like objects having an
+            entries (Sequence[Entry]): A list of Entry objects having an
                 energy, energy_per_atom and composition.
-            chempots ({Element: float}): Specify the chemical potentials
+            chempots (dict[Element, float]): Specify the chemical potentials
                 of the open elements.
-            elements ([Element]): Optional list of elements in the phase
+            elements (Sequence[Element]): Optional list of elements in the phase
                 diagram. If set to None, the elements are determined from
                 the entries themselves.
-            computed_data (dict): A dict containing pre-computed data. This allows
+            computed_data (dict[str, Any]): A dict containing pre-computed data. This allows
                 PhaseDiagram object to be reconstituted without performing the
                 expensive convex hull computation. The dict is the output from the
                 PhaseDiagram._compute() method and is stored in PhaseDiagram.computed_data
@@ -1481,7 +1518,12 @@ class CompoundPhaseDiagram(PhaseDiagram):
     # Tolerance for determining if amount of a composition is positive.
     amount_tol = 1e-5
 
-    def __init__(self, entries, terminal_compositions, normalize_terminal_compositions=True):
+    def __init__(
+        self,
+        entries: Sequence[Entry],
+        terminal_compositions: Sequence[Composition],
+        normalize_terminal_compositions: bool = True,
+    ):
         """Initialize a CompoundPhaseDiagram.
 
         Args:
@@ -1532,13 +1574,17 @@ class CompoundPhaseDiagram(PhaseDiagram):
 
         return ret
 
-    def transform_entries(self, entries, terminal_compositions):
+    def transform_entries(
+        self, entries: Sequence[Entry], terminal_compositions: Sequence[Composition]
+    ) -> tuple[list[TransformedPDEntry], dict[Composition, DummySpecies]]:
         """
         Method to transform all entries to the composition coordinate in the
         terminal compositions. If the entry does not fall within the space
         defined by the terminal compositions, they are excluded. For example,
         Li3PO4 is mapped into a Li2O:1.5, P2O5:0.5 composition. The terminal
         compositions are represented by DummySpecies.
+
+        TODO: update serialization here.
 
         Args:
             entries: Sequence of all input entries
@@ -1622,36 +1668,35 @@ class PatchedPhaseDiagram(PhaseDiagram):
         elements (list[Element]): List of elements in the phase diagram.
     """
 
-    def __init__(
+    def _compute(
         self,
         entries: Sequence[Entry] | set[Entry],
         elements: Sequence[Element] | None = None,
         keep_all_spaces: bool = False,
         verbose: bool = False,
-    ) -> None:
+    ) -> dict[str, Any]:
         """
+        Compute the phase diagram data for PatchedPhaseDiagram.
+
         Args:
-            entries (list[PDEntry]): A list of PDEntry-like objects having an
-                energy, energy_per_atom and composition.
-            elements (list[Element], optional): Optional list of elements in the phase
-                diagram. If set to None, the elements are determined from
-                the entries themselves and are sorted alphabetically.
-                If specified, element ordering (e.g. for pd coordinates)
-                is preserved.
-            keep_all_spaces (bool): Pass True to keep chemical spaces that are subspaces
-                of other spaces.
-            verbose (bool): Whether to show progress bar during convex hull construction.
+            entries: A list of Entry objects.
+            elements: Optional list of elements in the phase diagram.
+            keep_all_spaces: Whether to keep chemical spaces that are subspaces of other spaces.
+            verbose: Whether to show progress bar during convex hull construction.
+
+        Returns:
+            dict containing computed_data with proper indexing for serialization.
         """
         if elements is None:
             elements = sorted({els for entry in entries for els in entry.elements})
 
-        self.dim = len(elements)
+        dim = len(elements)
 
         entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
 
-        el_refs: dict[Element, PDEntry] = {}
-        min_entries = []
-        all_entries: list[PDEntry] = []
+        el_refs: dict[Element, Entry] = {}
+        min_entries: list[Entry] = []
+        all_entries: list[Entry] = []
         for composition, group_iter in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
             group = list(group_iter)
             min_entry = min(group, key=lambda e: e.energy_per_atom)
@@ -1660,10 +1705,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
             min_entries.append(min_entry)
             all_entries.extend(group)
 
-        if len(el_refs) < self.dim:
+        if len(el_refs) < dim:
             missing = set(elements) - set(el_refs)
             raise ValueError(f"Missing terminal entries for elements {sorted(map(str, missing))}")
-        if len(el_refs) > self.dim:
+        if len(el_refs) > dim:
             extra = set(el_refs) - set(elements)
             raise ValueError(f"There are more terminal elements than dimensions: {extra}")
 
@@ -1694,16 +1739,186 @@ class PatchedPhaseDiagram(PhaseDiagram):
         spaces = {s for s in qhull_spaces if len(s) > 1}
 
         # Remove redundant chemical spaces
-        spaces = self.remove_redundant_spaces(spaces, keep_all_spaces)
+        spaces = PatchedPhaseDiagram.remove_redundant_spaces(spaces, keep_all_spaces)
 
-        # TODO comprhys: refactor to have self._compute method to allow serialization
-        self.spaces = sorted(spaces, key=len, reverse=True)  # Calculate pds for smaller dimension spaces last
-        self.qhull_entries = qhull_entries
-        self._qhull_spaces = qhull_spaces
-        self.pds = dict(self._get_pd_patch_for_space(s) for s in tqdm(self.spaces, disable=not verbose))
-        self.all_entries = all_entries
-        self.el_refs = el_refs
-        self.elements = elements
+        spaces_list = sorted(spaces, key=len, reverse=True)  # Calculate pds for smaller dimension spaces last
+
+        # Build PhaseDiagrams for each space and collect their computed_data
+        pds_computed_data = {}
+        for space in tqdm(spaces_list, disable=not verbose):
+            space_entries = [e for e, s in zip(qhull_entries, qhull_spaces, strict=True) if space.issuperset(s)]
+            pd = PhaseDiagram(space_entries)
+
+            # Get indices into all_entries for this subspace's all_entries
+            # pd.all_entries are the entries that PhaseDiagram computed with
+            # They should be in all_entries, so we can use index() which uses object identity
+            # If that fails, entries may be equal but different objects, so fall back to equality
+            # IMPORTANT: We must preserve order to keep facets valid
+            subspace_all_entry_indices = []
+            used_indices = set()  # Track used indices to avoid duplicates when using equality fallback
+            for pd_entry in pd.all_entries:
+                try:
+                    idx = all_entries.index(pd_entry)
+                    subspace_all_entry_indices.append(idx)
+                    used_indices.add(idx)
+                except ValueError:
+                    # Entry not found by identity, try equality
+                    # But skip indices we've already used to preserve order
+                    for idx, global_entry in enumerate(all_entries):
+                        if idx not in used_indices and pd_entry == global_entry:
+                            subspace_all_entry_indices.append(idx)
+                            used_indices.add(idx)
+                            break
+                    else:
+                        raise ValueError(f"pd.all_entries entry {pd_entry} not found in all_entries")
+
+            # Get indices into this subspace's all_entries for qhull_entries
+            # pd.qhull_entries are entries from pd.all_entries, so we can use index
+            subspace_qhull_entry_indices = [pd.all_entries.index(entry) for entry in pd.qhull_entries]
+
+            # Convert el_refs to indices into subspace's all_entries
+            # el_refs entries are from pd.all_entries, so we can use index
+            subspace_el_refs = [(el, pd.all_entries.index(entry)) for el, entry in pd.computed_data["el_refs"]]
+
+            pds_computed_data[space] = {
+                "all_entries": subspace_all_entry_indices,
+                "qhull_entries": subspace_qhull_entry_indices,
+                "facets": pd.computed_data["facets"],
+                "simplexes": pd.computed_data["simplexes"],
+                "qhull_data": pd.computed_data["qhull_data"].tolist(),
+                "dim": pd.computed_data["dim"],
+                "el_refs": subspace_el_refs,
+                "elements": tuple(pd.elements),
+            }
+
+        return {
+            "all_entries": all_entries,
+            "elements": elements,
+            "dim": dim,
+            "el_refs": [(el.symbol, all_entries.index(entry)) for el, entry in el_refs.items()],
+            "qhull_entries": [all_entries.index(entry) for entry in qhull_entries],
+            "spaces": spaces_list,
+            "pds": pds_computed_data,
+        }
+
+    def __init__(
+        self,
+        entries: Sequence[Entry] | set[Entry],
+        elements: Sequence[Element] | None = None,
+        keep_all_spaces: bool = False,
+        verbose: bool = False,
+        *,
+        computed_data: dict[str, Any] | None = None,
+    ) -> None:
+        """
+        Args:
+            entries (Sequence[Entry] | set[Entry]): A list of Entry objects having an
+                energy, energy_per_atom and composition.
+            elements (Sequence[Element], optional): Optional list of elements in the phase
+                diagram. If set to None, the elements are determined from
+                the entries themselves and are sorted alphabetically.
+                If specified, element ordering (e.g. for pd coordinates)
+                is preserved.
+            keep_all_spaces (bool): Pass True to keep chemical spaces that are subspaces
+                of other spaces.
+            verbose (bool): Whether to show progress bar during convex hull construction.
+            computed_data (dict): A dict containing pre-computed data. This allows
+                PatchedPhaseDiagram object to be reconstituted without performing the
+                expensive convex hull computation. The dict is the output from the
+                PatchedPhaseDiagram._compute() method.
+        """
+        if computed_data is None:
+            computed_data = self._compute(entries, elements, keep_all_spaces, verbose)
+        else:
+            computed_data = MontyDecoder().process_decoded(computed_data)
+            if not isinstance(computed_data, dict):
+                raise TypeError(f"computed_data should be dict, got {type(computed_data).__name__}")
+
+        self.computed_data = computed_data
+        self.all_entries = computed_data["all_entries"]
+        self.elements = computed_data["elements"]
+        self.dim = computed_data["dim"]
+
+        # Convert el_refs from [(el_symbol, index), ...] or [(el_symbol, Entry), ...] to {Element: Entry}
+        el_refs_data = computed_data["el_refs"]
+        if el_refs_data and isinstance(el_refs_data[0][1], int):
+            # el_refs are stored as indices
+            self.el_refs = {Element(el_symbol): self.all_entries[idx] for el_symbol, idx in el_refs_data}
+        else:
+            # el_refs are already entry objects (from from_dict reconstruction)
+            self.el_refs = {Element(el_symbol): entry for el_symbol, entry in el_refs_data}
+
+        # Convert qhull_entries from indices to entry objects
+        # When from _compute(), qhull_entries are indices; when from from_dict(), they're already entries
+        qhull_entries_data = computed_data["qhull_entries"]
+        if qhull_entries_data and isinstance(qhull_entries_data[0], int):
+            # qhull_entries are stored as indices into all_entries
+            self.qhull_entries = tuple(self.all_entries[idx] for idx in qhull_entries_data)
+        else:
+            # qhull_entries are already entry objects (from from_dict reconstruction)
+            self.qhull_entries = tuple(qhull_entries_data)
+
+        self._qhull_spaces = tuple(frozenset(e.elements) for e in self.qhull_entries)
+        # Convert spaces from tuples (serialized) or frozensets (in-memory) to frozensets
+        self.spaces = [
+            space if isinstance(space, frozenset) else frozenset(Element(el) for el in space)
+            for space in computed_data["spaces"]
+        ]
+
+        # Reconstruct PhaseDiagrams from computed_data
+        self.pds = {}
+        for space_key, pd_computed_data in computed_data["pds"].items():
+            # Handle both frozenset (in-memory) and tuple (serialized) keys
+            if not isinstance(space_key, frozenset):
+                space_key = frozenset(Element(el) for el in space_key)
+            stored_elements = pd_computed_data.get("elements")
+            if stored_elements:
+                subspace_elements = [Element(el) if not isinstance(el, Element) else el for el in stored_elements]
+            else:
+                # Fallback to deterministic ordering if elements not stored (legacy data)
+                subspace_elements = sorted(space_key, key=lambda e: e.symbol)
+
+            # Reconstruct entries for this subspace from indices or entry objects
+            subspace_all_entries_data = pd_computed_data["all_entries"]
+            if subspace_all_entries_data and isinstance(subspace_all_entries_data[0], int):
+                # all_entries are stored as indices
+                subspace_all_entries = [self.all_entries[idx] for idx in subspace_all_entries_data]
+            else:
+                # all_entries are already entry objects (from from_dict reconstruction)
+                subspace_all_entries = subspace_all_entries_data
+
+            # Reconstruct PhaseDiagram with its computed_data
+            pd_computed_data_with_entries = pd_computed_data.copy()
+            pd_computed_data_with_entries["all_entries"] = subspace_all_entries
+            pd_computed_data_with_entries["elements"] = subspace_elements
+
+            # Convert qhull_entries indices back to entries
+            qhull_entries_data = pd_computed_data["qhull_entries"]
+            if qhull_entries_data and isinstance(qhull_entries_data[0], int):
+                # qhull_entries are stored as indices into subspace_all_entries
+                pd_computed_data_with_entries["qhull_entries"] = [
+                    subspace_all_entries[idx] for idx in qhull_entries_data
+                ]
+            else:
+                # qhull_entries are already entry objects
+                pd_computed_data_with_entries["qhull_entries"] = qhull_entries_data
+
+            # Convert el_refs indices back to entries
+            el_refs_data = pd_computed_data["el_refs"]
+            if el_refs_data and isinstance(el_refs_data[0][1], int):
+                # el_refs are stored as indices into subspace_all_entries
+                pd_computed_data_with_entries["el_refs"] = [
+                    (Element(el_symbol), subspace_all_entries[idx]) for el_symbol, idx in el_refs_data
+                ]
+            else:
+                # el_refs are already entry objects
+                pd_computed_data_with_entries["el_refs"] = [
+                    (Element(el_symbol), entry) for el_symbol, entry in el_refs_data
+                ]
+
+            self.pds[space_key] = PhaseDiagram(
+                subspace_all_entries, elements=subspace_elements, computed_data=pd_computed_data_with_entries
+            )
 
         # Add terminal elements as we may not have PD patches including them
         # NOTE add el_refs in case no multielement entries are present for el
@@ -1736,39 +1951,131 @@ class PatchedPhaseDiagram(PhaseDiagram):
         """Write the entries and elements used to construct the PatchedPhaseDiagram
         to a dictionary.
 
-        NOTE unlike PhaseDiagram the computation involved in constructing the
-        PatchedPhaseDiagram is not saved on serialization. This is done because
-        hierarchically calling the `PhaseDiagram.as_dict()` method would break the
-        link in memory between entries in overlapping patches leading to a
-        ballooning of the amount of memory used.
-
-        NOTE For memory efficiency the best way to store patched phase diagrams is
-        via pickling. As this allows all the entries in overlapping patches to share
-        the same id in memory when unpickling.
-
         Returns:
             dict[str, Any]: MSONable dictionary representation of PatchedPhaseDiagram.
         """
+        unique_entry_dicts: list[dict[str, Any]] = []
+        entry_dict_to_index = {}
+        all_entry_indices = []
+
+        for entry in self.all_entries:
+            entry_dict = entry.as_dict()
+            entry_key = orjson.dumps(entry_dict, option=orjson.OPT_SORT_KEYS).decode()
+
+            if entry_key not in entry_dict_to_index:
+                entry_dict_to_index[entry_key] = len(unique_entry_dicts)
+                unique_entry_dicts.append(entry_dict)
+
+            all_entry_indices.append(entry_dict_to_index[entry_key])
+
+        computed_data = self.computed_data.copy()
+
+        computed_data["elements"] = [e.symbol for e in self.elements]
+
+        qhull_entries_data = computed_data["qhull_entries"]
+        if qhull_entries_data and not isinstance(qhull_entries_data[0], int):
+            qhull_entry_indices = [self.all_entries.index(entry) for entry in qhull_entries_data]
+        else:
+            qhull_entry_indices = qhull_entries_data
+
+        computed_data["all_entries"] = all_entry_indices
+
+        qhull_entry_indices_remapped = [all_entry_indices[idx] for idx in qhull_entry_indices]
+        computed_data["qhull_entries"] = qhull_entry_indices_remapped
+
+        el_refs_data = computed_data["el_refs"]
+        if el_refs_data and not isinstance(el_refs_data[0][1], int):
+            el_refs_indices = [(el_symbol, self.all_entries.index(entry)) for el_symbol, entry in el_refs_data]
+        else:
+            el_refs_indices = el_refs_data
+
+        computed_data["el_refs"] = [
+            (el_symbol.symbol if isinstance(el_symbol, Element) else el_symbol, all_entry_indices[idx])
+            for el_symbol, idx in el_refs_indices
+        ]
+
+        pds_remapped = {}
+        for space_key, pd_data in computed_data["pds"].items():
+            space_key_serialized = "-".join(sorted(el.symbol if isinstance(el, Element) else el for el in space_key))
+            subspace_all_entries_data = pd_data["all_entries"]
+            if subspace_all_entries_data and not isinstance(subspace_all_entries_data[0], int):
+                subspace_all_entry_indices_orig = [self.all_entries.index(entry) for entry in subspace_all_entries_data]
+            else:
+                subspace_all_entry_indices_orig = subspace_all_entries_data
+
+            subspace_all_entry_indices_remapped = [all_entry_indices[idx] for idx in subspace_all_entry_indices_orig]
+
+            subspace_qhull_entries_data = pd_data["qhull_entries"]
+            if subspace_qhull_entries_data and not isinstance(subspace_qhull_entries_data[0], int):
+                subspace_qhull_indices_orig = [
+                    subspace_all_entries_data.index(entry) for entry in subspace_qhull_entries_data
+                ]
+            else:
+                subspace_qhull_indices_orig = subspace_qhull_entries_data
+
+            subspace_qhull_indices_remapped = [
+                subspace_all_entry_indices_remapped[idx] for idx in subspace_qhull_indices_orig
+            ]
+
+            subspace_el_refs_data = pd_data["el_refs"]
+            if subspace_el_refs_data and not isinstance(subspace_el_refs_data[0][1], int):
+                subspace_el_refs_indices_orig = [
+                    (el_symbol, subspace_all_entries_data.index(entry)) for el_symbol, entry in subspace_el_refs_data
+                ]
+            else:
+                subspace_el_refs_indices_orig = subspace_el_refs_data
+
+            subspace_el_refs_remapped = [
+                (
+                    el_symbol.symbol if isinstance(el_symbol, Element) else el_symbol,
+                    subspace_all_entry_indices_remapped[idx],
+                )
+                for el_symbol, idx in subspace_el_refs_indices_orig
+            ]
+
+            qhull_data = pd_data["qhull_data"]
+            if isinstance(qhull_data, np.ndarray):
+                qhull_data = qhull_data.tolist()
+
+            facets = pd_data["facets"]
+            facets = [facet.tolist() for facet in facets]
+
+            simplexes = pd_data["simplexes"]
+            simplexes = [{**s.as_dict(), "coords": s.as_dict()["coords"].tolist()} for s in simplexes]
+
+            elements_data = pd_data.get("elements")
+            if elements_data:
+                elements_serialized = [el.symbol if isinstance(el, Element) else el for el in elements_data]
+            else:
+                elements_serialized = None
+
+            pds_remapped[space_key_serialized] = {
+                "all_entries": subspace_all_entry_indices_remapped,
+                "qhull_entries": subspace_qhull_indices_remapped,
+                "facets": facets,
+                "simplexes": simplexes,
+                "qhull_data": qhull_data,
+                "dim": pd_data["dim"],
+                "el_refs": subspace_el_refs_remapped,
+                **({"elements": elements_serialized} if elements_serialized else {}),
+            }
+        computed_data["pds"] = pds_remapped
+
+        # Add spaces to computed_data as tuples of element symbols
+        computed_data["spaces"] = [
+            tuple(sorted(el.symbol if isinstance(el, Element) else el for el in space)) for space in self.spaces
+        ]
+
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "all_entries": [entry.as_dict() for entry in self.all_entries],
-            "elements": [entry.as_dict() for entry in self.elements],
+            "elements": [e.symbol for e in self.elements],
+            "computed_data": computed_data | {"unique_entries": unique_entry_dicts},
         }
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
         """Reconstruct PatchedPhaseDiagram from dictionary serialization.
-
-        NOTE unlike PhaseDiagram the computation involved in constructing the
-        PatchedPhaseDiagram is not saved on serialization. This is done because
-        hierarchically calling the `PhaseDiagram.as_dict()` method would break the
-        link in memory between entries in overlapping patches leading to a
-        ballooning of the amount of memory used.
-
-        NOTE For memory efficiency the best way to store patched phase diagrams is
-        via pickling. As this allows all the entries in overlapping patches to share
-        the same id in memory when unpickling.
 
         Args:
             dct (dict): dictionary representation of PatchedPhaseDiagram.
@@ -1776,24 +2083,107 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Returns:
             PatchedPhaseDiagram
         """
-        entries = [MontyDecoder().process_decoded(entry) for entry in dct["all_entries"]]
-        elements = [Element.from_dict(elem) for elem in dct["elements"]]
+        computed_data = dct.get("computed_data")
+        elements = [Element(elem) for elem in dct["elements"]]
+
+        if computed_data and "unique_entries" in computed_data:
+            unique_entries = [MontyDecoder().process_decoded(entry) for entry in computed_data["unique_entries"]]
+            all_entries = [unique_entries[idx] for idx in computed_data["all_entries"]]
+            computed_data_reconstructed = computed_data.copy()
+            computed_data_reconstructed["all_entries"] = all_entries
+            computed_data_reconstructed["elements"] = [Element(elem) for elem in computed_data["elements"]]
+            computed_data_reconstructed["spaces"] = computed_data["spaces"]
+            computed_data_reconstructed["qhull_entries"] = [all_entries[idx] for idx in computed_data["qhull_entries"]]
+            computed_data_reconstructed["el_refs"] = [
+                (Element(elem), all_entries[idx]) for elem, idx in computed_data["el_refs"]
+            ]
+
+            pds_reconstructed = {}
+            for space_key, pd_data in computed_data["pds"].items():
+                space_key = frozenset(Element(el) for el in space_key.split("-"))
+                subspace_all_entries = [all_entries[idx] for idx in pd_data["all_entries"]]
+                # Create mapping from global index to subspace index for all_entries
+                global_to_subspace_idx = {
+                    global_idx: sub_idx for sub_idx, global_idx in enumerate(pd_data["all_entries"])
+                }
+
+                # Map qhull_entries from global indices to subspace indices
+                # pd_data["qhull_entries"] are indices into global all_entries (after unique_entries remapping)
+                # These should all be in pd_data["all_entries"], so we can map directly
+                # IMPORTANT: Preserve order as facets are indices into this list
+                subspace_qhull_indices = []
+                for global_idx in pd_data["qhull_entries"]:
+                    if global_idx in global_to_subspace_idx:
+                        subspace_qhull_indices.append(global_to_subspace_idx[global_idx])
+                    else:
+                        # This shouldn't happen, but if it does, we need to handle it
+                        # Find the entry in subspace_all_entries by equality
+                        entry = all_entries[global_idx]
+                        for sub_idx, sub_entry in enumerate(subspace_all_entries):
+                            if entry == sub_entry:
+                                subspace_qhull_indices.append(sub_idx)
+                                break
+                        else:
+                            raise ValueError(
+                                f"qhull_entry at global index {global_idx} not found in subspace_all_entries"
+                            )
+
+                # Map el_refs from global indices to subspace indices
+                subspace_el_refs_indices = []
+                for el_symbol, global_idx in pd_data["el_refs"]:
+                    if global_idx in global_to_subspace_idx:
+                        subspace_el_refs_indices.append((el_symbol, global_to_subspace_idx[global_idx]))
+
+                facets = [np.array(facet, dtype=int) for facet in pd_data["facets"]]
+                simplexes = pd_data["simplexes"]
+                if isinstance(simplexes, list) and len(simplexes) > 0:
+                    simplexes = [MontyDecoder().process_decoded(s) for s in simplexes]
+
+                subspace_elements = pd_data.get("elements")
+                if subspace_elements is not None:
+                    subspace_elements = [Element(el) if not isinstance(el, Element) else el for el in subspace_elements]
+
+                pds_reconstructed[space_key] = {
+                    "all_entries": subspace_all_entries,
+                    "qhull_entries": subspace_qhull_indices,  # Store as indices into subspace_all_entries
+                    "facets": facets,
+                    "simplexes": simplexes,
+                    "qhull_data": np.array(pd_data["qhull_data"]),
+                    "dim": pd_data["dim"],
+                    "el_refs": subspace_el_refs_indices,  # Store as indices into subspace_all_entries
+                    **({"elements": subspace_elements} if subspace_elements is not None else {}),
+                }
+            computed_data_reconstructed["pds"] = pds_reconstructed
+
+            return cls(entries=all_entries, elements=elements, computed_data=computed_data_reconstructed)
+
+        # Handle old format (backwards compatibility)
+        if "unique_entries" in dct:
+            unique_entries = [MontyDecoder().process_decoded(entry) for entry in dct["unique_entries"]]
+            entries = [unique_entries[idx] for idx in dct["all_entries"]]
+        elif "all_entries" in dct:
+            entries = [MontyDecoder().process_decoded(entry) for entry in dct["all_entries"]]
+        else:
+            raise ValueError("Invalid dictionary format: missing 'all_entries' or 'computed_data'")
+
         return cls(entries, elements)
 
     @staticmethod
-    def remove_redundant_spaces(spaces, keep_all_spaces=False):
+    def remove_redundant_spaces(
+        spaces: set[frozenset[Element]], keep_all_spaces: bool = False
+    ) -> set[frozenset[Element]]:
         if keep_all_spaces or len(spaces) <= 1:
             return spaces
 
         # Sort spaces by size in descending order and pre-compute lengths
         sorted_spaces = sorted(spaces, key=len, reverse=True)
 
-        result = []
+        result = list()
         for idx, space_i in enumerate(sorted_spaces):
             if not any(space_i.issubset(larger_space) for larger_space in sorted_spaces[:idx]):
                 result.append(space_i)
 
-        return result
+        return set(result)
 
     # NOTE following methods are inherited unchanged from PhaseDiagram:
     # __repr__,
@@ -1882,18 +2272,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
             check_stable=check_stable,
             on_error=on_error,
         )
-
-    def _get_pd_patch_for_space(self, space: frozenset[Element]) -> tuple[frozenset[Element], PhaseDiagram]:
-        """
-        Args:
-            space (frozenset[Element]): chemical space of the form A-B-X.
-
-        Returns:
-            space, PhaseDiagram for the given chemical space
-        """
-        space_entries = [e for e, s in zip(self.qhull_entries, self._qhull_spaces, strict=True) if space.issuperset(s)]
-
-        return space, PhaseDiagram(space_entries)
 
     # NOTE the following functions are not implemented for PatchedPhaseDiagram
 
