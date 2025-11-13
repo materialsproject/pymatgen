@@ -1,16 +1,13 @@
 from __future__ import annotations
 
 import filecmp
-import os
 import re
 
 import pandas as pd
 import pytest
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsData
-from pymatgen.io.lammps.inputs import LammpsInputFile, LammpsRun, LammpsTemplateGen, write_lammps_inputs
+from pymatgen.io.lammps.inputs import LammpsInputFile, LammpsTemplateGen, write_lammps_inputs
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
@@ -638,56 +635,6 @@ write_data run.data"""
                 "commands": [("units", "metal"), ("#", "Inline comment")],
             },
         ]
-
-
-class TestLammpsRun(MatSciTest):
-    def test_md(self):
-        struct = Structure.from_spacegroup(225, Lattice.cubic(3.62126), ["Cu"], [[0, 0, 0]])
-        ld = LammpsData.from_structure(struct, atom_style="atomic")
-        ff = "pair_style eam\npair_coeff * * Cu_u3.eam"
-        md = LammpsRun.md(data=ld, force_field=ff, temperature=1600.0, nsteps=10000)
-        md.write_inputs(output_dir="md")
-        with open(f"{self.tmp_path}/md/in.md", encoding="utf-8") as file:
-            md_script = file.read()
-        script_string = """# Sample input script template for MD
-
-# Initialization
-
-units           metal
-atom_style      atomic
-
-# Atom definition
-
-read_data       md.data
-#read_restart    md.restart
-
-# Force field settings (consult official document for detailed formats)
-
-pair_style eam
-pair_coeff * * Cu_u3.eam
-
-# Create velocities
-velocity        all create 1600.0 142857 mom yes rot yes dist gaussian
-
-# Ensemble constraints
-#fix             1 all nve
-fix             1 all nvt temp 1600.0 1600.0 0.1
-#fix             1 all npt temp 1600.0 1600.0 0.1 iso $pressure $pressure 1.0
-
-# Various operations within timestepping
-#fix             ...
-#compute         ...
-
-# Output settings
-#thermo_style    custom ...  # control the thermo data type to output
-thermo          100  # output thermo data every N steps
-#dump            1 all atom 100 traj.*.gz  # dump a snapshot every 100 steps
-
-# Actions
-run             10000
-"""
-        assert md_script == script_string
-        assert os.path.isfile(f"{self.tmp_path}/md/md.data")
 
 
 class TestFunc(MatSciTest):
