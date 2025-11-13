@@ -1339,8 +1339,8 @@ def _config_updates(
     # Update the van der Waals parameters
     if vdw == "rvv10":
         rvv10_params_by_xc = {
-            "scan": {"BPARAM": 15.7, "CPARAM": 0.0093, "LUSE_VDW": True},
-            "r2scan": {"BPARAM": 11.95, "CPARAM": 0.0093, "LUSE_VDW": True},
+            "scan": {"BPARAM": 15.7, "CPARAM": 0.0093, "LUSE_VDW": True, "IVDW_NL": 2, "LASPH": True},
+            "r2scan": {"BPARAM": 11.95, "CPARAM": 0.0093, "LUSE_VDW": True, "IVDW_NL": 2, "LASPH": True},
         }
         try:
             config_updates |= rvv10_params_by_xc[xc]
