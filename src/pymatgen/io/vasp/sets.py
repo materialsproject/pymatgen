@@ -1341,13 +1341,16 @@ def _config_updates(
         rvv10_params_by_xc = {
             "scan": {"BPARAM": 15.7, "CPARAM": 0.0093, "LUSE_VDW": True, "IVDW_NL": 2, "LASPH": True},
             "r2scan": {"BPARAM": 11.95, "CPARAM": 0.0093, "LUSE_VDW": True, "IVDW_NL": 2, "LASPH": True},
+            "pbe": {"BPARAM": 10, "CPARAM": 0.0093, "LUSE_VDW": True, "IVDW_NL": 2, "LASPH": True},
         }
-        try:
-            config_updates |= rvv10_params_by_xc[xc]
-        except KeyError:
-            raise ValueError(
-                "Use of rVV10 with functionals other than r2SCAN / SCAN is not currently supported in VASP."
+        config_updates |= rvv10_params_by_xc[xc]
+
+        if xc == "pbe":
+            warnings.warn(
+                "Use of rVV10L with PBE is recommended for layered materials using VASP 6.4.0 and above.", stacklevel=2
             )
+        elif xc not in rvv10_params_by_xc:
+            raise ValueError(f"rVV10 parameters for XC functional '{xc_functional}' are not defined yet.")
 
     elif vdw == "d4":
         d4_pars = {
