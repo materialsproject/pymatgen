@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from pymatgen.core.structure import IStructure
+    from pymatgen.util.typing import CompositionLike
 
 __author__ = "Matthew Evans"
 
@@ -33,7 +34,7 @@ __author__ = "Matthew Evans"
 def _pymatgen_species(
     nsites: int,
     species_at_sites: list[str],
-) -> list[dict[str, float]]:
+) -> list[CompositionLike]:
     """Create list of {"symbol": "concentration"} per site for constructing pymatgen Species objects.
     Removes vacancies, if they are present.
 

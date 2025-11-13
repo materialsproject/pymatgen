@@ -32,6 +32,7 @@ if TYPE_CHECKING:
 
     from pymatgen.analysis.phase_diagram import PhaseDiagram
     from pymatgen.core import Structure
+    from pymatgen.util.typing import CompositionLike
 
 __author__ = "Ryan Kingsbury, Matt McDermott, Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011-2020, The Materials Project"
@@ -292,7 +293,7 @@ class ComputedEntry(Entry):
 
     def __init__(
         self,
-        composition: Composition | str | dict[str, float],
+        composition: CompositionLike,
         energy: float,
         correction: float = 0.0,
         energy_adjustments: list | None = None,
@@ -558,7 +559,7 @@ class ComputedStructureEntry(ComputedEntry):
         structure: Structure,
         energy: float,
         correction: float = 0.0,
-        composition: Composition | str | dict[str, float] | None = None,
+        composition: CompositionLike | None = None,
         energy_adjustments: list | None = None,
         parameters: dict | None = None,
         data: dict | None = None,
@@ -585,12 +586,10 @@ class ComputedStructureEntry(ComputedEntry):
                 with the entry. Defaults to None.
             entry_id: An optional id to uniquely identify the entry.
         """
-        if composition:
-            if isinstance(composition, Composition):
-                pass
-            else:
+        if composition is not None:
+            if not isinstance(composition, Composition):
                 composition = Composition(composition)
-            # composition = Composition(composition)
+
             if (
                 composition.get_integer_formula_and_factor()[0]
                 != structure.composition.get_integer_formula_and_factor()[0]
@@ -706,7 +705,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         formation_enthalpy_per_atom: float,
         temp: float = 300,
         gibbs_model: Literal["SISSO"] = "SISSO",
-        composition: Composition | None = None,
+        composition: CompositionLike | None = None,
         correction: float = 0.0,
         energy_adjustments: list | None = None,
         parameters: dict | None = None,
