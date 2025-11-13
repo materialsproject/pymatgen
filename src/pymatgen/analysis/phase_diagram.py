@@ -1712,6 +1712,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
             extra = set(el_refs) - set(elements)
             raise ValueError(f"There are more terminal elements than dimensions: {extra}")
 
+        entry_to_index = {entry: idx for idx, entry in enumerate(all_entries)}
+
         data = np.array(
             [
                 [
@@ -1731,16 +1733,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
         inds.extend([min_entries.index(el) for el in el_refs.values()])
 
         qhull_entries = tuple(min_entries[idx] for idx in inds)
-        # make qhull spaces frozensets since they become keys to self.pds dict and frozensets are hashable
-        # prevent repeating elements in chemical space and avoid the ordering problem (i.e. Fe-O == O-Fe automatically)
         qhull_spaces = tuple(frozenset(entry.elements) for entry in qhull_entries)
 
-        # Get all unique chemical spaces
         spaces = {s for s in qhull_spaces if len(s) > 1}
-
-        # Remove redundant chemical spaces
         spaces = PatchedPhaseDiagram.remove_redundant_spaces(spaces, keep_all_spaces)
-
         spaces_list = sorted(spaces, key=len, reverse=True)  # Calculate pds for smaller dimension spaces last
 
         # Build PhaseDiagrams for each space and collect their computed_data
@@ -1749,35 +1745,14 @@ class PatchedPhaseDiagram(PhaseDiagram):
             space_entries = [e for e, s in zip(qhull_entries, qhull_spaces, strict=True) if space.issuperset(s)]
             pd = PhaseDiagram(space_entries)
 
-            # Get indices into all_entries for this subspace's all_entries
-            # pd.all_entries are the entries that PhaseDiagram computed with
-            # They should be in all_entries, so we can use index() which uses object identity
-            # If that fails, entries may be equal but different objects, so fall back to equality
-            # IMPORTANT: We must preserve order to keep facets valid
-            subspace_all_entry_indices = []
-            used_indices = set()  # Track used indices to avoid duplicates when using equality fallback
-            for pd_entry in pd.all_entries:
-                try:
-                    idx = all_entries.index(pd_entry)
-                    subspace_all_entry_indices.append(idx)
-                    used_indices.add(idx)
-                except ValueError:
-                    # Entry not found by identity, try equality
-                    # But skip indices we've already used to preserve order
-                    for idx, global_entry in enumerate(all_entries):
-                        if idx not in used_indices and pd_entry == global_entry:
-                            subspace_all_entry_indices.append(idx)
-                            used_indices.add(idx)
-                            break
-                    else:
-                        raise ValueError(f"pd.all_entries entry {pd_entry} not found in all_entries")
+            # NOTE: We must preserve order to keep facets valid
+            try:
+                subspace_all_entry_indices = [entry_to_index[pd_entry] for pd_entry in pd.all_entries]
+            except KeyError as exc:
+                missing_entry = exc.args[0]
+                raise ValueError(f"pd.all_entries entry {missing_entry} not found in all_entries") from exc
 
-            # Get indices into this subspace's all_entries for qhull_entries
-            # pd.qhull_entries are entries from pd.all_entries, so we can use index
             subspace_qhull_entry_indices = [pd.all_entries.index(entry) for entry in pd.qhull_entries]
-
-            # Convert el_refs to indices into subspace's all_entries
-            # el_refs entries are from pd.all_entries, so we can use index
             subspace_el_refs = [(el, pd.all_entries.index(entry)) for el, entry in pd.computed_data["el_refs"]]
 
             pds_computed_data[space] = {
@@ -1841,22 +1816,20 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         # Convert el_refs from [(el_symbol, index), ...] or [(el_symbol, Entry), ...] to {Element: Entry}
         el_refs_data = computed_data["el_refs"]
-        if el_refs_data and isinstance(el_refs_data[0][1], int):
-            # el_refs are stored as indices
-            self.el_refs = {Element(el_symbol): self.all_entries[idx] for el_symbol, idx in el_refs_data}
-        else:
-            # el_refs are already entry objects (from from_dict reconstruction)
-            self.el_refs = {Element(el_symbol): entry for el_symbol, entry in el_refs_data}
+        if el_refs_data and not isinstance(el_refs_data[0][1], int):
+            raise TypeError("computed_data['el_refs'] must contain integer indices")
+
+        def _ensure_element(el: Element | str) -> Element:
+            return el if isinstance(el, Element) else Element(el)
+
+        self.el_refs = {_ensure_element(el_symbol): self.all_entries[idx] for el_symbol, idx in el_refs_data}
 
         # Convert qhull_entries from indices to entry objects
         # When from _compute(), qhull_entries are indices; when from from_dict(), they're already entries
         qhull_entries_data = computed_data["qhull_entries"]
-        if qhull_entries_data and isinstance(qhull_entries_data[0], int):
-            # qhull_entries are stored as indices into all_entries
-            self.qhull_entries = tuple(self.all_entries[idx] for idx in qhull_entries_data)
-        else:
-            # qhull_entries are already entry objects (from from_dict reconstruction)
-            self.qhull_entries = tuple(qhull_entries_data)
+        if qhull_entries_data and not isinstance(qhull_entries_data[0], int):
+            raise TypeError("computed_data['qhull_entries'] must be indices into all_entries")
+        self.qhull_entries = tuple(self.all_entries[idx] for idx in qhull_entries_data)
 
         self._qhull_spaces = tuple(frozenset(e.elements) for e in self.qhull_entries)
         # Convert spaces from tuples (serialized) or frozensets (in-memory) to frozensets
@@ -1871,59 +1844,35 @@ class PatchedPhaseDiagram(PhaseDiagram):
             # Handle both frozenset (in-memory) and tuple (serialized) keys
             if not isinstance(space_key, frozenset):
                 space_key = frozenset(Element(el) for el in space_key)
-            stored_elements = pd_computed_data.get("elements")
-            if stored_elements:
-                subspace_elements = [Element(el) if not isinstance(el, Element) else el for el in stored_elements]
-            else:
-                # Fallback to deterministic ordering if elements not stored (legacy data)
-                subspace_elements = sorted(space_key, key=lambda e: e.symbol)
 
-            # Reconstruct entries for this subspace from indices or entry objects
+            subspace_elements = [
+                Element(el) if not isinstance(el, Element) else el for el in pd_computed_data["elements"]
+            ]
             subspace_all_entries_data = pd_computed_data["all_entries"]
-            if subspace_all_entries_data and isinstance(subspace_all_entries_data[0], int):
-                # all_entries are stored as indices
-                subspace_all_entries = [self.all_entries[idx] for idx in subspace_all_entries_data]
-            else:
-                # all_entries are already entry objects (from from_dict reconstruction)
-                subspace_all_entries = subspace_all_entries_data
-
-            # Reconstruct PhaseDiagram with its computed_data
+            if subspace_all_entries_data and not isinstance(subspace_all_entries_data[0], int):
+                raise TypeError("subspace 'all_entries' must contain indices into PatchedPhaseDiagram.all_entries")
+            subspace_all_entries = [self.all_entries[idx] for idx in subspace_all_entries_data]
             pd_computed_data_with_entries = pd_computed_data.copy()
             pd_computed_data_with_entries["all_entries"] = subspace_all_entries
             pd_computed_data_with_entries["elements"] = subspace_elements
-
-            # Convert qhull_entries indices back to entries
-            qhull_entries_data = pd_computed_data["qhull_entries"]
-            if qhull_entries_data and isinstance(qhull_entries_data[0], int):
-                # qhull_entries are stored as indices into subspace_all_entries
-                pd_computed_data_with_entries["qhull_entries"] = [
-                    subspace_all_entries[idx] for idx in qhull_entries_data
-                ]
-            else:
-                # qhull_entries are already entry objects
-                pd_computed_data_with_entries["qhull_entries"] = qhull_entries_data
-
-            # Convert el_refs indices back to entries
-            el_refs_data = pd_computed_data["el_refs"]
-            if el_refs_data and isinstance(el_refs_data[0][1], int):
-                # el_refs are stored as indices into subspace_all_entries
-                pd_computed_data_with_entries["el_refs"] = [
-                    (Element(el_symbol), subspace_all_entries[idx]) for el_symbol, idx in el_refs_data
-                ]
-            else:
-                # el_refs are already entry objects
-                pd_computed_data_with_entries["el_refs"] = [
-                    (Element(el_symbol), entry) for el_symbol, entry in el_refs_data
-                ]
-
+            pd_computed_data_with_entries["qhull_entries"] = [
+                subspace_all_entries[idx] for idx in pd_computed_data["qhull_entries"]
+            ]
+            pd_computed_data_with_entries["el_refs"] = [
+                (
+                    _ensure_element(el_symbol),
+                    subspace_all_entries[idx],
+                )
+                for el_symbol, idx in pd_computed_data["el_refs"]
+            ]
             self.pds[space_key] = PhaseDiagram(
                 subspace_all_entries, elements=subspace_elements, computed_data=pd_computed_data_with_entries
             )
 
-        # Add terminal elements as we may not have PD patches including them
         # NOTE add el_refs in case no multielement entries are present for el
-        _stable_entries = {se for pd in self.pds.values() for se in pd._stable_entries}
-        self._stable_entries = tuple(_stable_entries | {*self.el_refs.values()})
+        self._stable_entries = tuple(
+            {se for pd in self.pds.values() for se in pd._stable_entries} | {*self.el_refs.values()}
+        )
         self._stable_spaces = tuple(frozenset(entry.elements) for entry in self._stable_entries)
 
     def __repr__(self):
@@ -1948,128 +1897,66 @@ class PatchedPhaseDiagram(PhaseDiagram):
         return item in self.pds
 
     def as_dict(self) -> dict[str, Any]:
-        """Write the entries and elements used to construct the PatchedPhaseDiagram
-        to a dictionary.
-
-        Returns:
-            dict[str, Any]: MSONable dictionary representation of PatchedPhaseDiagram.
-        """
+        """Write the entries and elements used to construct the PatchedPhaseDiagram to a dictionary."""
         unique_entry_dicts: list[dict[str, Any]] = []
-        entry_dict_to_index = {}
-        all_entry_indices = []
+        entry_dict_to_index: dict[str, int] = {}
+        all_entry_indices: list[int] = []
 
         for entry in self.all_entries:
             entry_dict = entry.as_dict()
             entry_key = orjson.dumps(entry_dict, option=orjson.OPT_SORT_KEYS).decode()
-
             if entry_key not in entry_dict_to_index:
                 entry_dict_to_index[entry_key] = len(unique_entry_dicts)
                 unique_entry_dicts.append(entry_dict)
-
             all_entry_indices.append(entry_dict_to_index[entry_key])
 
-        computed_data = self.computed_data.copy()
+        entry_to_unique_index = dict(zip(self.all_entries, all_entry_indices, strict=True))
 
-        computed_data["elements"] = [e.symbol for e in self.elements]
+        computed_data: dict[str, Any] = {
+            "elements": [element.symbol for element in self.elements],
+            "all_entries": all_entry_indices,
+            "qhull_entries": [entry_to_unique_index[entry] for entry in self.qhull_entries],
+            "el_refs": [(element.symbol, entry_to_unique_index[entry]) for element, entry in self.el_refs.items()],
+            "dim": self.dim,
+        }
 
-        qhull_entries_data = computed_data["qhull_entries"]
-        if qhull_entries_data and not isinstance(qhull_entries_data[0], int):
-            qhull_entry_indices = [self.all_entries.index(entry) for entry in qhull_entries_data]
-        else:
-            qhull_entry_indices = qhull_entries_data
+        spaces_serialized = [tuple(sorted(element.symbol for element in space)) for space in self.spaces]
 
-        computed_data["all_entries"] = all_entry_indices
+        pds_remapped: dict[str, Any] = {}
+        for space, pd in self.pds.items():
+            space_key_serialized = "-".join(sorted(element.symbol for element in space))
 
-        qhull_entry_indices_remapped = [all_entry_indices[idx] for idx in qhull_entry_indices]
-        computed_data["qhull_entries"] = qhull_entry_indices_remapped
+            subspace_all_entry_indices = [entry_to_unique_index[entry] for entry in pd.all_entries]
+            subspace_qhull_indices = [entry_to_unique_index[entry] for entry in pd.qhull_entries]
+            subspace_el_refs = [(element.symbol, entry_to_unique_index[entry]) for element, entry in pd.el_refs.items()]
 
-        el_refs_data = computed_data["el_refs"]
-        if el_refs_data and not isinstance(el_refs_data[0][1], int):
-            el_refs_indices = [(el_symbol, self.all_entries.index(entry)) for el_symbol, entry in el_refs_data]
-        else:
-            el_refs_indices = el_refs_data
+            qhull_data = np.asarray(pd.qhull_data).tolist()
+            facets = [facet.tolist() for facet in pd.facets]
 
-        computed_data["el_refs"] = [
-            (el_symbol.symbol if isinstance(el_symbol, Element) else el_symbol, all_entry_indices[idx])
-            for el_symbol, idx in el_refs_indices
-        ]
-
-        pds_remapped = {}
-        for space_key, pd_data in computed_data["pds"].items():
-            space_key_serialized = "-".join(sorted(el.symbol if isinstance(el, Element) else el for el in space_key))
-            subspace_all_entries_data = pd_data["all_entries"]
-            if subspace_all_entries_data and not isinstance(subspace_all_entries_data[0], int):
-                subspace_all_entry_indices_orig = [self.all_entries.index(entry) for entry in subspace_all_entries_data]
-            else:
-                subspace_all_entry_indices_orig = subspace_all_entries_data
-
-            subspace_all_entry_indices_remapped = [all_entry_indices[idx] for idx in subspace_all_entry_indices_orig]
-
-            subspace_qhull_entries_data = pd_data["qhull_entries"]
-            if subspace_qhull_entries_data and not isinstance(subspace_qhull_entries_data[0], int):
-                subspace_qhull_indices_orig = [
-                    subspace_all_entries_data.index(entry) for entry in subspace_qhull_entries_data
-                ]
-            else:
-                subspace_qhull_indices_orig = subspace_qhull_entries_data
-
-            subspace_qhull_indices_remapped = [
-                subspace_all_entry_indices_remapped[idx] for idx in subspace_qhull_indices_orig
-            ]
-
-            subspace_el_refs_data = pd_data["el_refs"]
-            if subspace_el_refs_data and not isinstance(subspace_el_refs_data[0][1], int):
-                subspace_el_refs_indices_orig = [
-                    (el_symbol, subspace_all_entries_data.index(entry)) for el_symbol, entry in subspace_el_refs_data
-                ]
-            else:
-                subspace_el_refs_indices_orig = subspace_el_refs_data
-
-            subspace_el_refs_remapped = [
-                (
-                    el_symbol.symbol if isinstance(el_symbol, Element) else el_symbol,
-                    subspace_all_entry_indices_remapped[idx],
-                )
-                for el_symbol, idx in subspace_el_refs_indices_orig
-            ]
-
-            qhull_data = pd_data["qhull_data"]
-            if isinstance(qhull_data, np.ndarray):
-                qhull_data = qhull_data.tolist()
-
-            facets = pd_data["facets"]
-            facets = [facet.tolist() for facet in facets]
-
-            simplexes = pd_data["simplexes"]
-            simplexes = [{**s.as_dict(), "coords": s.as_dict()["coords"].tolist()} for s in simplexes]
-
-            elements_data = pd_data.get("elements")
-            if elements_data:
-                elements_serialized = [el.symbol if isinstance(el, Element) else el for el in elements_data]
-            else:
-                elements_serialized = None
+            simplexes = []
+            for simplex in pd.simplexes:
+                simplex_dict = simplex.as_dict()
+                simplex_dict["coords"] = np.asarray(simplex_dict["coords"]).tolist()
+                simplexes.append(simplex_dict)
 
             pds_remapped[space_key_serialized] = {
-                "all_entries": subspace_all_entry_indices_remapped,
-                "qhull_entries": subspace_qhull_indices_remapped,
+                "all_entries": subspace_all_entry_indices,
+                "qhull_entries": subspace_qhull_indices,
                 "facets": facets,
                 "simplexes": simplexes,
                 "qhull_data": qhull_data,
-                "dim": pd_data["dim"],
-                "el_refs": subspace_el_refs_remapped,
-                **({"elements": elements_serialized} if elements_serialized else {}),
+                "dim": pd.dim,
+                "el_refs": subspace_el_refs,
+                "elements": [element.symbol for element in pd.elements],
             }
-        computed_data["pds"] = pds_remapped
 
-        # Add spaces to computed_data as tuples of element symbols
-        computed_data["spaces"] = [
-            tuple(sorted(el.symbol if isinstance(el, Element) else el for el in space)) for space in self.spaces
-        ]
+        computed_data["spaces"] = spaces_serialized
+        computed_data["pds"] = pds_remapped
 
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "elements": [e.symbol for e in self.elements],
+            "elements": [element.symbol for element in self.elements],
             "computed_data": computed_data | {"unique_entries": unique_entry_dicts},
         }
 
@@ -2083,90 +1970,72 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Returns:
             PatchedPhaseDiagram
         """
-        computed_data = dct.get("computed_data")
+        computed_data = dct["computed_data"]
         elements = [Element(elem) for elem in dct["elements"]]
+        decoder = MontyDecoder()
+        unique_entries = [decoder.process_decoded(entry) for entry in computed_data["unique_entries"]]
+        global_unique_indices = computed_data["all_entries"]
+        all_entries = [unique_entries[idx] for idx in global_unique_indices]
 
-        if computed_data and "unique_entries" in computed_data:
-            unique_entries = [MontyDecoder().process_decoded(entry) for entry in computed_data["unique_entries"]]
-            all_entries = [unique_entries[idx] for idx in computed_data["all_entries"]]
-            computed_data_reconstructed = computed_data.copy()
-            computed_data_reconstructed["all_entries"] = all_entries
-            computed_data_reconstructed["elements"] = [Element(elem) for elem in computed_data["elements"]]
-            computed_data_reconstructed["spaces"] = computed_data["spaces"]
-            computed_data_reconstructed["qhull_entries"] = [all_entries[idx] for idx in computed_data["qhull_entries"]]
-            computed_data_reconstructed["el_refs"] = [
-                (Element(elem), all_entries[idx]) for elem, idx in computed_data["el_refs"]
-            ]
+        computed_data_reconstructed = computed_data.copy()
+        computed_data_reconstructed["all_entries"] = all_entries
+        computed_data_reconstructed["elements"] = [Element(elem) for elem in computed_data["elements"]]
+        computed_data_reconstructed["spaces"] = computed_data["spaces"]
 
-            pds_reconstructed = {}
-            for space_key, pd_data in computed_data["pds"].items():
-                space_key = frozenset(Element(el) for el in space_key.split("-"))
-                subspace_all_entries = [all_entries[idx] for idx in pd_data["all_entries"]]
-                # Create mapping from global index to subspace index for all_entries
-                global_to_subspace_idx = {
-                    global_idx: sub_idx for sub_idx, global_idx in enumerate(pd_data["all_entries"])
-                }
+        unique_idx_to_global_idx: dict[int, int] = {}
+        for global_idx, unique_idx in enumerate(global_unique_indices):
+            unique_idx_to_global_idx.setdefault(unique_idx, global_idx)
 
-                # Map qhull_entries from global indices to subspace indices
-                # pd_data["qhull_entries"] are indices into global all_entries (after unique_entries remapping)
-                # These should all be in pd_data["all_entries"], so we can map directly
-                # IMPORTANT: Preserve order as facets are indices into this list
-                subspace_qhull_indices = []
-                for global_idx in pd_data["qhull_entries"]:
-                    if global_idx in global_to_subspace_idx:
-                        subspace_qhull_indices.append(global_to_subspace_idx[global_idx])
-                    else:
-                        # This shouldn't happen, but if it does, we need to handle it
-                        # Find the entry in subspace_all_entries by equality
-                        entry = all_entries[global_idx]
-                        for sub_idx, sub_entry in enumerate(subspace_all_entries):
-                            if entry == sub_entry:
-                                subspace_qhull_indices.append(sub_idx)
-                                break
-                        else:
-                            raise ValueError(
-                                f"qhull_entry at global index {global_idx} not found in subspace_all_entries"
-                            )
+        def _global_index(unique_idx: int) -> int:
+            try:
+                return unique_idx_to_global_idx[unique_idx]
+            except KeyError as exc:
+                msg = f"unique entry index {unique_idx} missing from computed_data['all_entries']"
+                raise KeyError(msg) from exc
 
-                # Map el_refs from global indices to subspace indices
-                subspace_el_refs_indices = []
-                for el_symbol, global_idx in pd_data["el_refs"]:
-                    if global_idx in global_to_subspace_idx:
-                        subspace_el_refs_indices.append((el_symbol, global_to_subspace_idx[global_idx]))
+        computed_data_reconstructed["qhull_entries"] = [
+            _global_index(unique_idx) for unique_idx in computed_data["qhull_entries"]
+        ]
+        computed_data_reconstructed["el_refs"] = [(elem, _global_index(idx)) for elem, idx in computed_data["el_refs"]]
 
-                facets = [np.array(facet, dtype=int) for facet in pd_data["facets"]]
-                simplexes = pd_data["simplexes"]
-                if isinstance(simplexes, list) and len(simplexes) > 0:
-                    simplexes = [MontyDecoder().process_decoded(s) for s in simplexes]
+        pds_reconstructed = {}
+        for space_key, pd_data in computed_data["pds"].items():
+            space_key_frozen = frozenset(Element(el) for el in space_key.split("-"))
+            subspace_unique_indices = pd_data["all_entries"]
+            subspace_global_indices = [_global_index(unique_idx) for unique_idx in subspace_unique_indices]
 
-                subspace_elements = pd_data.get("elements")
-                if subspace_elements is not None:
-                    subspace_elements = [Element(el) if not isinstance(el, Element) else el for el in subspace_elements]
+            unique_idx_to_sub_idx: dict[int, int] = {}
+            for sub_idx, unique_idx in enumerate(subspace_unique_indices):
+                unique_idx_to_sub_idx.setdefault(unique_idx, sub_idx)
 
-                pds_reconstructed[space_key] = {
-                    "all_entries": subspace_all_entries,
-                    "qhull_entries": subspace_qhull_indices,  # Store as indices into subspace_all_entries
-                    "facets": facets,
-                    "simplexes": simplexes,
-                    "qhull_data": np.array(pd_data["qhull_data"]),
-                    "dim": pd_data["dim"],
-                    "el_refs": subspace_el_refs_indices,  # Store as indices into subspace_all_entries
-                    **({"elements": subspace_elements} if subspace_elements is not None else {}),
-                }
-            computed_data_reconstructed["pds"] = pds_reconstructed
+            def _subspace_index(unique_idx: int) -> int:
+                try:
+                    return unique_idx_to_sub_idx[unique_idx]
+                except KeyError as exc:
+                    msg = f"unique entry index {unique_idx} missing from subspace entries"
+                    raise KeyError(msg) from exc
 
-            return cls(entries=all_entries, elements=elements, computed_data=computed_data_reconstructed)
+            facets = [np.array(facet, dtype=int) for facet in pd_data["facets"]]
+            simplexes = [decoder.process_decoded(simplex) for simplex in pd_data["simplexes"]]
+            subspace_elements = [Element(el) if not isinstance(el, Element) else el for el in pd_data["elements"]]
 
-        # Handle old format (backwards compatibility)
-        if "unique_entries" in dct:
-            unique_entries = [MontyDecoder().process_decoded(entry) for entry in dct["unique_entries"]]
-            entries = [unique_entries[idx] for idx in dct["all_entries"]]
-        elif "all_entries" in dct:
-            entries = [MontyDecoder().process_decoded(entry) for entry in dct["all_entries"]]
-        else:
-            raise ValueError("Invalid dictionary format: missing 'all_entries' or 'computed_data'")
+            pds_reconstructed[space_key_frozen] = {
+                "all_entries": subspace_global_indices,
+                "qhull_entries": [_subspace_index(unique_idx) for unique_idx in pd_data["qhull_entries"]],
+                "facets": facets,
+                "simplexes": simplexes,
+                "qhull_data": np.array(pd_data["qhull_data"]),
+                "dim": pd_data["dim"],
+                "el_refs": [
+                    (Element(el) if not isinstance(el, Element) else el, _subspace_index(idx))
+                    for el, idx in pd_data["el_refs"]
+                ],
+                "elements": subspace_elements,
+            }
 
-        return cls(entries, elements)
+        computed_data_reconstructed["pds"] = pds_reconstructed
+
+        return cls(entries=all_entries, elements=elements, computed_data=computed_data_reconstructed)
 
     @staticmethod
     def remove_redundant_spaces(

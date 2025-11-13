@@ -647,7 +647,7 @@ class TestPhaseDiagram(MatSciTest):
         assert MontyDecoder().process_decoded(pd_dict).as_dict() == pd_dict
 
         for entry in self.pd.all_entries:
-            # NOTE: allow_negative=True is necessary due to fp errors we see in the decomposition
+            # NOTE: allow_negative=True is necessary due to fp errors we see after serialization
             decomp_rpd, e_above_hull_rppd = reconstructed_pd.get_decomp_and_e_above_hull(entry, allow_negative=True)
             decomp_pd, e_above_hull_ppd = self.pd.get_decomp_and_e_above_hull(entry)
 
@@ -892,6 +892,7 @@ class TestPatchedPhaseDiagram:
                 (self.ppd, "ppd"),
                 (reconstructed_ppd, "rppd"),
             ]:
+                # NOTE: allow_negative=True is necessary due to fp errors we see after serialization
                 decomp, e_above_hull = pd.get_decomp_and_e_above_hull(entry, check_stable=True, allow_negative=True)
                 decomp_comp = Composition({})
                 for e, amount in decomp.items():
