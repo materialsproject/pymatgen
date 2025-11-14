@@ -16,10 +16,10 @@ import pandas as pd
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.entries.compatibility import (
-    AnyComputedEntry,
     Compatibility,
     CompatibilityError,
     MaterialsProject2020Compatibility,
+    TypeVarAnyEntry,
 )
 from pymatgen.entries.computed_entries import ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen.entries.entry_tools import EntrySet
@@ -121,12 +121,12 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     def process_entries(
         self,
-        entries: AnyComputedEntry | list[AnyComputedEntry],
+        entries: TypeVarAnyEntry | list[TypeVarAnyEntry],
         clean: bool = True,
         verbose: bool = False,
         inplace: bool = True,
         mixing_state_data=None,
-    ) -> list[AnyComputedEntry]:
+    ) -> list[TypeVarAnyEntry]:
         """Process a sequence of entries with the DFT mixing scheme. Note
         that this method will change the data of the original entries.
 
