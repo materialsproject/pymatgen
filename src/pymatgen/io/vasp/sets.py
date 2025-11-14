@@ -1299,7 +1299,7 @@ class MPRelaxSet(VaspInputSet):
     CONFIG = _load_yaml_config("MPRelaxSet")
 
 
-def _config_updates(
+def _set_dispersion_correction(
     vasp_input_set: VaspInputSet,
     xc_functional: str,
     dispersion: str | None = None,
@@ -1468,7 +1468,7 @@ class MPScanRelaxSet(VaspInputSet):
         super().__post_init__()
         if isinstance(self.dispersion, str) and self.dispersion.lower() != "rvv10":
             raise ValueError("Only rVV10 (or None) is supported for dispersion in MPScanRelaxSet.")
-        _config_updates(self, self.xc_functional, self.dispersion)
+        _set_dispersion_correction(self, self.xc_functional, self.dispersion)
 
 
 @dataclass
@@ -1522,7 +1522,7 @@ class MP24RelaxSet(VaspInputSet):
         super().__post_init__()
         if self.xc_functional.lower() not in {"r2scan", "pbe", "pbesol"}:
             raise ValueError("xc_functional must be one of 'r2SCAN', 'PBE', or 'PBEsol'.")
-        _config_updates(self, self.xc_functional, self.dispersion)
+        _set_dispersion_correction(self, self.xc_functional, self.dispersion)
 
     @staticmethod
     def _sigmoid_interp(
