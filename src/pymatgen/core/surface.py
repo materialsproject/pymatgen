@@ -744,15 +744,7 @@ def center_slab(slab: Structure) -> Structure:
     This makes it easier to find surface sites and apply
     operations like doping.
 
-    There are two possible cases:
-        1. When the slab region is completely positioned between
-        two vacuum layers in the cell but is not centered, we simply
-        shift the slab to the center along z-axis.
-        2. If the slab completely resides outside the cell either
-        from the bottom or the top, we iterate through all sites that
-        spill over and shift all sites such that it is now
-        on the other side. An edge case being, either the top
-        of the slab is at z = 0 or the bottom is at z = 1.
+    TODO: document handling of slabs separated by PBC
 
     Args:
         slab (Structure): The slab to center.
@@ -760,33 +752,22 @@ def center_slab(slab: Structure) -> Structure:
     Returns:
         Structure: The centered slab.
     """
-    # Get all site indices
-    all_indices = list(range(len(slab)))
+    # Cutoff radius guess (3 times the smallest bond length) to sample neighbors
+    cutoff_radius: float = sorted(nn[1] for nn in slab.get_neighbors(slab[0], 10) if nn[1] > 0)[0] * 3
 
-    # Get a reasonable cutoff radius to sample neighbors
-    bond_dists = sorted(nn[1] for nn in slab.get_neighbors(slab[0], 10) if nn[1] > 0)
-    # TODO (@DanielYang59): magic number for cutoff radius (would 3 be too large?)
-    cutoff_radius = bond_dists[0] * 3
+    num_slab_regions: int = len(get_slab_regions(slab, blength=cutoff_radius))
 
-    # TODO (@DanielYang59): do we need the following complex method?
-    # Why don't we just calculate the center of the Slab and move it to z=0.5?
-    # Before moving we need to ensure there is only one Slab layer though
+    if num_slab_regions == 2:
+        pass
 
-    # If structure is case 2, shift all the sites
-    # to the other side until it is case 1
-    for site in slab:  # DEBUG (@DanielYang59): Slab position changes during loop?
-        # DEBUG (@DanielYang59): sites below z=0 is not considered (only check coord > c)
-        if any(nn[1] >= slab.lattice.c for nn in slab.get_neighbors(site, cutoff_radius)):
-            # TODO (@DanielYang59): the magic offset "0.05" seems unnecessary,
-            # as the Slab would be centered later anyway
-            shift = 1 - site.frac_coords[2] + 0.05
-            slab.translate_sites(all_indices, [0, 0, shift])
+    elif num_slab_regions != 1:
+        raise RuntimeError(f"Unable to handle cases where there're {num_slab_regions} slab regions")
 
-    # Now the slab is case 1, move it to the center
-    weights = [site.species.weight for site in slab]
-    center_of_mass = np.average(slab.frac_coords, weights=weights, axis=0)
-    shift = 0.5 - center_of_mass[2]
+    weights: list[float] = [site.species.weight for site in slab]
+    center_of_mass: float = np.average(slab.frac_coords, weights=weights, axis=0)
+    shift: float = 0.5 - center_of_mass[2]
 
+    all_indices: list[int] = list(range(len(slab)))
     slab.translate_sites(all_indices, [0, 0, shift])
 
     return slab
@@ -972,10 +953,7 @@ class SlabGenerator:
             return normal
 
         def calculate_scaling_factor() -> np.ndarray:
-            """Calculate scaling factor.
-
-            # TODO (@DanielYang59): revise docstring to add more details.
-            """
+            """Calculate scaling factor."""
             slab_scale_factor = []
             non_orth_ind = []
             eye = np.eye(3, dtype=np.int64)
@@ -1068,7 +1046,7 @@ class SlabGenerator:
         self.min_slab_size = min_slab_size
         self.in_unit_planes = in_unit_planes
         self.primitive = primitive
-        self._normal = normal  # TODO (@DanielYang59): used only in unit test
+        self._normal = normal  # used only in unit test
         self.reorient_lattice = reorient_lattice
 
         _a, _b, c = self.oriented_unit_cell.lattice.matrix
@@ -1857,7 +1835,6 @@ class ReconstructionGenerator:
                 # loaded "recon_json", use condition to avoid this
                 recon_json = copy.deepcopy(RECONSTRUCTIONS_ARCHIVE[recon_json["base_reconstruction"]])
 
-                # TODO (@DanielYang59): use "site" over "point" for consistency?
                 if "points_to_add" in recon_json:
                     del recon_json["points_to_add"]
                 if new_points_to_add:
