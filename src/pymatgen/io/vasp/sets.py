@@ -1365,9 +1365,11 @@ def _set_dispersion_correction(
 
     elif vdw == "d4":
         d4_pars = {
+            "scan": {"S6": 1.0, "S8": 1.46126056, "A1": 0.62930855, "A2": 6.31284039},
             "r2scan": {"S6": 1.0, "S8": 0.60187490, "A1": 0.51559235, "A2": 5.77342911},
             "pbe": {"S6": 1.0, "S8": 0.95948085, "A1": 0.38574991, "A2": 4.80688534},
             "pbesol": {"S6": 1.0, "S8": 1.71885698, "A1": 0.47901421, "A2": 5.96771589},
+            "hse06": {"S6": 1.0, "S8": 1.19528249, "A1": 0.38663183, "A2": 5.19133469},
         }
         if xc not in d4_pars:
             raise ValueError(f"D4 parameters for XC functional '{xc_functional}' are not defined yet.")
