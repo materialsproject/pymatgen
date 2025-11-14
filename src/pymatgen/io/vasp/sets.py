@@ -1326,6 +1326,17 @@ def _config_updates(
 
     config_updates: dict[str, Any] = {}
 
+    # Clean up potentially existing vdW parameters
+    vdw_tags = ["LUSE_VDW", "IVDW", "IVDW_NL", "LASPH", "BPARAM", "CPARAM", "VDW_S6", "VDW_S8", "VDW_A1", "VDW_A2"]
+    for tag in vdw_tags:
+        if tag in vasp_input_set._config_dict["INCAR"]:
+            warnings.warn(
+                f"Removing existing INCAR tag '{tag}' to avoid conflicts when setting XC functional "
+                f"'{xc_functional}' with dispersion correction '{dispersion}'.",
+                stacklevel=2,
+            )
+            vasp_input_set._config_dict["INCAR"].pop(tag, None)
+
     # Update the XC functional flags
     if xc in to_func_metagga:
         config_updates |= {"METAGGA": to_func_metagga[xc]}
