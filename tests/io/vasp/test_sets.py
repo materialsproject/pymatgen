@@ -1877,18 +1877,22 @@ class TestMPScanRelaxSet(MatSciTest):
         scan_rvv10_set = MPScanRelaxSet(self.struct, xc_functional="SCAN", dispersion="rVV10")
         assert scan_rvv10_set.xc_functional == "SCAN"
         assert scan_rvv10_set.dispersion == "rVV10"
-        assert "LUSE_VDW" in scan_rvv10_set.incar
+        assert scan_rvv10_set.incar["LUSE_VDW"]
+        assert scan_rvv10_set.incar["LASPH"]
         assert scan_rvv10_set.incar["BPARAM"] == approx(15.7)
         assert scan_rvv10_set.incar["CPARAM"] == approx(0.0093)
+        assert scan_rvv10_set.incar["IVDW_NL"] == 2
 
     # Test r2SCAN+rVV10
     def test_r2scan_rvv10(self):
         r2scan_rvv10_set = MPScanRelaxSet(self.struct, dispersion="rVV10")
         assert r2scan_rvv10_set.xc_functional == "r2SCAN"
         assert r2scan_rvv10_set.dispersion == "rVV10"
-        assert "LUSE_VDW" in r2scan_rvv10_set.incar
+        assert r2scan_rvv10_set.incar["LUSE_VDW"]
+        assert r2scan_rvv10_set.incar["LASPH"]
         assert r2scan_rvv10_set.incar["BPARAM"] == approx(11.95)
         assert r2scan_rvv10_set.incar["CPARAM"] == approx(0.0093)
+        assert r2scan_rvv10_set.incar["IVDW_NL"] == 2
 
     def test_other_vdw(self):
         # should raise a error.
