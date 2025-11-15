@@ -393,7 +393,8 @@ class PhaseDiagram(MSONable):
     def as_dict(self):
         """Get MSONable dict representation of PhaseDiagram."""
 
-        qhull_entry_indices = [self.all_entries.index(e) for e in self.qhull_entries]
+        entry_to_index = {entry: idx for idx, entry in enumerate(self.all_entries)}
+        qhull_entry_indices = [entry_to_index[e] for e in self.qhull_entries]
 
         # Create a copy of computed_data to avoid modifying the original
         computed_data = self.computed_data.copy()
@@ -1752,8 +1753,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 missing_entry = exc.args[0]
                 raise ValueError(f"pd.all_entries entry {missing_entry} not found in all_entries") from exc
 
-            subspace_qhull_entry_indices = [pd.all_entries.index(entry) for entry in pd.qhull_entries]
-            subspace_el_refs = [(el, pd.all_entries.index(entry)) for el, entry in pd.computed_data["el_refs"]]
+            pd_entry_to_index = {entry: idx for idx, entry in enumerate(pd.all_entries)}
+            subspace_qhull_entry_indices = [pd_entry_to_index[entry] for entry in pd.qhull_entries]
+            subspace_el_refs = [(el, pd_entry_to_index[entry]) for el, entry in pd.computed_data["el_refs"]]
 
             pds_computed_data[space] = {
                 "all_entries": subspace_all_entry_indices,
@@ -1770,8 +1772,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
             "all_entries": all_entries,
             "elements": elements,
             "dim": dim,
-            "el_refs": [(el.symbol, all_entries.index(entry)) for el, entry in el_refs.items()],
-            "qhull_entries": [all_entries.index(entry) for entry in qhull_entries],
+            "el_refs": [(el.symbol, entry_to_index[entry]) for el, entry in el_refs.items()],
+            "qhull_entries": [entry_to_index[entry] for entry in qhull_entries],
             "spaces": spaces_list,
             "pds": pds_computed_data,
         }
