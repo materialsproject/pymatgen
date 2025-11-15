@@ -49,6 +49,7 @@ import subprocess
 import warnings
 from glob import glob
 from shutil import which
+from tempfile import TemporaryFile
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -116,6 +117,7 @@ class ChargemolAnalysis:
         self._potcar_path = self._get_filepath(path, "POTCAR")
         self._aeccar0_path = self._get_filepath(path, "AECCAR0")
         self._aeccar2_path = self._get_filepath(path, "AECCAR2")
+        self._temp_potcar_file = None
 
         if run_chargemol and not (
             self._chgcar_path and self._potcar_path and self._aeccar0_path and self._aeccar2_path
@@ -132,7 +134,24 @@ class ChargemolAnalysis:
             warnings.warn("No CHGCAR found. Some properties may be unavailable.", stacklevel=2)
 
         if self._potcar_path:
-            self.potcar = Potcar.from_file(self._potcar_path)
+            potcar = Potcar.from_file(self._potcar_path)
+            self.nelect = [p.nelectrons for p in potcar]
+
+            # chargemol can't process version 64 POTCARs current because of the SHA and COPY fields
+            CHGMOL_BAD_POTCAR_KEYS = ("SHA", "COPYR")
+            if any(k in p.data for p in potcar for k in CHGMOL_BAD_POTCAR_KEYS):
+                self._temp_potcar_file = TemporaryFile()  # noqa: SIM115
+                with open(self._temp_potcar_file.name, "w") as f:
+                    f.write(
+                        "\n".join(
+                            line
+                            for p in potcar
+                            for line in p.data.splitlines()
+                            if not any(k in line for k in CHGMOL_BAD_POTCAR_KEYS)
+                        )
+                    )
+                    f.seek(0)
+                self._potcar_path = self._temp_potcar_file.name
         else:
             warnings.warn("No POTCAR found. Some properties may be unavailable.", stacklevel=2)
 
@@ -143,6 +162,9 @@ class ChargemolAnalysis:
             self._execute_chargemol()
         else:
             self._from_data_dir(chargemol_output_path=path)
+
+        if self._temp_potcar_file:
+            self._temp_potcar_file.close()
 
     @staticmethod
     def _get_filepath(path, filename, suffix=""):
@@ -304,12 +326,10 @@ class ChargemolAnalysis:
         """
         if nelect:
             charge = nelect + self.get_charge_transfer(atom_index, charge_type=charge_type)
-        elif self.potcar and self.natoms:
+        elif self.nelect and self.natoms:
             charge = None
-            potcar_indices = []
-            for idx, val in enumerate(self.natoms):
-                potcar_indices += [idx] * val
-            nelect = self.potcar[potcar_indices[atom_index]].nelectrons
+            potcar_indices = [idx for idx, val in enumerate(self.natoms) for _ in range(val)]
+            nelect = self.nelect[potcar_indices[atom_index]]
             charge = nelect + self.get_charge_transfer(atom_index, charge_type=charge_type)
         else:
             charge = None
