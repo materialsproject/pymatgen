@@ -738,13 +738,14 @@ class Slab(Structure):
 
 
 def center_slab(slab: Structure) -> Structure:
-    """Relocate the slab to the center such that its center
-    (the slab region) is close to z=0.5.
+    """Relocate the slab such that its center is at z=0.5.
+
+    # TODO: docstring
+    Also handles the case where the slab is split into two separate
+    regions by vacuum due to PBC, with the two regions joined.
 
     This makes it easier to find surface sites and apply
     operations like doping.
-
-    TODO: document handling of slabs separated by PBC
 
     Args:
         slab (Structure): The slab to center.
@@ -755,21 +756,40 @@ def center_slab(slab: Structure) -> Structure:
     # Cutoff radius guess (3 times the smallest bond length) to sample neighbors
     cutoff_radius: float = sorted(nn[1] for nn in slab.get_neighbors(slab[0], 10) if nn[1] > 0)[0] * 3
 
-    num_slab_regions: int = len(get_slab_regions(slab, blength=cutoff_radius))
+    slab_regions: list[tuple[float, float]] = get_slab_regions(slab, blength=cutoff_radius)
 
-    if num_slab_regions == 2:
+    if len(slab_regions) == 1:
         pass
 
-    elif num_slab_regions != 1:
-        raise RuntimeError(f"Unable to handle cases where there're {num_slab_regions} slab regions")
+    # If the slab is separated by vacuum, combine them by putting the top region
+    # under the bottom region
+    elif len(slab_regions) == 2:
+        # Get smallest z of the top slab segment
+        _bottom_region, top_region = sorted(slab_regions, key=lambda r: r[1])
+        top_lowest_z = top_region[0]
+
+        # Get all sites of the top region (z >= top_lowest_z)
+        top_region_indices = [i for i, site in enumerate(slab) if site.frac_coords[2] >= top_lowest_z]
+
+        # Shift the top region down by one full unit cell
+        slab.translate_sites(
+            indices=top_region_indices,
+            vector=[0, 0, -1.0],
+            to_unit_cell=False,
+        )
+
+        # Check if two regions have been combined (in case distance too large)
+        if len(get_slab_regions(slab, blength=cutoff_radius)) != 1:
+            raise RuntimeError("Unable to combine slab regions (distance too large or cutoff too small).")
+
+    else:
+        raise RuntimeError(f"Unable to handle cases where there're {len(slab_regions)} slab regions")
 
     weights: list[float] = [site.species.weight for site in slab]
     center_of_mass: float = np.average(slab.frac_coords, weights=weights, axis=0)
+
     shift: float = 0.5 - center_of_mass[2]
-
-    all_indices: list[int] = list(range(len(slab)))
-    slab.translate_sites(all_indices, [0, 0, shift])
-
+    slab.translate_sites(indices=list(range(len(slab))), vector=[0, 0, shift])
     return slab
 
 
