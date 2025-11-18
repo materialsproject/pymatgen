@@ -810,60 +810,69 @@ class Slab(Structure):
         sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
         return [(sorted_sites[0].frac_coords[2], sorted_sites[-1].frac_coords[2])]
 
+    @staticmethod
+    def center_slab(slab: Structure) -> Structure:
+        """Relocate the slab to the center such that its center
+        (the slab region) is close to z=0.5.
 
+        This makes it easier to find surface sites and apply
+        operations like doping.
+
+        There are two possible cases:
+            1. When the slab region is completely positioned between
+            two vacuum layers in the cell but is not centered, we simply
+            shift the slab to the center along z-axis.
+            2. If the slab completely resides outside the cell either
+            from the bottom or the top, we iterate through all sites that
+            spill over and shift all sites such that it is now
+            on the other side. An edge case being, either the top
+            of the slab is at z = 0 or the bottom is at z = 1.
+
+        Args:
+            slab (Structure): The slab to center.
+
+        Returns:
+            Structure: The centered slab.
+        """
+        # Get all site indices
+        all_indices = list(range(len(slab)))
+
+        # Get a reasonable cutoff radius to sample neighbors
+        bond_dists = sorted(nn[1] for nn in slab.get_neighbors(slab[0], 10) if nn[1] > 0)
+        # TODO (@DanielYang59): magic number for cutoff radius (would 3 be too large?)
+        cutoff_radius = bond_dists[0] * 3
+
+        # TODO (@DanielYang59): do we need the following complex method?
+        # Why don't we just calculate the center of the Slab and move it to z=0.5?
+        # Before moving we need to ensure there is only one Slab layer though
+
+        # If structure is case 2, shift all the sites
+        # to the other side until it is case 1
+        for site in slab:  # DEBUG (@DanielYang59): Slab position changes during loop?
+            # DEBUG (@DanielYang59): sites below z=0 is not considered (only check coord > c)
+            if any(nn[1] >= slab.lattice.c for nn in slab.get_neighbors(site, cutoff_radius)):
+                # TODO (@DanielYang59): the magic offset "0.05" seems unnecessary,
+                # as the Slab would be centered later anyway
+                shift = 1 - site.frac_coords[2] + 0.05
+                slab.translate_sites(all_indices, [0, 0, shift])
+
+        # Now the slab is case 1, move it to the center
+        weights = [site.species.weight for site in slab]
+        center_of_mass = np.average(slab.frac_coords, weights=weights, axis=0)
+        shift = 0.5 - center_of_mass[2]
+
+        slab.translate_sites(all_indices, [0, 0, shift])
+
+        return slab
+
+
+@deprecated(Slab.center_slab, message="use `Slab.center_slab` instead.")
 def center_slab(slab: Structure) -> Structure:
-    """Relocate the slab to the center such that its center
-    (the slab region) is close to z=0.5.
+    """Relocate the slab to the center.
 
-    This makes it easier to find surface sites and apply
-    operations like doping.
-
-    There are two possible cases:
-        1. When the slab region is completely positioned between
-        two vacuum layers in the cell but is not centered, we simply
-        shift the slab to the center along z-axis.
-        2. If the slab completely resides outside the cell either
-        from the bottom or the top, we iterate through all sites that
-        spill over and shift all sites such that it is now
-        on the other side. An edge case being, either the top
-        of the slab is at z = 0 or the bottom is at z = 1.
-
-    Args:
-        slab (Structure): The slab to center.
-
-    Returns:
-        Structure: The centered slab.
+    Deprecated: use `Slab.center_slab` instead.
     """
-    # Get all site indices
-    all_indices = list(range(len(slab)))
-
-    # Get a reasonable cutoff radius to sample neighbors
-    bond_dists = sorted(nn[1] for nn in slab.get_neighbors(slab[0], 10) if nn[1] > 0)
-    # TODO (@DanielYang59): magic number for cutoff radius (would 3 be too large?)
-    cutoff_radius = bond_dists[0] * 3
-
-    # TODO (@DanielYang59): do we need the following complex method?
-    # Why don't we just calculate the center of the Slab and move it to z=0.5?
-    # Before moving we need to ensure there is only one Slab layer though
-
-    # If structure is case 2, shift all the sites
-    # to the other side until it is case 1
-    for site in slab:  # DEBUG (@DanielYang59): Slab position changes during loop?
-        # DEBUG (@DanielYang59): sites below z=0 is not considered (only check coord > c)
-        if any(nn[1] >= slab.lattice.c for nn in slab.get_neighbors(site, cutoff_radius)):
-            # TODO (@DanielYang59): the magic offset "0.05" seems unnecessary,
-            # as the Slab would be centered later anyway
-            shift = 1 - site.frac_coords[2] + 0.05
-            slab.translate_sites(all_indices, [0, 0, shift])
-
-    # Now the slab is case 1, move it to the center
-    weights = [site.species.weight for site in slab]
-    center_of_mass = np.average(slab.frac_coords, weights=weights, axis=0)
-    shift = 0.5 - center_of_mass[2]
-
-    slab.translate_sites(all_indices, [0, 0, shift])
-
-    return slab
+    return Slab.center_slab(slab)
 
 
 @deprecated(Slab.get_slab_regions, message="use `Slab.get_slab_regions` instead.")
@@ -1160,7 +1169,7 @@ class SlabGenerator:
 
         # Center the slab layer around the vacuum
         if self.center_slab:
-            struct = center_slab(struct)
+            struct = Slab.center_slab(struct)
 
         # Reduce to primitive cell
         if self.primitive:
