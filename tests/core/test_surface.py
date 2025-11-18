@@ -17,7 +17,6 @@ from pymatgen.core.surface import (
     SlabGenerator,
     generate_all_slabs,
     get_d,
-    get_slab_regions,
     get_symmetrically_distinct_miller_indices,
     get_symmetrically_equivalent_miller_indices,
     miller_index_from_sites,
@@ -309,7 +308,7 @@ class TestSlab(MatSciTest):
                 bottom_c.append(site.frac_coords[2])
             else:
                 top_c.append(site.frac_coords[2])
-        ranges = get_slab_regions(slab)
+        ranges = Slab.get_slab_regions(slab)
         assert tuple(ranges[0]) == (0, max(bottom_c))
         assert tuple(ranges[1]) == (min(top_c), 1)
 

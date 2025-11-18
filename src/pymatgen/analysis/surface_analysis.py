@@ -47,7 +47,7 @@ from sympy.solvers import linsolve, solve
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.core import Structure
 from pymatgen.core.composition import Composition
-from pymatgen.core.surface import get_slab_regions
+from pymatgen.core.surface import Slab
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.io.vasp.outputs import Locpot, Outcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -1394,7 +1394,7 @@ class WorkFunctionAnalyzer:
         self.locpot_along_c = locpot_start + locpot_along_c_mid + locpot_end
 
         # identify slab region
-        self.slab_regions = get_slab_regions(self.slab, blength=blength)
+        self.slab_regions = Slab.get_slab_regions(self.slab, blength=blength)
         # get the average of the signal in the bulk-like region of the
         # slab, i.e. the average of the oscillating region. This gives
         # a rough appr. of the potential in the interior of the slab
