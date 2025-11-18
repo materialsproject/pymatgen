@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import orjson
+from monty.dev import deprecated
 from monty.fractions import lcm
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
@@ -1902,7 +1903,7 @@ class ReconstructionGenerator:
         Returns:
             list[Slab]: The reconstructed slabs.
         """
-        slabs = self.get_unreconstructed_slabs()
+        slabs = self._get_unreconstructed_slabs()
 
         recon_slabs = []
 
@@ -1946,12 +1947,14 @@ class ReconstructionGenerator:
 
         return recon_slabs
 
-    def get_unreconstructed_slabs(self) -> list[Slab]:
-        """Generate the unreconstructed (super) Slabs.
-
-        TODO (@DanielYang59): this should be a private method.
-        """
+    def _get_unreconstructed_slabs(self) -> list[Slab]:
+        """Generate the unreconstructed (super) Slabs."""
         return [slab.make_supercell(self.trans_matrix) for slab in SlabGenerator(**self.slabgen_params).get_slabs()]
+
+    @deprecated(message="get_unreconstructed_slabs is a private method")
+    def get_unreconstructed_slabs(self) -> list[Slab]:
+        """This is meant as a private method, renamed to _get_unreconstructed_slabs."""
+        return self._get_unreconstructed_slabs()
 
 
 def get_symmetrically_equivalent_miller_indices(

@@ -652,7 +652,7 @@ class TestReconstructionGenerator(MatSciTest):
     def test_build_slab(self):
         # First lets test a reconstruction where we only remove atoms
         recon = ReconstructionGenerator(self.Ni, 10, 10, "fcc_110_missing_row_1x2")
-        slab = recon.get_unreconstructed_slabs()[0]
+        slab = recon._get_unreconstructed_slabs()[0]
         recon_slab = recon.build_slabs()[0]
         assert recon_slab.reconstruction
         assert len(slab) == len(recon_slab) + 2
@@ -666,7 +666,7 @@ class TestReconstructionGenerator(MatSciTest):
 
         # Test a reconstruction where we simply add atoms
         recon = ReconstructionGenerator(self.Ni, 10, 10, "fcc_111_adatom_t_1x1")
-        slab = recon.get_unreconstructed_slabs()[0]
+        slab = recon._get_unreconstructed_slabs()[0]
         recon_slab = recon.build_slabs()[0]
         assert len(slab) == len(recon_slab) - 2
         assert recon_slab.is_symmetric()
@@ -678,7 +678,7 @@ class TestReconstructionGenerator(MatSciTest):
 
         # Test a reconstruction where it works on a specific termination (Fd-3m (111))
         recon = ReconstructionGenerator(self.Si, 10, 10, "diamond_111_1x2")
-        slab = recon.get_unreconstructed_slabs()[0]
+        slab = recon._get_unreconstructed_slabs()[0]
         recon_slab = recon.build_slabs()[0]
         assert len(slab) == len(recon_slab) - 8
         assert recon_slab.is_symmetric()
@@ -693,8 +693,8 @@ class TestReconstructionGenerator(MatSciTest):
         recon = ReconstructionGenerator(self.Si, 10, 10, "diamond_100_2x1")
 
         recon2 = ReconstructionGenerator(self.Si, 20, 10, "diamond_100_2x1")
-        s1 = recon.get_unreconstructed_slabs()[0]
-        s2 = recon2.get_unreconstructed_slabs()[0]
+        s1 = recon._get_unreconstructed_slabs()[0]
+        s2 = recon2._get_unreconstructed_slabs()[0]
         assert get_d(s1) == approx(get_d(s2))
 
     @pytest.mark.xfail(reason="This test relies on neighbor orders and is hard coded. Disable temporarily")
