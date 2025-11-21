@@ -4245,26 +4245,28 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Examples:
             structure[0] = "Fe"
             structure[0] = Element("Fe")
-            both replaces the species only.
+                both replaces the species only.
+
             structure[0] = "Fe", [0.5, 0.5, 0.5]
-            Replaces site and *fractional* coordinates. Any properties
-            are inherited from current site.
+                Replaces site and *fractional* coordinates. Any properties
+                are inherited from current site.
+
             structure[0] = "Fe", [0.5, 0.5, 0.5], spin=2
-            Replaces site and *fractional* coordinates and properties.
+                Replaces site and *fractional* coordinates and properties.
 
             structure[(0, 2, 3)] = "Fe"
-            Replaces sites 0, 2 and 3 with Fe.
+                Replaces sites 0, 2 and 3 with Fe.
 
             structure[::2] = "Fe"
-            Replaces all even index sites with Fe.
+                Replaces all even index sites with Fe.
 
             structure["Mn"] = "Fe"
-            Replaces all Mn in the structure with Fe. This is
-            a short form for the more complex replace_species.
+                Replaces all Mn in the structure with Fe. This is
+                a short form for the more complex replace_species.
 
             structure["Mn"] = "Fe0.5Co0.5"
-            Replaces all Mn in the structure with Fe: 0.5, Co: 0.5, i.e.,
-            creates a disordered structure!
+                Replaces all Mn in the structure with Fe: 0.5, Co: 0.5, i.e.,
+                creates a disordered structure!
         """
         if isinstance(idx, int):
             indices = [idx]
