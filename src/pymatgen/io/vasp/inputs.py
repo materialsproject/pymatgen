@@ -795,6 +795,10 @@ class Incar(UserDict, MSONable):
         in the `lower_str_keys/as_is_str_keys` of the `proc_val` method.
     """
 
+    # INCAR tag/value recording
+    with open(os.path.join(MODULE_DIR, "incar_parameters.json"), encoding="utf-8") as json_file:
+        INCAR_PARAMS: ClassVar[dict[Literal["type", "values"], Any]] = orjson.loads(json_file.read())
+
     def __init__(self, params: Mapping[str, Any] | None = None) -> None:
         """
         Clean up params and create an Incar object.
@@ -961,17 +965,43 @@ class Incar(UserDict, MSONable):
         Returns:
             Incar object
         """
+        string = "\n".join([ln.split("#", 1)[0].split("!", 1)[0].rstrip() for ln in string.splitlines()])
+
         params: dict[str, Any] = {}
-        for line in clean_lines(string.splitlines()):
-            for sline in line.split(";"):
-                if match := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
-                    key: str = match[1].strip()
-                    val: str = match[2].strip()
-                    params[key] = cls.proc_val(key, val)
+
+        # Handle line continuations (\)
+        string = re.sub(r"\\\s*\n", " ", string)
+
+        # Regex pattern to find all valid "key = value" assignments at once
+        pattern = re.compile(
+            r"""
+            (?P<key>\w+)             # Key (e.g. ENCUT)
+            \s*=\s*                  # Equals sign and optional spaces
+            (?:                      # Non-capturing group for the value
+                "                    # Opening quote
+                (?P<qval>.*?)        # Capture everything inside (non-greedy)
+                [ \t]*"              # Allow trailing spaces/tabs before closing quote
+                |                    # OR
+                (?P<val>[^#!;\n]*)   # Unquoted value (stops before comment/separator)
+            )
+            """,
+            re.VERBOSE | re.DOTALL,
+        )
+
+        # Find all matches in the entire string
+        for match in pattern.finditer(string):
+            key = match.group("key")
+            val = match.group("qval") if match.group("qval") is not None else (match.group("val") or "").strip()
+
+            if not val:
+                continue
+
+            params[key] = cls.proc_val(key, val)
+
         return cls(params)
 
-    @staticmethod
-    def proc_val(key: str, val: str) -> list | bool | float | int | str:
+    @classmethod
+    def proc_val(cls, key: str, val: str) -> list | bool | float | int | str:
         """Helper method to convert INCAR parameters to proper types
         like ints, floats, lists, etc.
 
@@ -979,79 +1009,37 @@ class Incar(UserDict, MSONable):
             key (str): INCAR parameter key.
             val (str): Value of INCAR parameter.
         """
-        list_keys = (
-            "LDAUU",
-            "LDAUL",
-            "LDAUJ",
-            "MAGMOM",
-            "DIPOL",
-            "LANGEVIN_GAMMA",
-            "QUAD_EFG",
-            "EINT",
-            "LATTICE_CONSTRAINTS",
-        )
-        bool_keys = (
-            "LDAU",
-            "LWAVE",
-            "LSCALU",
-            "LCHARG",
-            "LPLANE",
-            "LUSE_VDW",
-            "LHFCALC",
-            "ADDGRID",
-            "LSORBIT",
-            "LNONCOLLINEAR",
-        )
-        float_keys = (
-            "EDIFF",
-            "SIGMA",
-            "TIME",
-            "ENCUTFOCK",
-            "HFSCREEN",
-            "POTIM",
-            "EDIFFG",
-            "AGGAC",
-            "PARAM1",
-            "PARAM2",
-            "ENCUT",
-            "NUPDOWN",
-        )
-        int_keys = (
-            "NSW",
-            "NBANDS",
-            "NELMIN",
-            "ISIF",
-            "IBRION",
-            "ISPIN",
-            "ISTART",
-            "ICHARG",
-            "NELM",
-            "ISMEAR",
-            "NPAR",
-            "LDAUPRINT",
-            "LMAXMIX",
-            "NSIM",
-            "NKRED",
-            "ISPIND",
-            "LDAUTYPE",
-            "IVDW",
-        )
+        # Handle union type (e.g. "bool | str" for LREAL)
+        if incar_type := cls.INCAR_PARAMS.get(key, {}).get("type"):
+            incar_types: list[str] = [t.strip() for t in incar_type.split("|")]
+        else:
+            incar_types = []
+
+        # Special cases
+        # Always lower case
         lower_str_keys = ("ML_MODE",)
         # String keywords to read "as is" (no case transformation, only stripped)
-        as_is_str_keys = ("SYSTEM",)
-
-        def smart_int_or_float_bool(str_: str) -> float | int | bool:
-            """Determine whether a string represents an integer or a float."""
-            if str_.lower().startswith(".t") or str_.lower().startswith("t"):
-                return True
-            if str_.lower().startswith(".f") or str_.lower().startswith("f"):
-                return False
-            if "." in str_ or "e" in str_.lower():
-                return float(str_)
-            return int(str_)
+        as_is_str_keys = ("SYSTEM", "WANNIER90_WIN")
 
         try:
-            if key in list_keys:
+            if key in lower_str_keys:
+                return val.strip().lower()
+
+            if key in as_is_str_keys:
+                return val.strip()
+
+            if "list" in incar_types:
+
+                def smart_int_or_float_bool(str_: str) -> float | int | bool:
+                    """Determine whether a string represents an integer or a float."""
+                    if str_.lower().startswith(".t") or str_.lower().startswith("t"):
+                        return True
+                    if str_.lower().startswith(".f") or str_.lower().startswith("f"):
+                        return False
+                    if "." in str_ or "e" in str_.lower():
+                        return float(str_)
+                    return int(str_)
+
                 output = []
                 tokens = re.findall(r"(-?\d+\.?\d*|[\.A-Z]+)\*?(-?\d+\.?\d*|[\.A-Z]+)?\*?(-?\d+\.?\d*|[\.A-Z]+)?", val)
                 for tok in tokens:
@@ -1061,27 +1049,24 @@ class Incar(UserDict, MSONable):
                         output.extend([smart_int_or_float_bool(tok[1])] * int(tok[0]))
                     else:
                         output.append(smart_int_or_float_bool(tok[0]))
-                return output
 
-            if key in bool_keys:
+                if output:  # pass when fail to parse (val is not list)
+                    return output
+
+            if "bool" in incar_types:
                 if match := re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val):
                     return match[1].lower() == "t"
 
                 raise ValueError(f"{key} should be a boolean type!")
 
-            if key in float_keys:
+            if "float" in incar_types:
                 return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", val)[0])  # type: ignore[index]
 
-            if key in int_keys:
+            if "int" in incar_types:
                 return int(re.match(r"^-?[0-9]+", val)[0])  # type: ignore[index]
 
-            if key in lower_str_keys:
-                return val.strip().lower()
-
-            if key in as_is_str_keys:
-                return val.strip()
-
-        except ValueError:
+        # If re.match doesn't hit, it would return None and thus TypeError from indexing
+        except (ValueError, TypeError):
             pass
 
         # Not in known keys. We will try a hierarchy of conversions.
@@ -1117,7 +1102,7 @@ class Incar(UserDict, MSONable):
                 {"Same" : parameters_that_are_the_same, "Different": parameters_that_are_different}
                 Note that the parameters are return as full dictionaries of values. E.g. {"ISIF":3}
         """
-        similar_params = {}
+        same_params = {}
         different_params = {}
         for k1, v1 in self.items():
             if k1 not in other:
@@ -1125,26 +1110,22 @@ class Incar(UserDict, MSONable):
             elif v1 != other[k1]:
                 different_params[k1] = {"INCAR1": v1, "INCAR2": other[k1]}
             else:
-                similar_params[k1] = v1
+                same_params[k1] = v1
 
         for k2, v2 in other.items():
-            if k2 not in similar_params and k2 not in different_params and k2 not in self:
+            if k2 not in same_params and k2 not in different_params and k2 not in self:
                 different_params[k2] = {"INCAR1": None, "INCAR2": v2}
 
-        return {"Same": similar_params, "Different": different_params}
+        return {"Same": same_params, "Different": different_params}
 
     def check_params(self) -> None:
         """Check INCAR for invalid tags or values.
         If a tag doesn't exist, calculation will still run, however VASP
         will ignore the tag and set it as default without letting you know.
         """
-        # Load INCAR tag/value check reference file
-        with open(os.path.join(MODULE_DIR, "incar_parameters.json"), encoding="utf-8") as json_file:
-            incar_params = orjson.loads(json_file.read())
-
         for tag, val in self.items():
             # Check if the tag exists
-            if tag not in incar_params:
+            if tag not in self.INCAR_PARAMS:
                 warnings.warn(
                     f"Cannot find {tag} in the list of INCAR tags",
                     BadIncarWarning,
@@ -1153,8 +1134,8 @@ class Incar(UserDict, MSONable):
                 continue
 
             # Check value type
-            param_type: str = incar_params[tag].get("type")
-            allowed_values: list[Any] = incar_params[tag].get("values")
+            param_type: str = self.INCAR_PARAMS[tag].get("type")
+            allowed_values: list[Any] = self.INCAR_PARAMS[tag].get("values")
 
             if param_type is not None and not isinstance(val, eval(param_type)):  # noqa: S307
                 warnings.warn(f"{tag}: {val} is not a {param_type}", BadIncarWarning, stacklevel=2)
@@ -1220,7 +1201,7 @@ class Kpoints(MSONable):
         style: KpointsSupportedModes = supported_modes.Gamma,
         kpts: Sequence[Kpoint] = ((1, 1, 1),),
         kpts_shift: tuple[float, float, float] = (0, 0, 0),
-        kpts_weights: list[float] | None = None,
+        kpts_weights: Sequence[float] | None = None,
         coord_type: Literal["Reciprocal", "Cartesian"] | None = None,
         labels: list[str] | None = None,
         tet_number: int = 0,
@@ -1246,12 +1227,12 @@ class Kpoints(MSONable):
                 (or negative), VASP automatically generates the KPOINTS.
             style: Style for generating KPOINTS. Use one of the
                 Kpoints.supported_modes enum types.
-            kpts (2D array): Array of kpoints. Even when only a single
+            kpts (2D sequence): Sequence of kpoints. Even when only a single
                 specification is required, e.g. in the automatic scheme,
-                the kpts should still be specified as a 2D array. e.g.
+                the kpts should still be specified as a 2D sequence. e.g.
                 [(20,),] or [(2, 2, 2),].
             kpts_shift (3x1 array): Shift for kpoints.
-            kpts_weights (list[float]): Optional weights for explicit kpoints.
+            kpts_weights (Sequence[float]): Optional weights for explicit kpoints.
             coord_type: In line-mode, this variable specifies whether the
                 Kpoints were given in Cartesian or Reciprocal coordinates.
             labels: In line-mode, this should provide a list of labels for
@@ -1266,7 +1247,7 @@ class Kpoints(MSONable):
                 Format is a list of tuples, [ (sym_weight, [tet_vertices]),
                 ...]
         """
-        if num_kpts > 0 and not labels and not kpts_weights:
+        if num_kpts > 0 and not labels and kpts_weights is None:
             raise ValueError("For explicit or line-mode kpoints, either the labels or kpts_weights must be specified.")
 
         self.comment = comment
@@ -1274,7 +1255,7 @@ class Kpoints(MSONable):
         self.kpts = kpts  # type: ignore[assignment]
         self.style = style
         self.coord_type = coord_type
-        self.kpts_weights = kpts_weights
+        self.kpts_weights = list(kpts_weights) if kpts_weights is not None else None
         self.kpts_shift = tuple(kpts_shift)
         self.labels = labels
         self.tet_number = tet_number

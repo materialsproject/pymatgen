@@ -99,7 +99,6 @@ def test_get_atoms_from_structure_dyn():
     STRUCTURE.add_site_property("selective_dynamics", sel_dyn)
     atoms = AseAtomsAdaptor.get_atoms(STRUCTURE)
     for c in atoms.constraints:
-        # print(c)
         assert isinstance(c, ase.constraints.FixAtoms | ase.constraints.FixCartesian)
         ase_mask = c.mask if isinstance(c, ase.constraints.FixCartesian) else [True, True, True]
         assert len(c.index) == len([mask for mask in sel_dyn if np.array_equal(mask, ~np.array(ase_mask))])

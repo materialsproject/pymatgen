@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import linecache
+import logging
 from io import StringIO
 from typing import TYPE_CHECKING
 
@@ -15,6 +16,7 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
     from pymatgen.util.typing import PathLike
 
+logger = logging.getLogger(__name__)
 
 __author__ = "Hanyu Liu"
 __email__ = "domainofbuaa@gmail.com"
@@ -147,12 +149,12 @@ class Movement(MSONable):
                 if e_atoms is not None:
                     tmp_step["atom_energies"] = ACstrExtractor(tmp_chunk).get_atom_energies()
                 else:
-                    print(f"Ionic step #{ii} : Energy deposition is turn down.")
+                    logger.info(f"Ionic step #{ii} : Energy deposition is turn down.")
                 virial: np.ndarray | None = ACstrExtractor(tmp_chunk).get_virial()
                 if virial is not None:
                     tmp_step["virial"] = virial.reshape(3, 3)
                 else:
-                    print(f"Ionic step #{ii} : No virial information.")
+                    logger.info(f"Ionic step #{ii} : No virial information.")
                 ionic_steps.append(tmp_step)
         return ionic_steps
 

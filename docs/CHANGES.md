@@ -6,6 +6,36 @@ nav_order: 4
 
 # Changelog
 
+## v2025.10.7
+
+- PR #4503 Replace print statements with logging across library code and tests (by @DanielYang59)
+- PR #4510 Suppress noisy RuntimeWarning messages from BoltzTraP2 during transport analysis (by @DanielYang59)
+- PR #4512 Ensure source distribution (sdist) is published to PyPI alongside wheels (by @DanielYang59)
+- PR #4494 Re-enable mypy “misc” rule and perform minor documentation, typing, and test cleanups (by @DanielYang59)
+- PR #4491 Deprecate projected_magnetisation in favor of projected_magnetization (US spelling) (by @DanielYang59)
+- PR #4493 Composition.get_wt_fraction now returns a float instead of FloatWithUnit (by @DanielYang59)
+- PR #4496 Implement __rtruediv__ for FloatWithUnit and fix ArrayWithUnit losing unit_type on unpickling; add unit tests (by @DanielYang59)
+- PR #4497 Improve pmg CLI tests; fix pmg diff header ordering and resolve pmg view color handling error (by @DanielYang59)
+- PR #4490 Replace internal linear_assignment with scipy.optimize.linear_sum_assignment (by @DanielYang59)
+- PR #4440 Add parsing/storage of vibrational modes and vibrational energy components to JDFTXOutfileSlice with tests (by @benrich37)
+- PR #4487 Fix variable name collision in TranslateSitesTransformation.apply_transformation; strengthen test to catch issue (by @Rastow)
+- PR #4463 Remove dev-only “ci” optional dependency group, migrate CI to uv, and update markdown docs (by @DanielYang59)
+- PR #4447 Correct has_cobicar detection when NcICOBILIST is present in LOBSTER outputs (by @tomdemeyere)
+- PR #4469 Loosen requests version pin and fix deprecations/new ruff issues (by @DanielYang59)
+- PR #4479 Introduce JdftxInputSet (moved from atomate2), add base YAML preset and basic tests (by @cote3804)
+- PR #4484 Make jdftx.outputs compatible with Python versions prior to 3.11 by removing starred-subscript usage (by @DanielYang59)
+- PR #4473 Fix labels and values in NEBAnalysis plots, prefer exact glob matches, and deprecate spline_options in favor of zero_slope_saddle flag (by @DanielYang59)
+- PR #4260 Move FHI-aims IO to external package (pyfhiaims) to reduce duplication and ease maintenance (by @tpurcell90)
+- PR #4476 Patch ReDOS vulnerability in GaussianInput.from_string (by @lbluque)
+- PR #4449 Address ruff PERF401 (manual list comprehension) for minor performance/cleanliness improvements (by @DanielYang59)
+- PR #4448 Remove sensitivity to trailing newline in LOBSTER output parsers; improves robustness (by @DanielYang59)
+- PR #4454 Correct documentation for Element density_of_solid and molar volume units (by @DanielYang59)
+- PR #4455 Cache optional dependency installs in CI for macOS/Ubuntu; enable mcsqs and pyzeo tests; convert some skips to xfail (by @DanielYang59)
+- PR #4461 Allow numpy arrays for selective dynamics in Structure and add tests; ensure JSON roundtrips (by @DanielYang59)
+- PR #4464 Fix typo referencing site.species in SpacegroupAnalyzer.get_primitive_standard_structure (by @boyoungzheng)
+- PR #4446 Improve performance of Species.__str__ by reducing redundant attribute lookups (by @kavanase)
+- PR #4438 Add basic S3 object retrieval support to the pymatgen user agent for large MP datasets (by @esoteric-ephemera)
+
 ## v2025.6.14
 
 - Treat LATTICE_CONSTRAINTS as is for INCARs.
@@ -172,7 +202,7 @@ nav_order: 4
     - feature 2: Outline how we might initialize `BandStructureSymmLine`(s) for calculations with explicitly defined 'kpoint' tags, as using 'kpoint's instead of `kpoint-folding` is most likely an indicator of a band-structure calculation
 - PR #4415 speed-up Structure instantiation by @danielzuegner
     This PR speeds up the instantiation of `Structure` objects by preventing hash collisions in the `lru_cache` of `get_el_sp` and increasing its `maxsize`. The issue is that currently `Element` objects are hashed to the same value as the integer atomic numbers (e.g., `Element[H]` maps to the same hash as `int(1)`). This forces the `lru_hash` to perform an expensive `__eq__` comparison between the two, which reduces the performance of instantiating many `Structure` objects. Also here we increase the `maxsize` of `get_el_sp`'s `lru_cache` to 1024 for further performance improvements.
-    This reduces time taken to instantiate 100,000 `Structure` objects from 31 seconds to 8.7s (avoid hash collisions) to 6.1s (also increase `maxsize` to 1024). 
+    This reduces time taken to instantiate 100,000 `Structure` objects from 31 seconds to 8.7s (avoid hash collisions) to 6.1s (also increase `maxsize` to 1024).
 - PR #4410 JDFTx Inputs - boundary value checking by @benrich37
     Major changes:
     - feature 1: Revised boundary checking for input tags
@@ -292,7 +322,7 @@ nav_order: 4
 
 ## v2025.4.24
 
-- Structure now has a calc_property method that enables one to get a wide range of elasticity, EOS, and phonon properties using matcalc. Requires matcalc to be 
+- Structure now has a calc_property method that enables one to get a wide range of elasticity, EOS, and phonon properties using matcalc. Requires matcalc to be
   installed.
 - Bug fix and expansion of pymatgen.ext.matproj.MPRester. Now property_data is always consistent with the returned entry in get_entries. Summary data, which is not
   always consistent but is more comprehensive, can be obtained via a summary_data kwarg.
@@ -318,7 +348,7 @@ nav_order: 4
 
 ## v2025.4.19
 
-- MPRester.get_entries and get_entries_in_chemsys now supports property_data. inc_structure, conventional_only and 
+- MPRester.get_entries and get_entries_in_chemsys now supports property_data. inc_structure, conventional_only and
 - PR #4367 fix perturb bug that displaced all atoms equally by @skasamatsu
 - PR #4361 Replace `pybtex` with `bibtexparser` by @DanielYang59
 - PR #4362 fix(MVLSlabSet): convert DIPOL vector to pure Python list before writing INCAR by @atulcthakur

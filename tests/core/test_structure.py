@@ -132,7 +132,7 @@ class TestIStructure(MatSciTest):
 
     def test_equal(self):
         struct = self.struct
-        assert struct == struct
+        assert struct == struct  # noqa: PLR0124
         assert struct == struct.copy()
         assert struct != 2 * struct
 
@@ -2025,7 +2025,6 @@ direct
         matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed = struct.relax()
-        print(relaxed.lattice.a)
         assert relaxed.lattice.a == approx(3.860516230545545, rel=0.01)  # allow 1% error
         assert isinstance(relaxed.calc, matgl.ext.ase.PESCalculator)
         for key, val in {"type": "optimization", "optimizer": "FIRE"}.items():
@@ -2046,7 +2045,7 @@ direct
     def test_relax_m3gnet_with_traj(self):
         pytest.importorskip("matgl")
         struct = self.get_structure("Si")
-        relaxed, trajectory = struct.relax(return_trajectory=True)
+        relaxed, _trajectory = struct.relax(return_trajectory=True)
         assert relaxed.lattice.a == approx(3.867626620642243, abs=0.039)
         # assert sorted(trajectory.__dict__) == expected_attrs
         # for key in expected_attrs:
@@ -2176,10 +2175,8 @@ class TestIMolecule(MatSciTest):
             [-0.513360, 0.889165, -0.363000],
             [-0.513360, 0.889165, -0.36301],
         ]
-        with pytest.raises(StructureError) as exc:
+        with pytest.raises(StructureError, match="sites that are less than 0.01 Angstrom"):
             Molecule(["C", "H", "H", "H", "H", "H"], coords, validate_proximity=True)
-
-        assert "Molecule contains sites that are less than 0.01 Angstrom apart!" in str(exc.value)
 
     def test_get_angle_dihedral(self):
         assert self.mol.get_angle(1, 0, 2) == approx(109.47122144618737)

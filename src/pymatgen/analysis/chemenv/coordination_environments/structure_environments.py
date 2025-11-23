@@ -8,6 +8,7 @@ and possibly some fraction corresponding to these.
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
@@ -35,6 +36,7 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
+logger = logging.getLogger(__name__)
 
 all_cg = AllCoordinationGeometries()
 symbol_cn_mapping = all_cg.get_symbol_cn_mapping()
@@ -203,6 +205,8 @@ class StructureEnvironments(MSONable):
         def angle_plateau(self):
             all_nbs_normalized_angles_sorted = sorted(nb["normalized_angle"] for nb in self.voronoi)
             min_ang = np.min(self.normalized_angles)
+            for nb in self.voronoi:
+                logger.debug(nb)
             plateau = None
             tol = self.detailed_voronoi.normalized_angle_tolerance
             for iang, ang in enumerate(all_nbs_normalized_angles_sorted):

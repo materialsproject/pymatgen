@@ -86,7 +86,7 @@ class GaussianInput:
     """A Gaussian input file."""
 
     # Commonly used regex patterns
-    _zmat_patt = re.compile(r"^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
+    _zmat_patt = re.compile(r"^(\w+)([\s,]+(\w+)[\s,]+(\w+)){0,3}[\-\.\s,\w]*$")
     _xyz_patt = re.compile(r"^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\-\.\s,\w.]*$")
 
     def __init__(
