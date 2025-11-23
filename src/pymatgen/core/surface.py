@@ -743,15 +743,10 @@ def center_slab(slab: Structure) -> Structure:
     This makes it easier to find surface sites and apply
     operations like doping.
 
-    There are two possible cases:
-        1. When the slab region is completely positioned between
-        two vacuum layers in the cell but is not centered, we simply
-        shift the slab to the center along z-axis.
-        2. If the slab completely resides outside the cell either
-        from the bottom or the top, we iterate through all sites that
-        spill over and shift all sites such that it is now
-        on the other side. An edge case being, either the top
-        of the slab is at z = 0 or the bottom is at z = 1.
+    TODOs:
+    - This assume there're only one or two slab regions, but I
+    guess it's possible that there might be more (maybe a warning in this case)?
+    - This doesn't work if site is outside the cell.
 
     Args:
         slab (Structure): The slab to center.

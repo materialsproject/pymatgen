@@ -294,25 +294,6 @@ class TestSlab(MatSciTest):
             assert surface_area(slab) == approx(surface_area(ouc))
             assert len(slab) >= len(ouc)
 
-    def test_get_slab_regions(self):
-        # If a slab layer in the slab cell is not completely inside
-        # the cell (noncontiguous), check that get_slab_regions will
-        # be able to identify where the slab layers are located
-
-        struct = self.get_structure("LiFePO4")
-        slab_gen = SlabGenerator(struct, (0, 0, 1), 15, 15)
-        slab = slab_gen.get_slabs()[0]
-        slab.translate_sites([idx for idx, site in enumerate(slab)], [0, 0, -0.25])
-        bottom_c, top_c = [], []
-        for site in slab:
-            if site.frac_coords[2] < 0.5:
-                bottom_c.append(site.frac_coords[2])
-            else:
-                top_c.append(site.frac_coords[2])
-        ranges = get_slab_regions(slab)
-        assert tuple(ranges[0]) == (0, max(bottom_c))
-        assert tuple(ranges[1]) == (min(top_c), 1)
-
     def test_as_dict(self):
         slabs = generate_all_slabs(
             self.ti,
@@ -344,6 +325,65 @@ class TestSlab(MatSciTest):
         dict_str = orjson.dumps(slab.as_dict()).decode()
         d = orjson.loads(dict_str)
         assert slab == Slab.from_dict(d)
+
+
+class TestSlabHelpers:
+    # TODO: this should be merged into `TestSlab`
+    @staticmethod
+    def _make_simple_slab(
+        thickness: float,
+        z_center: float = 0.5,
+        n_sites: int = 5,
+    ) -> Structure:
+        rng = np.random.default_rng(seed=0)
+
+        zmin = z_center - thickness / 2
+        zmax = z_center + thickness / 2
+
+        zs = np.linspace(zmin, zmax, n_sites)
+        xs = rng.random(n_sites)  # uniform in [0,1)
+        ys = rng.random(n_sites)
+
+        coords = [[x, y, z] for x, y, z in zip(xs, ys, zs, strict=True)]
+
+        struct = Structure(
+            Lattice.cubic(10),
+            ["H"] * n_sites,
+            coords,
+            coords_are_cartesian=False,
+        )
+
+        # Sanity checks
+        assert xs.min() >= 0
+        assert xs.max() < 1
+        assert ys.min() >= 0
+        assert ys.max() < 1
+
+        z_vals = struct.frac_coords[:, 2]
+        assert np.allclose(z_vals, zs), "Structure unexpectedly altered z-values"
+
+        assert z_vals.max() - z_vals.min() == approx(thickness)
+
+        return struct
+
+    @pytest.mark.parametrize("z_center", [-0.5, 0.5, 1.5])
+    def test_get_slab_regions_single_continuous(self, z_center):
+        thickness = 0.2
+        slab = self._make_simple_slab(thickness, z_center)
+        regions = get_slab_regions(slab)
+
+        assert len(regions) == 1
+        assert regions[0][0] == approx(z_center - thickness / 2)
+        assert regions[0][1] == approx(z_center + thickness / 2)
+
+    def test_get_slab_regions_single_non_continuous(self):
+        pass
+
+    def test_get_slab_regions_multiple(self):
+        # Test two slab regions
+
+        # Test multiple slab regions
+        pass
 
 
 class TestSlabGenerator(MatSciTest):
