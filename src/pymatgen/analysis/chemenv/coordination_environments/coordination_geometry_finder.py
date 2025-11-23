@@ -77,7 +77,7 @@ due.cite(
 
 class AbstractGeometry:
     """Describe a geometry (perfect or distorted)."""
-    
+
     def __init__(
         self,
         central_site=None,
@@ -165,13 +165,12 @@ class AbstractGeometry:
                 if central is None:
                     raise ValueError("Centering_type is central_site, the central site should be given")
                 centre = central  # direct assignment, no copy needed
+            elif include_central_site_in_centroid:
+                if central is None:
+                    raise ValueError("The centroid includes the central site but no central site is given")
+                centre = (sum_b + central) / float(n + 1)
             else:
-                if include_central_site_in_centroid:
-                    if central is None:
-                        raise ValueError("The centroid includes the central site but no central site is given")
-                    centre = (sum_b + central) / float(n + 1)
-                else:
-                    centre = sum_b / float(n)
+                centre = sum_b / float(n)
         elif centering_type == "central_site":
             if include_central_site_in_centroid:
                 raise ValueError(
@@ -192,7 +191,7 @@ class AbstractGeometry:
             # Match robustness expectations; original code had no else, but this helps debugging.
             raise ValueError(f"Unknown centering_type {centering_type!r}")
 
-        # FINAL DERIVED COORDINATES 
+        # FINAL DERIVED COORDINATES
         self.centre = centre
         self._bare_coords = bcoords
         self._coords = bcoords - centre
@@ -329,6 +328,7 @@ class AbstractGeometry:
         """Coordination number."""
         return len(self.coords)
 
+
 def symmetry_measure(points_distorted, points_perfect):
     """
     Computes the continuous symmetry measure (CSM) of a (distorted) set of points
@@ -340,7 +340,7 @@ def symmetry_measure(points_distorted, points_perfect):
 
     # Ensure contiguous float64 arrays once (avoids repeated conversions downstream).
     pd = np.asarray(points_distorted, dtype=np.float64)
-    pp = np.asarray(points_perfect,   dtype=np.float64)
+    pp = np.asarray(points_perfect, dtype=np.float64)
 
     # Find optimal rotation (least squares alignment).
     rot = find_rotation(points_distorted=pd, points_perfect=pp)
@@ -354,8 +354,8 @@ def symmetry_measure(points_distorted, points_perfect):
 
     # Vectorized L2 error without creating intermediates; ravel-dot is fast & clear.
     diff = pp - rotated
-    num = float(diff.ravel().dot(diff.ravel()))           # == sum((pp - rotated)^2)
-    denom = float(pp.ravel().dot(pp.ravel()))             # == sum(pp^2)
+    num = float(diff.ravel().dot(diff.ravel()))  # == sum((pp - rotated)^2)
+    denom = float(pp.ravel().dot(pp.ravel()))  # == sum(pp^2)
 
     # Guard against pathological denom=0 (shouldn't happen for real geometries).
     csm = 0.0 if denom == 0.0 else (num / denom) * 100.0
@@ -501,7 +501,7 @@ class LocalGeometryFinder:
             value: Value of the parameter.
         """
         self.__dict__[parameter] = value
-        
+
     def setup_structure(self, structure: Structure):
         """Set up the structure and optionally refine/symmetrize."""
         self.initial_structure = structure.copy()
@@ -514,9 +514,9 @@ class LocalGeometryFinder:
 
         # reason_AL: bind options locally to avoid dict lookups; SGA only once when possible
         opts = self.spg_analyzer_options
-        sga = SpacegroupAnalyzer(self.initial_structure,
-                                symprec=opts["symprec"],
-                                angle_tolerance=opts["angle_tolerance"])
+        sga = SpacegroupAnalyzer(
+            self.initial_structure, symprec=opts["symprec"], angle_tolerance=opts["angle_tolerance"]
+        )
 
         if ref == self.STRUCTURE_REFINEMENT_REFINED:
             self.structure = sga.get_refined_structure()
@@ -525,9 +525,7 @@ class LocalGeometryFinder:
         elif ref == self.STRUCTURE_REFINEMENT_SYMMETRIZED:
             # reason_AL: reuse refined structure; second SGA only on refined
             self.structure = sga.get_refined_structure()
-            sga2 = SpacegroupAnalyzer(self.structure,
-                                    symprec=opts["symprec"],
-                                    angle_tolerance=opts["angle_tolerance"])
+            sga2 = SpacegroupAnalyzer(self.structure, symprec=opts["symprec"], angle_tolerance=opts["angle_tolerance"])
             self.spg_analyzer = sga2
             self.symmetrized_structure = sga2.get_symmetrized_structure()
 
@@ -581,7 +579,7 @@ class LocalGeometryFinder:
             coords_are_cartesian: If set to True, the coordinates are given in Cartesian coordinates.
         """
         self.setup_structure(Structure(lattice, species, coords, coords_are_cartesian))
-        
+
     def compute_structure_environments(
         self,
         excluded_atoms=None,
@@ -620,7 +618,7 @@ class LocalGeometryFinder:
             }
         }
 
-        #rebuild AllCoordinationGeometries only when needed
+        # rebuild AllCoordinationGeometries only when needed
         if only_symbols is not None:
             self.allcg = AllCoordinationGeometries(
                 permutations_safe_override=self.permutations_safe_override,
@@ -653,18 +651,12 @@ class LocalGeometryFinder:
         if only_atoms:
             # set lookup for symbols per site
             only_set = set(only_atoms)
-            sites_indices = [
-                i for i in sites_indices
-                if any(sp.symbol in only_set for sp in self.structure[i].species)
-            ]
+            sites_indices = [i for i in sites_indices if any(sp.symbol in only_set for sp in self.structure[i].species)]
 
         # exclude atoms
         if excluded_atoms:
             excl = set(excluded_atoms)
-            sites_indices = [
-                i for i in sites_indices
-                if not any(sp.symbol in excl for sp in self.structure[i].species)
-            ]
+            sites_indices = [i for i in sites_indices if not any(sp.symbol in excl for sp in self.structure[i].species)]
 
         # restrict by explicit indices
         if only_indices is not None:
@@ -678,15 +670,21 @@ class LocalGeometryFinder:
         self.sites_map = list(range(n_sites))
 
         # reason_AL: bind defaults locally; avoid attribute hits
-        nd_tol = (DetailedVoronoiContainer.default_normalized_distance_tolerance
-                if voronoi_normalized_distance_tolerance is None
-                else voronoi_normalized_distance_tolerance)
-        na_tol = (DetailedVoronoiContainer.default_normalized_angle_tolerance
-                if voronoi_normalized_angle_tolerance is None
-                else voronoi_normalized_angle_tolerance)
-        v_cut = (DetailedVoronoiContainer.default_voronoi_cutoff
-                if voronoi_distance_cutoff is None
-                else voronoi_distance_cutoff)
+        nd_tol = (
+            DetailedVoronoiContainer.default_normalized_distance_tolerance
+            if voronoi_normalized_distance_tolerance is None
+            else voronoi_normalized_distance_tolerance
+        )
+        na_tol = (
+            DetailedVoronoiContainer.default_normalized_angle_tolerance
+            if voronoi_normalized_angle_tolerance is None
+            else voronoi_normalized_angle_tolerance
+        )
+        v_cut = (
+            DetailedVoronoiContainer.default_voronoi_cutoff
+            if voronoi_distance_cutoff is None
+            else voronoi_distance_cutoff
+        )
 
         logger.debug("Getting DetailedVoronoiContainer")
         self.detailed_voronoi = DetailedVoronoiContainer(
@@ -804,7 +802,7 @@ class LocalGeometryFinder:
                             "permutation": cg_dict["permutation"],
                         }
 
-                        for idx_hint, nb_sets_hints in enumerate(hints):
+                        for _idx_hint, nb_sets_hints in enumerate(hints):
                             for idx_sug, sug_indices in enumerate(nb_sets_hints.hints(hints_info)):
                                 logger.debug("           hint # %d", idx_sug)
                                 new_nb_set = se.NeighborsSet(
@@ -826,11 +824,15 @@ class LocalGeometryFinder:
 
                                 # reason_AL: avoid building list repeatedly; use a small set comprehension
                                 existing = se.neighbors_sets[i].get(cn_new, [])
-                                if (new_nb_set in (ta["new_nb_set"] for ta in to_add_from_hints)) or (new_nb_set in existing):
+                                if (new_nb_set in (ta["new_nb_set"] for ta in to_add_from_hints)) or (
+                                    new_nb_set in existing
+                                ):
                                     logger.debug("              => already present")
                                     continue
 
-                                to_add_from_hints.append({"isite": i, "new_nb_set": new_nb_set, "cn_new_nb_set": cn_new})
+                                to_add_from_hints.append(
+                                    {"isite": i, "new_nb_set": new_nb_set, "cn_new_nb_set": cn_new}
+                                )
                                 logger.debug("              => to be computed")
 
             # Add + compute hinted neighbor sets
@@ -917,7 +919,7 @@ class LocalGeometryFinder:
         )
         lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
         return lse.coordination_environments
-    
+
     def update_nb_set_environments(self, se, isite, cn, inb_set, nb_set, recompute=False, optimization=None):
         """(micro-) Populate CE for one neighbor set."""
         # reason_AL: fast exit without constructing CE
@@ -926,7 +928,7 @@ class LocalGeometryFinder:
             return ce
 
         # reason_AL: local bindings + avoid attribute lookups in loop
-        opt2 = (optimization == 2)
+        opt2 = optimization == 2
         neighb_coords = nb_set.neighb_coordsOpt if opt2 else nb_set.neighb_coords
 
         self.setup_local_geometry(isite, coords=neighb_coords, optimization=optimization)
@@ -945,29 +947,29 @@ class LocalGeometryFinder:
         for symb, dct in cncgsm.items():
             other_csms = {
                 "csm_wocs_ctwocc": dct["csm_wocs_ctwocc"],
-                "csm_wocs_ctwcc":  dct["csm_wocs_ctwcc"],
-                "csm_wocs_csc":    dct["csm_wocs_csc"],
-                "csm_wcs_ctwocc":  dct["csm_wcs_ctwocc"],
-                "csm_wcs_ctwcc":   dct["csm_wcs_ctwcc"],
-                "csm_wcs_csc":     dct["csm_wcs_csc"],
+                "csm_wocs_ctwcc": dct["csm_wocs_ctwcc"],
+                "csm_wocs_csc": dct["csm_wocs_csc"],
+                "csm_wcs_ctwocc": dct["csm_wcs_ctwocc"],
+                "csm_wcs_ctwcc": dct["csm_wcs_ctwcc"],
+                "csm_wcs_csc": dct["csm_wcs_csc"],
                 "rotation_matrix_wocs_ctwocc": dct["rotation_matrix_wocs_ctwocc"],
-                "rotation_matrix_wocs_ctwcc":  dct["rotation_matrix_wocs_ctwcc"],
-                "rotation_matrix_wocs_csc":    dct["rotation_matrix_wocs_csc"],
-                "rotation_matrix_wcs_ctwocc":  dct["rotation_matrix_wcs_ctwocc"],
-                "rotation_matrix_wcs_ctwcc":   dct["rotation_matrix_wcs_ctwcc"],
-                "rotation_matrix_wcs_csc":     dct["rotation_matrix_wcs_csc"],
-                "scaling_factor_wocs_ctwocc":  dct["scaling_factor_wocs_ctwocc"],
-                "scaling_factor_wocs_ctwcc":   dct["scaling_factor_wocs_ctwcc"],
-                "scaling_factor_wocs_csc":     dct["scaling_factor_wocs_csc"],
-                "scaling_factor_wcs_ctwocc":   dct["scaling_factor_wcs_ctwocc"],
-                "scaling_factor_wcs_ctwcc":    dct["scaling_factor_wcs_ctwcc"],
-                "scaling_factor_wcs_csc":      dct["scaling_factor_wcs_csc"],
+                "rotation_matrix_wocs_ctwcc": dct["rotation_matrix_wocs_ctwcc"],
+                "rotation_matrix_wocs_csc": dct["rotation_matrix_wocs_csc"],
+                "rotation_matrix_wcs_ctwocc": dct["rotation_matrix_wcs_ctwocc"],
+                "rotation_matrix_wcs_ctwcc": dct["rotation_matrix_wcs_ctwcc"],
+                "rotation_matrix_wcs_csc": dct["rotation_matrix_wcs_csc"],
+                "scaling_factor_wocs_ctwocc": dct["scaling_factor_wocs_ctwocc"],
+                "scaling_factor_wocs_ctwcc": dct["scaling_factor_wocs_ctwcc"],
+                "scaling_factor_wocs_csc": dct["scaling_factor_wocs_csc"],
+                "scaling_factor_wcs_ctwocc": dct["scaling_factor_wcs_ctwocc"],
+                "scaling_factor_wcs_ctwcc": dct["scaling_factor_wcs_ctwcc"],
+                "scaling_factor_wcs_csc": dct["scaling_factor_wcs_csc"],
                 "translation_vector_wocs_ctwocc": dct["translation_vector_wocs_ctwocc"],
-                "translation_vector_wocs_ctwcc":  dct["translation_vector_wocs_ctwcc"],
-                "translation_vector_wocs_csc":    dct["translation_vector_wocs_csc"],
-                "translation_vector_wcs_ctwocc":  dct["translation_vector_wcs_ctwocc"],
-                "translation_vector_wcs_ctwcc":   dct["translation_vector_wcs_ctwcc"],
-                "translation_vector_wcs_csc":     dct["translation_vector_wcs_csc"],
+                "translation_vector_wocs_ctwcc": dct["translation_vector_wocs_ctwcc"],
+                "translation_vector_wocs_csc": dct["translation_vector_wocs_csc"],
+                "translation_vector_wcs_ctwocc": dct["translation_vector_wcs_ctwocc"],
+                "translation_vector_wcs_ctwcc": dct["translation_vector_wcs_ctwcc"],
+                "translation_vector_wcs_csc": dct["translation_vector_wcs_csc"],
             }
             add(
                 symb,

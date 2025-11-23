@@ -235,8 +235,8 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
         if not isinstance(self.structure_environments.voronoi, DetailedVoronoiContainer):
             raise TypeError('Voronoi Container not of type "DetailedVoronoiContainer"')
         self.prepare_symmetries()
-    
-    #AL:  Creating SpacegroupAnalyzer is expensive. Cache by a cheap structure fingerprint and skip when unchanged.
+
+    # AL:  Creating SpacegroupAnalyzer is expensive. Cache by a cheap structure fingerprint and skip when unchanged.
     def prepare_symmetries(self):
         """Prepare the symmetries for the structure contained in the structure environments."""
         try:
@@ -244,7 +244,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
             # cheap, deterministic fingerprint (no heavy symmetry ops)
             fp = (
                 tuple(s.lattice.matrix.ravel().round(10)),
-                tuple((sp.symbol for sp in s.species)),
+                tuple(sp.symbol for sp in s.species),
                 tuple(map(tuple, np.asarray(s.frac_coords).round(10))),
             )
             if getattr(self, "_symops_cache_fp", None) == fp and getattr(self, "symops", None) is not None:
@@ -257,8 +257,8 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
         except Exception:
             self.symops = []
             self._symops_cache_fp = None
-            
-    #AL The inner loop constructs many PeriodicSite objects and calls is_periodic_image repeatedly. Comparing fractional coordinates modulo 1 is enough and much cheaper.
+
+    # AL The inner loop constructs many PeriodicSite objects and calls is_periodic_image repeatedly. Comparing fractional coordinates modulo 1 is enough and much cheaper.
     def equivalent_site_index_and_transform(self, psite):
         """Get the equivalent site and corresponding symmetry+translation transformations.
 
@@ -420,8 +420,8 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
             solutions, this can return a list of coordination environments for the site.
         """
         raise NotImplementedError
-    
-    #AL Tight path during many-site scans. Cache locals and build neighbor list without intermediate dict churn.
+
+    # AL Tight path during many-site scans. Cache locals and build neighbor list without intermediate dict churn.
     def get_site_ce_fractions_and_neighbors(self, site, full_ce_info=False, strategy_info=False):
         site_idx, dist_equiv_site, dist_this_site, mysym = self.equivalent_site_index_and_transform(site)
         geoms_and_maps_list = self.get_site_coordination_environments_fractions(
@@ -632,8 +632,8 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
             continuous_symmetry_measure_cutoff: CSM cutoff
         """
         self._continuous_symmetry_measure_cutoff = CSMFloat(continuous_symmetry_measure_cutoff)
-        
-    # AL: prebind + listcomp 
+
+    # AL: prebind + listcomp
     def get_site_neighbors(self, site, isite=None, dequivsite=None, dthissite=None, mysym=None):
         if isite is None:
             isite, dequivsite, dthissite, mysym = self.equivalent_site_index_and_transform(site)
@@ -654,8 +654,8 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         de = dequivsite
         dt = dthissite
         return [PeriodicSite(ps._species, op(ps.frac_coords + de) + dt, ps._lattice) for ps in eq_site_ps]
-    
-    #build (idp,iap)->(cn,inb) map once per site/AC 
+
+    # build (idp,iap)->(cn,inb) map once per site/AC
     def _get_cn_map_cache(self, isite):
         cache = getattr(self, "_cn_map_cache", None)
         if cache is None:
@@ -674,7 +674,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
                         mapping[(src["idp"], src["iap"])] = (cn, inb_set)
         cache[key] = mapping
         return mapping
-    
+
     # faster index find + cached map
     def get_site_coordination_environment(
         self,
@@ -905,7 +905,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         "The coordination environment is then given as the one with the \n"
         "lowest continuous symmetry measure."
     )
-    
+
     # AL cache key for default surface params
     _DEFAULT_SURFACE_CALC = {
         "distance_parameter": ("initial_normalized", None),
@@ -933,7 +933,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
     def uniquely_determines_coordination_environments(self):
         """Whether this strategy uniquely determines coordination environments."""
         return True
-    
+
     def get_site_neighbors(self, site):
         isite, dequivsite, dthissite, mysym = self.equivalent_site_index_and_transform(site)
         cn_map = self._get_map(isite)
@@ -942,7 +942,6 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         de = dequivsite
         dt = dthissite
         return [PeriodicSite(ps._species, op(ps.frac_coords + de) + dt, ps._lattice) for ps in eqsite_ps]
-
 
     def get_site_coordination_environment(
         self,
@@ -974,7 +973,6 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
             return cn
         return ce.minimum_geometry(symmetry_measure_type=self._symmetry_measure_type)
 
-
     def get_site_coordination_environments(
         self,
         site,
@@ -994,7 +992,6 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
                 return_map=return_maps,
             )
         ]
-
 
     def _get_map(self, isite):
         # cache best map per (isite, additional_condition)
@@ -1025,7 +1022,6 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         cache[key] = best_map
         return best_map
 
-
     def _get_maps_surfaces(self, isite, surface_calculation_type=None):
         # cache maps/surfaces per isite when default calc is used
         if surface_calculation_type is None:
@@ -1050,7 +1046,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
             surface_calculation_type=surface_calculation_type,
             max_dist=self.DEFAULT_MAX_DIST,
         )
-    
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return NotImplemented
@@ -1132,7 +1128,7 @@ class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
         self.target_environments = target_environments
         self.target_penalty_type = target_penalty_type
         self.max_csm = max_csm
-        
+
     def get_site_coordination_environment(
         self,
         site,
@@ -1163,7 +1159,6 @@ class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
         if chemical_environments.coord_geoms is None:
             return cn_map[0]
         return chemical_environments.minimum_geometry(symmetry_measure_type=self._symmetry_measure_type)
-
 
     def _get_map(self, isite):
         # cache by inputs that affect choice
@@ -1241,6 +1236,7 @@ class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
 
         cache[cache_key] = best_map
         return best_map
+
     # def get_site_coordination_environment(
     #     self,
     #     site,
@@ -1472,11 +1468,11 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
     """Weight of neighbors set based on the normalized angle/distance."""
 
     SHORT_NAME = "NormAngleDistWeight"
-    
+
     # AL:
     ## All the branching logic is flatter and easier to follow.
     ## Dictionary lookups make average type resolution O(1) and avoid multiple comparisons.
-    ## No redundant double-checking of the same conditions.    
+    ## No redundant double-checking of the same conditions.
     def __init__(self, average_type, aa, bb):
         """Initialize NormalizedAngleDistanceNbSetWeight.
 
@@ -1486,10 +1482,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
             bb: Exponent for distance values.
         """
         # eval function selection
-        eval_map = {
-            "geometric": self.gweight,
-            "arithmetic": self.aweight
-        }
+        eval_map = {"geometric": self.gweight, "arithmetic": self.aweight}
         try:
             self.eval = eval_map[average_type]
         except KeyError:
@@ -1545,26 +1538,25 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
             NormalizedAngleDistanceNbSetWeight.
         """
         return cls(average_type=dct["average_type"], aa=dct["aa"], bb=dct["bb"])
-    
+
     # AL vectorized inner ops
     @staticmethod
     def invdist(nb_set):
         nd = np.asarray(nb_set.normalized_distances, dtype=float)
         return 1.0 / nd
-    
+
     def invndist(self, nb_set):
         nd = np.asarray(nb_set.normalized_distances, dtype=float)
-        return 1.0 / (nd ** self.bb)
+        return 1.0 / (nd**self.bb)
 
-    
     @staticmethod
     def ang(nb_set):
         return np.asarray(nb_set.normalized_angles, dtype=float)
-    
+
     def angn(self, nb_set):
         na = np.asarray(nb_set.normalized_angles, dtype=float)
-        return na ** self.aa
-    
+        return na**self.aa
+
     @staticmethod
     def anginvdist(nb_set):
         na = np.asarray(nb_set.normalized_angles, dtype=float)
@@ -1574,17 +1566,17 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
     def anginvndist(self, nb_set):
         na = np.asarray(nb_set.normalized_angles, dtype=float)
         nd = np.asarray(nb_set.normalized_distances, dtype=float)
-        return na / (nd ** self.bb)
+        return na / (nd**self.bb)
 
     def angninvdist(self, nb_set):
         na = np.asarray(nb_set.normalized_angles, dtype=float)
         nd = np.asarray(nb_set.normalized_distances, dtype=float)
-        return (na ** self.aa) / nd
+        return (na**self.aa) / nd
 
     def angninvndist(self, nb_set):
         na = np.asarray(nb_set.normalized_angles, dtype=float)
         nd = np.asarray(nb_set.normalized_distances, dtype=float)
-        return (na ** self.aa) / (nd ** self.bb)
+        return (na**self.aa) / (nd**self.bb)
 
     def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
         fda_vals = self.fda(nb_set=nb_set)
@@ -1615,13 +1607,14 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         return np.mean(fda_list)
 
 
-# AL: 
+# AL:
 # Replaced try/except cache read with a direct dict cache (setdefault + .get) -->  no exception overhead.
 # Cached per-site map once (eff_map) and wrote back directly --> fewer nested dict hits.
 # Prebound hot callables/attrs (mean_estimator, ce_list_site) --> fewer attribute lookups.
 # Used truthiness checks (if not mingeoms) instead of len(...)==0 --> cheaper.
 # Tight loop over mingeoms with a single get and threshold check --> fewer dict walks and temporaries.
 # Early returns for cached values and empty/None cases --> less work on common paths.
+
 
 def get_effective_csm(
     nb_set,
@@ -1633,13 +1626,13 @@ def get_effective_csm(
     effective_csm_estimator_ratio_function,
 ):
     """Get the effective continuous symmetry measure of a given neighbors set."""
-    #  fast cache path without exceptions 
+    #  fast cache path without exceptions
     eff_map = additional_info.setdefault("effective_csms", {}).setdefault(nb_set.isite, {})
     cached = eff_map.get(cn_map)
     if cached is not None:
         return cached
 
-    #  locals to reduce attribute lookups in hot path 
+    #  locals to reduce attribute lookups in hot path
     ce_list_site = structure_environments.ce_list[nb_set.isite]
     mean_estimator = effective_csm_estimator_ratio_function.mean_estimator
 
@@ -1666,6 +1659,7 @@ def get_effective_csm(
     # store in cache and return
     eff_map[cn_map] = eff
     return eff
+
 
 def set_info(additional_info, field, isite, cn_map, value) -> None:
     """Set additional information for the weights.
@@ -1720,7 +1714,7 @@ class SelfCSMNbSetWeight(NbSetWeight):
         self.weight_estimator_rf = CSMFiniteRatioFunction.from_dict(weight_estimator)
         self.symmetry_measure_type = symmetry_measure_type
         self.max_effective_csm = self.effective_csm_estimator["options"]["max_csm"]
-    
+
     # AL: micro-optimization of Python call overhead, the big performance gains will come from making get_effective_csm faster, since that’s the heavy part this method calls every time.
     def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
         # Bind locals to cut attribute lookups in hot path
@@ -1801,7 +1795,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         "function": "smootherstep",
         "options": {"delta_csm_min": 0.5, "delta_csm_max": 3.0},
     }
-    
+
     # AL
     def __init__(
         self,
@@ -1856,7 +1850,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         for cn2, nb_sets in se.neighbors_sets[isite].items():
             if cn2 <= cn:
                 continue
-            
+
             dcn = cn2 - cn
             rf = eval_per_dcn.get(dcn)
             eval_fn = rf.evaluate if rf is not None else eval_default
@@ -2513,7 +2507,7 @@ class DistanceNbSetWeight(NbSetWeight):
         if nbs_source not in ["nb_sets", "voronoi"]:
             raise ValueError('"nbs_source" should be one of ["nb_sets", "voronoi"]')
         self.nbs_source = nbs_source
-        
+
     def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
         """Get the weight of a given neighbors set."""
         cn = cn_map[0]
@@ -2594,7 +2588,7 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
         if nbs_source not in ["nb_sets", "voronoi"]:
             raise ValueError('"nbs_source" should be one of ["nb_sets", "voronoi"]')
         self.nbs_source = nbs_source
-        
+
     def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
         """Get the weight of a given neighbors set."""
         cn = cn_map[0]
@@ -2615,14 +2609,12 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
                     for idx in nb2.site_voronoi_indices:
                         if idx not in exclude:
                             d = voro_site[idx]["normalized_distance"]
-                            if d < min_other:
-                                min_other = d
+                            min_other = min(min_other, d)
         elif self.nbs_source == "voronoi":
             for idx, rec in enumerate(voro_site):
                 if idx not in exclude:
                     d = rec["normalized_distance"]
-                    if d < min_other:
-                        min_other = d
+                    min_other = min(min_other, d)
         else:
             raise ValueError('"nbs_source" should be one of ["nb_sets", "voronoi"]')
 
@@ -2668,7 +2660,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         "function": "power2_inverse_power2_decreasing",
         "options": {"max_csm": 8.0},
     }
-    
+
     def __init__(
         self,
         structure_environments=None,
@@ -2692,7 +2684,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
     def uniquely_determines_coordination_environments(self):
         """Whether this strategy uniquely determines coordination environments."""
         return False
-    
+
     def get_site_coordination_environments_fractions(
         self,
         site,
@@ -2742,6 +2734,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
 
         # product of weights per nb_set (avoid list conversion)
         from math import prod
+
         for cn_map, d in weights_isite.items():
             d["Product"] = prod(d.values())
 
@@ -2788,7 +2781,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                     ce_dict_fractions.append(d)
                     ce_maps.append(cn_map)
                 else:
-                    for (sym, ced), frac in zip(mingeoms, fractions):
+                    for (sym, ced), frac in zip(mingeoms, fractions, strict=False):
                         ce_symbols.append(sym)
                         ce_dicts.append(ced)
                         frac_tot = nb_set_fraction * frac
@@ -2809,7 +2802,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                     continue
                 csms = [ced["other_symmetry_measures"][smt] for _sym, ced in mingeoms]
                 fractions = self.ce_estimator_fractions(csms)
-                for (sym, ced), frac in zip(mingeoms, fractions):
+                for (sym, ced), frac in zip(mingeoms, fractions, strict=False):
                     if frac > 0:
                         frac_tot = nb_set_fraction * frac
                         ce_symbols.append(sym)
@@ -2844,6 +2837,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                     j += 1
 
         return fractions_info_list
+
     def get_site_coordination_environment(self, site):
         """Get the coordination environment of a given site.
 
@@ -2951,7 +2945,7 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         "function": "power2_inverse_power2_decreasing",
         "options": {"max_csm": 8.0},
     }
-    
+
     def __init__(
         self,
         structure_environments=None,

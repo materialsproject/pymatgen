@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 import logging
 import time
 from typing import TYPE_CHECKING
@@ -204,7 +205,7 @@ class DetailedVoronoiContainer(MSONable):
             self.voronoi_list_coords[isite] = np.array([dd["site"].coords for dd in results2])
         t2 = time.process_time()
         logger.debug(f"Voronoi list set up in {t2 - t1:.2f} seconds")
-        
+
     def setup_neighbors_distances_and_angles(self, indices):
         """Initialize the angle and distance separations.
 
@@ -230,21 +231,21 @@ class DetailedVoronoiContainer(MSONable):
 
             # Prepare arrays once
             ndists = np.array([nb["normalized_distance"] for nb in results], dtype=float)
-            dists  = np.array([nb["distance"] for nb in results], dtype=float)
+            dists = np.array([nb["distance"] for nb in results], dtype=float)
             order_d = np.argsort(ndists)
 
             # Initialize group containers
-            nn_dist_groups = []      # normalized distance groups (dicts)
-            dist_groups    = []      # real distance groups (dicts)
+            nn_dist_groups = []  # normalized distance groups (dicts)
+            dist_groups = []  # real distance groups (dicts)
 
             # Seed first group
             first_idx = int(order_d[0])
             current_min_nd = ndists[first_idx]
             current_max_nd = ndists[first_idx]
-            current_min_d  = dists[first_idx]
-            current_max_d  = dists[first_idx]
+            current_min_d = dists[first_idx]
+            current_max_d = dists[first_idx]
             nb_indices_set = {first_idx}  # all indices up to current group
-            dnb_set        = {first_idx}  # indices equal (within tol) to current group's edge
+            dnb_set = {first_idx}  # indices equal (within tol) to current group's edge
 
             # Scan sorted normalized distances
             for id_np in order_d:  # already ascending
@@ -255,45 +256,69 @@ class DetailedVoronoiContainer(MSONable):
                 if (max_dfact is not None) and (wd > max_dfact):
                     # close current group
                     nn_dist_groups.append(
-                        {"min": current_min_nd, "max": current_max_nd,
-                        "nb_indices": list(nb_indices_set), "dnb_indices": list(dnb_set)}
+                        {
+                            "min": current_min_nd,
+                            "max": current_max_nd,
+                            "nb_indices": list(nb_indices_set),
+                            "dnb_indices": list(dnb_set),
+                        }
                     )
                     dist_groups.append(
-                        {"min": current_min_d, "max": current_max_d,
-                        "nb_indices": list(nb_indices_set), "dnb_indices": list(dnb_set)}
+                        {
+                            "min": current_min_d,
+                            "max": current_max_d,
+                            "nb_indices": list(nb_indices_set),
+                            "dnb_indices": list(dnb_set),
+                        }
                     )
                     break
 
                 if np.isclose(wd, current_max_nd, rtol=0.0, atol=nd_tol):
                     # still in the current plateau => extend max and dnb_set
                     current_max_nd = wd
-                    current_max_d  = dists[idist]
+                    current_max_d = dists[idist]
                     dnb_set.add(idist)
                 else:
                     # finalize previous group
                     nn_dist_groups.append(
-                        {"min": current_min_nd, "max": current_max_nd,
-                        "nb_indices": list(nb_indices_set), "dnb_indices": list(dnb_set)}
+                        {
+                            "min": current_min_nd,
+                            "max": current_max_nd,
+                            "nb_indices": list(nb_indices_set),
+                            "dnb_indices": list(dnb_set),
+                        }
                     )
                     dist_groups.append(
-                        {"min": current_min_d, "max": current_max_d,
-                        "nb_indices": list(nb_indices_set), "dnb_indices": list(dnb_set)}
+                        {
+                            "min": current_min_d,
+                            "max": current_max_d,
+                            "nb_indices": list(nb_indices_set),
+                            "dnb_indices": list(dnb_set),
+                        }
                     )
                     # start new group
                     current_min_nd = current_max_nd = wd
-                    current_min_d  = current_max_d  = dists[idist]
+                    current_min_d = current_max_d = dists[idist]
                     dnb_set = {idist}
 
                 nb_indices_set.add(idist)
             else:
                 # loop ended normally: close last group
                 nn_dist_groups.append(
-                    {"min": current_min_nd, "max": current_max_nd,
-                    "nb_indices": list(nb_indices_set), "dnb_indices": list(dnb_set)}
+                    {
+                        "min": current_min_nd,
+                        "max": current_max_nd,
+                        "nb_indices": list(nb_indices_set),
+                        "dnb_indices": list(dnb_set),
+                    }
                 )
                 dist_groups.append(
-                    {"min": current_min_d, "max": current_max_d,
-                    "nb_indices": list(nb_indices_set), "dnb_indices": list(dnb_set)}
+                    {
+                        "min": current_min_d,
+                        "max": current_max_d,
+                        "nb_indices": list(nb_indices_set),
+                        "dnb_indices": list(dnb_set),
+                    }
                 )
 
             # Fill "next" for distance groups
@@ -315,19 +340,19 @@ class DetailedVoronoiContainer(MSONable):
             self.neighbors_distances[site_idx] = dist_groups
 
             nangs = np.array([nb["normalized_angle"] for nb in results], dtype=float)
-            angs  = np.array([nb["angle"] for nb in results], dtype=float)
+            angs = np.array([nb["angle"] for nb in results], dtype=float)
             order_a = np.argsort(nangs)[::-1]  # descending
 
             nn_ang_groups = []
-            ang_groups    = []
+            ang_groups = []
 
             first_a_idx = int(order_a[0])
             current_max_na = nangs[first_a_idx]
             current_min_na = nangs[first_a_idx]
-            current_max_a  = angs[first_a_idx]
-            current_min_a  = angs[first_a_idx]
+            current_max_a = angs[first_a_idx]
+            current_min_a = angs[first_a_idx]
             nb_indices_set = {first_a_idx}
-            dnb_set        = {first_a_idx}
+            dnb_set = {first_a_idx}
 
             for ia_np in order_a:
                 iang = int(ia_np)
@@ -336,45 +361,69 @@ class DetailedVoronoiContainer(MSONable):
                 # early stop if a minimum angle factor is set
                 if (min_afact is not None) and (wa < min_afact):
                     nn_ang_groups.append(
-                        {"max": current_max_na, "min": current_min_na,
-                        "nb_indices": list(nb_indices_set), "dnb_indices": list(dnb_set)}
+                        {
+                            "max": current_max_na,
+                            "min": current_min_na,
+                            "nb_indices": list(nb_indices_set),
+                            "dnb_indices": list(dnb_set),
+                        }
                     )
                     ang_groups.append(
-                        {"max": current_max_a, "min": current_min_a,
-                        "nb_indices": list(nb_indices_set), "dnb_indices": list(dnb_set)}
+                        {
+                            "max": current_max_a,
+                            "min": current_min_a,
+                            "nb_indices": list(nb_indices_set),
+                            "dnb_indices": list(dnb_set),
+                        }
                     )
                     break
 
                 if np.isclose(wa, current_min_na, rtol=0.0, atol=na_tol):
                     # staying on the current lower edge (since we traverse from high to low)
                     current_min_na = wa
-                    current_min_a  = angs[iang]
+                    current_min_a = angs[iang]
                     dnb_set.add(iang)
                 else:
                     # finalize current group
                     nn_ang_groups.append(
-                        {"max": current_max_na, "min": current_min_na,
-                        "nb_indices": list(nb_indices_set), "dnb_indices": list(dnb_set)}
+                        {
+                            "max": current_max_na,
+                            "min": current_min_na,
+                            "nb_indices": list(nb_indices_set),
+                            "dnb_indices": list(dnb_set),
+                        }
                     )
                     ang_groups.append(
-                        {"max": current_max_a, "min": current_min_a,
-                        "nb_indices": list(nb_indices_set), "dnb_indices": list(dnb_set)}
+                        {
+                            "max": current_max_a,
+                            "min": current_min_a,
+                            "nb_indices": list(nb_indices_set),
+                            "dnb_indices": list(dnb_set),
+                        }
                     )
                     # start new group anchored at this lower value
                     current_max_na = current_min_na = wa
-                    current_max_a  = current_min_a  = angs[iang]
+                    current_max_a = current_min_a = angs[iang]
                     dnb_set = {iang}
 
                 nb_indices_set.add(iang)
             else:
                 # loop ended normally: close last group
                 nn_ang_groups.append(
-                    {"max": current_max_na, "min": current_min_na,
-                    "nb_indices": list(nb_indices_set), "dnb_indices": list(dnb_set)}
+                    {
+                        "max": current_max_na,
+                        "min": current_min_na,
+                        "nb_indices": list(nb_indices_set),
+                        "dnb_indices": list(dnb_set),
+                    }
                 )
                 ang_groups.append(
-                    {"max": current_max_a, "min": current_min_a,
-                    "nb_indices": list(nb_indices_set), "dnb_indices": list(dnb_set)}
+                    {
+                        "max": current_max_a,
+                        "min": current_min_a,
+                        "nb_indices": list(nb_indices_set),
+                        "dnb_indices": list(dnb_set),
+                    }
                 )
 
             # Fill "next" for angle groups
@@ -427,7 +476,7 @@ class DetailedVoronoiContainer(MSONable):
                 for nb_idx in nb_indices
             ]
         return additional_conditions
-    
+
     def _precompute_angle_conditions(self, ivoronoi, voronoi):
         angle_conditions = []
         # Vectorize the list of voronoi normalized angles once
@@ -465,7 +514,7 @@ class DetailedVoronoiContainer(MSONable):
                 this_ang_plateau = angle_bounds[iap + 1] - angle_bounds[iap]
                 surfaces[idp][iap] = np.absolute(this_dist_plateau * this_ang_plateau)
         return surfaces
-    
+
     def neighbors_surfaces_bounded(self, isite, surface_calculation_options=None):
         """Get the different surfaces (using boundaries) corresponding to the different distance-angle cutoffs
         for a given site.
@@ -488,9 +537,7 @@ class DetailedVoronoiContainer(MSONable):
                 "angle_parameter": ("initial_normalized", None),
             }
         else:
-            raise ValueError(
-                f"Type {s_type!r} for the surface calculation in DetailedVoronoiContainer is invalid"
-            )
+            raise ValueError(f"Type {s_type!r} for the surface calculation in DetailedVoronoiContainer is invalid")
 
         # Hoist & cache lookups
         d_lower = surface_calculation_options["distance_bounds"]["lower"]
@@ -519,15 +566,15 @@ class DetailedVoronoiContainer(MSONable):
         surfaces = np.zeros((n_d, n_a), float)
 
         # Iterate over consecutive bound pairs without repeated indexing
-        for idp, (dp1, dp2) in enumerate(zip(distance_bounds[:-1], distance_bounds[1:])):
+        for idp, (dp1, dp2) in enumerate(itertools.pairwise(distance_bounds)):
             # Quick reject by distance window
             if dp2 < d_lower or dp1 > d_upper:
                 continue
             # Clamp to window
-            d1 = dp1 if dp1 > d_lower else d_lower
-            d2 = dp2 if dp2 < d_upper else d_upper
+            d1 = max(d_lower, dp1)
+            d2 = min(d_upper, dp2)
 
-            for iap, (ap1_raw, ap2_raw) in enumerate(zip(angle_bounds[:-1], angle_bounds[1:])):
+            for iap, (ap1_raw, ap2_raw) in enumerate(itertools.pairwise(angle_bounds)):
                 # Maintain original safety swap in case of non-monotonic inputs
                 if ap1_raw <= ap2_raw:
                     ap1, ap2 = ap1_raw, ap2_raw
@@ -538,8 +585,8 @@ class DetailedVoronoiContainer(MSONable):
                 if ap2 < a_lower or ap1 > a_upper:
                     continue
                 # Clamp to window
-                a1 = ap1 if ap1 > a_lower else a_lower
-                a2 = ap2 if ap2 < a_upper else a_upper
+                a1 = max(a_lower, ap1)
+                a2 = min(a_upper, ap2)
 
                 # Compute intersection area
                 inter, _ = rectangle_surface_intersection(
@@ -749,11 +796,13 @@ class DetailedVoronoiContainer(MSONable):
             "angle_bounds": angle_bounds,
             "angle_limits": ang_limits,
         }
-    
+
     def is_close_to(self, other, rtol=0.0, atol=1e-8) -> bool:
         if not (
             np.isclose(self.normalized_angle_tolerance, other.normalized_angle_tolerance, rtol=rtol, atol=atol)
-            and np.isclose(self.normalized_distance_tolerance, other.normalized_distance_tolerance, rtol=rtol, atol=atol)
+            and np.isclose(
+                self.normalized_distance_tolerance, other.normalized_distance_tolerance, rtol=rtol, atol=atol
+            )
             and self.additional_conditions == other.additional_conditions
             and self.valences == other.valences
         ):
