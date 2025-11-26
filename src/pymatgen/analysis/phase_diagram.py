@@ -344,7 +344,7 @@ class PhaseDiagram(MSONable):
     def __init__(
         self,
         entries: Collection[Entry],
-        elements: Collection[Element] = (),
+        elements: Collection[Element] | None = None,
         *,
         computed_data: dict[str, Any] | None = None,
     ) -> None:
@@ -366,7 +366,7 @@ class PhaseDiagram(MSONable):
         if not entries:
             raise ValueError("Unable to build phase diagram without entries.")
 
-        self.elements = elements
+        self.elements = list(elements) if elements else sorted({els for e in entries for els in e.elements})
         self.entries = entries
         if computed_data is None:
             computed_data = self._compute()
@@ -380,10 +380,9 @@ class PhaseDiagram(MSONable):
 
         self.computed_data = computed_data
         self.facets = computed_data["facets"]
-        self.simplexes = computed_data["simplexes"]
+        self.qhull_data = np.asarray(computed_data["qhull_data"])
+        self.simplexes = [Simplex(self.qhull_data[facet, :-1]) for facet in self.facets]
         self.all_entries = computed_data["all_entries"]
-        self.qhull_data = computed_data["qhull_data"]
-        self.dim = computed_data["dim"]
         self.el_refs = dict(computed_data["el_refs"])
         self.qhull_entries = tuple(computed_data["qhull_entries"])
         self._qhull_spaces = tuple(frozenset(e.elements) for e in self.qhull_entries)
@@ -398,7 +397,6 @@ class PhaseDiagram(MSONable):
 
         # Create a copy of computed_data to avoid modifying the original
         computed_data = self.computed_data.copy()
-        computed_data["elements"] = [el.symbol for el in self.elements]
         computed_data["el_refs"] = [(el.symbol, entry_to_index[entry]) for el, entry in computed_data["el_refs"]]
         computed_data["all_entries"] = [e.as_dict() for e in computed_data["all_entries"]]
         computed_data["qhull_entries"] = qhull_entry_indices
@@ -407,10 +405,8 @@ class PhaseDiagram(MSONable):
             if isinstance(computed_data["qhull_data"], np.ndarray)
             else computed_data["qhull_data"]
         )
-        computed_data["facets"] = [list(facet) for facet in computed_data["facets"]]
-        computed_data["simplexes"] = [
-            {**s.as_dict(), "coords": s.as_dict()["coords"].tolist()} for s in computed_data["simplexes"]
-        ]
+        computed_data["facets"] = [list(facet) for facet in self.facets]
+        computed_data.pop("simplexes", None)  # Reconstructed from qhull_data and facets
 
         return {
             "@module": type(self).__module__,
@@ -440,16 +436,12 @@ class PhaseDiagram(MSONable):
             # Reconstruct computed_data to match _compute() format: (str, Entry) tuples for el_refs
             computed_data = computed_data.copy()
             computed_data["qhull_entries"] = [entries[i] for i in computed_data["qhull_entries"]]
-            computed_data["elements"] = [Element(el) for el in computed_data["elements"]]
             # el_refs stored as (str, index) - convert to (str, Entry)
             computed_data["el_refs"] = [(el_str, entries[idx]) for el_str, idx in computed_data["el_refs"]]
 
         return cls(entries, elements, computed_data=computed_data)
 
     def _compute(self) -> dict[str, Any]:
-        if self.elements == ():
-            self.elements = sorted({els for e in self.entries for els in e.elements})
-
         elements = list(self.elements)
         dim = len(elements)
 
@@ -507,18 +499,18 @@ class PhaseDiagram(MSONable):
                     final_facets.append(facet)
             facets = final_facets
 
-        simplexes = [Simplex(qhull_data[facet, :-1]) for facet in facets]
-        self.elements = elements
         return {
             "facets": facets,
-            "simplexes": simplexes,
             "all_entries": all_entries,
             "qhull_data": qhull_data,
-            "dim": dim,
-            # Dictionary with Element keys is not JSON-serializable
-            "el_refs": list(el_refs.items()),
+            "el_refs": list(el_refs.items()),  # Dictionary with Element keys is not JSON-serializable
             "qhull_entries": qhull_entries,
         }
+
+    @property
+    def dim(self) -> int:
+        """The dimensionality of the phase diagram."""
+        return len(self.elements)
 
     def pd_coords(self, comp: Composition) -> np.ndarray:
         """
@@ -1759,17 +1751,13 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 "all_entries": subspace_all_entry_indices,
                 "qhull_entries": subspace_qhull_entry_indices,
                 "facets": pd.computed_data["facets"],
-                "simplexes": pd.computed_data["simplexes"],
-                "qhull_data": pd.computed_data["qhull_data"].tolist(),
-                "dim": pd.computed_data["dim"],
+                "qhull_data": pd.qhull_data.tolist(),
                 "el_refs": subspace_el_refs,
                 "elements": tuple(pd.elements),
             }
 
         return {
             "all_entries": all_entries,
-            "elements": elements,
-            "dim": dim,
             "el_refs": [(el.symbol, entry_to_index[entry]) for el, entry in el_refs.items()],
             "qhull_entries": [entry_to_index[entry] for entry in qhull_entries],
             "spaces": spaces_list,
@@ -1802,6 +1790,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 expensive convex hull computation. The dict is the output from the
                 PatchedPhaseDiagram._compute() method.
         """
+        self.elements = list(elements) if elements else sorted({el for e in entries for el in e.elements})
+
         if computed_data is None:
             computed_data = self._compute(entries, elements, keep_all_spaces, verbose)
         else:
@@ -1811,8 +1801,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         self.computed_data = computed_data
         self.all_entries = computed_data["all_entries"]
-        self.elements = computed_data["elements"]
-        self.dim = computed_data["dim"]
 
         # Convert el_refs from [(el_symbol, index), ...] or [(el_symbol, Entry), ...] to {Element: Entry}
         el_refs_data = computed_data["el_refs"]
@@ -1901,11 +1889,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
         entry_to_index = {entry: idx for idx, entry in enumerate(self.all_entries)}
 
         computed_data: dict[str, Any] = {
-            "elements": [element.symbol for element in self.elements],
             "all_entries": [e.as_dict() for e in self.all_entries],
             "qhull_entries": [entry_to_index[entry] for entry in self.qhull_entries],
             "el_refs": [(element.symbol, entry_to_index[entry]) for element, entry in self.el_refs.items()],
-            "dim": self.dim,
         }
 
         spaces_serialized = [tuple(sorted(element.symbol for element in space)) for space in self.spaces]
@@ -1921,19 +1907,11 @@ class PatchedPhaseDiagram(PhaseDiagram):
             qhull_data = np.asarray(pd.qhull_data).tolist()
             facets = [facet.tolist() for facet in pd.facets]
 
-            simplexes = []
-            for simplex in pd.simplexes:
-                simplex_dict = simplex.as_dict()
-                simplex_dict["coords"] = np.asarray(simplex_dict["coords"]).tolist()
-                simplexes.append(simplex_dict)
-
             pds_remapped[space_key_serialized] = {
                 "all_entries": subspace_all_entry_indices,
                 "qhull_entries": subspace_qhull_indices,
                 "facets": facets,
-                "simplexes": simplexes,
                 "qhull_data": qhull_data,
-                "dim": pd.dim,
                 "el_refs": subspace_el_refs,
                 "elements": [element.symbol for element in pd.elements],
             }
@@ -1965,7 +1943,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         computed_data_reconstructed = computed_data.copy()
         computed_data_reconstructed["all_entries"] = all_entries
-        computed_data_reconstructed["elements"] = [Element(elem) for elem in computed_data["elements"]]
 
         # qhull_entries and el_refs are already indices into all_entries
         pds_reconstructed = {}
@@ -1973,20 +1950,18 @@ class PatchedPhaseDiagram(PhaseDiagram):
             space_key_frozen = frozenset(Element(el) for el in space_key.split("-"))
 
             facets = [np.array(facet, dtype=int) for facet in pd_data["facets"]]
-            simplexes = [decoder.process_decoded(simplex) for simplex in pd_data["simplexes"]]
             subspace_elements = [Element(el) if not isinstance(el, Element) else el for el in pd_data["elements"]]
 
             # Create mapping from global index to subspace index
             subspace_indices = pd_data["all_entries"]
             global_to_sub_idx = {global_idx: sub_idx for sub_idx, global_idx in enumerate(subspace_indices)}
 
+            # simplexes reconstructed in PhaseDiagram.__init__ from qhull_data and facets
             pds_reconstructed[space_key_frozen] = {
                 "all_entries": subspace_indices,
                 "qhull_entries": [global_to_sub_idx[idx] for idx in pd_data["qhull_entries"]],
                 "facets": facets,
-                "simplexes": simplexes,
                 "qhull_data": np.array(pd_data["qhull_data"]),
-                "dim": pd_data["dim"],
                 "el_refs": [(Element(el), global_to_sub_idx[idx]) for el, idx in pd_data["el_refs"]],
                 "elements": subspace_elements,
             }
