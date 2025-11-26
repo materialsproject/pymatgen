@@ -135,12 +135,9 @@ class AbstractGeometry:
 
         # Points relative to central site require a central site; mirror original behavior:
         # The original code implicitly assumes central exists when these are used.
-        if central is None:
-            # If centering requires central (standard with n<5, central_site) we’ll raise later.
-            # Here we still define arrays to keep attributes consistent.
-            c_for_sub = np.zeros(3, float)
-        else:
-            c_for_sub = central
+        # If centering requires central (standard with n<5, central_site) we'll raise later.
+        # Here we still define arrays to keep attributes consistent.
+        c_for_sub = np.zeros(3, float) if central is None else central
 
         self._points_wcs_csc = bare_with_centre - c_for_sub
         self._points_wocs_csc = bcoords - c_for_sub

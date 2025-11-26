@@ -9,7 +9,7 @@ and possibly some fraction corresponding to these.
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -1550,7 +1550,7 @@ class LightStructureEnvironments(MSONable):
                         raise ValueError(
                             "Weird, differences between one site in a periodic image cell is not integer ..."
                         )
-                    img_tup = tuple(int(x) for x in rounddiff)
+                    img_tup = cast("tuple[int, int, int]", tuple(int(x) for x in rounddiff))
                     key = (nb_index_unitcell, img_tup)
 
                     pos = nb_key_to_pos.get(key)
@@ -1747,23 +1747,6 @@ class LightStructureEnvironments(MSONable):
             if element in [sp.symbol for sp in site.species] and (
                 self.valences == "undefined" or oxi_state == self.valences[site_idx]
             ):
-                for ce_dict in self.coordination_environments[site_idx]:
-                    if ce_symbol == ce_dict["ce_symbol"]:
-                        isites.append(site_idx)
-                        csms.append(ce_dict["csm"])
-                        fractions.append(ce_dict["ce_fraction"])
-        return {"isites": isites, "fractions": fractions, "csms": csms}
-
-    def get_site_info_for_specie_ce(self, specie, ce_symbol):
-        element = specie.symbol
-        oxi_state = specie.oxi_state
-        isites, csms, fractions = [], [], []
-        valences = self.valences
-
-        for site_idx, site in enumerate(self.structure):
-            # quick membership check without building a full list each time
-            has_elem = any(sp.symbol == element for sp in site.species)
-            if has_elem and (valences == "undefined" or oxi_state == valences[site_idx]):
                 for ce_dict in self.coordination_environments[site_idx]:
                     if ce_symbol == ce_dict["ce_symbol"]:
                         isites.append(site_idx)
@@ -2031,7 +2014,7 @@ class LightStructureEnvironments(MSONable):
         dec = MontyDecoder()
         structure = dec.process_decoded(dct["structure"])
 
-        all_nbs_sites = []
+        all_nbs_sites: list[dict[str, Any]] = []
         append = all_nbs_sites.append
         for nb_site in dct["all_nbs_sites"]:
             periodic_site = dec.process_decoded(nb_site["site"])

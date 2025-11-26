@@ -5,7 +5,7 @@ from __future__ import annotations
 import itertools
 import logging
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -53,7 +53,7 @@ def from_bson_voronoi_list2(bson_nb_voro_list2: list[PeriodicSite], structure: S
             continue
 
         # Build the site list in one pass; avoid touching structure inside the loop
-        site_entries = []
+        site_entries: list[dict[str, Any]] = []
         append = site_entries.append  # local bind
         for psd, dct in voro:
             # psd == [index_in_structure, image_shift_frac]
@@ -438,23 +438,6 @@ class DetailedVoronoiContainer(MSONable):
 
             self.neighbors_normalized_angles[site_idx] = nn_ang_groups
             self.neighbors_angles[site_idx] = ang_groups
-
-    def _precompute_additional_conditions(self, ivoronoi, voronoi, valences):
-        additional_conditions = {ac: [] for ac in self.additional_conditions}
-        for _, vals in voronoi:
-            for ac in self.additional_conditions:
-                additional_conditions[ac].append(
-                    self.AC.check_condition(
-                        condition=ac,
-                        structure=self.structure,
-                        parameters={
-                            "valences": valences,
-                            "neighbor_index": vals["index"],
-                            "site_index": ivoronoi,
-                        },
-                    )
-                )
-        return additional_conditions
 
     def _precompute_additional_conditions(self, ivoronoi, voronoi, valences):
         additional_conditions = {}

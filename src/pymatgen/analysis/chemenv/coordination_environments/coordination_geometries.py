@@ -837,10 +837,10 @@ class CoordinationGeometry:
                 pts = np.asarray(self.points, dtype=float)
                 cs = np.asarray(self.central_site, dtype=float)
 
-                # min cation–anion distance
+                # min cation-anion distance
                 d_ca = np.linalg.norm(pts - cs, axis=1).min()
 
-                # min anion–anion distance (pairwise, excluding self)
+                # min anion-anion distance (pairwise, excluding self)
                 diff = pts[:, None, :] - pts[None, :, :]
                 dist_mat = np.linalg.norm(diff, axis=2)
                 # mask diagonal to avoid zeros
@@ -963,10 +963,8 @@ class CoordinationGeometry:
         # ensure a final newline for strict string equality in tests.
         buf = []
         buf.append(f"{len(coords) + len(face_centers)}\n")
-        for v in coords:
-            buf.append(f"{v[0]:15.8f} {v[1]:15.8f} {v[2]:15.8f}\n")
-        for fc in face_centers:
-            buf.append(f"{fc[0]:15.8f} {fc[1]:15.8f} {fc[2]:15.8f}\n")
+        buf.extend(f"{v[0]:15.8f} {v[1]:15.8f} {v[2]:15.8f}\n" for v in coords)
+        buf.extend(f"{fc[0]:15.8f} {fc[1]:15.8f} {fc[2]:15.8f}\n" for fc in face_centers)
 
         buf.append(f"{n_faces}\n")
         n_vertices = len(coords)
@@ -984,8 +982,7 @@ class CoordinationGeometry:
                     buf.append(f"{face[np.mod(ii, len(face))]}\n")
                     buf.append(f"{n_vertices + iface}\n")
             if len(face) in (3, 4):
-                for face_vertex in face:
-                    buf.append(f"{face_vertex}\n")
+                buf.extend(f"{face_vertex}\n" for face_vertex in face)
                 buf.append(f"{face[0]}\n")
 
         out = "".join(buf)
@@ -1039,7 +1036,7 @@ class AllCoordinationGeometries(dict):
                 cg.permutations_safe_override = True
 
         #  fast lookup maps (new, non-breaking)
-        # reason: later getters (by symbol/name) won’t need O(n) scans
+        # reason: later getters (by symbol/name) won't need O(n) scans
         self._by_symbol = {}
         self._by_iupac = {}
         self._by_iucr = {}
@@ -1280,13 +1277,15 @@ class AllCoordinationGeometries(dict):
                     escaped = cg.mp_symbol.replace("_", "\\_")
                     out.append(
                         f"\\item {escaped} $\\rightarrow$ {cg.get_name()} "
-                        f"(IUPAC : {cg.IUPAC_symbol_str} - IUCr : {cg.IUCr_symbol_str.replace('[', '$[$').replace(']', '$]$')})\n"
+                        f"(IUPAC : {cg.IUPAC_symbol_str} - "
+                        f"IUCr : {cg.IUCr_symbol_str.replace('[', '$[$').replace(']', '$]$')})\n"
                     )
                 for cg in self.get_not_implemented_geometries(cn, returned="cg"):
                     escaped = cg.mp_symbol.replace("_", "\\_")
                     out.append(
                         f"\\item {escaped} $\\rightarrow$ {cg.get_name()} "
-                        f"(IUPAC : {cg.IUPAC_symbol_str} - IUCr : {cg.IUCr_symbol_str.replace('[', '$[$').replace(']', '$]$')})\n"
+                        f"(IUPAC : {cg.IUPAC_symbol_str} - "
+                        f"IUCr : {cg.IUCr_symbol_str.replace('[', '$[$').replace(']', '$]$')})\n"
                     )
                 out.append("\\end{itemize}\n\n")
             return "".join(out)

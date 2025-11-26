@@ -258,7 +258,8 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
             self.symops = []
             self._symops_cache_fp = None
 
-    # AL The inner loop constructs many PeriodicSite objects and calls is_periodic_image repeatedly. Comparing fractional coordinates modulo 1 is enough and much cheaper.
+    # AL The inner loop constructs many PeriodicSite objects and calls is_periodic_image repeatedly.
+    # Comparing fractional coordinates modulo 1 is enough and much cheaper.
     def equivalent_site_index_and_transform(self, psite):
         """Get the equivalent site and corresponding symmetry+translation transformations.
 
@@ -907,7 +908,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
     )
 
     # AL cache key for default surface params
-    _DEFAULT_SURFACE_CALC = {
+    _DEFAULT_SURFACE_CALC: ClassVar = {
         "distance_parameter": ("initial_normalized", None),
         "angle_parameter": ("initial_normalized", None),
     }
@@ -1288,7 +1289,8 @@ class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
     #     surfaces = [map_and_surface["surface"] for map_and_surface in maps_and_surfaces]
     #     order = np.argsort(surfaces)[::-1]
     #     target_cgs = [
-    #         AllCoordinationGeometries().get_geometry_from_mp_symbol(mp_symbol) for mp_symbol in self.target_environments
+    #         AllCoordinationGeometries().get_geometry_from_mp_symbol(mp_symbol)
+    #         for mp_symbol in self.target_environments
     #     ]
     #     target_cns = [cg.coordination_number for cg in target_cgs]
     #     for ii in range(min([len(maps_and_surfaces), self.max_nabundant])):
@@ -1715,7 +1717,8 @@ class SelfCSMNbSetWeight(NbSetWeight):
         self.symmetry_measure_type = symmetry_measure_type
         self.max_effective_csm = self.effective_csm_estimator["options"]["max_csm"]
 
-    # AL: micro-optimization of Python call overhead, the big performance gains will come from making get_effective_csm faster, since that’s the heavy part this method calls every time.
+    # AL: micro-optimization of Python call overhead, the big performance gains will come from
+    # making get_effective_csm faster, since that's the heavy part this method calls every time.
     def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
         # Bind locals to cut attribute lookups in hot path
         evaluate = self.weight_estimator_rf.evaluate
@@ -2735,7 +2738,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         # product of weights per nb_set (avoid list conversion)
         from math import prod
 
-        for cn_map, d in weights_isite.items():
+        for d in weights_isite.values():
             d["Product"] = prod(d.values())
 
         # normalize to fractions
