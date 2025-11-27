@@ -1062,6 +1062,7 @@ class TestStructure(MatSciTest):
         except (
             requests.exceptions.ConnectionError,
             urllib3.exceptions.ConnectTimeoutError,
+            requests.exceptions.ReadTimeout,
         ):
             website_down = True
         if not website_down:
