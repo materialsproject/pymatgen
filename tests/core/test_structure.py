@@ -2030,9 +2030,9 @@ direct
         for key, val in {"type": "optimization", "optimizer": "FIRE"}.items():
             actual = relaxed.dynamics[key]
             assert actual == val, f"expected {key} to be {val}, {actual=}"
-        relaxed_m3gnet = struct.relax("m3gnet")
-        assert relaxed_m3gnet.lattice.a != relaxed.lattice.a
-        assert relaxed.lattice.a == approx(3.8534658090100815, rel=0.01)  # allow 1% error
+        relaxed_r2scan = struct.relax("TensorNet-MatPES-r2SCAN-v2025.1-PES")
+        assert relaxed_r2scan.lattice.a != relaxed.lattice.a
+        assert relaxed_r2scan.lattice.a == approx(3.837727005405847, abs=0.01)  # allow 0.01 error
 
     def test_relax_m3gnet_fixed_lattice(self):
         matgl = pytest.importorskip("matgl")
