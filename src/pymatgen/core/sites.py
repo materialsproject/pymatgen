@@ -269,10 +269,11 @@ class Site(collections.abc.Hashable, MSONable):
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
         """Create Site from dict representation."""
-        atoms_n_occu = {}
+        atoms_n_occu: dict[SpeciesLike, float] = {}
         for sp_occu in dct["species"]:
+            sp: SpeciesLike
             if "oxidation_state" in sp_occu and Element.is_valid_symbol(sp_occu["element"]):
-                sp: Species | DummySpecies | Element = Species.from_dict(sp_occu)
+                sp = Species.from_dict(sp_occu)
             elif "oxidation_state" in sp_occu:
                 sp = DummySpecies.from_dict(sp_occu)
             else:
@@ -636,10 +637,11 @@ class PeriodicSite(Site, MSONable):
         Returns:
             PeriodicSite
         """
-        species = {}
+        species: dict[SpeciesLike, float] = {}
         for sp_occu in dct["species"]:
+            sp: SpeciesLike
             if "oxidation_state" in sp_occu and Element.is_valid_symbol(sp_occu["element"]):
-                sp: Species | DummySpecies | Element = Species.from_dict(sp_occu)
+                sp = Species.from_dict(sp_occu)
             elif "oxidation_state" in sp_occu:
                 sp = DummySpecies.from_dict(sp_occu)
             else:
