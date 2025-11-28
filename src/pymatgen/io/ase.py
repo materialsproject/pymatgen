@@ -8,7 +8,7 @@ from __future__ import annotations
 import warnings
 from copy import deepcopy
 from importlib.metadata import PackageNotFoundError
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, Literal, TypeVar, overload
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
@@ -48,9 +48,8 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
-StructT = TypeVar("StructT", bound=IStructure | IMolecule | Structure | Molecule)
-MolT = TypeVar("MolT", bound=IMolecule)
-
+IMoleculeT = TypeVar("IMoleculeT", bound=IMolecule)
+StructOrMolT = TypeVar("StructOrMolT", bound=Structure | Molecule)
 
 class MSONAtoms(Atoms, MSONable):
     """A custom subclass of ASE Atoms that is MSONable, including `.as_dict()` and `.from_dict()` methods."""
@@ -85,6 +84,33 @@ class MSONAtoms(Atoms, MSONable):
 # There are some subtleties in here, particularly related to spins/charges.
 class AseAtomsAdaptor:
     """Adaptor serves as a bridge between ASE Atoms and pymatgen objects."""
+
+    @overload
+    @staticmethod
+    def get_atoms(
+        structure: SiteCollection,
+        msonable: Literal[True] = ...,
+        **kwargs: Any,
+    ) -> MSONAtoms:
+        ...
+
+    @overload
+    @staticmethod
+    def get_atoms(
+        structure: SiteCollection,
+        msonable: Literal[False],
+        **kwargs: Any,
+    ) -> Atoms:
+        ...
+
+    @overload
+    @staticmethod
+    def get_atoms(
+        structure: SiteCollection,
+        msonable: bool = True,
+        **kwargs: Any,
+    ) -> MSONAtoms | Atoms:
+        ...
 
     @staticmethod
     def get_atoms(
@@ -239,9 +265,9 @@ class AseAtomsAdaptor:
     @staticmethod
     def get_structure(
         atoms: Atoms,
-        cls=Structure,
+        cls: type[StructOrMolT] = Structure,
         **cls_kwargs,
-    ) -> Structure | Molecule:
+    ) -> StructOrMolT:
         """Get pymatgen structure from ASE Atoms.
 
         Args:
@@ -392,7 +418,7 @@ class AseAtomsAdaptor:
         return structure
 
     @staticmethod
-    def get_molecule(atoms: Atoms, cls: type[MolT] = Molecule, **cls_kwargs) -> Molecule | IMolecule:  # type:ignore[assignment]
+    def get_molecule(atoms: Atoms, cls: type[IMoleculeT] = Molecule, **cls_kwargs) -> IMoleculeT:
         """Get pymatgen molecule from ASE Atoms.
 
         Args:
@@ -401,7 +427,7 @@ class AseAtomsAdaptor:
             **cls_kwargs: Any additional kwargs to pass to the cls constructor
 
         Returns:
-            (I)Molecule: Equivalent pymatgen (I)Molecule
+            MolT: Equivalent pymatgen (I)Molecule
         """
         molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls, **cls_kwargs)
 
