@@ -28,6 +28,7 @@ if TYPE_CHECKING:
     from typing import Any, ClassVar
 
     import matplotlib.pyplot as plt
+    from matplotlib.axes import Axes
 
 __author__ = "Kiran Mathew, gmatteo"
 __credits__ = "Cormac Toher"
@@ -175,10 +176,10 @@ class EOSBase(ABC):
         self,
         width: float = 8,
         height: float | None = None,
-        ax: plt.Axes = None,
+        ax: Axes = None,
         dpi: float | None = None,
         **kwargs,
-    ) -> plt.Axes:
+    ) -> Axes:
         """
         Plot the equation of state.
 
@@ -231,7 +232,7 @@ class EOSBase(ABC):
     @add_fig_kwargs
     def plot_ax(
         self,
-        ax: plt.Axes | None = None,
+        ax: Axes | None = None,
         fontsize: float = 12,
         **kwargs,
     ) -> plt.Figure:

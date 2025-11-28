@@ -26,6 +26,8 @@ from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.core import Element, PeriodicNeighbor, PeriodicSite, Species, Structure
 
 if TYPE_CHECKING:
+    from matplotlib.axes import Axes
+    from matplotlib.figure import Figure
     from typing_extensions import Self
 
 __author__ = "David Waroquiers"
@@ -654,7 +656,7 @@ class StructureEnvironments(MSONable):
 
     def get_csm_and_maps(
         self, isite, max_csm=8.0, figsize=None, symmetry_measure_type=None
-    ) -> tuple[plt.Figure, plt.Axes] | None:
+    ) -> tuple[Figure, Axes] | None:
         """
         Plotting of the coordination numbers of a given site for all the distfactor/angfactor parameters. If the
         chemical environments are given, a color map is added to the plot, with the lowest continuous symmetry measure
@@ -813,7 +815,7 @@ class StructureEnvironments(MSONable):
             strategy: Whether to plot information about one of the Chemenv Strategies.
 
         Returns:
-            tuple[plt.Figure, plt.Axes]: matplotlib figure and axes representing the environments.
+            tuple[Figure, Axes]: matplotlib figure and axes representing the environments.
         """
         # Initializes the figure
         fig = plt.figure(figsize=figsize)

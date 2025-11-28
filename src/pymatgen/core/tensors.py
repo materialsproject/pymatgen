@@ -6,6 +6,7 @@ which provides basic methods for creating and manipulating rank 2 tensors.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import itertools
 import logging
 import os
