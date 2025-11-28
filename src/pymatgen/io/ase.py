@@ -51,6 +51,7 @@ __date__ = "Mar 8, 2012"
 IMoleculeT = TypeVar("IMoleculeT", bound=IMolecule)
 StructOrMolT = TypeVar("StructOrMolT", bound=Structure | Molecule)
 
+
 class MSONAtoms(Atoms, MSONable):
     """A custom subclass of ASE Atoms that is MSONable, including `.as_dict()` and `.from_dict()` methods."""
 
@@ -91,8 +92,7 @@ class AseAtomsAdaptor:
         structure: SiteCollection,
         msonable: Literal[True] = ...,
         **kwargs: Any,
-    ) -> MSONAtoms:
-        ...
+    ) -> MSONAtoms: ...
 
     @overload
     @staticmethod
@@ -100,8 +100,7 @@ class AseAtomsAdaptor:
         structure: SiteCollection,
         msonable: Literal[False],
         **kwargs: Any,
-    ) -> Atoms:
-        ...
+    ) -> Atoms: ...
 
     @overload
     @staticmethod
@@ -109,8 +108,7 @@ class AseAtomsAdaptor:
         structure: SiteCollection,
         msonable: bool = True,
         **kwargs: Any,
-    ) -> MSONAtoms | Atoms:
-        ...
+    ) -> MSONAtoms | Atoms: ...
 
     @staticmethod
     def get_atoms(
