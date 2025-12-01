@@ -1830,7 +1830,7 @@ class TestMPScanRelaxSet(MatSciTest):
         mp_scan_sub = MPScanRelaxSet(
             self.struct,
             user_potcar_functional="PBE_52",
-            user_incar_settings={"METAGGA": "SCAN"},
+            xc_functional="SCAN",
         )
         incar = mp_scan_sub.incar
         assert incar["METAGGA"] == "Scan"
@@ -1873,18 +1873,35 @@ class TestMPScanRelaxSet(MatSciTest):
         assert incar["SIGMA"] == approx(0.05)
 
     # Test SCAN+rVV10
-    def test_rvv10(self):
-        scan_rvv10_set = MPScanRelaxSet(self.struct, vdw="rVV10")
-        assert "LUSE_VDW" in scan_rvv10_set.incar
+    def test_scan_rvv10(self):
+        scan_rvv10_set = MPScanRelaxSet(self.struct, xc_functional="SCAN", dispersion="rVV10")
+        assert scan_rvv10_set.xc_functional == "SCAN"
+        assert scan_rvv10_set.dispersion == "rVV10"
+        assert scan_rvv10_set.incar["LUSE_VDW"]
+        assert scan_rvv10_set.incar["LASPH"]
         assert scan_rvv10_set.incar["BPARAM"] == approx(15.7)
+        assert scan_rvv10_set.incar["CPARAM"] == approx(0.0093)
+        assert scan_rvv10_set.incar["IVDW_NL"] == 2
+
+    # Test r2SCAN+rVV10
+    def test_r2scan_rvv10(self):
+        r2scan_rvv10_set = MPScanRelaxSet(self.struct, dispersion="rVV10")
+        assert r2scan_rvv10_set.xc_functional == "r2SCAN"
+        assert r2scan_rvv10_set.dispersion == "rVV10"
+        assert r2scan_rvv10_set.incar["LUSE_VDW"]
+        assert r2scan_rvv10_set.incar["LASPH"]
+        assert r2scan_rvv10_set.incar["BPARAM"] == approx(11.95)
+        assert r2scan_rvv10_set.incar["CPARAM"] == approx(0.0093)
+        assert r2scan_rvv10_set.incar["IVDW_NL"] == 2
 
     def test_other_vdw(self):
-        # should raise a warning.
+        # should raise a error.
         # IVDW key should not be present in the incar
-        with pytest.warns(UserWarning, match=r"not supported at this time"):
-            scan_vdw_set = MPScanRelaxSet(self.struct, vdw="DFTD3")
-        assert "LUSE_VDW" not in scan_vdw_set.incar
-        assert "IVDW" not in scan_vdw_set.incar
+        with pytest.raises(
+            ValueError,
+            match=r"Only rVV10 \(or None\) is supported",
+        ):
+            MPScanRelaxSet(self.struct, dispersion="DFTD3")
 
     @skip_if_no_psp_dir
     def test_potcar(self):
@@ -2396,3 +2413,9 @@ class TestMP24Sets:
                     "VDW_S8",
                 )
             )
+
+    def test_not_allowed_xc_func(self):
+        with pytest.raises(ValueError, match="xc_functional must be one of"):
+            self.relax_set(structure=self.structure, xc_functional="SCAN")
+        with pytest.raises(ValueError, match="xc_functional must be one of"):
+            self.static_set(structure=self.structure, xc_functional="SCAN", dispersion="rVV10")
