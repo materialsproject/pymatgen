@@ -94,7 +94,7 @@ class TestElasticTensor(MatSciTest):
         # voigt notation tensor
         assert_allclose(self.elastic_tensor_1.voigt, self.voigt_1)
         # young's modulus
-        assert self.elastic_tensor_1.y_mod == approx(54087787667.160583)
+        assert self.elastic_tensor_1.y_mod == approx(8665818958507.804)
 
         # prop dict
         prop_dict = self.elastic_tensor_1.property_dict
@@ -127,7 +127,7 @@ class TestElasticTensor(MatSciTest):
         assert self.elastic_tensor_1.snyder_opt(struct) == approx(0.18937465)
         assert self.elastic_tensor_1.snyder_total(struct) == approx(18.25064540)
         # Clarke
-        assert self.elastic_tensor_1.clarke_thermalcond(struct) == approx(0.3450307)
+        assert self.elastic_tensor_1.clarke_thermalcond(struct) == approx(4.367299105244635)
         # Cahill
         cahill_thermal_cond = self.elastic_tensor_1.cahill_thermalcond(struct)
         assert cahill_thermal_cond == approx(0.37896275)

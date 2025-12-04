@@ -135,6 +135,8 @@ class ElasticTensor(NthOrderElasticTensor):
     in units of eV/A^3.
     """
 
+    eV_A3_to_GPa = Unit("eV ang^-3").get_conversion_factor(Unit("GPa"))
+
     def __new__(cls, input_array, tol: float = 1e-4) -> Self:
         """
         Create an ElasticTensor object. The constructor throws an error if the shape of
@@ -198,10 +200,10 @@ class ElasticTensor(NthOrderElasticTensor):
     @property
     def y_mod(self) -> float:
         """
-        Calculates Young's modulus (in SI units) using the
+        Calculates Young's modulus using the
         Voigt-Reuss-Hill averages of bulk and shear moduli.
         """
-        return 9.0e9 * self.k_vrh * self.g_vrh / (3 * self.k_vrh + self.g_vrh)
+        return 9.0e9 * self.k_vrh * self.g_vrh * self.eV_A3_to_GPa / (3 * self.k_vrh + self.g_vrh)
 
     def directional_poisson_ratio(self, n: ArrayLike, m: ArrayLike, tol: float = 1e-8) -> float:
         """
