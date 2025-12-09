@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
-from monty.json import MontyEncoder
+from monty.json import MontyEncoder, jsanitize
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
@@ -162,15 +162,9 @@ class TestDOSCAR(MatSciTest):
         ]
 
         assert self.doscar_lcfo.is_lcfo
-        assert_allclose(
-            self.doscar_lcfo.projected_dos["AlN_1"]["1a1"].densities[Spin.down], pdos_1a1_AlN
-        )
-        assert_allclose(
-            self.doscar_lcfo.projected_dos["Al_1"]["3p_y"].densities[Spin.down], pdos_3py_Al
-        )
-        assert_allclose(
-            self.doscar_lcfo.projected_dos["N_1"]["2s"].densities[Spin.down], pdos_2s_N
-        )
+        assert_allclose(self.doscar_lcfo.projected_dos["AlN_1"]["1a1"].densities[Spin.down], pdos_1a1_AlN)
+        assert_allclose(self.doscar_lcfo.projected_dos["Al_1"]["3p_y"].densities[Spin.down], pdos_3py_Al)
+        assert_allclose(self.doscar_lcfo.projected_dos["N_1"]["2s"].densities[Spin.down], pdos_2s_N)
 
     def test_tdos(self):
         """Test total densities of states (TDOS) from DOSCAR files."""
@@ -220,9 +214,7 @@ class TestCHARGE(MatSciTest):
         """Setup for CHARGE and CHARGE_LCFO tests."""
         self.charge2 = CHARGE(filename=f"{TEST_DIR}/CHARGE.lobster.MnO")
         self.charge = CHARGE(filename=f"{TEST_DIR}/CHARGE.lobster.MnO2.gz")
-        self.charge_lcfo = CHARGE_LCFO(
-            filename=f"{TEST_DIR}/CHARGE.LCFO.lobster.ALN.gz"
-        )
+        self.charge_lcfo = CHARGE_LCFO(filename=f"{TEST_DIR}/CHARGE.LCFO.lobster.ALN.gz")
 
     def test_attributes(self):
         """Test attributes of CHARGE and CHARGE_LCFO classes."""
@@ -251,39 +243,21 @@ class TestLobsterOut(MatSciTest):
         """Setup for LobsterOut tests."""
         self.lobsterout_normal = LobsterOut(filename=f"{TEST_DIR}/lobsterout.normal")
         # make sure .gz files are also read correctly
-        self.lobsterout_normal = LobsterOut(
-            filename=f"{TEST_DIR}/lobsterout.normal2.gz"
-        )
+        self.lobsterout_normal = LobsterOut(filename=f"{TEST_DIR}/lobsterout.normal2.gz")
         self.lobsterout_fatband_grosspop_densityofenergies = LobsterOut(
             filename=f"{TEST_DIR}/lobsterout.fatband_grosspop_densityofenergy"
         )
-        self.lobsterout_saveprojection = LobsterOut(
-            filename=f"{TEST_DIR}/lobsterout.saveprojection"
-        )
-        self.lobsterout_skipping_all = LobsterOut(
-            filename=f"{TEST_DIR}/lobsterout.skipping_all"
-        )
-        self.lobsterout_twospins = LobsterOut(
-            filename=f"{TEST_DIR}/lobsterout.twospins"
-        )
+        self.lobsterout_saveprojection = LobsterOut(filename=f"{TEST_DIR}/lobsterout.saveprojection")
+        self.lobsterout_skipping_all = LobsterOut(filename=f"{TEST_DIR}/lobsterout.skipping_all")
+        self.lobsterout_twospins = LobsterOut(filename=f"{TEST_DIR}/lobsterout.twospins")
         self.lobsterout_GaAs = LobsterOut(filename=f"{TEST_DIR}/lobsterout.GaAs")
-        self.lobsterout_from_projection = LobsterOut(
-            filename=f"{TEST_DIR}/lobsterout_from_projection"
-        )
-        self.lobsterout_onethread = LobsterOut(
-            filename=f"{TEST_DIR}/lobsterout.onethread"
-        )
-        self.lobsterout_cobi_madelung = LobsterOut(
-            filename=f"{TEST_DIR}/lobsterout_cobi_madelung"
-        )
-        self.lobsterout_doscar_lso = LobsterOut(
-            filename=f"{TEST_DIR}/lobsterout_doscar_lso"
-        )
+        self.lobsterout_from_projection = LobsterOut(filename=f"{TEST_DIR}/lobsterout_from_projection")
+        self.lobsterout_onethread = LobsterOut(filename=f"{TEST_DIR}/lobsterout.onethread")
+        self.lobsterout_cobi_madelung = LobsterOut(filename=f"{TEST_DIR}/lobsterout_cobi_madelung")
+        self.lobsterout_doscar_lso = LobsterOut(filename=f"{TEST_DIR}/lobsterout_doscar_lso")
 
         # TODO: implement skipping madelung/cobi
-        self.lobsterout_skipping_cobi_madelung = LobsterOut(
-            filename=f"{TEST_DIR}/lobsterout.skip_cobi_madelung"
-        )
+        self.lobsterout_skipping_cobi_madelung = LobsterOut(filename=f"{TEST_DIR}/lobsterout.skip_cobi_madelung")
 
         self.lobsterout_v511 = LobsterOut(filename=f"{TEST_DIR}/lobsterout_v511.gz")
 
@@ -332,9 +306,7 @@ class TestLobsterOut(MatSciTest):
             "user_time": {"h": "0", "min": "0", "s": "20", "ms": "330"},
             "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "310"},
         }
-        assert self.lobsterout_normal.total_spilling[0] == approx(
-            [0.044000000000000004][0]
-        )
+        assert self.lobsterout_normal.total_spilling[0] == approx([0.044000000000000004][0])
         assert self.lobsterout_normal.warning_lines == [
             "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
             "Generally, this is not a critical error. But to help you analyze it,",
@@ -357,12 +329,8 @@ class TestLobsterOut(MatSciTest):
                 "3d_x^2-y^2",
             ]
         ]
-        assert self.lobsterout_fatband_grosspop_densityofenergies.basis_type == [
-            "pbeVaspFit2015"
-        ]
-        assert_allclose(
-            self.lobsterout_fatband_grosspop_densityofenergies.charge_spilling, [0.0268]
-        )
+        assert self.lobsterout_fatband_grosspop_densityofenergies.basis_type == ["pbeVaspFit2015"]
+        assert_allclose(self.lobsterout_fatband_grosspop_densityofenergies.charge_spilling, [0.0268])
         assert self.lobsterout_fatband_grosspop_densityofenergies.dft_program == "VASP"
         assert self.lobsterout_fatband_grosspop_densityofenergies.elements == ["Ti"]
         assert self.lobsterout_fatband_grosspop_densityofenergies.has_charge
@@ -371,9 +339,7 @@ class TestLobsterOut(MatSciTest):
         assert not self.lobsterout_fatband_grosspop_densityofenergies.has_doscar
         assert not self.lobsterout_fatband_grosspop_densityofenergies.has_projection
         assert self.lobsterout_fatband_grosspop_densityofenergies.has_bandoverlaps
-        assert (
-            self.lobsterout_fatband_grosspop_densityofenergies.has_density_of_energies
-        )
+        assert self.lobsterout_fatband_grosspop_densityofenergies.has_density_of_energies
         assert self.lobsterout_fatband_grosspop_densityofenergies.has_fatbands
         assert self.lobsterout_fatband_grosspop_densityofenergies.has_grosspopulation
         assert self.lobsterout_fatband_grosspop_densityofenergies.info_lines == [
@@ -381,19 +347,11 @@ class TestLobsterOut(MatSciTest):
             "To prevent trouble in orthonormalization and Hamiltonian reconstruction",
             "the PAW bands from 21 and upwards will be ignored.",
         ]
-        assert (
-            self.lobsterout_fatband_grosspop_densityofenergies.info_orthonormalization
-            == [
-                "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5."
-            ]
-        )
-        assert (
-            not self.lobsterout_fatband_grosspop_densityofenergies.is_restart_from_projection
-        )
-        assert (
-            self.lobsterout_fatband_grosspop_densityofenergies.lobster_version
-            == "3.1.0"
-        )
+        assert self.lobsterout_fatband_grosspop_densityofenergies.info_orthonormalization == [
+            "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5."
+        ]
+        assert not self.lobsterout_fatband_grosspop_densityofenergies.is_restart_from_projection
+        assert self.lobsterout_fatband_grosspop_densityofenergies.lobster_version == "3.1.0"
         assert self.lobsterout_fatband_grosspop_densityofenergies.number_of_spins == 1
         assert self.lobsterout_fatband_grosspop_densityofenergies.number_of_threads == 8
         assert self.lobsterout_fatband_grosspop_densityofenergies.timing == {
@@ -401,9 +359,7 @@ class TestLobsterOut(MatSciTest):
             "user_time": {"h": "0", "min": "0", "s": "18", "ms": "280"},
             "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "290"},
         }
-        assert self.lobsterout_fatband_grosspop_densityofenergies.total_spilling[
-            0
-        ] == approx([0.044000000000000004][0])
+        assert self.lobsterout_fatband_grosspop_densityofenergies.total_spilling[0] == approx([0.044000000000000004][0])
         assert self.lobsterout_fatband_grosspop_densityofenergies.warning_lines == [
             "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
             "Generally, this is not a critical error. But to help you analyze it,",
@@ -456,9 +412,7 @@ class TestLobsterOut(MatSciTest):
             "user_time": {"h": "0", "min": "0", "s": "18", "ms": "250"},
             "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "320"},
         }
-        assert self.lobsterout_saveprojection.total_spilling[0] == approx(
-            [0.044000000000000004][0]
-        )
+        assert self.lobsterout_saveprojection.total_spilling[0] == approx([0.044000000000000004][0])
         assert self.lobsterout_saveprojection.warning_lines == [
             "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
             "Generally, this is not a critical error. But to help you analyze it,",
@@ -513,9 +467,7 @@ class TestLobsterOut(MatSciTest):
             "user_time": {"h": "0", "min": "0", "s": "16", "ms": "79"},
             "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "320"},
         }
-        assert self.lobsterout_skipping_all.total_spilling[0] == approx(
-            [0.044000000000000004][0]
-        )
+        assert self.lobsterout_skipping_all.total_spilling[0] == approx([0.044000000000000004][0])
         assert self.lobsterout_skipping_all.warning_lines == [
             "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
             "Generally, this is not a critical error. But to help you analyze it,",
@@ -538,12 +490,8 @@ class TestLobsterOut(MatSciTest):
             ]
         ]
         assert self.lobsterout_twospins.basis_type == ["pbeVaspFit2015"]
-        assert self.lobsterout_twospins.charge_spilling[0] == approx(
-            0.36619999999999997
-        )
-        assert self.lobsterout_twospins.charge_spilling[1] == approx(
-            0.36619999999999997
-        )
+        assert self.lobsterout_twospins.charge_spilling[0] == approx(0.36619999999999997)
+        assert self.lobsterout_twospins.charge_spilling[1] == approx(0.36619999999999997)
         assert self.lobsterout_twospins.dft_program == "VASP"
         assert self.lobsterout_twospins.elements == ["Ti"]
         assert self.lobsterout_twospins.has_charge
@@ -673,9 +621,7 @@ class TestLobsterOut(MatSciTest):
         lobsterout_from_dict = LobsterOut.from_dict(dict_data)
         assert dict_data == lobsterout_from_dict.as_dict()
 
-        with pytest.raises(
-            TypeError, match="got an unexpected keyword argument 'invalid'"
-        ):
+        with pytest.raises(TypeError, match="got an unexpected keyword argument 'invalid'"):
             LobsterOut(filename=None, invalid="invalid")  # type: ignore[testing]
 
 
@@ -696,36 +642,22 @@ class TestFatbands(MatSciTest):
             directory=f"{TEST_DIR}/Fatband_SiO2/Test_p_x",
             structure=self.structure,
         )
-        self.vasprun_sio2_p_x = Vasprun(
-            filename=f"{TEST_DIR}/Fatband_SiO2/Test_p_x/vasprun.xml"
-        )
-        self.bs_symmline = self.vasprun_sio2_p_x.get_band_structure(
-            line_mode=True, force_hybrid_mode=True
-        )
+        self.vasprun_sio2_p_x = Vasprun(filename=f"{TEST_DIR}/Fatband_SiO2/Test_p_x/vasprun.xml")
+        self.bs_symmline = self.vasprun_sio2_p_x.get_band_structure(line_mode=True, force_hybrid_mode=True)
         self.fatbands_sio2_p = Fatbands(
             directory=f"{TEST_DIR}/Fatband_SiO2/Test_p",
             structure=self.structure,
         )
-        self.single_fatband = Fatband(
-            filename=f"{TEST_DIR}/Fatband_SiO2/Test_p/FATBAND_o4_2p.lobster"
-        )
-        self.vasprun_sio2_p = Vasprun(
-            filename=f"{TEST_DIR}/Fatband_SiO2/Test_p/vasprun.xml"
-        )
-        self.bs_symmline2 = self.vasprun_sio2_p.get_band_structure(
-            line_mode=True, force_hybrid_mode=True
-        )
+        self.single_fatband = Fatband(filename=f"{TEST_DIR}/Fatband_SiO2/Test_p/FATBAND_o4_2p.lobster")
+        self.vasprun_sio2_p = Vasprun(filename=f"{TEST_DIR}/Fatband_SiO2/Test_p/vasprun.xml")
+        self.bs_symmline2 = self.vasprun_sio2_p.get_band_structure(line_mode=True, force_hybrid_mode=True)
         self.fatbands_sio2_spin = Fatbands(
             directory=f"{TEST_DIR}/Fatband_SiO2/Test_Spin",
             structure=self.structure,
         )
 
-        self.vasprun_sio2_spin = Vasprun(
-            filename=f"{TEST_DIR}/Fatband_SiO2/Test_Spin/vasprun.xml"
-        )
-        self.bs_symmline_spin = self.vasprun_sio2_p.get_band_structure(
-            line_mode=True, force_hybrid_mode=True
-        )
+        self.vasprun_sio2_spin = Vasprun(filename=f"{TEST_DIR}/Fatband_SiO2/Test_Spin/vasprun.xml")
+        self.bs_symmline_spin = self.vasprun_sio2_p.get_band_structure(line_mode=True, force_hybrid_mode=True)
 
     def test_attributes(self):
         assert self.fatbands_sio2_p_x.efermi == self.vasprun_sio2_p_x.efermi
@@ -734,9 +666,7 @@ class TestFatbands(MatSciTest):
         for idx in range(3):
             assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
 
-        assert self.fatbands_sio2_p_x.fatbands[1]["energies"][Spin.up][1][1] == approx(
-            -18.245
-        )
+        assert self.fatbands_sio2_p_x.fatbands[1]["energies"][Spin.up][1][1] == approx(-18.245)
         assert len(self.fatbands_sio2_p_x.spins) == 1
         assert_allclose(self.fatbands_sio2_p_x.kpoints.kpts[3], [0.03409091, 0, 0])
 
@@ -752,15 +682,9 @@ class TestFatbands(MatSciTest):
 
         assert self.fatbands_sio2_p_x.fatbands[-1]["center"] == "Si3"
         assert self.fatbands_sio2_p_x.fatbands[-1]["orbital"] == "3s"
-        assert self.fatbands_sio2_p_x.fatbands[-1]["projections"][Spin.up][2][
-            1
-        ] == approx(0.013)
-        assert self.fatbands_sio2_p_x.fatbands[-1]["energies"][Spin.up][2][2] == approx(
-            -18.245
-        )
-        assert_allclose(
-            self.fatbands_sio2_p_x.structure[0].frac_coords, [0.0, 0.47634315, 0.666667]
-        )
+        assert self.fatbands_sio2_p_x.fatbands[-1]["projections"][Spin.up][2][1] == approx(0.013)
+        assert self.fatbands_sio2_p_x.fatbands[-1]["energies"][Spin.up][2][2] == approx(-18.245)
+        assert_allclose(self.fatbands_sio2_p_x.structure[0].frac_coords, [0.0, 0.47634315, 0.666667])
         assert self.fatbands_sio2_p_x.structure[0].species_string == "Si"
         assert_allclose(
             self.fatbands_sio2_p_x.structure[0].coords,
@@ -772,18 +696,12 @@ class TestFatbands(MatSciTest):
         lattice2 = self.fatbands_sio2_p.reciprocal_lattice.as_dict()
         for idx in range(3):
             assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
-        assert self.fatbands_sio2_p.fatbands[0]["energies"][Spin.up][1][1] == approx(
-            -18.245
-        )
+        assert self.fatbands_sio2_p.fatbands[0]["energies"][Spin.up][1][1] == approx(-18.245)
         assert len(self.fatbands_sio2_p.spins) == 1
         assert_allclose(self.fatbands_sio2_p.kpoints.kpts[3], [0.03409091, 0, 0])
 
-        assert self.fatbands_sio2_p.fatbands[2]["projections"][Spin.up][2][1] == approx(
-            0.002
-        )
-        assert_allclose(
-            self.fatbands_sio2_p.structure[0].frac_coords, [0.0, 0.47634315, 0.666667]
-        )
+        assert self.fatbands_sio2_p.fatbands[2]["projections"][Spin.up][2][1] == approx(0.002)
+        assert_allclose(self.fatbands_sio2_p.structure[0].frac_coords, [0.0, 0.47634315, 0.666667])
         assert self.fatbands_sio2_p.structure[0].species_string == "Si"
         assert_allclose(
             self.fatbands_sio2_p.structure[0].coords,
@@ -796,20 +714,14 @@ class TestFatbands(MatSciTest):
         lattice2 = self.fatbands_sio2_spin.reciprocal_lattice.as_dict()
         for idx in range(3):
             assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
-        assert self.fatbands_sio2_spin.fatbands[1]["energies"][Spin.up][1][1] == approx(
-            -18.245
-        )
-        assert self.fatbands_sio2_spin.fatbands[0]["energies"][Spin.down][1][
-            1
-        ] == approx(-18.245)
+        assert self.fatbands_sio2_spin.fatbands[1]["energies"][Spin.up][1][1] == approx(-18.245)
+        assert self.fatbands_sio2_spin.fatbands[0]["energies"][Spin.down][1][1] == approx(-18.245)
         assert len(self.fatbands_sio2_spin.spins) == 2
         assert_allclose(self.fatbands_sio2_spin.kpoints.kpts[3], [0.03409091, 0, 0])
         assert len(self.fatbands_sio2_spin.fatbands[0]["energies"][Spin.up][0]) == 36
         assert len(self.fatbands_sio2_spin.fatbands[0]["energies"][Spin.down][0]) == 36
 
-        assert self.fatbands_sio2_spin.fatbands[0]["projections"][Spin.up][2][
-            1
-        ] == approx(0.003)
+        assert self.fatbands_sio2_spin.fatbands[0]["projections"][Spin.up][2][1] == approx(0.003)
         assert_allclose(
             self.fatbands_sio2_spin.structure[0].frac_coords,
             [0.0, 0.47634315, 0.666667],
@@ -826,12 +738,8 @@ class TestBandOverlaps(MatSciTest):
         with pytest.raises(RuntimeError, match="could not convert string"):
             self.band_overlaps1 = BandOverlaps(f"{TEST_DIR}/bandOverlaps.lobster.1")
 
-        self.band_overlaps1 = BandOverlaps(
-            f"{TEST_DIR}/bandOverlaps.lobster.1", process_immediately=False
-        )
-        self.band_overlaps2 = BandOverlaps(
-            f"{TEST_DIR}/bandOverlaps.lobster.2", process_immediately=False
-        )
+        self.band_overlaps1 = BandOverlaps(f"{TEST_DIR}/bandOverlaps.lobster.1", process_immediately=False)
+        self.band_overlaps2 = BandOverlaps(f"{TEST_DIR}/bandOverlaps.lobster.2", process_immediately=False)
 
         self.band_overlaps1.lobster_version = "3.1.0"
         self.band_overlaps2.lobster_version = "2.7.0"
@@ -846,49 +754,27 @@ class TestBandOverlaps(MatSciTest):
         # band_overlaps_dict
         bo_dict = self.band_overlaps1.band_overlaps
         assert bo_dict["max_deviations"][Spin.up][0] == approx(0.000278953)
-        assert self.band_overlaps1_new.band_overlaps["max_deviations"][Spin.up][
-            10
-        ] == approx(0.0640933)
+        assert self.band_overlaps1_new.band_overlaps["max_deviations"][Spin.up][10] == approx(0.0640933)
         assert bo_dict["matrices"][Spin.up][0].item(-1, -1) == approx(0.0188058)
-        assert self.band_overlaps1_new.band_overlaps["matrices"][Spin.up][10].item(
-            -1, -1
-        ) == approx(1.0)
+        assert self.band_overlaps1_new.band_overlaps["matrices"][Spin.up][10].item(-1, -1) == approx(1.0)
         assert bo_dict["matrices"][Spin.up][0].item(0, 0) == approx(1)
-        assert self.band_overlaps1_new.band_overlaps["matrices"][Spin.up][10].item(
-            0, 0
-        ) == approx(0.995849)
+        assert self.band_overlaps1_new.band_overlaps["matrices"][Spin.up][10].item(0, 0) == approx(0.995849)
 
         assert bo_dict["max_deviations"][Spin.down][-1] == approx(4.31567e-05)
-        assert self.band_overlaps1_new.band_overlaps["max_deviations"][Spin.down][
-            9
-        ] == approx(0.064369)
+        assert self.band_overlaps1_new.band_overlaps["max_deviations"][Spin.down][9] == approx(0.064369)
         assert bo_dict["matrices"][Spin.down][-1].item(0, -1) == approx(4.0066e-07)
-        assert self.band_overlaps1_new.band_overlaps["matrices"][Spin.down][9].item(
-            0, -1
-        ) == approx(1.37447e-09)
+        assert self.band_overlaps1_new.band_overlaps["matrices"][Spin.down][9].item(0, -1) == approx(1.37447e-09)
 
     def test_has_good_quality_maxDeviation(self):
-        assert not self.band_overlaps1.has_good_quality_max_deviation(
-            limit_max_deviation=0.1
-        )
-        assert not self.band_overlaps1_new.has_good_quality_max_deviation(
-            limit_max_deviation=0.1
-        )
+        assert not self.band_overlaps1.has_good_quality_max_deviation(limit_max_deviation=0.1)
+        assert not self.band_overlaps1_new.has_good_quality_max_deviation(limit_max_deviation=0.1)
 
-        assert self.band_overlaps1.has_good_quality_max_deviation(
-            limit_max_deviation=100
-        )
-        assert self.band_overlaps1_new.has_good_quality_max_deviation(
-            limit_max_deviation=100
-        )
+        assert self.band_overlaps1.has_good_quality_max_deviation(limit_max_deviation=100)
+        assert self.band_overlaps1_new.has_good_quality_max_deviation(limit_max_deviation=100)
         assert self.band_overlaps2.has_good_quality_max_deviation()
         assert not self.band_overlaps2_new.has_good_quality_max_deviation()
-        assert not self.band_overlaps2.has_good_quality_max_deviation(
-            limit_max_deviation=0.0000001
-        )
-        assert not self.band_overlaps2_new.has_good_quality_max_deviation(
-            limit_max_deviation=0.0000001
-        )
+        assert not self.band_overlaps2.has_good_quality_max_deviation(limit_max_deviation=0.0000001)
+        assert not self.band_overlaps2_new.has_good_quality_max_deviation(limit_max_deviation=0.0000001)
 
     def test_has_good_quality_check_occupied_bands(self):
         assert not self.band_overlaps1.has_good_quality_check_occupied_bands(
@@ -979,15 +865,11 @@ class TestBandOverlaps(MatSciTest):
         assert not self.band_overlaps2_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1, limit_deviation=1e-8
         )
-        assert self.band_overlaps2.has_good_quality_check_occupied_bands(
-            number_occ_bands_spin_up=10, limit_deviation=1
-        )
+        assert self.band_overlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=10, limit_deviation=1)
         assert self.band_overlaps2_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=2, limit_deviation=0.1
         )
-        assert self.band_overlaps2.has_good_quality_check_occupied_bands(
-            number_occ_bands_spin_up=1, limit_deviation=1
-        )
+        assert self.band_overlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1, limit_deviation=1)
         assert self.band_overlaps2_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1, limit_deviation=2
         )
@@ -1001,12 +883,8 @@ class TestBandOverlaps(MatSciTest):
 
         band_overlaps = copy.deepcopy(self.band_overlaps1_new)
 
-        number_occ_bands_spin_up_all = list(
-            range(band_overlaps.band_overlaps["matrices"][Spin.up][0].shape[0])
-        )
-        number_occ_bands_spin_down_all = list(
-            range(band_overlaps.band_overlaps["matrices"][Spin.down][0].shape[0])
-        )
+        number_occ_bands_spin_up_all = list(range(band_overlaps.band_overlaps["matrices"][Spin.up][0].shape[0]))
+        number_occ_bands_spin_down_all = list(range(band_overlaps.band_overlaps["matrices"][Spin.down][0].shape[0]))
 
         for actual_deviation in [0.05, 0.1, 0.2, 0.5, 1.0]:
             for spin in (Spin.up, Spin.down):
@@ -1015,14 +893,8 @@ class TestBandOverlaps(MatSciTest):
                     number_occ_bands_spin_down_all,
                     strict=False,
                 ):
-                    for i_arr, array in enumerate(
-                        band_overlaps.band_overlaps["matrices"][spin]
-                    ):
-                        number_occ_bands = (
-                            number_occ_bands_spin_up
-                            if spin is Spin.up
-                            else number_occ_bands_spin_down
-                        )
+                    for i_arr, array in enumerate(band_overlaps.band_overlaps["matrices"][spin]):
+                        number_occ_bands = number_occ_bands_spin_up if spin is Spin.up else number_occ_bands_spin_down
 
                         shape = array.shape
                         assert np.all(np.array(shape) >= number_occ_bands)
@@ -1033,15 +905,11 @@ class TestBandOverlaps(MatSciTest):
                         patch_array = rng.uniform(0, 10, shape)
 
                         # Patch the top-left sub-array (the part that would be checked)
-                        patch_array[:number_occ_bands, :number_occ_bands] = np.identity(
-                            number_occ_bands
-                        ) + rng.uniform(
+                        patch_array[:number_occ_bands, :number_occ_bands] = np.identity(number_occ_bands) + rng.uniform(
                             0, actual_deviation, (number_occ_bands, number_occ_bands)
                         )
 
-                        band_overlaps.band_overlaps["matrices"][spin][
-                            i_arr
-                        ] = patch_array
+                        band_overlaps.band_overlaps["matrices"][spin][i_arr] = patch_array
 
                     result = band_overlaps.has_good_quality_check_occupied_bands(
                         number_occ_bands_spin_up=number_occ_bands_spin_up,
@@ -1070,16 +938,12 @@ class TestBandOverlaps(MatSciTest):
                         assert not result
 
     def test_exceptions(self):
-        with pytest.raises(
-            ValueError, match="number_occ_bands_spin_down has to be specified"
-        ):
+        with pytest.raises(ValueError, match="number_occ_bands_spin_down has to be specified"):
             self.band_overlaps1.has_good_quality_check_occupied_bands(
                 number_occ_bands_spin_up=4,
                 spin_polarized=True,
             )
-        with pytest.raises(
-            ValueError, match="number_occ_bands_spin_down has to be specified"
-        ):
+        with pytest.raises(ValueError, match="number_occ_bands_spin_down has to be specified"):
             self.band_overlaps1_new.has_good_quality_check_occupied_bands(
                 number_occ_bands_spin_up=4,
                 spin_polarized=True,
@@ -1095,14 +959,11 @@ class TestBandOverlaps(MatSciTest):
 
 
 class TestGROSSPOP(MatSciTest):
-
     def setup_method(self):
         self.grosspop1 = GROSSPOP(f"{TEST_DIR}/GROSSPOP.lobster")
         self.grosspop_511_sp = GROSSPOP(f"{TEST_DIR}/GROSSPOP_511_sp.lobster.AlN.gz")
         self.grosspop_511_nsp = GROSSPOP(f"{TEST_DIR}/GROSSPOP_511_nsp.lobster.NaCl.gz")
-        self.grosspop_511_lcfo = GROSSPOP_LCFO(
-            f"{TEST_DIR}/GROSSPOP.LCFO.lobster.AlN.gz"
-        )
+        self.grosspop_511_lcfo = GROSSPOP_LCFO(f"{TEST_DIR}/GROSSPOP.LCFO.lobster.AlN.gz")
 
     def test_attributes(self):
         gross_pop_list = self.grosspop1.populations
@@ -1150,41 +1011,28 @@ class TestGROSSPOP(MatSciTest):
 
 
 class TestICOXXLIST(MatSciTest):
-
     def setup_method(self):
-        self.icohp_bise = ICOHPLIST(
-            filename=f"{TEST_DIR}/ICOHPLIST.lobster.BiSe", process_immediately=False
-        )
+        self.icohp_bise = ICOHPLIST(filename=f"{TEST_DIR}/ICOHPLIST.lobster.BiSe", process_immediately=False)
         self.icohp_bise.lobster_version = "3.1.0"
         self.icohp_bise.process()
 
-        self.icoop_bise = ICOOPLIST(
-            filename=f"{TEST_DIR}/ICOOPLIST.lobster.BiSe", process_immediately=False
-        )
+        self.icoop_bise = ICOOPLIST(filename=f"{TEST_DIR}/ICOOPLIST.lobster.BiSe", process_immediately=False)
         self.icoop_bise.lobster_version = "3.2.0"
         self.icoop_bise.process()
 
-        self.icohp_fe = ICOHPLIST(
-            filename=f"{TEST_DIR}/ICOHPLIST.lobster", process_immediately=False
-        )
+        self.icohp_fe = ICOHPLIST(filename=f"{TEST_DIR}/ICOHPLIST.lobster", process_immediately=False)
         self.icohp_fe.lobster_version = "2.7.0"
         self.icohp_fe.process()
 
-        self.icohp_gzipped = ICOHPLIST(
-            filename=f"{TEST_DIR}/ICOHPLIST.lobster.gz", process_immediately=False
-        )
+        self.icohp_gzipped = ICOHPLIST(filename=f"{TEST_DIR}/ICOHPLIST.lobster.gz", process_immediately=False)
         self.icohp_gzipped.lobster_version = "3.1.0"
         self.icohp_gzipped.process()
 
-        self.icoop_fe = ICOOPLIST(
-            filename=f"{TEST_DIR}/ICOOPLIST.lobster", process_immediately=False
-        )
+        self.icoop_fe = ICOOPLIST(filename=f"{TEST_DIR}/ICOOPLIST.lobster", process_immediately=False)
         self.icoop_fe.lobster_version = "2.7.0"
         self.icoop_fe.process()
 
-        self.icohp_aln_511_sp = ICOHPLIST(
-            filename=f"{TEST_DIR}/ICOHPLIST_511_sp.lobster.AlN.gz"
-        )
+        self.icohp_aln_511_sp = ICOHPLIST(filename=f"{TEST_DIR}/ICOHPLIST_511_sp.lobster.AlN.gz")
         self.icohp_nacl_511_nsp = ICOHPLIST(
             filename=f"{TEST_DIR}/ICOHPLIST_511_nsp.lobster.NaCl.gz",
             process_immediately=False,
@@ -1193,16 +1041,12 @@ class TestICOXXLIST(MatSciTest):
         self.icohp_nacl_511_nsp.process()
 
         # ICOHPLIST.LCFO.lobster from Lobster v5.1.1
-        self.icohp_lcfo = ICOHPLIST_LCFO(
-            filename=f"{TEST_DIR}/ICOHPLIST.LCFO.lobster.AlN.gz"
-        )
+        self.icohp_lcfo = ICOHPLIST_LCFO(filename=f"{TEST_DIR}/ICOHPLIST.LCFO.lobster.AlN.gz")
         self.icohp_lcfo_non_orbitalwise = ICOHPLIST_LCFO(
             filename=f"{TEST_DIR}/ICOHPLIST_non_orbitalwise.LCFO.lobster.AlN.gz",
         )
 
-        self.icobi_orbitalwise = ICOBILIST(
-            filename=f"{TEST_DIR}/ICOBILIST.lobster", process_immediately=False
-        )
+        self.icobi_orbitalwise = ICOBILIST(filename=f"{TEST_DIR}/ICOBILIST.lobster", process_immediately=False)
         self.icobi_orbitalwise.lobster_version = "3.1.0"
         self.icobi_orbitalwise.process()
 
@@ -1235,7 +1079,6 @@ class TestICOXXLIST(MatSciTest):
         self.icobi_orbitalwise_spinpolarized_add.process()
 
     def test_attributes(self):
-
         assert len(self.icohp_bise.spins) == 1
         assert len(self.icohp_bise.interactions) == 11
         assert len(self.icohp_fe.spins) == 2
@@ -1461,44 +1304,26 @@ class TestICOXXLIST(MatSciTest):
         assert icooplist_bise == self.icoop_bise.interactions
 
         assert self.icobi.interactions[1]["icoxx"][Spin.up] == approx(0.58649)
-        assert self.icobi_orbitalwise.interactions[2]["icoxx"][Spin.up] == approx(
-            0.02559
-        )
-        assert self.icobi_orbitalwise.interactions[1]["icoxx"][Spin.up] == approx(
-            0.04940
-        )
-        assert self.icobi_orbitalwise_spinpolarized.interactions[1]["icoxx"][
-            Spin.up
-        ] == approx(0.04940 / 2, abs=1e-3)
-        assert self.icobi_orbitalwise_spinpolarized.interactions[1]["icoxx"][
-            Spin.down
-        ] == approx(0.04940 / 2, abs=1e-3)
-        assert self.icobi_orbitalwise_spinpolarized.interactions[2]["icoxx"][
-            Spin.down
-        ] == approx(0.01279, abs=1e-3)
+        assert self.icobi_orbitalwise.interactions[2]["icoxx"][Spin.up] == approx(0.02559)
+        assert self.icobi_orbitalwise.interactions[1]["icoxx"][Spin.up] == approx(0.04940)
+        assert self.icobi_orbitalwise_spinpolarized.interactions[1]["icoxx"][Spin.up] == approx(0.04940 / 2, abs=1e-3)
+        assert self.icobi_orbitalwise_spinpolarized.interactions[1]["icoxx"][Spin.down] == approx(0.04940 / 2, abs=1e-3)
+        assert self.icobi_orbitalwise_spinpolarized.interactions[2]["icoxx"][Spin.down] == approx(0.01279, abs=1e-3)
         assert self.icobi_orbitalwise_spinpolarized.interactions[2]["orbitals"] == [
             "2p_y",
             "6s",
         ]
 
         # >v5 ICOHPLIST
-        assert self.icohp_aln_511_sp.interactions[2]["icoxx"][Spin.up] == approx(
-            0.00102
-        )
-        assert self.icohp_aln_511_sp.interactions[2]["icoxx"][Spin.down] == approx(
-            0.00104
-        )
+        assert self.icohp_aln_511_sp.interactions[2]["icoxx"][Spin.up] == approx(0.00102)
+        assert self.icohp_aln_511_sp.interactions[2]["icoxx"][Spin.down] == approx(0.00104)
         assert self.icohp_nacl_511_nsp.interactions[13]["icoxx"][Spin.up] == approx(0.0)
         assert self.icohp_nacl_511_nsp.interactions[10]["orbitals"] == ["2p_y", "2p_z"]
 
         # v5.1.1 LCFO
         assert self.icohp_lcfo.interactions[15]["orbitals"] == ["2a1", "4e"]
-        assert self.icohp_lcfo_non_orbitalwise.interactions[16]["icoxx"][
-            Spin.up
-        ] == approx(-0.21495)
-        assert self.icohp_lcfo_non_orbitalwise.interactions[16]["icoxx"][
-            Spin.down
-        ] == approx(-0.21498)
+        assert self.icohp_lcfo_non_orbitalwise.interactions[16]["icoxx"][Spin.up] == approx(-0.21495)
+        assert self.icohp_lcfo_non_orbitalwise.interactions[16]["icoxx"][Spin.down] == approx(-0.21498)
 
     def test_msonable(self):
         dict_data = self.icobi_orbitalwise_spinpolarized.as_dict()
@@ -1537,9 +1362,7 @@ class TestWavefunction(MatSciTest):
 
         wave1.set_volumetric_data(grid=wave1.grid, structure=wave1.structure)
         assert wave1.volumetricdata_real.data["total"][0, 0, 0] == approx(-3.0966)
-        assert wave1.volumetricdata_imaginary.data["total"][0, 0, 0] == approx(
-            -6.45895e00
-        )
+        assert wave1.volumetricdata_imaginary.data["total"][0, 0, 0] == approx(-6.45895e00)
 
     def test_get_volumetricdata_real(self):
         wave1 = Wavefunction(
@@ -1563,9 +1386,7 @@ class TestWavefunction(MatSciTest):
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR_O.gz"),
         )
         volumetricdata_density = wave1.get_volumetricdata_density()
-        assert volumetricdata_density.data["total"][0, 0, 0] == approx(
-            (-3.0966 * -3.0966) + (-6.45895 * -6.45895)
-        )
+        assert volumetricdata_density.data["total"][0, 0, 0] == approx((-3.0966 * -3.0966) + (-6.45895 * -6.45895))
 
     def test_write_file(self):
         wave1 = Wavefunction(
@@ -1587,9 +1408,7 @@ class TestWavefunction(MatSciTest):
 
 class TestSitePotentials(MatSciTest):
     def setup_method(self) -> None:
-        self.sitepotentials = SitePotentials(
-            filename=f"{TEST_DIR}/SitePotentials.lobster.perovskite"
-        )
+        self.sitepotentials = SitePotentials(filename=f"{TEST_DIR}/SitePotentials.lobster.perovskite")
 
     def test_attributes(self):
         assert self.sitepotentials.site_potentials_loewdin == [
@@ -1622,9 +1441,7 @@ class TestSitePotentials(MatSciTest):
 
 class TestMadelungEnergies(MatSciTest):
     def setup_method(self) -> None:
-        self.madelungenergies = MadelungEnergies(
-            filename=f"{TEST_DIR}/MadelungEnergies.lobster.perovskite"
-        )
+        self.madelungenergies = MadelungEnergies(filename=f"{TEST_DIR}/MadelungEnergies.lobster.perovskite")
 
     def test_attributes(self):
         assert self.madelungenergies.madelung_energies_loewdin == approx(-28.64)
@@ -1644,38 +1461,30 @@ class TestLobsterMatrices(MatSciTest):
         self.hamilton_matrices = LobsterMatrices(
             filename=f"{TEST_DIR}/Na_hamiltonMatrices.lobster.gz", efermi=-2.79650354
         )
-        self.transfer_matrices = LobsterMatrices(
-            filename=f"{TEST_DIR}/C_transferMatrices.lobster.gz"
-        )
-        self.overlap_matrices = LobsterMatrices(
-            filename=f"{TEST_DIR}/Si_overlapMatrices.lobster.gz"
-        )
-        self.coeff_matrices = LobsterMatrices(
-            filename=f"{TEST_DIR}/Si_coefficientMatricesLSO1.lobster.gz"
-        )
+        self.transfer_matrices = LobsterMatrices(filename=f"{TEST_DIR}/C_transferMatrices.lobster.gz")
+        self.overlap_matrices = LobsterMatrices(filename=f"{TEST_DIR}/Si_overlapMatrices.lobster.gz")
+        self.coeff_matrices = LobsterMatrices(filename=f"{TEST_DIR}/Si_coefficientMatricesLSO1.lobster.gz")
 
     def test_attributes(self):
         assert self.hamilton_matrices.efermi == -2.79650354
         assert self.hamilton_matrices.centers == ["Na1", "Na1", "Na1", "Na1"]
 
-        assert 1 in self.hamilton_matrices.matrices
+        assert "1" in self.hamilton_matrices.matrices
         assert len(self.hamilton_matrices.matrices) == 1
 
-        assert isinstance(self.hamilton_matrices.matrices[1], dict)
-        for spin in self.hamilton_matrices.matrices[1]:
+        assert isinstance(self.hamilton_matrices.matrices["1"], dict)
+        for spin in self.hamilton_matrices.matrices["1"]:
             assert spin in [Spin.up, Spin.down]
-            assert isinstance(self.hamilton_matrices.matrices[1][spin], np.ndarray)
-            assert self.hamilton_matrices.matrices[1][spin].shape == (4, 4)
+            assert isinstance(self.hamilton_matrices.matrices["1"][spin], np.ndarray)
+            assert self.hamilton_matrices.matrices["1"][spin].shape == (4, 4)
 
         assert self.hamilton_matrices.orbitals == ["3s", "2p_y", "2p_z", "2p_x"]
 
         with pytest.raises(KeyError):
-            assert self.hamilton_matrices.matrices[0][Spin.down]
+            assert self.hamilton_matrices.matrices["2"][Spin.down]
 
-        assert self.hamilton_matrices.matrices[1][Spin.up][0, 0].real == approx(
-            -3.02170000
-        )
-        assert self.hamilton_matrices.matrices[1][Spin.up][0, 0].imag == approx(0.0)
+        assert self.hamilton_matrices.matrices["1"][Spin.up][0, 0].real == approx(-3.02170000)
+        assert self.hamilton_matrices.matrices["1"][Spin.up][0, 0].imag == approx(0.0)
 
         assert self.hamilton_matrices.get_onsite_values("Na1", "3s") == approx(
             (-3.0217 + 2.79650354 - 1.39420000 + 2.79650354) / 2
@@ -1696,52 +1505,48 @@ class TestLobsterMatrices(MatSciTest):
         assert self.overlap_matrices.centers == ["Si1", "Si1", "Si1", "Si1"]
         assert self.overlap_matrices.orbitals == ["3s", "3p_y", "3p_z", "3p_x"]
 
-        assert 1 in self.overlap_matrices.matrices
+        assert "1" in self.overlap_matrices.matrices
         assert len(self.overlap_matrices.matrices) == 1
 
-        assert isinstance(self.overlap_matrices.matrices[1], dict)
-        for spin in self.overlap_matrices.matrices[1]:
+        assert isinstance(self.overlap_matrices.matrices["1"], dict)
+        for spin in self.overlap_matrices.matrices["1"]:
             assert spin in [None]
-            assert isinstance(self.overlap_matrices.matrices[1][spin], np.ndarray)
-            assert self.overlap_matrices.matrices[1][spin].shape == (4, 4)
+            assert isinstance(self.overlap_matrices.matrices["1"][spin], np.ndarray)
+            assert self.overlap_matrices.matrices["1"][spin].shape == (4, 4)
 
         for m in range(4):
-            assert self.overlap_matrices.matrices[1][None][m, m].real == approx(
-                1.00000000
-            )
+            assert self.overlap_matrices.matrices["1"][None][m, m].real == approx(1.00000000)
 
         assert self.transfer_matrices.efermi is None
         assert self.transfer_matrices.centers == ["C1", "C1", "C1", "C1"]
         assert self.transfer_matrices.orbitals == ["2s", "2p_y", "2p_z", "2p_x"]
 
-        assert isinstance(self.transfer_matrices.matrices[1], dict)
+        assert isinstance(self.transfer_matrices.matrices["1"], dict)
 
-        assert 1 in self.transfer_matrices.matrices
+        assert "1" in self.transfer_matrices.matrices
         assert len(self.transfer_matrices.matrices) == 1
 
-        for spin in self.transfer_matrices.matrices[1]:
+        for spin in self.transfer_matrices.matrices["1"]:
             assert spin in [Spin.up, Spin.down]
-            assert isinstance(self.transfer_matrices.matrices[1][spin], np.ndarray)
-            assert self.transfer_matrices.matrices[1][spin].shape == (4, 4)
+            assert isinstance(self.transfer_matrices.matrices["1"][spin], np.ndarray)
+            assert self.transfer_matrices.matrices["1"][spin].shape == (4, 4)
 
         assert self.coeff_matrices.efermi is None
         assert self.coeff_matrices.centers == ["Si1", "Si1", "Si1", "Si1"]
         assert self.coeff_matrices.orbitals == ["3s", "3p_y", "3p_z", "3p_x"]
 
-        assert isinstance(self.coeff_matrices.matrices[1], dict)
-        assert 1 in self.coeff_matrices.matrices
+        assert isinstance(self.coeff_matrices.matrices["1"], dict)
+        assert "1" in self.coeff_matrices.matrices
         assert len(self.coeff_matrices.matrices) == 1
-        for spin in self.coeff_matrices.matrices[1]:
+        for spin in self.coeff_matrices.matrices["1"]:
             assert spin in [Spin.up, Spin.down]
-            assert isinstance(self.coeff_matrices.matrices[1][spin], np.ndarray)
-            assert self.coeff_matrices.matrices[1][spin].shape == (4, 4)
+            assert isinstance(self.coeff_matrices.matrices["1"][spin], np.ndarray)
+            assert self.coeff_matrices.matrices["1"][spin].shape == (4, 4)
 
 
 class TestPOLARIZATION(MatSciTest):
     def setup_method(self) -> None:
-        self.polarization = POLARIZATION(
-            filename=f"{TEST_DIR}/POLARIZATION.lobster.AlN.gz"
-        )
+        self.polarization = POLARIZATION(filename=f"{TEST_DIR}/POLARIZATION.lobster.AlN.gz")
 
     def test_attributes(self):
         assert self.polarization.rel_loewdin_pol_vector == {
@@ -1783,17 +1588,8 @@ class TestCOBICAR(MatSciTest):
 
         assert len(cobicar.energies) == cobicar.num_data
 
-        assert (
-            len(cobicar.get_interactions_by_properties(centers=["H4", "B1", "H7"])) == 5
-        )
-        assert (
-            len(
-                cobicar.get_interactions_by_properties(
-                    centers=["H4", "B1", "H7"], orbitals=["2s"]
-                )
-            )
-            == 1
-        )
+        assert len(cobicar.get_interactions_by_properties(centers=["H4", "B1", "H7"])) == 5
+        assert len(cobicar.get_interactions_by_properties(centers=["H4", "B1", "H7"], orbitals=["2s"])) == 1
 
         assert cobicar.get_data_by_properties(
             centers=["H4", "B1", "H7"],
@@ -1811,10 +1607,7 @@ class TestCOBICAR(MatSciTest):
     def test_read_cobicar_4_centers(self):
         cobicar = COBICAR(TEST_DIR + "/COBICAR.lobster.GeTe_4center")
 
-        assert (
-            len(cobicar.get_interactions_by_properties(centers=["Ge", "Ge", "T", "Te"]))
-            == 1
-        )
+        assert len(cobicar.get_interactions_by_properties(centers=["Ge", "Ge", "T", "Te"])) == 1
 
     def test_read_cobicar_4_centers_orbital_resolved(self, tmp_path):
         cobicar = COBICAR(TEST_DIR + "/COBICAR.lobster.GeTe.multi.orbitalwise")
@@ -1868,33 +1661,21 @@ class TestCOBICAR(MatSciTest):
         assert cobicar_from_json.num_bonds == cobicar.num_bonds
         assert len(cobicar_from_json.interactions) == len(cobicar.interactions)
 
-        for interaction1, interaction2 in zip(
-            cobicar_from_json.interactions, cobicar.interactions, strict=True
-        ):
+        for interaction1, interaction2 in zip(cobicar_from_json.interactions, cobicar.interactions, strict=True):
             assert interaction1["centers"] == interaction2["centers"]
             assert interaction1["orbitals"] == interaction2["orbitals"]
-            assert_allclose(
-                interaction1["coxx"][Spin.up], interaction2["coxx"][Spin.up]
-            )
-            assert_allclose(
-                interaction1["icoxx"][Spin.up], interaction2["icoxx"][Spin.up]
-            )
+            assert_allclose(interaction1["coxx"][Spin.up], interaction2["coxx"][Spin.up])
+            assert_allclose(interaction1["icoxx"][Spin.up], interaction2["icoxx"][Spin.up])
 
         assert_allclose(cobicar_from_json.data, cobicar.data)
 
         ya_cobicar = COBICAR.from_dict(cobicar.as_dict())
 
-        for interaction1, interaction2 in zip(
-            ya_cobicar.interactions, cobicar_from_json.interactions, strict=True
-        ):
+        for interaction1, interaction2 in zip(ya_cobicar.interactions, cobicar_from_json.interactions, strict=True):
             assert interaction1["centers"] == interaction2["centers"]
             assert interaction1["orbitals"] == interaction2["orbitals"]
-            assert_allclose(
-                interaction1["coxx"][Spin.up], interaction2["coxx"][Spin.up]
-            )
-            assert_allclose(
-                interaction1["icoxx"][Spin.up], interaction2["icoxx"][Spin.up]
-            )
+            assert_allclose(interaction1["coxx"][Spin.up], interaction2["coxx"][Spin.up])
+            assert_allclose(interaction1["icoxx"][Spin.up], interaction2["icoxx"][Spin.up])
 
         assert_allclose(ya_cobicar.data, cobicar_from_json.data)
 
@@ -1951,9 +1732,7 @@ class TestCOOPCAR(MatSciTest):
         assert len(coopcar.energies) == coopcar.num_data
 
         assert len(coopcar.get_interactions_by_properties(centers=["Fe8", "Fe7"])) == 1
-        assert coopcar.get_data_by_properties(centers=["Fe8", "Fe9"])[0, -1] == approx(
-            -0.00099
-        )
+        assert coopcar.get_data_by_properties(centers=["Fe8", "Fe9"])[0, -1] == approx(-0.00099)
 
     def test_coopcar_2(self):
         coopcar = COOPCAR(TEST_DIR + "/COOPCAR.lobster.BiSe.gz")
@@ -1977,9 +1756,7 @@ class TestNcICOBILIST(MatSciTest):
     """Tests for NcICOBILIST class."""
 
     def test_ncicobilist(self):
-        ncicobi = NcICOBILIST(
-            filename=f"{TEST_DIR}/NcICOBILIST.lobster.nospin.withoutorbitals"
-        )
+        ncicobi = NcICOBILIST(filename=f"{TEST_DIR}/NcICOBILIST.lobster.nospin.withoutorbitals")
 
         assert len(ncicobi.spins) == 1
         assert ncicobi.interactions[0]["centers"] == ["X1", "X20"]
@@ -1993,11 +1770,7 @@ class TestNcICOBILIST(MatSciTest):
 
         assert ncicobi.get_interactions_by_properties(
             centers=["X22"],
-        )[
-            0
-        ]["icoxx"][
-            Spin.up
-        ] == approx(0.00018)
+        )[0]["icoxx"][Spin.up] == approx(0.00018)
 
         assert ncicobi.get_data_by_properties(
             centers=["X22"],
@@ -2016,9 +1789,7 @@ class TestNcICOBILIST(MatSciTest):
 
         assert ncicobi.data.shape == (24, 2)
 
-        interaction = ncicobi.get_interactions_by_properties(
-            orbitals=["4d_x^2-y^2", "4d_x^2-y^2"]
-        )
+        interaction = ncicobi.get_interactions_by_properties(orbitals=["4d_x^2-y^2", "4d_x^2-y^2"])
 
         assert len(interaction) == 1
         assert interaction[0]["index"] == 2
@@ -2036,7 +1807,6 @@ class TestNcICOBILIST(MatSciTest):
 
 
 class TestMsonable(MatSciTest):
-
     def setup_method(self) -> None:
         self.objects_to_test: dict[type[MSONable], str] = {
             BWDF: f"{TEST_DIR}/BWDF.lobster.AlN.gz",
@@ -2078,14 +1848,10 @@ class TestMsonable(MatSciTest):
 
         def check_msonability(instance: MSONable) -> None:
             instance.save(f"{tmp_path}/{instance.__class__.__name__.lower()}.json")
-            instance_from_json = instance.load(
-                f"{tmp_path}/{instance.__class__.__name__.lower()}.json"
-            )
+            instance_from_json = instance.load(f"{tmp_path}/{instance.__class__.__name__.lower()}.json")
 
             json1 = json.dumps(instance.as_dict(), cls=MontyEncoder, sort_keys=True)
-            json2 = json.dumps(
-                instance_from_json.as_dict(), cls=MontyEncoder, sort_keys=True
-            )
+            json2 = json.dumps(instance_from_json.as_dict(), cls=MontyEncoder, sort_keys=True)
             assert json1 == json2
 
             for attr_name in vars(instance):
@@ -2098,3 +1864,54 @@ class TestMsonable(MatSciTest):
 
         for instance in self.instances_to_test:
             check_msonability(instance)
+
+    def test_jsanitize_from_dict(self):
+        def _equals(a, b) -> bool:
+            if type(a) is not type(b):
+                return False
+
+            if isinstance(a, np.ndarray):
+                return np.array_equal(a, b)
+
+            if isinstance(a, float):
+                return np.isclose(a, b, atol=1e-4)
+
+            if isinstance(a, dict):
+                if a.keys() != b.keys():
+                    return False
+                return all(_equals(a[k], b[k]) for k in a)
+
+            if isinstance(a, (list, tuple)):
+                if len(a) != len(b):
+                    return False
+                return all(_equals(x, y) for x, y in zip(a, b, strict=True))
+
+            return type(a) is type(b)
+
+        for obj, file_path in self.objects_to_test.items():
+            instance: MSONable = obj(filename=file_path)
+
+            jsonable_data = jsanitize(instance, strict=True, allow_bson=True)
+
+            instance_from_dict = obj.from_dict(jsonable_data)
+
+            for attr_name in vars(instance):
+                assert hasattr(instance_from_dict, attr_name)
+
+                original = getattr(instance, attr_name)
+                restored = getattr(instance_from_dict, attr_name)
+
+                assert _equals(restored, original)
+
+        for instance in self.instances_to_test:
+            jsonable_data = jsanitize(instance, strict=True, allow_bson=True)
+
+            instance_from_dict = instance.from_dict(jsonable_data)
+
+            for attr_name in vars(instance):
+                assert hasattr(instance_from_dict, attr_name)
+
+                original = getattr(instance, attr_name)
+                restored = getattr(instance_from_dict, attr_name)
+
+                assert _equals(restored, original)

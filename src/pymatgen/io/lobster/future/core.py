@@ -3,13 +3,13 @@ from __future__ import annotations
 from abc import abstractmethod
 from collections import Counter
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, ClassVar, cast
-
 from pathlib import Path
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 import numpy as np
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
+from typing_extensions import Self
 
 from pymatgen.io.lobster.future.constants import LOBSTER_VERSION
 from pymatgen.io.lobster.future.utils import convert_spin_keys, restore_spin_keys
@@ -17,11 +17,7 @@ from pymatgen.io.lobster.future.utils import convert_spin_keys, restore_spin_key
 if TYPE_CHECKING:
     from collections.abc import Callable, Generator
 
-    from pymatgen.io.lobster.future.types import (
-        LobsterInteraction,
-        LobsterInteractionData,
-        Spin,
-    )
+    from pymatgen.io.lobster.future.types import LobsterInteraction, LobsterInteractionData, Spin
     from pymatgen.util.typing import PathLike
 
 
@@ -43,9 +39,7 @@ class LobsterFile(MSONable):
 
     spins: list[Spin] | None = None
 
-    def __init__(
-        self, filename: PathLike | None = None, process_immediately: bool = True
-    ):
+    def __init__(self, filename: PathLike | None = None, process_immediately: bool = True):
         """
         Initialize a LobsterFile instance.
 
@@ -53,9 +47,7 @@ class LobsterFile(MSONable):
             filename (PathLike | None): Path to the file. If None, uses the default filename.
             process_immediately (bool): Whether to process the file immediately upon initialization. Defaults to True.
         """
-        self.filename = (
-            Path(filename or self.get_default_filename()).expanduser().resolve()
-        )
+        self.filename = Path(filename or self.get_default_filename()).expanduser().resolve()
         self.lobster_version = self.get_file_version() or LOBSTER_VERSION
 
         if process_immediately:
@@ -99,9 +91,7 @@ class LobsterFile(MSONable):
             minimum_version,
             maximum_version,
         ), processor in self.version_processors.items():
-            if LobsterFile.check_version(
-                self.lobster_version, minimum_version, maximum_version
-            ):
+            if LobsterFile.check_version(self.lobster_version, minimum_version, maximum_version):
                 eligible_methods.append((minimum_version, processor))
 
         if not eligible_methods:
@@ -216,7 +206,7 @@ class LobsterFile(MSONable):
         return dictionary
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> LobsterFile:
+    def from_dict(cls, d: dict[str, Any]) -> Self:
         """
         Deserializes a LobsterFile object from a dictionary. Spin keys in dictionaries are restored from strings.
 
@@ -229,13 +219,13 @@ class LobsterFile(MSONable):
         instance = cls.__new__(cls)
 
         decoded_dictionary = {
-            k: restore_spin_keys(MontyDecoder().process_decoded(v))
-            for k, v in d.items()
-            if not k.startswith("@")
+            k: restore_spin_keys(MontyDecoder().process_decoded(v)) for k, v in d.items() if not k.startswith("@")
         }
 
         for k, v in decoded_dictionary.items():
             setattr(instance, k, v)
+
+        instance.filename = Path(instance.filename)
 
         return instance
 
@@ -303,13 +293,7 @@ class LobsterInteractionsHolder:
         matching_sets = []
 
         if indices is not None:
-            matching_sets.append(
-                {
-                    i
-                    for i, bond in enumerate(self.interactions)
-                    if bond["index"] in indices
-                }
-            )
+            matching_sets.append({i for i, bond in enumerate(self.interactions) if bond["index"] in indices})
 
         if centers is not None:
             center_counts = Counter(centers)
@@ -332,11 +316,7 @@ class LobsterInteractionsHolder:
                     i
                     for i, bond in enumerate(self.interactions)
                     if bond.get("cells")
-                    and all(
-                        np.all(np.equal(bond.get("cells"), cell), axis=1).any()
-                        for cell in cells
-                        if cell
-                    )
+                    and all(np.all(np.equal(bond.get("cells"), cell), axis=1).any() for cell in cells if cell)
                 }
             )
 
@@ -348,8 +328,7 @@ class LobsterInteractionsHolder:
                 bond_orbitals = bond.get("orbitals", [])
 
                 if all(
-                    sum(orbital_suffix in b for b in bond_orbitals if b)
-                    >= required_count
+                    sum(orbital_suffix in b for b in bond_orbitals if b) >= required_count
                     for orbital_suffix, required_count in orbital_counts.items()
                 ):
                     matching_orbitals.add(i)
@@ -361,8 +340,7 @@ class LobsterInteractionsHolder:
                 {
                     i
                     for i, bond in enumerate(self.interactions)
-                    if (this_length := bond.get("length")) is not None
-                    and length[0] <= this_length <= length[1]
+                    if (this_length := bond.get("length")) is not None and length[0] <= this_length <= length[1]
                 }
             )
 

@@ -5,6 +5,7 @@ from collections import defaultdict
 from typing import TYPE_CHECKING
 
 import numpy as np
+from typing_extensions import Self
 
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lobster.future.core import LobsterFile, LobsterInteractionsHolder
@@ -245,9 +246,7 @@ class COXXCAR(LobsterFile, LobsterInteractionsHolder):
         Returns:
             np.ndarray: Array with shape (n_energies, n_selected_columns).
         """
-        bond_indices = self.get_interaction_indices_by_properties(
-            indices, centers, cells, orbitals, length
-        )
+        bond_indices = self.get_interaction_indices_by_properties(indices, centers, cells, orbitals, length)
         spins = spins or self.spins
 
         return self.data[
@@ -279,13 +278,9 @@ class COXXCAR(LobsterFile, LobsterInteractionsHolder):
         Returns:
             list[dict]: List of interaction dictionaries matching the filters.
         """
-        interaction_indices = self.get_interaction_indices_by_properties(
-            indices, centers, cells, orbitals, length
-        )
+        interaction_indices = self.get_interaction_indices_by_properties(indices, centers, cells, orbitals, length)
 
-        return [
-            bond for i, bond in enumerate(self.interactions) if i in interaction_indices
-        ]
+        return [bond for i, bond in enumerate(self.interactions) if i in interaction_indices]
 
     def interaction_indices_to_data_indices_mapping(
         self,
@@ -315,9 +310,7 @@ class COXXCAR(LobsterFile, LobsterInteractionsHolder):
             interaction_indices = [interaction_indices]
 
         if set(spins) - set(self.spins):
-            raise ValueError(
-                f"Requested `Spin` {spins} is not valid. Valid `Spin`s are: {self.spins}."
-            )
+            raise ValueError(f"Requested `Spin` {spins} is not valid. Valid `Spin`s are: {self.spins}.")
 
         index_range = np.arange(0, self.num_bonds * 2 * len(spins) + 1)
 
@@ -344,7 +337,7 @@ class COXXCAR(LobsterFile, LobsterInteractionsHolder):
         return sorted(real_indices.tolist())
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> COXXCAR:
+    def from_dict(cls, d: dict[str, Any]) -> Self:
         """Deserialize object from dictionary produced by `as_dict`.
 
         Args:
@@ -354,6 +347,8 @@ class COXXCAR(LobsterFile, LobsterInteractionsHolder):
             COXXCAR: Reconstructed instance.
         """
         instance = super().from_dict(d)
+        instance.data = np.asarray(instance.data, dtype=np.float64)
+
         instance.process_data_into_interactions()
 
         return instance

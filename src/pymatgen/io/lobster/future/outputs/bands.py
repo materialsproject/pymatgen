@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 
 import numpy as np
 from monty.json import MSONable
+from typing_extensions import Self
 
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Spin
@@ -17,7 +18,6 @@ from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Vasprun
 
 if TYPE_CHECKING:
-
     from pymatgen.core.structure import IStructure
     from pymatgen.io.lobster.future.types import LobsterBandOverlaps, LobsterFatband
     from pymatgen.util.typing import PathLike
@@ -74,18 +74,16 @@ class BandOverlaps(LobsterFile):
             "matrices": {Spin.up: [], Spin.down: []},
         }
 
-        spin: Spin = Spin.up
+        self.spins = [Spin.up]
+        current_spin: Spin = Spin.up
         for line in self.iterate_lines():
-            if (
-                f"Overlap Matrix (abs) of the orthonormalized projected bands for spin {spin_numbers[0]}"
-                in line
-            ):
-                spin = Spin.up
-            elif (
-                f"Overlap Matrix (abs) of the orthonormalized projected bands for spin {spin_numbers[1]}"
-                in line
-            ):
-                spin = Spin.down
+            if f"Overlap Matrix (abs) of the orthonormalized projected bands for spin {spin_numbers[0]}" in line:
+                current_spin = Spin.up
+            elif f"Overlap Matrix (abs) of the orthonormalized projected bands for spin {spin_numbers[1]}" in line:
+                current_spin = Spin.down
+
+                if current_spin not in self.spins:
+                    self.spins.append(Spin.down)
             elif "k-point" in line:
                 kpoint = line.split(" ")
                 kpoint_array = []
@@ -94,24 +92,30 @@ class BandOverlaps(LobsterFile):
                         kpoint_array.append(float(kpointel))
             elif "maxDeviation" in line:
                 maxdev = line.split(" ")[2]
-                self.band_overlaps["max_deviations"][spin].append(float(maxdev))
-                self.band_overlaps["k_points"][spin].append(kpoint_array)
+                self.band_overlaps["max_deviations"][current_spin].append(float(maxdev))
+                self.band_overlaps["k_points"][current_spin].append(kpoint_array)
                 overlaps = []
             else:
                 _lines = [float(el) for el in line.split(" ") if el != ""]
                 overlaps.append(_lines)
                 if len(overlaps) == len(_lines):
-                    self.band_overlaps["matrices"][spin].append(np.array(overlaps))
+                    self.band_overlaps["matrices"][current_spin].append(np.array(overlaps))
 
+        self.remove_empty_keys()
+        self.convert_to_numpy_arrays()
+
+    def remove_empty_keys(self) -> None:
+        """Remove empty spin channels from band_overlaps."""
         for key in self.band_overlaps:
             for spin in (Spin.up, Spin.down):
-                if not self.band_overlaps[key][spin]:
+                if len(self.band_overlaps[key][spin]) == 0:
                     del self.band_overlaps[key][spin]
 
-                if len(self.band_overlaps[key]) == 0:
-                    raise ValueError(
-                        f"No data found for key '{key}' in bandOverlaps.lobster"
-                    )
+    def convert_to_numpy_arrays(self) -> None:
+        """Convert lists in band_overlaps to numpy arrays."""
+        for key in self.band_overlaps:
+            for spin in self.spins:
+                self.band_overlaps[key][spin] = np.asarray(self.band_overlaps[key][spin], dtype=float)
 
     def has_good_quality_max_deviation(self, limit_max_deviation: float = 0.1) -> bool:
         """Check if the maxDeviation values are within a given limit.
@@ -123,11 +127,9 @@ class BandOverlaps(LobsterFile):
             bool: True if all recorded max_deviation values are <= limit_max_deviation.
         """
         return all(
-            deviation <= limit_max_deviation
-            for deviation in self.band_overlaps["max_deviations"].get(Spin.up, [])
+            deviation <= limit_max_deviation for deviation in self.band_overlaps["max_deviations"].get(Spin.up, [])
         ) and all(
-            deviation <= limit_max_deviation
-            for deviation in self.band_overlaps["max_deviations"].get(Spin.down, [])
+            deviation <= limit_max_deviation for deviation in self.band_overlaps["max_deviations"].get(Spin.down, [])
         )
 
     def has_good_quality_check_occupied_bands(
@@ -166,9 +168,7 @@ class BandOverlaps(LobsterFile):
             for overlap_matrix in self.band_overlaps["matrices"][spin]:
                 sub_array = np.asarray(overlap_matrix)[:num_occ_bands, :num_occ_bands]
 
-                if not np.allclose(
-                    sub_array, np.identity(num_occ_bands), atol=limit_deviation, rtol=0
-                ):
+                if not np.allclose(sub_array, np.identity(num_occ_bands), atol=limit_deviation, rtol=0):
                     return False
 
         return True
@@ -181,6 +181,22 @@ class BandOverlaps(LobsterFile):
             str: Default filename.
         """
         return "bandOverlaps.lobster"
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> Self:
+        """Reconstruct a BandOverlaps instance from a dictionary.
+
+        Args:
+            d (dict[str, Any]): Dictionary representation of a BandOverlaps instance.
+
+        Returns:
+            BandOverlaps: Reconstructed instance.
+        """
+        instance = super().from_dict(d)
+        instance.remove_empty_keys()
+        instance.convert_to_numpy_arrays()
+
+        return instance
 
 
 class Fatbands(MSONable):
@@ -246,28 +262,20 @@ class Fatbands(MSONable):
                 for k, w, n in zip(
                     full_kpoints.kpts,
                     full_kpoints.kpts_weights,
-                    (
-                        full_kpoints.labels
-                        if full_kpoints.labels
-                        else [None] * len(full_kpoints.kpts)
-                    ),
+                    (full_kpoints.labels if full_kpoints.labels else [None] * len(full_kpoints.kpts)),
                     strict=True,
                 )
                 if w == 0
             ]
 
-            new_kpts, new_weights, new_labels = (
-                zip(*filtered_data, strict=True) if filtered_data else ([], [], [])
-            )
+            new_kpts, new_weights, new_labels = zip(*filtered_data, strict=True) if filtered_data else ([], [], [])
 
             coord_type = full_kpoints.coord_type
 
             if coord_type is None:
                 pass
             elif coord_type not in {"Reciprocal", "Cartesian"}:
-                raise ValueError(
-                    "KPOINTS coord_type must be 'Reciprocal' or 'Cartesian' for `Fatbands` parsing."
-                )
+                raise ValueError("KPOINTS coord_type must be 'Reciprocal' or 'Cartesian' for `Fatbands` parsing.")
 
             coord_type = cast("Literal['Reciprocal', 'Cartesian'] | None", coord_type)
 
@@ -281,17 +289,13 @@ class Fatbands(MSONable):
                 coord_type=coord_type,
             )
         else:
-            raise ValueError(
-                "KPOINTS file must contain weights for `Fatbands` parsing."
-            )
+            raise ValueError("KPOINTS file must contain weights for `Fatbands` parsing.")
 
         if structure is None:
             try:
                 self.structure = Structure.from_file(Path(directory, "POSCAR.lobster"))
             except FileNotFoundError:
-                raise FileNotFoundError(
-                    "No POSCAR.lobster file found in directory, structure has to be given"
-                )
+                raise FileNotFoundError("No POSCAR.lobster file found in directory, structure has to be given")
         else:
             self.structure = structure
 
@@ -334,9 +338,7 @@ class Fatbands(MSONable):
             if is_spin_polarized is None:
                 is_spin_polarized = len(fatband_data["projections"]) > 1
             elif is_spin_polarized != (len(fatband_data["projections"]) > 1):
-                raise ValueError(
-                    "Mix of spin polarized and non-spin polarized FATBAND files"
-                )
+                raise ValueError("Mix of spin polarized and non-spin polarized FATBAND files")
 
             self.fatbands.append(fatband_data)
 
@@ -426,17 +428,32 @@ class Fatband(LobsterFile):
         self.fatband: LobsterFatband = {
             "center": self.center,
             "orbital": self.orbital,
-            "energies": {},
-            "projections": {},
+            "energies": fatband["energies"],
+            "projections": fatband["projections"],
         }
 
+        self.convert_to_numpy_arrays()
+
+    def convert_to_numpy_arrays(self) -> None:
+        """Convert lists in band_overlaps to numpy arrays."""
         for spin in self.spins:
-            self.fatband["energies"][spin] = np.asarray(
-                fatband["energies"][spin], dtype=float
-            )
-            self.fatband["projections"][spin] = np.asarray(
-                fatband["projections"][spin], dtype=float
-            )
+            self.fatband["energies"][spin] = np.asarray(self.fatband["energies"][spin], dtype=np.float64)
+            self.fatband["projections"][spin] = np.asarray(self.fatband["projections"][spin], dtype=np.float64)
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> Self:
+        """Reconstruct a Fatband instance from a dictionary.
+
+        Args:
+            d (dict[str, Any]): Dictionary representation of a Fatband instance.
+
+        Returns:
+            Fatband: Reconstructed instance.
+        """
+        instance = super().from_dict(d)
+        instance.convert_to_numpy_arrays()
+
+        return instance
 
     @classmethod
     def get_default_filename(cls) -> str:

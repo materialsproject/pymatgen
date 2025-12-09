@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from enum import Enum
 from typing import Any
 
 from pymatgen.electronic_structure.core import Spin
@@ -24,10 +23,7 @@ def natural_sort(list_to_sort: str) -> list[Any]:
         >>> natural_sort(["file10", "file2", "file1"])
         ['file1', 'file2', 'file10']
     """
-    return [
-        int(text) if text.isdigit() else text.lower()
-        for text in re.split(r"(\d+)", list_to_sort)
-    ]
+    return [int(text) if text.isdigit() else text.lower() for text in re.split(r"(\d+)", list_to_sort)]
 
 
 def parse_orbital_from_text(text: str) -> str | None:
@@ -83,7 +79,7 @@ def convert_spin_keys(obj: Any) -> Any:
         new_dict = {}
 
         for k, v in obj.items():
-            new_key = str(k) if isinstance(k, Enum) else k
+            new_key = f"@Spin({k})" if isinstance(k, Spin) else k
             new_dict[new_key] = convert_spin_keys(v)
 
         return new_dict
@@ -114,9 +110,9 @@ def restore_spin_keys(obj: Any) -> Any:
     if isinstance(obj, dict):
         new_dict = {}
         for k, v in obj.items():
-            if k == "1":
+            if k == "@Spin(1)":
                 new_key = Spin.up
-            elif k == "-1":
+            elif k == "@Spin(-1)":
                 new_key = Spin.down
             else:
                 new_key = k
