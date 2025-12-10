@@ -453,7 +453,7 @@ class NwInput(MSONable):
                 continue
 
             tokens = line.split()
-        
+
             if tokens[0].lower() == "geometry":
                 geom_options = tokens[1:]
                 species = []
