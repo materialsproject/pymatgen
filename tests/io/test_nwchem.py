@@ -314,6 +314,17 @@ task dft energy
 
         assert str(self.nwi_symm) == ans_symm
 
+        symm2 = """geometry units angstroms noautoz
+ C 0.0 0.0 0.0
+ H 0.0 0.0 1.089
+ H 1.026719 0.0 -0.363
+ H -0.51336 -0.889165 -0.363
+ H -0.51336 0.889165 -0.363
+symmetry c1
+end
+"""
+        assert NwInput.from_str(symm2).symmetry_options == ["c1"]
+
     def test_as_from_dict(self):
         dct = self.nwi.as_dict()
         nwi = NwInput.from_dict(dct)
