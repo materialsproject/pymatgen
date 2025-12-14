@@ -139,45 +139,6 @@ class PotcarScrambler:
         return psp_scrambled
 
 
-def generate_fake_potcar_libraries() -> None:
-    """
-    To test the `_gen_potcar_summary_stats` function in `pymatgen.io.vasp.inputs`,
-    need a library of fake POTCARs which do not violate copyright
-    """
-    mp_relax_set = _load_yaml_config("MPRelaxSet")
-    psp_variants = [mp_relax_set["POTCAR"][element] for element in mp_relax_set["POTCAR"]]
-
-    output_dir = "./fake_potcar_library/"
-    shutil.rmtree(output_dir, ignore_errors=True)
-
-    vasp_psp_dir = SETTINGS.get("PMG_VASP_PSP_DIR")
-    src_dirs = [f"{vasp_psp_dir}/{func_dir}" for func_dir in PotcarSingle.functional_dir.values()]
-
-    if not any(map(os.path.isdir, src_dirs)):
-        raise RuntimeError(f"No input POTCAR library found, tried {src_dirs}")
-
-    for func_dir in src_dirs:
-        if not os.path.isdir(func_dir):
-            continue
-
-        for psp_name in psp_variants:
-            rebase_dir = f"{output_dir}/{func_dir}/{psp_name}/"
-            paths_to_try = [
-                zpath(f"{func_dir}/POTCAR.{psp_name}"),
-                zpath(f"{func_dir}/{psp_name}/POTCAR"),
-            ]
-            if not any(map(os.path.isfile, paths_to_try)):
-                warnings.warn(f"Could not find {psp_name} in {paths_to_try}", stacklevel=2)
-            for potcar_path in paths_to_try:
-                if os.path.isfile(potcar_path):
-                    os.makedirs(rebase_dir, exist_ok=True)
-                    PotcarScrambler.from_file(
-                        input_filename=potcar_path,
-                        output_filename=f"{rebase_dir}/POTCAR.gz",
-                    )
-                    break
-
-
 def potcar_cleanser() -> None:
     """Replace copyrighted POTCARs used in io.vasp.sets testing
     with dummy POTCARs that have scrambled PSP and kinetic energy values
@@ -201,7 +162,6 @@ def potcar_cleanser() -> None:
 
 if __name__ == "__main__":
     potcar_cleanser()
-    # generate_fake_potcar_libraries()
 
     """
     Note that vaspout.h5 files also contain full POTCARs. While the

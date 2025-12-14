@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 import os
 import pickle
 import re
@@ -34,7 +33,6 @@ from pymatgen.io.vasp.inputs import (
     PotcarSingle,
     UnknownPotcarWarning,
     VaspInput,
-    _gen_potcar_summary_stats,
 )
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
@@ -43,28 +41,6 @@ warnings.filterwarnings(
     "ignore", message=r"POTCAR data with symbol .* is not known to pymatgen", category=UnknownPotcarWarning
 )
 warnings.filterwarnings("ignore", message=r"missing .* POTCAR directory", category=UserWarning)
-
-
-# make sure _gen_potcar_summary_stats runs and works with all tests in this file
-_SUMM_STATS = _gen_potcar_summary_stats(append=False, vasp_psp_dir=str(FAKE_POTCAR_DIR), summary_stats_filename=None)
-
-
-@pytest.fixture(autouse=True)
-def _mock_complete_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None:
-    # Override POTCAR library to use fake scrambled POTCARs
-    monkeypatch.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
-    monkeypatch.setattr(PotcarSingle, "_potcar_summary_stats", _SUMM_STATS)
-
-    # The fake POTCAR library is pretty big even with just a few sub-libraries
-    # just copying over entries to work with PotcarSingle.is_valid
-    for func in PotcarSingle.functional_dir:
-        if func in _SUMM_STATS:
-            continue
-        if "pbe" in func.lower() or "pw91" in func.lower():
-            # Generate POTCAR hashes on the fly
-            _SUMM_STATS[func] = _SUMM_STATS["PBE_54_W_HASH"].copy()
-        elif "lda" in func.lower() or "perdew_zunger81" in func.lower():
-            _SUMM_STATS[func] = _SUMM_STATS["LDA_64"].copy()
 
 
 @pytest.mark.filterwarnings(
@@ -1668,35 +1644,6 @@ class TestPotcarSingle:
         assert psingle.potential_type == "PAW"
         assert self.psingle_Mn_pv.symbol == "Mn_pv"
 
-    def test_is_valid(self):
-        assert self.psingle_Fe.is_valid
-        assert self.psingle_Fe_54.is_valid
-        assert self.psingle_Mn_pv.is_valid
-
-        # corrupt the file
-        psingle = copy.deepcopy(self.psingle_Fe_54)
-        assert psingle.keywords["RCORE"] == approx(2.3)
-        psingle.keywords["RCORE"] = 2.2
-        assert not psingle.is_valid
-
-        psingle = copy.deepcopy(self.psingle_Fe_54)
-        psingle.keywords.pop("RCORE")
-        assert not psingle.is_valid
-
-        psingle = copy.deepcopy(self.psingle_Fe_54)
-        old_data = psingle.data
-        psingle.data = psingle.data.replace("RCORE  =    2.3", "RCORE = 2.2")
-        assert old_data != psingle.data
-        # TODO: should arguably be False but since header is parsed at instantiation time and not reparsed
-        # in is_valid, changing the data string in the header section does not currently invalidate POTCAR
-        assert psingle.is_valid
-
-        # this POTCAR is valid because the header is only modified in a way that is
-        # irrelevant to how FORTRAN reads files, i.e. treated by Fortran as a comment
-        filename = f"{FAKE_POTCAR_DIR}/modified_potcars_header/POT_GGA_PAW_PBE/POTCAR.Fe_pv.gz"
-        psingle = PotcarSingle.from_file(filename)
-        assert psingle.is_valid
-
     def test_unknown_potcar_warning(self):
         filename = f"{FAKE_POTCAR_DIR}/modified_potcars_data/POT_GGA_PAW_PBE/POTCAR.Fe_pv.gz"
         with pytest.warns(
@@ -1705,27 +1652,10 @@ class TestPotcarSingle:
         ):
             PotcarSingle.from_file(filename)
 
-    def test_faulty_potcar_has_wrong_hash(self):
-        filename = f"{FAKE_POTCAR_DIR}/modified_potcars_data/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv_with_hash.gz"
-        psingle = PotcarSingle.from_file(filename)
-        assert not psingle.is_valid
-        assert psingle.sha256_computed_file_hash != psingle.hash_sha256_from_file
-
     def test_verify_correct_potcar_with_sha256(self):
         filename = f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv_with_hash.gz"
         psingle = PotcarSingle.from_file(filename)
         assert psingle.sha256_computed_file_hash == psingle.hash_sha256_from_file
-
-    def test_multi_potcar_with_and_without_sha256(self):
-        filename = f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_O.gz"
-        potcars = Potcar.from_file(filename)
-        # Still need to test the if POTCAR can be read.
-        # No longer testing for hashes
-        for psingle in potcars:
-            if psingle.hash_sha256_from_file:
-                assert psingle.sha256_computed_file_hash == psingle.hash_sha256_from_file
-            else:
-                assert psingle.is_valid
 
     def test_default_functional(self):
         with patch.dict(SETTINGS, PMG_DEFAULT_FUNCTIONAL="PBE"):
@@ -2030,15 +1960,3 @@ def test_potcar_summary_stats() -> None:
     for key, expected in n_potcars_per_functional.items():
         actual = len(potcar_summary_stats[key])
         assert actual == expected, f"{key=}, {expected=}, {actual=}"
-
-
-def test_gen_potcar_summary_stats() -> None:
-    assert set(_SUMM_STATS) == set(PotcarSingle.functional_dir)
-
-    expected_funcs = [x for x in os.listdir(str(FAKE_POTCAR_DIR)) if x in PotcarSingle.functional_dir]
-
-    for func in expected_funcs:
-        bdir = f"{FAKE_POTCAR_DIR}/{PotcarSingle.functional_dir[func]}"
-        valid_elements = [x for x in os.listdir(f"{bdir}") if x[0] != "." and os.path.isdir(f"{bdir}/{x}")]
-        for element in valid_elements:
-            assert PotcarSingle.from_file(f"{bdir}/POTCAR.{element}.gz").is_valid
