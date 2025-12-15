@@ -1567,9 +1567,10 @@ class TestStructure(MatSciTest):
         assert supercell.formula == "Si32"
         assert_allclose(supercell.lattice.abc, [15.360792, 35.195996, 7.680396], 5)
 
-        # test in_place=False leaves original structure unchanged
+        # test `in_place=False` leaves original structure unchanged
         orig_len = len(self.struct)
-        # test that make_supercell casts floats to ints
+
+        # test that `make_supercell` casts float in scaling_matrix to int
         supercell = self.struct.make_supercell([2.5, 1, 1], in_place=False)
         assert len(self.struct) == orig_len
         assert len(supercell) == 2 * orig_len
