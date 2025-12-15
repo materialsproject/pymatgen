@@ -1555,6 +1555,13 @@ class TestStructure(MatSciTest):
         assert struct.formula == "Si8"
         assert_allclose(struct.lattice.abc, [7.6803959, 17.5979979, 7.6803959])
 
+    def test_mul_respects_to_unit_cell(self):
+        """Ensure __mul__ doesn't fold sites into unit cell."""
+        struct = Structure(Lattice.cubic(3.0), ["Si"], [[1.2, -0.1, 0.5]])
+        supercell = struct * np.eye(3, dtype=int)
+
+        assert_allclose(supercell[0].frac_coords, [1.2, -0.1, 0.5])
+
     def test_make_supercell(self):
         supercell = self.struct.make_supercell([2, 1, 1])
         assert supercell.formula == "Si4"
@@ -1604,6 +1611,20 @@ class TestStructure(MatSciTest):
             "Si2_7",
             "Si2_8",
         ]
+
+    @pytest.mark.parametrize(
+        ("to_unit_cell", "expected_frac"),
+        [
+            (True, [0.2, 0.9, 0.5]),
+            (False, [1.2, -0.1, 0.5]),
+        ],
+    )
+    def test_make_supercell_to_unit_cell(self, to_unit_cell, expected_frac):
+        struct = Structure(Lattice.cubic(3.0), ["Si"], [[1.2, -0.1, 0.5]])
+
+        supercell = struct.make_supercell(np.eye(3, dtype=int), to_unit_cell=to_unit_cell)
+
+        assert_allclose(supercell[0].frac_coords, expected_frac)
 
     def test_disordered_supercell_primitive_cell(self):
         lattice = Lattice.cubic(2)
