@@ -42,14 +42,14 @@ Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theor
 
 from __future__ import annotations
 
-import logging
 import gzip
+import logging
 import os
 import platform
 import subprocess
 import warnings
 from glob import glob
-from shutil import which, copyfile
+from shutil import copyfile, which
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import TYPE_CHECKING
 
@@ -203,14 +203,13 @@ class ChargemolAnalysis:
                 Default: None.
             job_control_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
-
         cwd = os.getcwd()
         with TemporaryDirectory() as tmp_dir:
             os.chdir(tmp_dir)
             try:
-                for file_name in ("chgcar","potcar","aeccar0","aeccar2"):
-                    if (fp := getattr(self,f"_{file_name}_path")).endswith(".gz"):
-                        with gzip.open(fp,"rt") as f_in, open(file_name.upper(),"wt") as f_out:
+                for file_name in ("chgcar", "potcar", "aeccar0", "aeccar2"):
+                    if (fp := getattr(self, f"_{file_name}_path")).endswith(".gz"):
+                        with gzip.open(fp, "rt") as f_in, open(file_name.upper(), "w") as f_out:
                             f_out.write(f_in.read())
                     else:
                         copyfile(fp, file_name.upper())
