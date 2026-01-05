@@ -433,11 +433,11 @@ class StructureMatcher(MSONable):
                 except for certain ions, e.g. Li-ion intercalation frameworks.
                 This is more useful than allow_subset because it allows better
                 control over what species are ignored in the matching.
-            allow_inversion (bool): Whether to allow inversion operation for 
+            allow_inversion (bool): Whether to allow inversion operation for
                 lattice finding. Defaults to True. Setting this to False means that
                 only proper rotations will be considered when finding lattices, which
                 is relevant for distinguishing between enantiomorphic structures.
-                
+
         """
         self.ltol = ltol
         self.stol = stol
@@ -498,7 +498,9 @@ class StructureMatcher(MSONable):
             skip_rotation_matrix=self._allow_inversion,
         )
         for latt, rmat, scale_m in lattices:
-            if math.isclose(abs(np.linalg.det(scale_m)), supercell_size, abs_tol=0.5, rel_tol=0) and (self._allow_inversion or np.linalg.det(rmat) > 0):
+            if math.isclose(abs(np.linalg.det(scale_m)), supercell_size, abs_tol=0.5, rel_tol=0) and (
+                self._allow_inversion or np.linalg.det(rmat) > 0
+            ):
                 yield latt, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
