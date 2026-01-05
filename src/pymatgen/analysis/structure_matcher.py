@@ -498,7 +498,7 @@ class StructureMatcher(MSONable):
             skip_rotation_matrix=self._allow_inversion,
         )
         for latt, rmat, scale_m in lattices:
-            if math.isclose(abs(np.linalg.det(scale_m)), supercell_size, abs_tol=0.5, rel_tol=0) and (allow_inversion or np.linalg.det(rmat) > 0):
+            if math.isclose(abs(np.linalg.det(scale_m)), supercell_size, abs_tol=0.5, rel_tol=0) and (self._allow_inversion or np.linalg.det(rmat) > 0):
                 yield latt, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
