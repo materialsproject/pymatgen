@@ -634,6 +634,17 @@ class TestLobsterNeighbors(TestCase):
             == 0
         )
 
+        # NaSi
+        # all bonds
+        # passes after changes introduced in PR #4148 (correct ordering of all edge attributes)
+        nn0 = self.chem_env_lobster0_NaSi.get_nn_info(structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.NaSi.gz"), n=0)
+        nn11 = self.chem_env_lobster0_NaSi.get_nn_info(
+            structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.NaSi.gz"), n=11
+        )
+        assert next(d["edge_properties"] for d in nn0 if d.get("site_index") == 11) == next(
+            d["edge_properties"] for d in nn11 if d.get("site_index") == 0
+        )
+
     def test_structure_graph(self):
         sg = self.chem_env_lobster1_second.get_bonded_structure(
             structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.mp-353.gz")
