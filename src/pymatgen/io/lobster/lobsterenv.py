@@ -1017,6 +1017,12 @@ class LobsterNeighbors(NearNeighbors):
                                 )
                             )
                         else:
+                            warnings.warn(
+                                "You are using an older version for neighbor detection that might not consider rare "
+                                "LOBSTER edge cases. Consider switching LobsterNeighbors().backward_compatibility "
+                                "to False for more advanced neighbor detection.",
+                                stacklevel=2,
+                            )
                             comparison = (
                                 np.isclose(dist, list_distances[neigh_idx], rtol=1e-4)
                                 and copied_neighbors_from_ICOHPs[dist_idx] == index_here2
