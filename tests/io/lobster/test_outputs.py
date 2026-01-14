@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import copy
-import json
+import gzip
 import os
-from unittest import TestCase
 
 import numpy as np
+import orjson
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
@@ -30,8 +30,9 @@ from pymatgen.io.lobster import (
     SitePotential,
     Wavefunction,
 )
+from pymatgen.io.lobster.outputs import _get_lines
 from pymatgen.io.vasp import Vasprun
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
@@ -42,8 +43,8 @@ __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
 
 
-class TestBwdf(PymatgenTest):
-    def setUp(self):
+class TestBwdf(MatSciTest):
+    def setup_method(self):
         self.bwdf_coop = Bwdf(filename=f"{TEST_DIR}/BWDF.lobster.AlN.gz")
         self.bwdf_cohp = Bwdf(filename=f"{TEST_DIR}/BWDFCOHP.lobster.NaCl.gz")
 
@@ -57,14 +58,24 @@ class TestBwdf(PymatgenTest):
         assert self.bwdf_cohp.bwdf[Spin.up][103] == approx(-0.01392, abs=1e-4)
 
 
-class TestCohpcar(PymatgenTest):
-    def setUp(self):
+class TestCohpcar(MatSciTest):
+    def setup_method(self):
         self.cohp_bise = Cohpcar(filename=f"{TEST_DIR}/COHPCAR.lobster.BiSe.gz")
         self.coop_bise = Cohpcar(
             filename=f"{TEST_DIR}/COOPCAR.lobster.BiSe.gz",
             are_coops=True,
         )
-        self.cohp_fe = Cohpcar(filename=f"{TEST_DIR}/COOPCAR.lobster.gz")
+
+        # Make sure Cohpcar also works with terminating line ending char
+        gz_path = f"{TEST_DIR}/COOPCAR.lobster.gz"
+        with gzip.open(gz_path, "rt", encoding="utf-8") as f:
+            content = f.read() + "\n"
+
+        # Test default filename (None should be redirected to "COHPCAR.lobster")
+        with open("COHPCAR.lobster", "w", encoding="utf-8") as f:
+            f.write(content)
+
+        self.cohp_fe = Cohpcar(filename=None)
         self.coop_fe = Cohpcar(
             filename=f"{TEST_DIR}/COOPCAR.lobster.gz",
             are_coops=True,
@@ -398,8 +409,8 @@ class TestCohpcar(PymatgenTest):
         assert len(self.cobi6.orb_res_cohp["21"]["2py-1s-2s"]["COHP"][Spin.down]) == 12
 
 
-class TestDoscar(TestCase):
-    def setUp(self):
+class TestDoscar:
+    def setup_method(self):
         # first for spin polarized version
         doscar = f"{VASP_OUT_DIR}/DOSCAR.lobster.spin"
         poscar = f"{VASP_IN_DIR}/POSCAR.lobster.spin_DOS"
@@ -420,8 +431,8 @@ class TestDoscar(TestCase):
 
         self.DOSCAR_lcfo = Doscar(doscar=doscar3, structure_file=poscar3, is_lcfo=True)
 
-        with open(f"{TEST_FILES_DIR}/electronic_structure/dos/structure_KF.json", encoding="utf-8") as file:
-            data = json.load(file)
+        with open(f"{TEST_FILES_DIR}/electronic_structure/dos/structure_KF.json", "rb") as file:
+            data = orjson.loads(file.read())
 
         self.structure = Structure.from_dict(data)
 
@@ -637,24 +648,19 @@ class TestDoscar(TestCase):
         assert not self.DOSCAR_nonspin_pol.is_spin_polarized
 
 
-class TestCharge(PymatgenTest):
-    def setUp(self):
+class TestCharge(MatSciTest):
+    def setup_method(self):
         self.charge2 = Charge(filename=f"{TEST_DIR}/CHARGE.lobster.MnO")
         # gzipped file
         self.charge = Charge(filename=f"{TEST_DIR}/CHARGE.lobster.MnO2.gz")
         self.charge_lcfo = Charge(filename=f"{TEST_DIR}/CHARGE.LCFO.lobster.ALN.gz", is_lcfo=True)
 
     def test_attributes(self):
-        charge_Loewdin = [-1.25, 1.25]
-        charge_Mulliken = [-1.30, 1.30]
-        atomlist = ["O1", "Mn2"]
-        types = ["O", "Mn"]
-        num_atoms = 2
-        assert charge_Mulliken == self.charge2.mulliken
-        assert charge_Loewdin == self.charge2.loewdin
-        assert atomlist == self.charge2.atomlist
-        assert types == self.charge2.types
-        assert num_atoms == self.charge2.num_atoms
+        assert self.charge2.mulliken == approx([-1.30, 1.30])
+        assert self.charge2.loewdin == approx([-1.25, 1.25])
+        assert self.charge2.atomlist == ["O1", "Mn2"]
+        assert self.charge2.types == ["O", "Mn"]
+        assert self.charge2.num_atoms == 2
 
         # test with CHARG.LCFO.lobster file
         assert self.charge_lcfo.is_lcfo
@@ -716,8 +722,8 @@ class TestCharge(PymatgenTest):
             assert getattr(charge_from_dict, attr_name) == attr_value
 
 
-class TestLobsterout(PymatgenTest):
-    def setUp(self):
+class TestLobsterout(MatSciTest):
+    def setup_method(self):
         self.lobsterout_normal = Lobsterout(filename=f"{TEST_DIR}/lobsterout.normal")
         # make sure .gz files are also read correctly
         self.lobsterout_normal = Lobsterout(filename=f"{TEST_DIR}/lobsterout.normal2.gz")
@@ -1245,8 +1251,8 @@ class TestLobsterout(PymatgenTest):
             Lobsterout(filename=None, invalid="val")
 
 
-class TestFatband(PymatgenTest):
-    def setUp(self):
+class TestFatband(MatSciTest):
+    def setup_method(self):
         self.structure = Vasprun(
             filename=f"{TEST_DIR}/Fatband_SiO2/Test_p_x/vasprun.xml",
             ionic_step_skip=None,
@@ -1480,8 +1486,8 @@ class TestFatband(PymatgenTest):
         assert bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064), abs=1e-2)
 
 
-class TestBandoverlaps(TestCase):
-    def setUp(self):
+class TestBandoverlaps:
+    def setup_method(self):
         # test spin-polarized calc and non spin-polarized calc
 
         self.band_overlaps1 = Bandoverlaps(f"{TEST_DIR}/bandOverlaps.lobster.1")
@@ -1716,8 +1722,8 @@ class TestBandoverlaps(TestCase):
         assert len(bo_dict_new[Spin.down]["matrices"]) == 73
 
 
-class TestGrosspop(TestCase):
-    def setUp(self):
+class TestGrosspop:
+    def setup_method(self):
         self.grosspop1 = Grosspop(f"{TEST_DIR}/GROSSPOP.lobster")
         self.grosspop_511_sp = Grosspop(f"{TEST_DIR}/GROSSPOP_511_sp.lobster.AlN.gz")
         self.grosspop_511_nsp = Grosspop(f"{TEST_DIR}/GROSSPOP_511_nsp.lobster.NaCl.gz")
@@ -1866,8 +1872,8 @@ class TestGrosspop(TestCase):
             assert getattr(grosspop_from_dict, attr_name) == attr_value
 
 
-class TestIcohplist(TestCase):
-    def setUp(self):
+class TestIcohplist(MatSciTest):
+    def setup_method(self):
         self.icohp_bise = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST.lobster.BiSe")
         self.icoop_bise = Icohplist(
             filename=f"{TEST_DIR}/ICOOPLIST.lobster.BiSe",
@@ -1956,7 +1962,7 @@ class TestIcohplist(TestCase):
         assert self.icohp_lcfo.is_spin_polarized
         assert len(self.icohp_lcfo.icohplist) == 28
         assert not self.icohp_lcfo_non_orbitalwise.orbitalwise
-        assert len(self.icohp_lcfo_non_orbitalwise.icohplist) == 27
+        assert len(self.icohp_lcfo_non_orbitalwise.icohplist) == 28
 
     def test_values(self):
         icohplist_bise = {
@@ -2172,9 +2178,21 @@ class TestIcohplist(TestCase):
             else:
                 assert getattr(icohplist_from_dict, attr_name) == attr_value
 
+    def test_missing_trailing_newline(self):
+        fname = f"{self.tmp_path}/icohplist"
+        with open(fname, mode="w", encoding="utf-8") as f:
+            f.write(
+                "1   Co1   O1   1.00000   0   0   0   -0.50000   -1.00000\n"
+                "2   Co2   O2   1.10000   0   0   0   -0.60000   -1.10000"
+            )
 
-class TestNciCobiList(TestCase):
-    def setUp(self):
+        ip = Icohplist(filename=fname)
+        assert len(ip.icohplist) == 2
+        assert ip.icohplist["1"]["icohp"][Spin.up] == approx(-0.5)
+
+
+class TestNciCobiList:
+    def setup_method(self):
         self.ncicobi = NciCobiList(filename=f"{TEST_DIR}/NcICOBILIST.lobster")
         self.ncicobi_gz = NciCobiList(filename=f"{TEST_DIR}/NcICOBILIST.lobster.gz")
         self.ncicobi_no_spin = NciCobiList(filename=f"{TEST_DIR}/NcICOBILIST.lobster.nospin")
@@ -2209,7 +2227,7 @@ class TestNciCobiList(TestCase):
         )
 
 
-class TestWavefunction(PymatgenTest):
+class TestWavefunction(MatSciTest):
     def test_parse_file(self):
         grid, points, real, imaginary, distance = Wavefunction._parse_file(
             f"{TEST_DIR}/LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"
@@ -2277,8 +2295,8 @@ class TestWavefunction(PymatgenTest):
         assert os.path.isfile(density_wavecar_path)
 
 
-class TestSitePotentials(PymatgenTest):
-    def setUp(self) -> None:
+class TestSitePotentials(MatSciTest):
+    def setup_method(self) -> None:
         self.sitepotential = SitePotential(filename=f"{TEST_DIR}/SitePotentials.lobster.perovskite")
 
     def test_attributes(self):
@@ -2328,8 +2346,8 @@ class TestSitePotentials(PymatgenTest):
             assert getattr(sitepotential_from_dict, attr_name) == attr_value
 
 
-class TestMadelungEnergies(PymatgenTest):
-    def setUp(self) -> None:
+class TestMadelungEnergies(MatSciTest):
+    def setup_method(self) -> None:
         self.madelungenergies = MadelungEnergies(filename=f"{TEST_DIR}/MadelungEnergies.lobster.perovskite")
 
     def test_attributes(self):
@@ -2345,8 +2363,8 @@ class TestMadelungEnergies(PymatgenTest):
             assert getattr(madelung_from_dict, attr_name) == attr_value
 
 
-class TestLobsterMatrices(PymatgenTest):
-    def setUp(self) -> None:
+class TestLobsterMatrices(MatSciTest):
+    def setup_method(self) -> None:
         self.hamilton_matrices = LobsterMatrices(
             filename=f"{TEST_DIR}/Na_hamiltonMatrices.lobster.gz", e_fermi=-2.79650354
         )
@@ -2495,8 +2513,8 @@ class TestLobsterMatrices(PymatgenTest):
             self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_DIR}/hamiltonMatrices.lobster")
 
 
-class TestPolarization(PymatgenTest):
-    def setUp(self) -> None:
+class TestPolarization(MatSciTest):
+    def setup_method(self) -> None:
         self.polarization = Polarization(filename=f"{TEST_DIR}/POLARIZATION.lobster.AlN.gz")
 
     def test_attributes(self):
@@ -2514,3 +2532,17 @@ class TestPolarization(PymatgenTest):
             "abs": 56.14,
             "unit": "uC/cm2",
         }
+
+
+def test_get_lines():
+    """Ensure `_get_lines` is not trailing end char sensitive."""
+    with open("without-end-char", mode="wb") as f:
+        f.write(b"first line\nsecond line")
+
+    with open("with-end-char", mode="wb") as f:
+        f.write(b"first line\nsecond line\n")
+
+    without_end_char = _get_lines("without-end-char")
+    with_end_char = _get_lines("with-end-char")
+
+    assert len(with_end_char) == len(without_end_char) == 2

@@ -5,8 +5,6 @@ This module contains;
     tag names to AbstractTag-type objects.
 - get_tag_object: a function that returns an AbstractTag-type object from
     MASTER_TAG_LIST given a tag name.
-
-@mkhorton - this file is ready to review.
 """
 
 from __future__ import annotations
@@ -64,50 +62,250 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             },
         ),
         "coords-type": StrTag(options=["Cartesian", "Lattice"]),
-        # TODO: change lattice tag into MultiformatTag for different symmetry options
-        "lattice": TagContainer(
-            linebreak_nth_entry=3,
+        "lattice": MultiformatTag(
+            can_repeat=False,
             optional=False,
-            allow_list_representation=True,
-            subtags={
-                "R00": FloatTag(write_tagname=False, optional=False, prec=12),
-                "R01": FloatTag(write_tagname=False, optional=False, prec=12),
-                "R02": FloatTag(write_tagname=False, optional=False, prec=12),
-                "R10": FloatTag(write_tagname=False, optional=False, prec=12),
-                "R11": FloatTag(write_tagname=False, optional=False, prec=12),
-                "R12": FloatTag(write_tagname=False, optional=False, prec=12),
-                "R20": FloatTag(write_tagname=False, optional=False, prec=12),
-                "R21": FloatTag(write_tagname=False, optional=False, prec=12),
-                "R22": FloatTag(write_tagname=False, optional=False, prec=12),
-            },
-        ),
-        "ion": TagContainer(
-            can_repeat=True,
-            optional=False,
-            allow_list_representation=True,
-            subtags={
-                "species-id": StrTag(
-                    write_tagname=False,
-                    optional=False,
-                    options=[
-                        value.symbol
-                        for key, value in Element.__dict__.items()
-                        if not key.startswith("_") and not callable(value)
-                    ],  # Required in case bad species names gets fed
-                ),
-                "x0": FloatTag(write_tagname=False, optional=False, prec=12),
-                "x1": FloatTag(write_tagname=False, optional=False, prec=12),
-                "x2": FloatTag(write_tagname=False, optional=False, prec=12),
-                "v": TagContainer(
+            format_options=[
+                # Explicitly define the lattice vectors
+                TagContainer(
+                    linebreak_nth_entry=3,
                     allow_list_representation=True,
                     subtags={
-                        "vx0": FloatTag(write_tagname=False, optional=False, prec=12),
-                        "vx1": FloatTag(write_tagname=False, optional=False, prec=12),
-                        "vx2": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R00": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R01": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R02": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R10": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R11": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R12": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R20": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R21": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R22": FloatTag(write_tagname=False, optional=False, prec=12),
                     },
                 ),
-                "moveScale": IntTag(write_tagname=False, optional=False),
-            },
+                TagContainer(
+                    subtags={
+                        "Triclinic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "b": FloatTag(write_tagname=False, optional=False),
+                        "c": FloatTag(write_tagname=False, optional=False),
+                        "alpha": FloatTag(write_tagname=False, optional=False),
+                        "beta": FloatTag(write_tagname=False, optional=False),
+                        "gamma": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                TagContainer(
+                    subtags={
+                        "modification": StrTag(
+                            options=["Base-Centered"],  # Single-option modification could be a boolean tag, but keeping
+                            # as a string tagfor consistency with the other modified lattice tags
+                            optional=False,
+                            write_tagname=False,
+                            write_value=True,
+                        ),
+                        "Monoclinic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "b": FloatTag(write_tagname=False, optional=False),
+                        "c": FloatTag(write_tagname=False, optional=False),
+                        "beta": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                # This is a duplicate of the above tag, but without the modification subtag.
+                # This is not an elegant solution, but this approach only adds < 50 lines of code. The long term fix
+                # will be to make major changes to the TagContainer `read` implementation in the way it expects
+                # values to be ordered/present after parsing subtags with write_tagname=True.
+                # Another option would be to make all modification options boolean tags, but this would allow mutually
+                # exclusive tags to be present in the same tag, which is not ideal.
+                TagContainer(
+                    subtags={
+                        "Monoclinic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "b": FloatTag(write_tagname=False, optional=False),
+                        "c": FloatTag(write_tagname=False, optional=False),
+                        "beta": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                TagContainer(
+                    subtags={
+                        "modification": StrTag(
+                            options=["Base-Centered", "Body-Centered", "Face-Centered"],
+                            optional=False,
+                            write_tagname=False,
+                            write_value=True,
+                        ),
+                        "Orthorhombic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "b": FloatTag(write_tagname=False, optional=False),
+                        "c": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                TagContainer(
+                    subtags={
+                        "Orthorhombic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "b": FloatTag(write_tagname=False, optional=False),
+                        "c": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                TagContainer(
+                    subtags={
+                        "modification": StrTag(
+                            options=["Body-Centered"],  # This could be a boolean tag, but keeping a string tag
+                            # for consistency with the other modified lattice tags
+                            optional=False,
+                            write_tagname=False,
+                            write_value=True,
+                        ),
+                        "Tetragonal": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "c": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                TagContainer(
+                    subtags={
+                        "Tetragonal": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "c": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                TagContainer(
+                    subtags={
+                        "Rhombohedral": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "alpha": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                TagContainer(
+                    subtags={
+                        "Hexagonal": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "c": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                TagContainer(
+                    subtags={
+                        "modification": StrTag(
+                            options=["Body-Centered", "Face-Centered"],
+                            optional=False,
+                            write_tagname=False,
+                            write_value=True,
+                        ),
+                        "Cubic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                TagContainer(
+                    subtags={
+                        "Cubic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+            ],
+        ),
+        "ion": MultiformatTag(
+            can_repeat=True,
+            optional=False,
+            allow_list_representation=False,
+            format_options=[
+                TagContainer(
+                    allow_list_representation=False,
+                    can_repeat=True,
+                    subtags={
+                        "species-id": StrTag(
+                            write_tagname=False,
+                            optional=False,
+                            options=[
+                                value.symbol
+                                for key, value in Element.__dict__.items()
+                                if not key.startswith("_") and not callable(value)
+                            ],  # Required in case bad species names gets fed
+                        ),
+                        "x0": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "x1": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "x2": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "v": TagContainer(
+                            allow_list_representation=True,
+                            subtags={
+                                "vx0": FloatTag(write_tagname=False, optional=False, prec=12),
+                                "vx1": FloatTag(write_tagname=False, optional=False, prec=12),
+                                "vx2": FloatTag(write_tagname=False, optional=False, prec=12),
+                            },
+                        ),
+                        "moveScale": IntTag(write_tagname=False, optional=False),
+                    },
+                ),
+                TagContainer(
+                    allow_list_representation=False,
+                    can_repeat=True,
+                    subtags={
+                        "species-id": StrTag(
+                            write_tagname=False,
+                            optional=False,
+                            options=[
+                                value.symbol
+                                for key, value in Element.__dict__.items()
+                                if not key.startswith("_") and not callable(value)
+                            ],  # Required in case bad species names gets fed
+                        ),
+                        "x0": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "x1": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "x2": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "v": TagContainer(
+                            allow_list_representation=True,
+                            subtags={
+                                "vx0": FloatTag(write_tagname=False, optional=False, prec=12),
+                                "vx1": FloatTag(write_tagname=False, optional=False, prec=12),
+                                "vx2": FloatTag(write_tagname=False, optional=False, prec=12),
+                            },
+                        ),
+                        "moveScale": IntTag(write_tagname=False, optional=False),
+                        "constraint type": StrTag(
+                            options=["Linear", "Planar", "HyperPlane"],
+                            write_tagname=False,
+                            optional=False,
+                        ),
+                        "d0": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "d1": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "d2": FloatTag(write_tagname=False, optional=False, prec=12),
+                    },
+                ),
+                TagContainer(
+                    allow_list_representation=False,
+                    can_repeat=True,
+                    subtags={
+                        "species-id": StrTag(
+                            write_tagname=False,
+                            optional=False,
+                            options=[
+                                value.symbol
+                                for key, value in Element.__dict__.items()
+                                if not key.startswith("_") and not callable(value)
+                            ],  # Required in case bad species names gets fed
+                        ),
+                        "x0": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "x1": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "x2": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "v": TagContainer(
+                            allow_list_representation=True,
+                            subtags={
+                                "vx0": FloatTag(write_tagname=False, optional=False, prec=12),
+                                "vx1": FloatTag(write_tagname=False, optional=False, prec=12),
+                                "vx2": FloatTag(write_tagname=False, optional=False, prec=12),
+                            },
+                        ),
+                        "moveScale": IntTag(write_tagname=False, optional=False),
+                        "HyperPlane": TagContainer(
+                            write_tagname=True,
+                            can_repeat=True,
+                            subtags={
+                                "d0": FloatTag(write_tagname=False, optional=False, prec=12),
+                                "d1": FloatTag(write_tagname=False, optional=False, prec=12),
+                                "d2": FloatTag(write_tagname=False, optional=False, prec=12),
+                                "group": StrTag(write_tagname=False, optional=False),
+                            },
+                        ),
+                    },
+                ),
+            ],
         ),
         "perturb-ion": TagContainer(
             subtags={
@@ -251,7 +449,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             }
         ),
         "exchange-params": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 "blockSize": IntTag(),
                 "nOuterVxx": IntTag(),
@@ -422,7 +621,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             }
         ),
         "electron-scattering": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 "eta": FloatTag(optional=False),
                 "Ecut": FloatTag(),
@@ -522,14 +722,16 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                 TagContainer(subtags={"random": BoolTag(write_value=False, optional=False)}),
                 TagContainer(
                     subtags={
-                        "read": StrTag(write_value=False, optional=False),
+                        "read": BoolTag(write_value=False, optional=False),
+                        "filename": StrTag(write_tagname=False, optional=False),
                         "nBandsOld": IntTag(write_tagname=False),
                         "EcutOld": FloatTag(write_tagname=False),
                     }
                 ),
                 TagContainer(
                     subtags={
-                        "read-rs": StrTag(write_value=False, optional=False),
+                        "read-rs": BoolTag(write_value=False, optional=False),
+                        "filename-pattern": StrTag(write_tagname=False, optional=False),
                         "nBandsOld": IntTag(write_tagname=False),
                         "NxOld": IntTag(write_tagname=False),
                         "NyOld": IntTag(write_tagname=False),
@@ -586,25 +788,29 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
         ),
         "elec-eigen-algo": StrTag(options=["CG", "Davidson"]),
         "ionic-minimize": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 **deepcopy(jdftxminimize_subtagdict),
             },
         ),
         "lattice-minimize": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 **deepcopy(jdftxminimize_subtagdict),
             },
         ),
         "electronic-minimize": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 **deepcopy(jdftxminimize_subtagdict),
             },
         ),
         "electronic-scf": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 "energyDiffThreshold": FloatTag(),
                 "history": IntTag(),
@@ -622,7 +828,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             },
         ),
         "fluid-minimize": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 **deepcopy(jdftxminimize_subtagdict),
             },
@@ -636,7 +843,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             }
         ),
         "perturb-minimize": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 "algorithm": StrTag(options=["MINRES", "CGIMINRES"]),
                 "CGBypass": BoolTag(),
@@ -819,7 +1027,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
         ),
         "fluid-solve-frequency": StrTag(options=["Default", "Gummel", "Inner"]),
         "fluid-site-params": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             can_repeat=True,
             subtags={
                 "component": StrTag(
@@ -872,7 +1081,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             ]
         ),
         "pcm-nonlinear-scf": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 "energyDiffThreshold": FloatTag(),
                 "history": IntTag(),
@@ -883,7 +1093,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             },
         ),
         "pcm-params": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 "cavityFile": StrTag(),
                 "cavityPressure": FloatTag(),
@@ -943,7 +1154,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             }
         ),
         "ionic-dynamics": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 "B0": FloatTag(),
                 "chainLengthP": FloatTag(),
@@ -969,12 +1181,38 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
         ),
     },
     "export": {
-        "dump-name": StrTag(),
+        "dump-name": TagContainer(
+            allow_list_representation=True,
+            subtags={
+                "format": StrTag(
+                    write_tagname=False,
+                    optional=False,
+                ),
+                "freq1": StrTag(
+                    options=["Init", "Ionic", "Electronic", "Fluid", "Gummel", "End"],
+                    write_tagname=False,
+                    optional=True,
+                ),
+                "format1": StrTag(
+                    write_tagname=False,
+                    optional=True,
+                ),
+                "freq2": StrTag(
+                    options=["Init", "Ionic", "Electronic", "Fluid", "Gummel", "End"],
+                    write_tagname=False,
+                    optional=True,
+                ),
+                "format2": StrTag(
+                    write_tagname=False,
+                    optional=True,
+                ),
+            },
+        ),
         "dump-interval": TagContainer(
             can_repeat=True,
             subtags={
                 "freq": StrTag(
-                    options=["Ionic", "Electronic", "Fluid", "Gummel"],
+                    options=["Init", "Ionic", "Electronic", "Fluid", "Gummel", "End"],
                     write_tagname=False,
                     optional=False,
                 ),
@@ -989,7 +1227,7 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             }
         ),
         "density-of-states": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
             subtags={
                 "Total": BoolTag(write_value=False),
                 "Slice": TagContainer(
@@ -1078,7 +1316,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             ],
         ),
         "bgw-params": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 "nBandsDense": IntTag(),
                 "nBandsV": IntTag(),
@@ -1194,3 +1433,22 @@ def get_tag_object(tag: str) -> AbstractTag:
         AbstractTag: The tag object.
     """
     return MASTER_TAG_LIST[__TAG_GROUPS__[tag]][tag]
+
+
+def get_tag_object_on_val(tag: str, val: Any) -> AbstractTag:
+    """Get the tag object for a given tag name.
+
+    Args:
+        tag (str): The tag name.
+
+    Returns:
+        AbstractTag: The tag object.
+    """
+    tag_object = get_tag_object(tag)
+    if isinstance(tag_object, MultiformatTag):
+        if isinstance(val, str):
+            i = tag_object.get_format_index_for_str_value(tag, val)
+        else:
+            i, _ = tag_object._determine_format_option(tag, val)
+        tag_object = tag_object.format_options[i]
+    return tag_object

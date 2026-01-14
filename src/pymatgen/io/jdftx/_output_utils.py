@@ -3,20 +3,22 @@
 Module for JDFTx IO module output utils. Functions kept in this module are here if they are
 used by multiple submodules, or if they are anticipated to be used by multiple
 submodules in the future.
-
-@mkhorton - this file is ready to review.
 """
 
 from __future__ import annotations
 
 from functools import wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 import numpy as np
 
+from pymatgen.electronic_structure.core import Orbital
+
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from numpy.typing import NDArray
 
 
 def check_file_exists(func: Callable) -> Any:
@@ -82,7 +84,7 @@ def read_outfile_slices(file_name: str) -> list[list[str]]:
     return texts
 
 
-def _brkt_list_of_3_to_nparray(line: str) -> np.ndarray:
+def _brkt_list_of_3_to_nparray(line: str) -> NDArray[np.float64]:
     """Return 3x1 numpy array.
 
     Convert a string of the form "[ x y z ]" to a 3x1 numpy array
@@ -95,7 +97,7 @@ def _brkt_list_of_3_to_nparray(line: str) -> np.ndarray:
     return np.array([float(x) for x in line.split()[1:-1]])
 
 
-def _brkt_list_of_3x3_to_nparray(lines: list[str], i_start: int = 0) -> np.ndarray:
+def _brkt_list_of_3x3_to_nparray(lines: list[str], i_start: int = 0) -> NDArray[np.float64]:
     """Return 3x3 numpy array.
 
     Convert a list of strings of the form "[ x y z ]" to a 3x3 numpy array
@@ -120,7 +122,7 @@ def _brkt_list_of_3x3_to_nparray(lines: list[str], i_start: int = 0) -> np.ndarr
 
 # Named "t1" in unmet anticipation of multiple ways that a float would be needed
 # to be read following the variable string with a colon.
-def get_colon_var_t1(linetext: str, lkey: str) -> float | None:
+def get_colon_val(linetext: str, lkey: str) -> float | np.float64 | None:
     """Return float val from '...lkey: val...' in linetext.
 
     Read a float from an elec minimization line assuming value appears as
@@ -136,8 +138,13 @@ def get_colon_var_t1(linetext: str, lkey: str) -> float | None:
     """
     colon_var = None
     if lkey in linetext:
-        colon_var = float(linetext.split(lkey)[1].strip().split(" ")[0])
+        val = linetext.split(lkey)[1].strip().split(" ")[0]
+        colon_var = np.nan if val == "nan" else float(linetext.split(lkey)[1].strip().split(" ")[0])
     return colon_var
+
+
+# Temporary alias until the outside modules are merged with the renaming
+get_colon_var_t1 = get_colon_val
 
 
 # This function matches the format of the generic "is_<x>_start_line" functions specific to
@@ -164,6 +171,8 @@ def is_lowdin_start_line(line_text: str) -> bool:
     return "#--- Lowdin population analysis ---" in line_text
 
 
+# TODO: Figure out if this ever actually gets called, (I think I added it to make JOutStructure user friendly
+# but JOutStructure is not intended to be a user-initialized class)
 def correct_geom_opt_type(opt_type: str | None) -> str | None:
     """Return recognizable opt_type string.
 
@@ -183,7 +192,7 @@ def correct_geom_opt_type(opt_type: str | None) -> str | None:
         if "lattice" in opt_type.lower():
             opt_type = "LatticeMinimize"
         elif "ionic" in opt_type.lower():
-            opt_type = "IonicMinimize"
+            opt_type = "IonicDynamics" if "dyn" in opt_type.lower() else "IonicMinimize"
         else:
             opt_type = None
     return opt_type
@@ -211,7 +220,7 @@ def get_start_lines(
         start_lines.append(i)
     if i is None:
         raise ValueError("Outfile parser fed an empty file.")
-    if not len(start_lines):
+    if not start_lines:
         raise ValueError("No JDFTx calculations found in file.")
     return start_lines
 
@@ -325,16 +334,27 @@ def find_all_key(key_input: str, tempfile: list[str], startline: int = 0) -> lis
     return [i for i in range(startline, len(tempfile)) if key_input in tempfile[i]]
 
 
-def _parse_bandfile_complex(bandfile_filepath: str | Path) -> np.ndarray[np.complex64]:
-    dtype = np.complex64
+def _init_dict_from_colon_dump_lines(lines: list[str]):
+    varsdict = {}
+    for line in lines:
+        if ":" in line:
+            lsplit = line.split(":")
+            key = lsplit[0].strip()
+            val = lsplit[1].split()[0].strip()
+            varsdict[key] = val
+    return varsdict
+
+
+def _parse_bandfile_complex(bandfile_filepath: str | Path) -> NDArray[np.complex64]:
+    Dtype: TypeAlias = np.complex64
     token_parser = _complex_token_parser
-    return _parse_bandfile_reader(bandfile_filepath, dtype, token_parser)
+    return _parse_bandfile_reader(bandfile_filepath, Dtype, token_parser)
 
 
-def _parse_bandfile_normalized(bandfile_filepath: str | Path) -> np.ndarray[np.float32]:
-    dtype = np.float32
+def _parse_bandfile_normalized(bandfile_filepath: str | Path) -> NDArray[np.float32]:
+    Dtype: TypeAlias = np.float32
     token_parser = _normalized_token_parser
-    return _parse_bandfile_reader(bandfile_filepath, dtype, token_parser)
+    return _parse_bandfile_reader(bandfile_filepath, Dtype, token_parser)
 
 
 def _get__from_bandfile_filepath(bandfile_filepath: Path | str, tok_idx: int) -> int:
@@ -417,9 +437,7 @@ def _get_nspecies_from_bandfile_filepath(bandfile_filepath: Path | str) -> int:
     return _get__from_bandfile_filepath(bandfile_filepath, 6)
 
 
-def _parse_bandfile_reader(
-    bandfile_filepath: str | Path, dtype: type, token_parser: Callable
-) -> np.ndarray[np.complex64] | np.ndarray[np.float32]:
+def _parse_bandfile_reader(bandfile_filepath: str | Path, arr_dtype: TypeAlias, token_parser: Callable) -> NDArray:
     nstates = _get_nstates_from_bandfile_filepath(bandfile_filepath)
     nbands = _get_nbands_from_bandfile_filepath(bandfile_filepath)
     nproj = _get_nproj_from_bandfile_filepath(bandfile_filepath)
@@ -429,7 +447,7 @@ def _parse_bandfile_reader(
     expected_length = 2 + nspecies + (nstates * (1 + nbands))
     if not expected_length == len(bandfile):
         raise RuntimeError("Bandprojections file does not match expected length - ensure no edits have been made.")
-    proj_tju = np.zeros((nstates, nbands, nproj), dtype=dtype)
+    proj_tju: NDArray[arr_dtype] = np.zeros((nstates, nbands, nproj), dtype=arr_dtype)
     for line, text in enumerate(bandfile):
         tokens = text.split()
         if line >= nspecies + 2:
@@ -440,7 +458,7 @@ def _parse_bandfile_reader(
     return proj_tju
 
 
-def _complex_token_parser(tokens: list[str]) -> np.ndarray[np.complex64]:
+def _complex_token_parser(tokens: list[str]) -> NDArray[np.complex64]:
     out = np.zeros(int(len(tokens) / 2), dtype=np.complex64)
     ftokens = np.array(tokens, dtype=np.float32)
     out += 1j * ftokens[1::2]
@@ -448,11 +466,12 @@ def _complex_token_parser(tokens: list[str]) -> np.ndarray[np.complex64]:
     return out
 
 
-def _normalized_token_parser(tokens: list[str]) -> np.ndarray[np.float32]:
-    return np.array(tokens, dtype=np.float32)
+def _normalized_token_parser(tokens: list[str]) -> NDArray[np.float32]:
+    normalized_tokens: NDArray[np.float32] = np.array(tokens, dtype=np.float32)
+    return normalized_tokens
 
 
-def get_proj_tju_from_file(bandfile_filepath: Path | str) -> np.ndarray:
+def get_proj_tju_from_file(bandfile_filepath: Path | str) -> NDArray[np.float32 | np.complex64]:
     """Return projections from file in tju shape.
 
     Return projections from file in (state, band, proj) shape. Collected in this shape before sabcju shape due to ready
@@ -466,6 +485,34 @@ def get_proj_tju_from_file(bandfile_filepath: Path | str) -> np.ndarray:
     """
     is_complex = _is_complex_bandfile_filepath(bandfile_filepath)
     return _parse_bandfile_complex(bandfile_filepath) if is_complex else _parse_bandfile_normalized(bandfile_filepath)
+
+
+def _parse_kptsfrom_bandprojections_file(bandfile_filepath: str | Path) -> tuple[list[float], list[NDArray]]:
+    """Parse kpts from bandprojections file.
+
+    Parse kpts from bandprojections file.
+
+    Args:
+        bandfile_filepath (Path | str): Path to bandprojections file.
+
+    Returns:
+        tuple[list[float], list[np.ndarray[float]]]: Tuple of k-point weights and k-points
+    """
+    wk_list: list[float] = []
+    k_points_list: list[NDArray] = []
+    kpt_lines = []
+    with open(bandfile_filepath) as f:
+        for line in f:
+            if line.startswith("#") and ";" in line:
+                _line = line.split(";")[0].lstrip("#")
+                kpt_lines.append(_line)
+    for line in kpt_lines:
+        k_points = line.split("[")[1].split("]")[0].strip().split()
+        _k_points_floats: list[float] = [float(v) for v in k_points]
+        k_points_list.append(np.array(_k_points_floats))
+        wk = float(line.split("]")[1].strip().split()[0])
+        wk_list.append(wk)
+    return wk_list, k_points_list
 
 
 def _is_complex_bandfile_filepath(bandfile_filepath: str | Path) -> bool:
@@ -495,10 +542,68 @@ def _is_complex_bandfile_filepath(bandfile_filepath: str | Path) -> bool:
 # TODO: This is very likely redundant to something in pymatgen - replace with that if possible.
 orb_ref_list = [
     ["s"],
-    ["px", "py", "pz"],
-    ["dxy", "dxz", "dyz", "dx2y2", "dz2"],
-    ["fx3-3xy2", "fyx2-yz2", "fxz2", "fz3", "fyz2", "fxyz", "f3yx2-y3"],
+    ["py", "pz", "px"],
+    ["dxy", "dyz", "dz2", "dxz", "dx2-y2"],
+    ["fy(3x2-y2)", "fxyz", "fyz2", "fz3", "fxz2", "fz(x2-y2)", "fx(x2-3y2)"],
 ]
+orb_ref_to_o_dict = {
+    "s": int(Orbital.s),
+    "py": int(Orbital.py),
+    "pz": int(Orbital.pz),
+    "px": int(Orbital.px),
+    "dxy": int(Orbital.dxy),
+    "dyz": int(Orbital.dyz),
+    "dz2": int(Orbital.dz2),
+    "dxz": int(Orbital.dxz),
+    "dx2-y2": int(Orbital.dx2),
+    # Keep the f-orbitals arbitrary-ish until they get designated names in pymatgen.
+    orb_ref_list[-1][0]: int(Orbital.f_3),
+    orb_ref_list[-1][1]: int(Orbital.f_2),
+    orb_ref_list[-1][2]: int(Orbital.f_1),
+    orb_ref_list[-1][3]: int(Orbital.f0),
+    orb_ref_list[-1][4]: int(Orbital.f1),
+    orb_ref_list[-1][5]: int(Orbital.f2),
+}
+
+
+def _get_atom_orb_labels_map_dict(bandfile_filepath: Path) -> dict[str, list[str]]:
+    """
+    Return a dictionary mapping each atom symbol to pymatgen-compatible orbital projection string representations.
+
+    Identical to _get_atom_orb_labels_ref_dict, but doesn't include the numbers in the labels.
+
+
+
+    Args:
+        bandfile_filepath (str | Path): The path to the bandfile.
+
+    Returns:
+        dict[str, list[str]]: A dictionary mapping each atom symbol to all atomic orbital projection string
+        representations.
+    """
+    bandfile = read_file(bandfile_filepath)
+    labels_dict: dict[str, list[str]] = {}
+
+    for i, line in enumerate(bandfile):
+        if i > 1:
+            if "#" in line:
+                break
+            lsplit = line.strip().split()
+            sym = lsplit[0]
+            labels_dict[sym] = []
+            lmax = int(lsplit[3])
+            # Would prefer to use "l" rather than "L" here (as uppercase "L" means something else entirely) but
+            # pr*-c*mm*t thinks "l" is an ambiguous variable name.
+            for L in range(lmax + 1):
+                mls = orb_ref_list[L]
+                nshells = int(lsplit[4 + L])
+                for _n in range(nshells):
+                    if nshells > 1:
+                        for ml in mls:
+                            labels_dict[sym].append(f"{ml}")
+                    else:
+                        labels_dict[sym] += mls
+    return labels_dict
 
 
 def _get_atom_orb_labels_ref_dict(bandfile_filepath: Path) -> dict[str, list[str]]:
@@ -615,6 +720,27 @@ def _get_orb_label(ion: str, idx: int, orb: str) -> str:
     return f"{ion}#{idx + 1}({orb})"
 
 
+def _get_u_to_oa_map(bandfile_filepath: Path) -> list[tuple[int, int]]:
+    """
+    Return a list, where the u'th element is a tuple of the atomic orbital index and the ion index.
+
+    Args:
+        bandfile_filepath (str | Path): The path to the bandfile.
+
+    Returns:
+        list[tuple[int, int]]: A list, where the u'th element is a tuple of the atomic orbital index and the ion index.
+    """
+    map_labels_dict = _get_atom_orb_labels_map_dict(bandfile_filepath)
+    atom_count_list = _get_atom_count_list(bandfile_filepath)
+    u_to_oa_map: list = []
+    a = 0
+    for ion, ion_count in atom_count_list:
+        for _i in range(ion_count):
+            u_to_oa_map.extend((orb_ref_to_o_dict[orb], a) for orb in map_labels_dict[ion])
+            a += 1
+    return u_to_oa_map
+
+
 def _get_orb_label_list(bandfile_filepath: Path) -> tuple[str, ...]:
     """
     Return a tuple of all atomic orbital projection string representations.
@@ -635,9 +761,7 @@ def _get_orb_label_list(bandfile_filepath: Path) -> tuple[str, ...]:
         ion = ion_tuple[0]
         orbs = labels_dict[ion]
         count = ion_tuple[1]
-        for i in range(count):
-            for orb in orbs:
-                labels_list.append(_get_orb_label(ion, i, orb))
+        labels_list.extend(_get_orb_label(ion, i, orb) for i in range(count) for orb in orbs)
     # This is most likely unnecessary, but it is a good check to have.
     if len(labels_list) != _get_orb_label_list_expected_len(labels_dict, atom_count_list):
         raise RuntimeError("Number of atomic orbital projections does not match expected length.")

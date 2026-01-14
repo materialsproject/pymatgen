@@ -11,14 +11,14 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile, LammpsRun, LammpsTemplateGen, write_lammps_inputs
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 
-class TestLammpsInputFile(PymatgenTest):
+class TestLammpsInputFile(MatSciTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.filename = f"{TEST_DIR}/lgps.in"
 
     def test_from_file(self):
@@ -640,7 +640,7 @@ write_data run.data"""
         ]
 
 
-class TestLammpsRun(PymatgenTest):
+class TestLammpsRun(MatSciTest):
     def test_md(self):
         struct = Structure.from_spacegroup(225, Lattice.cubic(3.62126), ["Cu"], [[0, 0, 0]])
         ld = LammpsData.from_structure(struct, atom_style="atomic")
@@ -690,7 +690,7 @@ run             10000
         assert os.path.isfile(f"{self.tmp_path}/md/md.data")
 
 
-class TestFunc(PymatgenTest):
+class TestFunc(MatSciTest):
     @pytest.mark.filterwarnings("ignore:write_lammps_inputs is deprecated")
     def test_write_lammps_inputs(self):
         # script template
@@ -722,12 +722,12 @@ class TestFunc(PymatgenTest):
         obj = LammpsData.from_file(src, atom_style="atomic")
         with pytest.warns(FutureWarning):
             write_lammps_inputs(output_dir="obj", script_template=peptide_script, data=obj)
-            obj_read = LammpsData.from_file(f"{self.tmp_path}/obj/data.peptide", atom_style="atomic")
-            pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
-            pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
+        obj_read = LammpsData.from_file(f"{self.tmp_path}/obj/data.peptide", atom_style="atomic")
+        pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
+        pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
 
 
-class TestLammpsTemplateGen(PymatgenTest):
+class TestLammpsTemplateGen(MatSciTest):
     def test_write_inputs(self):
         # simple script without data file
         lis = LammpsTemplateGen().get_input_set(

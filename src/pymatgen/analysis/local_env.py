@@ -6,7 +6,6 @@ of single sites in molecules and structures.
 
 from __future__ import annotations
 
-import json
 import math
 import os
 import warnings
@@ -18,6 +17,7 @@ from itertools import pairwise
 from typing import TYPE_CHECKING, Literal, NamedTuple, cast, get_args, overload
 
 import numpy as np
+import orjson
 from monty.dev import deprecated, requires
 from monty.serialization import loadfn
 from ruamel.yaml import YAML
@@ -40,7 +40,6 @@ if TYPE_CHECKING:
 
     from pymatgen.analysis.graphs import MoleculeGraph
     from pymatgen.core.composition import SpeciesLike
-    from pymatgen.util.typing import Tuple3Ints
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman, "
@@ -54,16 +53,16 @@ __date__ = "August 17, 2017"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-with open(f"{MODULE_DIR}/op_params.yaml", encoding="utf-8") as file:
-    DEFAULT_OP_PARAMS: dict[str, dict[str | int, float] | None] = YAML().load(file)
+with open(f"{MODULE_DIR}/op_params.yaml", encoding="utf-8") as _file:
+    DEFAULT_OP_PARAMS: dict[str, dict[str | int, float] | None] = YAML().load(_file)
 default_op_params = DEFAULT_OP_PARAMS  # needed externally
 
-with open(f"{MODULE_DIR}/cn_opt_params.yaml", encoding="utf-8") as file:
-    CN_OPT_PARAMS: dict[int, dict[str, list[str | dict[str, float]]]] = YAML().load(file)
+with open(f"{MODULE_DIR}/cn_opt_params.yaml", encoding="utf-8") as _file:
+    CN_OPT_PARAMS: dict[int, dict[str, list[str | dict[str, float]]]] = YAML().load(_file)
 cn_opt_params = CN_OPT_PARAMS  # needed externally
 
-with open(f"{MODULE_DIR}/ionic_radii.json", encoding="utf-8") as file:
-    _ION_RADII = json.load(file)
+with open(f"{MODULE_DIR}/ionic_radii.json", "rb") as file:
+    _ION_RADII = orjson.loads(file.read())
 
 
 class ValenceIonicRadiusEvaluator:
@@ -563,7 +562,7 @@ class NearNeighbors:
         return list(all_sites.values())
 
     @staticmethod
-    def _get_image(structure: Structure, site: Site) -> Tuple3Ints:
+    def _get_image(structure: Structure, site: Site) -> tuple[int, int, int]:
         """Private convenience method for get_nn_info,
         gives lattice image from provided PeriodicSite and Structure.
 
@@ -676,14 +675,14 @@ class NearNeighbors:
             types: list[str] = []
             params: list[dict[str, float] | None] = []
             for name in names:
-                types.append(cast(str, CN_OPT_PARAMS[cn][name][0]))
+                types.append(cast("str", CN_OPT_PARAMS[cn][name][0]))
                 tmp: dict[str, float] | None = (
-                    cast(dict[str, float], CN_OPT_PARAMS[cn][name][1]) if len(CN_OPT_PARAMS[cn][name]) > 1 else None
+                    cast("dict[str, float]", CN_OPT_PARAMS[cn][name][1]) if len(CN_OPT_PARAMS[cn][name]) > 1 else None
                 )
                 params.append(tmp)
             lsops = LocalStructOrderParams(types, parameters=params)
             sites = [structure[n], *self.get_nn(structure, n)]
-            lostop_vals = lsops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))
+            lostop_vals = lsops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))  # type:ignore[arg-type]
             dct = {}
             for idx, lsop in enumerate(lostop_vals):
                 dct[names[idx]] = lsop
@@ -1235,8 +1234,8 @@ class JmolNN(NearNeighbors):
         self.min_bond_distance = min_bond_distance
 
         # Load elemental radii table
-        with open(f"{MODULE_DIR}/bonds_jmol_ob.yaml", encoding="utf-8") as file:
-            self.el_radius = YAML().load(file)
+        with open(f"{MODULE_DIR}/bonds_jmol_ob.yaml", encoding="utf-8") as _file:
+            self.el_radius = YAML().load(_file)
 
         # Update any user preference elemental radii
         if el_radius_updates:
@@ -1884,12 +1883,10 @@ class MinimumVIRENN(NearNeighbors):
         neighs_dists = vire.structure.get_neighbors(site, self.cutoff)
         rn = vire.radii[vire.structure[n].species_string]
 
-        reldists_neighs = []
-        for nn in neighs_dists:
-            reldists_neighs.append([nn.nn_distance / (vire.radii[nn.species_string] + rn), nn])
+        reldists_neighs = [[nn.nn_distance / (vire.radii[nn.species_string] + rn), nn] for nn in neighs_dists]
 
         siw = []
-        min_reldist = min(reldist for reldist, neigh in reldists_neighs)
+        min_reldist = min(reldist for reldist, _neigh in reldists_neighs)
         for reldist, s in reldists_neighs:
             if reldist < (1 + self.tol) * min_reldist:
                 w = min_reldist / reldist
@@ -3395,11 +3392,13 @@ class LocalStructOrderParams:
         # neighbors.
         if self._geomops2:
             # Compute all (unique) angles and sort the resulting list.
-            aij = []
-            for ir, r in enumerate(rij_norm, start=1):
-                for j in range(ir, len(rij_norm)):
-                    aij.append(math.acos(max(-1.0, min(np.inner(r, rij_norm[j]), 1.0))))
-            aijs = sorted(aij)
+            aijs = sorted(
+                [
+                    math.acos(max(-1.0, min(np.inner(r, rij_norm[j]), 1.0)))
+                    for ir, r in enumerate(rij_norm, start=1)
+                    for j in range(ir, len(rij_norm))
+                ]
+            )
 
             # Compute height, side and diagonal length estimates.
             neighscent = np.array([0.0, 0.0, 0.0])
@@ -3745,25 +3744,28 @@ class EconNN(NearNeighbors):
 
         if self.use_fictive_radius:
             # calculate fictive ionic radii
-            firs = [_get_fictive_ionic_radius(site, neighbor) for neighbor in neighbors]
+            fictive_ionic_radii = [_get_fictive_ionic_radius(site, neighbor) for neighbor in neighbors]
         else:
             # just use the bond distance
-            firs = [neighbor.nn_distance for neighbor in neighbors]
+            fictive_ionic_radii = [neighbor.nn_distance for neighbor in neighbors]
 
         # calculate mean fictive ionic radius
-        mefir = _get_mean_fictive_ionic_radius(firs)
+        mean_fictive_ionic_radius = _get_mean_fictive_ionic_radius(fictive_ionic_radii)
 
         # iteratively solve MEFIR; follows equation 4 in Hoppe's EconN paper
-        prev_mefir = float("inf")
-        while abs(prev_mefir - mefir) > 1e-4:
+        prev_mean_fictive_ionic_radius = float("inf")
+        while abs(prev_mean_fictive_ionic_radius - mean_fictive_ionic_radius) > 1e-4:
             # this is guaranteed to converge
-            prev_mefir = mefir
-            mefir = _get_mean_fictive_ionic_radius(firs, minimum_fir=mefir)
+            prev_mean_fictive_ionic_radius = mean_fictive_ionic_radius
+            mean_fictive_ionic_radius = _get_mean_fictive_ionic_radius(
+                fictive_ionic_radii,
+                minimum_fir=mean_fictive_ionic_radius,
+            )
 
         siw = []
-        for nn, fir in zip(neighbors, firs, strict=True):
+        for nn, fictive_ionic_radius in zip(neighbors, fictive_ionic_radii, strict=True):
             if nn.nn_distance < self.cutoff:
-                w = math.exp(1 - (fir / mefir) ** 6)
+                w = math.exp(1 - (fictive_ionic_radius / mean_fictive_ionic_radius) ** 6)
                 if w > self.tol:
                     bonded_site = {
                         "site": nn,
@@ -4066,10 +4068,7 @@ class CrystalNN(NearNeighbors):
         cn_nninfo = {}  # CN -> list of nearneighbor info for that CN
         for idx, val in enumerate(dist_bins):
             if val != 0:
-                nn_info = []
-                for entry in nn:
-                    if entry["weight"] >= val:
-                        nn_info.append(entry)
+                nn_info = [entry for entry in nn if entry["weight"] >= val]
                 cn = len(nn_info)
                 cn_nninfo[cn] = nn_info
                 cn_weights[cn] = self._semicircle_integral(dist_bins, idx)

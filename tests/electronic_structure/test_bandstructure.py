@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import copy
-import json
-from unittest import TestCase
 
 import numpy as np
+import orjson
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
@@ -20,13 +19,13 @@ from pymatgen.electronic_structure.bandstructure import (
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.plotter import BSPlotterProjected
 from pymatgen.io.vasp import BSVasprun
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 
-class TestKpoint(TestCase):
-    def setUp(self):
+class TestKpoint:
+    def setup_method(self):
         self.lattice = Lattice.cubic(10.0)
         self.kpoint = Kpoint([0.1, 0.4, -0.5], self.lattice, label="X")
 
@@ -68,8 +67,8 @@ class TestKpoint(TestCase):
         assert kpoint.label == "X"
 
 
-class TestBandStructureSymmLine(PymatgenTest):
-    def setUp(self):
+class TestBandStructureSymmLine(MatSciTest):
+    def setup_method(self):
         self.bs: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu2O_361_bandstructure.json")
         self.bs2: BandStructureSymmLine = loadfn(f"{TEST_DIR}/CaO_2605_bandstructure.json")
         self.bs_spin: BandStructureSymmLine = loadfn(f"{TEST_DIR}/NiO_19009_bandstructure.json")
@@ -232,8 +231,8 @@ class TestBandStructureSymmLine(PymatgenTest):
         assert set(d3) >= expected_keys, f"{expected_keys - set(d3)=}"
 
     def test_old_format_load(self):
-        with open(f"{TEST_DIR}/bs_ZnS_old.json", encoding="utf-8") as file:
-            dct = json.load(file)
+        with open(f"{TEST_DIR}/bs_ZnS_old.json", "rb") as file:
+            dct = orjson.loads(file.read())
             bs_old = BandStructureSymmLine.from_dict(dct)
             assert bs_old.get_projection_on_elements()[Spin.up][0][0]["Zn"] == approx(0.0971)
 
@@ -258,8 +257,8 @@ class TestBandStructureSymmLine(PymatgenTest):
         assert bs_scissored.efermi != approx(orig_efermi)
 
 
-class TestReconstructBandStructure(PymatgenTest):
-    def setUp(self):
+class TestReconstructBandStructure(MatSciTest):
+    def setup_method(self):
         self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
         self.bs_cu2: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
 
@@ -277,20 +276,20 @@ class TestReconstructBandStructure(PymatgenTest):
         bs.get_projection_on_elements()
 
 
-class TestLobsterBandStructureSymmLine(PymatgenTest):
-    def setUp(self):
+class TestLobsterBandStructureSymmLine(MatSciTest):
+    def setup_method(self):
         with open(
             f"{TEST_FILES_DIR}/electronic_structure/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",
-            encoding="utf-8",
+            "rb",
         ) as file:
-            bs_spin_dict = json.load(file)
+            bs_spin_dict = orjson.loads(file.read())
         self.bs_spin = LobsterBandStructureSymmLine.from_dict(bs_spin_dict)
 
         with open(
             f"{TEST_FILES_DIR}/electronic_structure/cohp/Fatband_SiO2/Test_p/lobster_band_structure.json",
-            encoding="utf-8",
+            "rb",
         ) as file:
-            bs_dict = json.load(file)
+            bs_dict = orjson.loads(file.read())
         self.bs_p = LobsterBandStructureSymmLine.from_dict(bs_dict)
 
     def test_basic(self):
@@ -365,7 +364,6 @@ class TestLobsterBandStructureSymmLine(PymatgenTest):
         axs = BSPlotterProjected(self.bs_spin).get_projected_plots_dots({"Si": ["3s"]})
         assert isinstance(axs, list)
         assert len(axs) == 1
-        print(axs[0].get_title())
         assert axs[0].get_title() == r"${\mathrm{Si}}_{\mathrm{3s}}$"
 
     def test_get_branch(self):
@@ -455,9 +453,9 @@ class TestLobsterBandStructureSymmLine(PymatgenTest):
         assert bs.get_kpoint_degeneracy(vbm_k) == 3
 
     def test_as_dict(self):
-        dict_str = json.dumps(self.bs_p.as_dict())
+        dict_str = orjson.dumps(self.bs_p.as_dict()).decode()
         assert dict_str is not None
-        dict_str = json.dumps(self.bs_spin.as_dict())
+        dict_str = orjson.dumps(self.bs_spin.as_dict()).decode()
         assert dict_str is not None
 
     def test_old_format_load(self):

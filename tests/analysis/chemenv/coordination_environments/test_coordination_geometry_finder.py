@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import json
 import os
 
 import numpy as np
+import orjson
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -19,15 +19,15 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
     symmetry_measure,
 )
 from pymatgen.core.structure import Lattice, Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "waroquiers"
 
 json_dir = f"{TEST_FILES_DIR}/analysis/chemenv/json"
 
 
-class TestCoordinationGeometryFinder(PymatgenTest):
-    def setUp(self):
+class TestCoordinationGeometryFinder(MatSciTest):
+    def setup_method(self):
         self.lgf = LocalGeometryFinder()
         self.lgf.setup_parameters(
             centering_type="standard",
@@ -142,8 +142,8 @@ class TestCoordinationGeometryFinder(PymatgenTest):
 
         for json_file in files:
             with self.subTest(json_file=json_file):
-                with open(f"{json_dir}/{json_file}", encoding="utf-8") as file:
-                    dct = json.load(file)
+                with open(f"{json_dir}/{json_file}", "rb") as file:
+                    dct = orjson.loads(file.read())
 
                 atom_indices = dct["atom_indices"]
                 expected_geoms = dct["expected_geoms"]
@@ -166,12 +166,12 @@ class TestCoordinationGeometryFinder(PymatgenTest):
                     # Check that the environment found is the expected one
                     assert coord_env == expected_geoms[ienv]
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_simplest_chemenv_strategy(self):
         strategy = SimplestChemenvStrategy()
         self._strategy_test(strategy)
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_simple_abundance_chemenv_strategy(self):
         strategy = SimpleAbundanceChemenvStrategy()
         self._strategy_test(strategy)

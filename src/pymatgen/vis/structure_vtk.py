@@ -256,7 +256,7 @@ class StructureVis:
                     if sp.symbol in self.excluded_bonding_elements or sp == anion:
                         exclude = True
                         break
-                    max_radius = max(max_radius, sp.average_ionic_radius)
+                    max_radius = max(max_radius, sp.average_ionic_radius)  # type:ignore[type-var,assignment]
                     color += occu * np.array(self.el_color_mapping.get(sp.symbol, [0, 0, 0]))
 
                 if not exclude:
@@ -477,7 +477,7 @@ class StructureVis:
         # ac.SetMapper(mapHull)
         ac.SetMapper(dsm)
         ac.GetProperty().SetOpacity(opacity)
-        if color == "element":
+        if isinstance(color, str) and color == "element":
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
             max_occu = 0.0
@@ -539,7 +539,8 @@ class StructureVis:
         ac = vtk.vtkActor()
         ac.SetMapper(mapper)
         ac.GetProperty().SetOpacity(opacity)
-        if color == "element":
+
+        if isinstance(color, str) and color == "element":
             if center is None:
                 raise ValueError(
                     "Color should be chosen according to the central atom, and central atom is not provided"
@@ -982,7 +983,7 @@ class MultiStructuresVis(StructureVis):
             struct_radii = []
             struct_vis_radii = []
             for site in struct:
-                radius = 0
+                radius = 0.0
                 vis_radius = 0.2
                 for species, occu in site.species.items():
                     radius += occu * (

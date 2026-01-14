@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import linecache
+import logging
 from io import StringIO
 from typing import TYPE_CHECKING
 
@@ -13,8 +14,9 @@ from pymatgen.io.pwmat.inputs import ACstrExtractor, AtomConfig, LineLocator
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
-    from pymatgen.util.typing import PathLike, Tuple3Ints
+    from pymatgen.util.typing import PathLike
 
+logger = logging.getLogger(__name__)
 
 __author__ = "Hanyu Liu"
 __email__ = "domainofbuaa@gmail.com"
@@ -67,8 +69,7 @@ class Movement(MSONable):
         chunk_sizes: list[int] = []
         row_idxs: list[int] = LineLocator.locate_all_lines(self.filename, self.split_mark)
         chunk_sizes.append(row_idxs[0])
-        for ii in range(1, len(row_idxs)):
-            chunk_sizes.append(row_idxs[ii] - row_idxs[ii - 1])
+        chunk_sizes.extend(row_idxs[ii] - row_idxs[ii - 1] for ii in range(1, len(row_idxs)))
         chunk_sizes_bak: list[int] = copy.deepcopy(chunk_sizes)
         chunk_sizes_bak.insert(0, 0)
         chunk_starts: list[int] = np.cumsum(chunk_sizes_bak).tolist()
@@ -148,12 +149,12 @@ class Movement(MSONable):
                 if e_atoms is not None:
                     tmp_step["atom_energies"] = ACstrExtractor(tmp_chunk).get_atom_energies()
                 else:
-                    print(f"Ionic step #{ii} : Energy deposition is turn down.")
+                    logger.info(f"Ionic step #{ii} : Energy deposition is turn down.")
                 virial: np.ndarray | None = ACstrExtractor(tmp_chunk).get_virial()
                 if virial is not None:
                     tmp_step["virial"] = virial.reshape(3, 3)
                 else:
-                    print(f"Ionic step #{ii} : No virial information.")
+                    logger.info(f"Ionic step #{ii} : No virial information.")
                 ionic_steps.append(tmp_step)
         return ionic_steps
 
@@ -195,7 +196,7 @@ class Report(MSONable):
         self._eigenvalues = self._parse_eigen()
         self._kpts, self._kpts_weight, self._hsps = self._parse_kpt()
 
-    def _parse_band(self) -> Tuple3Ints:
+    def _parse_band(self) -> tuple[int, int, int]:
         """Parse REPORT file to obtain spin switches, the number of kpoints
         and the number of bands.
 
@@ -258,7 +259,7 @@ class Report(MSONable):
         row_idx: int = LineLocator.locate_all_lines(self.filename, content)[0]
         kpts: np.ndarray = np.zeros((self._num_kpts, 3))
         kpts_weight: np.ndarray = np.zeros(self._num_kpts)
-        hsps: dict[str, np.array] = {}
+        hsps: dict[str, np.ndarray] = {}
         for ii in range(num_rows):
             #  0.00000     0.00000    0.00000     0.03704           G
             tmp_row_lst: list[str] = linecache.getline(str(self.filename), row_idx + ii + 1).split()

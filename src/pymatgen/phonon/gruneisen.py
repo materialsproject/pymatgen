@@ -44,8 +44,8 @@ class GruneisenParameter(MSONable):
     def __init__(
         self,
         qpoints: ArrayLike,
-        gruneisen: ArrayLike[ArrayLike],
-        frequencies: ArrayLike[ArrayLike],
+        gruneisen: ArrayLike,
+        frequencies: ArrayLike,
         multiplicities: Sequence | None = None,
         structure: Structure = None,
         lattice: Lattice = None,
@@ -248,10 +248,10 @@ class GruneisenPhononBandStructure(PhononBandStructure):
     def __init__(
         self,
         qpoints: ArrayLike,
-        frequencies: ArrayLike[ArrayLike],
+        frequencies: ArrayLike,
         gruneisenparameters: ArrayLike,
         lattice: Lattice,
-        eigendisplacements: ArrayLike[ArrayLike] = None,
+        eigendisplacements: ArrayLike = None,
         labels_dict: dict | None = None,
         coords_are_cartesian: bool = False,
         structure: Structure | None = None,
@@ -351,10 +351,10 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
     def __init__(
         self,
         qpoints: ArrayLike,
-        frequencies: ArrayLike[ArrayLike],
+        frequencies: ArrayLike,
         gruneisenparameters: ArrayLike,
         lattice: Lattice,
-        eigendisplacements: ArrayLike[ArrayLike] = None,
+        eigendisplacements: ArrayLike = None,
         labels_dict: dict | None = None,
         coords_are_cartesian: bool = False,
         structure: Structure | None = None,
@@ -397,10 +397,10 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
 
         PhononBandStructureSymmLine._reuse_init(
             self,
-            eigendisplacements=eigendisplacements,
+            eigendisplacements=eigendisplacements,  # type:ignore[arg-type]
             frequencies=frequencies,
             has_nac=False,
-            qpoints=qpoints,
+            qpoints=qpoints,  # type:ignore[arg-type]
         )
 
     @classmethod

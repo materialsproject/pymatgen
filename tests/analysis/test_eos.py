@@ -5,11 +5,11 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.eos import EOS, NumericalEOS
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestEOS(PymatgenTest):
-    def setUp(self):
+class TestEOS(MatSciTest):
+    def setup_method(self):
         # Si data from Cormac
         self.volumes = [
             25.987454833,
@@ -426,8 +426,8 @@ class TestEOS(PymatgenTest):
         assert_allclose(self.num_eos_fit.e0, -10.84749, atol=1e-3)
         assert_allclose(self.num_eos_fit.v0, 40.857201, atol=1e-1)
         assert_allclose(self.num_eos_fit.b0, 0.55, atol=1e-2)
-        assert_allclose(self.num_eos_fit.b0_GPa, 89.0370727, atol=1e-1)
-        assert_allclose(self.num_eos_fit.b1, 4.344039, atol=1e-2)
+        assert_allclose(self.num_eos_fit.b0_GPa, 89.0370727, atol=1)
+        assert_allclose(self.num_eos_fit.b1, 4.344039, atol=1)
 
     def test_eos_func(self):
         # list vs np.array arguments

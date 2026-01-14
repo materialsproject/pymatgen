@@ -22,7 +22,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list_pbc
 
 if TYPE_CHECKING:
-    import matplotlib.pyplot as plt
+    from matplotlib.axes import Axes
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
@@ -57,7 +57,7 @@ class AdsorbateSiteFinder:
 
     def __init__(
         self,
-        slab: Slab,
+        slab: Slab | Structure,
         selective_dynamics: bool = False,
         height: float = 0.9,
         mi_vec: ArrayLike | None = None,
@@ -454,20 +454,17 @@ class AdsorbateSiteFinder:
             xrep = np.ceil(min_lw / np.linalg.norm(self.slab.lattice.matrix[0]))
             yrep = np.ceil(min_lw / np.linalg.norm(self.slab.lattice.matrix[1]))
             repeat = [xrep, yrep, 1]
-        structs = []
 
-        find_args = find_args or {}
-        for coords in self.find_adsorption_sites(**find_args)["all"]:
-            structs.append(
-                self.add_adsorbate(
-                    molecule,
-                    coords,
-                    repeat=repeat,
-                    translate=translate,
-                    reorient=reorient,
-                )
+        return [
+            self.add_adsorbate(
+                molecule,
+                coords,
+                repeat=repeat,
+                translate=translate,
+                reorient=reorient,
             )
-        return structs
+            for coords in self.find_adsorption_sites(**(find_args or {}))["all"]
+        ]
 
     def adsorb_both_surfaces(
         self,
@@ -613,8 +610,7 @@ def get_rot(slab: Slab) -> SymmOp:
     new_y = np.cross(new_z, new_x)
     x, y, z = np.eye(3)
     rot_matrix = np.array([np.dot(*el) for el in itertools.product([x, y, z], [new_x, new_y, new_z])]).reshape(3, 3)
-    rot_matrix = np.transpose(rot_matrix)
-    return SymmOp.from_rotation_and_translation(rot_matrix)
+    return SymmOp.from_rotation_and_translation(np.transpose(rot_matrix))
 
 
 def put_coord_inside(lattice, cart_coordinate):
@@ -640,7 +636,7 @@ color_dict = {el: [j / 256.001 for j in colors["Jmol"][el]] for el in colors["Jm
 
 def plot_slab(
     slab: Slab,
-    ax: plt.Axes,
+    ax: Axes,
     scale=0.8,
     repeat=5,
     window=1.5,

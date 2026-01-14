@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import TYPE_CHECKING
 
@@ -24,6 +25,8 @@ __version__ = "0.1"
 __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 __credits__ = "Xiaohui Qu"
+
+logger = logging.getLogger(__name__)
 
 
 class QCInput(InputFile):
@@ -374,7 +377,7 @@ class QCInput(InputFile):
             filename (str): Name of the file to write.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(QCInput.multi_job_string(job_list))
+            file.write(QCInput.multi_job_string(job_list))  # type:ignore[arg-type]
 
     @classmethod
     def from_file(cls, filename: str | Path) -> Self:
@@ -388,7 +391,7 @@ class QCInput(InputFile):
             QcInput
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
     @classmethod
     def from_multi_jobs_file(cls, filename: str) -> list[Self]:
@@ -403,9 +406,9 @@ class QCInput(InputFile):
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
             # the delimiter between QChem jobs is @@@
-            multi_job_strings = file.read().split("@@@")
+            multi_job_strings = file.read().split("@@@")  # type:ignore[arg-type]
             # list of individual QChem jobs
-            return [cls.from_str(i) for i in multi_job_strings]
+            return [cls.from_str(i) for i in multi_job_strings]  # type:ignore[arg-type]
 
     @staticmethod
     def molecule_template(molecule: Molecule | list[Molecule] | Literal["read"]) -> str:
@@ -431,8 +434,9 @@ class QCInput(InputFile):
                 raise ValueError('The only acceptable text value for molecule is "read"')
         elif isinstance(molecule, Molecule):
             mol_list.append(f" {int(molecule.charge)} {molecule.spin_multiplicity}")
-            for site in molecule:
-                mol_list.append(f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}")
+            mol_list.extend(
+                f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}" for site in molecule
+            )
         else:
             overall_charge = sum(x.charge for x in molecule)
             unpaired_electrons = sum(x.spin_multiplicity - 1 for x in molecule)
@@ -442,8 +446,10 @@ class QCInput(InputFile):
 
             for fragment in molecule:
                 mol_list.extend(("--", f" {int(fragment.charge)} {fragment.spin_multiplicity}"))
-                for site in fragment:
-                    mol_list.append(f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}")
+                mol_list.extend(
+                    f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}"
+                    for site in fragment
+                )
 
         mol_list.append("$end")
         return "\n".join(mol_list)
@@ -481,8 +487,7 @@ class QCInput(InputFile):
         for key, value in opt.items():
             opt_list.append(f"{key}")
             # loops over all values within the section
-            for i in value:
-                opt_list.append(f"   {i}")
+            opt_list.extend(f"   {i}" for i in value)
             opt_list.extend((f"END{key}", ""))
         # this deletes the empty space after the last section
         del opt_list[-1]
@@ -561,8 +566,7 @@ class QCInput(InputFile):
             raise ValueError("Q-Chem only supports PES_SCAN with two or less variables.")
         for var_type, variables in scan.items():
             if variables not in [None, []]:
-                for var in variables:
-                    scan_list.append(f"   {var_type} {var}")
+                scan_list.extend(f"   {var_type} {var}" for var in variables)
         scan_list.append("$end")
         return "\n".join(scan_list)
 
@@ -729,13 +733,10 @@ class QCInput(InputFile):
         state_1 = almo_coupling[0]
         state_2 = almo_coupling[1]
 
-        for frag in state_1:
-            # Casting to int probably unnecessary, given type hint
-            # Doesn't hurt, though
-            almo_list.append(f"   {int(frag[0])} {int(frag[1])}")
+        # Casting to int probably unnecessary, given type hint
+        almo_list.extend(f"   {int(frag[0])} {int(frag[1])}" for frag in state_1)
         almo_list.append("   --")
-        for frag in state_2:
-            almo_list.append(f"   {int(frag[0])} {int(frag[1])}")
+        almo_list.extend(f"   {int(frag[0])} {int(frag[1])}" for frag in state_2)
 
         almo_list.append("$end")
         return "\n".join(almo_list)
@@ -961,7 +962,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         pcm_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not pcm_table:
-            print("No valid PCM inputs found. Note that there should be no '=' characters in PCM input lines.")
+            logger.info("No valid PCM inputs found. Note that there should be no '=' characters in PCM input lines.")
             return {}
 
         return dict(pcm_table[0])
@@ -982,7 +983,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         vdw_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not vdw_table:
-            print("No valid vdW inputs found. Note that there should be no '=' characters in vdW input lines.")
+            logger.info("No valid vdW inputs found. Note that there should be no '=' characters in vdW input lines.")
             return "", {}
 
         mode = "sequential" if vdw_table[0][0][0] == 2 else "atomic"
@@ -1005,7 +1006,9 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         solvent_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not solvent_table:
-            print("No valid solvent inputs found. Note that there should be no '=' characters in solvent input lines.")
+            logger.info(
+                "No valid solvent inputs found. Note that there should be no '=' characters in solvent input lines."
+            )
             return {}
 
         return dict(solvent_table[0])
@@ -1026,7 +1029,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         smx_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not smx_table:
-            print("No valid smx inputs found. Note that there should be no '=' characters in smx input lines.")
+            logger.info("No valid smx inputs found. Note that there should be no '=' characters in smx input lines.")
             return {}
         smx = dict(smx_table[0])
         if smx["solvent"] == "tetrahydrofuran":
@@ -1052,7 +1055,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         scan_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if scan_table == []:
-            print("No valid scan inputs found. Note that there should be no '=' characters in scan input lines.")
+            logger.info("No valid scan inputs found. Note that there should be no '=' characters in scan input lines.")
             return {}
 
         stre = []
@@ -1087,7 +1090,9 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         plots_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if plots_table == []:
-            print("No valid plots inputs found. Note that there should be no '=' characters in plots input lines.")
+            logger.info(
+                "No valid plots inputs found. Note that there should be no '=' characters in plots input lines."
+            )
             return {}
         return dict(plots_table[0])
 
@@ -1107,7 +1112,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         nbo_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if nbo_table == []:
-            print("No valid nbo inputs found.")
+            logger.info("No valid nbo inputs found.")
             return {}
         return dict(nbo_table[0])
 
@@ -1127,7 +1132,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         geom_opt_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if geom_opt_table == []:
-            print("No valid geom_opt inputs found.")
+            logger.info("No valid geom_opt inputs found.")
             return {}
         return dict(geom_opt_table[0])
 
@@ -1153,7 +1158,7 @@ class QCInput(InputFile):
 
         section = read_pattern(string, pattern_sec)["full_section"]
         if len(section) == 0:
-            print("No valid cdft inputs found.")
+            logger.info("No valid cdft inputs found.")
             return []
 
         cdft = []
@@ -1208,7 +1213,7 @@ class QCInput(InputFile):
         section = read_pattern(string, pattern)["key"]
 
         if len(section) == 0:
-            print("No valid almo inputs found.")
+            logger.info("No valid almo inputs found.")
             return []
 
         section = section[0]
@@ -1235,7 +1240,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         svp_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if svp_table == []:
-            print("No valid svp inputs found.")
+            logger.info("No valid svp inputs found.")
             return {}
         svp_list = svp_table[0][0][0].split(", ")
         svp_dict = {}
@@ -1259,7 +1264,7 @@ class QCInput(InputFile):
         footer = r"^\s*\$end"
         pcm_nonels_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not pcm_nonels_table:
-            print(
+            logger.info(
                 "No valid $pcm_nonels inputs found. Note that there should be no '=' "
                 "characters in $pcm_nonels input lines."
             )

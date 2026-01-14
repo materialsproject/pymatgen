@@ -3,17 +3,17 @@
 from __future__ import annotations
 
 import collections
+import collections.abc
 import importlib
 import itertools
-import json
 import os
-import typing
 import warnings
 from copy import deepcopy
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
+import orjson
 from monty.io import zopen
 from monty.json import MSONable
 from scipy.interpolate import RegularGridInterpolator
@@ -23,7 +23,14 @@ from pymatgen.core.units import ang_to_bohr, bohr_to_angstrom
 from pymatgen.electronic_structure.core import Spin
 
 if TYPE_CHECKING:
-    from typing_extensions import Any, Self
+    from collections.abc import Iterator
+    from typing import Any, ClassVar, TextIO
+
+    from numpy.typing import ArrayLike, NDArray
+    from typing_extensions import Self
+
+    from pymatgen.core.structure import IStructure
+    from pymatgen.util.typing import PathLike
 
 
 class VolumetricData(MSONable):
@@ -58,10 +65,10 @@ class VolumetricData(MSONable):
 
     def __init__(
         self,
-        structure: Structure,
-        data: dict[str, np.ndarray],
-        distance_matrix: np.ndarray | None = None,
-        data_aug: np.ndarray | None = None,
+        structure: Structure | IStructure,
+        data: dict[str, NDArray],
+        distance_matrix: dict | None = None,
+        data_aug: dict[str, NDArray] | None = None,
     ) -> None:
         """
         Typically, this constructor is not used directly and the static
@@ -78,16 +85,16 @@ class VolumetricData(MSONable):
                 (typically augmentation charges)
         """
         self.structure = structure
-        self.is_spin_polarized = len(data) >= 2
-        self.is_soc = len(data) >= 4
+        self.is_spin_polarized: bool = len(data) >= 2
+        self.is_soc: bool = len(data) >= 4
         # convert data to numpy arrays in case they were jsanitized as lists
-        self.data = {k: np.array(v) for k, v in data.items()}
+        self.data: dict[str, NDArray] = {k: np.asarray(v) for k, v in data.items()}
         self.dim = self.data["total"].shape
         self.data_aug = data_aug or {}
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
         # lazy init the spin data since this is not always needed.
-        self._spin_data: dict[Spin, float] = {}
-        self._distance_matrix = distance_matrix or {}
+        self._spin_data: dict[Spin, NDArray] = {}
+        self._distance_matrix = distance_matrix if distance_matrix is not None else {}
         self.xpoints = np.linspace(0.0, 1.0, num=self.dim[0])
         self.ypoints = np.linspace(0.0, 1.0, num=self.dim[1])
         self.zpoints = np.linspace(0.0, 1.0, num=self.dim[2])
@@ -98,8 +105,23 @@ class VolumetricData(MSONable):
         )
         self.name = "VolumetricData"
 
+    def __add__(self, other) -> Self:
+        return self.linear_add(other, 1.0)
+
+    def __radd__(self, other) -> Self:
+        if other == 0 or other is None:
+            # sum() calls 0 + self first; we treat 0 as the identity element
+            return self
+        if isinstance(other, self.__class__):
+            return self.__add__(other)
+
+        raise TypeError(f"Unsupported operand type(s) for +: '{type(other).__name__}' and '{type(self).__name__}'")
+
+    def __sub__(self, other) -> Self:
+        return self.linear_add(other, -1.0)
+
     @property
-    def spin_data(self):
+    def spin_data(self) -> dict[Spin, NDArray]:
         """The data decomposed into actual spin data as {spin: data}.
         Essentially, this provides the actual Spin.up and Spin.down data
         instead of the total and diff. Note that by definition, a
@@ -112,7 +134,7 @@ class VolumetricData(MSONable):
             self._spin_data = spin_data
         return self._spin_data
 
-    def get_axis_grid(self, ind):
+    def get_axis_grid(self, ind: int) -> list[float]:
         """Get the grid for a particular axis.
 
         Args:
@@ -123,22 +145,16 @@ class VolumetricData(MSONable):
         lengths = self.structure.lattice.abc
         return [i / num_pts * lengths[ind] for i in range(num_pts)]
 
-    def __add__(self, other):
-        return self.linear_add(other, 1.0)
-
-    def __sub__(self, other):
-        return self.linear_add(other, -1.0)
-
     def copy(self) -> Self:
         """Make a copy of VolumetricData object."""
-        return VolumetricData(
+        return type(self)(
             self.structure,
             {k: v.copy() for k, v in self.data.items()},
             distance_matrix=self._distance_matrix,
             data_aug=self.data_aug,
         )
 
-    def linear_add(self, other, scale_factor=1.0):
+    def linear_add(self, other, scale_factor: float = 1.0) -> Self:
         """
         Method to do a linear sum of volumetric objects. Used by + and -
         operators as well. Returns a VolumetricData object containing the
@@ -169,12 +185,12 @@ class VolumetricData(MSONable):
         new.data_aug = {}
         return new
 
-    def scale(self, factor):
+    def scale(self, factor: float) -> None:
         """Scale the data in place by a factor."""
         for k in self.data:
             self.data[k] = np.multiply(self.data[k], factor)
 
-    def value_at(self, x, y, z):
+    def value_at(self, x: float, y: float, z: float) -> float:
         """Get a data value from self.data at a given point (x, y, z) in terms
         of fractional lattice parameters. Will be interpolated using a
         RegularGridInterpolator on self.data if (x, y, z) is not in the original
@@ -191,7 +207,7 @@ class VolumetricData(MSONable):
         """
         return self.interpolator([x, y, z])[0]
 
-    def linear_slice(self, p1, p2, n=100):
+    def linear_slice(self, p1: ArrayLike, p2: ArrayLike, n=100):
         """Get a linear slice of the volumetric data with n data points from
         point p1 to point p2, in the form of a list.
 
@@ -204,21 +220,18 @@ class VolumetricData(MSONable):
             List of n data points (mostly interpolated) representing a linear slice of the
             data from point p1 to point p2.
         """
-        if type(p1) not in {list, np.ndarray}:
-            raise TypeError(f"type of p1 should be list or np.ndarray, got {type(p1).__name__}")
-        if len(p1) != 3:
-            raise ValueError(f"length of p1 should be 3, got {len(p1)}")
-        if type(p2) not in {list, np.ndarray}:
-            raise TypeError(f"type of p2 should be list or np.ndarray, got {type(p2).__name__}")
-        if len(p2) != 3:
-            raise ValueError(f"length of p2 should be 3, got {len(p2)}")
+        p1 = np.asarray(p1)
+        p2 = np.asarray(p2)
+
+        if p1.shape != (3,) or p2.shape != (3,):
+            raise ValueError(f"lengths of p1 and p2 should be 3, got {len(p1)} and {len(p2)}")
 
         x_pts = np.linspace(p1[0], p2[0], num=n)
         y_pts = np.linspace(p1[1], p2[1], num=n)
         z_pts = np.linspace(p1[2], p2[2], num=n)
         return [self.value_at(x_pts[i], y_pts[i], z_pts[i]) for i in range(n)]
 
-    def get_integrated_diff(self, ind, radius, nbins=1):
+    def get_integrated_diff(self, ind: int, radius: float, nbins: int = 1) -> NDArray:
         """Get integrated difference of atom index ind up to radius. This can be
         an extremely computationally intensive process, depending on how many
         grid points are in the VolumetricData.
@@ -245,6 +258,7 @@ class VolumetricData(MSONable):
 
         struct = self.structure
         a = self.dim
+        self._distance_matrix = {} if self._distance_matrix is None else self._distance_matrix
         if ind not in self._distance_matrix or self._distance_matrix[ind]["max_radius"] < radius:
             coords = []
             for x, y, z in itertools.product(*(list(range(i)) for i in a)):
@@ -263,13 +277,13 @@ class VolumetricData(MSONable):
         data_inds = np.rint(np.mod(list(data[inds, 0]), 1) * np.tile(a, (len(dists), 1))).astype(int)
         vals = [self.data["diff"][x, y, z] for x, y, z in data_inds]
 
-        hist, edges = np.histogram(dists, bins=nbins, range=[0, radius], weights=vals)
+        hist, edges = np.histogram(dists, bins=nbins, range=(0, radius), weights=vals)
         data = np.zeros((nbins, 2))
         data[:, 0] = edges[1:]
         data[:, 1] = [sum(hist[0 : i + 1]) / self.ngridpts for i in range(nbins)]
         return data
 
-    def get_average_along_axis(self, ind):
+    def get_average_along_axis(self, ind: int) -> NDArray:
         """Get the averaged total of the volumetric data a certain axis direction.
         For example, useful for visualizing Hartree Potentials from a LOCPOT
         file.
@@ -290,7 +304,7 @@ class VolumetricData(MSONable):
             total = np.sum(np.sum(total_spin_dens, axis=0), 0)
         return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
 
-    def to_hdf5(self, filename):
+    def to_hdf5(self, filename: PathLike) -> None:
         """Write the VolumetricData to a HDF5 format, which is a highly optimized
         format for reading storing large data. The mapping of the VolumetricData
         to this file format is as follows:
@@ -308,7 +322,7 @@ class VolumetricData(MSONable):
         """
         import h5py
 
-        with h5py.File(filename, mode="w") as file:
+        with h5py.File(str(filename), mode="w") as file:
             ds = file.create_dataset("lattice", (3, 3), dtype="float")
             ds[...] = self.structure.lattice.matrix
             ds = file.create_dataset("Z", (len(self.structure.species),), dtype="i")
@@ -323,10 +337,10 @@ class VolumetricData(MSONable):
                 ds = grp.create_dataset(k, self.data[k].shape, dtype="float")
                 ds[...] = self.data[k]
             file.attrs["name"] = self.name
-            file.attrs["structure_json"] = json.dumps(self.structure.as_dict())
+            file.attrs["structure_json"] = orjson.dumps(self.structure.as_dict()).decode()
 
     @classmethod
-    def from_hdf5(cls, filename: str, **kwargs) -> Self:
+    def from_hdf5(cls, filename: PathLike, **kwargs) -> Self:
         """
         Reads VolumetricData from HDF5 file.
 
@@ -338,15 +352,15 @@ class VolumetricData(MSONable):
         """
         import h5py
 
-        with h5py.File(filename, mode="r") as file:
-            data = {k: np.array(v) for k, v in file["vdata"].items()}
+        with h5py.File(str(filename), mode="r") as file:
+            data = {k: np.asarray(v) for k, v in file["vdata"].items()}
             data_aug = None
             if "vdata_aug" in file:
-                data_aug = {k: np.array(v) for k, v in file["vdata_aug"].items()}
-            structure = Structure.from_dict(json.loads(file.attrs["structure_json"]))
-            return cls(structure, data=data, data_aug=data_aug, **kwargs)
+                data_aug = {k: np.asarray(v) for k, v in file["vdata_aug"].items()}
+            structure = Structure.from_dict(orjson.loads(file.attrs["structure_json"]))
+            return cls(structure, data=data, data_aug=data_aug, **kwargs)  # type:ignore[arg-type]
 
-    def to_cube(self, filename, comment: str = ""):
+    def to_cube(self, filename: PathLike, comment: str = "") -> None:
         """Write the total volumetric data to a cube file format, which consists of two comment lines,
         a header section defining the structure IN BOHR, and the data.
 
@@ -355,6 +369,7 @@ class VolumetricData(MSONable):
             comment (str): If provided, this will be added to the second comment line
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
+            file = cast("TextIO", file)
             file.write(f"# Cube file for {self.structure.formula} generated by Pymatgen\n")
             file.write(f"# {comment}\n")
             file.write(f"\t {len(self.structure)} 0.000000 0.000000 0.000000\n")
@@ -379,60 +394,57 @@ class VolumetricData(MSONable):
                     file.write("\n")
 
     @classmethod
-    def from_cube(cls, filename: str | Path) -> Self:
+    def from_cube(cls, filename: PathLike) -> Self:
         """
-        Initialize the cube object and store the data as data.
+        Initialize the cube object and store the data as pymatgen objects.
 
         Args:
             filename (str): of the cube to read
         """
-        file = zopen(filename, mode="rt", encoding="utf-8")
+        # Limit the number of I/O operations by reading the entire file at once
+        with zopen(filename, mode="rt", encoding="utf-8") as f:
+            lines = f.readlines()
 
-        # skip header lines
-        file.readline()
-        file.readline()
+        # Parse the number of atoms from line 3 (first two lines are headers)
+        n_atoms = int(lines[2].split()[0])
 
-        # number of atoms followed by the position of the origin of the volumetric data
-        line = file.readline().split()
-        n_atoms = int(line[0])
+        # Pre-parse voxel data into arrays
+        def parse_voxel(line):
+            parts = line.split()
+            return int(parts[0]), np.array(parts[1:], dtype=float) * bohr_to_angstrom
 
-        # The number of voxels along each axis (x, y, z) followed by the axis vector.
-        line = file.readline().split()
-        num_x_voxels = int(line[0])
-        voxel_x = np.array([bohr_to_angstrom * float(val) for val in line[1:]])
+        # Extract voxel information from lines 4-6
+        num_x_voxels, voxel_x = parse_voxel(lines[3])
+        num_y_voxels, voxel_y = parse_voxel(lines[4])
+        num_z_voxels, voxel_z = parse_voxel(lines[5])
 
-        line = file.readline().split()
-        num_y_voxels = int(line[0])
-        voxel_y = np.array([bohr_to_angstrom * float(val) for val in line[1:]])
+        # Parse atomic site data (starts at line 7 and continues for n_atoms lines)
+        # Each line contains: atomic number, charge, x, y, z coordinates (in Bohr units)
+        atom_data_start = 6
+        atom_data_end = atom_data_start + n_atoms
+        sites = [
+            Site(line.split()[0], np.array(line.split()[2:], dtype=float) * bohr_to_angstrom)  # type:ignore[arg-type]
+            for line in lines[atom_data_start:atom_data_end]
+        ]
 
-        line = file.readline().split()
-        num_z_voxels = int(line[0])
-        voxel_z = np.array([bohr_to_angstrom * float(val) for val in line[1:]])
-
-        # The last section in the header is one line for each atom consisting of 5 numbers,
-        # the first is the atom number, second is charge,
-        # the last three are the x,y,z coordinates of the atom center.
-        sites = []
-        for _ in range(n_atoms):
-            line = file.readline().split()
-            sites.append(Site(line[0], np.multiply(bohr_to_angstrom, list(map(float, line[2:])))))
-
+        # Generate a Pymatgen Structure object from extracted data
         structure = Structure(
-            lattice=[
-                voxel_x * num_x_voxels,
-                voxel_y * num_y_voxels,
-                voxel_z * num_z_voxels,
-            ],
-            species=[s.specie for s in sites],
-            coords=[s.coords for s in sites],
+            lattice=[voxel_x * num_x_voxels, voxel_y * num_y_voxels, voxel_z * num_z_voxels],
+            species=[site.specie for site in sites],
+            coords=[site.coords for site in sites],
             coords_are_cartesian=True,
         )
 
-        # Volumetric data
-        data = np.reshape(
-            np.array(file.read().split()).astype(float),
-            (num_x_voxels, num_y_voxels, num_z_voxels),
-        )
+        # Extract volumetric data (starts after atomic site data)
+        volumetric_data_start = atom_data_end
+        volumetric_data_lines = lines[volumetric_data_start:]
+
+        # Convert the text-based volumetric data into a NumPy array (much faster)
+        volumetric_data = np.fromstring(" ".join(volumetric_data_lines), sep=" ", dtype=float)  # type:ignore[arg-type, type-var]
+
+        # Reshape 1D data array into a 3D grid matching the voxel dimensions
+        data = volumetric_data.reshape((num_x_voxels, num_y_voxels, num_z_voxels))
+
         return cls(structure=structure, data={"total": data})
 
 
@@ -445,16 +457,16 @@ class PMGDir(collections.abc.Mapping):
 
     Example:
 
-    ```
-    d = PMGDir(".")
-    print(d["INCAR"]["NELM"])
-    print(d["vasprun.xml"].parameters)
+    ```python
+    pmg_dict = PMGDir(".")
+    print(pmg_dict["INCAR"]["NELM"])
+    print(pmg_dict["vasprun.xml"].parameters)
     ```
     """
 
-    FILE_MAPPINGS: typing.ClassVar = {
-        n: f"pymatgen.io.vasp.{n.capitalize()}"
-        for n in [
+    FILE_MAPPINGS: ClassVar[dict[str, str]] = {
+        name: f"pymatgen.io.vasp.{name.capitalize()}"
+        for name in (
             "INCAR",
             "POSCAR",
             "KPOINTS",
@@ -471,14 +483,14 @@ class PMGDir(collections.abc.Mapping):
             "PROCAR",
             "ELFCAR",
             "DYNMAT",
-        ]
+        )
     } | {
         "CONTCAR": "pymatgen.io.vasp.Poscar",
         "IBZKPT": "pymatgen.io.vasp.Kpoints",
         "WSWQ": "pymatgen.io.vasp.WSWQ",
     }
 
-    def __init__(self, dirname: str | Path):
+    def __init__(self, dirname: PathLike) -> None:
         """
         Args:
             dirname: The directory containing the VASP calculation as a string or Path.
@@ -486,26 +498,16 @@ class PMGDir(collections.abc.Mapping):
         self.path = Path(dirname).absolute()
         self.reset()
 
-    def reset(self):
-        """
-        Reset all loaded files and recheck the directory for files. Use this when the contents of the directory has
-        changed.
-        """
-        # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
-        self._files: dict[str, Any] = {
-            str((Path(d) / f).relative_to(self.path)): None for d, _, fnames in os.walk(self.path) for f in fnames
-        }
-
-    def __contains__(self, item):
+    def __contains__(self, item) -> bool:
         return item in self._files
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._files)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         return iter(self._files)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> Any:
         if self._files.get(item):
             return self._files.get(item)
         fpath = self.path / item
@@ -532,6 +534,19 @@ class PMGDir(collections.abc.Mapping):
         with zopen(fpath, mode="rt", encoding="utf-8") as f:
             return f.read()
 
+    def __repr__(self) -> str:
+        return f"PMGDir({self.path})"
+
+    def reset(self) -> None:
+        """
+        Reset all loaded files and recheck the directory for files. Use this when the contents of the directory has
+        changed.
+        """
+        # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
+        self._files: dict[str, Any] = {
+            str((Path(d) / f).relative_to(self.path)): None for d, _, fnames in os.walk(self.path) for f in fnames
+        }
+
     def get_files_by_name(self, name: str) -> dict[str, Any]:
         """
         Returns all files with a given name. E.g., if you want all the OUTCAR files, set name="OUTCAR".
@@ -540,6 +555,3 @@ class PMGDir(collections.abc.Mapping):
             {filename: object from PMGDir[filename]}
         """
         return {f: self[f] for f in self._files if name in f}
-
-    def __repr__(self):
-        return f"PMGDir({self.path})"

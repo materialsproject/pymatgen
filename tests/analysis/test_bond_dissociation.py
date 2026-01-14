@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import platform
-from unittest import TestCase
 
 import pytest
 from monty.serialization import loadfn
@@ -12,8 +11,8 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/bond_dissociation"
 
 
-class TestBondDissociation(TestCase):
-    def setUp(self):
+class TestBondDissociation:
+    def setup_method(self):
         pytest.importorskip("openbabel")
         self.PC_65_principle = loadfn(f"{TEST_DIR}/PC_65_principle.json")
         self.PC_65_principle["initial_molecule"] = self.PC_65_principle["initial_molecule"].as_dict()
@@ -536,13 +535,13 @@ class TestBondDissociation(TestCase):
         assert len(BDE.filtered_entries) == 16
         assert BDE.bond_dissociation_energies == self.TFSI_correct
 
-    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_pc_neutral_pcm_65(self):
         BDE = BondDissociationEnergies(self.PC_65_principle, self.PC_65_fragments)
         assert len(BDE.filtered_entries) == 36
         assert BDE.bond_dissociation_energies == self.PC_correct
 
-    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_ec_neg_pcm_40(self):
         BDE = BondDissociationEnergies(self.neg_EC_40_principle, self.neg_EC_40_fragments)
         assert len(BDE.filtered_entries) == 18

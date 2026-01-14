@@ -41,7 +41,7 @@ class XYZ:
             mol (Molecule | Structure): Input molecule or structure or list thereof.
             coord_precision: Precision to be used for coordinates.
         """
-        self._mols = cast(list[SiteCollection], [mol] if isinstance(mol, SiteCollection) else mol)
+        self._mols = cast("list[SiteCollection]", [mol] if isinstance(mol, SiteCollection) else mol)
         self.precision = coord_precision
 
     @property
@@ -112,7 +112,7 @@ class XYZ:
             XYZ object
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
     def as_dataframe(self):
         """Generate a coordinates data frame with columns: atom, x, y, and z
@@ -138,8 +138,7 @@ class XYZ:
         output = [str(len(frame_mol)), frame_mol.formula]
         prec = self.precision
         fmt = f"{{}} {{:.{prec}f}} {{:.{prec}f}} {{:.{prec}f}}"
-        for site in frame_mol:
-            output.append(fmt.format(site.specie, site.x, site.y, site.z))
+        output.extend(fmt.format(site.specie, site.x, site.y, site.z) for site in frame_mol)
         return "\n".join(output)
 
     def __str__(self):
@@ -152,4 +151,4 @@ class XYZ:
             filename (str): File name of output file.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]

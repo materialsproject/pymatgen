@@ -23,19 +23,17 @@ from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import Slab
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.typing import Tuple3Ints
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from typing import Any
 
-    from numpy.typing import ArrayLike, NDArray
+    from numpy.typing import NDArray
     from typing_extensions import Self
 
-    from pymatgen.core import Element
-    from pymatgen.util.typing import CompositionLike, Matrix3D, MillerIndex, Tuple3Floats, Vector3D
+    from pymatgen.core import Element, Species
+    from pymatgen.util.typing import CompositionLike
 
-Tuple4Ints = tuple[int, int, int, int]
 logger = logging.getLogger(__name__)
 
 
@@ -65,11 +63,11 @@ class GrainBoundary(Structure):
         self,
         lattice: np.ndarray | Lattice,
         species: Sequence[CompositionLike],
-        coords: Sequence[ArrayLike],
-        rotation_axis: Tuple3Ints | Tuple4Ints,
+        coords: Sequence[NDArray] | NDArray,
+        rotation_axis: tuple[int, ...],
         rotation_angle: float,
-        gb_plane: Tuple3Ints,
-        join_plane: Tuple3Ints,
+        gb_plane: tuple[int, int, int],
+        join_plane: tuple[int, int, int],
         init_cell: Structure,
         vacuum_thickness: float,
         ab_shift: tuple[float, float],
@@ -252,7 +250,7 @@ class GrainBoundary(Structure):
         return Structure.from_sites(bottom_sites)
 
     @property
-    def coincidents(self) -> list[Site]:
+    def coincidents(self) -> list[PeriodicSite]:
         """A list of coincident sites."""
         coincident_sites = []
         for idx, tag in enumerate(self.site_properties["grain_label"]):
@@ -390,14 +388,14 @@ class GrainBoundaryGenerator:
 
     def gb_from_parameters(
         self,
-        rotation_axis: Tuple3Ints,
+        rotation_axis: tuple[int, int, int],
         rotation_angle: float,
         expand_times: int = 4,
         vacuum_thickness: float = 0.0,
         ab_shift: tuple[float, float] = (0, 0),
         normal: bool = False,
         ratio: list[int] | None = None,
-        plane: Tuple3Ints | None = None,
+        plane: tuple[int, int, int] | None = None,
         max_search: int = 20,
         tol_coi: float = 1e-8,
         rm_ratio: float = 0.7,
@@ -522,17 +520,17 @@ class GrainBoundaryGenerator:
                 u = 2 * u1 + v1
                 v = 2 * v1 + u1
                 w = w1
-                _rotation_axis: Tuple3Ints | Tuple4Ints = (u, v, w)
+                _rotation_axis: tuple[int, int, int] | tuple[int, int, int, int] = (u, v, w)
             elif lat_type == "r":
                 u = 2 * u1 + v1 + w1
                 v = v1 + w1 - u1
                 w = w1 - 2 * v1 - u1
                 _rotation_axis = (u, v, w)
             else:
-                _rotation_axis = cast(Tuple4Ints, tuple(rotation_axis))
+                _rotation_axis = cast("tuple[int, int, int,int]", tuple(rotation_axis))
 
         elif len(rotation_axis) == 3:
-            _rotation_axis = cast(Tuple3Ints, tuple(rotation_axis))
+            _rotation_axis = cast("tuple[int, int, int]", tuple(rotation_axis))
 
         else:
             raise ValueError("Invalid length of rotation axis.")
@@ -547,7 +545,7 @@ class GrainBoundaryGenerator:
                 u1, v1, w1 = plane[0], plane[1], plane[3]
                 plane = (u1, v1, w1)
             elif len(plane) == 3:
-                plane = cast(Tuple3Ints, tuple(plane))
+                plane = cast("tuple[int, int, int]", tuple(plane))
 
         # Set the plane for grain boundary when plane is None
         if plane is None:
@@ -586,14 +584,14 @@ class GrainBoundaryGenerator:
                 _plane = np.matmul(_rotation_axis, metric)
                 fractions = [Fraction(x).limit_denominator() for x in _plane]
                 least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
-                _plane = cast(Tuple3Ints, tuple(round(x * least_mul) for x in _plane))
+                _plane = cast("tuple[int, int, int]", tuple(round(x * least_mul) for x in _plane))
 
         else:
             _plane = plane
 
         if reduce(math.gcd, _plane) != 1:
             index = reduce(math.gcd, _plane)
-            _plane = cast(Tuple3Ints, tuple(round(x / index) for x in _plane))
+            _plane = cast("tuple[int, int, int]", tuple(round(x / index) for x in _plane))
 
         t1, t2 = self.get_trans_mat(
             r_axis=_rotation_axis,
@@ -762,19 +760,20 @@ class GrainBoundaryGenerator:
         whole_lat = Lattice(whole_matrix_with_vac)
 
         # Construct the coords, move top grain with translation_v
-        all_coords = []
         grain_labels = bottom_grain.site_properties["grain_label"] + top_grain.site_properties["grain_label"]  # type: ignore[operator]
-        for site in bottom_grain:
-            all_coords.append(site.coords)
-        for site in top_grain:
-            all_coords.append(
+
+        all_coords = [site.coords for site in bottom_grain]
+        all_coords.extend(
+            [
                 site.coords
                 + half_lattice.matrix[2] * (1 + c_adjust)
                 + unit_ab_adjust * np.linalg.norm(half_lattice.matrix[2] * (1 + c_adjust))
                 + translation_v
                 + ab_shift[0] * whole_matrix_with_vac[0]
                 + ab_shift[1] * whole_matrix_with_vac[1]
-            )
+                for site in top_grain
+            ]
+        )
 
         gb_with_vac = Structure(
             whole_lat,
@@ -812,7 +811,7 @@ class GrainBoundaryGenerator:
             _rotation_axis,
             rotation_angle,
             _plane,
-            join_plane,
+            join_plane,  # type: ignore[arg-type]
             self.initial_structure,
             vacuum_thickness,
             ab_shift,
@@ -888,17 +887,17 @@ class GrainBoundaryGenerator:
 
         else:
             raise RuntimeError("Lattice type not implemented.")
-        return cast(list[int], ratio)
+        return cast("list[int]", ratio)
 
     @staticmethod
     def get_trans_mat(
-        r_axis: Tuple3Ints | Tuple4Ints,
+        r_axis: tuple[int, int, int] | tuple[int, int, int, int],
         angle: float,
         normal: bool = False,
         trans_cry: NDArray | None = None,
         lat_type: str = "c",
         ratio: list[int] | None = None,
-        surface: Tuple3Ints | Tuple4Ints | None = None,
+        surface: tuple[int, int, int] | tuple[int, int, int, int] | None = None,
         max_search: int = 20,
         quick_gen: bool = False,
     ):
@@ -971,7 +970,7 @@ class GrainBoundaryGenerator:
         # Make sure gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
             r_axis = cast(
-                Tuple3Ints | Tuple4Ints,
+                "tuple[int, int, int] | tuple[int, int, int,int]",
                 tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis),
             )
 
@@ -1021,19 +1020,19 @@ class GrainBoundaryGenerator:
                 fractions = [Fraction(x).limit_denominator() for x in surface]
                 least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
                 surface = cast(
-                    Tuple3Ints | Tuple4Ints,
+                    "tuple[int, int, int] | tuple[int, int, int,int]",
                     tuple(round(x * least_mul) for x in surface),
                 )
 
         if reduce(math.gcd, surface) != 1:
             index = reduce(math.gcd, surface)
-            surface = cast(Tuple3Ints | Tuple4Ints, tuple(round(x / index) for x in surface))
+            surface = cast("tuple[int, int, int] | tuple[int, int, int,int]", tuple(round(x / index) for x in surface))
 
         lam = None
         if lat_type == "h":
             # Set the values for u, v, w, mu, mv, m, n, d, x
             # Check the reference for the meaning of these parameters
-            u, v, w = cast(Tuple3Ints, r_axis)
+            u, v, w = cast("tuple[int, int, int]", r_axis)
             # Make sure mu, mv are coprime integers
             if ratio is None:
                 mu, mv = (1, 1)
@@ -1090,7 +1089,7 @@ class GrainBoundaryGenerator:
         elif lat_type == "r":
             # Set the values for u, v, w, mu, mv ,m, n, d
             # Check the reference for the meaning of these parameters
-            u, v, w = cast(Tuple3Ints, r_axis)
+            u, v, w = cast("tuple[int, int, int]", r_axis)
             # make sure mu, mv are coprime integers
             if ratio is None:
                 mu, mv = (1, 1)
@@ -1163,7 +1162,7 @@ class GrainBoundaryGenerator:
             r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
 
         else:
-            u, v, w = cast(Tuple3Ints, r_axis)
+            u, v, w = cast("tuple[int, int, int]", r_axis)
             mu = mv = None  # type: ignore[assignment]
             if lat_type == "c":
                 mu = lam = mv = 1
@@ -1201,7 +1200,7 @@ class GrainBoundaryGenerator:
                         if u != 0 and (w != 0 or (v != 0)):
                             raise RuntimeError("For irrational a2, CSL only exist for [1,0,0] or [0,v,w] and m = 0")
                 else:
-                    mu, lam, mv = cast(list[int], ratio)
+                    mu, lam, mv = cast("list[int]", ratio)
                     if u == 0 and v == 0:
                         mu = 1
                     if u == 0 and w == 0:
@@ -1218,7 +1217,7 @@ class GrainBoundaryGenerator:
                 raise ValueError("mv is None.")
 
             if reduce(math.gcd, [mu, lam, mv]) != 1:
-                temp = cast(int, reduce(math.gcd, [mu, lam, mv]))
+                temp = cast("int", reduce(math.gcd, [mu, lam, mv]))
                 mu = round(mu / temp)
                 mv = round(mv / temp)
                 lam = round(lam / temp)
@@ -1268,14 +1267,14 @@ class GrainBoundaryGenerator:
             raise ValueError("surface is None.")
         fractions = [Fraction(x).limit_denominator() for x in surface]
         least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
-        surface = cast(Tuple3Ints, tuple(round(x * least_mul) for x in surface))
+        surface = cast("tuple[int, int, int]", tuple(round(x * least_mul) for x in surface))
         if reduce(math.gcd, surface) != 1:
             index = reduce(math.gcd, surface)
-            surface = cast(Tuple3Ints, tuple(round(x / index) for x in surface))
+            surface = cast("tuple[int, int, int]", tuple(round(x / index) for x in surface))
         r_axis = np.rint(np.matmul(r_axis, np.linalg.inv(trans_cry))).astype(int)
         if reduce(math.gcd, r_axis) != 1:
             r_axis = cast(
-                Tuple3Ints,
+                "tuple[int, int, int]",
                 tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis),
             )
         r_matrix = np.dot(np.dot(np.linalg.inv(trans_cry.T), r_matrix), trans_cry.T)
@@ -1343,7 +1342,7 @@ class GrainBoundaryGenerator:
     @staticmethod
     def enum_sigma_cubic(
         cutoff: int,
-        r_axis: Tuple3Ints,
+        r_axis: tuple[int, int, int],
     ) -> dict[int, list[float]]:
         """Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in cubic system.
@@ -1366,7 +1365,7 @@ class GrainBoundaryGenerator:
         """
         # Make sure math.gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
-            r_axis = cast(Tuple3Ints, tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
+            r_axis = cast("tuple[int, int, int]", tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
 
         # Count the number of odds in r_axis
         odd_r = len(list(filter(lambda x: x % 2 == 1, r_axis)))
@@ -1416,7 +1415,7 @@ class GrainBoundaryGenerator:
     @staticmethod
     def enum_sigma_hex(
         cutoff: int,
-        r_axis: Tuple3Ints | Tuple4Ints,
+        r_axis: tuple[int, int, int] | tuple[int, int, int, int],
         c2_a2_ratio: tuple[int, int],
     ) -> dict[int, list[float]]:
         """Find all possible sigma values and corresponding rotation angles
@@ -1443,7 +1442,7 @@ class GrainBoundaryGenerator:
         # Make sure math.gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
             r_axis = cast(
-                Tuple3Ints | Tuple4Ints,
+                "tuple[int, int, int] | tuple[int, int, int,int]",
                 tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis),
             )
 
@@ -1532,7 +1531,7 @@ class GrainBoundaryGenerator:
     @staticmethod
     def enum_sigma_rho(
         cutoff: int,
-        r_axis: Tuple3Ints | Tuple4Ints,
+        r_axis: tuple[int, int, int] | tuple[int, int, int, int],
         ratio_alpha: tuple[int, int],
     ) -> dict[int, list[float]]:
         """Find all possible sigma values and corresponding rotation angles
@@ -1568,7 +1567,7 @@ class GrainBoundaryGenerator:
 
         # Make sure math.(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
-            r_axis = cast(Tuple3Ints, tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
+            r_axis = cast("tuple[int, int, int]", tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
         u, v, w = r_axis  # type: ignore[misc]
 
         # Make sure mu, mv are coprime integers
@@ -1661,7 +1660,7 @@ class GrainBoundaryGenerator:
     @staticmethod
     def enum_sigma_tet(
         cutoff: int,
-        r_axis: Tuple3Ints,
+        r_axis: tuple[int, int, int],
         c2_a2_ratio: tuple[int, int],
     ) -> dict[int, list[float]]:
         """Find all possible sigma values and corresponding rotation angles
@@ -1687,7 +1686,7 @@ class GrainBoundaryGenerator:
         """
         # Make sure math.gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
-            r_axis = cast(Tuple3Ints, tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
+            r_axis = cast("tuple[int, int, int]", tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
 
         u, v, w = r_axis
 
@@ -1763,8 +1762,8 @@ class GrainBoundaryGenerator:
     @staticmethod
     def enum_sigma_ort(
         cutoff: int,
-        r_axis: Tuple3Ints,
-        c2_b2_a2_ratio: Tuple3Floats,
+        r_axis: tuple[int, int, int],
+        c2_b2_a2_ratio: tuple[float, float, float],
     ) -> dict[int, list[float]]:
         """Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in orthorhombic system.
@@ -1792,7 +1791,7 @@ class GrainBoundaryGenerator:
         """
         # Make sure math.gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
-            r_axis = cast(Tuple3Ints, tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
+            r_axis = cast("tuple[int, int, int]", tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
 
         u, v, w = r_axis
 
@@ -1901,7 +1900,7 @@ class GrainBoundaryGenerator:
     @staticmethod
     def enum_possible_plane_cubic(
         plane_cutoff: int,
-        r_axis: Tuple3Ints,
+        r_axis: tuple[int, int, int],
         r_angle: float,
     ) -> dict[Literal["Twist", "Symmetric tilt", "Normal tilt", "Mixed"], list[list]]:
         """Find all possible plane combinations for GBs given a rotation axis and angle for
@@ -1923,7 +1922,7 @@ class GrainBoundaryGenerator:
             "Normal tilt": [],
             "Mixed": [],
         }
-        sym_plane = symm_group_cubic([[1, 0, 0], [1, 1, 0]])
+        sym_plane = symm_group_cubic(np.array([[1, 0, 0], [1, 1, 0]]))
         j = np.arange(0, plane_cutoff + 1)
         combination = []
         for idx in product(j, repeat=3):
@@ -1970,9 +1969,9 @@ class GrainBoundaryGenerator:
     @staticmethod
     def get_rotation_angle_from_sigma(
         sigma: int,
-        r_axis: Tuple3Ints | Tuple4Ints,
+        r_axis: tuple[int, int, int] | tuple[int, int, int, int],
         lat_type: str = "c",
-        ratio: tuple[int, int] | Tuple3Ints | None = None,
+        ratio: tuple[int, int] | tuple[int, int, int] | None = None,
     ) -> list[float]:
         """Find all possible rotation angles for the given sigma value.
 
@@ -2022,7 +2021,9 @@ class GrainBoundaryGenerator:
 
         if lat_type == "c":
             logger.info("Make sure this is for cubic system")
-            sigma_dict = GrainBoundaryGenerator.enum_sigma_cubic(cutoff=sigma, r_axis=cast(Tuple3Ints, r_axis))
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_cubic(
+                cutoff=sigma, r_axis=cast("tuple[int, int, int]", r_axis)
+            )
 
         elif lat_type == "t":
             logger.info("Make sure this is for tetragonal system")
@@ -2030,16 +2031,16 @@ class GrainBoundaryGenerator:
                 logger.info("Make sure this is for irrational c2/a2 ratio")
             sigma_dict = GrainBoundaryGenerator.enum_sigma_tet(
                 cutoff=sigma,
-                r_axis=cast(Tuple3Ints, r_axis),
-                c2_a2_ratio=cast(tuple[int, int], ratio),
+                r_axis=cast("tuple[int, int, int]", r_axis),
+                c2_a2_ratio=cast("tuple[int, int]", ratio),
             )
 
         elif lat_type == "o":
             logger.info("Make sure this is for orthorhombic system")
             sigma_dict = GrainBoundaryGenerator.enum_sigma_ort(
                 cutoff=sigma,
-                r_axis=cast(Tuple3Ints, r_axis),
-                c2_b2_a2_ratio=cast(Tuple3Ints, ratio),
+                r_axis=cast("tuple[int, int, int]", r_axis),
+                c2_b2_a2_ratio=cast("tuple[int, int, int]", ratio),
             )
 
         elif lat_type == "h":
@@ -2047,7 +2048,7 @@ class GrainBoundaryGenerator:
             if ratio is None:
                 logger.info("Make sure this is for irrational c2/a2 ratio")
             sigma_dict = GrainBoundaryGenerator.enum_sigma_hex(
-                cutoff=sigma, r_axis=r_axis, c2_a2_ratio=cast(tuple[int, int], ratio)
+                cutoff=sigma, r_axis=r_axis, c2_a2_ratio=cast("tuple[int, int]", ratio)
             )
 
         elif lat_type == "r":
@@ -2056,8 +2057,8 @@ class GrainBoundaryGenerator:
                 logger.info("Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio")
             sigma_dict = GrainBoundaryGenerator.enum_sigma_rho(
                 cutoff=sigma,
-                r_axis=cast(Tuple3Ints, r_axis),
-                ratio_alpha=cast(tuple[int, int], ratio),
+                r_axis=cast("tuple[int, int, int]", r_axis),
+                ratio_alpha=cast("tuple[int, int]", ratio),
             )
 
         else:
@@ -2082,12 +2083,12 @@ class GrainBoundaryGenerator:
     @staticmethod
     def slab_from_csl(
         csl: NDArray,
-        surface: Tuple3Ints,
+        surface: tuple[int, int, int],
         normal: bool,
         trans_cry: NDArray,
         max_search: int = 20,
         quick_gen: bool = False,
-    ) -> Matrix3D:
+    ) -> NDArray:
         """By linear operation of csl lattice vectors to get the best corresponding
         slab lattice. That is the area of a,b vectors (within the surface plane)
         is the smallest, the c vector first, has shortest length perpendicular
@@ -2159,14 +2160,14 @@ class GrainBoundaryGenerator:
         if len(miller_nonzero) > 1:
             t_matrix[2] = csl[c_index]
             index_len = len(miller_nonzero)
-            lcm_miller = []
+            lcm_miller = []  # type: ignore[assignment]
             for i in range(index_len):
                 for j in range(i + 1, index_len):
                     com_gcd = math.gcd(miller_nonzero[i], miller_nonzero[j])
                     mil1 = round(miller_nonzero[i] / com_gcd)
                     mil2 = round(miller_nonzero[j] / com_gcd)
                     lcm_miller.append(max(abs(mil1), abs(mil2)))
-            lcm_sorted = sorted(lcm_miller)
+            lcm_sorted = sorted(lcm_miller)  # type: ignore[call-overload]
             max_j = lcm_sorted[0] if index_len == 2 else lcm_sorted[1]
         else:
             if not normal:
@@ -2185,7 +2186,7 @@ class GrainBoundaryGenerator:
         # Check if the init c vector perpendicular to the surface
         if normal:
             c_cross = np.cross(np.matmul(t_matrix[2], trans), np.matmul(surface, ctrans))
-            normal_init = np.linalg.norm(c_cross) < 1e-8
+            normal_init = bool(np.linalg.norm(c_cross) < 1e-8)
         else:
             normal_init = False
 
@@ -2287,7 +2288,7 @@ class GrainBoundaryGenerator:
                     t_matrix[1] = ii[1]
 
                 elif area_temp < area or (
-                    math.isclose(area, area_temp, abs_tol=1e-8, rel_tol=0) and ab_norm_temp < ab_norm
+                    math.isclose(area, area_temp, abs_tol=1e-8, rel_tol=0) and ab_norm_temp < ab_norm  # type:ignore[call-overload]
                 ):
                     t_matrix[0] = ii[0]
                     t_matrix[1] = ii[1]
@@ -2340,11 +2341,11 @@ class GrainBoundaryGenerator:
         return mat
 
     @staticmethod
-    def vec_to_surface(vec: Vector3D) -> MillerIndex:
+    def vec_to_surface(vec: tuple[float, float, float]) -> tuple[int, ...]:
         """Transform a float vector to a surface miller index with integers.
 
         Args:
-            vec (Vector3D): input float vector
+            vec (tuple[float, float, float]): input float vector
 
         Returns:
             the surface miller index of the input vector.
@@ -2363,9 +2364,8 @@ class GrainBoundaryGenerator:
             min_index = np.argmin([i for i in vec if i != 0])
             true_index = index[min_index]
             index.pop(min_index)
-            frac = []
-            for value in index:
-                frac.append(Fraction(vec[value] / vec[true_index]).limit_denominator(100))
+            frac = [Fraction(vec[value] / vec[true_index]).limit_denominator(100) for value in index]
+
             if len(index) == 1:
                 miller[true_index] = frac[0].denominator
                 miller[index[0]] = frac[0].numerator
@@ -2374,7 +2374,7 @@ class GrainBoundaryGenerator:
                 miller[true_index] = com_lcm
                 miller[index[0]] = frac[0].numerator * round(com_lcm / frac[0].denominator)
                 miller[index[1]] = frac[1].numerator * round(com_lcm / frac[1].denominator)
-        return cast(Tuple3Ints, miller)
+        return cast("tuple[int, int, int]", miller)
 
 
 def fix_pbc(structure: Structure, matrix: NDArray = None) -> Structure:
@@ -2443,11 +2443,7 @@ def symm_group_cubic(mat: NDArray) -> list:
     sym_group[22, :] = [[0, 0, 1], [0, -1, 0], [1, 0, 0]]
     sym_group[23, :] = [[0, 0, 1], [0, 1, 0], [-1, 0, 0]]
 
-    mat = np.atleast_2d(mat)
-    all_vectors = []
-    for sym in sym_group:
-        for vec in mat:
-            all_vectors.append(np.dot(sym, vec))
+    all_vectors = [np.dot(sym, vec) for sym in sym_group for vec in np.atleast_2d(mat)]
     return np.unique(np.array(all_vectors), axis=0)
 
 
@@ -2576,7 +2572,7 @@ class Interface(Structure):
         return [i for i, tag in enumerate(self.site_properties["interface_label"]) if "substrate" in tag]
 
     @property
-    def substrate_sites(self) -> list[Site]:
+    def substrate_sites(self) -> list[PeriodicSite]:
         """The site objects in the substrate."""
         return [
             site for site, tag in zip(self, self.site_properties["interface_label"], strict=True) if "substrate" in tag
@@ -2593,7 +2589,7 @@ class Interface(Structure):
         return [i for i, tag in enumerate(self.site_properties["interface_label"]) if "film" in tag]
 
     @property
-    def film_sites(self) -> list[Site]:
+    def film_sites(self) -> list[PeriodicSite]:
         """The film sites of the interface."""
         return [site for site, tag in zip(self, self.site_properties["interface_label"], strict=True) if "film" in tag]
 
@@ -2816,7 +2812,7 @@ class Interface(Structure):
         min_height = np.abs(film_max_c - film_min_c) + np.abs(sub_max_c - sub_min_c)
 
         # Construct new lattice
-        abc = substrate_slab.lattice.abc[:2] + (min_height + gap + vacuum_over_film,)
+        abc = (*substrate_slab.lattice.abc[:2], min_height + gap + vacuum_over_film)
         angles = substrate_slab.lattice.angles
         lattice = Lattice.from_parameters(*abc, *angles)
 
@@ -2905,7 +2901,7 @@ def label_termination(slab: Structure, ftol: float = 0.25, t_idx: int | None = N
     z = linkage(condensed_m)
     clusters = fcluster(z, ftol, criterion="distance")
 
-    clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
+    clustered_sites: dict[int, list[PeriodicSite]] = {c: [] for c in clusters}
     for idx, cluster in enumerate(clusters):
         clustered_sites[cluster].append(slab[idx])
 
@@ -2923,7 +2919,7 @@ def label_termination(slab: Structure, ftol: float = 0.25, t_idx: int | None = N
     return f"{t_idx}_{form}_{sp_symbol}_{len(top_plane)}"
 
 
-def count_layers(struct: Structure, el: Element | None = None) -> int:
+def count_layers(struct: Structure, el: Element | Species | None = None) -> int:
     """Count the number of layers along the c-axis."""
     el = el or struct.elements[0]
     frac_coords = [site.frac_coords for site in struct if site.species_string == str(el)]

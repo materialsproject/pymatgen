@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import json
-from unittest import TestCase
-
+import orjson
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -15,28 +13,28 @@ from pymatgen.electronic_structure.cohp import (
     get_integrated_cohp_in_energy_range,
 )
 from pymatgen.electronic_structure.core import Orbital, Spin
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
 
-class TestCohp(TestCase):
-    def setUp(self):
-        with open(f"{TEST_DIR}/cohp.json", encoding="utf-8") as file:
-            self.cohp = Cohp.from_dict(json.load(file))
+class TestCohp:
+    def setup_method(self):
+        with open(f"{TEST_DIR}/cohp.json", "rb") as file:
+            self.cohp = Cohp.from_dict(orjson.loads(file.read()))
         self.cohp_only = Cohp(self.cohp.efermi, self.cohp.energies, self.cohp.cohp)
-        with open(f"{TEST_DIR}/coop.json", encoding="utf-8") as file:
-            self.coop = Cohp.from_dict(json.load(file))
-        with open(f"{TEST_DIR}/cobi.json", encoding="utf-8") as file:
-            self.cobi = Cohp.from_dict(json.load(file))
+        with open(f"{TEST_DIR}/coop.json", "rb") as file:
+            self.coop = Cohp.from_dict(orjson.loads(file.read()))
+        with open(f"{TEST_DIR}/cobi.json", "rb") as file:
+            self.cobi = Cohp.from_dict(orjson.loads(file.read()))
 
     def test_as_from_dict(self):
-        with open(f"{TEST_DIR}/cohp.json", encoding="utf-8") as file:
-            cohp_dict = json.load(file)
+        with open(f"{TEST_DIR}/cohp.json", "rb") as file:
+            cohp_dict = orjson.loads(file.read())
         assert self.cohp.as_dict() == cohp_dict
 
-        with open(f"{TEST_DIR}/cobi.json", encoding="utf-8") as file:
-            cobi_dict = json.load(file)
+        with open(f"{TEST_DIR}/cobi.json", "rb") as file:
+            cobi_dict = orjson.loads(file.read())
         assert self.cobi.as_dict() == cobi_dict
 
     def test_attributes(self):
@@ -90,8 +88,8 @@ class TestCohp(TestCase):
         assert self.cohp.has_antibnd_states_below_efermi(spin=Spin.up, limit=0.5) == {Spin.up: False}
 
 
-class TestIcohpValue(TestCase):
-    def setUp(self):
+class TestIcohpValue:
+    def setup_method(self):
         # without spin polarization
         label = "1"
         atom1 = "K1"
@@ -168,8 +166,8 @@ class TestIcohpValue(TestCase):
         assert str(self.icohpvalue_sp) == expected
 
 
-class TestCombinedIcohp(TestCase):
-    def setUp(self):
+class TestCombinedIcohp:
+    def setup_method(self):
         # without spin polarization:
         are_coops = are_cobis = is_spin_polarized = False
         list_atom2 = ["K2", "K2", "K2", "K2", "K2", "K2"]
@@ -237,29 +235,29 @@ class TestCombinedIcohp(TestCase):
                 "list_translation": [[0, 0, -1], [0, 0, 0]],
                 "list_num": [1, 1],
                 "list_icohp": [
-                    {Spin.up: 0.29324, Spin.down: 0.29324},
-                    {Spin.up: 0.29324, Spin.down: 0.29324},
+                    {"1": 0.29324, "-1": 0.29324},
+                    {"1": 0.29324, "-1": 0.29324},
                 ],
                 "is_spin_polarized": True,
                 "list_orb_icohp": [
                     {
                         "2s-6s": {
-                            "icohp": {Spin.up: 0.0247, Spin.down: 0.0247},
-                            "orbitals": [[2, Orbital.s], [6, Orbital.s]],
+                            "icohp": {"1": 0.0247, "-1": 0.0247},
+                            "orbitals": [[2, 0], [6, 0]],
                         },
                         "2s-5py": {
-                            "icohp": {Spin.up: 8e-05, Spin.down: 8e-05},
-                            "orbitals": [[2, Orbital.s], [5, Orbital.py]],
+                            "icohp": {"1": 8e-05, "-1": 8e-05},
+                            "orbitals": [[2, 0], [5, 1]],
                         },
                     },
                     {
                         "2s-6s": {
-                            "icohp": {Spin.up: 0.0247, Spin.down: 0.0247},
-                            "orbitals": [[2, Orbital.s], [6, Orbital.s]],
+                            "icohp": {"1": 0.0247, "-1": 0.0247},
+                            "orbitals": [[2, 0], [6, 0]],
                         },
                         "2s-5py": {
-                            "icohp": {Spin.up: 0.5, Spin.down: 0},
-                            "orbitals": [[2, Orbital.s], [5, Orbital.py]],
+                            "icohp": {"1": 0.5, "-1": 0},
+                            "orbitals": [[2, 0], [5, 1]],
                         },
                     },
                 ],
@@ -796,24 +794,24 @@ class TestCombinedIcohp(TestCase):
         )
 
 
-class TestCompleteCohp(PymatgenTest):
-    def setUp(self):
+class TestCompleteCohp(MatSciTest):
+    def setup_method(self):
         filepath = f"{TEST_DIR}/complete_cohp_lobster.json"
-        with open(filepath, encoding="utf-8") as file:
-            self.cohp_lobster_dict = CompleteCohp.from_dict(json.load(file))
+        with open(filepath, "rb") as file:
+            self.cohp_lobster_dict = CompleteCohp.from_dict(orjson.loads(file.read()))
         filepath = f"{TEST_DIR}/complete_coop_lobster.json"
-        with open(filepath, encoding="utf-8") as file:
-            self.coop_lobster_dict = CompleteCohp.from_dict(json.load(file))
+        with open(filepath, "rb") as file:
+            self.coop_lobster_dict = CompleteCohp.from_dict(orjson.loads(file.read()))
         filepath = f"{TEST_DIR}/complete_cohp_lmto.json"
-        with open(filepath, encoding="utf-8") as file:
-            self.cohp_lmto_dict = CompleteCohp.from_dict(json.load(file))
+        with open(filepath, "rb") as file:
+            self.cohp_lmto_dict = CompleteCohp.from_dict(orjson.loads(file.read()))
         filepath = f"{TEST_DIR}/complete_cohp_orbitalwise.json"
-        with open(filepath, encoding="utf-8") as file:
-            self.cohp_orb_dict = CompleteCohp.from_dict(json.load(file))
+        with open(filepath, "rb") as file:
+            self.cohp_orb_dict = CompleteCohp.from_dict(orjson.loads(file.read()))
         # Lobster 3.0
         filepath = f"{TEST_DIR}/complete_cohp_forb.json"
-        with open(filepath, encoding="utf-8") as file:
-            self.cohp_lobster_forb_dict = CompleteCohp.from_dict(json.load(file))
+        with open(filepath, "rb") as file:
+            self.cohp_lobster_forb_dict = CompleteCohp.from_dict(orjson.loads(file.read()))
 
             # Lobster 2.0
         filepath = f"{TEST_DIR}/COPL.BiSe"
@@ -914,8 +912,6 @@ class TestCompleteCohp(PymatgenTest):
             self.cobi_multi_B2H6_average2.get_cohp_by_label("average").cohp[Spin.up],
             strict=True,
         ):
-            print(cohp1)
-            print(cohp2)
             assert cohp1 == approx(cohp2, abs=1e-4)
 
         for cohp1, cohp2 in zip(
@@ -1263,8 +1259,8 @@ class TestCompleteCohp(PymatgenTest):
         ).are_coops
 
 
-class TestMethod(TestCase):
-    def setUp(self):
+class TestMethod:
+    def setup_method(self):
         filepath = f"{TEST_DIR}/COHPCAR.lobster.gz"
         structure = f"{TEST_DIR}/POSCAR"
         self.cohp_lobster = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)

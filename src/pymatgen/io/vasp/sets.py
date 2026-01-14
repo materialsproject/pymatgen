@@ -33,7 +33,6 @@ import itertools
 import os
 import re
 import warnings
-from collections.abc import Sequence
 from copy import deepcopy
 from dataclasses import dataclass, field
 from glob import glob
@@ -54,15 +53,15 @@ from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
-from pymatgen.util.typing import Kpoint
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
     from typing import Literal
 
     from typing_extensions import Self
 
-    from pymatgen.util.typing import PathLike, Tuple3Ints, Vector3D
+    from pymatgen.core.structure import IStructure
+    from pymatgen.util.typing import Kpoint, PathLike
 
     UserPotcarFunctional = (
         Literal[
@@ -182,10 +181,11 @@ class VaspInputSet(InputGenerator, abc.ABC):
             Curtarolo) for monoclinic. Defaults True.
         validate_magmom (bool): Ensure that the missing magmom values are filled in with
             the VASP default value of 1.0.
-        inherit_incar (bool): Whether to inherit INCAR settings from previous
+        inherit_incar (bool | list[str]): Whether to inherit INCAR settings from previous
             calculation. This might be useful to port Custodian fixes to child jobs but
             can also be dangerous e.g. when switching from GGA to meta-GGA or relax to
             static jobs. Defaults to True.
+            Can also be a list of strings to specify which parameters are inherited.
         auto_kspacing (bool): If true, determines the value of KSPACING from the bandgap
             of a previous calculation.
         auto_ismear (bool): If true, the values for ISMEAR and SIGMA will be set
@@ -197,7 +197,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             previous VASP directory.
         auto_ispin (bool) = False:
             If generating input set from a previous calculation, this controls whether
-            to disable magnetisation (ISPIN = 1) if the absolute value of all magnetic
+            to disable magnetization (ISPIN = 1) if the absolute value of all magnetic
             moments are less than 0.02.
         auto_lreal (bool) = False:
             If True, automatically use the VASP recommended LREAL based on cell size.
@@ -321,7 +321,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             self.structure = self.structure
 
         if isinstance(self.prev_incar, Path | str):
-            self.prev_incar = Incar.from_file(self.prev_incar)
+            self.prev_incar = Incar.from_file(self.prev_incar)  # type:ignore[assignment]
 
         if isinstance(self.prev_kpoints, Path | str):
             self.prev_kpoints = Kpoints.from_file(self.prev_kpoints)
@@ -427,7 +427,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 get_valid_magmom_struct(structure, spin_mode="auto")
 
             struct_has_Yb = any(specie.symbol == "Yb" for site in structure for specie in site.species)
-            potcar_settings = self._config_dict.get("POTCAR", {})
+            potcar_settings = self._config_dict.get("POTCAR", {}).copy()
             if self.user_potcar_settings:
                 potcar_settings.update(self.user_potcar_settings)
             uses_Yb_2_psp = potcar_settings.get("Yb", None) == "Yb_2"
@@ -488,13 +488,13 @@ class VaspInputSet(InputGenerator, abc.ABC):
         )
 
     @deprecated(get_input_set, deadline=(2026, 6, 6))
-    def get_vasp_input(self, structure: Structure | None = None) -> Self:
+    def get_vasp_input(self, *args, **kwargs) -> VaspInput:
         """Get a VaspInput object.
 
         Returns:
             VaspInput.
         """
-        return self.get_input_set(structure=structure)
+        return self.get_input_set(*args, **kwargs)
 
     @property
     def incar_updates(self) -> dict:
@@ -521,7 +521,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         vasprun, outcar = get_vasprun_outcar(prev_dir)
         self.prev_vasprun = vasprun
         self.prev_outcar = outcar
-        self.prev_incar = vasprun.incar
+        self.prev_incar = vasprun.incar  # type:ignore[assignment]
         self.prev_kpoints = Kpoints.from_dict(vasprun.kpoints.as_dict())
 
         if vasprun.efermi is None:
@@ -544,10 +544,10 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
         prev_incar: dict[str, Any] = {}
         if self.inherit_incar is True and self.prev_incar:
-            prev_incar = cast(dict[str, Any], self.prev_incar)
+            prev_incar = cast("dict[str, Any]", self.prev_incar)
         elif isinstance(self.inherit_incar, list | tuple) and self.prev_incar:
             prev_incar = {
-                k: cast(dict[str, Any], self.prev_incar)[k] for k in self.inherit_incar if k in self.prev_incar
+                k: cast("dict[str, Any]", self.prev_incar)[k] for k in self.inherit_incar if k in self.prev_incar
             }
 
         incar_updates = self.incar_updates
@@ -1645,7 +1645,7 @@ class MPStaticSet(VaspInputSet):
                 int(self.reciprocal_density * factor),
                 self.force_gamma,
             )
-            k_div = cast(Kpoint, tuple(kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]))
+            k_div = cast("Kpoint", tuple(kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]))
             return Kpoints.monkhorst_automatic(k_div)
 
         return {"reciprocal_density": self.reciprocal_density * factor}
@@ -1660,9 +1660,9 @@ class MatPESStaticSet(VaspInputSet):
     energies and also electronic structure (DOS). For PES data, force accuracy (and to some extent,
     stress accuracy) is of paramount importance.
 
-    The default POTCAR versions have been updated to PBE_54 from the old PBE set used in the
+    The default POTCAR versions have been updated to PBE_64 from the old PBE set used in the
     MPStaticSet. However, **U values** are still based on PBE. The implicit assumption here is that
-    the PBE_54 and PBE POTCARs are sufficiently similar that the U values fitted to the old PBE
+    the PBE_64 and PBE POTCARs are sufficiently similar that the U values fitted to the old PBE
     functional still applies.
 
     Args:
@@ -1862,7 +1862,7 @@ class MPHSEBSSet(VaspInputSet):
         **kwargs: Keywords supported by VaspInputSet.
     """
 
-    added_kpoints: list[Vector3D] = field(default_factory=list)
+    added_kpoints: list[tuple[float, float, float]] = field(default_factory=list)
     mode: str = "gap"
     reciprocal_density: float = 50
     copy_chgcar: bool = True
@@ -2097,13 +2097,13 @@ class MPSOCSet(VaspInputSet):
         **kwargs: Keywords supported by VaspInputSet.
     """
 
-    saxis: Tuple3Ints = (0, 0, 1)
+    saxis: tuple[int, int, int] = (0, 0, 1)
     nbands_factor: float = 1.2
     lepsilon: bool = False
     lcalcpol: bool = False
     reciprocal_density: float = 100
     small_gap_multiply: tuple[float, float] | None = None
-    magmom: list[Vector3D] | None = None
+    magmom: list[tuple[float, float, float]] | None = None
     inherit_incar: bool = True
     copy_chgcar: bool = True
     CONFIG = MPRelaxSet.CONFIG
@@ -2410,6 +2410,11 @@ class MVLGWSet(VaspInputSet):
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
+"""
+Parameters for MVLSlabSet class set were updated in March 2025 to match the MPSurfaceSet in atomate1
+"""
+
+
 @dataclass
 class MVLSlabSet(VaspInputSet):
     """Write a set of slab VASP runs, including both slabs (along the c direction)
@@ -2435,21 +2440,49 @@ class MVLSlabSet(VaspInputSet):
     @property
     def incar_updates(self) -> dict[str, Any]:
         """Updates to the INCAR config for this calculation type."""
+
+        """Determine LDAU based on slab chemistry without adsorbates"""
+
+        # Define elements that require LDA+U
+        ldau_elts = {"O", "F"}
+
+        # Initialize non_adsorbate_elts as an empty set
+        non_adsorbate_elts = set()
+
+        # Check if self.structure is not None
+        if self.structure is not None:
+            # Determine non-adsorbate elements
+            if self.structure.site_properties and self.structure.site_properties.get("surface_properties"):
+                non_adsorbate_elts = {
+                    s.specie.symbol for s in self.structure if s.properties["surface_properties"] != "adsorbate"
+                }
+            else:
+                non_adsorbate_elts = {s.specie.symbol for s in self.structure}
+
+        # Determine if LDA+U should be applied
+        ldau = bool(non_adsorbate_elts & ldau_elts)
+
         updates = {
-            "EDIFF": 1e-4,
-            "EDIFFG": -0.02,
+            "EDIFF": 1e-5,
+            "EDIFFG": -0.05,
+            "ENAUG": 4000,
+            "IBRION": 1,
+            "POTIM": 1.0,
+            "LDAU": ldau,
             "ENCUT": 400,
             "ISMEAR": 0,
             "SIGMA": 0.05,
             "ISIF": 3,
+            "ISYM": 0,
         }
+
         if not self.bulk:
             updates |= {"ISIF": 2, "LVTOT": True, "NELMIN": 8}
             if self.set_mix:
                 updates |= {"AMIN": 0.01, "AMIX": 0.2, "BMIX": 0.001}
             if self.auto_dipole and self.structure is not None:
                 weights = [struct.species.weight for struct in self.structure]
-                center_of_mass = np.average(self.structure.frac_coords, weights=weights, axis=0)
+                center_of_mass = np.average(self.structure.frac_coords, weights=weights, axis=0).tolist()
                 updates |= {"IDIPOL": 3, "LDIPOL": True, "DIPOL": center_of_mass}
         return updates
 
@@ -2482,7 +2515,7 @@ class MVLSlabSet(VaspInputSet):
         return Kpoints(
             comment="Generated by pymatgen's MVLGBSet",
             style=Kpoints.supported_modes.Gamma,
-            kpts=[cast(Kpoint, tuple(kpt_calc))],
+            kpts=[cast("Kpoint", tuple(kpt_calc))],
         )
 
     def as_dict(self, verbosity: int = 2) -> dict[str, Any]:
@@ -2542,7 +2575,7 @@ class MVLGBSet(VaspInputSet):
         return Kpoints(
             comment="Generated by pymatgen's MVLGBSet",
             style=Kpoints.supported_modes.Gamma,
-            kpts=[cast(Kpoint, tuple(kpt_calc))],
+            kpts=[cast("Kpoint", tuple(kpt_calc))],
         )
 
     @property
@@ -3216,7 +3249,7 @@ def get_structure_from_prev_run(vasprun: Vasprun, outcar: Outcar | None = None) 
 
 
 def standardize_structure(
-    structure: Structure,
+    structure: Structure | IStructure,
     sym_prec: float = 0.1,
     international_monoclinic: bool = True,
 ) -> Structure:
@@ -3325,10 +3358,10 @@ _dummy_structure = Structure(
 
 
 def get_valid_magmom_struct(
-    structure: Structure,
+    structure: Structure | IStructure,
     inplace: bool = True,
     spin_mode: str = "auto",
-) -> Structure:
+) -> IStructure | Structure:
     """
     Make sure that the structure has valid magmoms based on the kind of calculation.
 
@@ -3418,7 +3451,7 @@ class MPAbsorptionSet(VaspInputSet):
     copy_wavecar: bool = True
     nbands_factor: float = 2
     reciprocal_density: float = 400
-    nkred: Tuple3Ints | None = None
+    nkred: tuple[int, int, int] | None = None
     nedos: int = 2001
     inherit_incar: bool = True
     force_gamma: bool = True
@@ -3485,7 +3518,7 @@ class MPAbsorptionSet(VaspInputSet):
             # for cubic lattices, but using NKREDX, NKREDY, NKREDZ are more sensible for
             # other lattices.
             self.nkred = (
-                cast(tuple[int, int, int], self.prev_vasprun.kpoints.kpts[0]) if self.nkred is None else self.nkred
+                cast("tuple[int, int, int]", self.prev_vasprun.kpoints.kpts[0]) if self.nkred is None else self.nkred
             )
             updates |= {
                 "NKREDX": self.nkred[0],
@@ -3497,7 +3530,7 @@ class MPAbsorptionSet(VaspInputSet):
 
 
 def _get_ispin(vasprun: Vasprun | None, outcar: Outcar | None) -> Literal[1, 2]:
-    """Get value of ISPIN depending on the magnetisation in the OUTCAR and vasprun."""
+    """Get value of ISPIN depending on the magnetization in the OUTCAR and vasprun."""
     if outcar is not None and outcar.magnetization is not None:
         # Turn off spin when magmom for every site is smaller than 0.02.
         site_magmom = np.array([i["tot"] for i in outcar.magnetization])
@@ -3532,13 +3565,13 @@ def _combine_kpoints(*kpoints_objects: Kpoints | None) -> Kpoints:
 
     labels = np.concatenate(_labels).tolist()
     kpoints = np.concatenate(_kpoints).tolist()
-    weights = np.concatenate(_weights).tolist()
+    weights = np.concatenate(_weights).tolist()  # type:ignore[arg-type]
 
     return Kpoints(
         comment="Combined k-points",
         style=Kpoints.supported_modes.Reciprocal,
         num_kpts=len(kpoints),
-        kpts=cast(Sequence[Kpoint], kpoints),
+        kpts=cast("Sequence[Kpoint]", kpoints),
         labels=labels,
         kpts_weights=weights,
     )

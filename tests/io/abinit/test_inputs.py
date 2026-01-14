@@ -19,7 +19,7 @@ from pymatgen.io.abinit.inputs import (
     ion_ioncell_relax_input,
     num_valence_electrons,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 
@@ -34,7 +34,7 @@ def abiref_files(*filenames):
     return [f"{TEST_DIR}/{file}" for file in filenames]
 
 
-class TestAbinitInput(PymatgenTest):
+class TestAbinitInput(MatSciTest):
     """Unit tests for BasicAbinitInput."""
 
     def test_api(self):
@@ -91,9 +91,8 @@ class TestAbinitInput(PymatgenTest):
         with pytest.raises(TypeError, match="type dict does not have `to_abivars` method"):
             inp.add_abiobjects({})
 
-        with pytest.raises(KeyError) as exc:
+        with pytest.raises(KeyError, match="key='foo' not in self"):
             inp.remove_vars("foo", strict=True)
-        assert "key='foo' not in self:" in str(exc.value)
         assert not inp.remove_vars("foo", strict=False)
 
         # Test deepcopy and remove_vars.
@@ -169,7 +168,7 @@ class TestAbinitInput(PymatgenTest):
         assert len(inp["kptbounds"]) == 12
 
 
-class TestMultiDataset(PymatgenTest):
+class TestMultiDataset(MatSciTest):
     """Unit tests for BasicMultiDataset."""
 
     def test_api(self):
@@ -252,7 +251,7 @@ class TestMultiDataset(PymatgenTest):
         self.serialize_with_pickle(multi, test_eq=False)
 
 
-class TestShiftMode(PymatgenTest):
+class TestShiftMode(MatSciTest):
     def test_shiftmode(self):
         gamma = ShiftMode.GammaCentered
         assert ShiftMode.from_object("G") == gamma
@@ -261,8 +260,8 @@ class TestShiftMode(PymatgenTest):
             ShiftMode.from_object({})
 
 
-class TestFactory(PymatgenTest):
-    def setUp(self):
+class TestFactory(MatSciTest):
+    def setup_method(self):
         # Si ebands
         self.si_structure = Structure.from_file(abiref_file("si.cif"))
         self.si_pseudo = abiref_file("14si.pspnc")

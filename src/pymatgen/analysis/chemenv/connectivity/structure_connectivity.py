@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import collections
+import collections.abc
 import logging
 from typing import TYPE_CHECKING
 
@@ -24,6 +25,8 @@ __version__ = "1.0"
 __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "June 25, 2019"
+
+logger = logging.getLogger(__name__)
 
 
 def get_delta_image(isite1, isite2, data1, data2):
@@ -149,7 +152,7 @@ class StructureConnectivity(MSONable):
             environments_symbols: Symbols of the environments for the environment subgraph.
             only_atoms: Atoms to be considered.
         """
-        logging.info(f"Setup of environment subgraph for environments {', '.join(environments_symbols)}")
+        logger.info(f"Setup of environment subgraph for environments {', '.join(environments_symbols)}")
         if not isinstance(environments_symbols, collections.abc.Iterable):
             environments_symbols = [environments_symbols]
         environments_symbols = sorted(environments_symbols)

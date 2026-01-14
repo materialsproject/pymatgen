@@ -43,7 +43,6 @@ if TYPE_CHECKING:
 
     from pymatgen.analysis.local_env import NearNeighbors
     from pymatgen.core import Species
-    from pymatgen.util.typing import Tuple3Ints
 
 
 logger = logging.getLogger(__name__)
@@ -59,7 +58,7 @@ __date__ = "August 2017"
 
 class ConnectedSite(NamedTuple):
     site: PeriodicSite
-    jimage: Tuple3Ints
+    jimage: tuple[int, int, int]
     index: Any  # TODO: use more specific type
     weight: float
     dist: float
@@ -334,8 +333,8 @@ class StructureGraph(MSONable):
         self,
         from_index: int,
         to_index: int,
-        from_jimage: Tuple3Ints = (0, 0, 0),
-        to_jimage: Tuple3Ints | None = None,
+        from_jimage: tuple[int, int, int] = (0, 0, 0),
+        to_jimage: tuple[int, int, int] | None = None,
         weight: float | None = None,
         warn_duplicates: bool = True,
         edge_properties: dict | None = None,
@@ -389,12 +388,12 @@ class StructureGraph(MSONable):
                 # this will happen when from_index == to_index,
                 # typically in primitive single-atom lattices
                 images = [1, 0, 0], [0, 1, 0], [0, 0, 1]
-                dists = []
-                for image in images:
-                    dists.append(
+                dist = min(
+                    [
                         self.structure[from_index].distance_and_image(self.structure[from_index], jimage=image)[0]
-                    )
-                dist = min(dists)
+                        for image in images
+                    ]
+                )
             equiv_sites = self.structure.get_neighbors_in_shell(
                 self.structure[from_index].coords, dist, dist * 0.01, include_index=True
             )
@@ -755,7 +754,7 @@ class StructureGraph(MSONable):
                         warn_duplicates=False,
                     )
 
-    def get_connected_sites(self, n: int, jimage: Tuple3Ints = (0, 0, 0)) -> list[ConnectedSite]:
+    def get_connected_sites(self, n: int, jimage: tuple[int, int, int] = (0, 0, 0)) -> list[ConnectedSite]:
         """Get a named tuple of neighbors of site n:
         periodic_site, jimage, index, weight.
         Index is the index of the corresponding site
@@ -790,7 +789,7 @@ class StructureGraph(MSONable):
 
             # from_site if jimage arg != (0, 0, 0)
             relative_jimage = np.subtract(to_jimage, jimage)
-            u_site = cast(PeriodicSite, self.structure[u])  # tell mypy that u_site is a PeriodicSite
+            u_site = cast("PeriodicSite", self.structure[u])  # tell mypy that u_site is a PeriodicSite
             dist = u_site.distance(self.structure[v], jimage=relative_jimage)
 
             weight = data.get("weight")
@@ -1754,10 +1753,7 @@ class MoleculeGraph(MSONable):
                     warn_duplicates=False,
                 )
 
-        duplicates = []
-        for edge in mg.graph.edges:
-            if edge[2] != 0:
-                duplicates.append(edge)
+        duplicates = [edge for edge in mg.graph.edges if edge[2] != 0]
 
         for duplicate in duplicates:
             mg.graph.remove_edge(duplicate[0], duplicate[1], key=duplicate[2])
@@ -2127,9 +2123,7 @@ class MoleculeGraph(MSONable):
         frag_dict = {}
         for ii in range(1, len(self.molecule)):
             for combination in combinations(graph.nodes, ii):
-                comp = []
-                for idx in combination:
-                    comp.append(str(self.molecule[idx].specie))
+                comp = [str(self.molecule[idx].specie) for idx in combination]
                 comp = "".join(sorted(comp))
                 subgraph = nx.subgraph(graph, combination)
                 if nx.is_connected(subgraph):

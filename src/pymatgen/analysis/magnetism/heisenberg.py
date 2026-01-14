@@ -32,6 +32,8 @@ __email__ = "ncfrey@lbl.gov"
 __status__ = "Development"
 __date__ = "June 2019"
 
+logger = logging.getLogger(__name__)
+
 
 class HeisenbergMapper:
     """Compute exchange parameters from low energy magnetic orderings.
@@ -475,7 +477,7 @@ class HeisenbergMapper:
 
         # If m_avg for FM config is < 1 we won't get sensible results.
         if m_avg < 1:
-            logging.warning(
+            logger.warning(
                 "Local magnetic moments are small (< 1 muB / atom). The exchange parameters may "
                 "be wrong, but <J> and the mean field critical temperature estimate may be OK."
             )
@@ -522,7 +524,7 @@ class HeisenbergMapper:
             mft_t = max(eigen_vals)
 
         if mft_t > 1500:  # Not sensible!
-            logging.warning(
+            logger.warning(
                 "This mean field estimate is too high! Probably the true low energy orderings were not given as inputs."
             )
 
@@ -550,7 +552,7 @@ class HeisenbergMapper:
                 Only <J> is available. The interaction graph will not tell
                 you much.
                 """
-            logging.warning(warning_msg)
+            logger.warning(warning_msg)
 
         # J_ij exchange interaction matrix
         for idx in range(len(sgraph.graph.nodes)):
@@ -905,12 +907,8 @@ class HeisenbergModel(MSONable):
             wyckoff_ids[literal_eval(k)] = v
 
         # Reconstitute the structure and graph objects
-        structures = []
-        sgraphs = []
-        for v in dct["structures"]:
-            structures.append(Structure.from_dict(v))
-        for v in dct["sgraphs"]:
-            sgraphs.append(StructureGraph.from_dict(v))
+        structures = [Structure.from_dict(v) for v in dct["structures"]]
+        sgraphs = [StructureGraph.from_dict(v) for v in dct["sgraphs"]]
 
         # Interaction graph
         igraph = StructureGraph.from_dict(dct["igraph"])

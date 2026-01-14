@@ -13,11 +13,11 @@ from pytest import approx
 
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.core.composition import ChemicalPotential, CompositionError, reduce_formula
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestComposition(PymatgenTest):
-    def setUp(self):
+class TestComposition(MatSciTest):
+    def setup_method(self):
         self.comps = [
             Composition("Li3Fe2(PO4)3"),
             Composition("Li3Fe(PO4)O"),
@@ -41,15 +41,11 @@ class TestComposition(PymatgenTest):
         ]
 
     def test_immutable(self):
-        with pytest.raises(TypeError) as exc:
+        with pytest.raises(TypeError, match="does not support item assignment"):
             self.comps[0]["Fe"] = 1
 
-        assert "'Composition' object does not support item assignment" in str(exc.value)
-
-        with pytest.raises(TypeError) as exc:
+        with pytest.raises(TypeError, match="does not support item deletion"):
             del self.comps[0]["Fe"]
-
-        assert "'Composition' object does not support item deletion" in str(exc.value)
 
     def test_in(self):
         # test the Composition.__contains__ magic method
@@ -401,6 +397,7 @@ class TestComposition(PymatgenTest):
         }
         for el, expected in correct_wt_frac.items():
             assert self.comps[0].get_wt_fraction(el) == approx(expected), "Wrong computed weight fraction"
+            assert type(self.comps[0].get_wt_fraction(el)) is float
         assert self.comps[0].get_wt_fraction(Element("S")) == 0, "Wrong computed weight fractions"
 
     def test_from_dict(self):
@@ -427,7 +424,7 @@ class TestComposition(PymatgenTest):
 
     def test_to_from_weight_dict(self):
         for comp in self.comps:
-            c2 = Composition().from_weight_dict(comp.to_weight_dict)
+            c2 = Composition().from_weight_dict(comp.as_weight_dict())
             comp.almost_equals(c2)
 
     def test_composition_from_weights(self):
@@ -473,7 +470,7 @@ class TestComposition(PymatgenTest):
         assert dct["Fe"] == correct_dict["Fe"]
         assert dct["O"] == correct_dict["O"]
         correct_dict = {"Fe": 2.0, "O": 3.0}
-        dct = comp.to_reduced_dict
+        dct = comp.as_reduced_dict()
         assert isinstance(dct, dict)
         assert dct["Fe"] == correct_dict["Fe"]
         assert dct["O"] == correct_dict["O"]
@@ -481,11 +478,11 @@ class TestComposition(PymatgenTest):
     def test_pickle(self):
         for comp in self.comps:
             self.serialize_with_pickle(comp)
-            self.serialize_with_pickle(comp.to_data_dict)
+            self.serialize_with_pickle(comp.as_data_dict())
 
-    def test_to_data_dict(self):
+    def test_as_data_dict(self):
         comp = Composition("Fe0.00009Ni0.99991")
-        dct = comp.to_data_dict
+        dct = comp.as_data_dict()
         assert dct["reduced_cell_composition"]["Fe"] == approx(9e-5)
 
     def test_add(self):
@@ -537,7 +534,7 @@ class TestComposition(PymatgenTest):
         assert hash(comp1) == hash(comp2), "Hash equality test failed!"
 
         c1, c2 = self.comps[:2]
-        assert c1 == c1
+        assert c1 == c1  # noqa: PLR0124
         assert c1 != c2
 
     def test_hash_robustness(self):
@@ -871,6 +868,26 @@ class TestComposition(PymatgenTest):
             "{[(Fe0.6Co0.4)0.75B0.2Si0.05]0.96Nb0.04}96Cr4": "Nb3.84 Cr4 Fe41.472 Co27.648 Si4.608 B18.432",
         }.items():
             assert Composition(formula).formula == expected
+
+    def test_formula_order(self):
+        ref_vals = {
+            "formula": "Zn2 C2 Br2 Ar2 Ne2",
+            "reduced_formula": "ZnCBrArNe",
+        }
+        assert all(
+            all(getattr(Composition(dict.fromkeys(ele_order, 2)), k) == v for k, v in ref_vals.items())
+            for ele_order in [
+                ("Br", "Ar", "Zn", "C", "Ne"),
+                (
+                    "Ne",
+                    "Br",
+                    "Ar",
+                    "Zn",
+                    "C",
+                ),
+                ("Ar", "Br", "Ne", "C", "Zn"),
+            ]
+        )
 
 
 def test_reduce_formula():

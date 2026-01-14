@@ -445,6 +445,12 @@ class BztInterpolator:
             bands_loaded = self.load(fname)
         else:
             self.equivalences = sphere.get_equivalences(self.data.atoms, self.data.magmom, num_kpts * lpfac)
+            warnings.filterwarnings(
+                "ignore",
+                category=RuntimeWarning,
+                module=r"BoltzTraP2\.fite",
+                message=r".*(divide by zero|invalid value|overflow) encountered in matmul.*",
+            )
             self.coeffs = fite.fitde3D(self.data, self.equivalences)
 
         if not bands_loaded:
@@ -991,7 +997,7 @@ class BztPlotter:
         temps: list[float] | None = None,
         xlim: tuple[float, float] = (-2, 2),
         ax: plt.Axes | None = None,
-    ) -> plt.Axes | plt.Figure:
+    ) -> plt.Axes | plt.Figure | None:
         """Plot the transport properties.
 
         Args:

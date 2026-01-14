@@ -753,7 +753,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             pseudo_dir = os.path.abspath(pseudo_dir)
             if not os.path.isdir(pseudo_dir):
                 raise self.Error(f"Directory {pseudo_dir} does not exist")
-            pseudos = [os.path.join(pseudo_dir, p) for p in pseudos]
+            pseudos = [os.path.join(pseudo_dir, p) for p in pseudos]  # type:ignore[arg-type]
 
         try:
             self._pseudos = PseudoTable.as_table(pseudos).get_pseudos_for_structure(self.structure)

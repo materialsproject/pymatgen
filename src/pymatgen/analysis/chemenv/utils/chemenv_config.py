@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import json
-from os import makedirs
-from os.path import exists, expanduser
+import os
 from typing import TYPE_CHECKING
+
+import orjson
 
 from pymatgen.analysis.chemenv.utils.scripts_utils import strategies_class_lookup
 from pymatgen.core import SETTINGS
@@ -142,19 +142,19 @@ class ChemEnvConfig:
             root_dir:
         """
         if root_dir is None:
-            home = expanduser("~")
+            home = os.expanduser("~")
             root_dir = f"{home}/.chemenv"
-        if not exists(root_dir):
-            makedirs(root_dir)
+        if not os.path.exists(root_dir):
+            os.makedirs(root_dir)
         config_dict = {"package_options": self.package_options}
         config_file = f"{root_dir}/config.json"
-        if exists(config_file):
+        if os.path.exists(config_file):
             test = input("Overwrite existing configuration ? (<Y> + <ENTER> to confirm)")
             if test != "Y":
                 print("Configuration not saved")
                 return config_file
-        with open(config_file, mode="w", encoding="utf-8") as file:
-            json.dump(config_dict, file)
+        with open(config_file, "wb") as file:
+            file.write(orjson.dumps(config_dict))
         print("Configuration saved")
         return config_file
 
@@ -167,12 +167,12 @@ class ChemEnvConfig:
             root_dir:
         """
         if root_dir is None:
-            home = expanduser("~")
+            home = os.expanduser("~")
             root_dir = f"{home}/.chemenv"
         config_file = f"{root_dir}/config.json"
         try:
-            with open(config_file, encoding="utf-8") as file:
-                config_dict = json.load(file)
+            with open(config_file, "rb") as file:
+                config_dict = orjson.loads(file.read())
             return ChemEnvConfig(package_options=config_dict["package_options"])
 
         except OSError:

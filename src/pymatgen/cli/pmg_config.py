@@ -17,6 +17,7 @@ from monty.serialization import dumpfn, loadfn
 from pymatgen.core import OLD_SETTINGS_FILE, SETTINGS_FILE, Element
 from pymatgen.io.cp2k.inputs import GaussianTypeOrbitalBasisSet, GthPotential
 from pymatgen.io.cp2k.utils import chunk
+from pymatgen.io.vasp.inputs import POTCAR_FUNCTIONAL_MAP
 
 if TYPE_CHECKING:
     from argparse import Namespace
@@ -25,18 +26,20 @@ if TYPE_CHECKING:
 
 def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
     """Setup CP2K basis and potential data directory."""
-    # this function used to use ruamel.yaml which underwent breaking changes. was easier to
-    # migrate to PyYAML than fix
-    import yaml  # type: ignore[import]
+    # this function used to use `ruamel.yaml` which underwent breaking changes,
+    # was easier to migrate to PyYAML than fix
+    # TODO: `yaml` is not declared in dependencies
+    import yaml  # type: ignore[import-untyped]
 
     data_dir, target_dir = (os.path.abspath(dirc) for dirc in cp2k_data_dirs)
-    try:
-        os.mkdir(target_dir)
-    except OSError:
+    if os.path.isdir(target_dir):
         reply = input("Destination directory exists. Continue (y/n)?")
         if reply != "y":
             raise SystemExit("Exiting ...")
-    print("Generating pymatgen resource directory for CP2K...")
+
+    else:
+        os.mkdir(target_dir)
+        print("Generating pymatgen resource directory for CP2K...")
 
     basis_files = glob(f"{data_dir}/*BASIS*")
     potential_files = glob(f"{data_dir}/*POTENTIAL*")
@@ -105,33 +108,41 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
     print("\n Start a new terminal to ensure that your environment variables are properly set.")
 
 
-def setup_potcars(potcar_dirs: list[str]):
+def setup_potcars(potcar_dirs: list[str]) -> None:
     """Setup POTCAR directories."""
     psp_dir, target_dir = (os.path.abspath(d) for d in potcar_dirs)
-    try:
-        os.makedirs(target_dir)
-    except OSError:
+    if os.path.isdir(target_dir):
         reply = input("Destination directory exists. Continue (y/n)? ")
         if reply != "y":
             raise SystemExit("Exiting ...")
 
-    print("Generating pymatgen resources directory...")
+    else:
+        os.makedirs(target_dir)
+        print("Generating pymatgen resources directory...")
 
+    # name_mappings ensures consistency with the POTCAR directory structure
+    # expected by pymatgen.io.vasp.inputs.PotcarSingle
     name_mappings = {
-        "potpaw_PBE": "POT_GGA_PAW_PBE",
-        "potpaw_PBE_52": "POT_GGA_PAW_PBE_52",
-        "potpaw_PBE_54": "POT_GGA_PAW_PBE_54",
-        "potpaw_PBE.52": "POT_GGA_PAW_PBE_52",
-        "potpaw_PBE.54": "POT_GGA_PAW_PBE_54",
-        "potpaw_PBE.64": "POT_GGA_PAW_PBE_64",
-        "potpaw_LDA": "POT_LDA_PAW",
-        "potpaw_LDA.52": "POT_LDA_PAW_52",
-        "potpaw_LDA.54": "POT_LDA_PAW_54",
-        "potpaw_LDA_52": "POT_LDA_PAW_52",
-        "potpaw_LDA_54": "POT_LDA_PAW_54",
-        "potUSPP_LDA": "POT_LDA_US",
-        "potpaw_GGA": "POT_GGA_PAW_PW91",
-        "potUSPP_GGA": "POT_GGA_US_PW91",
+        k: POTCAR_FUNCTIONAL_MAP[v]
+        for k, v in {
+            "potpaw_PBE": "PBE",
+            "potpaw_PBE_52": "PBE_52",
+            "potpaw_PBE.52": "PBE_52",
+            "potpaw_PBE_54": "PBE_54",
+            "potpaw_PBE.54": "PBE_54",
+            "potpaw_PBE_64": "PBE_64",
+            "potpaw_PBE.64": "PBE_64",
+            "potpaw_LDA": "LDA",
+            "potpaw_LDA.52": "LDA_52",
+            "potpaw_LDA_52": "LDA_52",
+            "potpaw_LDA.54": "LDA_54",
+            "potpaw_LDA_54": "LDA_54",
+            "potpaw_LDA_64": "LDA_64",
+            "potpaw_LDA.64": "LDA_64",
+            "potpaw_GGA": "PW91",
+            "potUSPP_LDA": "LDA_US",
+            "potUSPP_GGA": "PW91_US",
+        }.items()
     }
 
     for parent, subdirs, _files in os.walk(psp_dir):
@@ -170,7 +181,7 @@ def setup_potcars(potcar_dirs: list[str]):
 
 
 def build_enum(fortran_command: str = "gfortran") -> bool:
-    """Build enum.
+    """Build `enum`.
 
     Args:
         fortran_command: The Fortran compiler command.
@@ -196,8 +207,8 @@ def build_enum(fortran_command: str = "gfortran") -> bool:
     return state
 
 
-def build_bader(fortran_command="gfortran"):
-    """Build bader package.
+def build_bader(fortran_command="gfortran") -> bool:
+    """Build `bader` package.
 
     Args:
         fortran_command: The Fortran compiler command.
@@ -224,7 +235,7 @@ def build_bader(fortran_command="gfortran"):
     return state
 
 
-def install_software(install: Literal["enumlib", "bader"]):
+def install_software(install: Literal["enumlib", "bader"]) -> None:
     """Install all optional external software."""
     try:
         subprocess.call(["ifort", "--version"])

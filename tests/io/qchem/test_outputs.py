@@ -17,7 +17,7 @@ from pymatgen.io.qchem.outputs import (
     hessian_parser,
     orbital_coeffs_parser,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 try:
     from openbabel import openbabel
@@ -260,7 +260,7 @@ MULTI_JOB_OUT_NAMES = {
 }
 
 
-class TestQCOutput(PymatgenTest):
+class TestQCOutput(MatSciTest):
     @staticmethod
     def generate_single_job_dict():
         """Used to generate test dictionary for single jobs."""
@@ -313,7 +313,7 @@ class TestQCOutput(PymatgenTest):
 
     # PR#3985: the following unit test is failing, and it seems that
     # the array dimension from out_data and SINGLE_JOB_DICT mismatch
-    @pytest.mark.skip(reason="TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     @pytest.mark.skipif(openbabel is None, reason="OpenBabel not installed.")
     def test_all(self):
         single_outs = {file: QCOutput(f"{TEST_DIR}/{file}").data for file in SINGLE_JOB_OUT_NAMES}

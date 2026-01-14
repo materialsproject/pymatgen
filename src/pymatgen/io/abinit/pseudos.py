@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import abc
 import collections
+import collections.abc
 import hashlib
 import logging
 import os
@@ -92,13 +93,13 @@ class Pseudo(MSONable, abc.ABC):
     """
 
     @classmethod
-    def as_pseudo(cls, obj: Self | str) -> Self:
+    def as_pseudo(cls, obj: Pseudo | str) -> Pseudo:
         """Convert obj into a Pseudo.
 
         Args:
             obj (str | Pseudo): Path to the pseudo file or a Pseudo object.
         """
-        return obj if isinstance(obj, cls) else cls.from_file(obj)
+        return obj if isinstance(obj, cls) else cls.from_file(obj)  # type:ignore[arg-type]
 
     @classmethod
     def from_file(cls, filename: str) -> Self:
@@ -1511,12 +1512,11 @@ class PseudoTable(collections.abc.Sequence, MSONable):
     Individidual elements are accessed by name, symbol or atomic number.
 
     For example, the following all retrieve iron:
-
-    print(elements[26])
-    print(elements.Fe)
-    print(elements.symbol('Fe'))
-    print(elements.name('iron'))
-    print(elements.isotope('Fe'))
+    - elements[26]
+    - elements.Fe
+    - elements.symbol('Fe')
+    - elements.name('iron')
+    - elements.isotope('Fe')
     """
 
     @classmethod
@@ -1558,15 +1558,15 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             if exts is None:
                 exts = ("psp8",)
 
-            for pseudo in find_exts(top, exts, exclude_dirs=exclude_dirs):
+            for pseudo in find_exts(top, exts, exclude_dirs=exclude_dirs):  # type:ignore[assignment]
                 try:
-                    pseudos.append(Pseudo.from_file(pseudo))
+                    pseudos.append(Pseudo.from_file(pseudo))  # type:ignore[arg-type]
                 except Exception as exc:
                     logger.critical(f"Error in {pseudo}:\n{exc}")
 
         return cls(pseudos).sort_by_z()
 
-    def __init__(self, pseudos: Sequence[Pseudo]) -> None:
+    def __init__(self, pseudos: Sequence[Pseudo | str]) -> None:
         """
         Args:
             pseudos: List of pseudopotentials or filepaths.

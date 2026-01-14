@@ -6,14 +6,17 @@ It also provides tools to analyze and to visualize the parallel efficiency.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import logging
 import os
+import re
 import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.gridspec import GridSpec
+from monty.dev import deprecated
 
 from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
@@ -71,11 +74,9 @@ class AbinitTimerParser(collections.abc.Iterable):
             ok_files: list of files that have been parsed successfully.
                 (ok_files == paths) if all files have been parsed.
         """
-        paths = []
-        for root, _dirs, files in os.walk(top):
-            for file in files:
-                if file.endswith(ext):
-                    paths.append(os.path.join(root, file))
+        paths = [
+            os.path.join(root, file) for root, _dirs, files in os.walk(top) for file in files if file.endswith(ext)
+        ]
 
         parser = cls()
         ok_files = parser.parse(paths)
@@ -141,7 +142,16 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         def parse_line(line):
             """Parse single line."""
-            name, vals = line[:25], line[25:].split()
+            # Assume the first element of the values is a float. Use the first
+            # float appearing as a split between the name and the values.
+            # Also only digits, "." and spaces can be present after the fist float.
+            match = re.search(r"\s(\d+\.\d+[-\d.\s]*)$", line)
+            if not match:
+                raise self.Error(f"Cannot properly split line in label and values: {line}")
+            split_index = match.start()
+            name = line[:split_index].rstrip()
+            vals = line[split_index:].strip().split()
+
             try:
                 ctime, cfract, wtime, wfract, ncalls, gflops = vals
             except ValueError:
@@ -218,15 +228,9 @@ class AbinitTimerParser(collections.abc.Iterable):
         for idx, timer in enumerate(self.timers()):
             if idx == 0:
                 section_names = [s.name for s in timer.order_sections(ordkey)]
-                # check = section_names
             # else:
             #     new_set = {s.name for s in timer.order_sections(ordkey)}
             #     section_names.intersection_update(new_set)
-            #     check = check | new_set
-
-        # if check != section_names:
-        #  print("sections", section_names)
-        #  print("check",check)
 
         return section_names
 
@@ -612,9 +616,13 @@ class AbinitTimerSection:
         """Get the values as a tuple."""
         return tuple(self.__dict__[at] for at in AbinitTimerSection.FIELDS)
 
-    def to_dict(self):
+    def as_dict(self):
         """Get the values as a dictionary."""
         return {at: self.__dict__[at] for at in AbinitTimerSection.FIELDS}
+
+    @deprecated(as_dict, deadline=(2026, 4, 4))
+    def to_dict(self, *args, **kwargs):
+        return self.as_dict(*args, **kwargs)
 
     def to_csvline(self, with_header=False):
         """Return a string with data in CSV format. Add header if `with_header`."""
@@ -686,8 +694,7 @@ class AbinitTimer:
         if is_str:
             fileobj = open(fileobj, mode="w", encoding="utf-8")  # noqa: SIM115
 
-        for idx, section in enumerate(self.sections):
-            fileobj.write(section.to_csvline(with_header=(idx == 0)))
+        fileobj.writelines(section.to_csvline(with_header=(idx == 0)) for idx, section in enumerate(self.sections))
         fileobj.flush()
 
         if is_str:
@@ -707,20 +714,17 @@ class AbinitTimer:
 
         return table
 
-    # Maintain old API
-    totable = to_table
+    @deprecated(to_table)
+    def totable(self, *args, **kwargs):
+        return self.to_table(*args, **kwargs)
 
     def get_dataframe(self, sort_key="wall_time", **kwargs):
         """Return a pandas DataFrame with entries sorted according to `sort_key`."""
-        frame = pd.DataFrame(columns=AbinitTimerSection.FIELDS)
-
-        for osect in self.order_sections(sort_key):
-            frame = frame.append(osect.to_dict(), ignore_index=True)
+        data = [osect.as_dict() for osect in self.order_sections(sort_key)]
+        frame = pd.DataFrame(data, columns=AbinitTimerSection.FIELDS)
 
         # Monkey patch
         frame.info = self.info
-        frame.cpu_time = self.cpu_time
-        frame.wall_time = self.wall_time
         frame.mpi_nprocs = self.mpi_nprocs
         frame.omp_nthreads = self.omp_nthreads
         frame.mpi_rank = self.mpi_rank
@@ -733,10 +737,7 @@ class AbinitTimer:
         if isinstance(keys, str):
             return [sec.__dict__[keys] for sec in self.sections]
 
-        values = []
-        for key in keys:
-            values.append([sec.__dict__[key] for sec in self.sections])
-        return values
+        return [[sec.__dict__[key] for sec in self.sections] for key in keys]
 
     def names_and_values(self, key, minval=None, minfract=None, sorted=True):  # noqa: A002
         """Select the entries whose value[key] is >= minval or whose fraction[key] is >= minfract

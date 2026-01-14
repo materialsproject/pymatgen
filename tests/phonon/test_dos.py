@@ -1,25 +1,25 @@
 from __future__ import annotations
 
-import json
 import re
 
 import numpy as np
+import orjson
 import pytest
 from pytest import approx
 
 from pymatgen.core import Element
 from pymatgen.phonon.dos import CompletePhononDos, PhononDos
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/phonon/dos"
 
 
-class TestPhononDos(PymatgenTest):
-    def setUp(self):
-        with open(f"{TEST_DIR}/NaCl_ph_dos.json", encoding="utf-8") as file:
-            self.dos = PhononDos.from_dict(json.load(file))
-        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
-            self.structure = CompletePhononDos.from_dict(json.load(file)).structure
+class TestPhononDos(MatSciTest):
+    def setup_method(self):
+        with open(f"{TEST_DIR}/NaCl_ph_dos.json", "rb") as file:
+            self.dos = PhononDos.from_dict(orjson.loads(file.read()))
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", "rb") as file:
+            self.structure = CompletePhononDos.from_dict(orjson.loads(file.read())).structure
 
     def test_repr(self):
         assert repr(self.dos) == "PhononDos(frequencies=(201,), densities=(201,), n_positive_freqs=183)"
@@ -47,8 +47,8 @@ class TestPhononDos(PymatgenTest):
         assert self.dos.get_smeared_densities(0) is self.dos.densities
 
     def test_dict_methods(self):
-        json_str = json.dumps(self.dos.as_dict())
-        assert json_str.startswith('{"@module": "pymatgen.phonon.dos", "@class": "PhononDos", "frequencies":')
+        json_str = orjson.dumps(self.dos.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
+        assert json_str.startswith('{"@module":"pymatgen.phonon.dos","@class":"PhononDos","frequencies":')
         self.assert_msonable(self.dos)
 
     def test_thermodynamic_functions(self):
@@ -182,10 +182,10 @@ class TestPhononDos(PymatgenTest):
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric=metric, normalize=False)
 
 
-class TestCompletePhononDos(PymatgenTest):
-    def setUp(self):
-        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
-            self.cdos = CompletePhononDos.from_dict(json.load(file))
+class TestCompletePhononDos(MatSciTest):
+    def setup_method(self):
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", "rb") as file:
+            self.cdos = CompletePhononDos.from_dict(orjson.loads(file.read()))
 
     def test_properties(self):
         site_Na = self.cdos.structure[0]
@@ -204,7 +204,7 @@ class TestCompletePhononDos(PymatgenTest):
         assert sum_dos.densities == approx(self.cdos.densities)
 
     def test_dict_methods(self):
-        json_str = json.dumps(self.cdos.as_dict())
+        json_str = orjson.dumps(self.cdos.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
         assert json_str is not None
         self.assert_msonable(self.cdos)
 

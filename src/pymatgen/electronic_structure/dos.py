@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import functools
+import logging
 import warnings
 from typing import TYPE_CHECKING, NamedTuple, cast
 
 import numpy as np
 from monty.json import MSONable
-from packaging import version
 from scipy.constants import value as _constant
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import hilbert
@@ -20,18 +20,20 @@ from pymatgen.core.spectrum import Spectrum
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.util.coord import get_linear_interpolated_value
 
-if version.parse(np.__version__) < version.parse("2.0.0"):
-    np.trapezoid = np.trapz  # noqa: NPY201
+if np.lib.NumpyVersion(np.__version__) < "2.0.0":
+    np.trapezoid = np.trapz  # type:ignore[assignment] # noqa: NPY201
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping
     from typing import Any, Literal
 
-    from numpy.typing import NDArray
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
-    from pymatgen.util.typing import SpeciesLike, Tuple3Floats
+    from pymatgen.util.typing import SpeciesLike
+
+logger = logging.getLogger(__name__)
 
 
 class DOS(Spectrum):
@@ -48,7 +50,7 @@ class DOS(Spectrum):
     XLABEL = "Energy"
     YLABEL = "Density"
 
-    def __init__(self, energies: Sequence[float], densities: NDArray, efermi: float) -> None:
+    def __init__(self, energies: ArrayLike, densities: ArrayLike, efermi: float) -> None:
         """
         Args:
             energies (Sequence[float]): The Energies.
@@ -107,9 +109,12 @@ class DOS(Spectrum):
         energies = self.x
         below_fermi = [i for i in range(len(energies)) if energies[i] < self.efermi and tdos[i] > tol]
         above_fermi = [i for i in range(len(energies)) if energies[i] > self.efermi and tdos[i] > tol]
+        if not below_fermi or not above_fermi:
+            return 0.0, self.efermi, self.efermi
+
         vbm_start = max(below_fermi)
         cbm_start = min(above_fermi)
-        if vbm_start == cbm_start:
+        if vbm_start in [cbm_start, cbm_start - 1]:
             return 0.0, self.efermi, self.efermi
 
         # Interpolate between adjacent values
@@ -178,8 +183,8 @@ class Dos(MSONable):
     def __init__(
         self,
         efermi: float,
-        energies: Sequence[float],
-        densities: dict[Spin, NDArray],
+        energies: ArrayLike,
+        densities: Mapping[Spin, ArrayLike],
         norm_vol: float | None = None,
     ) -> None:
         """
@@ -193,10 +198,10 @@ class Dos(MSONable):
                 otherwise will be in states/eV/Angstrom^3.
         """
         self.efermi = efermi
-        self.energies = np.array(energies)
+        self.energies = np.asarray(energies)
         self.norm_vol = norm_vol
         vol = norm_vol or 1
-        self.densities = {k: np.array(d) / vol for k, d in densities.items()}
+        self.densities = {k: np.asarray(d) / vol for k, d in densities.items()}
 
     def __add__(self, other):
         """Add two Dos.
@@ -282,7 +287,7 @@ class Dos(MSONable):
         tol: float = 1e-4,
         abs_tol: bool = False,
         spin: Spin | None = None,
-    ) -> Tuple3Floats:
+    ) -> tuple[float, float, float]:
         """Find the interpolated band gap.
 
         Args:
@@ -311,7 +316,7 @@ class Dos(MSONable):
 
         vbm_start = max(below_fermi)
         cbm_start = min(above_fermi)
-        if vbm_start == cbm_start:
+        if vbm_start in [cbm_start, cbm_start - 1]:
             return 0.0, self.efermi, self.efermi
 
         # Interpolate between adjacent values
@@ -385,7 +390,7 @@ class Dos(MSONable):
             "@class": type(self).__name__,
             "efermi": self.efermi,
             "energies": self.energies.tolist(),
-            "densities": {str(spin): dens.tolist() for spin, dens in self.densities.items()},
+            "densities": {str(spin): list(dens) for spin, dens in self.densities.items()},
         }
 
 
@@ -520,7 +525,7 @@ class FermiDos(Dos, MSONable):
                 the default Dos.efermi.
         """
         fermi = self.efermi  # initialize target Fermi
-        relative_error = [float("inf")]
+        relative_error: list | NDArray = [float("inf")]
         for _ in range(precision):
             fermi_range = np.arange(-nstep, nstep + 1) * step + fermi
             calc_doping = np.array([self.get_doping(fermi_lvl, temperature) for fermi_lvl in fermi_range])
@@ -653,7 +658,7 @@ class CompleteDos(Dos):
         self,
         structure: Structure,
         total_dos: Dos,
-        pdoss: dict[PeriodicSite, dict[Orbital, dict[Spin, NDArray]]],
+        pdoss: Mapping[PeriodicSite, Mapping[Orbital, Mapping[Spin, ArrayLike]]],
         normalize: bool = False,
     ) -> None:
         """
@@ -780,11 +785,11 @@ class CompleteDos(Dos):
         Returns:
             dict[Element, Dos]
         """
-        el_dos: dict[SpeciesLike, dict[Spin, NDArray]] = {}
+        el_dos: dict[SpeciesLike, dict[Spin, ArrayLike]] = {}
         for site, atom_dos in self.pdos.items():
             el = site.specie
             for pdos in atom_dos.values():
-                el_dos[el] = add_densities(el_dos[el], pdos) if el in el_dos else pdos
+                el_dos[el] = add_densities(el_dos[el], pdos) if el in el_dos else pdos  # type: ignore[assignment]
 
         return {el: Dos(self.efermi, self.energies, densities) for el, densities in el_dos.items()}
 
@@ -1198,6 +1203,8 @@ class CompleteDos(Dos):
             F. Knoop, T. A. r Purcell, M. Scheffler, C. Carbogno, J. Open Source Softw. 2020, 5, 2671.
             Source - https://gitlab.com/vibes-developers/vibes/-/tree/master/vibes/materials_fp
             Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno.
+            Please also see and cite related work by:
+            M. Kuban, S. Rigamonti, C. Draxl, Digital Discovery 2024, 3, 2448.
 
         Args:
             fp_type (str): The FingerPrint type, can be "{s/p/d/f/summed}_{pdos/tdos}"
@@ -1227,7 +1234,7 @@ class CompleteDos(Dos):
 
         pdos = {key.name: pdos_obj[key].get_densities() for key in pdos_obj}
 
-        pdos["summed_pdos"] = np.sum(list(pdos.values()), axis=0)
+        pdos["summed_pdos"] = np.sum(list(pdos.values()), axis=0)  # type:ignore[arg-type]
         pdos["tdos"] = self.get_densities()
 
         try:
@@ -1378,7 +1385,7 @@ class CompleteDos(Dos):
             for at in self.structure:
                 dd = {}
                 for orb, pdos in self.pdos[at].items():
-                    dd[str(orb)] = {"densities": {str(int(spin)): list(dens) for spin, dens in pdos.items()}}
+                    dd[str(orb)] = {"densities": {str(int(spin)): list(dens) for spin, dens in pdos.items()}}  # type:ignore[arg-type]
                 dct["pdos"].append(dd)
             dct["atom_dos"] = {str(at): dos.as_dict() for at, dos in self.get_element_dos().items()}
             dct["spd_dos"] = {str(orb): dos.as_dict() for orb, dos in self.get_spd_dos().items()}
@@ -1518,8 +1525,8 @@ class LobsterCompleteDos(CompleteDos):
 
 
 def add_densities(
-    density1: dict[Spin, NDArray],
-    density2: dict[Spin, NDArray],
+    density1: Mapping[Spin, ArrayLike],
+    density2: Mapping[Spin, ArrayLike],
 ) -> dict[Spin, NDArray]:
     """Sum two DOS along each spin channel.
 
@@ -1536,12 +1543,12 @@ def add_densities(
 def _get_orb_type(orb: Orbital | OrbitalType) -> OrbitalType:
     """Get OrbitalType."""
     try:
-        return cast(Orbital, orb).orbital_type
+        return cast("Orbital", orb).orbital_type
     except AttributeError:
-        return cast(OrbitalType, orb)
+        return cast("OrbitalType", orb)
 
 
-def f0(E: float, fermi: float, T: float) -> float:
+def f0(E: float | NDArray, fermi: float, T: float) -> float:
     """Fermi-Dirac distribution function.
 
     Args:
@@ -1570,7 +1577,7 @@ def _get_orb_type_lobster(orb: str) -> OrbitalType | None:
         return orbital.orbital_type
 
     except AttributeError:
-        print("Orb not in list")
+        logger.exception("Orb not in list")
     return None
 
 
@@ -1587,5 +1594,5 @@ def _get_orb_lobster(orb: str) -> Orbital | None:
         return Orbital(_lobster_orb_labs.index(orb[1:]))
 
     except AttributeError:
-        print("Orb not in list")
+        logger.exception("Orb not in list")
         return None

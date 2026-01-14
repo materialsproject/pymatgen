@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import json
 from copy import deepcopy
 
+import orjson
 import pytest
 
 from pymatgen.alchemy.filters import ContainsSpecieFilter
@@ -16,14 +16,14 @@ from pymatgen.transformations.standard_transformations import (
     SupercellTransformation,
 )
 from pymatgen.util.provenance import StructureNL
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/alchemy"
 
 
-class TestTransformedStructure(PymatgenTest):
-    def setUp(self):
-        structure = PymatgenTest.get_structure("LiFePO4")
+class TestTransformedStructure(MatSciTest):
+    def setup_method(self):
+        structure = MatSciTest.get_structure("LiFePO4")
         self.structure = structure
         trafos = [SubstitutionTransformation({"Li": "Na"})]
         self.trans = TransformedStructure(structure, trafos)
@@ -64,8 +64,8 @@ class TestTransformedStructure(PymatgenTest):
         assert isinstance(deepcopy(self.trans), TransformedStructure)
 
     def test_from_dict(self):
-        with open(f"{TEST_DIR}/transformations.json", encoding="utf-8") as file:
-            dct = json.load(file)
+        with open(f"{TEST_DIR}/transformations.json", "rb") as file:
+            dct = orjson.loads(file.read())
         dct["other_parameters"] = {"tags": ["test"]}
         t_struct = TransformedStructure.from_dict(dct)
         t_struct.other_parameters["author"] = "Will"
@@ -113,7 +113,7 @@ class TestTransformedStructure(PymatgenTest):
 
     def test_snl(self):
         self.trans.set_parameter("author", "will")
-        with pytest.warns(UserWarning) as warns:
+        with pytest.warns(UserWarning, match="discarded during type conversion to SNL") as warns:
             struct_nl = self.trans.to_snl([("will", "will@test.com")])
 
         assert len(warns) >= 1, f"Warning not raised on type conversion with other_parameters {len(warns)=}"

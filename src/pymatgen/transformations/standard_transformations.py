@@ -19,12 +19,13 @@ from pymatgen.core import Composition, get_el_sp
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.transformations.site_transformations import PartialRemoveSitesTransformation
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 if TYPE_CHECKING:
     from numpy.random import Generator
-    from typing_extensions import Self
+    from typing_extensions import Any, Self
 
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.util.typing import SpeciesLike
@@ -231,7 +232,7 @@ class SupercellTransformation(AbstractTransformation):
 
         # Try to find a scaling_matrix satisfying the required boundary distance with smaller cell.
         if allow_rotation and sum(min_expand != 0) > 1:
-            min1, min2, min3 = map(int, min_expand)
+            min1, min2, min3 = map(int, min_expand)  # type: ignore[call-overload]
             scaling_matrix = [
                 [min1 or 1, 1 if min1 and min2 else 0, 1 if min1 and min3 else 0],
                 [-1 if min2 and min1 else 0, min2 or 1, 1 if min2 and min3 else 0],
@@ -454,7 +455,15 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     ALGO_BEST_FIRST = 2
     ALGO_RANDOM = -1
 
-    def __init__(self, algo=ALGO_FAST, symmetrized_structures=False, no_oxi_states=False, occ_tol=0.25):
+    def __init__(
+        self,
+        algo: int = ALGO_FAST,
+        symmetrized_structures: bool = False,
+        no_oxi_states: bool = False,
+        occ_tol: float = 0.25,
+        symprec: float | None = None,
+        angle_tolerance: float | None = None,
+    ):
         """
         Args:
             algo (int): Algorithm to use.
@@ -466,14 +475,24 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             occ_tol (float): Occupancy tolerance. If the total occupancy of a group is within this value
                 of an integer, it will be rounded to that integer otherwise raise a ValueError.
                 Defaults to 0.25.
+            symprec : float or None (default)
+                If a float, and symmetrized_structures is True, the linear tolerance
+                used to symmetrize structures with SpacegroupAnalyzer.
+            angle_tolerance : float or None (default)
+                If a float, and symmetrized_structures is True, the angle tolerance
+                used to symmetrize structures with SpacegroupAnalyzer.
         """
         self.algo = algo
         self._all_structures: list = []
         self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
+        self.symprec = symprec
+        self.angle_tolerance = angle_tolerance
         self.occ_tol = occ_tol
 
-    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False) -> Structure:
+    def apply_transformation(
+        self, structure: Structure | SymmetrizedStructure, return_ranked_list: bool | int = False
+    ) -> Structure | list[Structure] | list[dict[str, Any]]:
         """For this transformation, the apply_transformation method will return
         only the ordered structure with the lowest Ewald energy, to be
         consistent with the method signature of the other transformations.
@@ -508,6 +527,11 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             for idx, site in enumerate(structure):
                 structure[idx] = {f"{k.symbol}0+": v for k, v in site.species.items()}  # type: ignore[assignment]
 
+        if self.symmetrized_structures and not isinstance(structure, SymmetrizedStructure):
+            structure = SpacegroupAnalyzer(
+                structure, **{k: getattr(self, k) for k in ("symprec", "angle_tolerance") if getattr(self, k, None)}
+            ).get_symmetrized_structure()
+
         equivalent_sites: list[list[int]] = []
         exemplars: list[PeriodicSite] = []
         # generate list of equivalent sites to order
@@ -521,7 +545,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if not site.species.almost_equals(sp):
                     continue
                 if self.symmetrized_structures:
-                    sym_equiv = structure.find_equivalent_sites(ex)
+                    sym_equiv = structure.find_equivalent_sites(ex)  # type:ignore[attr-defined]
                     sym_test = site in sym_equiv
                 else:
                     sym_test = True
@@ -557,14 +581,14 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     raise ValueError("Occupancy fractions not consistent with size of unit cell")
                 total_occupancy[key] = round(val)
             # start with an ordered structure
-            initial_sp = max(total_occupancy, key=lambda x: abs(x.oxi_state))
+            initial_sp = max(total_occupancy, key=lambda x: abs(x.oxi_state))  # type:ignore[arg-type]
             for idx in group:
                 struct[idx] = initial_sp
             # determine the manipulations
             for key, val in total_occupancy.items():
                 if key == initial_sp:
                     continue
-                oxi_ratio = key.oxi_state / initial_sp.oxi_state if initial_sp.oxi_state else 0
+                oxi_ratio = key.oxi_state / initial_sp.oxi_state if initial_sp.oxi_state else 0  # type:ignore[operator]
                 manipulation = [oxi_ratio, val, list(group), key]
                 manipulations.append(manipulation)
             # determine the number of empty sites
@@ -599,8 +623,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if manipulation[1] is None:
                     del_indices.append(manipulation[0])
                 else:
-                    struct_copy[manipulation[0]] = manipulation[1]
-            struct_copy.remove_sites(del_indices)
+                    struct_copy[manipulation[0]] = manipulation[1]  # type:ignore[index, assignment]
+            struct_copy.remove_sites(del_indices)  # type:ignore[arg-type]
 
             if self.no_oxi_states:
                 struct_copy.remove_oxidation_states()
@@ -709,9 +733,8 @@ class PerturbStructureTransformation(AbstractTransformation):
             distance: Distance of perturbation in angstroms. All sites
                 will be perturbed by exactly that distance in a random
                 direction.
-            min_distance: if None, all displacements will be equidistant. If int
-                or float, perturb each site a distance drawn from the uniform
-                distribution between 'min_distance' and 'distance'.
+            min_distance: Minimum distance for the perturbation range. Defaults to None, which means all
+            perturbations are the same magnitude.
         """
         self.distance = distance
         self.min_distance = min_distance
@@ -993,7 +1016,5 @@ def get_randomly_manipulated_structures(
         manip_ = _get_manipulation(manipulations, rng, 1000, seen)
         seen.add(manip_)
         sampled_manips.append(manip_)
-    output_structs = []
-    for manip_ in sampled_manips:
-        output_structs.append(_apply_manip(struct, manip_))
-    return output_structs
+
+    return [_apply_manip(struct, manip) for manip in sampled_manips]

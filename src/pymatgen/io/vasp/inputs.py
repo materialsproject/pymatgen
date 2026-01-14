@@ -8,7 +8,6 @@ from __future__ import annotations
 import codecs
 import hashlib
 import itertools
-import json
 import math
 import os
 import re
@@ -24,7 +23,9 @@ from typing import TYPE_CHECKING, NamedTuple, cast
 from zipfile import ZipFile
 
 import numpy as np
+import orjson
 import scipy.constants as const
+from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os import cd
@@ -36,23 +37,47 @@ from pymatgen.core import SETTINGS, Element, Lattice, Structure, get_el_sp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
-from pymatgen.util.typing import Kpoint, Tuple3Floats, Tuple3Ints, Vector3D
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping, Sequence
     from typing import Any, ClassVar, Literal
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
+    from pymatgen.core.structure import IStructure
     from pymatgen.symmetry.bandstructure import HighSymmKpath
-    from pymatgen.util.typing import PathLike
+    from pymatgen.util.typing import Kpoint, PathLike
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Note: there are multiple releases of the {LDA,PBE} {52,54} POTCARs
+#     the original (UNIVIE) releases include no SHA256 hashes nor COPYR fields
+#     in the PSCTR/header field.
+# We indicate the older release in `functional_dir` as PBE_52, PBE_54, LDA_52, LDA_54.
+# The newer release is indicated as PBE_52_W_HASH, etc.
+POTCAR_FUNCTIONAL_MAP: dict[str, str] = {
+    "PBE": "POT_GGA_PAW_PBE",
+    "PBE_52": "POT_GGA_PAW_PBE_52",
+    "PBE_52_W_HASH": "POTPAW_PBE_52",
+    "PBE_54": "POT_GGA_PAW_PBE_54",
+    "PBE_54_W_HASH": "POTPAW_PBE_54",
+    "PBE_64": "POT_PAW_PBE_64",
+    "LDA": "POT_LDA_PAW",
+    "LDA_52": "POT_LDA_PAW_52",
+    "LDA_52_W_HASH": "POTPAW_LDA_52",
+    "LDA_54": "POT_LDA_PAW_54",
+    "LDA_54_W_HASH": "POTPAW_LDA_54",
+    "LDA_64": "POT_LDA_PAW_64",
+    "PW91": "POT_GGA_PAW_PW91",
+    "LDA_US": "POT_LDA_US",
+    "PW91_US": "POT_GGA_US_PW91",
+    "Perdew_Zunger81": "POT_LDA_PAW",
+}
 
 
 class Poscar(MSONable):
@@ -79,7 +104,7 @@ class Poscar(MSONable):
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         comment: str | None = None,
         selective_dynamics: ArrayLike | None = None,
         true_names: bool = True,
@@ -117,17 +142,17 @@ class Poscar(MSONable):
         site_properties: dict[str, Any] = {}
 
         if selective_dynamics is not None:
-            selective_dynamics = np.array(selective_dynamics)
+            selective_dynamics = np.asarray(selective_dynamics)
             if not selective_dynamics.all():
                 site_properties["selective_dynamics"] = selective_dynamics
 
         if velocities:
-            velocities = np.array(velocities)
+            velocities = np.asarray(velocities)
             if velocities.any():
                 site_properties["velocities"] = velocities
 
         if predictor_corrector:
-            predictor_corrector = np.array(predictor_corrector)
+            predictor_corrector = np.asarray(predictor_corrector)
             if predictor_corrector.any():
                 site_properties["predictor_corrector"] = predictor_corrector
 
@@ -135,23 +160,23 @@ class Poscar(MSONable):
         self.structure = structure.copy(site_properties=site_properties)
         if sort_structure:
             self.structure = self.structure.get_sorted_structure()
-        self.true_names = true_names
-        self.comment = structure.formula if comment is None else comment
+
         if predictor_corrector_preamble:
             self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
 
         if lattice_velocities and np.any(lattice_velocities):
             self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
 
-        self.temperature = -1.0
+        self.true_names: bool = true_names
+        self.comment: str = structure.formula if comment is None else comment
+        self.temperature: float = -1.0
 
     def __setattr__(self, name: str, value: Any) -> None:
         if name in {"selective_dynamics", "velocities"} and value is not None and len(value) > 0:
-            value = np.array(value)
+            value = np.asarray(value)
             dim = value.shape
             if dim[1] != 3 or dim[0] != len(self.structure):
                 raise ValueError(f"{name} array must be same length as the structure.")
-            value = value.tolist()
 
         super().__setattr__(name, value)
 
@@ -168,7 +193,7 @@ class Poscar(MSONable):
         return self.structure.site_properties.get("velocities")
 
     @velocities.setter
-    def velocities(self, velocities: ArrayLike | None) -> None:
+    def velocities(self, velocities: NDArray) -> None:
         self.structure.add_site_property("velocities", velocities)
 
     @property
@@ -177,7 +202,7 @@ class Poscar(MSONable):
         return self.structure.site_properties.get("selective_dynamics")
 
     @selective_dynamics.setter
-    def selective_dynamics(self, selective_dynamics: ArrayLike | None) -> None:
+    def selective_dynamics(self, selective_dynamics: NDArray) -> None:
         self.structure.add_site_property("selective_dynamics", selective_dynamics)
 
     @property
@@ -186,7 +211,7 @@ class Poscar(MSONable):
         return self.structure.site_properties.get("predictor_corrector")
 
     @predictor_corrector.setter
-    def predictor_corrector(self, predictor_corrector: ArrayLike | None) -> None:
+    def predictor_corrector(self, predictor_corrector: NDArray) -> None:
         self.structure.add_site_property("predictor_corrector", predictor_corrector)
 
     @property
@@ -266,7 +291,7 @@ class Poscar(MSONable):
                 DeprecationWarning,
                 stacklevel=2,
             )
-            check_for_potcar = cast(bool, kwargs.pop("check_for_POTCAR"))
+            check_for_potcar = cast("bool", kwargs.pop("check_for_POTCAR"))
 
         dirname: str = os.path.dirname(os.path.abspath(filename))
         names: list[str] | None = None
@@ -286,7 +311,7 @@ class Poscar(MSONable):
                 names = None
 
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read(), names, read_velocities=read_velocities)
+            return cls.from_str(file.read(), names, read_velocities=read_velocities)  # type:ignore[arg-type]
 
     @classmethod
     def from_str(
@@ -477,6 +502,17 @@ class Poscar(MSONable):
         selective_dynamics: list[list[bool]] | None = [] if has_selective_dynamics else None
         for idx in range(n_sites):
             tokens: list[str] = lines[ipos + 1 + idx].split()
+
+            # Attempt to fix bad formatting in POSCAR/CONTCAR/XDATCAR
+            if len(tokens) < 3:
+                new_tokens = []
+                for token in tokens:
+                    new_tokens.extend([t if i == 0 else f"-{t}" for i, t in enumerate(token.split("-")) if len(t) > 0])
+                if len(new_tokens) == 3:
+                    tokens = new_tokens
+                else:
+                    raise BadPoscarWarning(f"Cannot parse coordinates on this line:\n{lines[ipos + 1 + idx]}")
+
             crd_scale: float = scale if cart else 1
             coords.append([float(j) * crd_scale for j in tokens[:3]])
             if selective_dynamics is not None:
@@ -529,13 +565,13 @@ class Poscar(MSONable):
             # There is no space between the coordinates and this section, so
             # it appears in the lines of the first chunk
             if len(lines) > ipos + n_sites + 1 and lines[ipos + n_sites + 1].lower().startswith("l"):
-                for line in lines[ipos + n_sites + 3 : ipos + n_sites + 9]:
-                    lattice_velocities.append([float(tok) for tok in line.split()])
+                lattice_velocities.extend(
+                    [float(tok) for tok in line.split()] for line in lines[ipos + n_sites + 3 : ipos + n_sites + 9]
+                )
 
             # Parse velocities if any
             if len(chunks) > 1:
-                for line in chunks[1].strip().split("\n"):
-                    velocities.append([float(tok) for tok in line.split()])
+                velocities.extend([float(tok) for tok in line.split()] for line in chunks[1].strip().split("\n"))
 
             # Parse the predictor-corrector data
             if len(chunks) > 2:
@@ -600,8 +636,7 @@ class Poscar(MSONable):
         # Add comment and lattice
         format_str: str = f"{{:{significant_figures + 5}.{significant_figures}f}}"
         lines: list[str] = [self.comment, "1.0"]
-        for vec in lattice.matrix:
-            lines.append(" ".join(format_str.format(c) for c in vec))
+        lines.extend(" ".join(format_str.format(c) for c in vec) for vec in lattice.matrix)
 
         # Add element symbols
         if self.true_names and not vasp4_compatible:
@@ -618,7 +653,7 @@ class Poscar(MSONable):
             coords: ArrayLike = site.frac_coords if direct else site.coords
             line: str = " ".join(format_str.format(c) for c in coords)
             if self.selective_dynamics is not None:
-                sd: list[str] = ["T" if j else "F" for j in self.selective_dynamics[idx]]
+                sd: list[str] = ["T" if j else "F" for j in self.selective_dynamics[idx]]  # type:ignore[index]
                 line += f" {sd[0]} {sd[1]} {sd[2]}"
             line += f" {site.species_string}"
             lines.append(line)
@@ -626,9 +661,8 @@ class Poscar(MSONable):
         if self.lattice_velocities is not None:
             try:
                 lines.extend(["Lattice velocities and vectors", "  1"])
-                for velo in self.lattice_velocities:
-                    # VASP is strict about the format when reading this quantity
-                    lines.append(" ".join(f" {val: .7E}" for val in velo))
+                # VASP is strict about the format when reading this quantity
+                lines.extend(" ".join(f" {val: .7E}" for val in velo) for velo in self.lattice_velocities)  # type:ignore[str-bytes-safe]
             except Exception:
                 warnings.warn(
                     "Lattice velocities are missing or corrupted.",
@@ -639,8 +673,7 @@ class Poscar(MSONable):
         if self.velocities:
             try:
                 lines.append("")
-                for velo in self.velocities:
-                    lines.append(" ".join(format_str.format(val) for val in velo))
+                lines.extend(" ".join(format_str.format(val) for val in velo) for velo in self.velocities)
             except Exception:
                 warnings.warn(
                     "Velocities are missing or corrupted.",
@@ -652,10 +685,8 @@ class Poscar(MSONable):
             lines.append("")
             if self.predictor_corrector_preamble:
                 lines.append(self.predictor_corrector_preamble)
-                pred = np.array(self.predictor_corrector)
-                for col in range(3):
-                    for z in pred[:, col]:
-                        lines.append(" ".join(format_str.format(i) for i in z))
+                pred = np.asarray(self.predictor_corrector)
+                lines.extend(" ".join(format_str.format(i) for i in z) for col in range(3) for z in pred[:, col])
             else:
                 warnings.warn(
                     "Preamble information missing or corrupt. Writing Poscar with no predictor corrector data.",
@@ -665,14 +696,16 @@ class Poscar(MSONable):
 
         return "\n".join(lines) + "\n"
 
-    get_string = get_str
+    @deprecated(get_str)
+    def get_string(self, *args, **kwargs):
+        return self.get_str(*args, **kwargs)
 
     def write_file(self, filename: PathLike, **kwargs) -> None:
         """Write POSCAR to a file. The supported kwargs are the same as those for
         the Poscar.get_str method and are passed through directly.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(self.get_str(**kwargs))
+            file.write(self.get_str(**kwargs))  # type:ignore[arg-type]
 
     def as_dict(self) -> dict:
         """MSONable dict."""
@@ -681,7 +714,7 @@ class Poscar(MSONable):
             "@class": type(self).__name__,
             "structure": self.structure.as_dict(),
             "true_names": self.true_names,
-            "selective_dynamics": np.array(self.selective_dynamics).tolist(),
+            "selective_dynamics": np.asarray(self.selective_dynamics).tolist(),
             "velocities": self.velocities,
             "predictor_corrector": self.predictor_corrector,
             "comment": self.comment,
@@ -762,7 +795,11 @@ class Incar(UserDict, MSONable):
         in the `lower_str_keys/as_is_str_keys` of the `proc_val` method.
     """
 
-    def __init__(self, params: dict[str, Any] | None = None) -> None:
+    # INCAR tag/value recording
+    with open(os.path.join(MODULE_DIR, "incar_parameters.json"), encoding="utf-8") as json_file:
+        INCAR_PARAMS: ClassVar[dict[Literal["type", "values"], Any]] = orjson.loads(json_file.read())
+
+    def __init__(self, params: Mapping[str, Any] | None = None) -> None:
         """
         Clean up params and create an Incar object.
 
@@ -783,15 +820,11 @@ class Incar(UserDict, MSONable):
                 stacklevel=2,
             )
 
-        # If INCAR contains vector-like MAGMOMS given as a list
-        # of floats, convert to a list of lists
+        # If INCAR contains vector-like MAGMOMS given as list[float], convert to list[list]
         if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], int | float)) and (
             params.get("LSORBIT") or params.get("LNONCOLLINEAR")
         ):
-            val: list[list] = []
-            for idx in range(len(params["MAGMOM"]) // 3):
-                val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
-            params["MAGMOM"] = val
+            params["MAGMOM"] = [params["MAGMOM"][idx * 3 : (idx + 1) * 3] for idx in range(len(params["MAGMOM"]) // 3)]
 
         super().__init__(params)
 
@@ -861,7 +894,7 @@ class Incar(UserDict, MSONable):
         return cls({k: v for k, v in dct.items() if k not in ("@module", "@class")})
 
     def copy(self) -> Self:
-        return type(self)(self)
+        return type(self)(self)  # type:ignore[arg-type]
 
     def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """Get a string representation of the INCAR. Differ from the
@@ -907,7 +940,7 @@ class Incar(UserDict, MSONable):
             filename (str): filename to write to.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]
 
     @classmethod
     def from_file(cls, filename: PathLike) -> Self:
@@ -920,7 +953,7 @@ class Incar(UserDict, MSONable):
             Incar object
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
     @classmethod
     def from_str(cls, string: str) -> Self:
@@ -932,17 +965,43 @@ class Incar(UserDict, MSONable):
         Returns:
             Incar object
         """
+        string = "\n".join([ln.split("#", 1)[0].split("!", 1)[0].rstrip() for ln in string.splitlines()])
+
         params: dict[str, Any] = {}
-        for line in clean_lines(string.splitlines()):
-            for sline in line.split(";"):
-                if match := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
-                    key: str = match[1].strip()
-                    val: str = match[2].strip()
-                    params[key] = cls.proc_val(key, val)
+
+        # Handle line continuations (\)
+        string = re.sub(r"\\\s*\n", " ", string)
+
+        # Regex pattern to find all valid "key = value" assignments at once
+        pattern = re.compile(
+            r"""
+            (?P<key>\w+)             # Key (e.g. ENCUT)
+            \s*=\s*                  # Equals sign and optional spaces
+            (?:                      # Non-capturing group for the value
+                "                    # Opening quote
+                (?P<qval>.*?)        # Capture everything inside (non-greedy)
+                [ \t]*"              # Allow trailing spaces/tabs before closing quote
+                |                    # OR
+                (?P<val>[^#!;\n]*)   # Unquoted value (stops before comment/separator)
+            )
+            """,
+            re.VERBOSE | re.DOTALL,
+        )
+
+        # Find all matches in the entire string
+        for match in pattern.finditer(string):
+            key = match.group("key")
+            val = match.group("qval") if match.group("qval") is not None else (match.group("val") or "").strip()
+
+            if not val:
+                continue
+
+            params[key] = cls.proc_val(key, val)
+
         return cls(params)
 
-    @staticmethod
-    def proc_val(key: str, val: str) -> list | bool | float | int | str:
+    @classmethod
+    def proc_val(cls, key: str, val: str) -> list | bool | float | int | str:
         """Helper method to convert INCAR parameters to proper types
         like ints, floats, lists, etc.
 
@@ -950,104 +1009,64 @@ class Incar(UserDict, MSONable):
             key (str): INCAR parameter key.
             val (str): Value of INCAR parameter.
         """
-        list_keys = (
-            "LDAUU",
-            "LDAUL",
-            "LDAUJ",
-            "MAGMOM",
-            "DIPOL",
-            "LANGEVIN_GAMMA",
-            "QUAD_EFG",
-            "EINT",
-        )
-        bool_keys = (
-            "LDAU",
-            "LWAVE",
-            "LSCALU",
-            "LCHARG",
-            "LPLANE",
-            "LUSE_VDW",
-            "LHFCALC",
-            "ADDGRID",
-            "LSORBIT",
-            "LNONCOLLINEAR",
-        )
-        float_keys = (
-            "EDIFF",
-            "SIGMA",
-            "TIME",
-            "ENCUTFOCK",
-            "HFSCREEN",
-            "POTIM",
-            "EDIFFG",
-            "AGGAC",
-            "PARAM1",
-            "PARAM2",
-            "ENCUT",
-            "NUPDOWN",
-        )
-        int_keys = (
-            "NSW",
-            "NBANDS",
-            "NELMIN",
-            "ISIF",
-            "IBRION",
-            "ISPIN",
-            "ISTART",
-            "ICHARG",
-            "NELM",
-            "ISMEAR",
-            "NPAR",
-            "LDAUPRINT",
-            "LMAXMIX",
-            "NSIM",
-            "NKRED",
-            "ISPIND",
-            "LDAUTYPE",
-            "IVDW",
-        )
+        # Handle union type (e.g. "bool | str" for LREAL)
+        if incar_type := cls.INCAR_PARAMS.get(key, {}).get("type"):
+            incar_types: list[str] = [t.strip() for t in incar_type.split("|")]
+        else:
+            incar_types = []
+
+        # Special cases
+        # Always lower case
         lower_str_keys = ("ML_MODE",)
         # String keywords to read "as is" (no case transformation, only stripped)
-        as_is_str_keys = ("SYSTEM",)
-
-        def smart_int_or_float(num_str: str) -> float:
-            """Determine whether a string represents an integer or a float."""
-            if "." in num_str or "e" in num_str.lower():
-                return float(num_str)
-            return int(num_str)
+        as_is_str_keys = ("SYSTEM", "WANNIER90_WIN")
 
         try:
-            if key in list_keys:
-                output = []
-                tokens = re.findall(r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?\*?(-?\d+\.?\d*)?", val)
-                for tok in tokens:
-                    if tok[2] and "3" in tok[0]:
-                        output.extend([smart_int_or_float(tok[2])] * int(tok[0]) * int(tok[1]))
-                    elif tok[1]:
-                        output.extend([smart_int_or_float(tok[1])] * int(tok[0]))
-                    else:
-                        output.append(smart_int_or_float(tok[0]))
-                return output
-
-            if key in bool_keys:
-                if match := re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val):
-                    return match[1].lower() == "t"
-
-                raise ValueError(f"{key} should be a boolean type!")
-
-            if key in float_keys:
-                return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", val)[0])  # type: ignore[index]
-
-            if key in int_keys:
-                return int(re.match(r"^-?[0-9]+", val)[0])  # type: ignore[index]
-
             if key in lower_str_keys:
                 return val.strip().lower()
 
             if key in as_is_str_keys:
                 return val.strip()
 
-        except ValueError:
+            if "list" in incar_types:
+
+                def smart_int_or_float_bool(str_: str) -> float | int | bool:
+                    """Determine whether a string represents an integer or a float."""
+                    if str_.lower().startswith(".t") or str_.lower().startswith("t"):
+                        return True
+                    if str_.lower().startswith(".f") or str_.lower().startswith("f"):
+                        return False
+                    if "." in str_ or "e" in str_.lower():
+                        return float(str_)
+                    return int(str_)
+
+                output = []
+                tokens = re.findall(r"(-?\d+\.?\d*|[\.A-Z]+)\*?(-?\d+\.?\d*|[\.A-Z]+)?\*?(-?\d+\.?\d*|[\.A-Z]+)?", val)
+                for tok in tokens:
+                    if tok[2] and "3" in tok[0]:
+                        output.extend([smart_int_or_float_bool(tok[2])] * int(tok[0]) * int(tok[1]))
+                    elif tok[1]:
+                        output.extend([smart_int_or_float_bool(tok[1])] * int(tok[0]))
+                    else:
+                        output.append(smart_int_or_float_bool(tok[0]))
+
+                if output:  # pass when fail to parse (val is not list)
+                    return output
+
+            if "bool" in incar_types:
+                if match := re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val):
+                    return match[1].lower() == "t"
+
+                raise ValueError(f"{key} should be a boolean type!")
+
+            if "float" in incar_types:
+                return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", val)[0])  # type: ignore[index]
+
+            if "int" in incar_types:
+                return int(re.match(r"^-?[0-9]+", val)[0])  # type: ignore[index]
+
+        # If re.match doesn't hit, it would return None and thus TypeError from indexing
+        except (ValueError, TypeError):
             pass
 
         # Not in known keys. We will try a hierarchy of conversions.
@@ -1083,7 +1102,7 @@ class Incar(UserDict, MSONable):
                 {"Same" : parameters_that_are_the_same, "Different": parameters_that_are_different}
                 Note that the parameters are return as full dictionaries of values. E.g. {"ISIF":3}
         """
-        similar_params = {}
+        same_params = {}
         different_params = {}
         for k1, v1 in self.items():
             if k1 not in other:
@@ -1091,26 +1110,22 @@ class Incar(UserDict, MSONable):
             elif v1 != other[k1]:
                 different_params[k1] = {"INCAR1": v1, "INCAR2": other[k1]}
             else:
-                similar_params[k1] = v1
+                same_params[k1] = v1
 
         for k2, v2 in other.items():
-            if k2 not in similar_params and k2 not in different_params and k2 not in self:
+            if k2 not in same_params and k2 not in different_params and k2 not in self:
                 different_params[k2] = {"INCAR1": None, "INCAR2": v2}
 
-        return {"Same": similar_params, "Different": different_params}
+        return {"Same": same_params, "Different": different_params}
 
     def check_params(self) -> None:
         """Check INCAR for invalid tags or values.
         If a tag doesn't exist, calculation will still run, however VASP
         will ignore the tag and set it as default without letting you know.
         """
-        # Load INCAR tag/value check reference file
-        with open(os.path.join(MODULE_DIR, "incar_parameters.json"), encoding="utf-8") as json_file:
-            incar_params = json.loads(json_file.read())
-
         for tag, val in self.items():
             # Check if the tag exists
-            if tag not in incar_params:
+            if tag not in self.INCAR_PARAMS:
                 warnings.warn(
                     f"Cannot find {tag} in the list of INCAR tags",
                     BadIncarWarning,
@@ -1119,8 +1134,8 @@ class Incar(UserDict, MSONable):
                 continue
 
             # Check value type
-            param_type: str = incar_params[tag].get("type")
-            allowed_values: list[Any] = incar_params[tag].get("values")
+            param_type: str = self.INCAR_PARAMS[tag].get("type")
+            allowed_values: list[Any] = self.INCAR_PARAMS[tag].get("values")
 
             if param_type is not None and not isinstance(val, eval(param_type)):  # noqa: S307
                 warnings.warn(f"{tag}: {val} is not a {param_type}", BadIncarWarning, stacklevel=2)
@@ -1185,8 +1200,8 @@ class Kpoints(MSONable):
         num_kpts: int = 0,
         style: KpointsSupportedModes = supported_modes.Gamma,
         kpts: Sequence[Kpoint] = ((1, 1, 1),),
-        kpts_shift: Vector3D = (0, 0, 0),
-        kpts_weights: list[float] | None = None,
+        kpts_shift: tuple[float, float, float] = (0, 0, 0),
+        kpts_weights: Sequence[float] | None = None,
         coord_type: Literal["Reciprocal", "Cartesian"] | None = None,
         labels: list[str] | None = None,
         tet_number: int = 0,
@@ -1212,12 +1227,12 @@ class Kpoints(MSONable):
                 (or negative), VASP automatically generates the KPOINTS.
             style: Style for generating KPOINTS. Use one of the
                 Kpoints.supported_modes enum types.
-            kpts (2D array): Array of kpoints. Even when only a single
+            kpts (2D sequence): Sequence of kpoints. Even when only a single
                 specification is required, e.g. in the automatic scheme,
-                the kpts should still be specified as a 2D array. e.g.
+                the kpts should still be specified as a 2D sequence. e.g.
                 [(20,),] or [(2, 2, 2),].
             kpts_shift (3x1 array): Shift for kpoints.
-            kpts_weights (list[float]): Optional weights for explicit kpoints.
+            kpts_weights (Sequence[float]): Optional weights for explicit kpoints.
             coord_type: In line-mode, this variable specifies whether the
                 Kpoints were given in Cartesian or Reciprocal coordinates.
             labels: In line-mode, this should provide a list of labels for
@@ -1232,7 +1247,7 @@ class Kpoints(MSONable):
                 Format is a list of tuples, [ (sym_weight, [tet_vertices]),
                 ...]
         """
-        if num_kpts > 0 and not labels and not kpts_weights:
+        if num_kpts > 0 and not labels and kpts_weights is None:
             raise ValueError("For explicit or line-mode kpoints, either the labels or kpts_weights must be specified.")
 
         self.comment = comment
@@ -1240,7 +1255,7 @@ class Kpoints(MSONable):
         self.kpts = kpts  # type: ignore[assignment]
         self.style = style
         self.coord_type = coord_type
-        self.kpts_weights = kpts_weights
+        self.kpts_weights = list(kpts_weights) if kpts_weights is not None else None
         self.kpts_shift = tuple(kpts_shift)
         self.labels = labels
         self.tet_number = tet_number
@@ -1292,7 +1307,7 @@ class Kpoints(MSONable):
             return list(map(tuple, self._kpts))  # type: ignore[arg-type]
 
         if all(isinstance(point, int | float) for point in self._kpts) and len(self._kpts) == 3:
-            return [cast(Kpoint, tuple(self._kpts))]
+            return [cast("Kpoint", tuple(self._kpts))]
 
         raise ValueError(f"Invalid Kpoint {self._kpts}.")
 
@@ -1370,8 +1385,8 @@ class Kpoints(MSONable):
     @classmethod
     def gamma_automatic(
         cls,
-        kpts: Tuple3Ints = (1, 1, 1),
-        shift: Vector3D = (0, 0, 0),
+        kpts: tuple[int, int, int] = (1, 1, 1),
+        shift: tuple[float, float, float] = (0, 0, 0),
         comment: str = "Automatic kpoint scheme",
     ) -> Self:
         """
@@ -1397,8 +1412,8 @@ class Kpoints(MSONable):
     @classmethod
     def monkhorst_automatic(
         cls,
-        kpts: Tuple3Ints = (2, 2, 2),
-        shift: Vector3D = (0, 0, 0),
+        kpts: tuple[int, int, int] = (2, 2, 2),
+        shift: tuple[float, float, float] = (0, 0, 0),
         comment: str = "Automatic kpoint scheme",
     ) -> Self:
         """
@@ -1424,7 +1439,7 @@ class Kpoints(MSONable):
     @classmethod
     def automatic_density(
         cls,
-        structure: Structure,
+        structure: Structure | IStructure,
         kppa: float,
         force_gamma: bool = False,
         comment: str | None = None,
@@ -1453,11 +1468,13 @@ class Kpoints(MSONable):
         if abs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
             kppa += kppa * 0.01
         lattice = structure.lattice
-        lengths: Vector3D = lattice.abc
+        lengths: tuple[float, float, float] = lattice.abc
         ngrid = kppa / len(structure)
         mult: float = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div: Tuple3Ints = cast(Tuple3Ints, [math.floor(max(mult / length, 1)) for length in lengths])
+        num_div: tuple[int, int, int] = cast(
+            "tuple[int, int, int]", [math.floor(max(mult / length, 1)) for length in lengths]
+        )
 
         is_hexagonal: bool = lattice.is_hexagonal()
         is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"
@@ -1478,7 +1495,7 @@ class Kpoints(MSONable):
     @classmethod
     def automatic_gamma_density(
         cls,
-        structure: Structure,
+        structure: Structure | IStructure,
         kppa: float,
         comment: str | None = None,
     ) -> Self:
@@ -1502,7 +1519,7 @@ class Kpoints(MSONable):
         n_grid = kppa / len(structure)
 
         multip = (n_grid * a * b * c) ** (1 / 3)
-        n_div: list[int] = cast(list[int], [round(multip / length) for length in lattice.abc])
+        n_div: list[int] = cast("list[int]", [round(multip / length) for length in lattice.abc])
 
         # Ensure that all num_div[i] > 0
         n_div = [idx if idx > 0 else 1 for idx in n_div]
@@ -1517,14 +1534,14 @@ class Kpoints(MSONable):
             comment,
             n_kpts,
             style,
-            [cast(Tuple3Ints, tuple(n_div))],
+            [cast("tuple[int, int, int]", tuple(n_div))],
             (0, 0, 0),
         )
 
     @classmethod
     def automatic_density_by_vol(
         cls,
-        structure: Structure,
+        structure: Structure | IStructure,
         kppvol: int,
         force_gamma: bool = False,
         comment: str | None = None,
@@ -1551,7 +1568,7 @@ class Kpoints(MSONable):
     @classmethod
     def automatic_density_by_lengths(
         cls,
-        structure: Structure,
+        structure: Structure | IStructure,
         length_densities: Sequence[float],
         force_gamma: bool = False,
         comment: str | None = None,
@@ -1583,7 +1600,7 @@ class Kpoints(MSONable):
         lattice = structure.lattice
 
         abc = lattice.abc
-        num_div: Tuple3Ints = tuple(math.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
+        num_div: tuple[int, int, int] = tuple(math.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))  # type:ignore[assignment]
 
         is_hexagonal: bool = lattice.is_hexagonal()
         is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"
@@ -1660,7 +1677,7 @@ class Kpoints(MSONable):
             Kpoints object
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
     @classmethod
     def from_str(cls, string: str) -> Self:
@@ -1690,9 +1707,9 @@ class Kpoints(MSONable):
             _kpt: list[int] = [int(i) for i in lines[3].split()]
             if len(_kpt) != 3:
                 raise ValueError("Invalid Kpoint length.")
-            kpt: Tuple3Ints = cast(Tuple3Ints, tuple(_kpt))
+            kpt: tuple[int, int, int] = cast("tuple[int, int, int]", tuple(_kpt))
 
-            kpts_shift: Vector3D = (0, 0, 0)
+            kpts_shift: tuple[float, float, float] = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
                 try:
                     _kpts_shift: list[float] = [float(i) for i in lines[4].split()]
@@ -1702,7 +1719,7 @@ class Kpoints(MSONable):
                 if len(_kpts_shift) != 3:
                     raise ValueError("Invalid kpoint shift length.")
 
-                kpts_shift = cast(Vector3D, tuple(_kpts_shift))
+                kpts_shift = cast("tuple[float, float, float]", tuple(_kpts_shift))
 
             return (
                 cls.gamma_automatic(kpt, kpts_shift, comment=comment)
@@ -1714,10 +1731,10 @@ class Kpoints(MSONable):
         if num_kpts <= 0:
             _style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
             _kpts_shift = [float(i) for i in lines[6].split()]
-            kpts_shift = cast(Vector3D, tuple(_kpts_shift)) if len(_kpts_shift) == 3 else (0, 0, 0)
+            kpts_shift = cast("tuple[float, float, float]", tuple(_kpts_shift)) if len(_kpts_shift) == 3 else (0, 0, 0)
 
             kpts: list[Kpoint] = [
-                cast(Kpoint, tuple(float(j) for j in lines[line_idx].split())) for line_idx in range(3, 6)
+                cast("Kpoint", tuple(float(j) for j in lines[line_idx].split())) for line_idx in range(3, 6)
             ]
 
             return cls(
@@ -1734,7 +1751,7 @@ class Kpoints(MSONable):
                 "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
             )
             _style = cls.supported_modes.Line_mode
-            _kpts: list[Tuple3Floats] = []
+            _kpts: list[tuple[float, float, float]] = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for idx in range(4, len(lines)):
@@ -1763,7 +1780,7 @@ class Kpoints(MSONable):
 
         for idx in range(3, 3 + num_kpts):
             tokens = lines[idx].split()
-            kpts.append(cast(Tuple3Floats, tuple(float(i) for i in tokens[:3])))
+            kpts.append(cast("tuple[float, float, float]", tuple(float(i) for i in tokens[:3])))
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
                 labels.append(tokens[4])
@@ -1801,7 +1818,7 @@ class Kpoints(MSONable):
             filename (PathLike): Filename to write to.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]
 
     def as_dict(self) -> dict[str, Any]:
         """MSONable dict."""
@@ -1837,7 +1854,7 @@ class Kpoints(MSONable):
             Kpoints
         """
         comment = dct.get("comment", "")
-        generation_style = cast(KpointsSupportedModes, dct.get("generation_style"))
+        generation_style = cast("KpointsSupportedModes", dct.get("generation_style"))
         kpts = dct.get("kpoints", ((1, 1, 1),))
         kpts_shift = dct.get("usershift", (0, 0, 0))
         num_kpts = dct.get("nkpoints", 0)
@@ -1922,29 +1939,7 @@ class PotcarSingle:
     are raised if validation fails.
     """
 
-    # Note: there are multiple releases of the {LDA,PBE} {52,54} POTCARs
-    #     the original (UNIVIE) releases include no SHA256 hashes nor COPYR fields
-    #     in the PSCTR/header field.
-    # We indicate the older release in `functional_dir` as PBE_52, PBE_54, LDA_52, LDA_54.
-    # The newer release is indicated as PBE_52_W_HASH, etc.
-    functional_dir: ClassVar[dict[str, str]] = {
-        "PBE": "POT_GGA_PAW_PBE",
-        "PBE_52": "POT_GGA_PAW_PBE_52",
-        "PBE_52_W_HASH": "POTPAW_PBE_52",
-        "PBE_54": "POT_GGA_PAW_PBE_54",
-        "PBE_54_W_HASH": "POTPAW_PBE_54",
-        "PBE_64": "POT_PAW_PBE_64",
-        "LDA": "POT_LDA_PAW",
-        "LDA_52": "POT_LDA_PAW_52",
-        "LDA_52_W_HASH": "POTPAW_LDA_52",
-        "LDA_54": "POT_LDA_PAW_54",
-        "LDA_54_W_HASH": "POTPAW_LDA_54",
-        "LDA_64": "POT_LDA_PAW_64",
-        "PW91": "POT_GGA_PAW_PW91",
-        "LDA_US": "POT_LDA_US",
-        "PW91_US": "POT_GGA_US_PW91",
-        "Perdew_Zunger81": "POT_LDA_PAW",
-    }
+    functional_dir: ClassVar[dict[str, str]] = POTCAR_FUNCTIONAL_MAP
 
     functional_tags: ClassVar[dict[str, dict[Literal["name", "class"], str]]] = {
         "pe": {"name": "PBE", "class": "GGA"},
@@ -2029,45 +2024,45 @@ class PotcarSingle:
         PSCTR: dict[str, Any] = {}
 
         array_search = re.compile(r"(-*[0-9.]+)")
-        orbitals: list[Orbital] = []
-        descriptions: list[OrbitalDescription] = []
+
         if atomic_config_match := re.search(r"(?s)Atomic configuration(.*?)Description", search_lines):
             lines = atomic_config_match[1].splitlines()
             match = re.search(r"([0-9]+)", lines[1])
             num_entries = int(match[1]) if match else 0
             PSCTR["nentries"] = num_entries
-            for line in lines[3:]:
-                if orbit := array_search.findall(line):
-                    orbitals.append(
-                        Orbital(
-                            int(orbit[0]),
-                            int(orbit[1]),
-                            float(orbit[2]),
-                            float(orbit[3]),
-                            float(orbit[4]),
-                        )
+            PSCTR["Orbitals"] = tuple(
+                [
+                    Orbital(
+                        int(orbit[0]),
+                        int(orbit[1]),
+                        float(orbit[2]),
+                        float(orbit[3]),
+                        float(orbit[4]),
                     )
-            PSCTR["Orbitals"] = tuple(orbitals)
+                    for line in lines[3:]
+                    if (orbit := array_search.findall(line))
+                ]
+            )
 
         if description_string := re.search(
             r"(?s)Description\s*\n(.*?)Error from kinetic energy argument \(eV\)",
             search_lines,
         ):
-            for line in description_string[1].splitlines():
-                if description := array_search.findall(line):
-                    descriptions.append(
-                        OrbitalDescription(
-                            int(description[0]),
-                            float(description[1]),
-                            int(description[2]),
-                            float(description[3]),
-                            int(description[4]) if len(description) > 4 else None,
-                            float(description[5]) if len(description) > 4 else None,
-                        )
-                    )
+            descriptions: list[OrbitalDescription] = [
+                OrbitalDescription(
+                    int(description[0]),
+                    float(description[1]),
+                    int(description[2]),
+                    float(description[3]),
+                    int(description[4]) if len(description) > 4 else None,
+                    float(description[5]) if len(description) > 4 else None,
+                )
+                for line in description_string[1].splitlines()
+                if (description := array_search.findall(line))
+            ]
 
-        if descriptions:
-            PSCTR["OrbitalDescriptions"] = tuple(descriptions)
+            if descriptions:
+                PSCTR["OrbitalDescriptions"] = tuple(descriptions)
 
         rrkj_kinetic_energy_string = re.search(
             r"(?s)Error from kinetic energy argument \(eV\)\s*\n(.*?)END of PSCTR-controll parameters",
@@ -2412,7 +2407,7 @@ class PotcarSingle:
 
         def data_stats(data_list: Sequence) -> dict:
             """Used for hash-less and therefore less brittle POTCAR validity checking."""
-            arr = np.array(data_list)
+            arr = np.asarray(data_list)
             return {
                 "MEAN": np.mean(arr),
                 "ABSMEAN": np.mean(np.abs(arr)),
@@ -2436,21 +2431,27 @@ class PotcarSingle:
 
         data_match_tol: float = 1e-6
         for ref_psp in possible_potcar_matches:
-            key_match = all(
-                set(ref_psp["keywords"][key]) == set(self._summary_stats["keywords"][key]) for key in ["header", "data"]
-            )
-
-            data_diff = [
-                abs(ref_psp["stats"][key][stat] - self._summary_stats["stats"][key][stat])
-                for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
-                for key in ["header", "data"]
-            ]
-            data_match = all(np.array(data_diff) < data_match_tol)
-
-            if key_match and data_match:
+            if self.compare_potcar_stats(ref_psp, self._summary_stats, tolerance=data_match_tol):
                 return True
 
         return False
+
+    def spec(self, extra_spec: Sequence[str] | None = None) -> dict[str, Any]:
+        """
+        POTCAR spec used in vasprun.xml.
+
+        Args:
+            extra_spec : Sequence[str] or None (default)
+                A list of extra POTCAR fields to include in the spec.
+                If None, defaults to no extra spec.
+        Returns:
+            dict of POTCAR spec
+        """
+        extra_spec = extra_spec or []
+        spec = {"titel": self.TITEL, "hash": self.md5_header_hash, "summary_stats": self._summary_stats}
+        for attr in extra_spec:
+            spec[attr] = getattr(self, attr, None)
+        return spec
 
     def write_file(self, filename: str) -> None:
         """Write PotcarSingle to a file.
@@ -2459,7 +2460,7 @@ class PotcarSingle:
             filename (str): File to write to.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]
 
     def copy(self) -> Self:
         """Return a copy of the PotcarSingle.
@@ -2484,7 +2485,7 @@ class PotcarSingle:
 
         try:
             with zopen(filename, mode="rt", encoding="utf-8") as file:
-                return cls(file.read(), symbol=symbol or None)
+                return cls(file.read(), symbol=symbol or None)  # type:ignore[arg-type]
 
         except UnicodeDecodeError:
             warnings.warn(
@@ -2562,6 +2563,47 @@ class PotcarSingle:
 
         return has_sha256, hash_is_valid
 
+    @staticmethod
+    def compare_potcar_stats(
+        potcar_stats_1: dict,
+        potcar_stats_2: dict,
+        tolerance: float = 1.0e-6,
+        check_potcar_fields: Sequence[str] = ["header", "data"],
+    ) -> bool:
+        """
+        Compare PotcarSingle._summary_stats to assess if they are the same within a tolerance.
+
+        Args:
+            potcar_stats_1 : dict
+                Dict of potcar summary stats from the first PotcarSingle, from the PotcarSingle._summary stats attr
+            potcar_stats_2 : dict
+                Second dict of summary stats
+            tolerance : float = 1.e-6
+                Tolerance to assess equality of numeric statistical values
+            check_potcar_fields : Sequence[str] = ["header", "data"]
+                The specific fields of the POTCAR to check, whether just the "header", just the "data", or both
+
+        Returns:
+            bool
+                Whether the POTCARs are identical according to their summary stats.
+        """
+
+        key_match = all(
+            set(potcar_stats_1["keywords"].get(key)) == set(potcar_stats_2["keywords"].get(key))
+            for key in check_potcar_fields
+        )
+
+        data_match = False
+        if key_match:
+            data_diff = [
+                abs(potcar_stats_1["stats"].get(key, {}).get(stat) - potcar_stats_2["stats"].get(key, {}).get(stat))
+                for stat in ("MEAN", "ABSMEAN", "VAR", "MIN", "MAX")
+                for key in check_potcar_fields
+            ]
+            data_match = all(np.array(data_diff) < tolerance)
+
+        return key_match and data_match
+
     def identify_potcar(
         self,
         mode: Literal["data", "file"] = "data",
@@ -2599,19 +2641,9 @@ class PotcarSingle:
                 if self.VRHFIN.replace(" ", "") != ref_psp["VRHFIN"]:
                     continue
 
-                key_match = all(
-                    set(ref_psp["keywords"][key]) == set(self._summary_stats["keywords"][key]) for key in check_modes
-                )
-
-                data_diff = [
-                    abs(ref_psp["stats"][key][stat] - self._summary_stats["stats"][key][stat])
-                    for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
-                    for key in check_modes
-                ]
-
-                data_match = all(np.array(data_diff) < data_tol)
-
-                if key_match and data_match:
+                if self.compare_potcar_stats(
+                    ref_psp, self._summary_stats, tolerance=data_tol, check_potcar_fields=check_modes
+                ):
                     identity["potcar_functionals"].append(func)
                     identity["potcar_symbols"].append(ref_psp["symbol"])
 
@@ -2783,7 +2815,7 @@ def _gen_potcar_summary_stats(
     # Use append = True if a new POTCAR library is released to add new summary stats
     # without completely regenerating the dict of summary stats
     # Use append = False to completely regenerate the summary stats dict
-    new_summary_stats = loadfn(summary_stats_filename) if append else {}
+    new_summary_stats = loadfn(summary_stats_filename) if append else {}  # type:ignore[arg-type]
 
     for func, func_dir in func_dir_exist.items():
         new_summary_stats.setdefault(func, {})  # initialize dict if key missing
@@ -2861,8 +2893,28 @@ class Potcar(list, MSONable):
 
     @property
     def spec(self) -> list[dict]:
-        """The atomic symbols and hash of all the atoms in the POTCAR file."""
-        return [{"symbol": psingle.symbol, "hash": psingle.md5_computed_file_hash} for psingle in self]
+        """
+        POTCAR spec for all POTCARs in this instance.
+
+        Args:
+            extra_spec : Sequence[str] or None (default)
+                A list of extra POTCAR fields to include in the spec.
+                If None, defaults to ["symbol"] (needed for compatibility with LOBSTER).
+
+        Return:
+            list[dict], a list of PotcarSingle.spec dicts
+        """
+        return [psingle.spec(extra_spec=["symbol"]) for psingle in self]
+
+    def write_potcar_spec(self, filename: str = "POTCAR.spec.json.gz") -> None:
+        """
+        Write POTCAR spec to file.
+
+        Args:
+            filename : str = "POTCAR.spec.json.gz"
+                The name of a file to write the POTCAR spec to.
+        """
+        dumpfn(self.spec, filename)
 
     def as_dict(self) -> dict:
         """MSONable dict representation."""
@@ -2874,7 +2926,7 @@ class Potcar(list, MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict) -> Potcar:
         """
         Args:
             dct (dict): Dict representation.
@@ -2885,22 +2937,19 @@ class Potcar(list, MSONable):
         return Potcar(symbols=dct["symbols"], functional=dct["functional"])
 
     @classmethod
-    def from_file(cls, filename: PathLike) -> Self:
+    def from_str(cls, data: str):
         """
-        Reads Potcar from file.
+        Read Potcar from a string.
 
-        Args:
-            filename: Filename
+        :param data: Potcar as a string.
 
         Returns:
             Potcar
         """
-        with zopen(filename, mode="rt", encoding="utf-8") as file:
-            fdata = file.read()
-
         potcar = cls()
-        functionals: list[str | None] = []
-        for psingle_str in fdata.split("End of Dataset"):
+
+        functionals = []
+        for psingle_str in data.split("End of Dataset"):
             if p_strip := psingle_str.strip():
                 psingle = PotcarSingle(f"{p_strip}\nEnd of Dataset\n")
                 potcar.append(psingle)
@@ -2912,6 +2961,20 @@ class Potcar(list, MSONable):
         potcar.functional = functionals[0]
         return potcar
 
+    @classmethod
+    def from_file(cls, filename: str):
+        """
+        Reads Potcar from file.
+
+        :param filename: Filename
+
+        Returns:
+            Potcar
+        """
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
+            fdata = file.read()
+        return cls.from_str(fdata)  # type:ignore[arg-type]
+
     def write_file(self, filename: PathLike) -> None:
         """Write Potcar to a file.
 
@@ -2919,7 +2982,7 @@ class Potcar(list, MSONable):
             filename (PathLike): filename to write to.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]
 
     def set_symbols(
         self,
@@ -2948,6 +3011,42 @@ class Potcar(list, MSONable):
         else:
             self.extend(PotcarSingle(sym_potcar_map[el]) for el in symbols)
 
+    @classmethod
+    def from_spec(cls, potcar_spec: list[dict], functionals: list[str] | None = None) -> Potcar:
+        """
+        Generate a POTCAR from a list of POTCAR spec dicts.
+
+        If a set of POTCARs *for the same functional* cannot be found, raises a ValueError.
+        Args:
+            potcar_spec: list[dict]
+                List of POTCAR specs, from Potcar.spec or [PotcarSingle.spec]
+            functionals : list[str] or None (default)
+                If a list of strings, the functionals to restrict the search to.
+
+        Returns:
+            Potcar, a POTCAR using a single functional that matches the input spec.
+        """
+
+        functionals = functionals or list(PotcarSingle._potcar_summary_stats)
+        for functional in functionals:
+            potcar = Potcar()
+            matched = [False for _ in range(len(potcar_spec))]
+            for ispec, spec in enumerate(potcar_spec):
+                titel = spec.get("titel", "")
+                titel_no_spc = titel.replace(" ", "")
+                symbol = titel.split(" ")[1].strip()
+
+                for stats in PotcarSingle._potcar_summary_stats[functional].get(titel_no_spc, []):
+                    if PotcarSingle.compare_potcar_stats(spec["summary_stats"], stats):
+                        potcar.append(PotcarSingle.from_symbol_and_functional(symbol=symbol, functional=functional))
+                        matched[ispec] = True
+                        break
+
+                if all(matched):
+                    return potcar
+
+        raise ValueError("Cannot match the give POTCAR spec to a set of POTCARs generated with the same functional.")
+
 
 class UnknownPotcarWarning(UserWarning):
     """Warning raised when POTCAR hashes do not pass validation."""
@@ -2958,7 +3057,7 @@ class VaspInput(dict, MSONable):
 
     def __init__(
         self,
-        incar: dict | Incar,
+        incar: Mapping[str, Any],
         kpoints: Kpoints | None,
         poscar: Poscar,
         potcar: Potcar | str | None,
@@ -2986,7 +3085,7 @@ class VaspInput(dict, MSONable):
         self._potcar_filename = "POTCAR" + (".spec" if potcar_spec else "")
         self.update(
             {
-                "INCAR": Incar(incar),
+                "INCAR": Incar(incar),  # type:ignore[arg-type]
                 "KPOINTS": kpoints,
                 "POSCAR": poscar,
                 self._potcar_filename: potcar,
@@ -3055,7 +3154,7 @@ class VaspInput(dict, MSONable):
         for key, value in self.items():
             if value is not None:
                 with zopen(os.path.join(output_dir, key), mode="wt", encoding="utf-8") as file:
-                    file.write(str(value))
+                    file.write(str(value))  # type:ignore[arg-type]
 
         if cif_name:
             self["POSCAR"].structure.to(filename=cif_name)
@@ -3065,7 +3164,7 @@ class VaspInput(dict, MSONable):
             with ZipFile(os.path.join(output_dir, zip_name), mode="w") as zip_file:
                 for file in files_to_zip:
                     try:
-                        zip_file.write(os.path.join(output_dir, file), arcname=file)
+                        zip_file.write(os.path.join(output_dir, file), arcname=file)  # type:ignore[arg-type]
                     except FileNotFoundError:
                         pass
 

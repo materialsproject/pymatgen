@@ -1,21 +1,19 @@
 from __future__ import annotations
 
 import copy
-import json
 import os
 import pickle
 import re
 import warnings
 from shutil import copyfile
-from unittest import TestCase
 from unittest.mock import patch
 
 import numpy as np
+import orjson
 import pytest
 import scipy.constants as const
 from monty.io import zopen
 from monty.serialization import loadfn
-from monty.tempfile import ScratchDir
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -38,7 +36,7 @@ from pymatgen.io.vasp.inputs import (
     VaspInput,
     _gen_potcar_summary_stats,
 )
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
 # Filter some expected warnings
 warnings.filterwarnings(
@@ -72,7 +70,7 @@ def _mock_complete_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None
 @pytest.mark.filterwarnings(
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
 )
-class TestPoscar(PymatgenTest):
+class TestPoscar(MatSciTest):
     def test_init(self):
         comp = Structure.from_file(f"{VASP_IN_DIR}/POSCAR").composition
         assert comp == Composition("Fe4P4O16")
@@ -649,8 +647,8 @@ Cartesian
         assert poscar.structure.formula == "Li4 Fe4 P4 O16"
 
 
-class TestIncar(PymatgenTest):
-    def setUp(self):
+class TestIncar(MatSciTest):
+    def setup_method(self):
         self.incar = Incar.from_file(f"{VASP_IN_DIR}/INCAR")
 
     def test_init(self):
@@ -659,6 +657,28 @@ class TestIncar(PymatgenTest):
         assert incar["ALGO"] == "Damped", "Wrong Algo"
         assert float(incar["EDIFF"]) == approx(1e-4), "Wrong EDIFF"
         assert isinstance(incar["LORBIT"], int)
+
+    def test_lattice_constaints(self):
+        incar_str = """
+        ALGO = Fast
+EDIFF = 0.00045000000000000004
+ENCUT = 520.0
+IBRION = 2
+ISIF = 3
+ISMEAR = -5
+ISPIN = 2
+LASPH = True
+LATTICE_CONSTRAINTS = False False True
+LORBIT = 11
+LREAL = Auto
+LWAVE = False
+MAGMOM = 9*0.6
+NELM = 100
+NSW = 99
+PREC = Accurate
+SIGMA = 0.05"""
+        incar = Incar.from_str(incar_str)
+        assert incar["LATTICE_CONSTRAINTS"] == [False, False, True]
 
     def test_check_for_duplicate(self):
         incar_str: str = """encut = 400
@@ -845,11 +865,10 @@ class TestIncar(PymatgenTest):
         SYSTEM = This should NOT BE capitalized
         """
 
-        with ScratchDir("."):
-            with open("INCAR", "w", encoding="utf-8") as f:
-                f.write(incar_str)
+        with open("INCAR", "w", encoding="utf-8") as f:
+            f.write(incar_str)
 
-            incar_from_file = Incar.from_file("INCAR")
+        incar_from_file = Incar.from_file("INCAR")
 
         # Make sure int/float is cast to correct type when init from dict
         assert incar_from_dict["GGA"] == "Ps"
@@ -866,6 +885,92 @@ class TestIncar(PymatgenTest):
         self.incar.write_file(tmp_file)
         incar = Incar.from_file(tmp_file)
         assert incar == self.incar
+
+    def test_from_str_comment_handling(self):
+        incar_str = r"""
+        # A = 0
+        ! B=1
+        SIGMA = 0.05   # random comment (known float tag)
+        EDIFF = 1e-6   ! another comment (known float tag)
+        ALGO = Normal  # comment (unknown tag -> inferred as str)
+        GGA = PE       ! comment (unknown tag -> inferred as str)
+        """
+        incar = Incar.from_str(incar_str)
+
+        assert set(incar.keys()) == {"SIGMA", "EDIFF", "ALGO", "GGA"}
+        assert incar["SIGMA"] == approx(0.05)
+        assert incar["EDIFF"] == approx(1e-6)
+        assert incar["ALGO"] == "Normal"
+        assert incar["GGA"] == "Pe"
+
+    def test_from_str_semicolon_separated_statements(self):
+        # Test interaction between semicolon and comment
+        incar_str = r"""
+        ENMAX = 400; ALGO = Fast         ! A = 0
+        ENCUT = 500; ISMEAR = 0          # B=1
+        PREC = Accurate ; LREAL = Auto   ! precision and projection scheme
+        IBRION = 2; ISIF = 3; NSW = 100  # three statements in one line
+        """
+        incar = Incar.from_str(incar_str)
+
+        assert set(incar.keys()) == {
+            "ENMAX",
+            "ALGO",
+            "ENCUT",
+            "ISMEAR",
+            "PREC",
+            "LREAL",
+            "IBRION",
+            "ISIF",
+            "NSW",
+        }
+
+        assert incar["ENMAX"] == 400
+        assert incar["ALGO"] == "Fast"
+        assert incar["ENCUT"] == 500
+        assert incar["ISMEAR"] == 0
+        assert incar["PREC"] == "Accurate"
+        assert incar["LREAL"] == "Auto"
+        assert incar["IBRION"] == 2
+        assert incar["ISIF"] == 3
+        assert incar["NSW"] == 100
+
+    def test_from_str_line_continuation_with_backslash(self):
+        # Test line continuation with backslash
+        incar_str = r"""
+        ALGO = Normal  # \ This backslash should be ignored
+        ENMAX = 200    ! \ This backslash should be ignored
+        MAGMOM  = 0 0 1.0 0 0 -1.0 \
+                0 0 1.0 0 0 -1.0 \
+                6*0
+        """
+        incar = Incar.from_str(incar_str)
+
+        assert set(incar.keys()) == {"ALGO", "ENMAX", "MAGMOM"}
+        assert incar["ALGO"] == "Normal"
+        assert incar["ENMAX"] == 200
+
+        assert incar["MAGMOM"] == [0, 0, 1.0, 0, 0, -1.0, 0, 0, 1.0, 0, 0, -1.0] + [0.0] * 6
+
+    def test_from_str_multiline_string(self):
+        incar_str = r"""
+        # Multi-line string with embedded comments
+        WANNIER90_WIN = "begin Projections  # should NOT be capitalized
+        Fe:d ; Fe:p  # comment inside string
+        End Projections  ! random comment
+        "  # comment after closing quote
+        """
+        incar = Incar.from_str(incar_str)
+
+        assert set(incar.keys()) == {"WANNIER90_WIN"}
+
+        # Comments inside the string would be lost
+        assert (
+            incar["WANNIER90_WIN"]
+            == """begin Projections
+        Fe:d ; Fe:p
+        End Projections"""
+        )
 
     def test_get_str(self):
         incar_str = self.incar.get_str(pretty=True, sort_keys=True)
@@ -982,11 +1087,55 @@ SIGMA = 0.1"""
         assert incar["HFSCREEN"] == approx(0.2)
         assert incar["ALGO"] == "All"
 
-    def test_proc_types(self):
+    def test_proc_val(self):
         assert Incar.proc_val("HELLO", "-0.85 0.85") == "-0.85 0.85"
+        # `ML_MODE` should always be lower case
         assert Incar.proc_val("ML_MODE", "train") == "train"
         assert Incar.proc_val("ML_MODE", "RUN") == "run"
         assert Incar.proc_val("ALGO", "fast") == "Fast"
+
+        # LREAL has union type "bool | str"
+        assert Incar.proc_val("LREAL", "T") is True
+        assert Incar.proc_val("LREAL", ".FALSE.") is False
+        assert Incar.proc_val("LREAL", "Auto") == "Auto"
+        assert Incar.proc_val("LREAL", "on") == "On"
+
+    def test_proc_val_inconsistent_type(self):
+        """proc_val should not raise even when value conflicts with expected type."""
+
+        bool_values = ["T", ".FALSE."]
+        int_values = ["5", "-3"]
+        float_values = ["1.23", "-4.56e-2"]
+        list_values = ["3*1.0 2*0.5", "1 2 3"]
+        str_values = ["Auto", "Run", "Hello"]
+
+        # Expect bool
+        for v in int_values + float_values + list_values + str_values:
+            assert Incar.proc_val("LASPH", v) is not None
+
+        # Expect int
+        for v in bool_values + float_values + list_values + str_values:
+            assert Incar.proc_val("LORBIT", v) is not None
+
+        # Expect float
+        for v in bool_values + int_values + list_values + str_values:
+            assert Incar.proc_val("ENCUT", v) is not None
+
+        # Expect str
+        for v in bool_values + int_values + float_values + list_values:
+            assert Incar.proc_val("ALGO", v) is not None
+
+        # Expect list
+        for v in bool_values + int_values + float_values + str_values:
+            assert Incar.proc_val("PHON_TLIST", v) is not None
+
+        # Union type (bool | str)
+        for v in int_values + float_values + list_values:
+            assert Incar.proc_val("LREAL", v) is not None
+
+        # Non-existent
+        for v in int_values + float_values + list_values + str_values + bool_values:
+            assert Incar.proc_val("HELLOWORLD", v) is not None
 
     def test_check_params(self):
         # Triggers warnings when running into invalid parameters
@@ -1092,6 +1241,11 @@ Cartesian
 0.0 0.5 0.5 2 None
 0.5 0.5 0.5 4 None"""
         assert str(kpoints).strip() == expected_kpt_str
+
+        # ensure KPOINTS deserialize even when weights are numpy array
+        conf_dict = kpoints.as_dict()
+        conf_dict["kpts_weights"] = np.array(conf_dict["kpts_weights"])
+        assert Kpoints.from_dict(conf_dict) == kpoints
 
         # Explicit tetrahedra method
         filepath = f"{VASP_IN_DIR}/KPOINTS_explicit_tet"
@@ -1205,7 +1359,7 @@ Cartesian
         kpts = Kpoints.from_file(file_name)
         dct = kpts.as_dict()
 
-        json.dumps(dct)
+        assert orjson.dumps(dct).decode()
         # This doesn't work
         k2 = Kpoints.from_dict(dct)
         assert kpts.kpts == k2.kpts
@@ -1219,7 +1373,7 @@ Cartesian
 
     def test_eq(self):
         auto_g_kpts = Kpoints.gamma_automatic()
-        assert auto_g_kpts == auto_g_kpts
+        assert auto_g_kpts == auto_g_kpts  # noqa: PLR0124
         assert auto_g_kpts == Kpoints.gamma_automatic()
         file_kpts = Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS")
         assert file_kpts == Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS")
@@ -1308,8 +1462,8 @@ direct
 @pytest.mark.filterwarnings(
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
 )
-class TestPotcarSingle(TestCase):
-    def setUp(self):
+class TestPotcarSingle:
+    def setup_method(self):
         self.psingle_Mn_pv = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Mn_pv.gz")
         self.psingle_Fe = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Fe.gz")
         self.psingle_Fe_54 = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz")
@@ -1607,11 +1761,9 @@ class TestPotcarSingle(TestCase):
 
         with (
             patch.dict(SETTINGS, PMG_VASP_PSP_SUB_DIRS={"PBE_64": "PBE_64_FOO"}),
-            pytest.raises(FileNotFoundError) as exc_info,
+            pytest.raises(FileNotFoundError, match=re.escape(err_msg)),
         ):
             PotcarSingle.from_symbol_and_functional(symbol, functional)
-
-        assert err_msg in str(exc_info.value)
 
     def test_repr(self):
         expected_repr = (
@@ -1649,12 +1801,22 @@ class TestPotcarSingle(TestCase):
         assert psingle == self.psingle_Mn_pv
         assert psingle is not self.psingle_Mn_pv
 
+    def test_spec(self):
+        for psingle in [self.psingle_Fe, self.psingle_Fe_54, self.psingle_Mn_pv]:
+            expected_spec = {
+                "titel": psingle.TITEL,
+                "hash": psingle.md5_header_hash,
+                "summary_stats": psingle._summary_stats,
+                "symbol": psingle.symbol,
+            }
+            assert expected_spec == psingle.spec(extra_spec=["symbol"])
+
 
 @pytest.mark.filterwarnings(
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
 )
-class TestPotcar(PymatgenTest):
-    def setUp(self):
+class TestPotcar(MatSciTest):
+    def setup_method(self):
         SETTINGS.setdefault("PMG_VASP_PSP_DIR", str(TEST_FILES_DIR))
         self.filepath = f"{FAKE_POTCAR_DIR}/POTCAR.gz"
         self.potcar = Potcar.from_file(self.filepath)
@@ -1714,7 +1876,7 @@ class TestPotcar(PymatgenTest):
         assert self.potcar.symbols == ["Fe_pv", "O"]
         assert self.potcar[0].nelectrons == 14
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_default_functional(self):
         potcar = Potcar(["Fe", "P"])
         assert potcar[0].functional_class == "GGA"
@@ -1727,13 +1889,26 @@ class TestPotcar(PymatgenTest):
     def test_pickle(self):
         pickle.dumps(self.potcar)
 
+    def test_from_spec(self):
+        orig_potcar = Potcar(symbols=["Fe", "P", "O"], functional="PBE")
+        new_potcar = Potcar.from_spec(orig_potcar.spec)
+        assert str(new_potcar) == str(orig_potcar)
+        assert all(
+            [PotcarSingle.compare_potcar_stats(p._summary_stats, orig_potcar[ip]._summary_stats)]
+            for ip, p in enumerate(new_potcar)
+            if p.TITEL == orig_potcar[ip].TITEL
+        )
+
+    # def tearDown(self):
+    #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
+
 
 @pytest.mark.filterwarnings("ignore:Please use INCAR KSPACING tag:DeprecationWarning")
 @pytest.mark.filterwarnings(
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
 )
-class TestVaspInput(PymatgenTest):
-    def setUp(self):
+class TestVaspInput(MatSciTest):
+    def setup_method(self):
         filepath = f"{VASP_IN_DIR}/INCAR"
         incar = Incar.from_file(filepath)
         filepath = f"{VASP_IN_DIR}/POSCAR"

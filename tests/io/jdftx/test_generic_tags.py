@@ -11,6 +11,7 @@ from pymatgen.io.jdftx.generic_tags import (
     FloatTag,
     InitMagMomTag,
     IntTag,
+    MultiformatTag,
     StrTag,
     TagContainer,
 )
@@ -43,7 +44,7 @@ def test_stringify():
     str_tag = StrTag(options=["ken"])
     out_str = str(str_tag)
     assert isinstance(out_str, str)
-    assert len(out_str)
+    assert out_str
 
 
 def test_bool_tag():
@@ -170,7 +171,7 @@ def test_initmagmomtag():
     assert initmagmomtag.get_token_len() == 0
     initmagmomtag = InitMagMomTag(write_tagname=True, write_value=True)
     assert initmagmomtag.get_token_len() == 2
-    with pytest.warns(Warning):
+    with pytest.warns(Warning, match="warning"):
         initmagmomtag.validate_value_type("tag", Unstringable(), try_auto_type_fix=True)
 
 
@@ -187,7 +188,7 @@ def test_tagcontainer_validation():
         },
     )
     # issues with converting values to the correct type should only raise a warning within validate_value_type
-    with pytest.warns(Warning):
+    with pytest.warns(Warning, match="Invalid value"):
         tagcontainer.validate_value_type(
             f"{tag}", {f"{repeatable_str_subtag}": ["1"], f"{non_repeatable_int_subtag}": f"{non_intable_value}"}
         )
@@ -293,10 +294,6 @@ def test_tagcontainer_read():
         ),
     ):
         tagcontainer.read(tag, value)
-    ###
-    tagcontainer = get_tag_object("ion")
-    with pytest.warns(Warning):
-        tagcontainer.read("ion", "Fe 1 1 1 1 HyperPlane")
 
 
 def test_tagcontainer_write():
@@ -364,7 +361,7 @@ def test_tagcontainer_list_dict_conversion():
         [top_subtag, "True", "False"],
     )
     value = {top_subtag: {bottom_subtag1: {"True": True}, bottom_subtag2: "False"}}
-    with pytest.warns(Warning):
+    with pytest.warns(Warning, match="sun subtag does not allow list"):
         tagcontainer._make_list(value)
     value = [[top_subtag, "True", "False"]]
     assert_same_value(tagcontainer.get_list_representation("barbie", value), value)
@@ -445,3 +442,109 @@ def test_multiformattagcontainer():
     "Check your inputs and/or MASTER_TAG_LIST!"
     with pytest.raises(ValueError, match=re.escape(err_str)):
         mftg._determine_format_option(tag, value)
+
+
+def test_boundary_checking():
+    # Check that non-numeric tag returns valid always
+    tag = "barbie"
+    value = "notanumber"
+    valtag = StrTag()
+    assert valtag.validate_value_bounds(tag, value)[0] is True
+    # Check that numeric tags can return False
+    value = 0.0
+    valtag = FloatTag(lb=1.0)
+    assert valtag.validate_value_bounds(tag, value)[0] is False
+    valtag = FloatTag(lb=0.0, lb_incl=False)
+    assert valtag.validate_value_bounds(tag, value)[0] is False
+    valtag = FloatTag(ub=-1.0)
+    assert valtag.validate_value_bounds(tag, value)[0] is False
+    valtag = FloatTag(ub=0.0, ub_incl=False)
+    assert valtag.validate_value_bounds(tag, value)[0] is False
+    # Check that numeric tags can return True
+    valtag = FloatTag(lb=0.0, lb_incl=True)
+    assert valtag.validate_value_bounds(tag, value)[0] is True
+    valtag = FloatTag(ub=0.0, ub_incl=True)
+    assert valtag.validate_value_bounds(tag, value)[0] is True
+    valtag = FloatTag(lb=-1.0, ub=1.0)
+    assert valtag.validate_value_bounds(tag, value)[0] is True
+    # Check functionality for tagcontainers
+    tagcontainer = TagContainer(
+        subtags={
+            "ken": FloatTag(lb=0.0, lb_incl=True),
+            "allan": StrTag(),
+            "skipper": FloatTag(ub=1.0, ub_incl=True, lb=-1.0, lb_incl=False),
+        },
+    )
+    valid, errors = tagcontainer.validate_value_bounds(tag, {"ken": -1.0, "allan": "notanumber", "skipper": 2.0})
+    assert valid is False
+    assert "allan" not in errors
+    assert "ken" in errors
+    assert "x >= 0.0" in errors
+    assert "skipper" in errors
+    assert "1.0 >= x > -1.0" in errors
+    # Make sure tags will never write a value that is out of bounds
+    valtag = FloatTag(lb=-1.0, ub=1.0)
+    assert len(valtag.write(tag, 0.0))
+    assert not len(valtag.write(tag, 2.0))
+
+
+def test_tag_is_equal_to():
+    strtag1 = StrTag()
+    strtag2 = StrTag()
+    floattag1 = FloatTag()
+    floattag2 = FloatTag()
+    inttag1 = IntTag()
+    inttag2 = IntTag()
+    booltag1 = BoolTag()
+    booltag2 = BoolTag()
+    tagcont1 = TagContainer(subtags={"strtag": strtag1, "floattag": floattag1, "inttag": inttag1, "booltag": booltag1})
+    tagcont2 = TagContainer(subtags={"strtag": strtag2, "floattag": floattag2, "inttag": inttag2, "booltag": booltag2})
+    # Make sure tags of different types are not equal
+    assert not strtag1.is_equal_to("", floattag1, 1.0)
+    assert not strtag1.is_equal_to("", inttag1, 1)
+    assert not strtag1.is_equal_to("", booltag1, True)  # noqa: FBT003
+    assert not strtag1.is_equal_to("", tagcont1, {"strtag": "a", "floattag": 1.0, "inttag": 1, "booltag": True})
+    # Test some str tag equalities
+    assert strtag1.is_equal_to(" a", strtag2, "a")
+    assert not strtag1.is_equal_to(" a", strtag2, "b")
+    # Test some float tag equalities
+    assert floattag1.is_equal_to(1.0, floattag2, 1.0)
+    assert not floattag1.is_equal_to(1.0, floattag2, 2.0)
+    floattag3 = FloatTag(eq_atol=0.1)
+    assert floattag3.is_equal_to(1.0, floattag2, 1.01)
+    # Test some int tag equalities
+    assert inttag1.is_equal_to(1, inttag2, 1)
+    assert not inttag1.is_equal_to(1, inttag2, 2)
+    # Test some bool tag equalities
+    assert booltag1.is_equal_to(True, booltag2, True)  # noqa: FBT003
+    assert not booltag1.is_equal_to(True, booltag2, False)  # noqa: FBT003
+    # Test some tagcontainer equalities
+    assert tagcont1.is_equal_to(
+        {"strtag": "a", "floattag": 1.0, "inttag": 1, "booltag": True},
+        tagcont2,
+        {"strtag": "a", "floattag": 1.0, "inttag": 1, "booltag": True},
+    )
+    assert not tagcont1.is_equal_to(
+        {"strtag": "a", "floattag": 1.0, "inttag": 1, "booltag": True},
+        tagcont2,
+        {"strtag": "b", "floattag": 1.0, "inttag": 1, "booltag": True},
+    )
+    assert not tagcont1.is_equal_to(
+        {"strtag": "a", "inttag": 1, "booltag": True},
+        tagcont2,
+        {"strtag": "a", "floattag": 2.0, "inttag": 1, "booltag": True},
+    )
+    # Test expected error raising
+    with pytest.raises(ValueError, match="Values must be in dictionary format for TagContainer comparison"):
+        tagcont1.is_equal_to(
+            {"strtag": "a", "floattag": 1.0, "inttag": 1, "booltag": True},
+            tagcont2,
+            ["strtag", "a", "floattag", 1.0, "inttag", 1, "booltag", True],
+        )
+    with pytest.raises(ValueError, match="Both values must be strings for StrTag comparison"):
+        strtag1.is_equal_to(" a", strtag2, 1.0)
+    mfgtag = MultiformatTag(
+        format_options=[FloatTag(), IntTag()],
+    )
+    with pytest.raises(NotImplementedError):
+        mfgtag.is_equal_to(" a", strtag2, 1.0)

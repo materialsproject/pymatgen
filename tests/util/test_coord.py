@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
@@ -16,8 +14,13 @@ class TestCoordUtils:
         x_vals = [0, 1, 2, 3, 4, 5]
         y_vals = [3, 6, 7, 8, 10, 12]
         assert coord.get_linear_interpolated_value(x_vals, y_vals, 3.6) == approx(9.2)
-        with pytest.raises(ValueError, match=r"x=6 is out of range of provided x_values \(0, 5\)"):
+        with pytest.raises(ValueError, match=r"6 is out of range of provided x_values \(0, 5\)"):
             coord.get_linear_interpolated_value(x_vals, y_vals, 6)
+
+        # test when x is equal to first value in x_vals (previously broke, fixed in #4299):
+        assert coord.get_linear_interpolated_value(x_vals, y_vals, 0) == approx(3)
+        with pytest.raises(ValueError, match=r"-0.5 is out of range of provided x_values \(0, 5\)"):
+            coord.get_linear_interpolated_value(x_vals, y_vals, -0.5)
 
     def test_in_coord_list(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -250,8 +253,8 @@ class TestCoordUtils:
         assert coord.get_angle(v1, v2, units="radians") == approx(0.9553166181245092)
 
 
-class TestSimplex(TestCase):
-    def setUp(self):
+class TestSimplex:
+    def setup_method(self):
         coords = [[0, 0, 0], [0, 1, 0], [0, 0, 1], [1, 0, 0]]
         self.simplex = coord.Simplex(coords)
 

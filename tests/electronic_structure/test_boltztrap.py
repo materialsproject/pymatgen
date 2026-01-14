@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import json
 from shutil import which
-from unittest import TestCase
 
+import orjson
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
@@ -24,19 +23,17 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/boltztrap"
 
 
 @pytest.mark.skipif(not which("x_trans"), reason="No x_trans.")
-class TestBoltztrapAnalyzer(TestCase):
+class TestBoltztrapAnalyzer:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.bz = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/transp/")
         cls.bz_bands = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/bands/")
         cls.bz_up = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/dos_up/", dos_spin=1)
         cls.bz_dw = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/dos_dw/", dos_spin=-1)
         cls.bz_fermi = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/fermi/")
 
-        with open(
-            f"{TEST_FILES_DIR}/electronic_structure/bandstructure/Cu2O_361_bandstructure.json", encoding="utf-8"
-        ) as file:
-            dct = json.load(file)
+        with open(f"{TEST_FILES_DIR}/electronic_structure/bandstructure/Cu2O_361_bandstructure.json", "rb") as file:
+            dct = orjson.loads(file.read())
             cls.bs = BandStructure.from_dict(dct)
             cls.btr = BoltztrapRunner(cls.bs, 1)
 
@@ -218,7 +215,7 @@ class TestBoltztrapAnalyzer(TestCase):
             assert len(sbs_bzt.bands[Spin.up]) == approx(20)
             assert len(sbs_bzt.bands[Spin.up][1]) == approx(143)
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_check_acc_bzt_bands(self):
         structure = loadfn(f"{TEST_DIR}/structure_mp-12103.json")
         sbs = loadfn(f"{TEST_DIR}/dft_bs_sym_line.json")
@@ -253,6 +250,6 @@ class TestBoltztrapAnalyzer(TestCase):
 
     def test_as_from_dict(self):
         btr_dict = self.btr.as_dict()
-        json_str = json.dumps(btr_dict)
+        json_str = orjson.dumps(btr_dict).decode()
         assert json_str is not None
         assert btr_dict["bs"] is not None

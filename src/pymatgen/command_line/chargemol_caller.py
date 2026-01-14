@@ -42,6 +42,7 @@ Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theor
 
 from __future__ import annotations
 
+import logging
 import os
 import platform
 import subprocess
@@ -61,13 +62,15 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import Literal
 
-    from pymatgen.core import Structure
+    from pymatgen.core import IStructure, Structure
 
 __author__ = "Martin Siron, Andrew S. Rosen"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "01/18/21"
+
+logger = logging.getLogger(__name__)
 
 CHARGEMOL_EXE = (
     which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
@@ -121,7 +124,7 @@ class ChargemolAnalysis:
 
         if self._chgcar_path:
             self.chgcar: Chgcar | None = Chgcar.from_file(self._chgcar_path)
-            self.structure: Structure | None = self.chgcar.structure
+            self.structure: Structure | IStructure | None = self.chgcar.structure
             self.natoms: list[int] | None = self.chgcar.poscar.natoms
 
         else:
@@ -184,8 +187,8 @@ class ChargemolAnalysis:
                 os.symlink(self._potcar_path, "./POTCAR")
                 os.symlink(self._aeccar0_path, "./AECCAR0")
                 os.symlink(self._aeccar2_path, "./AECCAR2")
-            except OSError as exc:
-                print(f"Error creating symbolic link: {exc}")
+            except OSError:
+                logger.exception("Error creating symbolic link:")
 
             # write job_script file:
             self._write_jobscript_for_chargemol(**job_control_kwargs)
@@ -387,7 +390,7 @@ class ChargemolAnalysis:
                 "The DDEC6_ATOMIC_DENSITIES_DIR environment variable must be set or the atomic_densities_path must"
                 " be specified"
             )
-        if not os.path.isfile(atomic_densities_path):
+        if not os.path.isdir(atomic_densities_path):
             raise FileNotFoundError(f"{atomic_densities_path=} does not exist")
 
         # This is to fix a Chargemol filepath nuance

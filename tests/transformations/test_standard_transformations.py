@@ -4,9 +4,9 @@ import functools
 import json
 import operator
 from shutil import which
-from unittest import TestCase
 
 import numpy as np
+import orjson
 import pytest
 from monty.json import MontyDecoder
 from numpy.testing import assert_allclose
@@ -15,6 +15,7 @@ from pytest import approx
 from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.core import Element, PeriodicSite
 from pymatgen.core.lattice import Lattice
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.transformations.standard_transformations import (
     AutoOxiStateDecorationTransformation,
@@ -42,8 +43,8 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 enumlib_present = which("enum.x") and which("makestr.x")
 
 
-class TestRotationTransformations(TestCase):
-    def setUp(self):
+class TestRotationTransformations:
+    def setup_method(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = [
             [3.8401979337, 0, 0],
@@ -109,8 +110,8 @@ class TestSubstitutionTransformation:
         assert struct_trafo.formula == "Na2 Se1 S1"
 
 
-class TestSupercellTransformation(TestCase):
-    def setUp(self):
+class TestSupercellTransformation:
+    def setup_method(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = [
             [3.8401979337, 0, 0],
@@ -359,9 +360,32 @@ class TestOrderDisorderedStructureTransformation:
         ]
         struct = Structure(lattice, [{"Si4+": 1}, *[{"Si4+": 0.5}] * 4], coords)
         test_site = PeriodicSite("Si4+", coords[2], lattice)
-        struct = SymmetrizedStructure(struct, "not_real", [0, 1, 1, 2, 2], ["a", "b", "b", "c", "c"])
-        output = trafo.apply_transformation(struct)
+        symm_struct = SymmetrizedStructure(struct, "not_real", [0, 1, 1, 2, 2], ["a", "b", "b", "c", "c"])
+        output = trafo.apply_transformation(symm_struct)
         assert test_site in output
+
+        ds_coords = [
+            [0.0, 0.0, 0.0],
+            [0.0, 0.5, 0.5],
+            [0.5, 0.0, 0.5],
+            [0.5, 0.5, 0.0],
+            [0.25, 0.25, 0.75],
+            [0.25, 0.75, 0.25],
+            [0.75, 0.25, 0.25],
+            [0.75, 0.75, 0.75],
+        ]
+        structure = Structure(
+            Lattice.cubic(5),
+            [*[{"Si4-": 1}] * 4, *[{"Si4+": 0.5, "Ge4+": 0.5}] * 4],
+            ds_coords,
+        )
+        symm_struct = SpacegroupAnalyzer(structure).get_symmetrized_structure()
+
+        for no_oxi_states in (True, False):
+            _kwargs = {"symmetrized_structures": True, "no_oxi_states": no_oxi_states}
+            assert OrderDisorderedStructureTransformation(**_kwargs).apply_transformation(
+                symm_struct
+            ) == OrderDisorderedStructureTransformation(**_kwargs).apply_transformation(structure)
 
     def test_too_small_cell(self):
         trafo = OrderDisorderedStructureTransformation()
@@ -575,7 +599,7 @@ class TestDeformStructureTransformation:
         assert transformed_s.lattice.b == approx(3.84379750)
         assert transformed_s.lattice.c == approx(3.75022981)
 
-        dct = json.loads(json.dumps(trafo.as_dict()))
+        dct = orjson.loads(orjson.dumps(trafo.as_dict()).decode())
         assert isinstance(DeformStructureTransformation.from_dict(dct), DeformStructureTransformation)
 
 

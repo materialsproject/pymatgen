@@ -17,12 +17,15 @@ import re
 from functools import reduce
 from typing import TYPE_CHECKING
 
+import orjson
+
 from pymatgen.core.structure import Lattice, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Generator
     from typing import Any
 
+    from pymatgen.core.structure import IStructure
 
 __author__ = "Matthew Evans"
 
@@ -58,7 +61,7 @@ def _pymatgen_species(
 
         pymatgen_species.append(dict(zip(chemical_symbols, concentration, strict=True)))
 
-    return pymatgen_species
+    return pymatgen_species  # type:ignore[return-value]
 
 
 def _optimade_anonymous_element_generator() -> Generator[str, None, None]:
@@ -107,7 +110,7 @@ class OptimadeStructureAdapter:
     """Adapter serves as a bridge between OPTIMADE structures and pymatgen objects."""
 
     @staticmethod
-    def get_optimade_structure(structure: Structure, **kwargs) -> dict[str, str | dict[str, Any]]:
+    def get_optimade_structure(structure: Structure | IStructure, **kwargs) -> dict[str, str | dict[str, Any]]:
         """Get a dictionary in the OPTIMADE Structure format from a pymatgen structure or molecule.
 
         Args:
@@ -163,14 +166,14 @@ class OptimadeStructureAdapter:
         """
         if isinstance(resource, str):
             try:
-                resource = json.loads(resource)
+                resource = orjson.loads(resource)
             except json.JSONDecodeError as exc:
                 raise ValueError(f"Could not decode the input OPTIMADE resource as JSON: {exc}")
 
         if "attributes" not in resource:
             resource = {"attributes": resource}
 
-        _id = resource.get("id", None)
+        _id = resource.get("id")
         attributes = resource["attributes"]
         properties: dict[str, Any] = {"optimade_id": _id}
 

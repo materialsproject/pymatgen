@@ -20,6 +20,9 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.core.periodic_table import DummySpecies, Element
+    from pymatgen.core.structure import IStructure
+
 
 def lattice_from_abivars(cls=None, *args, **kwargs):
     """Get a `Lattice` object from a dictionary with the Abinit variables `acell`
@@ -162,7 +165,7 @@ def structure_from_abivars(cls=None, *args, **kwargs) -> Structure:
     )
 
 
-def species_by_znucl(structure: Structure) -> list[Species]:
+def species_by_znucl(structure: IStructure | Structure) -> list[Species | Element | DummySpecies]:
     """Get list of unique specie found in structure **ordered according to sites**.
 
     Example:
@@ -185,7 +188,7 @@ def species_by_znucl(structure: Structure) -> list[Species]:
 
 
 def structure_to_abivars(
-    structure: Structure,
+    structure: Structure | IStructure,
     enforce_znucl: list | None = None,
     enforce_typat: list | None = None,
     **kwargs,
@@ -233,7 +236,7 @@ def structure_to_abivars(
         types_of_specie = species_by_znucl(structure)
 
         znucl_type = [specie.number for specie in types_of_specie]
-        typat = np.zeros(n_atoms, int)
+        typat = np.zeros(n_atoms, int)  # type:ignore[assignment]
         for atm_idx, site in enumerate(structure):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
 
@@ -243,8 +246,8 @@ def structure_to_abivars(
 
     # Set small values to zero. This usually happens when the CIF file
     # does not give structure parameters with enough digits.
-    r_prim = np.where(np.abs(r_prim) > 1e-8, r_prim, 0.0)
-    x_red = np.where(np.abs(x_red) > 1e-8, x_red, 0.0)
+    r_prim = np.where(np.abs(r_prim) > 1e-8, r_prim, 0.0)  # type:ignore[assignment]
+    x_red = np.where(np.abs(x_red) > 1e-8, x_red, 0.0)  # type:ignore[assignment]
 
     # Info on atoms.
     dct = {
@@ -437,7 +440,7 @@ class Smearing(AbivarAble, MSONable):
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
-        other = cast(Smearing, other)
+        other = cast("Smearing", other)
 
         return self.occopt == other.occopt and np.allclose(self.tsmear, other.tsmear)
 
@@ -1208,7 +1211,7 @@ class PPModel(AbivarAble, MSONable):
         needed_attrs = ("mode", "plasmon_freq")
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
-        other = cast(PPModel, other)
+        other = cast("PPModel", other)
 
         if self.mode != other.mode:
             return False

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 from monty.dev import requires
 from monty.serialization import loadfn
@@ -13,6 +15,9 @@ from pymatgen.phonon.dos import CompletePhononDos, PhononDos
 from pymatgen.phonon.gruneisen import GruneisenParameter, GruneisenPhononBandStructureSymmLine
 from pymatgen.phonon.thermal_displacements import ThermalDisplacementMatrices
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+
+if TYPE_CHECKING:
+    from pymatgen.core.structure import IStructure
 
 try:
     from phonopy import Phonopy
@@ -158,11 +163,11 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None) -
         if eig_q:
             eigen_displacements.append(eig_q)
 
-    q_pts = np.array(q_pts)
+    q_pts = np.array(q_pts)  # type:ignore[assignment]
     # transpose to match the convention in PhononBandStructure
-    frequencies = np.transpose(frequencies)
+    frequencies = np.transpose(frequencies)  # type:ignore[assignment]
     if eigen_displacements:
-        eigen_displacements = np.transpose(eigen_displacements, (1, 0, 2, 3))
+        eigen_displacements = np.transpose(eigen_displacements, (1, 0, 2, 3))  # type:ignore[assignment]
 
     rec_lattice = Lattice(bands_dict["reciprocal_lattice"])
 
@@ -280,16 +285,14 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=Non
     # Structure list to be returned
     structure_list = [get_pmg_structure(init_supercell)]
 
-    for cell in disp_supercells:
-        if cell is not None:
-            structure_list.append(get_pmg_structure(cell))
+    structure_list.extend(get_pmg_structure(cell) for cell in disp_supercells if cell is not None)
 
     return structure_list
 
 
 @requires(Phonopy, "phonopy is required to calculate phonon density of states")
 def get_phonon_dos_from_fc(
-    structure: Structure,
+    structure: Structure | IStructure,
     supercell_matrix: np.ndarray,
     force_constants: np.ndarray,
     mesh_density: float = 100.0,
@@ -333,12 +336,12 @@ def get_phonon_dos_from_fc(
     p_doses = dict(zip(structure, dos_raw[1], strict=True))
 
     total_dos = PhononDos(dos_raw[0], dos_raw[1].sum(axis=0))
-    return CompletePhononDos(structure, total_dos, p_doses)
+    return CompletePhononDos(structure, total_dos, p_doses)  # type:ignore[arg-type]
 
 
 @requires(Phonopy, "phonopy is required to calculate phonon band structures")
 def get_phonon_band_structure_from_fc(
-    structure: Structure,
+    structure: Structure | IStructure,
     supercell_matrix: np.ndarray,
     force_constants: np.ndarray,
     mesh_density: float = 100.0,
@@ -369,7 +372,7 @@ def get_phonon_band_structure_from_fc(
 
 @requires(Phonopy, "phonopy is required to calculate phonon band structures")
 def get_phonon_band_structure_symm_line_from_fc(
-    structure: Structure,
+    structure: Structure | IStructure,
     supercell_matrix: np.ndarray,
     force_constants: np.ndarray,
     line_density: float = 20.0,
@@ -459,7 +462,7 @@ def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) 
     return GruneisenParameter(
         gruneisen=gruneisen_np,
         qpoints=q_pts_np,
-        multiplicities=multiplicities_np,
+        multiplicities=multiplicities_np,  # type:ignore[arg-type]
         frequencies=frequencies_np,
         structure=structure,
     )
@@ -643,7 +646,7 @@ def get_gruneisen_ph_bs_symm_line(gruneisen_path, structure=None, structure_path
 def get_thermal_displacement_matrices(
     thermal_displacements_yaml="thermal_displacement_matrices.yaml",
     structure_path="POSCAR",
-):
+) -> list[ThermalDisplacementMatrices]:
     """Read "thermal_displacement_matrices.yaml" from phonopy and return a list of
     ThermalDisplacementMatrices objects.
 
@@ -658,15 +661,12 @@ def get_thermal_displacement_matrices(
 
     structure = Structure.from_file(structure_path)
 
-    thermal_displacement_objects = []
-    for matrix in thermal_displacements_dict["thermal_displacement_matrices"]:
-        thermal_displacement_objects.append(
-            ThermalDisplacementMatrices(
-                thermal_displacement_matrix_cart=matrix["displacement_matrices"],
-                temperature=matrix["temperature"],
-                structure=structure,
-                thermal_displacement_matrix_cif=matrix["displacement_matrices_cif"],
-            )
+    return [
+        ThermalDisplacementMatrices(
+            thermal_displacement_matrix_cart=matrix["displacement_matrices"],
+            temperature=matrix["temperature"],
+            structure=structure,
+            thermal_displacement_matrix_cif=matrix["displacement_matrices_cif"],
         )
-
-    return thermal_displacement_objects
+        for matrix in thermal_displacements_dict["thermal_displacement_matrices"]
+    ]

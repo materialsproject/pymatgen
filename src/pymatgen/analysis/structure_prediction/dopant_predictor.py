@@ -81,7 +81,7 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
             - "original_species": The substituted species.
     """
     # get a list of all Species for all elements in all their common oxidation states
-    all_species = [Species(el, oxi) for el in Element for oxi in el.common_oxidation_states]
+    all_species = [Species(el.symbol, oxi) for el in Element for oxi in el.common_oxidation_states]
 
     # get a series of tuples with (coordination number, specie)
     cn_and_species = {
@@ -127,26 +127,21 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
 
 def _get_dopants(substitutions, num_dopants, match_oxi_sign) -> dict:
     """Utility method to get n- and p-type dopants from a list of substitutions."""
-    n_type = [
-        pred
-        for pred in substitutions
-        if pred["dopant_species"].oxi_state > pred["original_species"].oxi_state
-        and (
-            not match_oxi_sign
-            or np.sign(pred["dopant_species"].oxi_state) == np.sign(pred["original_species"].oxi_state)
-        )
-    ]
-    p_type = [
-        pred
-        for pred in substitutions
-        if pred["dopant_species"].oxi_state < pred["original_species"].oxi_state
-        and (
-            not match_oxi_sign
-            or np.sign(pred["dopant_species"].oxi_state) == np.sign(pred["original_species"].oxi_state)
-        )
-    ]
-
-    return {"n_type": n_type[:num_dopants], "p_type": p_type[:num_dopants]}
+    dopants = {k: [] for k in ("n_type", "p_type")}
+    for k, dop in dopants.items():
+        for pred in substitutions:
+            if (
+                pred["dopant_species"].oxi_state > pred["original_species"].oxi_state
+                if k == "n_type"
+                else pred["dopant_species"].oxi_state < pred["original_species"].oxi_state
+            ) and (
+                not match_oxi_sign
+                or np.sign(pred["dopant_species"].oxi_state) == np.sign(pred["original_species"].oxi_state)
+            ):
+                dop.append(pred)
+            if len(dop) == num_dopants:
+                break
+    return dopants
 
 
 def _shannon_radii_from_cn(species_list, cn_roman, radius_to_compare=0):
@@ -171,7 +166,7 @@ def _shannon_radii_from_cn(species_list, cn_roman, radius_to_compare=0):
 
             - "species": The species with charge state.
             - "radius": The Shannon radius for the species.
-            - "radius_diff": The difference between the Shannon radius and the
+            - "radii_diff": The difference between the Shannon radius and the
                 radius_to_compare optional argument.
     """
     shannon_radii = []

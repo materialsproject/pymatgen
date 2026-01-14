@@ -16,6 +16,8 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "June 25, 2019"
 
+logger = logging.getLogger(__name__)
+
 
 class ConnectivityFinder:
     """Main class used to find the structure connectivity of a structure."""
@@ -43,7 +45,7 @@ class ConnectivityFinder:
             a StructureConnectivity object describing the connectivity of
         the environments in the structure
         """
-        logging.info("Setup of structure connectivity graph")
+        logger.info("Setup of structure connectivity graph")
         structure_connectivity = StructureConnectivity(light_structure_environments)
         structure_connectivity.add_sites()
         for site_idx, _site in enumerate(light_structure_environments.structure):
@@ -57,7 +59,7 @@ class ConnectivityFinder:
                     idx_max = np.argmax(
                         [ee["ce_fraction"] for ee in light_structure_environments.coordination_environments[site_idx]]
                     )
-                    print(f"IMAX {idx_max}")
+                    logger.info(f"IMAX {idx_max}")
                     site_neighbors_set = site_neighbors_sets[idx_max]
                 else:
                     raise RuntimeError("Should not be here")

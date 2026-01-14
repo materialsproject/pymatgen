@@ -5,17 +5,16 @@ import tarfile
 from collections import defaultdict
 
 import pytest
-from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 
 
-class TestPseudo(PymatgenTest):
-    def setUp(self):
+class TestPseudo(MatSciTest):
+    def setup_method(self):
         nc_pseudo_fnames = defaultdict(list)
         nc_pseudo_fnames["Si"] = [f"{TEST_DIR}/{file}" for file in ("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")]
 
@@ -98,13 +97,13 @@ class TestPseudo(PymatgenTest):
         """Test 28ni.paw."""
         file_name = f"{TEST_DIR}/28ni.paw.tar.xz"
         symbol = "Ni"
-        with ScratchDir(".") as tmp_dir, tarfile.open(file_name, mode="r:xz") as t:
+        with tarfile.open(file_name, mode="r:xz") as t:
             # TODO: remove attr check after only 3.12+
             if hasattr(tarfile, "data_filter"):
-                t.extractall(tmp_dir, filter="data")
+                t.extractall(".", filter="data")
             else:
-                t.extractall(tmp_dir)  # noqa: S202
-            path = os.path.join(tmp_dir, "28ni.paw")
+                t.extractall(".")  # noqa: S202
+            path = os.path.join(".", "28ni.paw")
             pseudo = Pseudo.from_file(path)
 
             assert repr(pseudo)
@@ -198,7 +197,7 @@ class TestPseudo(PymatgenTest):
         assert pb.supports_soc
 
 
-class TestPseudoTable(PymatgenTest):
+class TestPseudoTable(MatSciTest):
     def test_methods(self):
         """Test PseudoTable methods."""
         table = PseudoTable([f"{TEST_DIR}/{file}" for file in ("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")])

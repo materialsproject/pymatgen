@@ -5,10 +5,10 @@ from pytest import approx
 
 from pymatgen.apps.battery.analyzer import BatteryAnalyzer
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 
-class TestBatteryAnalyzer(PymatgenTest):
+class TestBatteryAnalyzer(MatSciTest):
     def load_from_cif(self, filename, oxidations, working_ion="Li"):
         struct = Structure.from_file(f"{TEST_FILES_DIR}/cif/{filename}")
         struct.add_oxidation_state_by_element(oxidations)
@@ -19,7 +19,7 @@ class TestBatteryAnalyzer(PymatgenTest):
         struct.add_oxidation_state_by_element(oxidations)
         return BatteryAnalyzer(struct, working_ion)
 
-    def setUp(self):
+    def setup_method(self):
         self.li_fe_p_o4 = self.load_from_internal("LiFePO4", {"Li": 1, "Fe": 2, "P": 5, "O": -2})
         self.na_fe_p_o4 = self.load_from_internal("NaFePO4", {"Na": 1, "Fe": 2, "P": 5, "O": -2}, working_ion="Na")
         self.la2coo4f = self.load_from_internal("La2CoO4F", {"La": 3, "Co": 3, "O": -2, "F": -1}, working_ion="F")

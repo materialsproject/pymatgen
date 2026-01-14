@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import importlib
+import logging
 import math
+import warnings
 from functools import wraps
 from string import ascii_letters
 from typing import TYPE_CHECKING
@@ -22,7 +24,9 @@ if TYPE_CHECKING:
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
     from mpl_toolkits.mplot3d.axes3d import Axes3D
-    from numpy.typing import ArrayLike
+    from numpy.typing import NDArray
+
+logger = logging.getLogger(__name__)
 
 
 def pretty_plot(
@@ -170,7 +174,7 @@ def pretty_plot_two_axis(
     return ax1
 
 
-def pretty_polyfit_plot(x: ArrayLike, y: ArrayLike, deg: int = 1, xlabel=None, ylabel=None, **kwargs):
+def pretty_polyfit_plot(x: NDArray, y: NDArray, deg: int = 1, xlabel=None, ylabel=None, **kwargs):
     """Convenience method to plot data with trend lines based on polynomial fit.
 
     Args:
@@ -263,40 +267,88 @@ def periodic_table_heatmap(
 
             if elemental_data:
                 kwargs.setdefault("values", elemental_data)
-                print('elemental_data is deprecated, use values={"Fe": 4.2, "O": 5.0} instead')
+                warnings.warn(
+                    'elemental_data is deprecated, use values={"Fe": 4.2, "O": 5.0} instead',
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
             if cbar_label:
                 kwargs.setdefault("color_bar", {}).setdefault("title", cbar_label)
-                print('cbar_label is deprecated, use color_bar={"title": cbar_label} instead')
+                warnings.warn(
+                    'cbar_label is deprecated, use color_bar={"title": cbar_label} instead',
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
             if cbar_label_size != 14:
                 kwargs.setdefault("color_bar", {}).setdefault("title.font", {}).setdefault("size", cbar_label_size)
-                print('cbar_label_size is deprecated, use color_bar={"title.font": {"size": cbar_label_size}} instead')
+                warnings.warn(
+                    'cbar_label_size is deprecated, use color_bar={"title.font": {"size": cbar_label_size}} instead',
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
             if cmap:
                 kwargs.setdefault("colorscale", cmap)
-                print("cmap is deprecated, use colorscale=cmap instead")
+                warnings.warn(
+                    "cmap is deprecated, use colorscale=cmap instead",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
             if cmap_range:
                 kwargs.setdefault("cscale_range", cmap_range)
-                print("cmap_range is deprecated, use cscale_range instead")
+                warnings.warn(
+                    "cmap_range is deprecated, use cscale_range instead",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
             if value_format:
                 kwargs.setdefault("fmt", value_format)
-                print("value_format is deprecated, use fmt instead")
+                warnings.warn(
+                    "value_format is deprecated, use fmt instead",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
             if blank_color != "grey":
-                print("blank_color is deprecated")
+                warnings.warn(
+                    "blank_color is deprecated",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
             if edge_color != "white":
-                print("edge_color is deprecated")
+                warnings.warn(
+                    "edge_color is deprecated",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
             if symbol_fontsize != 14:
-                print("symbol_fontsize is deprecated, use font_size instead")
+                warnings.warn(
+                    "symbol_fontsize is deprecated, use font_size instead",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
                 kwargs.setdefault("font_size", symbol_fontsize)
             if value_fontsize != 10:
-                print("value_fontsize is deprecated, use font_size instead")
+                warnings.warn(
+                    "value_fontsize is deprecated, use font_size instead",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
                 kwargs.setdefault("font_size", value_fontsize)
             if max_row != 9:
-                print("max_row is deprecated, use max_row instead")
+                warnings.warn(
+                    "max_row is deprecated, use max_row instead",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
             if readable_fontcolor:
-                print("readable_fontcolor is deprecated, use font_colors instead, e.g. ('black', 'white')")
+                warnings.warn(
+                    "readable_fontcolor is deprecated, use font_colors instead, e.g. ('black', 'white')",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
 
             return ptable_heatmap_plotly(**kwargs)
         except ImportError:
-            print(
+            logger.exception(
                 "You're using a deprecated version of periodic_table_heatmap(). Consider `pip install pymatviz` which "
                 "offers an interactive plotly periodic table heatmap. You can keep calling this same function from "
                 "pymatgen. Some of the arguments have changed which you'll be warned about. "
@@ -366,11 +418,11 @@ def periodic_table_heatmap(
 
     # Label each block with corresponding element and value
     for ii, row in enumerate(value_table):
-        for jj, el in enumerate(row):
+        for jj, el in enumerate(row):  # type: ignore[arg-type]
             if not np.isnan(el):
                 symbol = Element.from_row_and_group(ii + 1, jj + 1).symbol
                 rgba = scalar_cmap.to_rgba(el)
-                fontcolor = _decide_fontcolor(rgba) if readable_fontcolor else "black"
+                fontcolor = _decide_fontcolor(tuple(rgba)) if readable_fontcolor else "black"
                 plt.text(
                     jj + 0.5,
                     ii + 0.25,
@@ -473,9 +525,9 @@ def van_arkel_triangle(list_of_materials: Sequence, annotate: bool = True):
     # set labels and appropriate limits for plot
     plt.xlim(pt2[0] - 0.45, -b2 / slope2 + 0.45)
     plt.ylim(-0.45, pt1[1] + 0.45)
-    plt.annotate("Ionic", xy=[pt1[0] - 0.3, pt1[1] + 0.05], fontsize=20)
-    plt.annotate("Covalent", xy=[-b2 / slope2 - 0.65, -0.4], fontsize=20)
-    plt.annotate("Metallic", xy=[pt2[0] - 0.4, -0.4], fontsize=20)
+    plt.annotate("Ionic", xy=(pt1[0] - 0.3, pt1[1] + 0.05), fontsize=20)
+    plt.annotate("Covalent", xy=(-b2 / slope2 - 0.65, -0.4), fontsize=20)
+    plt.annotate("Metallic", xy=(pt2[0] - 0.4, -0.4), fontsize=20)
     plt.xlabel(r"$\frac{\chi_{A}+\chi_{B}}{2}$", fontsize=25)
     plt.ylabel(r"$|\chi_{A}-\chi_{B}|$", fontsize=25)
 
@@ -555,7 +607,7 @@ def van_arkel_triangle(list_of_materials: Sequence, annotate: bool = True):
             plt.annotate(
                 formatted_formula,
                 fontsize=15,
-                xy=[np.mean(X_pair) + 0.005, abs(X_pair[0] - X_pair[1])],
+                xy=(np.mean(X_pair) + 0.005, abs(X_pair[0] - X_pair[1])),  # type: ignore[arg-type]
             )
 
     plt.tight_layout()
@@ -695,10 +747,10 @@ def add_fig_kwargs(func):
         if tight_layout:
             try:
                 fig.tight_layout()
-            except Exception as exc:
+            except Exception:
                 # For some unknown reason, this problem shows up only on travis.
                 # https://stackoverflow.com/questions/22708888/valueerror-when-using-matplotlib-tight-layout
-                print("Ignoring Exception raised by fig.tight_layout\n", str(exc))
+                logger.exception("Ignoring Exception raised by fig.tight_layout\n")
 
         if savefig:
             fig.savefig(savefig)
