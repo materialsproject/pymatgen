@@ -1065,7 +1065,7 @@ class LobsterNeighbors(NearNeighbors):
         site_idx: int,
         icohps: dict[str, IcohpValue],
         additional_condition: Literal[0, 1, 2, 3, 4, 5, 6],
-    ) -> tuple[list[str], list[float], list[int], list[float], list[tuple[float, float, float]]]:
+    ) -> tuple[list[str], list[float], list[int], list[float], list[tuple[int, int, int]]]:
         """Find all relevant atoms that fulfill the additional condition.
 
         Args:
@@ -1080,7 +1080,7 @@ class LobsterNeighbors(NearNeighbors):
         lengths_from_ICOHPs: list[float] = []
         neighbors_from_ICOHPs: list[int] = []
         icohps_from_ICOHPs: list[float] = []
-        translation_from_ICOHPs: list[tuple[float, float, float]] = []
+        translation_from_ICOHPs: list[tuple[int, int, int]] = []
 
         for key, icohp in icohps.items():
             atomnr1 = self._get_atomnumber(icohp._atom1)
@@ -1587,9 +1587,9 @@ def check_ICOHPs(lengths_from_ICOHPs, selected_ICOHPs, translation, length_thres
                 and abs(selected_ICOHPs[i] - selected_ICOHPs[j]) > energy_threshold
                 and [int(idx) for idx in translation[i]] != [0.0, 0.0, 0.0]
                 and (
-                    int(translation[i][0]) == -int(translation[j][0])
-                    and int(translation[i][1]) == -int(translation[j][1])
-                    and int(translation[i][2]) == -int(translation[j][2])
+                    translation[i][0] == -translation[j][0]
+                    and translation[i][1] == -translation[j][1]
+                    and translation[i][2] == -translation[j][2]
                 )
             ):
                 warnings.warn(

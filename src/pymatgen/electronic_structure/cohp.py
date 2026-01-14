@@ -946,7 +946,7 @@ class IcohpValue(MSONable):
         atom1: str,
         atom2: str,
         length: float,
-        translation: tuple[float, float, float],
+        translation: tuple[int, int, int],
         num: int,
         icohp: dict[Spin, float],
         are_coops: bool = False,
@@ -959,7 +959,7 @@ class IcohpValue(MSONable):
             atom1 (str): The first atom that contributes to the bond.
             atom2 (str): The second atom that contributes to the bond.
             length (float): Bond length.
-            translation (tuple[float, float, float]): cell translation vector, e.g. (0, 0, 0).
+            translation (tuple[int, int, int]): cell translation vector, e.g. (0, 0, 0).
             num (int): The number of equivalent bonds.
             icohp (dict[Spin, float]): {Spin.up: ICOHP_up, Spin.down: ICOHP_down}
             are_coops (bool): Whether these are COOPs.
@@ -980,7 +980,6 @@ class IcohpValue(MSONable):
         self._atom1 = atom1
         self._atom2 = atom2
         self._length = length
-        # TODO switch to integer translation in LOBSTER classes
         self._translation = translation
         self._num = num
         self._icohp = icohp
@@ -1045,13 +1044,13 @@ class IcohpValue(MSONable):
         return self._is_spin_polarized
 
     @property
-    def translation(self) -> tuple[float, float, float]:
+    def translation(self) -> tuple[int, int, int]:
         """
         Returns the translation vector with respect to the origin cell
         as defined in LOBSTER.
 
         Returns:
-            tuple[float, float, float]
+            tuple[int, int, int]
         """
         return self._translation
 
@@ -1142,7 +1141,7 @@ class IcohpCollection(MSONable):
         list_atom1: list[str],
         list_atom2: list[str],
         list_length: list[float],
-        list_translation: list[tuple[float, float, float]],
+        list_translation: list[tuple[int, int, int]],
         list_num: list[int],
         list_icohp: list[dict[Spin, float]],
         is_spin_polarized: bool,
@@ -1156,7 +1155,7 @@ class IcohpCollection(MSONable):
             list_atom1 (list[str]): Atom names, e.g. "O1".
             list_atom2 (list[str]): Atom names, e.g. "O1".
             list_length (list[float]): Bond lengths in Angstrom.
-            list_translation (list[tuple[float, float, float]]): Cell translation vectors.
+            list_translation (list[tuple[int, int, int]]): Cell translation vectors.
             list_num (list[int]): Numbers of equivalent bonds, usually 1 starting from LOBSTER 3.0.0.
             list_icohp (list[dict]): Dicts as {Spin.up: ICOHP_up, Spin.down: ICOHP_down}.
             is_spin_polarized (bool): Whether the calculation is spin polarized.
