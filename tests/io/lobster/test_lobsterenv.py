@@ -933,3 +933,11 @@ class TestLobsterNeighbors:
             self.chem_env_w_obj.valences, [0.66] * 4 + [0.69] * 4 + [-0.68] * 3 + [-0.69] + [-0.67] * 4
         )  # charge_obj
         assert self.chem_env_lobster_NaSi_wo_charges.valences == [1] * 8 + [-1] * 8  # BVA
+
+    def test_backward_compatibility_warning(self):
+        with pytest.warns(UserWarning, match="You are using an older version for neighbor detection"):
+            _ = LobsterNeighbors(
+                filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp-190.gz",
+                structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.mp-190.gz"),
+                backward_compatibility=True,
+            )
