@@ -1585,10 +1585,11 @@ def check_ICOHPs(lengths_from_ICOHPs, selected_ICOHPs, translation, length_thres
             if (
                 abs(lengths_from_ICOHPs[i] - lengths_from_ICOHPs[j]) < length_threshold
                 and abs(selected_ICOHPs[i] - selected_ICOHPs[j]) > energy_threshold
+                and [int(idx) for idx in translation[i]] != [0.0, 0.0, 0.0]
                 and (
-                    translation[i][0] == -translation[j][0]
-                    and translation[i][1] == -translation[j][1]
-                    and translation[i][2] == -translation[j][2]
+                    int(translation[i][0]) == -int(translation[j][0])
+                    and int(translation[i][1]) == -int(translation[j][1])
+                    and int(translation[i][2]) == -int(translation[j][2])
                 )
             ):
                 warnings.warn(
