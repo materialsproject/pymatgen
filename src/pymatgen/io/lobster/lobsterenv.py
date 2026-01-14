@@ -127,7 +127,7 @@ class LobsterNeighbors(NearNeighbors):
             filename_blist_sg2 (PathLike): Path to additional ICOOP, ICOBI data for structure graphs.
             id_blist_sg1 ("icoop" | "icobi"): Identity of data in filename_blist_sg1.
             id_blist_sg2 ("icoop" | "icobi"): Identity of data in filename_blist_sg2.
-            backward_compatibility (bool): compatiblity with neighbor detection  prior 2025 (less strict).
+            backward_compatibility (bool): compatibility with neighbor detection  prior 2025 (less strict).
         """
         if filename_icohp is not None:
             self.ICOHP = Icohplist(are_coops=are_coops, are_cobis=are_cobis, filename=filename_icohp)
@@ -1065,7 +1065,7 @@ class LobsterNeighbors(NearNeighbors):
         site_idx: int,
         icohps: dict[str, IcohpValue],
         additional_condition: Literal[0, 1, 2, 3, 4, 5, 6],
-    ) -> tuple[list[str], list[float], list[int], list[float]]:
+    ) -> tuple[list[str], list[float], list[int], list[float], list[tuple[float, float, float]]]:
         """Find all relevant atoms that fulfill the additional condition.
 
         Args:
@@ -1079,8 +1079,8 @@ class LobsterNeighbors(NearNeighbors):
         keys_from_ICOHPs: list[str] = []
         lengths_from_ICOHPs: list[float] = []
         neighbors_from_ICOHPs: list[int] = []
-        icohps_from_ICOHPs: list[IcohpValue] = []
-        translation_from_ICOHPs: list[list[int, int, int]] = []
+        icohps_from_ICOHPs: list[float] = []
+        translation_from_ICOHPs: list[tuple[float, float, float]] = []
 
         for key, icohp in icohps.items():
             atomnr1 = self._get_atomnumber(icohp._atom1)
@@ -1582,15 +1582,18 @@ class ICOHPNeighborsInfo(NamedTuple):
 def check_ICOHPs(lengths_from_ICOHPs, selected_ICOHPs, translation, length_threshold=0.01, energy_threshold=0.1):
     for i in range(len(lengths_from_ICOHPs)):
         for j in range(i + 1, len(lengths_from_ICOHPs)):
-            if abs(lengths_from_ICOHPs[i] - lengths_from_ICOHPs[j]) < length_threshold:
-                if abs(selected_ICOHPs[i] - selected_ICOHPs[j]) > energy_threshold and (
+            if (
+                abs(lengths_from_ICOHPs[i] - lengths_from_ICOHPs[j]) < length_threshold
+                and abs(selected_ICOHPs[i] - selected_ICOHPs[j]) > energy_threshold
+                and (
                     translation[i][0] == -translation[j][0]
                     and translation[i][1] == -translation[j][1]
                     and translation[i][2] == -translation[j][2]
-                ):
-                    warnings.warn(
-                        f"Lengths {lengths_from_ICOHPs[i]} and {lengths_from_ICOHPs[j]} are very close "
-                        f"and translation exactly opposite, but corresponding ICOHPs {selected_ICOHPs[i]} "
-                        f"and {selected_ICOHPs[j]} are not. Our neighbor detection might fail.",
-                        stacklevel=2,
-                    )
+                )
+            ):
+                warnings.warn(
+                    f"Lengths {lengths_from_ICOHPs[i]} and {lengths_from_ICOHPs[j]} are very close "
+                    f"and translation exactly opposite, but corresponding ICOHPs {selected_ICOHPs[i]} "
+                    f"and {selected_ICOHPs[j]} are not. Our neighbor detection might fail.",
+                    stacklevel=2,
+                )

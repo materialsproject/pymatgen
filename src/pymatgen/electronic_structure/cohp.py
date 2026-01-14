@@ -980,6 +980,7 @@ class IcohpValue(MSONable):
         self._atom1 = atom1
         self._atom2 = atom2
         self._length = length
+        # TODO switch to integer translation in LOBSTER classes
         self._translation = translation
         self._num = num
         self._icohp = icohp
@@ -1044,13 +1045,13 @@ class IcohpValue(MSONable):
         return self._is_spin_polarized
 
     @property
-    def translation(self) -> list[int, int, int]:
+    def translation(self) -> tuple[float, float, float]:
         """
         Returns the translation vector with respect to the origin cell
         as defined in LOBSTER.
 
         Returns:
-            list[int, int, int]
+            tuple[float, float, float]
         """
         return self._translation
 
