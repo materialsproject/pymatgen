@@ -124,7 +124,7 @@ symmetry = ["moyopy[interface]>=0.3", "spglib>=2.5"]
 # tblite only support Python 3.12+ through conda-forge
 # https://github.com/tblite/tblite/issues/175
 tblite = ["tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'"]
-vis = ["vtk>=6.0.0; python_version<'3.14'"]
+vis = ["vtk>=9.6.0rc3"]
 zeopp = ["pyzeo; platform_system != 'Windows'"]  # Note: requires Voro++ and Zeo++ to be installed
 
 [project.scripts]
