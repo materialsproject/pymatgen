@@ -399,7 +399,10 @@ class SpacegroupAnalyzer:
             Refined structure.
         """
         # Atomic positions have to be specified by scaled positions for spglib.
-        lattice, scaled_positions, numbers = spglib.refine_cell(self._cell, self._symprec, self._angle_tol)
+        cell = spglib.refine_cell(self._cell, self._symprec, self._angle_tol)
+        if cell is None or len(cell) != 3:
+            raise ValueError("Failed to refine cell")
+        lattice, scaled_positions, numbers = cell
         species = [self._unique_species[i - 1] for i in numbers]
         if keep_site_properties:
             site_properties = {}
@@ -428,7 +431,10 @@ class SpacegroupAnalyzer:
             as a Structure object. If no primitive cell is found, None is
             returned.
         """
-        lattice, scaled_positions, numbers = spglib.find_primitive(self._cell, symprec=self._symprec)
+        cell = spglib.find_primitive(self._cell, symprec=self._symprec)
+        if cell is None or len(cell) != 3:
+            raise ValueError("Failed to find primitive cell")
+        lattice, scaled_positions, numbers = cell
         species = [self._unique_species[i - 1] for i in numbers]
         if keep_site_properties:
             site_properties = {}

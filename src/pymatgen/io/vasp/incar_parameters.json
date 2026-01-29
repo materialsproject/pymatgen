@@ -402,6 +402,13 @@
       4
      ]
  },
+ "ISEARCH": {
+   "type": "int",
+   "values": [
+      0,
+      1
+     ]
+ },
  "ISIF": {
    "type": "int",
    "values": [
@@ -1120,7 +1127,7 @@
     "type": "int"
  },
  "NUPDOWN": {
-    "type": "int"
+    "type": "float"
  },
  "NWRITE": {
    "type": "int",

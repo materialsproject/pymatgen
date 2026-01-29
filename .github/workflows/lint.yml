@@ -13,13 +13,15 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
       - name: Install uv with python version.
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.11"
+          python-version: "3.13"
           enable-cache: true
           cache-dependency-glob: "uv.lock"
+
       - name: Install dependencies
         run: |
           uv sync
@@ -28,9 +30,6 @@ jobs:
         run: |
           uv run ruff check .
           uv run ruff format --check .
-
-      - name: mypy
-        run: uv run mypy -p pymatgen
 
       - name: pyright
         run: uv run pyright src

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import abc
 import collections
+import collections.abc
 import hashlib
 import logging
 import os
@@ -1511,12 +1512,11 @@ class PseudoTable(collections.abc.Sequence, MSONable):
     Individidual elements are accessed by name, symbol or atomic number.
 
     For example, the following all retrieve iron:
-
-    print(elements[26])
-    print(elements.Fe)
-    print(elements.symbol('Fe'))
-    print(elements.name('iron'))
-    print(elements.isotope('Fe'))
+    - elements[26]
+    - elements.Fe
+    - elements.symbol('Fe')
+    - elements.name('iron')
+    - elements.isotope('Fe')
     """
 
     @classmethod
@@ -1566,7 +1566,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
         return cls(pseudos).sort_by_z()
 
-    def __init__(self, pseudos: Sequence[Pseudo]) -> None:
+    def __init__(self, pseudos: Sequence[Pseudo | str]) -> None:
         """
         Args:
             pseudos: List of pseudopotentials or filepaths.

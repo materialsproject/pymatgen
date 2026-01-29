@@ -912,8 +912,6 @@ class TestCompleteCohp(MatSciTest):
             self.cobi_multi_B2H6_average2.get_cohp_by_label("average").cohp[Spin.up],
             strict=True,
         ):
-            print(cohp1)
-            print(cohp2)
             assert cohp1 == approx(cohp2, abs=1e-4)
 
         for cohp1, cohp2 in zip(

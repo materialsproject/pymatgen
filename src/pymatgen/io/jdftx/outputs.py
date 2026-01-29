@@ -160,6 +160,7 @@ class JDFTXOutputs:
         self._store_vars()
         self._init_bandstructure()
 
+    @staticmethod
     def _check_store_vars(store_vars: list[str] | None) -> list[str]:
         if store_vars is None:
             return []
@@ -304,7 +305,7 @@ class JDFTXOutputs:
         Returns:
             dict | None:
         """
-        lmax, norbmax = self._get_lmax()
+        _lmax, norbmax = self._get_lmax()
         if norbmax is None:
             return None
         if self.orb_label_list is None:

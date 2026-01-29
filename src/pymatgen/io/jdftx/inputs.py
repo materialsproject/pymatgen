@@ -8,6 +8,7 @@ class is written.
 
 from __future__ import annotations
 
+import logging
 import warnings
 from copy import deepcopy
 from dataclasses import dataclass
@@ -44,6 +45,8 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import PathLike
 
 __author__ = "Jacob Clary, Ben Rich"
+
+logger = logging.getLogger(__name__)
 
 # TODO: Add check for whether all ions have or lack velocities.
 # TODO: Add default value filling like JDFTx does.
@@ -448,7 +451,10 @@ class JDFTXInfile(dict, MSONable):
         """
         # use dict representation so it's easy to get the right column for
         # moveScale, rather than checking for velocities
-        print(jdftxinfile.get_dict_representation(jdftxinfile), "INPUT DICT REP")
+        logger.info(
+            "INPUT DICT REP: %s",
+            jdftxinfile.get_dict_representation(jdftxinfile),
+        )
         jdftxstructure = JDFTXStructure.from_jdftxinfile(
             jdftxinfile.get_dict_representation(jdftxinfile),
             sort_structure=sort_structure,
@@ -512,7 +518,7 @@ class JDFTXInfile(dict, MSONable):
         """
         for tag in self:
             tag_object = get_tag_object(tag)
-            checked_tag, is_tag_valid, value = tag_object.validate_value_type(
+            _checked_tag, is_tag_valid, value = tag_object.validate_value_type(
                 tag, self[tag], try_auto_type_fix=try_auto_type_fix
             )
             should_warn = not is_tag_valid
@@ -1033,7 +1039,7 @@ class JDFTXStructure(MSONable):
             [[[y["d0"], y["d1"], y["d2"]] for y in x["HyperPlane"]]] if "HyperPlane" in x else None
             for x in jdftxinfile["ion"]
         ]
-        hyperplane_groups = [None for _ in range(len(hyperplane_vectors))]
+        hyperplane_groups: list = [None for _ in range(len(hyperplane_vectors))]
         if not all(x is None for x in hyperplane_vectors):
             for i in range(len(hyperplane_vectors)):
                 if hyperplane_vectors[i] is not None:
