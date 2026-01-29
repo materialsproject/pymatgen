@@ -22,7 +22,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list_pbc
 
 if TYPE_CHECKING:
-    import matplotlib.pyplot as plt
+    from matplotlib.axes import Axes
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
@@ -636,7 +636,7 @@ color_dict = {el: [j / 256.001 for j in colors["Jmol"][el]] for el in colors["Jm
 
 def plot_slab(
     slab: Slab,
-    ax: plt.Axes,
+    ax: Axes,
     scale=0.8,
     repeat=5,
     window=1.5,

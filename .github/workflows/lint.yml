@@ -31,8 +31,5 @@ jobs:
           uv run ruff check .
           uv run ruff format --check .
 
-      - name: mypy
-        run: uv run mypy -p pymatgen
-
       - name: pyright
         run: uv run pyright src

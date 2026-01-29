@@ -1624,7 +1624,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     def __init__(
         self,
-        entries: Sequence[PDEntry] | set[PDEntry],
+        entries: Sequence[Entry] | set[Entry],
         elements: Sequence[Element] | None = None,
         keep_all_spaces: bool = False,
         verbose: bool = False,

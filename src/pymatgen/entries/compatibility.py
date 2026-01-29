@@ -9,7 +9,7 @@ import copy
 import os
 import warnings
 from collections import defaultdict
-from typing import TYPE_CHECKING, TypeAlias, cast
+from typing import TYPE_CHECKING, TypeAlias, TypeVar, cast
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -77,6 +77,7 @@ if (
     raise RuntimeError("MP2020Compatibility.yaml expected to have the same Hubbard U corrections for O and F")
 
 AnyComputedEntry: TypeAlias = ComputedEntry | ComputedStructureEntry
+TypeVarAnyEntry = TypeVar("TypeVarAnyEntry", bound=AnyComputedEntry)
 
 
 class CompatibilityError(Exception):
@@ -577,10 +578,10 @@ class Compatibility(MSONable, abc.ABC):
 
     def process_entry(
         self,
-        entry: ComputedEntry,
+        entry: TypeVarAnyEntry,
         inplace: bool = True,
         **kwargs,
-    ) -> ComputedEntry | None:
+    ) -> TypeVarAnyEntry | None:
         """Process a single entry with the chosen Corrections.
         Note that this method may change the original entry.
 
@@ -595,21 +596,21 @@ class Compatibility(MSONable, abc.ABC):
         if not inplace:
             entry = copy.deepcopy(entry)
 
-        _entry: tuple[ComputedEntry, bool] | None = self._process_entry_inplace(entry, **kwargs)
+        _entry: tuple[TypeVarAnyEntry, bool] | None = self._process_entry_inplace(entry, **kwargs)
 
         return _entry[0] if _entry is not None else None
 
     def _process_entry_inplace(
         self,
-        entry: AnyComputedEntry,
+        entry: TypeVarAnyEntry,
         clean: bool = True,
         on_error: Literal["ignore", "warn", "raise"] = "ignore",
-    ) -> tuple[ComputedEntry, bool] | None:
+    ) -> tuple[TypeVarAnyEntry, bool] | None:
         """Process a single entry with the chosen Corrections.
         Note that this method will change the original entry.
 
         Args:
-            entry (AnyComputedEntry): An AnyComputedEntry object.
+            entry (TypeVarAnyEntry): A TypeVarAnyEntry object.
             clean (bool): Whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Defaults to True.
@@ -617,7 +618,7 @@ class Compatibility(MSONable, abc.ABC):
                 raises CompatibilityError. Defaults to "ignore".
 
         Returns:
-            tuple[AnyComputedEntry, ignore_entry (bool)] if entry is compatible, else None.
+            tuple[TypeVarAnyEntry, ignore_entry (bool)] if entry is compatible, else None.
         """
         ignore_entry: bool = False
         # If clean, remove all previous adjustments from the entry
@@ -662,13 +663,13 @@ class Compatibility(MSONable, abc.ABC):
 
     def process_entries(
         self,
-        entries: AnyComputedEntry | list[AnyComputedEntry],
+        entries: TypeVarAnyEntry | list[TypeVarAnyEntry],
         clean: bool = True,
         verbose: bool = False,
         inplace: bool = True,
         n_workers: int = 1,
         on_error: Literal["ignore", "warn", "raise"] = "ignore",
-    ) -> list[AnyComputedEntry]:
+    ) -> list[TypeVarAnyEntry]:
         """Process a sequence of entries with the chosen Compatibility scheme.
 
         Warning: This method changes entries in place! All changes can be undone and original entries
@@ -695,7 +696,7 @@ class Compatibility(MSONable, abc.ABC):
         if isinstance(entries, ComputedEntry):  # True for ComputedStructureEntry too
             entries = [entries]
 
-        processed_entry_list: list[AnyComputedEntry] = []
+        processed_entry_list: list[TypeVarAnyEntry] = []
 
         # if inplace = False, process entries on a copy
         if not inplace:
@@ -1570,13 +1571,13 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
     def process_entries(
         self,
-        entries: list[AnyComputedEntry],
+        entries: list[TypeVarAnyEntry],
         clean: bool = False,
         verbose: bool = False,
         inplace: bool = True,
         n_workers: int = 1,
         on_error: Literal["ignore", "warn", "raise"] = "ignore",
-    ) -> list[AnyComputedEntry]:
+    ) -> list[TypeVarAnyEntry]:
         """Process a sequence of entries with the chosen Compatibility scheme.
 
         Args:

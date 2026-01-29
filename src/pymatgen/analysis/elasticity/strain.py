@@ -7,6 +7,7 @@ generating deformed structure sets for further calculations.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import itertools
 from typing import TYPE_CHECKING
 

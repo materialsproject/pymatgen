@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import collections
+import collections.abc
 import json
 import warnings
 from typing import TYPE_CHECKING, cast

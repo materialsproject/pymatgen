@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import itertools
 import logging
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,32 +37,43 @@ logger = logging.getLogger(__name__)
 
 
 def from_bson_voronoi_list2(bson_nb_voro_list2: list[PeriodicSite], structure: Structure):
-    """Get the voronoi_list needed for the VoronoiContainer object from a BSON-encoded voronoi_list.
+    """Get the voronoi_list needed for the VoronoiContainer object from a BSON-encoded voronoi_list."""
+    # Pre-fetch per-site data once to avoid repeated attribute lookups
+    lattice = structure._lattice
+    species_list = [s._species for s in structure]
+    frac_coords_list = [s.frac_coords for s in structure]  # numpy arrays
+    props_list = [s.properties for s in structure]
 
-    Args:
-        bson_nb_voro_list2: List of periodic sites involved in the Voronoi.
-        structure: Structure object.
-
-    Returns:
-        The voronoi_list needed for the VoronoiContainer (with PeriodicSites as keys of the dictionary - not
-        allowed in the BSON format).
-    """
     voronoi_list: list[list[dict] | None] = [None] * len(bson_nb_voro_list2)
 
-    for idx, voro in enumerate(bson_nb_voro_list2):
-        if voro in (None, "None"):
+    PSite = PeriodicSite  # local bind for speed
+
+    for i, voro in enumerate(bson_nb_voro_list2):
+        if voro is None or voro == "None":
             continue
 
-        voronoi_list[idx] = []
+        # Build the site list in one pass; avoid touching structure inside the loop
+        site_entries: list[dict[str, Any]] = []
+        append = site_entries.append  # local bind
         for psd, dct in voro:
-            struct_site = structure[dct["index"]]
-            dct["site"] = PeriodicSite(
-                struct_site._species,
-                struct_site.frac_coords + psd[1],
-                struct_site._lattice,
-                properties=struct_site.properties,
+            # psd == [index_in_structure, image_shift_frac]
+            sidx = dct["index"]  # index of the symmetry-equivalent site in the original structure
+            # Compose fractional coords in the target image cell
+            # (frac_coords_list[sidx] is ndarray; psd[1] is a short list of floats)
+            fcoords = frac_coords_list[sidx] + psd[1]
+
+            # Avoid mutating the original dict object if it might be reused elsewhere
+            nd = dct.copy()
+            nd["site"] = PSite(
+                species_list[sidx],
+                fcoords,
+                lattice,
+                properties=props_list[sidx],
             )
-            voronoi_list[idx].append(dct)  # type: ignore[union-attr]
+            append(nd)
+
+        voronoi_list[i] = site_entries
+
     return voronoi_list
 
 
@@ -200,216 +212,267 @@ class DetailedVoronoiContainer(MSONable):
         Args:
             indices: Indices of the sites for which the Voronoi is needed.
         """
-        self.neighbors_distances = [None] * len(self.structure)
-        self.neighbors_normalized_distances = [None] * len(self.structure)
-        self.neighbors_angles = [None] * len(self.structure)
-        self.neighbors_normalized_angles = [None] * len(self.structure)
+        nsites = len(self.structure)
+        self.neighbors_distances = [None] * nsites
+        self.neighbors_normalized_distances = [None] * nsites
+        self.neighbors_angles = [None] * nsites
+        self.neighbors_normalized_angles = [None] * nsites
+
+        nd_tol = self.normalized_distance_tolerance
+        na_tol = self.normalized_angle_tolerance
+        max_dfact = self.maximum_distance_factor
+        min_afact = self.minimum_angle_factor
+        default_cutoff = self.default_voronoi_cutoff
+
         for site_idx in indices:
             results = self.voronoi_list2[site_idx]
             if results is None:
                 continue
-            # Initializes neighbors distances and normalized distances groups
-            self.neighbors_distances[site_idx] = []
-            self.neighbors_normalized_distances[site_idx] = []
-            normalized_distances = [nb_dict["normalized_distance"] for nb_dict in results]
-            isorted_distances = np.argsort(normalized_distances)
-            self.neighbors_normalized_distances[site_idx].append(
-                {
-                    "min": normalized_distances[isorted_distances[0]],
-                    "max": normalized_distances[isorted_distances[0]],
-                }
-            )
-            self.neighbors_distances[site_idx].append(
-                {
-                    "min": results[isorted_distances[0]]["distance"],
-                    "max": results[isorted_distances[0]]["distance"],
-                }
-            )
-            icurrent = 0
-            nb_indices = {int(isorted_distances[0])}
-            dnb_indices = {int(isorted_distances[0])}
-            for idist in iter(isorted_distances):
-                wd = normalized_distances[idist]
-                if self.maximum_distance_factor is not None and wd > self.maximum_distance_factor:
-                    self.neighbors_normalized_distances[site_idx][icurrent]["nb_indices"] = list(nb_indices)
-                    self.neighbors_distances[site_idx][icurrent]["nb_indices"] = list(nb_indices)
-                    self.neighbors_normalized_distances[site_idx][icurrent]["dnb_indices"] = list(dnb_indices)
-                    self.neighbors_distances[site_idx][icurrent]["dnb_indices"] = list(dnb_indices)
-                    break
-                if np.isclose(
-                    wd,
-                    self.neighbors_normalized_distances[site_idx][icurrent]["max"],
-                    rtol=0.0,
-                    atol=self.normalized_distance_tolerance,
-                ):
-                    self.neighbors_normalized_distances[site_idx][icurrent]["max"] = wd
-                    self.neighbors_distances[site_idx][icurrent]["max"] = results[idist]["distance"]
-                    dnb_indices.add(int(idist))
-                else:
-                    self.neighbors_normalized_distances[site_idx][icurrent]["nb_indices"] = list(nb_indices)
-                    self.neighbors_distances[site_idx][icurrent]["nb_indices"] = list(nb_indices)
-                    self.neighbors_normalized_distances[site_idx][icurrent]["dnb_indices"] = list(dnb_indices)
-                    self.neighbors_distances[site_idx][icurrent]["dnb_indices"] = list(dnb_indices)
-                    dnb_indices = {int(idist)}
-                    self.neighbors_normalized_distances[site_idx].append({"min": wd, "max": wd})
-                    self.neighbors_distances[site_idx].append(
+
+            # Prepare arrays once
+            ndists = np.array([nb["normalized_distance"] for nb in results], dtype=float)
+            dists = np.array([nb["distance"] for nb in results], dtype=float)
+            order_d = np.argsort(ndists)
+
+            # Initialize group containers
+            nn_dist_groups = []  # normalized distance groups (dicts)
+            dist_groups = []  # real distance groups (dicts)
+
+            # Seed first group
+            first_idx = int(order_d[0])
+            current_min_nd = ndists[first_idx]
+            current_max_nd = ndists[first_idx]
+            current_min_d = dists[first_idx]
+            current_max_d = dists[first_idx]
+            nb_indices_set = {first_idx}  # all indices up to current group
+            dnb_set = {first_idx}  # indices equal (within tol) to current group's edge
+
+            # Scan sorted normalized distances
+            for id_np in order_d:  # already ascending
+                idist = int(id_np)  # ensure Python int (BSON-safe)
+                wd = ndists[idist]
+
+                # early stop if a max distance factor is set
+                if (max_dfact is not None) and (wd > max_dfact):
+                    # close current group
+                    nn_dist_groups.append(
                         {
-                            "min": results[idist]["distance"],
-                            "max": results[idist]["distance"],
+                            "min": current_min_nd,
+                            "max": current_max_nd,
+                            "nb_indices": list(nb_indices_set),
+                            "dnb_indices": list(dnb_set),
                         }
                     )
-                    icurrent += 1
-                nb_indices.add(int(idist))
-            else:
-                self.neighbors_normalized_distances[site_idx][icurrent]["nb_indices"] = list(nb_indices)
-                self.neighbors_distances[site_idx][icurrent]["nb_indices"] = list(nb_indices)
-                self.neighbors_normalized_distances[site_idx][icurrent]["dnb_indices"] = list(dnb_indices)
-                self.neighbors_distances[site_idx][icurrent]["dnb_indices"] = list(dnb_indices)
-            for idist in range(len(self.neighbors_distances[site_idx]) - 1):
-                dist_dict = self.neighbors_distances[site_idx][idist]
-                dist_dict_next = self.neighbors_distances[site_idx][idist + 1]
-                dist_dict["next"] = dist_dict_next["min"]
-                ndist_dict = self.neighbors_normalized_distances[site_idx][idist]
-                ndist_dict_next = self.neighbors_normalized_distances[site_idx][idist + 1]
-                ndist_dict["next"] = ndist_dict_next["min"]
-            if self.maximum_distance_factor is not None:
-                dfact = self.maximum_distance_factor
-            else:
-                dfact = self.default_voronoi_cutoff / self.neighbors_distances[site_idx][0]["min"]
-            self.neighbors_normalized_distances[site_idx][-1]["next"] = dfact
-            self.neighbors_distances[site_idx][-1]["next"] = dfact * self.neighbors_distances[site_idx][0]["min"]
-            # Initializes neighbors angles and normalized angles groups
-            self.neighbors_angles[site_idx] = []
-            self.neighbors_normalized_angles[site_idx] = []
-            normalized_angles = [nb_dict["normalized_angle"] for nb_dict in results]
-            isorted_angles = np.argsort(normalized_angles)[::-1]
-            self.neighbors_normalized_angles[site_idx].append(
-                {
-                    "max": normalized_angles[isorted_angles[0]],
-                    "min": normalized_angles[isorted_angles[0]],
-                }
-            )
-            self.neighbors_angles[site_idx].append(
-                {
-                    "max": results[isorted_angles[0]]["angle"],
-                    "min": results[isorted_angles[0]]["angle"],
-                }
-            )
-            icurrent = 0
-            nb_indices = {int(isorted_angles[0])}
-            dnb_indices = {int(isorted_angles[0])}
-            for iang in iter(isorted_angles):
-                wa = normalized_angles[iang]
-                if self.minimum_angle_factor is not None and wa < self.minimum_angle_factor:
-                    self.neighbors_normalized_angles[site_idx][icurrent]["nb_indices"] = list(nb_indices)
-                    self.neighbors_angles[site_idx][icurrent]["nb_indices"] = list(nb_indices)
-                    self.neighbors_normalized_angles[site_idx][icurrent]["dnb_indices"] = list(dnb_indices)
-                    self.neighbors_angles[site_idx][icurrent]["dnb_indices"] = list(dnb_indices)
-                    break
-                if np.isclose(
-                    wa,
-                    self.neighbors_normalized_angles[site_idx][icurrent]["min"],
-                    rtol=0.0,
-                    atol=self.normalized_angle_tolerance,
-                ):
-                    self.neighbors_normalized_angles[site_idx][icurrent]["min"] = wa
-                    self.neighbors_angles[site_idx][icurrent]["min"] = results[iang]["angle"]
-                    dnb_indices.add(int(iang))
-                else:
-                    self.neighbors_normalized_angles[site_idx][icurrent]["nb_indices"] = list(nb_indices)
-                    self.neighbors_angles[site_idx][icurrent]["nb_indices"] = list(nb_indices)
-                    self.neighbors_normalized_angles[site_idx][icurrent]["dnb_indices"] = list(dnb_indices)
-                    self.neighbors_angles[site_idx][icurrent]["dnb_indices"] = list(dnb_indices)
-                    dnb_indices = {int(iang)}
-                    self.neighbors_normalized_angles[site_idx].append({"max": wa, "min": wa})
-                    self.neighbors_angles[site_idx].append(
-                        {"max": results[iang]["angle"], "min": results[iang]["angle"]}
+                    dist_groups.append(
+                        {
+                            "min": current_min_d,
+                            "max": current_max_d,
+                            "nb_indices": list(nb_indices_set),
+                            "dnb_indices": list(dnb_set),
+                        }
                     )
-                    icurrent += 1
-                nb_indices.add(int(iang))
+                    break
+
+                if np.isclose(wd, current_max_nd, rtol=0.0, atol=nd_tol):
+                    # still in the current plateau => extend max and dnb_set
+                    current_max_nd = wd
+                    current_max_d = dists[idist]
+                    dnb_set.add(idist)
+                else:
+                    # finalize previous group
+                    nn_dist_groups.append(
+                        {
+                            "min": current_min_nd,
+                            "max": current_max_nd,
+                            "nb_indices": list(nb_indices_set),
+                            "dnb_indices": list(dnb_set),
+                        }
+                    )
+                    dist_groups.append(
+                        {
+                            "min": current_min_d,
+                            "max": current_max_d,
+                            "nb_indices": list(nb_indices_set),
+                            "dnb_indices": list(dnb_set),
+                        }
+                    )
+                    # start new group
+                    current_min_nd = current_max_nd = wd
+                    current_min_d = current_max_d = dists[idist]
+                    dnb_set = {idist}
+
+                nb_indices_set.add(idist)
             else:
-                self.neighbors_normalized_angles[site_idx][icurrent]["nb_indices"] = list(nb_indices)
-                self.neighbors_angles[site_idx][icurrent]["nb_indices"] = list(nb_indices)
-                self.neighbors_normalized_angles[site_idx][icurrent]["dnb_indices"] = list(dnb_indices)
-                self.neighbors_angles[site_idx][icurrent]["dnb_indices"] = list(dnb_indices)
-            for iang in range(len(self.neighbors_angles[site_idx]) - 1):
-                ang_dict = self.neighbors_angles[site_idx][iang]
-                ang_dict_next = self.neighbors_angles[site_idx][iang + 1]
-                ang_dict["next"] = ang_dict_next["max"]
-                nang_dict = self.neighbors_normalized_angles[site_idx][iang]
-                nang_dict_next = self.neighbors_normalized_angles[site_idx][iang + 1]
-                nang_dict["next"] = nang_dict_next["max"]
-            afact = self.minimum_angle_factor if self.minimum_angle_factor is not None else 0.0
-            self.neighbors_normalized_angles[site_idx][-1]["next"] = afact
-            self.neighbors_angles[site_idx][-1]["next"] = afact * self.neighbors_angles[site_idx][0]["max"]
+                # loop ended normally: close last group
+                nn_dist_groups.append(
+                    {
+                        "min": current_min_nd,
+                        "max": current_max_nd,
+                        "nb_indices": list(nb_indices_set),
+                        "dnb_indices": list(dnb_set),
+                    }
+                )
+                dist_groups.append(
+                    {
+                        "min": current_min_d,
+                        "max": current_max_d,
+                        "nb_indices": list(nb_indices_set),
+                        "dnb_indices": list(dnb_set),
+                    }
+                )
+
+            # Fill "next" for distance groups
+            for i in range(len(dist_groups) - 1):
+                dist_groups[i]["next"] = dist_groups[i + 1]["min"]
+                nn_dist_groups[i]["next"] = nn_dist_groups[i + 1]["min"]
+
+            # Tail "next" based on cutoff logic
+            if max_dfact is not None:
+                dfact = max_dfact
+            else:
+                # avoid repeated indexing
+                first_min_dist = dist_groups[0]["min"]
+                dfact = default_cutoff / first_min_dist
+            nn_dist_groups[-1]["next"] = dfact
+            dist_groups[-1]["next"] = dfact * dist_groups[0]["min"]
+
+            self.neighbors_normalized_distances[site_idx] = nn_dist_groups
+            self.neighbors_distances[site_idx] = dist_groups
+
+            nangs = np.array([nb["normalized_angle"] for nb in results], dtype=float)
+            angs = np.array([nb["angle"] for nb in results], dtype=float)
+            order_a = np.argsort(nangs)[::-1]  # descending
+
+            nn_ang_groups = []
+            ang_groups = []
+
+            first_a_idx = int(order_a[0])
+            current_max_na = nangs[first_a_idx]
+            current_min_na = nangs[first_a_idx]
+            current_max_a = angs[first_a_idx]
+            current_min_a = angs[first_a_idx]
+            nb_indices_set = {first_a_idx}
+            dnb_set = {first_a_idx}
+
+            for ia_np in order_a:
+                iang = int(ia_np)
+                wa = nangs[iang]
+
+                # early stop if a minimum angle factor is set
+                if (min_afact is not None) and (wa < min_afact):
+                    nn_ang_groups.append(
+                        {
+                            "max": current_max_na,
+                            "min": current_min_na,
+                            "nb_indices": list(nb_indices_set),
+                            "dnb_indices": list(dnb_set),
+                        }
+                    )
+                    ang_groups.append(
+                        {
+                            "max": current_max_a,
+                            "min": current_min_a,
+                            "nb_indices": list(nb_indices_set),
+                            "dnb_indices": list(dnb_set),
+                        }
+                    )
+                    break
+
+                if np.isclose(wa, current_min_na, rtol=0.0, atol=na_tol):
+                    # staying on the current lower edge (since we traverse from high to low)
+                    current_min_na = wa
+                    current_min_a = angs[iang]
+                    dnb_set.add(iang)
+                else:
+                    # finalize current group
+                    nn_ang_groups.append(
+                        {
+                            "max": current_max_na,
+                            "min": current_min_na,
+                            "nb_indices": list(nb_indices_set),
+                            "dnb_indices": list(dnb_set),
+                        }
+                    )
+                    ang_groups.append(
+                        {
+                            "max": current_max_a,
+                            "min": current_min_a,
+                            "nb_indices": list(nb_indices_set),
+                            "dnb_indices": list(dnb_set),
+                        }
+                    )
+                    # start new group anchored at this lower value
+                    current_max_na = current_min_na = wa
+                    current_max_a = current_min_a = angs[iang]
+                    dnb_set = {iang}
+
+                nb_indices_set.add(iang)
+            else:
+                # loop ended normally: close last group
+                nn_ang_groups.append(
+                    {
+                        "max": current_max_na,
+                        "min": current_min_na,
+                        "nb_indices": list(nb_indices_set),
+                        "dnb_indices": list(dnb_set),
+                    }
+                )
+                ang_groups.append(
+                    {
+                        "max": current_max_a,
+                        "min": current_min_a,
+                        "nb_indices": list(nb_indices_set),
+                        "dnb_indices": list(dnb_set),
+                    }
+                )
+
+            # Fill "next" for angle groups
+            for i in range(len(ang_groups) - 1):
+                ang_groups[i]["next"] = ang_groups[i + 1]["max"]
+                nn_ang_groups[i]["next"] = nn_ang_groups[i + 1]["max"]
+
+            afact_tail = min_afact if (min_afact is not None) else 0.0
+            nn_ang_groups[-1]["next"] = afact_tail
+            # follow existing convention for real angle "next"
+            ang_groups[-1]["next"] = afact_tail * ang_groups[0]["max"]
+
+            self.neighbors_normalized_angles[site_idx] = nn_ang_groups
+            self.neighbors_angles[site_idx] = ang_groups
 
     def _precompute_additional_conditions(self, ivoronoi, voronoi, valences):
-        additional_conditions = {ac: [] for ac in self.additional_conditions}
-        for _, vals in voronoi:
-            for ac in self.additional_conditions:
-                additional_conditions[ac].append(
-                    self.AC.check_condition(
-                        condition=ac,
-                        structure=self.structure,
-                        parameters={
-                            "valences": valences,
-                            "neighbor_index": vals["index"],
-                            "site_index": ivoronoi,
-                        },
-                    )
-                )
-        return additional_conditions
+        additional_conditions = {}
+        check = self.AC.check_condition
+        structure = self.structure
+        nb_indices = [vals["index"] for _, vals in voronoi]
 
-    def _precompute_distance_conditions(self, ivoronoi, voronoi):
-        distance_conditions = []
-        for idp, dp_dict in enumerate(self.neighbors_normalized_distances[ivoronoi]):
-            distance_conditions.append([])
-            dp = dp_dict["max"]
-            for _, vals in voronoi:
-                distance_conditions[idp].append(
-                    vals["normalized_distance"] <= dp
-                    or np.isclose(
-                        vals["normalized_distance"],
-                        dp,
-                        rtol=0.0,
-                        atol=self.normalized_distance_tolerance / 2.0,
-                    )
+        for ac in self.additional_conditions:
+            additional_conditions[ac] = [
+                check(
+                    condition=ac,
+                    structure=structure,
+                    parameters={
+                        "valences": valences,
+                        "neighbor_index": nb_idx,
+                        "site_index": ivoronoi,
+                    },
                 )
-        return distance_conditions
+                for nb_idx in nb_indices
+            ]
+        return additional_conditions
 
     def _precompute_angle_conditions(self, ivoronoi, voronoi):
         angle_conditions = []
-        for iap, ap_dict in enumerate(self.neighbors_normalized_angles[ivoronoi]):
-            angle_conditions.append([])
-            ap = ap_dict["max"]
-            for _, vals in voronoi:
-                angle_conditions[iap].append(
-                    vals["normalized_angle"] >= ap
-                    or np.isclose(
-                        vals["normalized_angle"],
-                        ap,
-                        rtol=0.0,
-                        atol=self.normalized_angle_tolerance / 2.0,
-                    )
-                )
-        return angle_conditions
+        # Vectorize the list of voronoi normalized angles once
+        v_angles = np.fromiter((vals["normalized_angle"] for _, vals in voronoi), dtype=float)
+        atol = self.normalized_angle_tolerance / 2.0
 
-    # def neighbors_map(self, isite, distfactor, angfactor, additional_condition):
-    #     if self.neighbors_normalized_distances[isite] is None:
-    #         return None
-    #     dist_where = np.argwhere(
-    #         np.array([wd['min'] for wd in self.neighbors_normalized_distances[isite]]) <= distfactor)
-    #     if len(dist_where) == 0:
-    #         return None
-    #     idist = dist_where[-1][0]
-    #     ang_where = np.argwhere(np.array([wa['max'] for wa in self.neighbors_normalized_angles[isite]]) >= angfactor)
-    #     if len(ang_where) == 0:
-    #         return None
-    #     iang = ang_where[0][0]
-    #     if self.additional_conditions.count(additional_condition) != 1:
-    #         return None
-    #     i_additional_condition = self.additional_conditions.index(additional_condition)
-    #     return {'i_distfactor': idist, 'i_angfactor': iang, 'i_additional_condition': i_additional_condition}
+        for ap_dict in self.neighbors_normalized_angles[ivoronoi]:
+            ap = ap_dict["max"]
+            # (v_angles >= ap) OR close to ap within tolerance
+            cond = (v_angles >= ap) | np.isclose(v_angles, ap, rtol=0.0, atol=atol)
+            angle_conditions.append(cond.tolist())  # ensure plain Python bools
+
+        return angle_conditions
 
     def neighbors_surfaces(self, isite, surface_calculation_type=None, max_dist=2.0):
         """Get the different surfaces corresponding to the different distance-angle cutoffs for a given site.
@@ -438,76 +501,87 @@ class DetailedVoronoiContainer(MSONable):
     def neighbors_surfaces_bounded(self, isite, surface_calculation_options=None):
         """Get the different surfaces (using boundaries) corresponding to the different distance-angle cutoffs
         for a given site.
-
-        Args:
-            isite: Index of the site.
-            surface_calculation_options: Options for the boundaries.
-
-        Returns:
-            Surfaces for each distance-angle cutoff.
         """
         if self.voronoi_list2[isite] is None:
             return None
+
+        # Defaults
         if surface_calculation_options is None:
             surface_calculation_options = {
                 "type": "standard_elliptic",
                 "distance_bounds": {"lower": 1.2, "upper": 1.8},
                 "angle_bounds": {"lower": 0.1, "upper": 0.8},
             }
-        if surface_calculation_options["type"] in [
-            "standard_elliptic",
-            "standard_diamond",
-            "standard_spline",
-        ]:
+
+        s_type = surface_calculation_options["type"]
+        if s_type in ("standard_elliptic", "standard_diamond", "standard_spline"):
             plot_type = {
                 "distance_parameter": ("initial_normalized", None),
                 "angle_parameter": ("initial_normalized", None),
             }
         else:
-            raise ValueError(
-                f"Type {surface_calculation_options['type']!r} for the surface calculation in DetailedVoronoiContainer "
-                "is invalid"
-            )
-        max_dist = surface_calculation_options["distance_bounds"]["upper"] + 0.1
+            raise ValueError(f"Type {s_type!r} for the surface calculation in DetailedVoronoiContainer is invalid")
+
+        # Hoist & cache lookups
+        d_lower = surface_calculation_options["distance_bounds"]["lower"]
+        d_upper = surface_calculation_options["distance_bounds"]["upper"]
+        a_lower = surface_calculation_options["angle_bounds"]["lower"]
+        a_upper = surface_calculation_options["angle_bounds"]["upper"]
+
+        max_dist = d_upper + 0.1
         bounds_and_limits = self.voronoi_parameters_bounds_and_limits(
             isite=isite, plot_type=plot_type, max_dist=max_dist
         )
 
         distance_bounds = bounds_and_limits["distance_bounds"]
         angle_bounds = bounds_and_limits["angle_bounds"]
-        lower_and_upper_functions = get_lower_and_upper_f(surface_calculation_options=surface_calculation_options)
-        mindist = surface_calculation_options["distance_bounds"]["lower"]
-        maxdist = surface_calculation_options["distance_bounds"]["upper"]
-        minang = surface_calculation_options["angle_bounds"]["lower"]
-        maxang = surface_calculation_options["angle_bounds"]["upper"]
 
-        f_lower = lower_and_upper_functions["lower"]
-        f_upper = lower_and_upper_functions["upper"]
-        surfaces = np.zeros((len(distance_bounds), len(angle_bounds)), float)
-        for idp in range(len(distance_bounds) - 1):
-            dp1 = distance_bounds[idp]
-            dp2 = distance_bounds[idp + 1]
-            if dp2 < mindist or dp1 > maxdist:
+        # Functions and constant bounds for intersection
+        lu = get_lower_and_upper_f(surface_calculation_options=surface_calculation_options)
+        f_lower = lu["lower"]
+        f_upper = lu["upper"]
+        rect_bounds_lower = (d_lower, d_upper)
+        rect_bounds_upper = (d_lower, d_upper)
+
+        # Preallocate result
+        n_d = len(distance_bounds)
+        n_a = len(angle_bounds)
+        surfaces = np.zeros((n_d, n_a), float)
+
+        # Iterate over consecutive bound pairs without repeated indexing
+        for idp, (dp1, dp2) in enumerate(itertools.pairwise(distance_bounds)):
+            # Quick reject by distance window
+            if dp2 < d_lower or dp1 > d_upper:
                 continue
-            d1 = max(dp1, mindist)
-            d2 = min(dp2, maxdist)
-            for iap in range(len(angle_bounds) - 1):
-                ap1 = angle_bounds[iap]
-                ap2 = angle_bounds[iap + 1]
-                if ap1 > ap2:
-                    ap1 = angle_bounds[iap + 1]
-                    ap2 = angle_bounds[iap]
-                if ap2 < minang or ap1 > maxang:
+            # Clamp to window
+            d1 = max(d_lower, dp1)
+            d2 = min(d_upper, dp2)
+
+            for iap, (ap1_raw, ap2_raw) in enumerate(itertools.pairwise(angle_bounds)):
+                # Maintain original safety swap in case of non-monotonic inputs
+                if ap1_raw <= ap2_raw:
+                    ap1, ap2 = ap1_raw, ap2_raw
+                else:
+                    ap1, ap2 = ap2_raw, ap1_raw
+
+                # Quick reject by angle window
+                if ap2 < a_lower or ap1 > a_upper:
                     continue
-                intersection, _interror = rectangle_surface_intersection(
-                    rectangle=((d1, d2), (ap1, ap2)),
+                # Clamp to window
+                a1 = max(a_lower, ap1)
+                a2 = min(a_upper, ap2)
+
+                # Compute intersection area
+                inter, _ = rectangle_surface_intersection(
+                    rectangle=((d1, d2), (a1, a2)),
                     f_lower=f_lower,
                     f_upper=f_upper,
-                    bounds_lower=[mindist, maxdist],
-                    bounds_upper=[mindist, maxdist],
+                    bounds_lower=rect_bounds_lower,
+                    bounds_upper=rect_bounds_upper,
                     check=False,
                 )
-                surfaces[idp][iap] = intersection
+                surfaces[idp, iap] = inter
+
         return surfaces
 
     @staticmethod
@@ -707,74 +781,62 @@ class DetailedVoronoiContainer(MSONable):
         }
 
     def is_close_to(self, other, rtol=0.0, atol=1e-8) -> bool:
-        """
-        Whether two DetailedVoronoiContainer objects are close to each other.
-
-        Args:
-            other: Another DetailedVoronoiContainer to be compared with.
-            rtol: Relative tolerance to compare values.
-            atol: Absolute tolerance to compare values.
-
-        Returns:
-            bool: True if the two DetailedVoronoiContainer are close to each other.
-        """
-        isclose = (
-            np.isclose(
-                self.normalized_angle_tolerance,
-                other.normalized_angle_tolerance,
-                rtol=rtol,
-                atol=atol,
-            )
+        if not (
+            np.isclose(self.normalized_angle_tolerance, other.normalized_angle_tolerance, rtol=rtol, atol=atol)
             and np.isclose(
-                self.normalized_distance_tolerance,
-                other.normalized_distance_tolerance,
-                rtol=rtol,
-                atol=atol,
+                self.normalized_distance_tolerance, other.normalized_distance_tolerance, rtol=rtol, atol=atol
             )
             and self.additional_conditions == other.additional_conditions
             and self.valences == other.valences
-        )
-        if not isclose:
-            return isclose
+        ):
+            return False
+
+        # Cheap shape check
+        if len(self.voronoi_list2) != len(other.voronoi_list2):
+            return False
+
         for site_idx, voronoi_site in enumerate(self.voronoi_list2):
-            self_to_other_nbs = {}
-            for inb, nb in enumerate(voronoi_site):
+            other_site = other.voronoi_list2[site_idx]
+
+            # Handle None symmetry
+            if voronoi_site is None or other_site is None:
+                if voronoi_site is not other_site:
+                    return False
+                continue
+
+            # Quick length check
+            if len(voronoi_site) != len(other_site):
+                return False
+
+            # Build an index -> neighbor dict for O(1) lookup on the "other" side.
+            # Index should be unique per site; it is compared below anyway.
+            other_by_index = {nb2["index"]: nb2 for nb2 in other_site}
+
+            for nb in voronoi_site:
                 if nb is None:
-                    if other.voronoi_list2[site_idx] is None:
-                        continue
-                    return False
-                if other.voronoi_list2[site_idx] is None:
-                    return False
-                nb_other = None
-                for inb2, nb2 in enumerate(other.voronoi_list2[site_idx]):
-                    if nb["site"] == nb2["site"]:
-                        self_to_other_nbs[inb] = inb2
-                        nb_other = nb2
-                        break
+                    # Mirror None handling (shouldn't normally happen once list is non-None)
+                    if any(x is not None for x in other_site):
+                        return False
+                    continue
+
+                idx = nb["index"]
+                nb_other = other_by_index.get(idx)
                 if nb_other is None:
                     return False
+
+                # Compare sites and numeric fields with tolerances
+                if nb["site"] != nb_other["site"]:
+                    return False
+
                 if not np.isclose(nb["distance"], nb_other["distance"], rtol=rtol, atol=atol):
                     return False
                 if not np.isclose(nb["angle"], nb_other["angle"], rtol=rtol, atol=atol):
                     return False
-                if not np.isclose(
-                    nb["normalized_distance"],
-                    nb_other["normalized_distance"],
-                    rtol=rtol,
-                    atol=atol,
-                ):
+                if not np.isclose(nb["normalized_distance"], nb_other["normalized_distance"], rtol=rtol, atol=atol):
                     return False
-                if not np.isclose(
-                    nb["normalized_angle"],
-                    nb_other["normalized_angle"],
-                    rtol=rtol,
-                    atol=atol,
-                ):
+                if not np.isclose(nb["normalized_angle"], nb_other["normalized_angle"], rtol=rtol, atol=atol):
                     return False
-                if nb["index"] != nb_other["index"]:
-                    return False
-                if nb["site"] != nb_other["site"]:
-                    return False
+
         return True
 
     def get_rdf_figure(self, isite, normalized=True, figsize=None, step_function=None):
