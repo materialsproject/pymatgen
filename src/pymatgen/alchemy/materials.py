@@ -7,9 +7,9 @@ from __future__ import annotations
 
 import json
 import re
+import warnings
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
-from warnings import warn
 
 import orjson
 from monty.json import MSONable, jsanitize
@@ -363,7 +363,9 @@ class TransformedStructure(MSONable):
             StructureNL: The generated StructureNL object.
         """
         if self.other_parameters:
-            warn("Data in TransformedStructure.other_parameters discarded during type conversion to SNL", stacklevel=2)
+            warnings.warn(
+                "Data in TransformedStructure.other_parameters discarded during type conversion to SNL", stacklevel=2
+            )
         history = []
         for hist in self.history:
             snl_metadata = hist.pop("_snl", {})

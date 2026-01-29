@@ -89,7 +89,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         self,
         inc_structure: bool = False,
         parameters: list[str] | None = None,
-        data: dict | None = None,
+        data: list | None = None,
     ) -> None:
         """
         Args:
@@ -113,7 +113,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         }
         if parameters:
             self._parameters.update(parameters)
-        self._data = data or {}
+        self._data = data or []
 
     def __str__(self) -> str:
         return "VaspToComputedEntryDrone"

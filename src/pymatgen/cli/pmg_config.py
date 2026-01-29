@@ -26,18 +26,20 @@ if TYPE_CHECKING:
 
 def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
     """Setup CP2K basis and potential data directory."""
-    # this function used to use ruamel.yaml which underwent breaking changes. was easier to
-    # migrate to PyYAML than fix
-    import yaml  # type: ignore[import]
+    # this function used to use `ruamel.yaml` which underwent breaking changes,
+    # was easier to migrate to PyYAML than fix
+    # TODO: `yaml` is not declared in dependencies
+    import yaml  # type: ignore[import-untyped]
 
     data_dir, target_dir = (os.path.abspath(dirc) for dirc in cp2k_data_dirs)
-    try:
-        os.mkdir(target_dir)
-    except OSError:
+    if os.path.isdir(target_dir):
         reply = input("Destination directory exists. Continue (y/n)?")
         if reply != "y":
             raise SystemExit("Exiting ...")
-    print("Generating pymatgen resource directory for CP2K...")
+
+    else:
+        os.mkdir(target_dir)
+        print("Generating pymatgen resource directory for CP2K...")
 
     basis_files = glob(f"{data_dir}/*BASIS*")
     potential_files = glob(f"{data_dir}/*POTENTIAL*")
@@ -106,17 +108,17 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
     print("\n Start a new terminal to ensure that your environment variables are properly set.")
 
 
-def setup_potcars(potcar_dirs: list[str]):
+def setup_potcars(potcar_dirs: list[str]) -> None:
     """Setup POTCAR directories."""
     psp_dir, target_dir = (os.path.abspath(d) for d in potcar_dirs)
-    try:
-        os.makedirs(target_dir)
-    except OSError:
+    if os.path.isdir(target_dir):
         reply = input("Destination directory exists. Continue (y/n)? ")
         if reply != "y":
             raise SystemExit("Exiting ...")
 
-    print("Generating pymatgen resources directory...")
+    else:
+        os.makedirs(target_dir)
+        print("Generating pymatgen resources directory...")
 
     # name_mappings ensures consistency with the POTCAR directory structure
     # expected by pymatgen.io.vasp.inputs.PotcarSingle
@@ -179,7 +181,7 @@ def setup_potcars(potcar_dirs: list[str]):
 
 
 def build_enum(fortran_command: str = "gfortran") -> bool:
-    """Build enum.
+    """Build `enum`.
 
     Args:
         fortran_command: The Fortran compiler command.
@@ -205,8 +207,8 @@ def build_enum(fortran_command: str = "gfortran") -> bool:
     return state
 
 
-def build_bader(fortran_command="gfortran"):
-    """Build bader package.
+def build_bader(fortran_command="gfortran") -> bool:
+    """Build `bader` package.
 
     Args:
         fortran_command: The Fortran compiler command.
@@ -233,7 +235,7 @@ def build_bader(fortran_command="gfortran"):
     return state
 
 
-def install_software(install: Literal["enumlib", "bader"]):
+def install_software(install: Literal["enumlib", "bader"]) -> None:
     """Install all optional external software."""
     try:
         subprocess.call(["ifort", "--version"])

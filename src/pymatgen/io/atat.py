@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from pymatgen.core import Lattice, Structure, get_el_sp
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from pymatgen.core.structure import IStructure
 
 __author__ = "Matthew Horton"

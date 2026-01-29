@@ -218,10 +218,16 @@ class IcetSQS:
             material = AseAtomsAdaptor.get_atoms(material)
 
         cluster_space = cluster_space or self._get_cluster_space()
+
+        orb_data_as_list = None
+        if hasattr(cluster_space, "orbit_data"):  # icet <= 2
+            orb_data_as_list = cluster_space.orbit_data
+        elif hasattr(cluster_space, "as_list"):  # icet >= 3
+            orb_data_as_list = cluster_space.as_list
         return compare_cluster_vectors(
-            cv_1=cluster_space.get_cluster_vector(material),
-            cv_2=self.sqs_vector,
-            orbit_data=cluster_space.orbit_data,
+            cluster_space.get_cluster_vector(material),
+            self.sqs_vector,
+            orb_data_as_list,
             **self._sqs_obj_kwargs,
         )
 

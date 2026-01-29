@@ -639,8 +639,10 @@ class TestPhaseDiagram(MatSciTest):
         dd = self.pd.as_dict()
         new_pd = PhaseDiagram.from_dict(dd)
         new_pd_dict = new_pd.as_dict()
-        assert new_pd_dict == dd
-        assert isinstance(pd.to_json(), str)
+        assert len(new_pd_dict) == len(dd)
+        for k, v in new_pd_dict.items():
+            assert v == dd[k]
+        assert isinstance(new_pd.to_json(), str)
 
     def test_read_json(self):
         dumpfn(self.pd, f"{self.tmp_path}/pd.json")

@@ -6,6 +6,7 @@ It also provides tools to analyze and to visualize the parallel efficiency.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import logging
 import os
 import re
@@ -227,15 +228,9 @@ class AbinitTimerParser(collections.abc.Iterable):
         for idx, timer in enumerate(self.timers()):
             if idx == 0:
                 section_names = [s.name for s in timer.order_sections(ordkey)]
-                # check = section_names
             # else:
             #     new_set = {s.name for s in timer.order_sections(ordkey)}
             #     section_names.intersection_update(new_set)
-            #     check = check | new_set
-
-        # if check != section_names:
-        #  print("sections", section_names)
-        #  print("check",check)
 
         return section_names
 

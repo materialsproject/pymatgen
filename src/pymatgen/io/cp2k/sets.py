@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import itertools
 import os
-import typing
 import warnings
 from typing import TYPE_CHECKING, Any
 
@@ -367,7 +366,6 @@ class DftSet(Cp2kInput):
         if kwargs.get("validate", True):
             self.validate()
 
-    @typing.no_type_check
     @staticmethod
     def get_basis_and_potential(
         structure: Structure | IStructure,

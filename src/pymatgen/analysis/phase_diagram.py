@@ -389,12 +389,17 @@ class PhaseDiagram(MSONable):
 
     def as_dict(self):
         """Get MSONable dict representation of PhaseDiagram."""
+
+        qhull_entry_indices = [self.all_entries.index(e) for e in self.qhull_entries]
+
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "all_entries": [e.as_dict() for e in self.all_entries],
             "elements": [e.as_dict() for e in self.elements],
-            "computed_data": self.computed_data,
+            "computed_data": self.computed_data
+            | {
+                "qhull_entries": qhull_entry_indices,
+            },
         }
 
     @classmethod
@@ -406,9 +411,19 @@ class PhaseDiagram(MSONable):
         Returns:
             PhaseDiagram
         """
-        entries = [MontyDecoder().process_decoded(entry) for entry in dct["all_entries"]]
-        elements = [Element.from_dict(elem) for elem in dct["elements"]]
         computed_data = dct.get("computed_data")
+        elements = [Element.from_dict(elem) for elem in dct["elements"]]
+
+        # for backwards compatibility, check for old format
+        if "all_entries" in dct:
+            entries = [MontyDecoder().process_decoded(entry) for entry in dct["all_entries"]]
+        else:
+            entries = [MontyDecoder().process_decoded(entry) for entry in computed_data["all_entries"]]
+
+            complete_qhull_entries = [computed_data["all_entries"][i] for i in computed_data["qhull_entries"]]
+
+            computed_data = computed_data | {"qhull_entries": complete_qhull_entries}
+
         return cls(entries, elements, computed_data=computed_data)
 
     def _compute(self) -> dict[str, Any]:
@@ -1609,7 +1624,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     def __init__(
         self,
-        entries: Sequence[PDEntry] | set[PDEntry],
+        entries: Sequence[Entry] | set[Entry],
         elements: Sequence[Element] | None = None,
         keep_all_spaces: bool = False,
         verbose: bool = False,

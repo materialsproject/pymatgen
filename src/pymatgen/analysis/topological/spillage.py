@@ -7,9 +7,13 @@ https://www.nature.com/articles/s41524-020-0319-4.
 
 from __future__ import annotations
 
+import logging
+
 import numpy as np
 
 from pymatgen.io.vasp.outputs import Wavecar
+
+logger = logging.getLogger(__name__)
 
 
 class SOCSpillage:
@@ -193,35 +197,33 @@ class SOCSpillage:
                         x.append(kso)
                         y.append(np.real(gamma_k[-1]))
                         if gamma_k[-1] > 0.5:
-                            print(
-                                "nk1 nk2 kpoint gamma_k ",
+                            logger.info(
+                                "nk1 nk2 kpoint gamma_k %s %s %s %s %s !!!!!!!!!!",
                                 nk1,
                                 nk2,
                                 kso,
                                 k_no_spin_orbit,
                                 np.real(gamma_k[-1]),
-                                "!!!!!!!!!!",
                             )
 
         gamma_max = max(np.real(gamma_k))
         n_kmax = np.argmax(np.real(gamma_k))
         k_max = kpoints[n_kmax]
 
-        print("------------------------------------")
-        print("\n                   INDIRECT DIRECT      HOMO/LUMO (eV)")
-        print(
-            "no spin-orbit gaps",
-            f"{float(noso_lumo - noso_homo):+.3f}",
-            f"{noso_direct:+.3f}",
-            "   ",
+        logger.info("------------------------------------")
+        logger.info("\n                   INDIRECT DIRECT      HOMO/LUMO (eV)")
+        logger.info(
+            "no spin-orbit gaps   %+.3f   %+.3f   %s",
+            float(noso_lumo - noso_homo),
+            noso_direct,
             [noso_homo, noso_lumo],
         )
-        print(
-            "spin-orbit gaps   ",
-            f"{float(so_lumo - so_homo):+.3f}",
-            f"{so_direct:+.3f}",
-            "   ",
+        logger.info(
+            "spin-orbit gaps      %+.3f   %+.3f   %s",
+            float(so_lumo - so_homo),
+            so_direct,
             [so_homo, so_lumo],
         )
-        print("gamma max", np.real(gamma_max), " at k =  ", k_max)
+        logger.info("gamma max %s at k = %s", np.real(gamma_max), k_max)
+
         return gamma_max
