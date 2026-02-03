@@ -42,6 +42,13 @@ class TestLobsterNeighbors:
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_190.gz"),
             additional_condition=0,
         )
+        # test __init_new__ using from_files
+        self.chem_env_lobster0_from_file = LobsterNeighbors.from_files(
+            are_coops=False,
+            structure_path=f"{TEST_DIR}/POSCAR.mp_190.gz",
+            icoxxlist_path=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
+            additional_condition=0,
+        )
 
         # only cation-cation, anion-anion bonds
         self.chem_env_lobster5 = LobsterNeighbors(
@@ -51,11 +58,25 @@ class TestLobsterNeighbors:
             additional_condition=5,
         )
 
+        self.chem_env_lobster5_from_file = LobsterNeighbors.from_files(
+            are_coops=False,
+            structure_path=f"{TEST_DIR}/POSCAR.mp_190.gz",
+            icoxxlist_path=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
+            additional_condition=5,
+        )
+
         # only cation-cation bonds
         self.chem_env_lobster6 = LobsterNeighbors(
             are_coops=False,
             filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_190.gz"),
+            additional_condition=6,
+        )
+
+        self.chem_env_lobster6_from_file = LobsterNeighbors.from_files(
+            are_coops=False,
+            structure_path=f"{TEST_DIR}/POSCAR.mp_190.gz",
+            icoxxlist_path=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
             additional_condition=6,
         )
 
@@ -132,10 +153,26 @@ class TestLobsterNeighbors:
             noise_cutoff=None,
         )
 
+        self.chem_env_lobster1_coop_NaCl_from_file = LobsterNeighbors.from_files(
+            are_coops=True,
+            structure_path=f"{TEST_DIR}/POSCAR.NaCl.gz",
+            icoxxlist_path=f"{TEST_DIR}/ICOOPLIST.lobster.NaCl.gz",
+            additional_condition=1,
+            noise_cutoff=None,
+        )
+
         self.chem_env_lobster1_cobi_NaCl = LobsterNeighbors(
             are_coops=True,
             filename_icohp=f"{TEST_DIR}/ICOBILIST.lobster.NaCl.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.NaCl.gz"),
+            additional_condition=1,
+            noise_cutoff=None,
+        )
+
+        self.chem_env_lobster1_cobi_NaCl_from_file = LobsterNeighbors.from_files(
+            are_coops=True,
+            structure_path=f"{TEST_DIR}/POSCAR.NaCl.gz",
+            icoxxlist_path=f"{TEST_DIR}/ICOBILIST.lobster.NaCl.gz",
             additional_condition=1,
             noise_cutoff=None,
         )
@@ -281,6 +318,48 @@ class TestLobsterNeighbors:
             additional_condition=0,
             adapt_extremum_to_add_cond=True,
         )
+
+    def test_init_new(self):
+        # additional condition 0
+        ref_lse = self.chem_env_lobster0.get_light_structure_environment(only_cation_environments=False)
+        test_lse = self.chem_env_lobster0_from_file.get_light_structure_environment(only_cation_environments=False)
+
+        assert self.chem_env_lobster0.anion_types == self.chem_env_lobster0_from_file.anion_types
+        assert ref_lse.coordination_environments == test_lse.coordination_environments
+        assert ref_lse.valences == test_lse.valences
+
+        # additional condition 5
+        ref_lse = self.chem_env_lobster5.get_light_structure_environment(only_cation_environments=False)
+        test_lse = self.chem_env_lobster5_from_file.get_light_structure_environment(only_cation_environments=False)
+
+        assert self.chem_env_lobster5.anion_types == self.chem_env_lobster5_from_file.anion_types
+        assert ref_lse.coordination_environments == test_lse.coordination_environments
+        assert ref_lse.valences == test_lse.valences
+
+        # additional condition 6
+        ref_lse = self.chem_env_lobster6.get_light_structure_environment(only_cation_environments=False)
+        test_lse = self.chem_env_lobster6_from_file.get_light_structure_environment(only_cation_environments=False)
+        assert self.chem_env_lobster6.anion_types == self.chem_env_lobster6_from_file.anion_types
+        assert ref_lse.coordination_environments == test_lse.coordination_environments
+        assert ref_lse.valences == test_lse.valences
+
+        # coop NaCl
+        ref_lse = self.chem_env_lobster1_coop_NaCl.get_light_structure_environment(only_cation_environments=False)
+        test_lse = self.chem_env_lobster1_coop_NaCl_from_file.get_light_structure_environment(
+            only_cation_environments=False
+        )
+        assert self.chem_env_lobster1_coop_NaCl.anion_types == self.chem_env_lobster1_coop_NaCl_from_file.anion_types
+        assert ref_lse.coordination_environments == test_lse.coordination_environments
+        assert ref_lse.valences == test_lse.valences
+
+        # cobi NaCl
+        ref_lse = self.chem_env_lobster1_cobi_NaCl.get_light_structure_environment(only_cation_environments=False)
+        test_lse = self.chem_env_lobster1_cobi_NaCl_from_file.get_light_structure_environment(
+            only_cation_environments=False
+        )
+        assert self.chem_env_lobster1_cobi_NaCl.anion_types == self.chem_env_lobster1_cobi_NaCl_from_file.anion_types
+        assert ref_lse.coordination_environments == test_lse.coordination_environments
+        assert ref_lse.valences == test_lse.valences
 
     def test_cation_anion_mode_without_ions(self):
         with pytest.raises(
@@ -846,7 +925,7 @@ class TestLobsterNeighbors:
             structure_file=f"{TEST_DIR}/POSCAR.NaSi.gz",
         )
         plot_label_obj, _summed_cohpcar_NaSi_obj = self.chem_env_w_obj.get_info_cohps_to_neighbors(
-            obj_cohpcar=obj_cohpcar,
+            coxxcar_obj=obj_cohpcar,
             isites=[8],
             onlycation_isites=False,
             only_bonds_to=["Na"],
