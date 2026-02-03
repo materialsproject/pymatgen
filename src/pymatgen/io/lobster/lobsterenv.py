@@ -130,13 +130,14 @@ class LobsterNeighbors(NearNeighbors):
         """
         warnings.warn(
             "Instantiation with file paths (filename_icohp, filename_charge, filename_blist_sg1, filename_blist_sg2.) "
-            "is deprecated and will be removed on 31-01-2026. "
+            "is deprecated and will be removed on 31-03-2026. "
             "Please use `LobsterNeighbors.from_file` instead.",
             DeprecationWarning,
             stacklevel=2,
         )
         warnings.warn(
-            "Class init args obj_icohp, obj_charge will be renamed to icohp and charge respectively on 31-01-2026.",
+            "Class init args obj_icohp, obj_charge will be "
+            "renamed to icoxxlist_obj and charge_obj respectively on 31-03-2026.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -250,10 +251,10 @@ class LobsterNeighbors(NearNeighbors):
     def __init_new__(
         self,
         structure: Structure,
-        icohp: Icohplist,
+        icoxxlist_obj: Icohplist,
         are_coops: bool = False,
         are_cobis: bool = False,
-        charge: Charge | None = None,
+        charge_obj: Charge | None = None,
         valences: list[float] | None = None,
         limits: tuple[float, float] | None = None,
         additional_condition: Literal[0, 1, 2, 3, 4, 5, 6] = 0,
@@ -269,10 +270,46 @@ class LobsterNeighbors(NearNeighbors):
         id_blist_sg1: Literal["icoop", "icobi"] = "icoop",
         id_blist_sg2: Literal["icoop", "icobi"] = "icobi",
     ):
+        """
+        Args:
+            structure (Structure): Typically constructed by Structure.from_file("POSCAR").
+            icoxxlist_obj (Icohplist): Icohplist object.
+            are_coops (bool): Whether the file is a ICOOPLIST.lobster (True) or a
+                ICOHPLIST.lobster (False). Only tested for ICOHPLIST.lobster so far.
+            are_cobis (bool): Whether the file is a ICOBILIST.lobster (True) or
+                a ICOHPLIST.lobster (False).
+            charge_obj (Charge): Charge object.
+            valences (list[float]): Valence/charge for each element.
+            limits (tuple[float, float]): Range to decide which ICOHPs (ICOOP
+                or ICOBI) should be considered.
+            additional_condition (int): Additional condition that decides
+                which kind of bonds will be considered
+                    0 - NO_ADDITIONAL_CONDITION
+                    1 - ONLY_ANION_CATION_BONDS
+                    2 - NO_ELEMENT_TO_SAME_ELEMENT_BONDS
+                    3 - ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS
+                    4 - ONLY_ELEMENT_TO_OXYGEN_BONDS
+                    5 - DO_NOT_CONSIDER_ANION_CATION_BONDS
+                    6 - ONLY_CATION_CATION_BONDS
+            only_bonds_to (list[str]): Only consider bonds to certain elements (e.g. ["O"] for oxygen).
+            perc_strength_icohp (float): If no "limits" are given, this will decide
+                which ICOHPs will be considered (relative to the strongest ICOHP/ICOOP/ICOBI).
+            noise_cutoff (float): The lower limit of ICOHPs considered.
+            valences_from_charges (bool): If True and path to CHARGE.lobster is provided,
+                will use LOBSTER charges (Mulliken) instead of valences.
+            which_charge ("Mulliken" | "Loewdin"): Source of charge.
+            adapt_extremum_to_add_cond (bool): Whether to adapt the limits to only
+                focus on the bonds determined by the additional condition.
+            add_additional_data_sg (bool): Add the information from bonding_list_1.
+            bonding_list_1 (Icohplist): Additional ICOOP, ICOBI data for structure graphs.
+            bonding_list_2 (Icohplist): Additional ICOOP, ICOBI data for structure graphs.
+            id_blist_sg1 ("icoop" | "icobi"): Identity of data in bonding_list_1.
+            id_blist_sg2 ("icoop" | "icobi"): Identity of data in bonding_list_2.
+        """
         self.structure = structure
-        self.ICOHP = icohp
-        self.Icohpcollection = icohp.icohpcollection
-        self.charge = charge
+        self.ICOHP = icoxxlist_obj
+        self.Icohpcollection = icoxxlist_obj.icohpcollection
+        self.charge_obj = charge_obj
         self.valences = valences
         self.limits = limits
         self.only_bonds_to = only_bonds_to
@@ -296,9 +333,9 @@ class LobsterNeighbors(NearNeighbors):
 
         if self.valences is None and valences_from_charges:
             if which_charge == "Mulliken":
-                self.valences = charge.mulliken
+                self.valences = charge_obj.mulliken
             elif which_charge == "Loewdin":
-                self.valences = charge.loewdin
+                self.valences = charge_obj.loewdin
         else:
             bv_analyzer = BVAnalyzer()
             try:
@@ -332,7 +369,7 @@ class LobsterNeighbors(NearNeighbors):
     def from_files(
         cls,
         structure_path: PathLike = "CONTCAR",
-        icohp_path: PathLike = "ICOHPLIST.lobster",
+        icoxxlist_path: PathLike = "ICOHPLIST.lobster",
         are_coops: bool = False,
         are_cobis: bool = False,
         charge_path: PathLike | None = None,
@@ -347,7 +384,7 @@ class LobsterNeighbors(NearNeighbors):
 
         Args:
             structure_path (PathLike): Path to structure file, typically CONTCAR
-            icohp_path (PathLike): Path to ICOHPLIST.lobster or
+            icoxxlist_path (PathLike): Path to ICOHPLIST.lobster or
                 ICOOPLIST.lobster or ICOBILIST.lobster.
             are_coops (bool): Whether the file is a ICOOPLIST.lobster (True) or a
                 ICOHPLIST.lobster (False). Only tested for ICOHPLIST.lobster so far.
@@ -360,8 +397,8 @@ class LobsterNeighbors(NearNeighbors):
             id_blist_sg2 ("icoop" | "icobi"): Population type in in blist_sg2_path.
         """
         structure = Structure.from_file(structure_path)
-        icohp = Icohplist(filename=icohp_path, are_coops=are_coops, are_cobis=are_cobis)
-        charge = Charge(filename=charge_path) if charge_path else None
+        icoxxlist_obj = Icohplist(filename=icoxxlist_path, are_coops=are_coops, are_cobis=are_cobis)
+        charge_obj = Charge(filename=charge_path) if charge_path else None
         bonding_list_1 = bonding_list_2 = None
 
         if kwargs.get("add_additional_data_sg", False):
@@ -395,10 +432,10 @@ class LobsterNeighbors(NearNeighbors):
 
         obj.__init_new__(
             structure=structure,
-            icohp=icohp,
-            are_coops=False,
-            are_cobis=False,
-            charge=charge,
+            icoxxlist_obj=icoxxlist_obj,
+            are_coops=are_coops,
+            are_cobis=are_cobis,
+            charge_obj=charge_obj,
             bonding_list_1=bonding_list_1,
             bonding_list_2=bonding_list_2,
             **kwargs,
@@ -624,7 +661,7 @@ class LobsterNeighbors(NearNeighbors):
     def plot_cohps_of_neighbors(
         self,
         path_to_cohpcar: PathLike | None = "COHPCAR.lobster",
-        obj_cohpcar: CompleteCohp | None = None,
+        coxxcar_obj: CompleteCohp | None = None,
         isites: list[int] | None = None,
         onlycation_isites: bool = True,
         only_bonds_to: list[str] | None = None,
@@ -640,7 +677,7 @@ class LobsterNeighbors(NearNeighbors):
 
         Args:
             path_to_cohpcar (PathLike): Path to COHPCAR or COOPCAR or COBICAR.
-            obj_cohpcar (CompleteCohp): CompleteCohp object
+            coxxcar_obj (CompleteCohp | None): CompleteCohp object
             isites (list[int]): Site IDs. If empty, all sites will be used to add the ICOHPs of the neighbors.
             onlycation_isites (bool): Only use cations, if isite is empty.
             only_bonds_to (list[str]): Only anions in this list will be considered.
@@ -657,7 +694,7 @@ class LobsterNeighbors(NearNeighbors):
 
         plotlabel, summed_cohp = self.get_info_cohps_to_neighbors(
             path_to_cohpcar,
-            obj_cohpcar,
+            coxxcar_obj,
             isites,
             only_bonds_to,
             onlycation_isites,
@@ -678,7 +715,7 @@ class LobsterNeighbors(NearNeighbors):
     def get_info_cohps_to_neighbors(
         self,
         path_to_cohpcar: PathLike | None = "COHPCAR.lobster",
-        obj_cohpcar: CompleteCohp | None = None,
+        coxxcar_obj: CompleteCohp | None = None,
         isites: list[int] | None = None,
         only_bonds_to: list[str] | None = None,
         onlycation_isites: bool = True,
@@ -690,7 +727,7 @@ class LobsterNeighbors(NearNeighbors):
 
         Args:
             path_to_cohpcar (PathLike): Path to COHPCAR/COOPCAR/COBICAR.
-            obj_cohpcar (CompleteCohp): CompleteCohp object.
+            coxxcar_obj (CompleteCohp | None): CompleteCohp object.
             isites (list[int]): The indexes of the sites.
             only_bonds_to (list[str]): Only show COHPs to selected element, e.g. ["O"].
             onlycation_isites (bool): If isites is None, only cation sites will be returned.
@@ -713,7 +750,7 @@ class LobsterNeighbors(NearNeighbors):
             self.structure.to(filename=path, fmt="poscar")
 
             if not hasattr(self, "completecohp"):
-                if path_to_cohpcar is not None and obj_cohpcar is None:
+                if path_to_cohpcar is not None and coxxcar_obj is None:
                     self.completecohp = CompleteCohp.from_file(
                         fmt="LOBSTER",
                         filename=path_to_cohpcar,
@@ -721,10 +758,10 @@ class LobsterNeighbors(NearNeighbors):
                         are_coops=self.are_coops,
                         are_cobis=self.are_cobis,
                     )
-                elif obj_cohpcar is not None:
-                    self.completecohp = obj_cohpcar
+                elif coxxcar_obj is not None:
+                    self.completecohp = coxxcar_obj
                 else:
-                    raise ValueError("Please provide either path_to_cohpcar or obj_cohpcar")
+                    raise ValueError("Please provide either path_to_cohpcar or coxxcar_obj")
 
         # Check that the number of bonds in ICOHPLIST and COHPCAR are identical
         # TODO: Further checks could be implemented
