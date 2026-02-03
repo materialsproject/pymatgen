@@ -20,6 +20,7 @@ from matplotlib import cm
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import LinearSegmentedColormap, Normalize
 from matplotlib.font_manager import FontProperties
+from monty.dev import deprecated
 from monty.json import MontyDecoder, MSONable
 from scipy import interpolate
 from scipy.optimize import minimize
@@ -424,20 +425,61 @@ class PhaseDiagram(MSONable):
         Returns:
             PhaseDiagram
         """
-        computed_data = dct.get("computed_data")
-        elements = [Element(elem) for elem in dct["elements"]]
+        try:
+            computed_data = dct.get("computed_data")
+            elements = [Element(elem) for elem in dct["elements"]]
 
-        # for backwards compatibility, check for old format
-        if "all_entries" in dct:
-            entries = [MontyDecoder().process_decoded(entry) for entry in dct["all_entries"]]
-        else:
-            entries = [MontyDecoder().process_decoded(entry) for entry in computed_data["all_entries"]]
+            # for backwards compatibility, check for old format
+            if "all_entries" in dct:
+                entries = [MontyDecoder().process_decoded(entry) for entry in dct["all_entries"]]
+            else:
+                entries = [MontyDecoder().process_decoded(entry) for entry in computed_data["all_entries"]]
 
-            # Reconstruct computed_data to match _compute() format: (str, Entry) tuples for el_refs
-            computed_data = computed_data.copy()
-            computed_data["qhull_entries"] = [entries[i] for i in computed_data["qhull_entries"]]
-            # el_refs stored as (str, index) - convert to (str, Entry)
-            computed_data["el_refs"] = [(el_str, entries[idx]) for el_str, idx in computed_data["el_refs"]]
+                # Reconstruct computed_data to match _compute() format: (str, Entry) tuples for el_refs
+                computed_data = computed_data.copy()
+                computed_data["qhull_entries"] = [entries[i] for i in computed_data["qhull_entries"]]
+                # el_refs stored as (str, index) - convert to (str, Entry)
+                computed_data["el_refs"] = [(el_str, entries[idx]) for el_str, idx in computed_data["el_refs"]]
+
+            return cls(entries, elements, computed_data=computed_data)
+        except (TypeError, KeyError, ValueError):
+            # Fall back to legacy format
+            return cls._from_dict_legacy(dct)
+
+    @classmethod
+    @deprecated(from_dict, "Deprecated on 2025-02-03.", deadline=(2026, 6, 1))
+    def _from_dict_legacy(cls, dct: dict[str, Any]) -> Self:
+        """Load from legacy JSON format (pre-2025).
+
+        Args:
+            dct (dict): Legacy dictionary representation of PhaseDiagram.
+
+        Returns:
+            PhaseDiagram
+        """
+        decoder = MontyDecoder()
+
+        # Legacy format has elements as list of dicts with @module/@class
+        elements = [decoder.process_decoded(elem) for elem in dct["elements"]]
+
+        computed_data = dct.get("computed_data", {}).copy()
+
+        # Legacy format stored all_entries inside computed_data
+        entries = [decoder.process_decoded(entry) for entry in computed_data["all_entries"]]
+
+        # Legacy qhull_data was serialized as numpy array dict
+        if isinstance(computed_data.get("qhull_data"), dict):
+            computed_data["qhull_data"] = decoder.process_decoded(computed_data["qhull_data"])
+
+        # Convert qhull_entries from indices to actual entries
+        computed_data["qhull_entries"] = [entries[i] for i in computed_data["qhull_entries"]]
+
+        # Legacy el_refs stored as list of [Element_dict, Entry_dict] pairs
+        el_refs_raw = computed_data.get("el_refs", [])
+        computed_data["el_refs"] = [
+            (decoder.process_decoded(el_dict), decoder.process_decoded(entry_dict))
+            for el_dict, entry_dict in el_refs_raw
+        ]
 
         return cls(entries, elements, computed_data=computed_data)
 
