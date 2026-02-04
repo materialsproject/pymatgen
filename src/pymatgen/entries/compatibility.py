@@ -1127,7 +1127,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                         self.comp_correction["S"],
                         comp["S"],
                         uncertainty_per_atom=self.comp_errors["S"],
-                        name="MP2020 anion correction (S)",
+                        name=f"{self.name} anion correction (S)",
                         cls=self.as_dict(),
                     )
                 )
@@ -1170,7 +1170,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                     self.comp_correction[ox_type],
                     comp["O"],
                     uncertainty_per_atom=self.comp_errors[ox_type],
-                    name=f"MP2020 anion correction ({ox_type})",
+                    name=f"{self.name} anion correction ({ox_type})",
                     cls=self.as_dict(),
                 )
             )
@@ -1233,7 +1233,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                             self.comp_correction[anion],
                             comp[anion],
                             uncertainty_per_atom=self.comp_errors[anion],
-                            name=f"MP2020 anion correction ({anion})",
+                            name=f"{self.name} anion correction ({anion})",
                             cls=self.as_dict(),
                         )
                     )
@@ -1261,7 +1261,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                         u_corrections[symbol],
                         comp[el],
                         uncertainty_per_atom=u_errors[symbol],
-                        name=f"MP2020 GGA/GGA+U mixing correction ({symbol})",
+                        name=f"{self.name} GGA/GGA+U mixing correction ({symbol})",
                         cls=self.as_dict(),
                     )
                 )

@@ -10,7 +10,7 @@
 # NOTE: This scheme only provides GGA/GGA+U mixing corrections for transition metals.
 # No anion composition corrections are applied (set to 0).
 
-Name: Smooth PES
+Name: SmoothPES
 
 Corrections:
   # Per-atom energy shifts (eV/atom) for U-corrected transition metals
@@ -35,23 +35,6 @@ Corrections:
       Ni: -2.586
       V: -2.271
       W: -5.875
-  # No composition corrections - this scheme only corrects the U mixing issue
-  CompositionCorrections:
-    oxide: 0
-    peroxide: 0
-    superoxide: 0
-    ozonide: 0
-    S: 0
-    F: 0
-    Cl: 0
-    Br: 0
-    I: 0
-    N: 0
-    Se: 0
-    Si: 0
-    Sb: 0
-    Te: 0
-    H: 0
 
 Uncertainties:
   GGAUMixingCorrections:
@@ -73,19 +56,3 @@ Uncertainties:
       Ni: 0
       V: 0
       W: 0
-  CompositionCorrections:
-    oxide: 0
-    peroxide: 0
-    superoxide: 0
-    ozonide: 0
-    S: 0
-    F: 0
-    Cl: 0
-    Br: 0
-    I: 0
-    N: 0
-    Se: 0
-    Si: 0
-    Sb: 0
-    Te: 0
-    H: 0
