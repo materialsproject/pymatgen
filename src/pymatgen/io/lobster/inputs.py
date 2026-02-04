@@ -85,6 +85,7 @@ class Lobsterin(UserDict, MSONable):
         "printLCAORealSpaceWavefunction",
         "kSpaceCOHP",
         "EwaldSum",
+        "molecule",
     )
 
     # The keywords themselves (without suffix) can trigger additional functionalities
