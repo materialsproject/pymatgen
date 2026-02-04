@@ -2169,7 +2169,7 @@ class TestIcohplist(MatSciTest):
         assert self.icohp_lcfo_non_orbitalwise.icohplist["16"]["icohp"][Spin.down] == approx(-0.29842)
 
     def test_msonable(self):
-        for icohplist_obj in [self.icobi_orbitalwise_spinpolarized, self.icohp_nacl_511_nsp]:
+        for icohplist_obj in [self.icobi_orbitalwise_spinpolarized, self.icohp_nacl_511_nsp, self.icohp_lcfo]:
             dict_data = icohplist_obj.as_dict()
             icohplist_from_dict = Icohplist.from_dict(dict_data)
             all_attributes = vars(icohplist_obj)
