@@ -2657,7 +2657,7 @@ class TestSmoothPESCompatibility:
         assert isinstance(temp_compat, SmoothPESCompatibility)
 
     def test_wrong_u_value(self):
-        """Test that entries with wrong U values are rejected."""
+        """Test that entries with wrong U values raise CompatibilityError."""
         # Fe2O3 with wrong U value (5.2 instead of expected 5.3)
         entry_wrong_u = ComputedEntry(
             "Fe2O3",
@@ -2670,10 +2670,13 @@ class TestSmoothPESCompatibility:
             },
         )
         compat = SmoothPESCompatibility(check_potcar=False)
-        assert compat.process_entry(entry_wrong_u) is None
+        with pytest.raises(CompatibilityError, match="Invalid U value"):
+            compat.get_adjustments(entry_wrong_u)
+        with pytest.raises(CompatibilityError, match="Invalid U value"):
+            compat.process_entry(entry_wrong_u, on_error="raise")
 
     def test_gga_for_oxide_rejected(self):
-        """Test that GGA runs for oxides that should have +U are rejected."""
+        """Test that GGA runs for oxides that should have +U raise CompatibilityError."""
         # Fe2O3 run as GGA (should be GGA+U)
         entry_gga = ComputedEntry(
             "Fe2O3",
@@ -2686,7 +2689,10 @@ class TestSmoothPESCompatibility:
             },
         )
         compat = SmoothPESCompatibility(check_potcar=False)
-        assert compat.process_entry(entry_gga) is None
+        with pytest.raises(CompatibilityError, match="Invalid U value"):
+            compat.get_adjustments(entry_gga)
+        with pytest.raises(CompatibilityError, match="Invalid U value"):
+            compat.process_entry(entry_gga, on_error="raise")
 
 
 @pytest.mark.parametrize(
