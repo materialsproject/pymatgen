@@ -509,6 +509,7 @@ class LobsterNeighbors(NearNeighbors):
         self,
         only_cation_environments: bool = False,
         only_indices: list[int] | None = None,
+        on_error: Literal["raise", "warn", "ignore"] = "raise",
     ) -> LobsterLightStructureEnvironments:
         """Get a LobsterLightStructureEnvironments object if the structure
         only contains coordination environments smaller 13.
@@ -516,18 +517,40 @@ class LobsterNeighbors(NearNeighbors):
         Args:
             only_cation_environments (bool): Only return data for cations.
             only_indices (list[int]): Only evaluate indexes in this list.
+            on_error ("raise" | "warn" | "ignore"): Whether to raise an error, warn or ignore
+                if the environment of a site cannot be determined.
 
         Returns:
             LobsterLightStructureEnvironments
         """
         lgf = LocalGeometryFinder()
         lgf.setup_structure(structure=self.structure)  # type:ignore[arg-type]
-        list_ce_symbols = []
-        list_csm = []
-        list_permut = []
+        list_ce_symbols = []  # type: list[str | None]
+        list_csm = []  # type: list[float | None]
+        list_permut = []  # type: list[list[int] | None]
         for idx, _neigh_coords in enumerate(self.list_coords):
             if (len(_neigh_coords)) > 13:
-                raise ValueError("Environment cannot be determined. Number of neighbors is larger than 13.")
+                if on_error == "raise":
+                    raise ValueError(
+                        f"Environment cannot be determined for site {idx}. "
+                        f"Number of neighbors ({len(_neigh_coords)}) is larger than 13."
+                    )
+                if on_error == "warn":
+                    warnings.warn(
+                        f"Site {idx} has {len(_neigh_coords)} neighbors (>13). "
+                        f"Using coordination number instead of geometry.",
+                        stacklevel=2,
+                    )
+                    list_ce_symbols.append(str(len(_neigh_coords)))
+                    list_csm.append(None)
+                    list_permut.append(None)
+                    continue
+                # "ignore"
+                list_ce_symbols.append(str(len(_neigh_coords)))
+                list_csm.append(None)
+                list_permut.append(None)
+                continue
+
             # Avoid problems if _neigh_coords is empty
             if _neigh_coords != []:
                 lgf.setup_local_geometry(isite=idx, coords=_neigh_coords, optimization=2)
@@ -1582,8 +1605,8 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
     @classmethod
     def from_Lobster(
         cls,
-        list_ce_symbol: list[str],
-        list_csm: list[float],
+        list_ce_symbol: list[str | None],
+        list_csm: list[float | None],
         list_permutation: list,
         list_neighsite: list[PeriodicSite],
         list_neighisite: list[list[int]],
