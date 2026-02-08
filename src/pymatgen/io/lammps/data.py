@@ -420,7 +420,7 @@ class LammpsData(MSONable):
                 "Dihedral Coeffs",
                 "Improper Coeffs",
             ]:
-                dfs: list[pd.DataFrame] = np.array_split(val, len(val.index))
+                dfs: list[pd.DataFrame] = [val.iloc[[i]] for i in range(len(val))]
                 df_string = ""
                 for idx, df in enumerate(dfs):
                     if isinstance(df.iloc[0]["coeff1"], str):
