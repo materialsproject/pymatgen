@@ -323,7 +323,6 @@ default-groups = ["dev", "test", "lint", "docs"]
 [dependency-groups]
 dev = [
     "invoke>=2.2.0",
-    "jupyter>=1.1.1",
     "openai>=2.2.0",
     "pre-commit>=4.2.0",
 ]
