@@ -221,6 +221,9 @@ class CoherentInterfaceBuilder:
         film_slab = film_sg.get_slab(shift=film_shift)
         sub_slab = sub_sg.get_slab(shift=sub_shift)
 
+        if len(self.zsl_matches) == 0:
+            raise ValueError("No ZSL matches found. You may need to relax the ZSL Generator parameters.")
+
         for match in self.zsl_matches:
             # Build film superlattice
             super_film_transform = np.round(

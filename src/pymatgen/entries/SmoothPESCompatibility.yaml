@@ -1,0 +1,58 @@
+# Smooth PES Correction Scheme
+# Reference: Warford, T., Thiemann, F.L., Csányi, G.
+# "Better without U: Impact of Selective Hubbard U Correction on Foundational MLIPs"
+# arXiv:2601.21056, 2026. https://arxiv.org/abs/2601.21056
+#
+# This scheme provides per-atom energy shifts to align PBE+U and PBE energies,
+# producing a smoother potential energy surface (PES) for MLIP training.
+# Unlike corrections targeting phase diagram accuracy, this prioritizes PES continuity.
+#
+# NOTE: This scheme only provides GGA/GGA+U mixing corrections for transition metals.
+# No anion composition corrections are applied (set to 0).
+
+Name: SmoothPES
+
+Corrections:
+  # Per-atom energy shifts (eV/atom) for U-corrected transition metals
+  # Applied only when O or F is present (matching MP's selective +U scheme)
+  # Values from Table 1 "This work" column
+  GGAUMixingCorrections:
+    O:
+      Co: -2.004
+      Cr: -2.458
+      Fe: -1.925
+      Mn: -1.602
+      Mo: -4.895
+      Ni: -2.586
+      V: -2.271
+      W: -5.875
+    F:
+      Co: -2.004
+      Cr: -2.458
+      Fe: -1.925
+      Mn: -1.602
+      Mo: -4.895
+      Ni: -2.586
+      V: -2.271
+      W: -5.875
+
+Uncertainties:
+  GGAUMixingCorrections:
+    O:
+      Co: 0
+      Cr: 0
+      Fe: 0
+      Mn: 0
+      Mo: 0
+      Ni: 0
+      V: 0
+      W: 0
+    F:
+      Co: 0
+      Cr: 0
+      Fe: 0
+      Mn: 0
+      Mo: 0
+      Ni: 0
+      V: 0
+      W: 0
