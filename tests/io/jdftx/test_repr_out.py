@@ -35,7 +35,7 @@ def _noop(_: Any) -> None:
 @pytest.mark.parametrize(
     ("init_meth", "init_var", "add_checks"),
     [
-        (lambda x: JDFTXOutfile.from_file(x), example_sp_outfile_path, _noop),
+        (JDFTXOutfile.from_file, example_sp_outfile_path, _noop),
         (JDFTXOutfileSlice._from_out_slice, ex_outfileslice1, _noop),
         (lambda x: JOutStructures._from_out_slice(x, opt_type="lattice"), ex_outfileslice1, _noop),
         (lambda x: JOutStructure._from_text_slice(x, opt_type="lattice"), ex_jstruc_slice1, _noop),
@@ -63,7 +63,7 @@ def test_dir_repr(init_meth: Callable, init_var: Any, add_checks: Callable) -> N
 @pytest.mark.parametrize(
     ("init_meth", "init_var", "add_checks"),
     [
-        (lambda x: JDFTXOutfile.from_file(x), example_sp_outfile_path, lambda dir_repr: None),
+        (JDFTXOutfile.from_file, example_sp_outfile_path, _noop),
         (JDFTXOutfileSlice._from_out_slice, ex_outfileslice1, _noop),
         (lambda x: JOutStructures._from_out_slice(x, opt_type="lattice"), ex_outfileslice1, _noop),
         (lambda x: JOutStructure._from_text_slice(x, opt_type="lattice"), ex_jstruc_slice1, _noop),
@@ -91,7 +91,7 @@ def test_repr_repr(init_meth: Callable, init_var: Any, add_checks: Callable) -> 
 @pytest.mark.parametrize(
     ("init_meth", "init_var", "add_checks"),
     [
-        (lambda x: JDFTXOutfile.from_file(x), example_sp_outfile_path, lambda dir_repr: None),
+        (JDFTXOutfile.from_file, example_sp_outfile_path, _noop),
         (JDFTXOutfileSlice._from_out_slice, ex_outfileslice1, _noop),
         (lambda x: JOutStructures._from_out_slice(x, opt_type="lattice"), ex_outfileslice1, _noop),
         (lambda x: JOutStructure._from_text_slice(x, opt_type="lattice"), ex_jstruc_slice1, _noop),
@@ -112,15 +112,15 @@ def test_str_repr(init_meth: Callable, init_var: Any, add_checks: Callable) -> N
 @pytest.mark.parametrize(
     ("init_meth", "init_var", "add_checks"),
     [
-        (lambda x: JDFTXOutfile.from_file(x), example_sp_outfile_path, _noop),
+        (JDFTXOutfile.from_file, example_sp_outfile_path, _noop),
         (lambda x: JDFTXOutfileSlice._from_out_slice(x, none_on_error=False), ex_outfileslice1, _noop),
-        (lambda x: JOutStructures._from_out_slice(x, opt_type="lattice"), ex_outfileslice1, lambda dir_repr: None),
-        (lambda x: JOutStructure._from_text_slice(x, opt_type="lattice"), ex_jstruc_slice1, lambda dir_repr: None),
-        (lambda x: JElStep._from_lines_collect(x, "ElecMinimize", "F"), ex_jstep_lines1, lambda dir_repr: None),
+        (lambda x: JOutStructures._from_out_slice(x, opt_type="lattice"), ex_outfileslice1, _noop),
+        (lambda x: JOutStructure._from_text_slice(x, opt_type="lattice"), ex_jstruc_slice1, _noop),
+        (lambda x: JElStep._from_lines_collect(x, "ElecMinimize", "F"), ex_jstep_lines1, _noop),
         (
             lambda x: JElSteps._from_text_slice(x, opt_type="ElecMinimize", etype="F"),
             [line for exl in [ex_jstep_lines1, ex_jstep_lines2] for line in exl],
-            lambda dir_repr: None,
+            _noop,
         ),
     ],
 )
