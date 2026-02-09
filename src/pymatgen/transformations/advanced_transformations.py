@@ -2142,7 +2142,7 @@ class SQSTransformation(AbstractTransformation):
             structs = [group[0] for group in unique_structs_grouped]
 
         # sort structures by objective function
-        structs.sort(key=lambda x: (x.objective_function if isinstance(x.objective_function, float) else -np.inf))
+        structs.sort(key=lambda x: x.objective_function if isinstance(x.objective_function, float) else -np.inf)
 
         to_return = [{"structure": struct, "objective_function": struct.objective_function} for struct in structs]
 
