@@ -828,7 +828,7 @@ class JDFTXInfile(dict, MSONable):
             bool: Whether the value is numeric.
         """
         # data-types that might accidentally be identified as numeric
-        if type(value) in [bool]:
+        if isinstance(value, bool):
             return False
         try:
             float(value)
