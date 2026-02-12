@@ -3229,7 +3229,7 @@ class Outcar:
                 [
                     r"^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)"
                     r" +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)*$",
-                    lambda results, _line: (results.piezo_index >= 0 if results.piezo_index is not None else None),
+                    lambda results, _line: results.piezo_index >= 0 if results.piezo_index is not None else None,
                     piezo_data,
                 ]
             )
@@ -3240,7 +3240,7 @@ class Outcar:
             search.append(
                 [
                     r"-------------------------------------",
-                    lambda results, _line: (results.piezo_index >= 1 if results.piezo_index is not None else None),
+                    lambda results, _line: results.piezo_index >= 1 if results.piezo_index is not None else None,
                     piezo_section_stop,
                 ]
             )
@@ -3271,9 +3271,7 @@ class Outcar:
             search.append(
                 [
                     r"^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)$",
-                    lambda results, _line: (
-                        results.born_ion >= 0 if results.born_ion is not None else results.born_ion
-                    ),
+                    lambda results, _line: results.born_ion >= 0 if results.born_ion is not None else results.born_ion,
                     born_data,
                 ]
             )
@@ -3284,9 +3282,7 @@ class Outcar:
             search.append(
                 [
                     r"-------------------------------------",
-                    lambda results, _line: (
-                        results.born_ion >= 1 if results.born_ion is not None else results.born_ion
-                    ),
+                    lambda results, _line: results.born_ion >= 1 if results.born_ion is not None else results.born_ion,
                     born_section_stop,
                 ]
             )
