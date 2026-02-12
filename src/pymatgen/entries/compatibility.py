@@ -52,6 +52,7 @@ MODULE_DIR: str = os.path.dirname(os.path.abspath(__file__))
 MU_H2O: float = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
 MP2020_COMPAT_CONFIG = loadfn(f"{MODULE_DIR}/MP2020Compatibility.yaml")
 MP_COMPAT_CONFIG = loadfn(f"{MODULE_DIR}/MPCompatibility.yaml")
+SMOOTH_PES_CONFIG = loadfn(f"{MODULE_DIR}/SmoothPESCompatibility.yaml")
 
 # This was compiled by cross-referencing structures in Materials Project from exp_compounds.json.gz
 # used in the fitting of the MP2020 correction scheme, and applying the BVAnalyzer algorithm to
@@ -969,6 +970,8 @@ class MaterialsProject2020Compatibility(Compatibility):
     oxidation states to entry.data or pass ComputedStructureEntry.
     """
 
+    DEFAULT_CONFIG_FILE = MP2020_COMPAT_CONFIG
+
     def __init__(
         self,
         compat_type: str = "Advanced",
@@ -1047,7 +1050,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         else:
             self.config_file = None
 
-            config = MP2020_COMPAT_CONFIG
+            config = self.DEFAULT_CONFIG_FILE
 
         self.name = config["Name"]
         self.comp_correction = config["Corrections"].get("CompositionCorrections", defaultdict(float))
@@ -1124,7 +1127,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                         self.comp_correction["S"],
                         comp["S"],
                         uncertainty_per_atom=self.comp_errors["S"],
-                        name="MP2020 anion correction (S)",
+                        name=f"{self.name} anion correction (S)",
                         cls=self.as_dict(),
                     )
                 )
@@ -1167,7 +1170,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                     self.comp_correction[ox_type],
                     comp["O"],
                     uncertainty_per_atom=self.comp_errors[ox_type],
-                    name=f"MP2020 anion correction ({ox_type})",
+                    name=f"{self.name} anion correction ({ox_type})",
                     cls=self.as_dict(),
                 )
             )
@@ -1230,7 +1233,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                             self.comp_correction[anion],
                             comp[anion],
                             uncertainty_per_atom=self.comp_errors[anion],
-                            name=f"MP2020 anion correction ({anion})",
+                            name=f"{self.name} anion correction ({anion})",
                             cls=self.as_dict(),
                         )
                     )
@@ -1258,7 +1261,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                         u_corrections[symbol],
                         comp[el],
                         uncertainty_per_atom=u_errors[symbol],
-                        name=f"MP2020 GGA/GGA+U mixing correction ({symbol})",
+                        name=f"{self.name} GGA/GGA+U mixing correction ({symbol})",
                         cls=self.as_dict(),
                     )
                 )
@@ -1646,6 +1649,32 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             n_workers=n_workers,
             on_error=on_error,
         )
+
+
+@cached_class
+@due.dcite(Doi("10.48550/arXiv.2601.21056", "Smooth PES correction for Hubbard U in MLIPs"))
+class SmoothPESCompatibility(MaterialsProject2020Compatibility):
+    """Energy correction scheme producing a smooth potential energy surface (PES).
+
+    This class implements per-atom energy shifts to align PBE+U and PBE energies,
+    producing a smoother PES for MLIP training. Unlike the Materials Project
+    correction schemes which target phase diagram accuracy, this scheme prioritizes
+    PES continuity.
+
+    The correction addresses systematic artifacts in MLIPs trained on datasets
+    (e.g., MPtrj, Alexandria, OMat24) that use the Materials Project's selective
+    Hubbard U correction. The selective +U creates incompatible PES: a lower-energy
+    GGA surface and a higher-energy GGA+U one. MLIPs interpolate between them,
+    leading to underbinding or spurious repulsion between U-corrected metals and
+    oxygen/fluorine-containing species.
+
+    References:
+        Warford, T., Thiemann, F.L., Csányi, G. Better without U: Impact of
+        Selective Hubbard U Correction on Foundational MLIPs. arXiv:2601.21056, 2026.
+        https://arxiv.org/abs/2601.21056
+    """
+
+    DEFAULT_CONFIG_FILE = SMOOTH_PES_CONFIG
 
 
 def needs_u_correction(
