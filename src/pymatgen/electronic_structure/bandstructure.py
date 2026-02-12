@@ -19,10 +19,9 @@ from pymatgen.util.coord import pbc_diff
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Any
+    from typing import Any, Self
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.util.typing import SpeciesLike
 

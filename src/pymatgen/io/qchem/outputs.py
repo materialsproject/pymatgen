@@ -582,8 +582,8 @@ class QCOutput(MSONable):
             ).get("key")
             if temp_constraint is not None:
                 self.data["opt_constraint"] = temp_constraint[0]
-                if self.data.get("opt_constraint") is not None and float(self.data["opt_constraint"][5]) != float(
-                    self.data["opt_constraint"][6]
+                if self.data.get("opt_constraint") is not None and not math.isclose(
+                    float(self.data["opt_constraint"][5]), float(self.data["opt_constraint"][6])
                 ):
                     if abs(float(self.data["opt_constraint"][5])) != abs(float(self.data["opt_constraint"][6])):
                         raise ValueError("ERROR: Opt section value and constraint should be the same!")

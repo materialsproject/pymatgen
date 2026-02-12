@@ -251,15 +251,14 @@ class KPathSetyawanCurtarolo(KPathBase):
                 kgamma = self._rec_lattice.parameters[5]
                 if kgamma > 90:
                     self._kpath = self.mclc1(a, b, c, alpha * pi / 180)
-                if kgamma == 90:
+                elif kgamma == 90:
                     self._kpath = self.mclc2(a, b, c, alpha * pi / 180)
-                if kgamma < 90:
-                    if b * cos(alpha * pi / 180) / c + b**2 * sin(alpha * pi / 180) ** 2 / a**2 < 1:
-                        self._kpath = self.mclc3(a, b, c, alpha * pi / 180)
-                    if b * cos(alpha * pi / 180) / c + b**2 * sin(alpha * pi / 180) ** 2 / a**2 == 1:
-                        self._kpath = self.mclc4(a, b, c, alpha * pi / 180)
-                    if b * cos(alpha * pi / 180) / c + b**2 * sin(alpha * pi / 180) ** 2 / a**2 > 1:
-                        self._kpath = self.mclc5(a, b, c, alpha * pi / 180)
+                elif b * cos(alpha * pi / 180) / c + b**2 * sin(alpha * pi / 180) ** 2 / a**2 < 1:
+                    self._kpath = self.mclc3(a, b, c, alpha * pi / 180)
+                elif b * cos(alpha * pi / 180) / c + b**2 * sin(alpha * pi / 180) ** 2 / a**2 > 1:
+                    self._kpath = self.mclc5(a, b, c, alpha * pi / 180)
+                else:
+                    self._kpath = self.mclc4(a, b, c, alpha * pi / 180)
             else:
                 warnings.warn(f"Unexpected value for {spg_symbol=}", stacklevel=2)
 
@@ -267,13 +266,9 @@ class KPathSetyawanCurtarolo(KPathBase):
             kalpha = self._rec_lattice.parameters[3]
             kbeta = self._rec_lattice.parameters[4]
             kgamma = self._rec_lattice.parameters[5]
-            if kalpha > 90 and kbeta > 90 and kgamma > 90:
+            if kalpha > 90 and kbeta > 90 and kgamma >= 90:
                 self._kpath = self.tria()
-            if kalpha < 90 and kbeta < 90 and kgamma < 90:
-                self._kpath = self.trib()
-            if kalpha > 90 and kbeta > 90 and kgamma == 90:
-                self._kpath = self.tria()
-            if kalpha < 90 and kbeta < 90 and kgamma == 90:
+            elif kalpha < 90 and kbeta < 90 and kgamma <= 90:
                 self._kpath = self.trib()
 
         else:

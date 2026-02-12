@@ -19,7 +19,7 @@ from pymatgen.transformations.standard_transformations import SubstitutionTransf
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"

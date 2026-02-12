@@ -34,9 +34,7 @@ except Exception:
     openbabel = None
 
 if TYPE_CHECKING:
-    from typing import Any, TypeAlias
-
-    from typing_extensions import Self
+    from typing import Any, Self, TypeAlias
 
     from pymatgen.analysis.graphs import MoleculeGraph
     from pymatgen.core.composition import SpeciesLike

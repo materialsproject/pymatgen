@@ -31,7 +31,7 @@ from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.electronic_structure.dos import CompleteDos
 

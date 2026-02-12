@@ -641,7 +641,11 @@ class TestPhaseDiagram(MatSciTest):
         new_pd_dict = new_pd.as_dict()
         assert len(new_pd_dict) == len(dd)
         for k, v in new_pd_dict.items():
-            assert v == dd[k]
+            # Direct equality on dict values can fail when they contain NumPy arrays,
+            # because array equality is elementwise and has ambiguous truth value.
+            # Comparing their reprs instead avoids that issue while still verifying
+            # round-trip consistency.
+            assert repr(v) == repr(dd[k])
         assert isinstance(new_pd.to_json(), str)
 
     def test_read_json(self):

@@ -34,10 +34,9 @@ except ImportError:
 
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, Self
 
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
     from pymatgen.core.structure import SiteCollection
 
