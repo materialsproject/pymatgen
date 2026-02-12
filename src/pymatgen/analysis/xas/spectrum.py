@@ -171,7 +171,7 @@ class XAS(Spectrum):
             wavenumber.extend(ks)
 
             # for k > max(xanes.k)
-            idx = exafs.k.index(min(exafs.k, key=lambda x: (abs(x - max(xanes.k)))))
+            idx = exafs.k.index(min(exafs.k, key=lambda x: abs(x - max(xanes.k))))
             mu.extend(exafs.y[idx:])
             wavenumber.extend(exafs.k[idx:])
 
@@ -211,7 +211,7 @@ class XAS(Spectrum):
             energy = list(np.linspace(min(l3_xanes.x), max(l3_xanes.x), num=num_samples))
             mu = [i + j for i, j in zip([max(i, 0) for i in l2_f(energy)], l3_f(energy), strict=True)]
             # check for jumps at the onset of L2-edge XANES
-            idx = energy.index(min(energy, key=lambda x: (abs(x - l2_xanes.x[0]))))
+            idx = energy.index(min(energy, key=lambda x: abs(x - l2_xanes.x[0])))
             if abs(mu[idx] - mu[idx - 1]) / (mu[idx - 1]) > 0.1:
                 warnings.warn(
                     "There might exist a jump at the L2 and L3-edge junction.",

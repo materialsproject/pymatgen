@@ -30,6 +30,7 @@ from pymatgen.entries.compatibility import (
     MaterialsProjectCompatibility,
     MITAqueousCompatibility,
     MITCompatibility,
+    SmoothPESCompatibility,
     needs_u_correction,
 )
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, ConstantEnergyAdjustment
@@ -2495,6 +2496,203 @@ class TestCorrectionErrors2020Compatibility:
         ):
             corrected_entry = self.compat.process_entry(entry)
             assert corrected_entry.correction_uncertainty == approx(expected)
+
+
+class TestSmoothPESCompatibility:
+    """Test SmoothPESCompatibility for MLIP PES smoothness corrections."""
+
+    def setup_method(self):
+        self.compat = SmoothPESCompatibility(check_potcar_hash=False)
+
+        # Fe2O3 entry with GGA+U
+        self.entry_fe2o3 = ComputedEntry(
+            "Fe2O3",
+            -1,
+            correction=0.0,
+            parameters={
+                "is_hubbard": True,
+                "hubbards": {"Fe": 5.3, "O": 0},
+                "run_type": "GGA+U",
+                "potcar_spec": [
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                ],
+            },
+        )
+
+        # FeF3 entry with GGA+U (fluoride)
+        self.entry_fef3 = ComputedEntry(
+            "FeF3",
+            -2,
+            correction=0.0,
+            parameters={
+                "is_hubbard": True,
+                "hubbards": {"Fe": 5.3, "F": 0},
+                "run_type": "GGA+U",
+                "potcar_spec": [
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE F 08Apr2002", "hash": "180141c33d032bfbfff30b3bea9d23dd"},
+                ],
+            },
+        )
+
+        # FeS entry (no U correction expected - S is not O or F)
+        self.entry_fes = ComputedEntry(
+            "FeS",
+            -1,
+            correction=0.0,
+            parameters={
+                "is_hubbard": False,
+                "run_type": "GGA",
+                "potcar_spec": [
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE S 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                ],
+            },
+        )
+
+        # NiO entry with GGA+U
+        self.entry_nio = ComputedEntry(
+            "NiO",
+            -1,
+            correction=0.0,
+            parameters={
+                "is_hubbard": True,
+                "hubbards": {"Ni": 6.2, "O": 0},
+                "run_type": "GGA+U",
+                "potcar_spec": [
+                    {"titel": "PAW_PBE Ni_pv 06Sep2000", "hash": "a]"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                ],
+            },
+        )
+
+    def test_process_entry_oxide(self):
+        """Test that oxide entries get corrected with smooth PES values."""
+        processed = self.compat.process_entry(self.entry_fe2o3)
+        assert processed is not None
+        # Fe: -1.925 eV/atom * 2 atoms = -3.85 eV
+        # O correction is 0 in SmoothPES scheme
+        assert processed.correction == approx(-1.925 * 2)
+
+    def test_process_entry_fluoride(self):
+        """Test that fluoride entries get corrected."""
+        processed = self.compat.process_entry(self.entry_fef3)
+        assert processed is not None
+        # Fe: -1.925 eV/atom * 1 atom = -1.925 eV
+        # F correction is 0 in SmoothPES scheme
+        assert processed.correction == approx(-1.925)
+
+    def test_no_correction_for_sulfide(self):
+        """Test that sulfides don't get U mixing corrections (S is not O or F)."""
+        processed = self.compat.process_entry(self.entry_fes)
+        # Should get no correction since S doesn't trigger U corrections
+        assert processed.correction == approx(0)
+
+    def test_correction_values_from_paper(self):
+        """Verify correction values match the paper (arXiv:2601.21056 Table 1)."""
+        # Expected values from "This work" column, paired with MP-expected U values
+        expected_corrections = {
+            "Co": (-2.004, 3.32),
+            "Cr": (-2.458, 3.7),
+            "Fe": (-1.925, 5.3),
+            "Mn": (-1.602, 3.9),
+            "Mo": (-4.895, 4.38),
+            "Ni": (-2.586, 6.2),
+            "V": (-2.271, 3.25),
+            "W": (-5.875, 6.2),
+        }
+
+        compat = SmoothPESCompatibility(check_potcar=False)
+        for metal, (expected_corr, u_value) in expected_corrections.items():
+            entry = ComputedEntry(
+                f"{metal}O",
+                -1,
+                correction=0.0,
+                parameters={
+                    "is_hubbard": True,
+                    "hubbards": {metal: u_value, "O": 0},
+                    "run_type": "GGA+U",
+                },
+            )
+            processed = compat.process_entry(entry, inplace=False)
+            assert processed is not None, f"Entry for {metal}O was rejected"
+            # Each entry has 1 metal atom, so correction = expected_corr * 1
+            assert processed.correction == approx(expected_corr), f"Failed for {metal}"
+
+    def test_multiple_u_corrected_metals(self):
+        """Test entry with multiple U-corrected metals (e.g., Fe2CoO4)."""
+        entry = ComputedEntry(
+            "Fe2CoO4",
+            -10,
+            correction=0.0,
+            parameters={
+                "is_hubbard": True,
+                "hubbards": {"Fe": 5.3, "Co": 3.32, "O": 0.0},
+                "run_type": "GGA+U",
+                "potcar_symbols": ["PBE Fe_pv", "PBE Co", "PBE O"],
+            },
+        )
+        compat = SmoothPESCompatibility(check_potcar=False)
+        processed = compat.process_entry(entry, inplace=False)
+
+        # Fe: -1.925 * 2 = -3.85 eV
+        # Co: -2.004 * 1 = -2.004 eV
+        # Total: -5.854 eV
+        expected = -1.925 * 2 + -2.004 * 1
+        assert processed.correction == approx(expected)
+
+    def test_energy_adjustments_names(self):
+        """Test that energy adjustment names are correct."""
+        processed = self.compat.process_entry(self.entry_fe2o3, inplace=False)
+        adj_names = [ea.name for ea in processed.energy_adjustments]
+        # The adjustment names should use "Smooth PES" prefix from config
+        assert "SmoothPES GGA/GGA+U mixing correction (Fe)" in adj_names
+
+    def test_msonable(self):
+        """Test that SmoothPESCompatibility is MSONable."""
+        compat_dict = self.compat.as_dict()
+        decoder = MontyDecoder()
+        temp_compat = decoder.process_decoded(compat_dict)
+        assert isinstance(temp_compat, SmoothPESCompatibility)
+
+    def test_wrong_u_value(self):
+        """Test that entries with wrong U values raise CompatibilityError."""
+        # Fe2O3 with wrong U value (5.2 instead of expected 5.3)
+        entry_wrong_u = ComputedEntry(
+            "Fe2O3",
+            -1,
+            correction=0.0,
+            parameters={
+                "is_hubbard": True,
+                "hubbards": {"Fe": 5.2, "O": 0},  # Wrong U value
+                "run_type": "GGA+U",
+            },
+        )
+        compat = SmoothPESCompatibility(check_potcar=False)
+        with pytest.raises(CompatibilityError, match="Invalid U value"):
+            compat.get_adjustments(entry_wrong_u)
+        with pytest.raises(CompatibilityError, match="Invalid U value"):
+            compat.process_entry(entry_wrong_u, on_error="raise")
+
+    def test_gga_for_oxide_rejected(self):
+        """Test that GGA runs for oxides that should have +U raise CompatibilityError."""
+        # Fe2O3 run as GGA (should be GGA+U)
+        entry_gga = ComputedEntry(
+            "Fe2O3",
+            -1,
+            correction=0.0,
+            parameters={
+                "is_hubbard": False,
+                "hubbards": None,
+                "run_type": "GGA",
+            },
+        )
+        compat = SmoothPESCompatibility(check_potcar=False)
+        with pytest.raises(CompatibilityError, match="Invalid U value"):
+            compat.get_adjustments(entry_gga)
+        with pytest.raises(CompatibilityError, match="Invalid U value"):
+            compat.process_entry(entry_gga, on_error="raise")
 
 
 @pytest.mark.parametrize(
