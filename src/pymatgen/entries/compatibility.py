@@ -1611,12 +1611,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # Pre-process entries with the given solid compatibility class
         if self.solid_compat:
             entries = self.solid_compat.process_entries(
-                entries,
-                clean=True,
-                verbose=verbose,
-                inplace=inplace,
-                n_workers=n_workers,
-                on_error=on_error
+                entries, clean=True, verbose=verbose, inplace=inplace, n_workers=n_workers, on_error=on_error
             )
 
         # when processing single entries, all H2 polymorphs will get assigned the
