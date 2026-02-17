@@ -31,6 +31,19 @@ class TestOrbital:
         with pytest.raises(ValueError, match="100 is not a valid Orbital"):
             Orbital(100)
 
+    @pytest.mark.parametrize(
+        "access_method",
+        [
+            lambda: Orbital.dx2,
+            lambda: Orbital["dx2"],
+        ],
+    )
+    def test_deprecate_dx2(self, access_method):
+        with pytest.warns(DeprecationWarning, match="deprecated"):
+            member = access_method()
+
+        assert member == Orbital.dx2_y2
+
     def test_cached(self):
         assert id(Orbital(0)) == id(Orbital.s)
 
