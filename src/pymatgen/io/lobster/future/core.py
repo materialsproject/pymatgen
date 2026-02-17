@@ -321,19 +321,26 @@ class LobsterInteractionsHolder:
             )
 
         if orbitals is not None:
-            orbital_counts = Counter(orbitals)
-            matching_orbitals = set()
 
-            for i, bond in enumerate(self.interactions):
-                bond_orbitals = bond.get("orbitals", [])
+            if not orbitals:
+                matching_sets.append(
+                    {i for i, bond in enumerate(self.interactions) 
+                    if all(o is None for o in bond.get("orbitals", []))}
+                )
+            else:
+                orbital_counts = Counter(orbitals)
+                matching_orbitals = set()
 
-                if all(
-                    sum(orbital_suffix in b for b in bond_orbitals if b) >= required_count
-                    for orbital_suffix, required_count in orbital_counts.items()
-                ):
-                    matching_orbitals.add(i)
+                for i, bond in enumerate(self.interactions):
+                    bond_orbitals = bond.get("orbitals", [])
 
-            matching_sets.append(matching_orbitals)
+                    if all(
+                        sum(orbital_suffix in b for b in bond_orbitals if b) >= required_count
+                        for orbital_suffix, required_count in orbital_counts.items()
+                    ):
+                        matching_orbitals.add(i)
+
+                matching_sets.append(matching_orbitals)
 
         if length is not None:
             matching_sets.append(

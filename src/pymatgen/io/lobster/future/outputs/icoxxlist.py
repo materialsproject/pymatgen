@@ -224,7 +224,7 @@ class ICOXXLIST(LobsterFile, LobsterInteractionsHolder):
         spins = spins or self.spins
         spin_indices = [0 if spin == Spin.up else 1 for spin in spins]
 
-        return self.data[interaction_indices, spin_indices]
+        return self.data[np.ix_(interaction_indices, spin_indices)]
 
     def process_data_into_interactions(self) -> None:
         """Populate each interaction dict with 'coxx' and 'icoxx' views.
