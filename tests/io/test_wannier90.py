@@ -86,7 +86,7 @@ class TestUnk(MatSciTest):
         assert unk.ng[2] == 8
         assert unk.is_noncollinear
         assert_allclose(unk.data.shape, (5, 2, 6, 6, 8))
-        assert unk.data[0, 0, 0, 0, 0].real != 0.0
+        assert unk.data[0, 0, 0, 0, 0].real != approx(0.0)
         assert unk.data[0, 1, 0, 0, 0].real == approx(0.0)
 
     def test_write_file(self):

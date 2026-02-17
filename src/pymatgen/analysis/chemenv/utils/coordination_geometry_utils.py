@@ -653,7 +653,7 @@ class Plane:
         self.normal_vector = np.array([coefficients[0], coefficients[1], coefficients[2]], float)
         norm_v = np.linalg.norm(self.normal_vector)
         self.normal_vector /= norm_v
-        non_zeros = np.argwhere(self.normal_vector != 0.0).flatten()
+        non_zeros = np.argwhere(~np.isclose(self.normal_vector, 0.0)).flatten()
         zeros = list(set(range(3)) - set(non_zeros))
         if len(non_zeros) == 0:
             raise ValueError("Normal vector is equal to 0.0")
@@ -1025,7 +1025,7 @@ class Plane:
         """
         nn = np.cross(p1 - p3, p2 - p3)
         normal_vector = nn / norm(nn)
-        non_zeros = np.argwhere(normal_vector != 0.0)
+        non_zeros = np.argwhere(~np.isclose(normal_vector, 0.0))
         if normal_vector[non_zeros[0, 0]] < 0.0:
             normal_vector = -normal_vector
         dd = -np.dot(normal_vector, p1)
@@ -1075,7 +1075,7 @@ class Plane:
         _UU, SS, Vt = np.linalg.svd(AA)
         imin = np.argmin(SS)
         normal_vector = Vt[imin]
-        non_zeros = np.argwhere(normal_vector != 0.0)
+        non_zeros = np.argwhere(~np.isclose(normal_vector, 0.0))
         if normal_vector[non_zeros[0, 0]] < 0.0:
             normal_vector = -normal_vector
         dd = -np.dot(normal_vector, mean_point)
