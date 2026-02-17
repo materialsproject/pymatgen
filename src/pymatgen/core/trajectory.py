@@ -475,6 +475,47 @@ class Trajectory(MSONable):
         with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(xdatcar_str)  # type:ignore[arg-type]
 
+    # TODO: This needs testing. The actual reading can't be tested automatically, but writing different
+    # trajectories without errors can be tested.
+    def write_Gaussian_log(
+        self,
+        filename: PathLike = "calc.log",
+        site_property_map: dict[str, str] | None = None,
+        write_lattice: bool = True,
+    ) -> None:
+        """Write Trajectory object to a Gaussian-formatted log file.
+
+        The produced file will be readable by Gaussview.
+
+        Args:
+            filename: File to write. File does not need to end with '.log' to be readable by Gaussview.
+                The suffix ".logx" is recommended to distinguish from real Gaussian log files.
+            site_property_map: A mapping between implemented Gaussian properties and pymatgen properties.
+                i.e. providing {"mulliken charges": "charges"} will write the data stored in
+                `Trajectory[i].site_properties["charges"]` as Gaussian logs the Mulliken charges for each site.
+                The currently implemented property keys are "mulliken charges", "mulliken spin", "nbo charges",
+                "nbo spin", and "esp charges". By default all charge keys are mapped to "charges", and all spin
+                keys are mapped to "magmom". All keys must map to site properties of `list[float]`
+            write_lattice: Whether to write the lattice information in the log file. Setting this to false will
+                not write the lattice information in the log file, but will enable the "forces" site properties
+                to be readable by Gaussview.
+        """
+        # Import inside function as this is an expensive import
+        # (causes import time for Trajectory to surpass threshold for 3 test setups)
+        from pymatgen.io.gaussian import _traj_to_gaussian_log
+
+        # Each frame must have an energy to be read properly by Gaussview.
+        if hasattr(self, "frame_properties") and self.frame_properties is not None:
+            energies = [fp.get("energy", 0) for fp in self.frame_properties]
+        else:
+            energies = [0] * len(self)
+        self.to_positions()
+        _sp_map = site_property_map or {}
+        lines = _traj_to_gaussian_log(self, write_lattice, energies, _sp_map)
+        with open(filename, "w") as file:
+            file.write(lines)
+        file.close()
+
     def as_dict(self) -> dict:
         """Return the trajectory as a MSONable dict."""
         lat = self.lattice.tolist() if self.lattice is not None else None
