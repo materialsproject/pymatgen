@@ -45,7 +45,7 @@ palettable==3.3.3
     # via pymatgen (pyproject.toml)
 pandas==2.2.3
     # via pymatgen (pyproject.toml)
-pillow==11.0.0
+pillow==12.1.1
     # via matplotlib
 plotly==5.24.1
     # via pymatgen (pyproject.toml)
