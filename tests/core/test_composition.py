@@ -6,8 +6,6 @@ Created on Nov 10, 2012.
 
 from __future__ import annotations
 
-import math
-
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
