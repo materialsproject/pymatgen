@@ -19,10 +19,10 @@ from pymatgen.vis.plotters import SpectrumPlotter
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Self
 
     from matplotlib.axes import Axes
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike
 

@@ -36,9 +36,7 @@ from pymatgen.core.units import Energy, FloatWithUnit
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import ClassVar
-
-    from typing_extensions import Self
+    from typing import ClassVar, Self
 
 NWCHEM_BASIS_LIBRARY = None
 if os.getenv("NWCHEM_BASIS_LIBRARY"):

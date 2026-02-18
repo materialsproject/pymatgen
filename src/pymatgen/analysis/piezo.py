@@ -10,8 +10,9 @@ import numpy as np
 from pymatgen.core.tensors import Tensor
 
 if TYPE_CHECKING:
+    from typing import Self
+
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"

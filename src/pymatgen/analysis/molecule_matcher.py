@@ -35,7 +35,7 @@ except ImportError:
     openbabel = BabelMolAdaptor = None  # type: ignore[misc]
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 
 __author__ = "Xiaohui Qu, Adam Fekete"

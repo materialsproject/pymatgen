@@ -19,7 +19,7 @@ from pymatgen.core.xcfunc import XcFunc
 from pymatgen.electronic_structure.core import Magmom
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 try:
     import netCDF4
