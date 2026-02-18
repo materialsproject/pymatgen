@@ -22,8 +22,7 @@ from pymatgen.core.structure import Molecule
 
 if TYPE_CHECKING:
     from pathlib import Path
-
-    from typing_extensions import Self
+    from typing import Self
 
 
 __author__ = "ndardenne"

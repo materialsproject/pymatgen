@@ -20,8 +20,7 @@ from pymatgen.core.structure import Structure
 
 if TYPE_CHECKING:
     from pathlib import Path
-
-    from typing_extensions import Self
+    from typing import Self
 
 __author__ = "Nils Edvin Richard Zimmermann"
 __copyright__ = "Copyright 2016, The Materials Project"

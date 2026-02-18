@@ -1576,8 +1576,33 @@ class TestStructure(MatSciTest):
 
     def test_make_supercell_labeled(self):
         struct = self.labeled_structure.copy()
-        struct.make_supercell([1, 1, 2])
-        assert set(struct.labels) == {"Si1", "Si2"}
+        assert struct.labels == ["Si1", "Si2"]
+
+        struct_1 = struct * 1
+        assert struct_1.labels == ["Si1", "Si2"]
+
+        new_struct_0 = struct.make_supercell([1, 1, 2], in_place=False)
+        assert new_struct_0.labels == ["Si1_1", "Si1_2", "Si2_1", "Si2_2"]
+
+        new_struct_1 = struct * 2
+        assert new_struct_1.labels == [
+            "Si1_1",
+            "Si1_2",
+            "Si1_3",
+            "Si1_4",
+            "Si1_5",
+            "Si1_6",
+            "Si1_7",
+            "Si1_8",
+            "Si2_1",
+            "Si2_2",
+            "Si2_3",
+            "Si2_4",
+            "Si2_5",
+            "Si2_6",
+            "Si2_7",
+            "Si2_8",
+        ]
 
     def test_disordered_supercell_primitive_cell(self):
         lattice = Lattice.cubic(2)

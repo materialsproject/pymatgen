@@ -20,8 +20,7 @@ from pymatgen.util.plotting import pretty_plot
 
 if TYPE_CHECKING:
     from pathlib import Path
-
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.util.typing import PathLike
 

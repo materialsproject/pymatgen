@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import numpy as np
 import pytest
@@ -168,7 +168,7 @@ class TestStructureNL:
 
     def test_eq(self):
         # test basic Equal()
-        created_at = datetime.now(tz=timezone.utc)
+        created_at = datetime.now(tz=UTC)
         struct_nl = StructureNL(
             self.struct,
             self.hulk,
@@ -192,7 +192,7 @@ class TestStructureNL:
         assert struct_nl == struct_nl2
 
         # change the created at date, now they are no longer equal
-        created_at = datetime.now(tz=timezone.utc) + timedelta(days=-1)
+        created_at = datetime.now(tz=UTC) + timedelta(days=-1)
         snl_new_date = StructureNL(
             self.struct,
             self.hulk,

@@ -13,7 +13,7 @@ import numpy as np
 from pymatgen.core.tensors import SquareTensor
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"

@@ -15,8 +15,7 @@ from pymatgen.core.structure import SiteCollection
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
-
-    from typing_extensions import Self
+    from typing import Self
 
 
 class XYZ:

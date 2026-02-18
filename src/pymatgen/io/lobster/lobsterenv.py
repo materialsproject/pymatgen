@@ -34,11 +34,10 @@ from pymatgen.io.lobster import Charge, Icohplist
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing import Any, Literal
+    from typing import Any, Literal, Self
 
     import matplotlib as mpl
     from numpy.typing import NDArray
-    from typing_extensions import Self
 
     from pymatgen.core import IStructure, PeriodicNeighbor, PeriodicSite
     from pymatgen.core.periodic_table import Element
