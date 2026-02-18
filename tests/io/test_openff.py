@@ -61,7 +61,7 @@ def test_coerce_formal_charges():
     # Test with more complex case
     badly_charged = tk.Molecule.from_smiles("F[P-](F)(F)(F)(F)F")
     badly_charged.atoms[0].formal_charge = -1  # Wrong charge on F
-    badly_charged.atoms[1].formal_charge = 0   # Wrong charge on P
+    badly_charged.atoms[1].formal_charge = 0  # Wrong charge on P
 
     template = tk.Molecule.from_smiles("F[P-](F)(F)(F)(F)F")  # Correct charges
 
