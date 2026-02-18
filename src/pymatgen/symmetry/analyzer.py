@@ -80,7 +80,7 @@ def _get_symmetry_dataset(cell, symprec, angle_tolerance):
         if dataset is None:
             raise SymmetryUndeterminedError("Unable to determine symmetry")
     except spglib._spglib.SpglibCppError as e:
-        raise SymmetryUndeterminedError(e.message)
+        raise SymmetryUndeterminedError(str(e))
     return dataset
 
 
