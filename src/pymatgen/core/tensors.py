@@ -6,6 +6,7 @@ which provides basic methods for creating and manipulating rank 2 tensors.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import itertools
 import logging
 import os
@@ -25,10 +26,9 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
+    from typing import Any, Self
 
     from numpy.typing import NDArray
-    from typing_extensions import Self
 
     from pymatgen.core import Structure
 

@@ -59,9 +59,7 @@ except ImportError:
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import Literal
-
-    from typing_extensions import Self
+    from typing import Literal, Self
 
 __author__ = "Bharat Medasani"
 __copyright__ = "Copyright 2013, The Materials Project"

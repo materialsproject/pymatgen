@@ -11,6 +11,7 @@ Also defines the following classes:
 from __future__ import annotations
 
 import collections
+import collections.abc
 import re
 from collections import defaultdict
 from functools import partial, wraps
@@ -22,10 +23,9 @@ import scipy.constants as const
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from typing import Any
+    from typing import Any, Self
 
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Matteo Giantomassi"
 __copyright__ = "Copyright 2011, The Materials Project"

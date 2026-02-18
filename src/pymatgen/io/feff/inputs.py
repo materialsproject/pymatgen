@@ -25,7 +25,7 @@ from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 __author__ = "Alan Dozier, Kiran Mathew"
 __credits__ = "Anubhav Jain, Shyue Ping Ong"

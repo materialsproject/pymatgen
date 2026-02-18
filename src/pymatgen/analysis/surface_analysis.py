@@ -55,7 +55,7 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656

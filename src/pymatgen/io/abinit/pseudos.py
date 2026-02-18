@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import abc
 import collections
+import collections.abc
 import hashlib
 import logging
 import os
@@ -33,11 +34,10 @@ from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
-    from typing import Any, ClassVar
+    from typing import Any, ClassVar, Self
 
     import matplotlib.pyplot as plt
     from numpy.typing import NDArray
-    from typing_extensions import Self
 
     from pymatgen.core import Structure
 

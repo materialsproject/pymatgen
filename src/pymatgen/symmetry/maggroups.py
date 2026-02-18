@@ -20,8 +20,7 @@ from pymatgen.util.string import transformation_to_string
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.core.lattice import Lattice
 

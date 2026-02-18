@@ -5,6 +5,7 @@ and a ChemicalPotential class to represent potentials.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import math
 import os
 import re
@@ -26,9 +27,7 @@ from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
     from collections.abc import Generator, ItemsView, Iterator, Mapping
-    from typing import Any, ClassVar, Literal
-
-    from typing_extensions import Self
+    from typing import Any, ClassVar, Literal, Self
 
     from pymatgen.core.units import FloatWithUnit
     from pymatgen.util.typing import SpeciesLike

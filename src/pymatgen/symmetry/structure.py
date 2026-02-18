@@ -12,10 +12,9 @@ from pymatgen.core.structure import FileFormats, PeriodicSite, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
+    from typing import Any, Self
 
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
     from pymatgen.core import IStructure
     from pymatgen.symmetry.analyzer import SpacegroupOperations

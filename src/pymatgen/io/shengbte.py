@@ -18,9 +18,7 @@ except ImportError:
     f90nml = None
 
 if TYPE_CHECKING:
-    from typing import Any
-
-    from typing_extensions import Self
+    from typing import Any, Self
 
     from pymatgen.core.structure import IStructure
 

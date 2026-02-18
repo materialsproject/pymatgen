@@ -236,7 +236,7 @@ class PackmolRunner:
         if not self.control_params.get("filetype"):
             self.control_params["filetype"] = filetype
         if not self.control_params.get("output"):
-            self.control_params["output"] = f"{output_file.split('.')[0]}.{self.control_params['filetype']}"
+            self.control_params["output"] = f"{output_file.split('.', maxsplit=1)[0]}.{self.control_params['filetype']}"
         if self.boxit:
             self._set_box()
 

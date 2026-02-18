@@ -6,6 +6,7 @@ It also provides tools to analyze and to visualize the parallel efficiency.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import logging
 import os
 import re

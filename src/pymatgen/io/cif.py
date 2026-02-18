@@ -31,10 +31,9 @@ from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
+    from typing import Any, Self
 
     from numpy.typing import NDArray
-    from typing_extensions import Self
 
     from pymatgen.core import IStructure
     from pymatgen.util.typing import MagMomentLike, PathLike

@@ -56,9 +56,7 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import Literal
-
-    from typing_extensions import Self
+    from typing import Literal, Self
 
     from pymatgen.core.structure import IStructure
     from pymatgen.util.typing import Kpoint, PathLike
@@ -1660,9 +1658,9 @@ class MatPESStaticSet(VaspInputSet):
     energies and also electronic structure (DOS). For PES data, force accuracy (and to some extent,
     stress accuracy) is of paramount importance.
 
-    The default POTCAR versions have been updated to PBE_54 from the old PBE set used in the
+    The default POTCAR versions have been updated to PBE_64 from the old PBE set used in the
     MPStaticSet. However, **U values** are still based on PBE. The implicit assumption here is that
-    the PBE_54 and PBE POTCARs are sufficiently similar that the U values fitted to the old PBE
+    the PBE_64 and PBE POTCARs are sufficiently similar that the U values fitted to the old PBE
     functional still applies.
 
     Args:
