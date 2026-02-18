@@ -52,13 +52,12 @@ except ImportError:
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
-    from typing import Literal, TypeAlias
+    from typing import Literal, Self, TypeAlias
 
     # Avoid name conflict with pymatgen.core.Element
     from xml.etree.ElementTree import Element as XML_Element
 
     from numpy.typing import NDArray
-    from typing_extensions import Self
 
     from pymatgen.util.typing import Kpoint, PathLike
 

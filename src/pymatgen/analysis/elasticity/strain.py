@@ -19,10 +19,9 @@ from pymatgen.core.tensors import SquareTensor, symmetry_reduce
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Literal
+    from typing import Literal, Self
 
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
     from pymatgen.core.structure import Structure
 

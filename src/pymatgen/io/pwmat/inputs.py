@@ -13,7 +13,7 @@ from pymatgen.core import Lattice, Structure
 from pymatgen.symmetry.kpath import KPathSeek
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.core.structure import IStructure
     from pymatgen.util.typing import PathLike

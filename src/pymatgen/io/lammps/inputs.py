@@ -26,7 +26,7 @@ from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.template import TemplateInputGen
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.io.core import InputSet
     from pymatgen.util.typing import PathLike

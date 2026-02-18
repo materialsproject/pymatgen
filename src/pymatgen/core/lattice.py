@@ -22,10 +22,9 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from typing import Literal
+    from typing import Literal, Self
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.core.operations import SymmOp
 
