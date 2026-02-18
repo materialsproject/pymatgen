@@ -21,10 +21,9 @@ from monty.serialization import loadfn
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
-    from typing import ClassVar, Literal, TypeAlias
+    from typing import ClassVar, Literal, Self, TypeAlias
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.core.lattice import Lattice
 

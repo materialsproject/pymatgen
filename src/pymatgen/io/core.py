@@ -37,7 +37,7 @@ from monty.io import zopen
 from monty.json import MSONable
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.util.typing import PathLike
 

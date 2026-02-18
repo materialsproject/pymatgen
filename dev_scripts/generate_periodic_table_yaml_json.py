@@ -277,7 +277,14 @@ def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity", un
 
     # Get data table from Wikipedia
     url: str = "https://en.wikipedia.org/wiki/Electron_affinity_(data_page)"
-    tables = pd.read_html(StringIO(requests.get(url, timeout=5).text))
+    resp = requests.get(
+        url,
+        headers={"User-Agent": "Mozilla/5.0"},
+        timeout=5,
+    )
+    resp.raise_for_status()
+
+    tables = pd.read_html(StringIO(resp.text))
 
     # Get the "Elements Electron affinity" table (with unit eV)
     ea_df: pd.DataFrame = next(

@@ -14,7 +14,7 @@ import os
 import re
 import subprocess
 import webbrowser
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 import requests
@@ -25,6 +25,12 @@ from pymatgen.core import __version__
 
 if TYPE_CHECKING:
     from invoke import Context
+
+CHANGELOG_PROMPT = """
+Provide a concise summary of the following pull requests as a change log for the pymatgen package. Format the summary
+as a markdown bulleted list. Make sure to include the GitHub ids of all the authors. Do not include any code
+blocks and timing outputs. Do not include any dependabot and pre-commit PRs.
+"""
 
 
 @task
@@ -150,8 +156,8 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
         dry_run (bool, optional): If True, the function will only print the changes without
             updating the actual change log file. Defaults to False.
     """
-    version = version or f"{datetime.now(tz=timezone.utc):%Y.%-m.%-d}"
-    print(f"Getting all comments since {__version__}")
+    version = version or f"{datetime.now(tz=UTC):%Y.%-m.%-d}"
+    print(f"Getting all commits since {__version__}")
     output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{__version__}..HEAD"])
     lines = []
     ignored_commits = []
@@ -159,8 +165,16 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
         re_match = re.match(r".*\(\#(\d+)\)", line)
         if re_match and "materialsproject/dependabot/pip" not in line:
             pr_number = re_match[1].strip()
+            headers = {}
+            if token := os.getenv("GITHUB_ACCESS_TOKEN"):
+                headers = {
+                    "Accept": "application/vnd.github.v3+json",  # Recommended for GitHub API
+                    "Authorization": f"token {token}",
+                }
+
             response = requests.get(
                 f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}",
+                headers=headers,
                 timeout=60,
             )
             resp = response.json()
@@ -182,8 +196,8 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
 
         client = OpenAI(api_key=os.environ["OPENAPI_KEY"])
 
-        messages = [{"role": "user", "content": f"summarize as a markdown numbered list, include authors: '{body}'"}]
-        chat = client.chat.completions.create(model="gpt-4o", messages=messages)
+        messages = [{"role": "user", "content": CHANGELOG_PROMPT + f": '{body}'"}]
+        chat = client.chat.completions.create(model="gpt-5", messages=messages)
 
         reply = chat.choices[0].message.content
         body = "\n".join(reply.split("\n")[1:-1])
@@ -217,7 +231,7 @@ def release(ctx: Context, version: str | None = None, nodoc: bool = False) -> No
         version (str, optional): The version to release.
         nodoc (bool, optional): Whether to skip documentation generation.
     """
-    version = version or f"{datetime.now(tz=timezone.utc):%Y.%-m.%-d}"
+    version = version or f"{datetime.now(tz=UTC):%Y.%-m.%-d}"
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx, version)
     if not nodoc:

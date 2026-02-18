@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
@@ -16,7 +16,7 @@ from pymatgen.phonon.gruneisen import GruneisenParameter, GruneisenPhononBandStr
 from pymatgen.phonon.thermal_displacements import ThermalDisplacementMatrices
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from pymatgen.core.structure import IStructure
 
 try:

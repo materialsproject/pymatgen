@@ -21,7 +21,7 @@ Python Materials Genomics is a robust materials analysis code that defines core 
 and molecules with support for many electronic structure codes. It is currently the core analysis code powering the
 Materials Project (https://materialsproject.org)."""
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 keywords = [
     "ABINIT",
     "VASP",
@@ -45,10 +45,10 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: Chemistry",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Scientific/Engineering :: Physics",
@@ -58,7 +58,7 @@ dependencies = [
     "bibtexparser>=1.4.0",
     "joblib>=1",
     "matplotlib>=3.8",
-    "monty>=2025.1.9",
+    "monty>=2026.2.18",
     "networkx>=2.7", # PR4116
     # NumPy documentation suggests pinning the current major version as the C API is used
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
@@ -79,7 +79,7 @@ dependencies = [
     "tqdm>=4.60",
     "uncertainties>=3.1.4",
 ]
-version = "2025.6.14"
+version = "2025.10.7"
 
 [project.urls]
 Homepage = "https://pymatgen.org"
@@ -91,13 +91,16 @@ Pypi = "https://pypi.org/project/pymatgen"
 [project.optional-dependencies]
 abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.23.0"]
-electronic_structure = ["fdint>=2.0.2"]
+# TODO: `fdint` seems not maintained anymore and cannot be installed
+# with `uv` on Python 3.10 as build-time dependency was not declared
+# https://github.com/scott-maddox/fdint/issues/21
+# electronic_structure = ["fdint>=2.0.2"]
 matcalc = [
     "matcalc>=0.4.0; python_version<'3.13'",
-    "matgl>=1.2.7; python_version<'3.13'",
+    "matgl>=2.0.4; python_version<'3.13'",
 ]
-mlp = ["matgl>=1.2.7 ; python_version<'3.13'"]
-numba = ["numba>=0.55"]
+mlp = ["matgl>=2.0.4 ; python_version<'3.13'"]
+numba = ["numba>=0.55; python_version<'3.14'"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
 optional = [
     "pymatgen[abinit,ase,matcalc,mlp,tblite,zeopp]",
@@ -109,7 +112,7 @@ optional = [
     "f90nml>=1.1.2",
     "galore>=0.6.1",
     "h5py>=3.11.0",
-    "hiphive>=1.3.1",
+    "hiphive>=1.3.1; python_version<'3.14'",
     "jarvis-tools>=2020.7.14",
     "phonopy>=2.33.3",
     "seekpath>=2.0.1",
@@ -120,7 +123,7 @@ symmetry = ["moyopy[interface]>=0.3", "spglib>=2.5"]
 # tblite only support Python 3.12+ through conda-forge
 # https://github.com/tblite/tblite/issues/175
 tblite = ["tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'"]
-vis = ["vtk>=6.0.0"]
+vis = ["vtk>=6.0.0; python_version<'3.14'"]
 zeopp = ["pyzeo; platform_system != 'Windows'"]  # Note: requires Voro++ and Zeo++ to be installed
 
 [project.scripts]
@@ -160,10 +163,6 @@ include = ["pymatgen", "pymatgen.*"]
 "pymatgen.vis" = ["*.yaml"]
 "pymatgen.io.lammps" = ["CoeffsDataType.yaml", "templates/*.template"]
 "pymatgen.symmetry" = ["*.json", "*.sqlite", "*.yaml"]
-
-[tool.pdm.dev-dependencies]
-lint = ["mypy>=1.10.0", "pre-commit>=3.7.1", "ruff>=0.4.9"]
-test = ["pytest-cov>=5.0.0", "pytest-split>=0.9.0", "pytest>=8.2.2"]
 
 [tool.cibuildwheel.linux]
 archs = ["auto64"]
@@ -219,6 +218,7 @@ ignore = [
     "PLW1641", # eq-without-hash TODO: fix this
     "PLW2901", # Outer for loop variable overwritten by inner assignment target
     "PT013", # Incorrect import of pytest
+    "RUF043", # Pattern passed to `match=` contains metacharacters but is neither escaped nor raw
     "S110", # Log for try-except-pass
     "S112", # Log for try-except-continue
     "S311", # Use random module for cryptographic purposes
@@ -254,10 +254,10 @@ docstring-code-format = true
 "dev_scripts/*" = ["D"]
 
 [tool.pytest.ini_options]
-addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
+addopts = "-n auto --durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
     # NOTE: the LAST matching option would be used
-    "ignore::UserWarning", # Ignore UserWarning
+    "ignore::UserWarning",
 ]
 
 [tool.coverage.run]
@@ -273,17 +273,13 @@ omit = [
 [tool.coverage.report]
 exclude_also = [
     "@deprecated",
-    "def __repr__",
     "except ImportError:",
-    "if TYPE_CHECKING:",
-    "if self.debug:",
-    "if settings.DEBUG",
-    "pragma: no cover",
     "raise NotImplementedError",
     "show_plot",
 ]
 
 [tool.mypy]
+mypy_path = "src"
 ignore_missing_imports = true
 namespace_packages = true
 no_implicit_optional = false
@@ -306,6 +302,7 @@ ist, nd, ot, ontop, CoO
 skip = """*.json,
 src/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries_files/allcg.txt,
 tests/io/lammps/test_inputs.py,
+dev_scripts/periodic_table_resources/elemental_properties.yaml,
 """
 check-filenames = true
 
@@ -325,13 +322,14 @@ default-groups = ["dev", "test", "lint", "docs"]
 [dependency-groups]
 dev = [
     "invoke>=2.2.0",
-    "jupyter>=1.1.1",
+    "openai>=2.2.0",
     "pre-commit>=4.2.0",
 ]
 test = [
     "pytest>=8.3.5",
     "pytest-cov>=6.0.0",
-    "pytest-split>=0.10.0"
+    "pytest-split>=0.10.0",
+    "pytest-xdist>=3.0.0"
 ]
 lint = [
     "mypy>=1.15.0",

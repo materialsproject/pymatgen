@@ -6,6 +6,7 @@ IMolecule and IStructure.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import contextlib
 import functools
 import inspect
@@ -48,7 +49,7 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
-    from typing import Any, ClassVar, SupportsIndex, TypeAlias
+    from typing import Any, ClassVar, Self, SupportsIndex, TypeAlias
 
     import moyopy
     import pandas as pd
@@ -59,7 +60,6 @@ if TYPE_CHECKING:
     from ase.optimize.optimize import Optimizer
     from matgl.ext.ase import TrajectoryObserver
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.util.typing import CompositionLike, PathLike, SpeciesLike
 
@@ -1121,7 +1121,10 @@ class IStructure(SiteCollection, MSONable):
         """Use the composition hash for now."""
         return hash(self.composition)
 
-    def __mul__(self, scaling_matrix: int | Sequence[int] | Sequence[Sequence[int]]) -> Structure:
+    def __mul__(
+        self,
+        scaling_matrix: int | Sequence[int] | Sequence[Sequence[int]],
+    ) -> Structure:
         """Make a supercell. Allow sites outside the unit cell.
 
         Args:
@@ -1152,7 +1155,7 @@ class IStructure(SiteCollection, MSONable):
         new_lattice = Lattice(np.dot(scale_matrix, self.lattice.matrix))
 
         frac_lattice = lattice_points_in_supercell(scale_matrix)
-        cart_lattice = new_lattice.get_cartesian_coords(frac_lattice)
+        cart_lattice: NDArray = new_lattice.get_cartesian_coords(frac_lattice)
 
         new_sites = []
         for site in self:
@@ -1170,7 +1173,7 @@ class IStructure(SiteCollection, MSONable):
                 new_sites.append(periodic_site)
 
         new_charge = self._charge * np.linalg.det(scale_matrix) if self._charge else None
-        return Structure.from_sites(new_sites, charge=new_charge, to_unit_cell=True)
+        return Structure.from_sites(new_sites, charge=new_charge, to_unit_cell=True).relabel_sites(ignore_uniq=True)
 
     def __rmul__(self, scaling_matrix):
         """Similar to __mul__ to preserve commutativeness."""

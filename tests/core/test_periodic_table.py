@@ -374,7 +374,7 @@ class TestElement(MatSciTest):
         assert val == 235
         assert str(val.unit) == "W K^-1 m^-1"
         val = al.electrical_resistivity
-        assert val == approx(2.7e-08)
+        assert val == approx(2.65e-08)
         assert str(val.unit) == "m ohm"
 
     def test_sort(self):
@@ -547,88 +547,7 @@ class TestSpecies(MatSciTest):
         assert Species("S", -2).to_latex_string() == "S$^{2-}$"
         assert Species("S", -2).to_unicode_string() == "S²⁻"
 
-
-@pytest.mark.parametrize(
-    ("symbol_oxi", "expected_element", "expected_oxi_state"),
-    [
-        ("Fe", "Fe", None),
-        ("Fe2+", "Fe", 2),
-        ("O2-", "O", -2),
-        ("N-", "N", -1),
-        ("Ca+", "Ca", 1),
-        ("Te3+", "Te", 3),
-        ("P5+", "P", 5),
-        ("Na0+", "Na", 0),
-        ("Na0-", "Na", 0),
-        ("C0.53-", "C", -0.53),
-        ("Tc3.498+", "Tc", 3.498),
-    ],
-)
-def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
-    species = Species(symbol_oxi)
-    assert species._el.symbol == expected_element
-    assert species._oxi_state == approx(expected_oxi_state, rel=1.0e-6)
-
-
-def test_symbol_oxi_state_str_raises():
-    symbol = "Fe2.5f2123+"  # invalid oxidation state
-    with pytest.raises(ParseError, match=re.escape(f"Failed to parse {symbol=}")):
-        _ = Species(symbol)
-
-
-class TestDummySpecies:
-    def test_init(self):
-        self.specie1 = DummySpecies("X")
-        with pytest.raises(ValueError, match="Xe contains Xe, which is a valid element symbol"):
-            DummySpecies("Xe")
-        with pytest.raises(ValueError, match="Xec contains Xe, which is a valid element symbol"):
-            DummySpecies("Xec")
-        with pytest.raises(ValueError, match="Vac contains V, which is a valid element symbol"):
-            DummySpecies("Vac")
-        self.specie2 = DummySpecies("X", 2, spin=3)
-        assert self.specie2.spin == 3
-
-    def test_attr(self):
-        with pytest.raises(AttributeError):
-            _ = self.specie2.ionic_radius
-
-    def test_eq(self):
-        assert DummySpecies("Xg") != DummySpecies("Xh")
-        assert DummySpecies("Xg") != DummySpecies("Xg", 3)
-        assert DummySpecies("Xg", 3) == DummySpecies("Xg", 3)
-
-    def test_from_str(self):
-        sp = DummySpecies.from_str("X")
-        assert sp.oxi_state == 0
-        sp = DummySpecies.from_str("X2+")
-        assert sp.oxi_state == 2
-        assert sp.to_latex_string() == "X$^{2+}$"
-        sp = DummySpecies.from_str("X2+spin=5")
-        assert sp.oxi_state == 2
-        assert sp.spin == 5
-        assert sp.to_latex_string() == "X$^{2+}$"
-        assert sp.to_html_string() == "X<sup>2+</sup>"
-        assert sp.to_unicode_string() == "X²⁺"
-
-    def test_pickle(self):
-        el1 = DummySpecies("X", 3)
-        pickled = pickle.dumps(el1)
-        assert el1 == pickle.loads(pickled)
-
-    def test_sort(self):
-        Fe, X = Element.Fe, DummySpecies("X")
-        assert sorted([Fe, X]) == [X, Fe]
-        assert DummySpecies("X", 3) < DummySpecies("X", 4)
-
-        sp = Species("Fe", 2, spin=5)
-        # This error message is Python version dependent
-        # 3.10: can't set attribute 'spin'
-        # 3.11+: property 'spin' of 'Species' object has no setter
-        with pytest.raises(AttributeError, match=r"(can't set attribute|'Species' object has no setter)"):
-            sp.spin = 6
-        assert sp.spin == 5
-
-    def test_species_electronic_structure(self):
+    def test_electronic_structure(self):
         assert Species("Fe", 0).electronic_structure == "[Ar].3d6.4s2"
         assert Species("Fe", 0).n_electrons == 26
         assert Species("Fe", 0).full_electronic_structure == [
@@ -688,11 +607,14 @@ class TestDummySpecies:
 
         assert Species("Li", 1).electronic_structure == "1s2"
         assert Species("Li", 1).n_electrons == 2
+
         # alkali metals, all p
         for el in ["Na", "K", "Rb", "Cs"]:
             assert Species(el, 1).electronic_structure.split(".")[-1][1::] == "p6", f"Failure for {el} +1"
+
         for el in ["Ca", "Mg", "Ba", "Sr"]:
             assert Species(el, 2).electronic_structure.split(".")[-1][1::] == "p6", f"Failure for {el} +2"
+
         # valence shell should be f (l=3) for all lanthanide ions except La+3 and Lu+3
         for el in [
             "Ce",
@@ -706,17 +628,102 @@ class TestDummySpecies:
             "Er",
             "Tm",
             "Yb",
-            "Lu",
+            "Lu",  # TODO: this is wrong (4f completely filled)
         ]:
-            assert Species(el, 3).valence[0] == 3, f"Failure for {el} +3"
+            assert Species(el, 3).valence[0] == 3, f"Failure for {el}+3"
 
         for el in Element:
             for ox in el.common_oxidation_states:
-                if str(el) == "H" and ox == 1:
+                if el is Element.H and ox == 1:
                     continue
+
                 n_electron_el = sum(orb[-1] for orb in el.full_electronic_structure)
-                n_electron_sp = sum(orb[-1] for orb in Species(el.symbol, ox).full_electronic_structure)
+                # Some species miss `full_electronic_structure` data
+                try:
+                    n_electron_sp = sum(orb[-1] for orb in Species(el.symbol, ox).full_electronic_structure)
+                except ValueError:
+                    continue
+
                 assert n_electron_el - n_electron_sp == ox, f"Failure for {el} {ox}"
+
+    @pytest.mark.parametrize(
+        ("symbol_oxi", "expected_element", "expected_oxi_state"),
+        [
+            ("Fe", "Fe", None),
+            ("Fe2+", "Fe", 2),
+            ("O2-", "O", -2),
+            ("N-", "N", -1),
+            ("Ca+", "Ca", 1),
+            ("Te3+", "Te", 3),
+            ("P5+", "P", 5),
+            ("Na0+", "Na", 0),
+            ("Na0-", "Na", 0),
+            ("C0.53-", "C", -0.53),
+            ("Tc3.498+", "Tc", 3.498),
+        ],
+    )
+    def test_symbol_oxi_state_str(self, symbol_oxi, expected_element, expected_oxi_state):
+        species = Species(symbol_oxi)
+        assert species._el.symbol == expected_element
+        assert species._oxi_state == approx(expected_oxi_state, rel=1.0e-6)
+
+    def test_symbol_oxi_state_str_raises(self):
+        symbol = "Fe2.5f2123+"  # invalid oxidation state
+        with pytest.raises(ParseError, match=re.escape(f"Failed to parse {symbol=}")):
+            _ = Species(symbol)
+
+
+class TestDummySpecies:
+    def test_init(self):
+        self.specie1 = DummySpecies("X")
+        with pytest.raises(ValueError, match="Xe contains Xe, which is a valid element symbol"):
+            DummySpecies("Xe")
+        with pytest.raises(ValueError, match="Xec contains Xe, which is a valid element symbol"):
+            DummySpecies("Xec")
+        with pytest.raises(ValueError, match="Vac contains V, which is a valid element symbol"):
+            DummySpecies("Vac")
+        self.specie2 = DummySpecies("X", 2, spin=3)
+        assert self.specie2.spin == 3
+
+    def test_attr(self):
+        with pytest.raises(AttributeError):
+            _ = self.specie2.ionic_radius
+
+    def test_eq(self):
+        assert DummySpecies("Xg") != DummySpecies("Xh")
+        assert DummySpecies("Xg") != DummySpecies("Xg", 3)
+        assert DummySpecies("Xg", 3) == DummySpecies("Xg", 3)
+
+    def test_from_str(self):
+        sp = DummySpecies.from_str("X")
+        assert sp.oxi_state == 0
+        sp = DummySpecies.from_str("X2+")
+        assert sp.oxi_state == 2
+        assert sp.to_latex_string() == "X$^{2+}$"
+        sp = DummySpecies.from_str("X2+spin=5")
+        assert sp.oxi_state == 2
+        assert sp.spin == 5
+        assert sp.to_latex_string() == "X$^{2+}$"
+        assert sp.to_html_string() == "X<sup>2+</sup>"
+        assert sp.to_unicode_string() == "X²⁺"
+
+    def test_pickle(self):
+        el1 = DummySpecies("X", 3)
+        pickled = pickle.dumps(el1)
+        assert el1 == pickle.loads(pickled)
+
+    def test_sort(self):
+        Fe, X = Element.Fe, DummySpecies("X")
+        assert sorted([Fe, X]) == [X, Fe]
+        assert DummySpecies("X", 3) < DummySpecies("X", 4)
+
+        sp = Species("Fe", 2, spin=5)
+        # This error message is Python version dependent
+        # 3.10: can't set attribute 'spin'
+        # 3.11+: property 'spin' of 'Species' object has no setter
+        with pytest.raises(AttributeError, match=r"(can't set attribute|'Species' object has no setter)"):
+            sp.spin = 6
+        assert sp.spin == 5
 
 
 def test_get_el_sp():

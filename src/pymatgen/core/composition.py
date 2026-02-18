@@ -5,6 +5,7 @@ and a ChemicalPotential class to represent potentials.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import math
 import os
 import re
@@ -26,9 +27,7 @@ from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
     from collections.abc import Generator, ItemsView, Iterator, Mapping
-    from typing import Any, ClassVar, Literal
-
-    from typing_extensions import Self
+    from typing import Any, ClassVar, Literal, Self
 
     from pymatgen.core.units import FloatWithUnit
     from pymatgen.util.typing import SpeciesLike
@@ -370,7 +369,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         e.g. Li4 Fe4 P4 O16.
         """
         sym_amt = self.get_el_amt_dict()
-        syms = sorted(sym_amt, key=lambda sym: get_el_sp(sym).X)
+        syms = _symbol_sort_order(sym_amt)
         formula = [f"{s}{formula_double_format(sym_amt[s], ignore_ones=False)}" for s in syms]
         return " ".join(formula)
 
@@ -550,7 +549,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @property
     def weight(self) -> FloatWithUnit:
         """Total molecular weight of Composition."""
-        return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), _PT_UNIT["Atomic mass"])
+        return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), _PT_UNIT["Atomic mass"])  # type: ignore[misc]
 
     def get_atomic_fraction(self, el: SpeciesLike) -> float:
         """Calculate atomic fraction of an Element or Species.
@@ -779,7 +778,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def as_reduced_dict(self) -> dict[str, float]:
         """
         Returns:
-            dict[str, float]: element symbols mapped to reduced amount e.g. {"Fe": 2.0, "O":3.0}.
+            dict[str, float]: element symbols mapped to reduced amount e.g. {"Fe": 2.0, "O": 3.0}.
         """
         return self.reduced_composition.as_dict()
 
@@ -1363,7 +1362,7 @@ def reduce_formula(
     Returns:
         tuple[str, int]: reduced formula and factor.
     """
-    syms: list[str] = sorted(sym_amt, key=lambda x: [get_el_sp(x).X, x])
+    syms: list[str] = _symbol_sort_order(sym_amt)
 
     syms = list(filter(lambda x: abs(sym_amt[x]) > Composition.amount_tolerance, syms))
 
@@ -1392,6 +1391,11 @@ def reduce_formula(
         reduced_form.extend((sym, str(formula_double_format(norm_amt))))
 
     return "".join([*reduced_form, *poly_anions]), factor
+
+
+def _symbol_sort_order(sym: list[str] | Mapping[str, Any]) -> list[str]:
+    """Define fixed order for sorting based on electronegativity + alphabatical fallback."""
+    return sorted(sym, key=lambda x: [float("inf") if math.isnan(e_neg := get_el_sp(x).X) else e_neg, x])
 
 
 class CompositionError(Exception):

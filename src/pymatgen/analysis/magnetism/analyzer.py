@@ -983,7 +983,8 @@ class MagneticStructureEnumerator:
 
         for origin, trans in self.transformations.items():
             structures_to_add = trans.apply_transformation(
-                self.sanitized_structure, return_ranked_list=self.num_orderings
+                self.sanitized_structure,
+                return_ranked_list=self.num_orderings,  # type:ignore[arg-type]
             )
             ordered_structures, ordered_structures_origins = _add_structures(
                 ordered_structures,

@@ -1062,6 +1062,7 @@ class TestStructure(MatSciTest):
         except (
             requests.exceptions.ConnectionError,
             urllib3.exceptions.ConnectTimeoutError,
+            requests.exceptions.ReadTimeout,
         ):
             website_down = True
         if not website_down:
@@ -1575,8 +1576,33 @@ class TestStructure(MatSciTest):
 
     def test_make_supercell_labeled(self):
         struct = self.labeled_structure.copy()
-        struct.make_supercell([1, 1, 2])
-        assert set(struct.labels) == {"Si1", "Si2"}
+        assert struct.labels == ["Si1", "Si2"]
+
+        struct_1 = struct * 1
+        assert struct_1.labels == ["Si1", "Si2"]
+
+        new_struct_0 = struct.make_supercell([1, 1, 2], in_place=False)
+        assert new_struct_0.labels == ["Si1_1", "Si1_2", "Si2_1", "Si2_2"]
+
+        new_struct_1 = struct * 2
+        assert new_struct_1.labels == [
+            "Si1_1",
+            "Si1_2",
+            "Si1_3",
+            "Si1_4",
+            "Si1_5",
+            "Si1_6",
+            "Si1_7",
+            "Si1_8",
+            "Si2_1",
+            "Si2_2",
+            "Si2_3",
+            "Si2_4",
+            "Si2_5",
+            "Si2_6",
+            "Si2_7",
+            "Si2_8",
+        ]
 
     def test_disordered_supercell_primitive_cell(self):
         lattice = Lattice.cubic(2)
@@ -2025,15 +2051,14 @@ direct
         matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed = struct.relax()
-        print(relaxed.lattice.a)
         assert relaxed.lattice.a == approx(3.860516230545545, rel=0.01)  # allow 1% error
         assert isinstance(relaxed.calc, matgl.ext.ase.PESCalculator)
         for key, val in {"type": "optimization", "optimizer": "FIRE"}.items():
             actual = relaxed.dynamics[key]
             assert actual == val, f"expected {key} to be {val}, {actual=}"
-        relaxed_m3gnet = struct.relax("m3gnet")
-        assert relaxed_m3gnet.lattice.a != relaxed.lattice.a
-        assert relaxed.lattice.a == approx(3.8534658090100815, rel=0.01)  # allow 1% error
+        relaxed_r2scan = struct.relax("TensorNet-MatPES-r2SCAN-v2025.1-PES")
+        assert relaxed_r2scan.lattice.a != relaxed.lattice.a
+        assert relaxed_r2scan.lattice.a == approx(3.837727005405847, abs=0.01)  # allow 0.01 error
 
     def test_relax_m3gnet_fixed_lattice(self):
         matgl = pytest.importorskip("matgl")
@@ -2046,7 +2071,7 @@ direct
     def test_relax_m3gnet_with_traj(self):
         pytest.importorskip("matgl")
         struct = self.get_structure("Si")
-        relaxed, trajectory = struct.relax(return_trajectory=True)
+        relaxed, _trajectory = struct.relax(return_trajectory=True)
         assert relaxed.lattice.a == approx(3.867626620642243, abs=0.039)
         # assert sorted(trajectory.__dict__) == expected_attrs
         # for key in expected_attrs:

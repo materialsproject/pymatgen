@@ -11,6 +11,7 @@ Also defines the following classes:
 from __future__ import annotations
 
 import collections
+import collections.abc
 import re
 from collections import defaultdict
 from functools import partial, wraps
@@ -22,10 +23,9 @@ import scipy.constants as const
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from typing import Any
+    from typing import Any, Self
 
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Matteo Giantomassi"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -290,7 +290,7 @@ class FloatWithUnit(float):
         >>> energy_a = Energy(1.1, "Ha")
         >>> energy_b = Energy(3, "eV")
         >>> energy_c = energy_a + energy_b
-        >>> print(energy_c)
+        >>> energy_c
         1.2102479761938871 Ha
         >>> energy_c.to("eV")
         32.932522246000005 eV
@@ -529,7 +529,7 @@ class ArrayWithUnit(np.ndarray):
     >>> energy_arr_a = EnergyArray([1, 2], "Ha")
     >>> energy_arr_b = EnergyArray([1, 2], "eV")
     >>> energy_arr_c = energy_arr_a + energy_arr_b
-    >>> print(energy_arr_c)
+    >>> energy_arr_c
     [1.03674933 2.07349865] Ha
     >>> energy_arr_c.to("eV")
     [28.21138625 56.42277249] eV
@@ -702,7 +702,7 @@ class ArrayWithUnit(np.ndarray):
         # TODO abstract base class property?
         """Supported units for specific unit type."""
         if self.unit_type is None:
-            raise RuntimeError("Cannot get supported unit for known unit_type.")
+            raise RuntimeError("Cannot get supported unit for unknown unit_type.")
 
         return ALL_UNITS[self.unit_type]
 
