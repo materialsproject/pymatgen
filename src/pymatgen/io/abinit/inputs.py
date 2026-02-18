@@ -26,7 +26,7 @@ from pymatgen.io.abinit.variable import InputVariable
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 logger = logging.getLogger(__name__)
 

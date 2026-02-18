@@ -9,8 +9,7 @@ from scipy.io import FortranEOFError, FortranFile
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.util.typing import PathLike
 

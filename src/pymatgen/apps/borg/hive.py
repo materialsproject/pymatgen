@@ -20,9 +20,7 @@ from pymatgen.io.vasp.outputs import Dynmat, Oszicar, Vasprun
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
-
-    from typing_extensions import Self
+    from typing import Any, Self
 
     from pymatgen.util.typing import PathLike
 

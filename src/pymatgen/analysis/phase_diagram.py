@@ -38,11 +38,10 @@ from pymatgen.util.string import htmlify, latexify
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterator, Sequence
     from io import StringIO
-    from typing import Any, ClassVar, Literal
+    from typing import Any, ClassVar, Literal, Self
 
     from matplotlib.colors import Colormap
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.entries.computed_entries import ComputedEntry
 
