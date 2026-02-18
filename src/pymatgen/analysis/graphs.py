@@ -35,11 +35,10 @@ except ImportError:
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import Any
+    from typing import Any, Self
 
     from igraph import Graph
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
     from pymatgen.analysis.local_env import NearNeighbors
     from pymatgen.core import Species

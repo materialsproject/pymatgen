@@ -12,8 +12,7 @@ from pymatgen.core.structure import Structure
 
 if TYPE_CHECKING:
     from pathlib import Path
-
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.core.structure import IStructure
 

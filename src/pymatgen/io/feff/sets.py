@@ -26,7 +26,7 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 __author__ = "Kiran Mathew"
 __credits__ = "Alan Dozier, Anubhav Jain, Shyue Ping Ong"

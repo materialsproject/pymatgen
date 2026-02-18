@@ -18,8 +18,9 @@ if np.lib.NumpyVersion(np.__version__) < "2.0.0":
     np.trapezoid = np.trapz  # type:ignore[assignment]  # noqa: NPY201
 
 if TYPE_CHECKING:
+    from typing import Self
+
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
 BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera  # Boltzmann constant in THz/K
 THZ_TO_J = const.value("hertz-joule relationship") * const.tera

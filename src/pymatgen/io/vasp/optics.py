@@ -16,8 +16,9 @@ from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.vasp.outputs import Vasprun, Waveder
 
 if TYPE_CHECKING:
+    from typing import Self
+
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike
 

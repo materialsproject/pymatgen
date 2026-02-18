@@ -20,7 +20,7 @@ from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.io.feff import Header, Potential, Tags
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 __author__ = "Alan Dozier, Kiran Mathew, Chen Zheng"
 __credits__ = "Anubhav Jain, Shyue Ping Ong"

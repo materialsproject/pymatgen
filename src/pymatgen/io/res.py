@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from typing import TYPE_CHECKING
 
 from monty.io import zopen
@@ -25,9 +25,7 @@ from pymatgen.io.core import ParseError
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
     from pathlib import Path
-    from typing import Any, Literal
-
-    from typing_extensions import Self
+    from typing import Any, Literal, Self
 
     from pymatgen.core.structure import IStructure
 
@@ -440,7 +438,7 @@ class AirssProvider(ResProvider):
             raise ResParseError(f"Could not parse the date from {string=}.")
 
         day, month, year, *_ = match.groups()
-        month_num = datetime.strptime(month, "%b").replace(tzinfo=timezone.utc).month
+        month_num = datetime.strptime(month, "%b").replace(tzinfo=UTC).month
 
         return date(int(year), month_num, int(day))
 

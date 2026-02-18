@@ -52,13 +52,12 @@ except ImportError:
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
-    from typing import Literal, TypeAlias
+    from typing import Literal, Self, TypeAlias
 
     # Avoid name conflict with pymatgen.core.Element
     from xml.etree.ElementTree import Element as XML_Element
 
     from numpy.typing import NDArray
-    from typing_extensions import Self
 
     from pymatgen.util.typing import Kpoint, PathLike
 
@@ -3229,7 +3228,7 @@ class Outcar:
                 [
                     r"^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)"
                     r" +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)*$",
-                    lambda results, _line: (results.piezo_index >= 0 if results.piezo_index is not None else None),
+                    lambda results, _line: results.piezo_index >= 0 if results.piezo_index is not None else None,
                     piezo_data,
                 ]
             )
@@ -3240,7 +3239,7 @@ class Outcar:
             search.append(
                 [
                     r"-------------------------------------",
-                    lambda results, _line: (results.piezo_index >= 1 if results.piezo_index is not None else None),
+                    lambda results, _line: results.piezo_index >= 1 if results.piezo_index is not None else None,
                     piezo_section_stop,
                 ]
             )
@@ -3271,9 +3270,7 @@ class Outcar:
             search.append(
                 [
                     r"^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)$",
-                    lambda results, _line: (
-                        results.born_ion >= 0 if results.born_ion is not None else results.born_ion
-                    ),
+                    lambda results, _line: results.born_ion >= 0 if results.born_ion is not None else results.born_ion,
                     born_data,
                 ]
             )
@@ -3284,9 +3281,7 @@ class Outcar:
             search.append(
                 [
                     r"-------------------------------------",
-                    lambda results, _line: (
-                        results.born_ion >= 1 if results.born_ion is not None else results.born_ion
-                    ),
+                    lambda results, _line: results.born_ion >= 1 if results.born_ion is not None else results.born_ion,
                     born_section_stop,
                 ]
             )

@@ -18,10 +18,9 @@ from pymatgen.util.string import transformation_to_string
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
+    from typing import Any, Self
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 

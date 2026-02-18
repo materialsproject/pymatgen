@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, NamedTuple
 
 from monty.json import MontyDecoder, MontyEncoder
@@ -14,9 +14,7 @@ from pymatgen.core.structure import Molecule, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
-
-    from typing_extensions import Self
+    from typing import Any, Self
 
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
@@ -260,7 +258,7 @@ class StructureNL:
         if not all(sys.getsizeof(h) < MAX_HNODE_SIZE for h in history):
             raise ValueError(f"One or more history nodes exceeds the maximum size limit of {MAX_HNODE_SIZE} bytes")
 
-        self.created_at = created_at or f"{datetime.now(tz=timezone.utc):%Y-%m-%d %H:%M:%S.%f%z}"
+        self.created_at = created_at or f"{datetime.now(tz=UTC):%Y-%m-%d %H:%M:%S.%f%z}"
 
     def __str__(self) -> str:
         return "\n".join(

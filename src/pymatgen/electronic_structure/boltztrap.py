@@ -42,10 +42,9 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 if TYPE_CHECKING:
-    from typing import Any, Literal
+    from typing import Any, Literal, Self
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.core.structure import Structure

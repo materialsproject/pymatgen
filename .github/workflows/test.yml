@@ -45,7 +45,7 @@ jobs:
         # newest version on Ubuntu (to get complete coverage).
         config:
           - os: windows-latest
-            python: "3.10"  # Test lowest supported Python version
+            python: "3.11"  # Test lowest supported Python version
             resolution: lowest-direct
             extras: optional,prototypes
           - os: windows-latest
