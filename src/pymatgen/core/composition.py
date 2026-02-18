@@ -5,6 +5,7 @@ and a ChemicalPotential class to represent potentials.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import math
 import os
 import re

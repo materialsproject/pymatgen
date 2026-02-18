@@ -224,10 +224,8 @@ def structure_to_abivars(
                 f"enforce_typat contains {len(enforce_typat)} entries while it should be {len(structure)=}"
             )
 
-        if len(enforce_znucl) != structure.n_elems:
-            raise ValueError(
-                f"enforce_znucl contains {len(enforce_znucl)} entries while it should be {structure.n_elems=}"
-            )
+        # Do not check the length of enforce_znucl because it can be larger than the number of elements
+        # when we use alchemical pseudoatoms
 
     if enforce_order:
         znucl_type = enforce_znucl

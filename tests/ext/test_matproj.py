@@ -23,7 +23,7 @@ MP_URL: str = "https://api.materialsproject.org"
 
 try:
     mp_api_down: bool = requests.get(MP_URL, timeout=10).status_code != 200
-except requests.exceptions.ConnectionError:
+except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
     mp_api_down = True
 
 if mp_api_down:

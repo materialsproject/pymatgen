@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import collections
+import collections.abc
 import importlib
 import itertools
 import os
