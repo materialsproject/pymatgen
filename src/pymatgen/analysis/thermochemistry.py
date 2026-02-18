@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from pymatgen.core.composition import Composition
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

@@ -14,9 +14,7 @@ from pymatgen.core.structure import Molecule
 
 if TYPE_CHECKING:
     from collections.abc import Generator
-    from typing import ClassVar
-
-    from typing_extensions import Self
+    from typing import ClassVar, Self
 
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 

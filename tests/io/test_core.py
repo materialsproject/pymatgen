@@ -13,7 +13,7 @@ from pymatgen.io.core import InputFile, InputSet
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 
 class StructInputFile(InputFile):

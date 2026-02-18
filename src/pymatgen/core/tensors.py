@@ -26,10 +26,9 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
+    from typing import Any, Self
 
     from numpy.typing import NDArray
-    from typing_extensions import Self
 
     from pymatgen.core import Structure
 
