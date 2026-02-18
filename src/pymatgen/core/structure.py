@@ -1173,7 +1173,7 @@ class IStructure(SiteCollection, MSONable):
                 new_sites.append(periodic_site)
 
         new_charge = self._charge * np.linalg.det(scale_matrix) if self._charge else None
-        return Structure.from_sites(new_sites, charge=new_charge, to_unit_cell=True).relabel_sites(ignore_uniq=True)
+        return Structure.from_sites(new_sites, charge=new_charge, to_unit_cell=False).relabel_sites(ignore_uniq=True)
 
     def __rmul__(self, scaling_matrix):
         """Similar to __mul__ to preserve commutativeness."""
