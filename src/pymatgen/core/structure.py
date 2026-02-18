@@ -6,6 +6,7 @@ IMolecule and IStructure.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import contextlib
 import functools
 import inspect

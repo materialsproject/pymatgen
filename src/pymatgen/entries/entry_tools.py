@@ -5,6 +5,7 @@ entries, such as grouping entries by structure.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import csv
 import itertools
 import json

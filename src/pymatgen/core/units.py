@@ -11,6 +11,7 @@ Also defines the following classes:
 from __future__ import annotations
 
 import collections
+import collections.abc
 import re
 from collections import defaultdict
 from functools import partial, wraps

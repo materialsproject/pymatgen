@@ -2142,7 +2142,7 @@ class SQSTransformation(AbstractTransformation):
             structs = [group[0] for group in unique_structs_grouped]
 
         # sort structures by objective function
-        structs.sort(key=lambda x: (x.objective_function if isinstance(x.objective_function, float) else -np.inf))
+        structs.sort(key=lambda x: x.objective_function if isinstance(x.objective_function, float) else -np.inf)
 
         to_return = [{"structure": struct, "objective_function": struct.objective_function} for struct in structs]
 
@@ -2199,7 +2199,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         """
         self.rattle_std = rattle_std
         self.min_distance = min_distance
-        self.seed = seed if seed else np.random.default_rng().integers(1, 1000000000)
+        self.seed = seed or np.random.default_rng().integers(1, 1000000000)
         # if seed is None, use a random RandomState seed but make sure
         # we store that the original seed was None
 
