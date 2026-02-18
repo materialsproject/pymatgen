@@ -20,8 +20,9 @@ from pymatgen.util.plotting import pretty_plot
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from typing import Self
 
-    from typing_extensions import Self
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Shyue Ping Ong, Germain Salvato-Vallverdu, Xin Chen"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
@@ -84,7 +85,7 @@ class GaussianInput:
     """A Gaussian input file."""
 
     # Commonly used regex patterns
-    _zmat_patt = re.compile(r"^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
+    _zmat_patt = re.compile(r"^(\w+)([\s,]+(\w+)[\s,]+(\w+)){0,3}[\-\.\s,\w]*$")
     _xyz_patt = re.compile(r"^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\-\.\s,\w.]*$")
 
     def __init__(
@@ -366,8 +367,8 @@ class GaussianInput:
         Returns:
             GaussianInput object
         """
-        with zopen(filename, mode="r") as file:
-            return cls.from_str(file.read())
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
     def get_zmatrix(self):
         """Get a z-matrix representation of the molecule."""
@@ -375,9 +376,7 @@ class GaussianInput:
 
     def get_cart_coords(self) -> str:
         """Return the Cartesian coordinates of the molecule."""
-        outs = []
-        for site in self._mol:
-            outs.append(f"{site.species_string} {' '.join(f'{x:0.6f}' for x in site.coords)}")
+        outs = [f"{site.species_string} {' '.join(f'{x:0.6f}' for x in site.coords)}" for site in self._mol]
         return "\n".join(outs)
 
     def __str__(self):
@@ -445,9 +444,9 @@ class GaussianInput:
     def write_file(self, filename, cart_coords=False):
         """Write the input string into a file.
 
-        Option: see __str__ method
+        Option: see `__str__` method
         """
-        with zopen(filename, mode="w") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(self.to_str(cart_coords))
 
     def as_dict(self):
@@ -576,13 +575,13 @@ class GaussianOutput:
             Save a matplotlib plot of the potential energy surface to a file
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename: PathLike) -> None:
         """
         Args:
             filename: Filename of Gaussian output file.
         """
-        self.filename = filename
-        self._parse(filename)
+        self.filename = str(filename)
+        self._parse(self.filename)
 
     @property
     def final_energy(self):
@@ -659,7 +658,7 @@ class GaussianOutput:
         opt_structures = []
         route_lower = {}
 
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             for line in file:
                 if parse_stage == 0:
                     if start_patt.search(line):
@@ -788,7 +787,10 @@ class GaussianOutput:
                                     "Density Matrix:" in line or mo_coeff_patt.search(line)
                                 ):
                                     end_mo = True
-                                    warnings.warn("POP=regular case, matrix coefficients not complete")
+                                    warnings.warn(
+                                        "POP=regular case, matrix coefficients not complete",
+                                        stacklevel=2,
+                                    )
                             file.readline()
 
                         self.eigenvectors = mat_mo
@@ -815,17 +817,17 @@ class GaussianOutput:
                     elif parse_freq:
                         while line.strip() != "":  # blank line
                             ifreqs = [int(val) - 1 for val in line.split()]
-                            for _ in ifreqs:
-                                frequencies.append(
-                                    {
-                                        "frequency": None,
-                                        "r_mass": None,
-                                        "f_constant": None,
-                                        "IR_intensity": None,
-                                        "symmetry": None,
-                                        "mode": [],
-                                    }
-                                )
+                            frequencies.extend(
+                                {
+                                    "frequency": None,
+                                    "r_mass": None,
+                                    "f_constant": None,
+                                    "IR_intensity": None,
+                                    "symmetry": None,
+                                    "mode": [],
+                                }
+                                for _ in ifreqs
+                            )
                             # read freq, intensity, masses, symmetry ...
                             while "Atom  AN" not in line:
                                 if "Frequencies --" in line:
@@ -924,7 +926,8 @@ class GaussianOutput:
                         line = file.readline()
                         if " -- Stationary point found." not in line:
                             warnings.warn(
-                                f"\n{self.filename}: Optimization complete but this is not a stationary point"
+                                f"\n{self.filename}: Optimization complete but this is not a stationary point",
+                                stacklevel=2,
                             )
                         if standard_orientation:
                             opt_structures.append(std_structures[-1])
@@ -987,7 +990,10 @@ class GaussianOutput:
         self.opt_structures = opt_structures
 
         if not terminated:
-            warnings.warn(f"\n{self.filename}: Termination error or bad Gaussian output file !")
+            warnings.warn(
+                f"\n{self.filename}: Termination error or bad Gaussian output file !",
+                stacklevel=2,
+            )
 
     def _parse_hessian(self, file, structure):
         """Parse the hessian matrix in the output file.
@@ -1100,7 +1106,7 @@ class GaussianOutput:
         data = {"energies": [], "coords": {}}
 
         # read in file
-        with zopen(self.filename, mode="r") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             line = file.readline()
 
             while line != "":
@@ -1186,7 +1192,7 @@ class GaussianOutput:
         transitions = []
 
         # read in file
-        with zopen(self.filename, mode="r") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             line = file.readline()
             td = False
             while line != "":

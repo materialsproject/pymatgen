@@ -5,17 +5,16 @@ import tarfile
 from collections import defaultdict
 
 import pytest
-from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 
 
-class TestPseudo(PymatgenTest):
-    def setUp(self):
+class TestPseudo(MatSciTest):
+    def setup_method(self):
         nc_pseudo_fnames = defaultdict(list)
         nc_pseudo_fnames["Si"] = [f"{TEST_DIR}/{file}" for file in ("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")]
 
@@ -98,9 +97,13 @@ class TestPseudo(PymatgenTest):
         """Test 28ni.paw."""
         file_name = f"{TEST_DIR}/28ni.paw.tar.xz"
         symbol = "Ni"
-        with ScratchDir(".") as tmp_dir, tarfile.open(file_name, mode="r:xz") as t:
-            t.extractall(tmp_dir)  # noqa: S202
-            path = os.path.join(tmp_dir, "28ni.paw")
+        with tarfile.open(file_name, mode="r:xz") as t:
+            # TODO: remove attr check after only 3.12+
+            if hasattr(tarfile, "data_filter"):
+                t.extractall(".", filter="data")
+            else:
+                t.extractall(".")  # noqa: S202
+            path = os.path.join(".", "28ni.paw")
             pseudo = Pseudo.from_file(path)
 
             assert repr(pseudo)
@@ -161,8 +164,8 @@ class TestPseudo(PymatgenTest):
         ger.as_tmpfile()
 
         assert ger.symbol == "Ge"
-        assert ger.Z == 32.0
-        assert ger.Z_val == 4.0
+        assert ger.Z == approx(32.0)  # noqa: SIM300
+        assert ger.Z_val == approx(4.0)
         assert ger.isnc
         assert not ger.ispaw
         assert ger.l_max == 2
@@ -185,8 +188,8 @@ class TestPseudo(PymatgenTest):
         self.assert_msonable(pb)
 
         assert pb.symbol == "Pb"
-        assert pb.Z == 82.0
-        assert pb.Z_val == 14.0
+        assert pb.Z == approx(82.0)  # noqa: SIM300
+        assert pb.Z_val == approx(14.0)
         assert pb.isnc
         assert not pb.ispaw
         assert pb.l_max == 2
@@ -194,7 +197,7 @@ class TestPseudo(PymatgenTest):
         assert pb.supports_soc
 
 
-class TestPseudoTable(PymatgenTest):
+class TestPseudoTable(MatSciTest):
     def test_methods(self):
         """Test PseudoTable methods."""
         table = PseudoTable([f"{TEST_DIR}/{file}" for file in ("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")])

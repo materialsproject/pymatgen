@@ -131,9 +131,7 @@ if __name__ == "__main__":
                 continue
     n_cols = 5
     n_lines = int(np.ceil(float(len(sep_plane_cgs)) / n_cols))
-    sep_plane_cgs_grid = []
-    for _ in range(n_lines):
-        sep_plane_cgs_grid.append([""] * n_cols)
+    sep_plane_cgs_grid = [[""] * n_cols for _ in range(n_lines)]
     for line_idx in range(n_lines):
         for col_idx in range(n_cols):
             ii = line_idx * n_cols + col_idx
@@ -444,5 +442,5 @@ if __name__ == "__main__":
         if test == "y":
             new_geom_dir = "new_geometry_files"
             os.makedirs(new_geom_dir, exist_ok=True)
-            with open(f"{new_geom_dir}/{cg_symbol}.json", mode="w") as file:
+            with open(f"{new_geom_dir}/{cg_symbol}.json", mode="w", encoding="utf-8") as file:
                 json.dump(cg.as_dict(), file)

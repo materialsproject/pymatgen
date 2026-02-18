@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
     from spglib import SpglibDataset
 
-    from pymatgen.core import Element, Species
+    from pymatgen.core import Element, IStructure, Species
     from pymatgen.core.sites import Site
     from pymatgen.symmetry.groups import CrystalSystem
     from pymatgen.util.typing import Kpoint
@@ -77,7 +77,7 @@ def _get_symmetry_dataset(cell, symprec, angle_tolerance):
     """
     dataset = spglib.get_symmetry_dataset(cell, symprec=symprec, angle_tolerance=angle_tolerance)
     if dataset is None:
-        raise SymmetryUndeterminedError
+        raise SymmetryUndeterminedError(spglib.get_error_message())
     return dataset
 
 
@@ -89,8 +89,8 @@ class SpacegroupAnalyzer:
 
     def __init__(
         self,
-        structure: Structure,
-        symprec: float | None = 0.01,
+        structure: Structure | IStructure,
+        symprec: float = 0.01,
         angle_tolerance: float = 5,
     ) -> None:
         """
@@ -197,7 +197,7 @@ class SpacegroupAnalyzer:
         # passing a 0-length rotations list to spglib can segfault
         if len(rotations) == 0:
             return "1"
-        return spglib.get_pointgroup(rotations)[0].strip()
+        return spglib.get_pointgroup(rotations)[0].strip()  # type:ignore[index]
 
     def get_crystal_system(self) -> CrystalSystem:
         """Get the crystal system for the structure, e.g. (triclinic, orthorhombic,
@@ -246,6 +246,29 @@ class SpacegroupAnalyzer:
             return "rhombohedral"
         return "hexagonal" if system == "trigonal" else system
 
+    def get_pearson_symbol(self) -> str:
+        """Get the Pearson symbol for the structure.
+
+        Returns:
+            str: Pearson symbol for structure.
+        """
+        cry_sys = self.get_crystal_system()
+        spg_sym = self.get_space_group_symbol()
+        centering = "C" if spg_sym[0] in ("A", "B", "C", "S") else spg_sym[0]
+
+        CRYSTAL_FAMILY_SYMBOLS = {
+            "triclinic": "a",
+            "monoclinic": "m",
+            "orthorhombic": "o",
+            "tetragonal": "t",
+            "trigonal": "h",
+            "hexagonal": "h",
+            "cubic": "c",
+        }
+
+        num_sites_conventional = len(self._space_group_data.std_types)
+        return f"{CRYSTAL_FAMILY_SYMBOLS[cry_sys]}{centering}{num_sites_conventional}"
+
     def get_symmetry_dataset(self) -> SpglibDataset:
         """Get the symmetry dataset as a SpglibDataset.
 
@@ -274,7 +297,11 @@ class SpacegroupAnalyzer:
             "translations" gives the numpy float64 array of the translation
             vectors in scaled positions.
         """
-        dct = spglib.get_symmetry(self._cell, symprec=self._symprec, angle_tolerance=self._angle_tol)
+        with warnings.catch_warnings():
+            # TODO: get DeprecationWarning: Use get_magnetic_symmetry() for cell with magnetic moments.
+            warnings.filterwarnings("ignore", message="Use get_magnetic_symmetry", category=DeprecationWarning)
+            dct = spglib.get_symmetry(self._cell, symprec=self._symprec, angle_tolerance=self._angle_tol)
+
         if dct is None:
             symprec = self._symprec
             raise ValueError(
@@ -372,7 +399,10 @@ class SpacegroupAnalyzer:
             Refined structure.
         """
         # Atomic positions have to be specified by scaled positions for spglib.
-        lattice, scaled_positions, numbers = spglib.refine_cell(self._cell, self._symprec, self._angle_tol)
+        cell = spglib.refine_cell(self._cell, self._symprec, self._angle_tol)
+        if cell is None or len(cell) != 3:
+            raise ValueError("Failed to refine cell")
+        lattice, scaled_positions, numbers = cell
         species = [self._unique_species[i - 1] for i in numbers]
         if keep_site_properties:
             site_properties = {}
@@ -401,7 +431,10 @@ class SpacegroupAnalyzer:
             as a Structure object. If no primitive cell is found, None is
             returned.
         """
-        lattice, scaled_positions, numbers = spglib.find_primitive(self._cell, symprec=self._symprec)
+        cell = spglib.find_primitive(self._cell, symprec=self._symprec)
+        if cell is None or len(cell) != 3:
+            raise ValueError("Failed to find primitive cell")
+        lattice, scaled_positions, numbers = cell
         species = [self._unique_species[i - 1] for i in numbers]
         if keep_site_properties:
             site_properties = {}
@@ -499,8 +532,8 @@ class SpacegroupAnalyzer:
             # Check if the conventional representation is hexagonal or
             # rhombohedral
             lengths = conv.lattice.lengths
-            if abs(lengths[0] - lengths[2]) < 0.0001:
-                return np.eye
+            if abs(lengths[0] - lengths[2]) < 1e-4:
+                return np.eye(3)
             return np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]], dtype=np.float64) / 3
 
         if "I" in self.get_space_group_symbol():
@@ -546,9 +579,9 @@ class SpacegroupAnalyzer:
             international_monoclinic=international_monoclinic,
             keep_site_properties=keep_site_properties,
         )
-        lattice = self.get_lattice_type()
+        lattype = self.get_lattice_type()
 
-        if "P" in self.get_space_group_symbol() or lattice == "hexagonal":
+        if "P" in self.get_space_group_symbol() or lattype == "hexagonal":
             return conv
 
         transf = self.get_conventional_to_primitive_transformation_matrix(
@@ -559,7 +592,7 @@ class SpacegroupAnalyzer:
         lattice = Lattice(np.dot(transf, conv.lattice.matrix))
         for site in conv:
             new_s = PeriodicSite(
-                site.specie,
+                site.species,
                 site.coords,
                 lattice,
                 to_unit_cell=True,
@@ -630,7 +663,7 @@ class SpacegroupAnalyzer:
             The structure in a conventional standardized cell
         """
         tol = 1e-5
-        transf = None
+        transf = np.zeros(shape=(3, 3), dtype=np.float64)
         struct = self.get_refined_structure(keep_site_properties=keep_site_properties)
         lattice = struct.lattice
         latt_type = self.get_lattice_type()
@@ -643,7 +676,6 @@ class SpacegroupAnalyzer:
         if latt_type in {"orthorhombic", "cubic"}:
             # you want to keep the c axis where it is
             # to keep the C- settings
-            transf = np.zeros(shape=(3, 3))
             if self.get_space_group_symbol().startswith("C"):
                 transf[2] = [0, 0, 1]
                 a, b = sorted(lattice.abc[:2])
@@ -689,7 +721,6 @@ class SpacegroupAnalyzer:
         elif latt_type == "tetragonal":
             # find the "a" vectors
             # it is basically the vector repeated two times
-            transf = np.zeros(shape=(3, 3))
             a, b, c = sorted_lengths
             for idx, dct in enumerate(sorted_dic):
                 transf[idx][dct["orig_index"]] = 1
@@ -719,13 +750,12 @@ class SpacegroupAnalyzer:
                 [0, 0, c],
             ]
             lattice = Lattice(new_matrix)
-            transf = np.eye(3, 3)
+            transf = np.eye(3, dtype=np.float64)  # type:ignore[assignment]
 
         elif latt_type == "monoclinic":
             # You want to keep the c axis where it is to keep the C- settings
 
             if self.get_space_group_operations().int_symbol.startswith("C"):
-                transf = np.zeros(shape=(3, 3))
                 transf[2] = [0, 0, 1]
                 sorted_dic = sorted(
                     (
@@ -747,105 +777,89 @@ class SpacegroupAnalyzer:
                     latt2 = Lattice([m[tp2[0]], m[tp2[1]], m[2]])
                     lengths = latt2.lengths
                     angles = latt2.angles
-                    if angles[0] > 90:
-                        # if the angle is > 90 we invert a and b to get
-                        # an angle < 90
-                        a, b, c, alpha, beta, gamma = Lattice([-m[tp2[0]], -m[tp2[1]], m[2]]).parameters
-                        transf = np.zeros(shape=(3, 3))
-                        transf[0][tp2[0]] = -1
-                        transf[1][tp2[1]] = -1
-                        transf[2][2] = 1
-                        alpha = math.pi * alpha / 180
-                        new_matrix = [
-                            [a, 0, 0],
-                            [0, b, 0],
-                            [0, c * cos(alpha), c * sin(alpha)],
-                        ]
+                    alpha_degrees = angles[0]
+                    if alpha_degrees == 90:
                         continue
 
-                    if angles[0] < 90:
-                        transf = np.zeros(shape=(3, 3))
+                    transf = np.zeros(shape=(3, 3))
+                    transf[2][2] = 1
+
+                    if alpha_degrees > 90:
+                        # if the angle is > 90 we invert a and b to get an angle < 90
+                        a, b, c, alpha_degrees, beta, gamma = Lattice([-m[tp2[0]], -m[tp2[1]], m[2]]).parameters
+                        transf[0][tp2[0]] = -1
+                        transf[1][tp2[1]] = -1
+
+                    elif alpha_degrees < 90:  # otherwise no inversion
                         transf[0][tp2[0]] = 1
                         transf[1][tp2[1]] = 1
-                        transf[2][2] = 1
                         a, b, c = lengths
-                        alpha = math.pi * angles[0] / 180
-                        new_matrix = [
-                            [a, 0, 0],
-                            [0, b, 0],
-                            [0, c * cos(alpha), c * sin(alpha)],
-                        ]
+                        alpha_degrees = angles[0]
+
+                    alpha_radians = math.pi * alpha_degrees / 180
+                    new_matrix = [
+                        [a, 0, 0],
+                        [0, b, 0],
+                        [0, c * cos(alpha_radians), c * sin(alpha_radians)],
+                    ]
 
                 if new_matrix is None:
-                    # this if is to treat the case
-                    # where alpha==90 (but we still have a monoclinic sg
+                    # this if is to treat the case where alpha==90 (but we still have a monoclinic sg), with C unchanged
+                    # transf is already defined as [[0,0,0],[0,0,0],[0,0,1]], and sorted_dic only contains a & b:
                     new_matrix = [[a, 0, 0], [0, b, 0], [0, 0, c]]
-                    transf = np.zeros(shape=(3, 3))
-                    transf[2] = [0, 0, 1]  # see issue #1929
                     for idx, dct in enumerate(sorted_dic):
                         transf[idx][dct["orig_index"]] = 1
+
             # if not C-setting
             else:
                 # try all permutations of the axis
-                # keep the ones with the non-90 angle=alpha
-                # and b<c
+                # keep the ones with the non-90 angle=alpha and b<c
                 new_matrix = None
 
                 for tp3 in itertools.permutations(list(range(3)), 3):
                     m = lattice.matrix
                     a, b, c, alpha, beta, gamma = Lattice([m[tp3[0]], m[tp3[1]], m[tp3[2]]]).parameters
+                    if alpha == 90 or b >= c:
+                        continue
+                    transf = np.zeros(shape=(3, 3))
+                    transf[2][tp3[2]] = 1
+
                     if alpha > 90 and b < c:
                         a, b, c, alpha, beta, gamma = Lattice([-m[tp3[0]], -m[tp3[1]], m[tp3[2]]]).parameters
-                        transf = np.zeros(shape=(3, 3))
                         transf[0][tp3[0]] = -1
                         transf[1][tp3[1]] = -1
-                        transf[2][tp3[2]] = 1
-                        alpha = math.pi * alpha / 180
-                        new_matrix = [
-                            [a, 0, 0],
-                            [0, b, 0],
-                            [0, c * cos(alpha), c * sin(alpha)],
-                        ]
-                        continue
 
-                    if alpha < 90 and b < c:
-                        transf = np.zeros(shape=(3, 3))
+                    elif alpha < 90 and b < c:
                         transf[0][tp3[0]] = 1
                         transf[1][tp3[1]] = 1
-                        transf[2][tp3[2]] = 1
-                        alpha = math.pi * alpha / 180
-                        new_matrix = [
-                            [a, 0, 0],
-                            [0, b, 0],
-                            [0, c * cos(alpha), c * sin(alpha)],
-                        ]
+
+                    alpha = math.pi * alpha / 180
+                    new_matrix = [
+                        [a, 0, 0],
+                        [0, b, 0],
+                        [0, c * cos(alpha), c * sin(alpha)],
+                    ]
 
                 if new_matrix is None:
-                    # this if is to treat the case
-                    # where alpha==90 (but we still have a monoclinic sg
-                    new_matrix = [
-                        [sorted_lengths[0], 0, 0],
-                        [0, sorted_lengths[1], 0],
-                        [0, 0, sorted_lengths[2]],
-                    ]
-                    transf = np.zeros(shape=(3, 3))
-                    for idx, dct in enumerate(sorted_dic):
+                    # this if is to treat the case where alpha==90 (but we still have a monoclinic sg)
+                    new_matrix = list(np.zeros(shape=(3, 3)))
+                    for idx, dct in enumerate(sorted_dic):  # vectors sorted by length (a<=b<=c)
+                        new_matrix[idx] = dct["vec"]
                         transf[idx][dct["orig_index"]] = 1
 
             if international_monoclinic:
                 # The above code makes alpha the non-right angle.
-                # The following will convert to proper international convention
-                # that beta is the non-right angle.
+                # The following will convert to proper international convention that beta is the non-right angle
                 op = [[0, 1, 0], [1, 0, 0], [0, 0, -1]]
                 transf = np.dot(op, transf)
                 new_matrix = np.dot(op, new_matrix)
-                beta = Lattice(new_matrix).beta
+                beta = Lattice(new_matrix).beta  # type:ignore[arg-type]
                 if beta < 90:
                     op = [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]
-                    transf = np.dot(op, transf)
-                    new_matrix = np.dot(op, new_matrix)
+                    transf = np.dot(op, transf)  # type: ignore[arg-type]
+                    new_matrix = np.dot(op, new_matrix)  # type: ignore[arg-type]
 
-            lattice = Lattice(new_matrix)
+            lattice = Lattice(new_matrix)  # type:ignore[arg-type]
 
         elif latt_type == "triclinic":
             # we use a LLL Minkowski-like reduction for the triclinic cells
@@ -874,7 +888,7 @@ class SpacegroupAnalyzer:
                 return all(recp_angles <= 90) or all(recp_angles > 90)
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = np.eye(3)
+                transf = np.eye(3, dtype=np.float64)  # type:ignore[assignment]
                 new_matrix = test_matrix
 
             test_matrix = [
@@ -892,7 +906,7 @@ class SpacegroupAnalyzer:
             ]
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[-1, 0, 0], [0, 1, 0], [0, 0, -1]]
+                transf = np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]])  # type:ignore[assignment]
                 new_matrix = test_matrix
 
             test_matrix = [
@@ -910,7 +924,7 @@ class SpacegroupAnalyzer:
             ]
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]
+                transf = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])  # type:ignore[assignment]
                 new_matrix = test_matrix
 
             test_matrix = [
@@ -927,12 +941,12 @@ class SpacegroupAnalyzer:
                 ],
             ]
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[1, 0, 0], [0, -1, 0], [0, 0, -1]]
+                transf = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])  # type:ignore[assignment]
                 new_matrix = test_matrix
 
-            lattice = Lattice(new_matrix)
+            lattice = Lattice(new_matrix)  # type:ignore[arg-type]
 
-        new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T
+        new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T  # type: ignore[arg-type]
         new_struct = Structure(
             lattice,
             struct.species_and_occu,
@@ -974,7 +988,7 @@ class SpacegroupAnalyzer:
                 shift.append(1)
 
         mapping, grid = spglib.get_ir_reciprocal_mesh(np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
-        mapping = list(mapping)
+        mapping = list(mapping)  # type:ignore[assignment]
         grid = (np.array(grid) + np.array(shift) * (0.5, 0.5, 0.5)) / mesh
         weights = []
         mapped: dict[tuple, int] = defaultdict(int)
@@ -1599,7 +1613,7 @@ def cluster_sites(
     mol: Molecule,
     tol: float,
     give_only_index: bool = False,
-) -> tuple[Site | None, dict]:
+) -> tuple[int | Site | None, dict]:
     """Cluster sites based on distance and species type.
 
     Args:
@@ -1670,7 +1684,8 @@ def generate_full_symmops(
             if len(full) > 1000:
                 warnings.warn(
                     f"{len(full)} matrices have been generated. The tol may be too small. Please terminate"
-                    " and rerun with a different tolerance."
+                    " and rerun with a different tolerance.",
+                    stacklevel=2,
                 )
 
     d = np.abs(full - identity) < tol

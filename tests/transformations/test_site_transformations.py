@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from shutil import which
-from unittest import TestCase
 
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.transformations.site_transformations import (
@@ -17,15 +17,15 @@ from pymatgen.transformations.site_transformations import (
     ReplaceSiteSpeciesTransformation,
     TranslateSitesTransformation,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 enum_cmd = which("enum.x") or which("multienum.x")
 makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 enumlib_present = enum_cmd and makestr_cmd
 
 
-class TestTranslateSitesTransformation(PymatgenTest):
-    def setUp(self):
+class TestTranslateSitesTransformation(MatSciTest):
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -55,14 +55,16 @@ class TestTranslateSitesTransformation(PymatgenTest):
         assert_allclose(struct[1].frac_coords, [0.375, 0.375, 0.375])
 
     def test_apply_transformation_site_by_site(self):
-        trafo = TranslateSitesTransformation([0, 1], [[0.1, 0.2, 0.3], [-0.075, -0.075, -0.075]])
+        trafo = TranslateSitesTransformation([0, 1, 4], [[0.1, 0.2, 0.3], [-0.075, -0.075, -0.075], [0.1, -0.1, 0.05]])
         struct = trafo.apply_transformation(self.struct)
         assert_allclose(struct[0].frac_coords, [0.1, 0.2, 0.3])
         assert_allclose(struct[1].frac_coords, [0.3, 0.3, 0.3])
+        assert_allclose(struct[4].frac_coords, [0.225, 0.025, 0.175])
         inv_t = trafo.inverse
         struct = inv_t.apply_transformation(struct)
         assert struct[0].distance_and_image_from_frac_coords([0, 0, 0])[0] == 0
         assert_allclose(struct[1].frac_coords, [0.375, 0.375, 0.375])
+        assert_allclose(struct[4].frac_coords, [0.125, 0.125, 0.125])
 
     def test_as_from_dict(self):
         d1 = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).as_dict()
@@ -78,8 +80,8 @@ class TestTranslateSitesTransformation(PymatgenTest):
         str(t2)
 
 
-class TestReplaceSiteSpeciesTransformation(TestCase):
-    def setUp(self):
+class TestReplaceSiteSpeciesTransformation:
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -110,8 +112,8 @@ class TestReplaceSiteSpeciesTransformation(TestCase):
         assert struct.formula == "Na1 Li3 O4"
 
 
-class TestRemoveSitesTransformation(TestCase):
-    def setUp(self):
+class TestRemoveSitesTransformation:
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -142,8 +144,8 @@ class TestRemoveSitesTransformation(TestCase):
         assert struct.formula == "Li2 O4"
 
 
-class TestInsertSitesTransformation(TestCase):
-    def setUp(self):
+class TestInsertSitesTransformation:
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -179,8 +181,8 @@ class TestInsertSitesTransformation(TestCase):
         assert struct.formula == "Li4 Mn1 Fe1 O4"
 
 
-class TestPartialRemoveSitesTransformation(TestCase):
-    def setUp(self):
+class TestPartialRemoveSitesTransformation:
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -264,7 +266,7 @@ class TestPartialRemoveSitesTransformation(TestCase):
         )
 
 
-class TestAddSitePropertyTransformation(PymatgenTest):
+class TestAddSitePropertyTransformation(MatSciTest):
     def test_apply_transformation(self):
         struct = self.get_structure("Li2O2")
         sd = [[True, True, True] for _ in struct]
@@ -279,8 +281,8 @@ class TestAddSitePropertyTransformation(PymatgenTest):
             assert_allclose(trans_set.site_properties[prop], manually_set.site_properties[prop])
 
 
-class TestRadialSiteDistortionTransformation(PymatgenTest):
-    def setUp(self):
+class TestRadialSiteDistortionTransformation(MatSciTest):
+    def setup_method(self):
         self.molecule = Molecule(
             species=["C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
             coords=[
@@ -323,29 +325,29 @@ class TestRadialSiteDistortionTransformation(PymatgenTest):
     def test(self):
         trafo = RadialSiteDistortionTransformation(0, 1, nn_only=True)
         struct = trafo.apply_transformation(self.molecule)
-        assert np.array_equal(struct[0].coords, [0, 0, 0])
-        assert np.array_equal(struct[1].coords, [2, 0, 0])
-        assert np.array_equal(struct[2].coords, [0, 2, 0])
-        assert np.array_equal(struct[3].coords, [0, 0, 2])
-        assert np.array_equal(struct[4].coords, [-2, 0, 0])
-        assert np.array_equal(struct[5].coords, [0, -2, 0])
-        assert np.array_equal(struct[6].coords, [0, 0, -2])
+        assert_allclose(struct[0].coords, [0, 0, 0])
+        assert_allclose(struct[1].coords, [2, 0, 0])
+        assert_allclose(struct[2].coords, [0, 2, 0])
+        assert_allclose(struct[3].coords, [0, 0, 2])
+        assert_allclose(struct[4].coords, [-2, 0, 0])
+        assert_allclose(struct[5].coords, [0, -2, 0])
+        assert_allclose(struct[6].coords, [0, 0, -2])
 
         trafo = RadialSiteDistortionTransformation(0, 1, nn_only=True)
         struct = trafo.apply_transformation(self.structure)
         for c1, c2 in zip(self.structure[1:7], struct[1:7], strict=True):
-            assert c1.distance(c2) == 1.0
+            assert c1.distance(c2) == approx(1.0)
 
-        assert np.array_equal(struct[0].coords, [0, 0, 0])
-        assert np.array_equal(struct[1].coords, [2, 0, 0])
-        assert np.array_equal(struct[2].coords, [0, 2, 0])
-        assert np.array_equal(struct[3].coords, [0, 0, 2])
-        assert np.array_equal(struct[4].coords, [8, 0, 0])
-        assert np.array_equal(struct[5].coords, [0, 8, 0])
-        assert np.array_equal(struct[6].coords, [0, 0, 8])
+        assert_allclose(struct[0].coords, [0, 0, 0])
+        assert_allclose(struct[1].coords, [2, 0, 0])
+        assert_allclose(struct[2].coords, [0, 2, 0])
+        assert_allclose(struct[3].coords, [0, 0, 2])
+        assert_allclose(struct[4].coords, [8, 0, 0])
+        assert_allclose(struct[5].coords, [0, 8, 0])
+        assert_allclose(struct[6].coords, [0, 0, 8])
 
     def test_second_nn(self):
         trafo = RadialSiteDistortionTransformation(0, 1, nn_only=False)
         struct = trafo.apply_transformation(self.molecule)
         for c1, c2 in zip(self.molecule[7:], struct[7:], strict=True):
-            assert abs(round(sum(c2.coords - c1.coords), 2)) == 0.33
+            assert abs(round(sum(c2.coords - c1.coords), 2)) == approx(0.33)

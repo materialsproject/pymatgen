@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-import json
 import warnings
 from copy import deepcopy
 
 import numpy as np
+import orjson
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
-from scipy.misc import central_diff_weights
+from scipy import linalg
 
 from pymatgen.analysis.elasticity.elastic import (
     ComplianceTensor,
@@ -27,13 +27,13 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.core.units import FloatWithUnit
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/elasticity"
 
 
-class TestElasticTensor(PymatgenTest):
-    def setUp(self):
+class TestElasticTensor(MatSciTest):
+    def setup_method(self):
         self.voigt_1 = [
             [59.33, 28.08, 28.08, 0, 0, 0],
             [28.08, 59.31, 28.07, 0, 0, 0],
@@ -67,10 +67,10 @@ class TestElasticTensor(PymatgenTest):
 
         self.elastic_tensor_1 = ElasticTensor(self.ft)
         filepath = f"{TEST_DIR}/Sn_def_stress.json"
-        with open(filepath) as file:
-            self.def_stress_dict = json.load(file)
-        with open(f"{TEST_DIR}/test_toec_data.json") as file:
-            self.toec_dict = json.load(file)
+        with open(filepath, "rb") as file:
+            self.def_stress_dict = orjson.loads(file.read())
+        with open(f"{TEST_DIR}/test_toec_data.json", "rb") as file:
+            self.toec_dict = orjson.loads(file.read())
         self.structure = self.get_structure("Sn")
 
         warnings.simplefilter("always")
@@ -209,17 +209,17 @@ class TestElasticTensor(PymatgenTest):
             "vasp data, use with caution",
         ):
             et_fl = -0.1 * ElasticTensor.from_pseudoinverse(strain_list, stresses).voigt
-            assert_allclose(
-                et_fl.round(2),
-                [
-                    [59.29, 24.36, 22.46, 0, 0, 0],
-                    [28.06, 56.91, 22.46, 0, 0, 0],
-                    [28.06, 25.98, 54.67, 0, 0, 0],
-                    [0, 0, 0, 26.35, 0, 0],
-                    [0, 0, 0, 0, 26.35, 0],
-                    [0, 0, 0, 0, 0, 26.35],
-                ],
-            )
+        assert_allclose(
+            et_fl.round(2),
+            [
+                [59.29, 24.36, 22.46, 0, 0, 0],
+                [28.06, 56.91, 22.46, 0, 0, 0],
+                [28.06, 25.98, 54.67, 0, 0, 0],
+                [0, 0, 0, 26.35, 0, 0],
+                [0, 0, 0, 0, 26.35, 0],
+                [0, 0, 0, 0, 0, 26.35],
+            ],
+        )
 
     def test_from_independent_strains(self):
         strains = self.toec_dict["strains"]
@@ -263,10 +263,10 @@ class TestElasticTensor(PymatgenTest):
         )
 
 
-class TestElasticTensorExpansion(PymatgenTest):
-    def setUp(self):
-        with open(f"{TEST_DIR}/test_toec_data.json") as file:
-            self.data_dict = json.load(file)
+class TestElasticTensorExpansion(MatSciTest):
+    def setup_method(self):
+        with open(f"{TEST_DIR}/test_toec_data.json", "rb") as file:
+            self.data_dict = orjson.loads(file.read())
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
         self.c2 = self.data_dict["C2_raw"]
@@ -311,7 +311,7 @@ class TestElasticTensorExpansion(PymatgenTest):
 
         # Get heat capacity
         c0 = self.exp_cu.get_heat_capacity(0, self.cu, [1, 0, 0], [0, 1, 0])
-        assert c0 == 0.0
+        assert c0 == approx(0.0)
         c = self.exp_cu.get_heat_capacity(300, self.cu, [1, 0, 0], [0, 1, 0])
         assert c == approx(8.285611958)
 
@@ -364,10 +364,10 @@ class TestElasticTensorExpansion(PymatgenTest):
         self.exp_cu_4.get_yield_stress([1, 0, 0])
 
 
-class TestNthOrderElasticTensor(PymatgenTest):
-    def setUp(self):
-        with open(f"{TEST_DIR}/test_toec_data.json") as file:
-            self.data_dict = json.load(file)
+class TestNthOrderElasticTensor(MatSciTest):
+    def setup_method(self):
+        with open(f"{TEST_DIR}/test_toec_data.json", "rb") as file:
+            self.data_dict = orjson.loads(file.read())
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
         self.c2 = NthOrderElasticTensor.from_voigt(self.data_dict["C2_raw"])
@@ -401,12 +401,12 @@ class TestNthOrderElasticTensor(PymatgenTest):
         self.c3.energy_density(self.strains[0])
 
 
-class TestDiffFit(PymatgenTest):
+class TestDiffFit(MatSciTest):
     """Test various functions related to diff fitting."""
 
-    def setUp(self):
-        with open(f"{TEST_DIR}/test_toec_data.json") as file:
-            self.data_dict = json.load(file)
+    def setup_method(self):
+        with open(f"{TEST_DIR}/test_toec_data.json", "rb") as file:
+            self.data_dict = orjson.loads(file.read())
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
 
@@ -455,6 +455,43 @@ class TestDiffFit(PymatgenTest):
         assert_allclose(test_stresses[3], eq_stress)
 
     def test_get_diff_coeff(self):
+        def central_diff_weights(Np, ndiv):
+            """
+            Notes:
+                This function is taken from SciPy's deprecated implementation of
+                central difference weights. The original code can be found at:
+                https://github.com/scipy/scipy/blob/ea916c6f7f487bd53e98de08264
+                9d542cc6106ed/scipy/_lib/_finite_differences.py
+
+                License: This code is distributed under the BSD 3-Clause license.
+
+                Copyright (c) 2001-2002 Enthought, Inc. 2003-2024, SciPy Developers.
+                All rights reserved.
+
+            Return weights for an Np-point central derivative.
+
+            Assumes equally-spaced function points.
+
+            If weights are in the vector w, then
+            derivative is w[0] * f(x-ho*dx) + ... + w[-1] * f(x+h0*dx)
+
+            Args:
+                Np (int): Number of points for the central derivative.
+                ndiv (int, optional): Number of divisions. Default is 1.
+
+            Returns:
+                w (ndarray): Weights for an Np-point central derivative.
+                    Its size is `Np`.
+            """
+
+            ho = Np >> 1
+            x = np.arange(-ho, ho + 1.0)
+            x = x[:, np.newaxis]
+            X = x**0.0
+            for k in range(1, Np):
+                X = np.hstack([X, x**k])
+            return np.prod(np.arange(1, ndiv + 1), axis=0) * linalg.inv(X)[ndiv]
+
         forward_11 = get_diff_coeff([0, 1], 1)
         forward_13 = get_diff_coeff([0, 1, 2, 3], 1)
         backward_26 = get_diff_coeff(np.arange(-6, 1), 2)

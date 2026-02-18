@@ -8,15 +8,15 @@ from pytest import approx
 
 from pymatgen.command_line.vampire_caller import VampireCaller
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
 
 
 @pytest.mark.skipif(not which("vampire-serial"), reason="vampire executable not present")
-class TestVampireCaller(PymatgenTest):
+class TestVampireCaller(MatSciTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.Mn3Al = pd.read_json(f"{TEST_DIR}/Mn3Al.json")
 
         cls.compounds = [cls.Mn3Al]
@@ -31,7 +31,7 @@ class TestVampireCaller(PymatgenTest):
             cls.structure_inputs.append(ordered_structures)
             cls.energy_inputs.append(energies)
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_vampire(self):
         for structs, energies in zip(self.structure_inputs, self.energy_inputs, strict=True):
             settings = {"start_t": 0, "end_t": 500, "temp_increment": 50}
@@ -44,4 +44,4 @@ class TestVampireCaller(PymatgenTest):
                 user_input_settings=settings,
             )
 
-            assert approx(vc.output.critical_temp) == 400
+            assert vc.output.critical_temp == approx(400)

@@ -22,10 +22,8 @@ from pymatgen.core.structure import Molecule
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from typing import Self
 
-    from typing_extensions import Self
-
-    from pymatgen.util.typing import Tuple3Ints
 
 __author__ = "ndardenne"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -63,7 +61,7 @@ class Nwchem2Fiesta(MSONable):
         init_folder = os.getcwd()
         os.chdir(self.folder)
 
-        with zopen(self.log_file, mode="w") as fout:
+        with zopen(self.log_file, mode="wt", encoding="utf-8") as fout:
             subprocess.call(
                 [
                     self._NWCHEM2FIESTA_cmd,
@@ -108,7 +106,7 @@ class FiestaRun(MSONable):
     def __init__(
         self,
         folder: str | None = None,
-        grid: Tuple3Ints = (2, 2, 2),
+        grid: tuple[int, int, int] = (2, 2, 2),
         log_file: str = "log",
     ) -> None:
         """
@@ -138,7 +136,7 @@ class FiestaRun(MSONable):
         if self.folder != init_folder:
             os.chdir(self.folder)
 
-        with zopen(self.log_file, mode="w") as fout:
+        with zopen(self.log_file, mode="wt", encoding="utf-8") as fout:
             subprocess.call(
                 [
                     "mpirun",
@@ -161,7 +159,7 @@ class FiestaRun(MSONable):
         if self.folder != init_folder:
             os.chdir(self.folder)
 
-        with zopen(self.log_file, mode="w") as fout:
+        with zopen(self.log_file, mode="wt", encoding="utf-8") as fout:
             subprocess.call(
                 [
                     "mpirun",
@@ -214,7 +212,7 @@ class BasisSetReader:
         """
         self.filename = filename
 
-        with zopen(filename) as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             basis_set = file.read()
 
         self.data = self._parse_file(basis_set)
@@ -533,8 +531,8 @@ $geometry
         Args:
             filename: Filename.
         """
-        with zopen(filename, mode="w") as file:
-            file.write(str(self))
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
+            file.write(str(self))  # type:ignore[arg-type]
 
     def as_dict(self):
         """MSONable dict."""
@@ -566,7 +564,7 @@ $geometry
         )
 
     @classmethod
-    def from_str(cls, string_input: str) -> Self:
+    def from_str(cls, string_input: str) -> FiestaInput:
         """
         Read an FiestaInput from a string. Currently tested to work with
         files generated from this class itself.
@@ -701,7 +699,7 @@ $geometry
         )
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> Self:
+    def from_file(cls, filename: str | Path) -> FiestaInput:
         """
         Read an Fiesta input from a file. Currently tested to work with
         files generated from this class itself.
@@ -712,8 +710,8 @@ $geometry
         Returns:
             FiestaInput object
         """
-        with zopen(filename) as file:
-            return cls.from_str(file.read())
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
 
 class FiestaOutput:
@@ -730,7 +728,7 @@ class FiestaOutput:
         """
         self.filename = filename
 
-        with zopen(filename) as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             data = file.read()
 
         chunks = re.split(r"GW Driver iteration", data)
@@ -821,7 +819,7 @@ class BSEOutput:
         """
         self.filename = filename
 
-        with zopen(filename) as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             log_bse = file.read()
 
         # self.job_info = self._parse_preamble(preamble)

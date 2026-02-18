@@ -13,8 +13,9 @@ from pymatgen.core import Lattice, Structure
 from pymatgen.symmetry.kpath import KPathSeek
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
+    from pymatgen.core.structure import IStructure
     from pymatgen.util.typing import PathLike
 
 __author__ = "Hanyu Liu"
@@ -36,7 +37,7 @@ class LineLocator(MSONable):
         """
         row_idxs: list[int] = []  # starts from 1 to be compatible with linecache package
         row_no: int = 0
-        with zopen(file_path, mode="rt") as file:
+        with zopen(file_path, mode="rt", encoding="utf-8") as file:
             for row_content in file:
                 row_no += 1
                 if content.upper() in row_content.upper() and (
@@ -123,8 +124,7 @@ class ACExtractor(ACExtractorBase):
         idx_row: int = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[0]
         for row_idx in [idx_row + 1, idx_row + 2, idx_row + 3]:
             row_content: list[str] = linecache.getline(str(self.atom_config_path), row_idx).split()[:3]
-            for value in row_content:
-                basis_vectors.append(float(value))
+            basis_vectors.extend(float(value) for value in row_content)
 
         return np.array(basis_vectors)
 
@@ -136,7 +136,7 @@ class ACExtractor(ACExtractorBase):
         """
         content = "POSITION"
         idx_row = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[0]
-        with open(self.atom_config_path) as file:
+        with open(self.atom_config_path, encoding="utf-8") as file:
             atom_config_content = file.readlines()
         atomic_numbers_content = atom_config_content[idx_row : idx_row + self.n_atoms]
         atomic_numbers_lst = [int(row.split()[0]) for row in atomic_numbers_content]  # convert str to int
@@ -151,7 +151,7 @@ class ACExtractor(ACExtractorBase):
         coords_lst: list[np.ndarray] = []
         content: str = "POSITION"
         idx_row: int = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[0]
-        with open(self.atom_config_path) as file:
+        with open(self.atom_config_path, encoding="utf-8") as file:
             atom_config_content = file.readlines()
         """
         row_content:
@@ -174,7 +174,7 @@ class ACExtractor(ACExtractorBase):
         try:  # Error: not containing magmoms info.
             idx_row = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[-1]
 
-            with open(self.atom_config_path) as file:
+            with open(self.atom_config_path, encoding="utf-8") as file:
                 atom_config_content = file.readlines()
 
             magnetic_moments_content = atom_config_content[idx_row : idx_row + self.n_atoms]
@@ -216,14 +216,13 @@ class ACstrExtractor(ACExtractorBase):
         Returns:
             np.ndarray: Lattice basis vectors of shape=(9,)
         """
-        basis_vectors_lst = []
+        basis_vectors_lst: list[float] = []
         aim_content = "LATTICE"
         aim_idx = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)[0]
         for idx_str in [aim_idx + 1, aim_idx + 2, aim_idx + 3]:
             # ['0.8759519000E+01', '0.0000000000E+00', '0.0000000000E+00']
             str_lst = self.strs_lst[idx_str].split()[:3]
-            for tmp_str in str_lst:
-                basis_vectors_lst.append(float(tmp_str))  # convert str to float
+            basis_vectors_lst.extend(float(tmp_str) for tmp_str in str_lst)
         return np.array(basis_vectors_lst)
 
     def get_types(self) -> np.ndarray:
@@ -317,12 +316,14 @@ class ACstrExtractor(ACExtractorBase):
         Returns:
             np.ndarray: Forces acting on individual atoms of shape=(num_atoms*3,)
         """
-        forces = []
         aim_content = "Force".upper()
         aim_idx = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content, exclusion="average")[0]
-        for line in self.strs_lst[aim_idx + 1 : aim_idx + self.num_atoms + 1]:
-            # ['14', '0.089910342901203', '0.077164252174742', '0.254144099204679']
-            forces.append([float(val) for val in line.split()[1:4]])
+
+        # ['14', '0.089910342901203', '0.077164252174742', '0.254144099204679']
+        forces = [
+            [float(val) for val in line.split()[1:4]]
+            for line in self.strs_lst[aim_idx + 1 : aim_idx + self.num_atoms + 1]
+        ]
         return -np.array(forces).reshape(-1)
 
     def get_virial(self) -> np.ndarray | None:
@@ -359,7 +360,7 @@ class ACstrExtractor(ACExtractorBase):
 class AtomConfig(MSONable):
     """Object for representing the data in a atom.config or final.config file."""
 
-    def __init__(self, structure: Structure, sort_structure: bool = False):
+    def __init__(self, structure: IStructure | Structure, sort_structure: bool = False):
         """Initialization function.
 
         Args:
@@ -367,7 +368,7 @@ class AtomConfig(MSONable):
             sort_structure (bool, optional): Whether to sort the structure. Useful if species
                 are not grouped properly together. Defaults to False.
         """
-        self.structure: Structure = structure
+        self.structure: Structure = Structure.from_sites(structure)
         if sort_structure:
             self.structure = self.structure.get_sorted_structure()
         elements_counter = dict(sorted(Counter(self.structure.species).items()))
@@ -395,7 +396,7 @@ class AtomConfig(MSONable):
         properties: dict[str, float] = {}
         structure = Structure(
             lattice=ac_extractor.get_lattice(),
-            species=ac_extractor.get_types(),
+            species=ac_extractor.get_types(),  # type:ignore[arg-type]
             coords=ac_extractor.get_coords().reshape(-1, 3),
             coords_are_cartesian=False,
             properties=properties,
@@ -418,8 +419,8 @@ class AtomConfig(MSONable):
         Returns:
             AtomConfig object.
         """
-        with zopen(filename, "rt") as file:
-            return cls.from_str(data=file.read(), mag=mag)
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
+            return cls.from_str(data=file.read(), mag=mag)  # type:ignore[arg-type]
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
@@ -466,8 +467,8 @@ class AtomConfig(MSONable):
 
     def write_file(self, filename: PathLike, **kwargs):
         """Write AtomConfig to a file."""
-        with zopen(filename, "wt") as file:
-            file.write(self.get_str(**kwargs))
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
+            file.write(self.get_str(**kwargs))  # type:ignore[arg-type]
 
     def as_dict(self):
         """
@@ -495,7 +496,7 @@ class GenKpt(MSONable):
         """Initialization function.
 
         Args:
-            reciprocal_lattice (np.array): Reciprocal lattice with factor of 2*pi.
+            reciprocal_lattice (NDArray): Reciprocal lattice with factor of 2*pi.
             kpoints (dict[str, np.array]): Kpoints and their corresponding fractional coordinates.
             kpath (list[list[str]]): All kpaths, with each list representing one kpath.
             density (float): The density of kpoints mesh with factor of 2*pi.
@@ -507,7 +508,7 @@ class GenKpt(MSONable):
         self.density = density
 
     @classmethod
-    def from_structure(cls, structure: Structure, dim: int, density: float = 0.01) -> Self:
+    def from_structure(cls, structure: Structure | IStructure, dim: int, density: float = 0.01) -> Self:
         """Obtain a AtomConfig object from Structure object.
 
         Args:
@@ -525,10 +526,8 @@ class GenKpt(MSONable):
 
             path_2d: list[list[str]] = []
             for tmp_path in kpath_set.kpath["path"]:
-                tmp_path_2d: list[str] = []
-                for tmp_hsp in tmp_path:
-                    if tmp_hsp in kpts_2d:
-                        tmp_path_2d.append(tmp_hsp)
+                tmp_path_2d: list[str] = [tmp_hsp for tmp_hsp in tmp_path if tmp_hsp in kpts_2d]
+
                 if len(tmp_path_2d) > 1:
                     path_2d.append(tmp_path_2d)
             kpts: dict[str, np.ndarray] = kpts_2d
@@ -562,9 +561,9 @@ class GenKpt(MSONable):
             )
             return float(np.linalg.norm(hsp2_coord - hsp1_coord))
 
-        discontinue_pairs: list[list[int]] = []
-        for idx in range(len(self.kpath["path"]) - 1):
-            discontinue_pairs.append([self.kpath["path"][idx][-1], self.kpath["path"][idx + 1][0]])
+        discontinue_pairs: list[list[int]] = [
+            [self.kpath["path"][idx][-1], self.kpath["path"][idx + 1][0]] for idx in range(len(self.kpath["path"]) - 1)
+        ]
 
         flatten_paths: list[str] = [tmp_hsp for tmp_path in self.kpath["path"] for tmp_hsp in tmp_path]
         gen_kpt_str: str = f"Generated by pymatgen. density={self.density / (2 * np.pi)}, "
@@ -588,7 +587,7 @@ class GenKpt(MSONable):
         Args:
             filename (PathLike): The absolute path of file to be written.
         """
-        with zopen(filename, "wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(self.get_str())
 
 
@@ -617,7 +616,7 @@ class HighSymmetryPoint(MSONable):
         self.density = density
 
     @classmethod
-    def from_structure(cls, structure: Structure, dim: int, density: float = 0.01) -> Self:
+    def from_structure(cls, structure: Structure | IStructure, dim: int, density: float = 0.01) -> Self:
         """Obtain HighSymmetry object from Structure object.
 
         Args:
@@ -672,9 +671,10 @@ class HighSymmetryPoint(MSONable):
                 return f"G            {index:>4d}         {coordinate:>.6f}\n"
             return f"{label}            {index:>4d}         {coordinate:>.6f}\n"
 
-        discontinue_pairs: list[list[str]] = []
-        for ii in range(len(self.kpath["path"]) - 1):
-            discontinue_pairs.append([self.kpath["path"][ii][-1], self.kpath["path"][ii + 1][0]])
+        discontinue_pairs: list[list[str]] = [
+            [self.kpath["path"][ii][-1], self.kpath["path"][ii + 1][0]] for ii in range(len(self.kpath["path"]) - 1)
+        ]
+
         flatten_paths: list[str] = [tmp_hsp for tmp_path in self.kpath["path"] for tmp_hsp in tmp_path]
         # flatten_paths = [hsp.replace("GAMMA", "G") for hsp in flatten_paths]
 
@@ -694,5 +694,5 @@ class HighSymmetryPoint(MSONable):
 
     def write_file(self, filename: PathLike):
         """Write HighSymmetryPoint to a file."""
-        with zopen(filename, "wt") as file:
-            file.write(self.get_str())
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
+            file.write(self.get_str())  # type:ignore[arg-type]

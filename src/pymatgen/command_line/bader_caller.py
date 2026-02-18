@@ -28,16 +28,15 @@ from monty.dev import deprecated
 from monty.shutil import decompress_file
 from monty.tempfile import ScratchDir
 
+from pymatgen.core import Structure
 from pymatgen.io.common import VolumetricData
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, Self
 
-    from typing_extensions import Self
-
-    from pymatgen.core import Structure
+    from pymatgen.core import IStructure
 
 __author__ = "shyuepingong"
 __version__ = "0.1"
@@ -192,7 +191,8 @@ class BaderAnalysis:
 
             if self.version < 1.0:
                 warnings.warn(
-                    "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect."
+                    "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect.",
+                    stacklevel=2,
                 )
 
             # Parse ACF.dat file
@@ -350,7 +350,7 @@ class BaderAnalysis:
         """
         return -self.get_charge_transfer(atom_index, nelect)
 
-    def get_charge_decorated_structure(self) -> Structure:
+    def get_charge_decorated_structure(self) -> Structure | IStructure:
         """Get a charge decorated structure.
 
         Note, this assumes that the Bader analysis was correctly performed on a file
@@ -374,7 +374,7 @@ class BaderAnalysis:
         Returns:
             Structure: with bader-analysis-based oxidation states.
         """
-        struct = self.structure.copy()
+        struct = Structure.from_sites(self.structure)
         charges = [self.get_partial_charge(idx, None if not nelects else nelects[idx]) for idx in range(len(struct))]
         struct.add_oxidation_state_by_site(charges)
         return struct
@@ -406,12 +406,12 @@ class BaderAnalysis:
             structure with site properties assigned via Bader Analysis
         """
         vals = np.array([self.get_charge(i) for i in range(len(self.structure))])
-        struct = self.structure.copy()
+        struct = Structure.from_sites(self.structure)
         if average:
             vals = np.divide(vals, [d["atomic_vol"] for d in self.data])
         struct.add_site_property(property_name, vals)
         if property_name == "spin":
-            struct.add_spin_by_site(vals)
+            struct.add_spin_by_site(list(vals))
         return struct
 
     @property
@@ -460,7 +460,7 @@ class BaderAnalysis:
                 # kwarg to avoid this!
                 paths.sort(reverse=True)
                 if len(paths) > 1:
-                    warnings.warn(f"Multiple files detected, using {paths[0]}")
+                    warnings.warn(f"Multiple files detected, using {paths[0]}", stacklevel=2)
                 filepath = paths[0]
             else:
                 msg = f"Could not find {filename!r}"
@@ -468,7 +468,7 @@ class BaderAnalysis:
                     msg += ", interpret Bader results with severe caution."
                 elif filename == "POTCAR":
                     msg += ", cannot calculate charge transfer."
-                warnings.warn(msg)
+                warnings.warn(msg, stacklevel=2)
             return filepath
 
         chgcar_filename = _get_filepath("CHGCAR")
@@ -515,7 +515,7 @@ def bader_analysis_from_path(path: str, suffix: str = "") -> dict[str, Any]:
     def _get_filepath(filename: str, msg: str = "") -> str | None:
         paths = glob(glob_pattern := f"{path}/{filename}{suffix}*")
         if len(paths) == 0:
-            warnings.warn(msg or f"no matches for {glob_pattern=}")
+            warnings.warn(msg or f"no matches for {glob_pattern=}", stacklevel=2)
             return None
         if len(paths) > 1:
             # using reverse=True because, if multiple files are present,
@@ -523,7 +523,7 @@ def bader_analysis_from_path(path: str, suffix: str = "") -> dict[str, Any]:
             # and this would give 'static' over 'relax2' over 'relax'
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
-            warnings.warn(f"Multiple files detected, using {os.path.basename(path)}")
+            warnings.warn(f"Multiple files detected, using {os.path.basename(path)}", stacklevel=2)
         return paths[0]
 
     chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
@@ -533,17 +533,17 @@ def bader_analysis_from_path(path: str, suffix: str = "") -> dict[str, Any]:
 
     aeccar0_path = _get_filepath("AECCAR0")
     if not aeccar0_path:
-        warnings.warn("Could not find AECCAR0, interpret Bader results with severe caution!")
+        warnings.warn("Could not find AECCAR0, interpret Bader results with severe caution!", stacklevel=2)
     aeccar0 = Chgcar.from_file(aeccar0_path) if aeccar0_path else None
 
     aeccar2_path = _get_filepath("AECCAR2")
     if not aeccar2_path:
-        warnings.warn("Could not find AECCAR2, interpret Bader results with severe caution!")
+        warnings.warn("Could not find AECCAR2, interpret Bader results with severe caution!", stacklevel=2)
     aeccar2 = Chgcar.from_file(aeccar2_path) if aeccar2_path else None
 
     potcar_path = _get_filepath("POTCAR")
     if not potcar_path:
-        warnings.warn("Could not find POTCAR, cannot calculate charge transfer.")
+        warnings.warn("Could not find POTCAR, cannot calculate charge transfer.", stacklevel=2)
     potcar = Potcar.from_file(potcar_path) if potcar_path else None
 
     return bader_analysis_from_objects(chgcar, potcar, aeccar0, aeccar2)

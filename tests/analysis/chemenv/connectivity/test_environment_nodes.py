@@ -1,19 +1,14 @@
 from __future__ import annotations
 
-import json
+import orjson
 
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-from pymatgen.util.testing import PymatgenTest
-
-try:
-    import bson
-except ModuleNotFoundError:
-    bson = None  # type: ignore[assignment]
+from pymatgen.util.testing import MatSciTest
 
 __author__ = "waroquiers"
 
 
-class TestEnvironmentNodes(PymatgenTest):
+class TestEnvironmentNodes(MatSciTest):
     def test_equal(self):
         struct = self.get_structure("SiO2")
         en = EnvironmentNode(central_site=struct[0], i_central_site=0, ce_symbol="T:4")
@@ -42,7 +37,7 @@ class TestEnvironmentNodes(PymatgenTest):
         assert env_node.everything_equal(env_node_from_dict)
 
         json_str = self.assert_msonable(env_node)
-        env_node_from_json = EnvironmentNode.from_dict(json.loads(json_str))
+        env_node_from_json = EnvironmentNode.from_dict(orjson.loads(json_str))
         assert env_node.everything_equal(env_node_from_json)
 
     def test_str(self):

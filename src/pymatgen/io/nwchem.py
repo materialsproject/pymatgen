@@ -36,9 +36,7 @@ from pymatgen.core.units import Energy, FloatWithUnit
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import ClassVar
-
-    from typing_extensions import Self
+    from typing import ClassVar, Self
 
 NWCHEM_BASIS_LIBRARY = None
 if os.getenv("NWCHEM_BASIS_LIBRARY"):
@@ -139,7 +137,10 @@ class NwTask(MSONable):
         if NWCHEM_BASIS_LIBRARY is not None:
             for b in set(self.basis_set.values()):
                 if re.sub(r"\*", "s", b.lower()) not in NWCHEM_BASIS_LIBRARY:
-                    warnings.warn(f"Basis set {b} not in NWCHEM_BASIS_LIBRARY")
+                    warnings.warn(
+                        f"Basis set {b} not in NWCHEM_BASIS_LIBRARY",
+                        stacklevel=2,
+                    )
 
         self.basis_set_option = basis_set_option
 
@@ -154,13 +155,13 @@ class NwTask(MSONable):
         theory_spec = []
         if self.theory_directives:
             theory_spec.append(f"{self.theory}")
-            for k in sorted(self.theory_directives):
-                theory_spec.append(f" {k} {self.theory_directives[k]}")
+            theory_spec.extend(f" {k} {self.theory_directives[k]}" for k in sorted(self.theory_directives))
             theory_spec.append("end")
         for k in sorted(self.alternate_directives):
             theory_spec.append(k)
-            for k2 in sorted(self.alternate_directives[k]):
-                theory_spec.append(f" {k2} {self.alternate_directives[k][k2]}")
+            theory_spec.extend(
+                f" {k2} {self.alternate_directives[k][k2]}" for k2 in sorted(self.alternate_directives[k])
+            )
             theory_spec.append("end")
 
         t = Template(
@@ -374,13 +375,13 @@ class NwInput(MSONable):
         out = []
         if self.memory_options:
             out.append(f"memory {self.memory_options}")
-        for d in self.directives:
-            out.append(f"{d[0]} {d[1]}")
+
+        out.extend(f"{d[0]} {d[1]}" for d in self.directives)
         out.append("geometry " + " ".join(self.geometry_options))
         if self.symmetry_options:
             out.append(" symmetry " + " ".join(self.symmetry_options))
-        for site in self._mol:
-            out.append(f" {site.specie.symbol} {site.x} {site.y} {site.z}")
+
+        out.extend(f" {site.specie.symbol} {site.x} {site.y} {site.z}" for site in self._mol)
         out.append("end\n")
         for task in self.tasks:
             out.extend((str(task), ""))
@@ -391,7 +392,7 @@ class NwInput(MSONable):
         Args:
             filename (str): Filename.
         """
-        with zopen(filename, mode="w") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self))
 
     def as_dict(self):
@@ -450,21 +451,35 @@ class NwInput(MSONable):
                 continue
 
             tokens = line.split()
+
             if tokens[0].lower() == "geometry":
                 geom_options = tokens[1:]
-                line = lines.pop(0).strip()
-                tokens = line.split()
-                if tokens[0].lower() == "symmetry":
-                    symmetry_options = tokens[1:]
-                    line = lines.pop(0).strip()
-                # Parse geometry
                 species = []
                 coords = []
-                while line.lower() != "end":
-                    tokens = line.split()
-                    species.append(tokens[0])
-                    coords.append([float(i) for i in tokens[1:]])
+                symmetry_options = None
+
+                # Parse geometry
+                while lines:
                     line = lines.pop(0).strip()
+                    if not line:  # skip blank lines
+                        continue
+
+                    # Stop at end
+                    if line.lower() == "end":
+                        break
+
+                    tokens = line.split()
+                    key = tokens[0].lower()
+
+                    # Handle symmetry line anywhere in the block
+                    if key == "symmetry":
+                        symmetry_options = tokens[1:]
+                        continue
+
+                    # Otherwise, treat as an atom line
+                    species.append(tokens[0])
+                    coords.append([float(x) for x in tokens[1:]])
+
                 mol = Molecule(species, coords)
             elif tokens[0].lower() == "charge":
                 charge = int(tokens[1])
@@ -531,8 +546,8 @@ class NwInput(MSONable):
         Returns:
             NwInput object
         """
-        with zopen(filename) as file:
-            return cls.from_str(file.read())
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
 
 class NwInputError(Exception):
@@ -554,7 +569,7 @@ class NwOutput:
         """
         self.filename = filename
 
-        with zopen(filename) as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             data = file.read()
 
         chunks = re.split(r"NWChem Input Module", data)

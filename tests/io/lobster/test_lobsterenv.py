@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.graphs import StructureGraph
@@ -24,8 +23,8 @@ __date__ = "Jan 14, 2021"
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp/environments"
 
 
-class TestLobsterNeighbors(TestCase):
-    def setUp(self):
+class TestLobsterNeighbors:
+    def setup_method(self):
         # test additional conditions first
         # only consider cation anion bonds
 
@@ -337,6 +336,7 @@ class TestLobsterNeighbors(TestCase):
     def test_molecules_allowed(self):
         assert not self.chem_env_lobster1.molecules_allowed
 
+    @pytest.mark.filterwarnings("ignore:get_anion_types is deprecated")
     def test_get_anion_types(self):
         assert self.chem_env_lobster0_second.get_anion_types() == {Element("O")}
         assert self.chem_env_lobster0_second.anion_types == {Element("O")}
@@ -909,5 +909,5 @@ class TestLobsterNeighbors(TestCase):
             -0.54,
             -0.54,
         ]
-        assert self.chem_env_w_obj.valences == [0.67] * 4 + [0.7] * 4 + [-0.7] * 4 + [-0.68] * 4  # charge_obj
+        assert_allclose(self.chem_env_w_obj.valences, [0.67] * 4 + [0.7] * 4 + [-0.7] * 4 + [-0.68] * 4)  # charge_obj
         assert self.chem_env_lobster_NaSi_wo_charges.valences == [1] * 8 + [-1] * 8  # BVA

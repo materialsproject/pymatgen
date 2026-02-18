@@ -16,6 +16,7 @@ from itertools import combinations
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
+import orjson
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 from scipy.interpolate import interp1d
 from uncertainties import ufloat
@@ -25,10 +26,9 @@ from pymatgen.entries import Entry
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing import Literal
+    from typing import Literal, Self
 
-    from typing_extensions import Self
-
+    from pymatgen.analysis.phase_diagram import PhaseDiagram
     from pymatgen.core import Structure
 
 __author__ = "Ryan Kingsbury, Matt McDermott, Shyue Ping Ong, Anubhav Jain"
@@ -36,10 +36,10 @@ __copyright__ = "Copyright 2011-2020, The Materials Project"
 __version__ = "1.1"
 __date__ = "April 2020"
 
-with open(os.path.join(os.path.dirname(__file__), "data/g_els.json")) as file:
-    G_ELEMS = json.load(file)
-with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json")) as file:
-    G_GASES = json.load(file)
+with open(os.path.join(os.path.dirname(__file__), "data/g_els.json"), "rb") as file:
+    G_ELEMS = orjson.loads(file.read())
+with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json"), "rb") as file:
+    G_GASES = orjson.loads(file.read())
 
 
 class EnergyAdjustment(MSONable):
@@ -49,12 +49,12 @@ class EnergyAdjustment(MSONable):
 
     def __init__(
         self,
-        value,
-        uncertainty=np.nan,
-        name="Manual adjustment",
-        cls=None,
-        description="",
-    ):
+        value: float,
+        uncertainty: float = np.nan,
+        name: str = "Manual adjustment",
+        cls: dict | None = None,
+        description: str = "",
+    ) -> None:
         """
         Args:
             value (float): value of the energy adjustment in eV
@@ -68,20 +68,20 @@ class EnergyAdjustment(MSONable):
         self.cls = cls or {}
         self.description = description
         self._value = value
-        self._uncertainty = uncertainty
+        self._uncertainty = float(uncertainty)
 
     @property
-    def value(self):
+    def value(self) -> float:
         """The value of the energy correction in eV."""
         return self._value
 
     @property
-    def uncertainty(self):
+    def uncertainty(self) -> float:
         """The uncertainty in the value of the energy adjustment in eV."""
         return self._uncertainty
 
     @abc.abstractmethod
-    def normalize(self, factor):
+    def normalize(self, factor: float) -> None:
         """Scale the value of the current energy adjustment by factor in-place.
 
         This method is utilized in ComputedEntry.normalize() to scale the energies to a formula unit basis
@@ -90,10 +90,10 @@ class EnergyAdjustment(MSONable):
 
     @property
     @abc.abstractmethod
-    def explain(self):
+    def explain(self) -> str:
         """Return an explanation of how the energy adjustment is calculated."""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         name, value, uncertainty, description = (
             self.name,
             float(self.value),
@@ -114,28 +114,28 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
 
     def __init__(
         self,
-        value,
-        uncertainty=np.nan,
-        name="Constant energy adjustment",
-        cls=None,
-        description="Constant energy adjustment",
-    ):
+        value: float,
+        uncertainty: float = np.nan,
+        name: str = "Constant energy adjustment",
+        cls: dict | None = None,
+        description: str = "Constant energy adjustment",
+    ) -> None:
         """
         Args:
-            value: float, value of the energy adjustment in eV
-            uncertainty: float, uncertainty of the energy adjustment in eV. (Default: np.nan)
-            name: str, human-readable name of the energy adjustment.
+            value (float): the energy adjustment in eV
+            uncertainty (float): uncertainty of the energy adjustment in eV. (Default: np.nan)
+            name (str): human-readable name of the energy adjustment.
                 (Default: Constant energy adjustment)
-            cls: dict, Serialized Compatibility class used to generate the energy
+            cls (dict): Serialized Compatibility class used to generate the energy
                 adjustment. (Default: None)
-            description: str, human-readable explanation of the energy adjustment.
+            description (str): human-readable explanation of the energy adjustment.
         """
         super().__init__(value, uncertainty, name=name, cls=cls, description=description)
         self._value = value
-        self._uncertainty = uncertainty
+        self._uncertainty = float(uncertainty)
 
     @property
-    def explain(self):
+    def explain(self) -> str:
         """An explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self.value:.3f} eV)"
 
@@ -144,7 +144,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
         factor.
 
         Args:
-            factor: factor to divide by.
+            factor (float): factor to divide by.
         """
         self._value /= factor
         self._uncertainty /= factor
@@ -153,10 +153,10 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
 class ManualEnergyAdjustment(ConstantEnergyAdjustment):
     """A manual energy adjustment applied to a ComputedEntry."""
 
-    def __init__(self, value):
+    def __init__(self, value: float) -> None:
         """
         Args:
-            value: float, value of the energy adjustment in eV.
+            value (float): the energy adjustment in eV.
         """
         name = "Manual energy adjustment"
         description = "Manual energy adjustment"
@@ -170,44 +170,44 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
 
     def __init__(
         self,
-        adj_per_atom,
-        n_atoms,
-        uncertainty_per_atom=np.nan,
-        name="",
-        cls=None,
-        description="Composition-based energy adjustment",
-    ):
+        adj_per_atom: float,
+        n_atoms: float,
+        uncertainty_per_atom: float = np.nan,
+        name: str = "",
+        cls: dict | None = None,
+        description: str = "Composition-based energy adjustment",
+    ) -> None:
         """
         Args:
-            adj_per_atom: float, energy adjustment to apply per atom, in eV/atom
-            n_atoms: float or int, number of atoms.
-            uncertainty_per_atom: float, uncertainty in energy adjustment to apply per atom, in eV/atom.
+            adj_per_atom (float): energy adjustment to apply per atom, in eV/atom
+            n_atoms (float): number of atoms.
+            uncertainty_per_atom (float): uncertainty in energy adjustment to apply per atom, in eV/atom.
                 (Default: np.nan)
-            name: str, human-readable name of the energy adjustment.
+            name (str): human-readable name of the energy adjustment.
                 (Default: "")
-            cls: dict, Serialized Compatibility class used to generate the energy
+            cls (dict): Serialized Compatibility class used to generate the energy
                 adjustment. (Default: None)
-            description: str, human-readable explanation of the energy adjustment.
+            description (str): human-readable explanation of the energy adjustment.
         """
         self._adj_per_atom = adj_per_atom
-        self.uncertainty_per_atom = uncertainty_per_atom
+        self.uncertainty_per_atom = float(uncertainty_per_atom)
         self.n_atoms = n_atoms
         self.cls = cls or {}
         self.name = name
         self.description = description
 
     @property
-    def value(self):
+    def value(self) -> float:
         """The value of the energy adjustment in eV."""
         return self._adj_per_atom * self.n_atoms
 
     @property
-    def uncertainty(self):
+    def uncertainty(self) -> float:
         """The value of the energy adjustment in eV."""
         return self.uncertainty_per_atom * self.n_atoms
 
     @property
-    def explain(self):
+    def explain(self) -> str:
         """An explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self._adj_per_atom:.3f} eV/atom x {self.n_atoms} atoms)"
 
@@ -228,29 +228,29 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
 
     def __init__(
         self,
-        adj_per_deg,
-        temp,
-        n_atoms,
-        uncertainty_per_deg=np.nan,
-        name="",
-        cls=None,
-        description="Temperature-based energy adjustment",
-    ):
+        adj_per_deg: float,
+        temp: float,
+        n_atoms: float,
+        uncertainty_per_deg: float = np.nan,
+        name: str = "",
+        cls: dict | None = None,
+        description: str = "Temperature-based energy adjustment",
+    ) -> None:
         """
         Args:
-            adj_per_deg: float, energy adjustment to apply per degree K, in eV/atom
-            temp: float, temperature in Kelvin
-            n_atoms: float or int, number of atoms
-            uncertainty_per_deg: float, uncertainty in energy adjustment to apply per degree K,
+            adj_per_deg (float): energy adjustment to apply per degree K, in eV/atom
+            temp (float): temperature in Kelvin
+            n_atoms (float): number of atoms
+            uncertainty_per_deg (float): uncertainty in energy adjustment to apply per degree K,
                 in eV/atom. (Default: np.nan)
-            name: str, human-readable name of the energy adjustment.
+            name (str): human-readable name of the energy adjustment.
                 (Default: "")
-            cls: dict, Serialized Compatibility class used to generate the energy
+            cls (dict): Serialized Compatibility class used to generate the energy
                 adjustment. (Default: None)
-            description: str, human-readable explanation of the energy adjustment.
+            description (str): human-readable explanation of the energy adjustment.
         """
         self._adj_per_deg = adj_per_deg
-        self.uncertainty_per_deg = uncertainty_per_deg
+        self.uncertainty_per_deg = float(uncertainty_per_deg)
         self.temp = temp
         self.n_atoms = n_atoms
         self.name = name
@@ -258,17 +258,17 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
         self.description = description
 
     @property
-    def value(self):
+    def value(self) -> float:
         """The value of the energy correction in eV."""
         return self._adj_per_deg * self.temp * self.n_atoms
 
     @property
-    def uncertainty(self):
+    def uncertainty(self) -> float:
         """The value of the energy adjustment in eV."""
         return self.uncertainty_per_deg * self.temp * self.n_atoms
 
     @property
-    def explain(self):
+    def explain(self) -> str:
         """An explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self._adj_per_deg:.4f} eV/K/atom x {self.temp} K x {self.n_atoms} atoms)"
 
@@ -297,7 +297,7 @@ class ComputedEntry(Entry):
         parameters: dict | None = None,
         data: dict | None = None,
         entry_id: str | None = None,
-    ):
+    ) -> None:
         """Initialize a ComputedEntry.
 
         Args:
@@ -321,7 +321,7 @@ class ComputedEntry(Entry):
         super().__init__(composition, energy)
         self.energy_adjustments = energy_adjustments or []
 
-        if correction != 0.0:
+        if not math.isclose(correction, 0.0):
             if energy_adjustments:
                 raise ValueError(
                     f"Argument conflict! Setting correction = {correction:.3f} conflicts "
@@ -363,8 +363,10 @@ class ComputedEntry(Entry):
         Returns:
             float: the total energy correction / adjustment applied to the entry in eV.
         """
-        # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
-        corr = ufloat(0.0, 0.0) + sum(ufloat(ea.value, ea.uncertainty) for ea in self.energy_adjustments)
+        # either sum of adjustments or ufloat with nan std_dev, so that no corrections still result in ufloat object:
+        corr = sum(ufloat(ea.value, ea.uncertainty) for ea in self.energy_adjustments if ea.value) or ufloat(
+            0.0, np.nan
+        )
         return corr.nominal_value
 
     @correction.setter
@@ -386,13 +388,13 @@ class ComputedEntry(Entry):
         Returns:
             float: the uncertainty of the energy adjustments applied to the entry in eV.
         """
-        # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
-        unc = ufloat(0.0, 0.0) + sum(
-            (ufloat(ea.value, ea.uncertainty) if not np.isnan(ea.uncertainty) else ufloat(ea.value, 0))
+        # either sum of adjustments or ufloat with nan std_dev, so that no corrections still result in ufloat object:
+        unc = sum(
+            (ufloat(ea.value, ea.uncertainty) if not np.isnan(ea.uncertainty) and ea.value else ufloat(ea.value, 0))
             for ea in self.energy_adjustments
-        )
+        ) or ufloat(0.0, np.nan)
 
-        if unc.nominal_value != 0 and unc.std_dev == 0:
+        if not math.isclose(unc.nominal_value, 0) and math.isclose(unc.std_dev, 0):
             return np.nan
 
         return unc.std_dev
@@ -440,8 +442,10 @@ class ComputedEntry(Entry):
         if len(self.energy_adjustments) == 0:
             output.append("  None")
         else:
-            for e in self.energy_adjustments:
-                output.append(f"  {e.name:<23}: {e.value:<9.4f} eV ({e.value / n_atoms:<8.4f} eV/atom)")
+            output.extend(
+                f"  {e.name:<23}: {e.value:<9.4f} eV ({e.value / n_atoms:<8.4f} eV/atom)"
+                for e in self.energy_adjustments
+            )
         output.append("Parameters:")
         for k, v in self.parameters.items():
             output.append(f"  {k:<22} = {v}")
@@ -460,7 +464,7 @@ class ComputedEntry(Entry):
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
-        other = cast(ComputedEntry, other)
+        other = cast("ComputedEntry", other)
 
         # Equality is defined based on composition and energy.
         # If structures are involved, it is assumed that a {composition, energy} is
@@ -469,7 +473,7 @@ class ComputedEntry(Entry):
         # However, if entry_id is same, they may have different corrections (e.g., due
         # to mixing scheme used) and thus should be compared on corrected energy.
 
-        if getattr(self, "entry_id", None) and getattr(other, "entry_id", None) and self.entry_id != other.entry_id:
+        if getattr(self, "entry_id", False) and getattr(other, "entry_id", False) and self.entry_id != other.entry_id:
             return False
 
         if not math.isclose(self.energy, other.energy):
@@ -495,7 +499,7 @@ class ComputedEntry(Entry):
         # we don't pass correction explicitly because it will be calculated
         # on the fly from energy_adjustments
         correction = 0
-        if dct["correction"] != 0 and len(energy_adj) == 0:
+        if not math.isclose(dct["correction"], 0) and len(energy_adj) == 0:
             # this block is for legacy ComputedEntry that were
             # serialized before we had the energy_adjustments attribute.
             correction = dct["correction"]
@@ -580,7 +584,11 @@ class ComputedStructureEntry(ComputedEntry):
             entry_id: An optional id to uniquely identify the entry.
         """
         if composition:
-            composition = Composition(composition)
+            if isinstance(composition, Composition):
+                pass
+            else:
+                composition = Composition(composition)
+            # composition = Composition(composition)
             if (
                 composition.get_integer_formula_and_factor()[0]
                 != structure.composition.get_integer_formula_and_factor()[0]
@@ -622,7 +630,7 @@ class ComputedStructureEntry(ComputedEntry):
         """
         # the first block here is for legacy ComputedEntry that were
         # serialized before we had the energy_adjustments attribute.
-        if dct["correction"] != 0 and not dct.get("energy_adjustments"):
+        if not math.isclose(dct["correction"], 0) and not dct.get("energy_adjustments"):
             struct = MontyDecoder().process_decoded(dct["structure"])
             return cls(
                 struct,
@@ -661,7 +669,8 @@ class ComputedStructureEntry(ComputedEntry):
         warnings.warn(
             f"Normalization of a `{type(self).__name__}` makes "
             "`self.composition` and `self.structure.composition` inconsistent"
-            " - please use self.composition for all further calculations."
+            " - please use self.composition for all further calculations.",
+            stacklevel=2,
         )
         # TODO: find a better solution for creating copies instead of as/from dict
         factor = self._normalization_factor(mode)
@@ -701,7 +710,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         parameters: dict | None = None,
         data: dict | None = None,
         entry_id: str | None = None,
-    ):
+    ) -> None:
         """
         Args:
             structure (Structure): The pymatgen Structure object of an entry.
@@ -829,7 +838,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
                 )
                 sum_g_i += amt * g_interp(self.temp)
         else:
-            sum_g_i = sum(amt * G_ELEMS[str(self.temp)][elem] for elem, amt in elems.items())
+            sum_g_i = sum(amt * G_ELEMS[str(int(self.temp))][elem] for elem, amt in elems.items())
 
         return sum_g_i
 
@@ -883,7 +892,12 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         )
 
     @classmethod
-    def from_pd(cls, pd, temp=300, gibbs_model="SISSO") -> list[Self]:
+    def from_pd(
+        cls,
+        pd: PhaseDiagram,
+        temp: float = 300,
+        gibbs_model: Literal["SISSO"] = "SISSO",
+    ) -> list[Self]:
         """Constructor method for initializing a list of GibbsComputedStructureEntry
         objects from an existing T = 0 K phase diagram composed of
         ComputedStructureEntry objects, as acquired from a thermochemical database;
@@ -892,7 +906,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         Args:
             pd (PhaseDiagram): T = 0 K phase diagram as created in pymatgen. Must
                 contain ComputedStructureEntry objects.
-            temp (int): Temperature [K] for estimating Gibbs free energy of formation.
+            temp (float): Temperature [K] for estimating Gibbs free energy of formation.
             gibbs_model (str): Gibbs model to use; currently the only option is "SISSO".
 
         Returns:
@@ -900,24 +914,27 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
                 entries with inclusion of Gibbs free energy of formation at the
                 specified temperature.
         """
-        gibbs_entries = []
-        for entry in pd.all_entries:
-            if entry in pd.el_refs.values() or not entry.composition.is_element:
-                gibbs_entries.append(
-                    cls(
-                        entry.structure,
-                        formation_enthalpy_per_atom=pd.get_form_energy_per_atom(entry),
-                        temp=temp,
-                        correction=0,
-                        gibbs_model=gibbs_model,
-                        data=entry.data,
-                        entry_id=entry.entry_id,
-                    )
-                )
-        return gibbs_entries
+        return [
+            cls(
+                entry.structure,
+                formation_enthalpy_per_atom=pd.get_form_energy_per_atom(entry),
+                temp=temp,
+                correction=0,
+                gibbs_model=gibbs_model,
+                data=entry.data,
+                entry_id=entry.entry_id,
+            )
+            for entry in pd.all_entries
+            if entry in pd.el_refs.values() or not entry.composition.is_element
+        ]
 
     @classmethod
-    def from_entries(cls, entries, temp=300, gibbs_model="SISSO") -> list[Self]:
+    def from_entries(
+        cls,
+        entries: list,
+        temp: float = 300,
+        gibbs_model: Literal["SISSO"] = "SISSO",
+    ) -> list[Self]:
         """Constructor method for initializing GibbsComputedStructureEntry objects from
         T = 0 K ComputedStructureEntry objects, as acquired from a thermochemical
         database e.g. The Materials Project.
@@ -925,7 +942,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         Args:
             entries ([ComputedStructureEntry]): List of ComputedStructureEntry objects,
                 as downloaded from The Materials Project API.
-            temp (int): Temperature [K] for estimating Gibbs free energy of formation.
+            temp (float): Temperature [K] for estimating Gibbs free energy of formation.
             gibbs_model (str): Gibbs model to use; currently the only option is "SISSO".
 
         Returns:
@@ -970,7 +987,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             entry_id=dct.get("entry_id"),
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"GibbsComputedStructureEntry {self.entry_id} - {self.formula}\n"
             f"Gibbs Free Energy (Formation) = {self.energy:.4f}"

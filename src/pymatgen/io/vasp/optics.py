@@ -16,8 +16,9 @@ from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.vasp.outputs import Vasprun, Waveder
 
 if TYPE_CHECKING:
+    from typing import Self
+
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike
 
@@ -105,7 +106,7 @@ class DielectricFunctionCalculator(MSONable):
             cder_real=waveder.cder_real,
             cder_imag=waveder.cder_imag,
             eigs=eigs,
-            kweights=kweights,
+            kweights=kweights,  # type:ignore[arg-type]
             nedos=nedos,
             deltae=deltae,
             ismear=ismear,
@@ -343,7 +344,7 @@ def get_delta(x0: float, sigma: float, nx: int, dx: float, ismear: int = 3) -> N
     return dfun
 
 
-def get_step(x0: float, sigma: float, nx: int, dx: float, ismear: int) -> float:
+def get_step(x0: float, sigma: float, nx: int, dx: float, ismear: int) -> NDArray:
     """Get the smeared step function to be added to form the spectrum.
 
     This replaces the `SLOT` function from VASP.

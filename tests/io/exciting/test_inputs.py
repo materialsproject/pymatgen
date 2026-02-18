@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import math
+import re
 from xml.etree import ElementTree as ET
 
 from numpy.testing import assert_allclose
 
 from pymatgen.core import Lattice, Structure
 from pymatgen.io.exciting import ExcitingInput
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "Christian Vorwerk"
 __copyright__ = "Copyright 2016"
@@ -19,7 +21,7 @@ __date__ = "Dec 01, 2016"
 TEST_DIR = f"{TEST_FILES_DIR}/io/exciting"
 
 
-class TestExcitingInput(PymatgenTest):
+class TestExcitingInput(MatSciTest):
     def test_fromfile(self):
         # Test for the import of a structure directly from an exciting
         # input file
@@ -146,12 +148,12 @@ class TestExcitingInput(PymatgenTest):
                 "xstype": "BSE",
                 "ngridk": "4 4 4",
                 "ngridq": "4 4 4",
-                "nempty": "30",
+                "nempty": "30",  # codespell:ignore: nempty
                 "gqmax": "3.0",
                 "broad": "0.07",
                 "tevout": "true",
                 "energywindow": {"intv": "0.0 1.0", "points": "1200"},
-                "screening": {"screentype": "full", "nempty": "100"},
+                "screening": {"screentype": "full", "nempty": "100"},  # codespell:ignore: nempty
                 "BSE": {"bsetype": "singlet", "nstlbse": "1 5 1 4"},
             },
         }
@@ -165,4 +167,12 @@ class TestExcitingInput(PymatgenTest):
         root = tree.getroot()
         ref_str = ET.tostring(root, encoding="unicode")
 
-        assert ref_str.strip() == test_str.strip()
+        ref_list = ref_str.strip().split()
+        test_list = test_str.strip().split()
+
+        # "scale" is float, direct compare might give surprising results
+        ref_scale = float(re.search(r'scale="([-+]?\d*\.\d+|\d+)"', ref_list.pop(7))[1])
+        test_scale = float(re.search(r'scale="([-+]?\d*\.\d+|\d+)"', test_list.pop(7))[1])
+
+        assert ref_list == test_list
+        assert math.isclose(ref_scale, test_scale)

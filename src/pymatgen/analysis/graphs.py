@@ -35,15 +35,13 @@ except ImportError:
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import Any
+    from typing import Any, Self
 
     from igraph import Graph
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
     from pymatgen.analysis.local_env import NearNeighbors
     from pymatgen.core import Species
-    from pymatgen.util.typing import Tuple3Ints
 
 
 logger = logging.getLogger(__name__)
@@ -59,7 +57,7 @@ __date__ = "August 2017"
 
 class ConnectedSite(NamedTuple):
     site: PeriodicSite
-    jimage: Tuple3Ints
+    jimage: tuple[int, int, int]
     index: Any  # TODO: use more specific type
     weight: float
     dist: float
@@ -334,8 +332,8 @@ class StructureGraph(MSONable):
         self,
         from_index: int,
         to_index: int,
-        from_jimage: Tuple3Ints = (0, 0, 0),
-        to_jimage: Tuple3Ints | None = None,
+        from_jimage: tuple[int, int, int] = (0, 0, 0),
+        to_jimage: tuple[int, int, int] | None = None,
         weight: float | None = None,
         warn_duplicates: bool = True,
         edge_properties: dict | None = None,
@@ -383,18 +381,18 @@ class StructureGraph(MSONable):
         # edges if appropriate
         if to_jimage is None:
             # assume we want the closest site
-            warnings.warn("Please specify to_jimage to be unambiguous, trying to automatically detect.")
+            warnings.warn("Please specify to_jimage to be unambiguous, trying to automatically detect.", stacklevel=2)
             dist, to_jimage = self.structure[from_index].distance_and_image(self.structure[to_index])
             if dist == 0:
                 # this will happen when from_index == to_index,
                 # typically in primitive single-atom lattices
                 images = [1, 0, 0], [0, 1, 0], [0, 0, 1]
-                dists = []
-                for image in images:
-                    dists.append(
+                dist = min(
+                    [
                         self.structure[from_index].distance_and_image(self.structure[from_index], jimage=image)[0]
-                    )
-                dist = min(dists)
+                        for image in images
+                    ]
+                )
             equiv_sites = self.structure.get_neighbors_in_shell(
                 self.structure[from_index].coords, dist, dist * 0.01, include_index=True
             )
@@ -417,7 +415,7 @@ class StructureGraph(MSONable):
         # this is a convention to avoid duplicate hops
         if to_index == from_index:
             if to_jimage == (0, 0, 0):
-                warnings.warn("Tried to create a bond to itself, this doesn't make sense so was ignored.")
+                warnings.warn("Tried to create a bond to itself, this doesn't make sense so was ignored.", stacklevel=2)
                 return
 
             # ensure that the first non-zero jimage index is positive
@@ -439,7 +437,8 @@ class StructureGraph(MSONable):
                     if warn_duplicates:
                         warnings.warn(
                             "Trying to add an edge that already exists from "
-                            f"site {from_index} to site {to_index} in {to_jimage}."
+                            f"site {from_index} to site {to_index} in {to_jimage}.",
+                            stacklevel=2,
                         )
                     return
 
@@ -630,8 +629,7 @@ class StructureGraph(MSONable):
                 self.graph.remove_edge(to_index, from_index, edge_index)
             else:
                 raise ValueError(
-                    f"Edge cannot be broken between {from_index} and {to_index}; "
-                    f"no edge exists between those sites."
+                    f"Edge cannot be broken between {from_index} and {to_index}; no edge exists between those sites."
                 )
 
     def remove_nodes(self, indices: Sequence[int | None]) -> None:
@@ -740,10 +738,10 @@ class StructureGraph(MSONable):
         else:
             if strategy_params is None:
                 strategy_params = {}
-            strat = strategy(**strategy_params)
+            _strategy = strategy(**strategy_params)
 
             for site in mapping.values():
-                neighbors = strat.get_nn_info(self.structure, site)
+                neighbors = _strategy.get_nn_info(self.structure, site)
 
                 for neighbor in neighbors:
                     self.add_edge(
@@ -755,7 +753,7 @@ class StructureGraph(MSONable):
                         warn_duplicates=False,
                     )
 
-    def get_connected_sites(self, n: int, jimage: Tuple3Ints = (0, 0, 0)) -> list[ConnectedSite]:
+    def get_connected_sites(self, n: int, jimage: tuple[int, int, int] = (0, 0, 0)) -> list[ConnectedSite]:
         """Get a named tuple of neighbors of site n:
         periodic_site, jimage, index, weight.
         Index is the index of the corresponding site
@@ -790,7 +788,7 @@ class StructureGraph(MSONable):
 
             # from_site if jimage arg != (0, 0, 0)
             relative_jimage = np.subtract(to_jimage, jimage)
-            u_site = cast(PeriodicSite, self.structure[u])  # tell mypy that u_site is a PeriodicSite
+            u_site = cast("PeriodicSite", self.structure[u])  # tell mypy that u_site is a PeriodicSite
             dist = u_site.distance(self.structure[v], jimage=relative_jimage)
 
             weight = data.get("weight")
@@ -975,7 +973,7 @@ class StructureGraph(MSONable):
 
         write_dot(g, f"{basename}.dot")
 
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             args = [algo, "-T", extension, f"{basename}.dot"]
             with subprocess.Popen(args, stdout=file, stdin=subprocess.PIPE, close_fds=True) as rs:
                 rs.communicate()
@@ -1754,10 +1752,7 @@ class MoleculeGraph(MSONable):
                     warn_duplicates=False,
                 )
 
-        duplicates = []
-        for edge in mg.graph.edges:
-            if edge[2] != 0:
-                duplicates.append(edge)
+        duplicates = [edge for edge in mg.graph.edges if edge[2] != 0]
 
         for duplicate in duplicates:
             mg.graph.remove_edge(duplicate[0], duplicate[1], key=duplicate[2])
@@ -1826,7 +1821,9 @@ class MoleculeGraph(MSONable):
         # between two sites
         existing_edge_data = self.graph.get_edge_data(from_index, to_index)
         if existing_edge_data and warn_duplicates:
-            warnings.warn(f"Trying to add an edge that already exists from site {from_index} to site {to_index}.")
+            warnings.warn(
+                f"Trying to add an edge that already exists from site {from_index} to site {to_index}.", stacklevel=2
+            )
             return
 
         # generic container for additional edge properties,
@@ -1973,8 +1970,7 @@ class MoleculeGraph(MSONable):
                 self.graph.remove_edge(to_index, from_index)
             else:
                 raise ValueError(
-                    f"Edge cannot be broken between {from_index} and {to_index}; "
-                    f"no edge exists between those sites."
+                    f"Edge cannot be broken between {from_index} and {to_index}; no edge exists between those sites."
                 )
 
     def remove_nodes(self, indices: list[int]) -> None:
@@ -2126,9 +2122,7 @@ class MoleculeGraph(MSONable):
         frag_dict = {}
         for ii in range(1, len(self.molecule)):
             for combination in combinations(graph.nodes, ii):
-                comp = []
-                for idx in combination:
-                    comp.append(str(self.molecule[idx].specie))
+                comp = [str(self.molecule[idx].specie) for idx in combination]
                 comp = "".join(sorted(comp))
                 subgraph = nx.subgraph(graph, combination)
                 if nx.is_connected(subgraph):
@@ -2643,7 +2637,7 @@ class MoleculeGraph(MSONable):
 
         write_dot(g, f"{basename}.dot")
 
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             args = [algo, "-T", extension, f"{basename}.dot"]
             with subprocess.Popen(args, stdout=file, stdin=subprocess.PIPE, close_fds=True) as rs:
                 rs.communicate()

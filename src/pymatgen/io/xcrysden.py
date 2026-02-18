@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from pymatgen.core import Element, Structure
+from pymatgen.core import Element, IStructure, Structure
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
+
+    from pymatgen.core.structure import IStructure
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -18,7 +20,7 @@ __maintainer__ = "Matteo Giantomassi"
 class XSF:
     """Parse XCrysden files."""
 
-    def __init__(self, structure: Structure):
+    def __init__(self, structure: Structure | IStructure):
         """
         Args:
             structure (Structure): Structure object.
@@ -36,8 +38,7 @@ class XSF:
 
         lines.extend(("CRYSTAL", "# Primitive lattice vectors in Angstrom", "PRIMVEC"))
         cell = self.structure.lattice.matrix
-        for i in range(3):
-            lines.append(f" {cell[i][0]:.14f} {cell[i][1]:.14f} {cell[i][2]:.14f}")
+        lines.extend(f" {cell[i][0]:.14f} {cell[i][1]:.14f} {cell[i][2]:.14f}" for i in range(3))
 
         cart_coords = self.structure.cart_coords
         lines.extend(
@@ -88,21 +89,21 @@ class XSF:
             16      0.0000000     0.0000000     0.0000000  see (5)
             30      1.3550000    -1.3550000    -1.3550000
         """
-        lattice, coords, species = [], [], []
+        lattice: list[list[float]] = []
+        coords: list[list[float]] = []
+        species: list[int] = []
         lines = input_string.splitlines()
 
         for idx, line in enumerate(lines, start=1):
             if "PRIMVEC" in line:
-                for j in range(idx, idx + 3):
-                    lattice.append([float(c) for c in lines[j].split()])
+                lattice.extend([float(c) for c in lines[j].split()] for j in range(idx, idx + 3))
 
             if "PRIMCOORD" in line:
                 n_sites = int(lines[idx].split()[0])
 
                 for j in range(idx + 1, idx + 1 + n_sites):
                     tokens = lines[j].split()
-                    Z = Element(tokens[0]).Z if tokens[0].isalpha() else int(tokens[0])
-                    species.append(Z)
+                    species.append(Element(tokens[0]).Z if tokens[0].isalpha() else int(tokens[0]))
                     coords.append([float(j) for j in tokens[1:4]])
                 break
         else:

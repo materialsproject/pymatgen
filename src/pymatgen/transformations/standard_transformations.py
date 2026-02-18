@@ -10,7 +10,6 @@ from fractions import Fraction
 from typing import TYPE_CHECKING
 
 import numpy as np
-from numpy import around
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.elasticity.strain import Deformation
@@ -20,11 +19,14 @@ from pymatgen.core import Composition, get_el_sp
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.transformations.site_transformations import PartialRemoveSitesTransformation
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Any, Self
+
+    from numpy.random import Generator
 
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.util.typing import SpeciesLike
@@ -107,6 +109,7 @@ class AutoOxiStateDecorationTransformation(AbstractTransformation):
         max_radius=4,
         max_permutations=100000,
         distance_scale_factor=1.015,
+        zeros_on_fail=False,
     ):
         """
         Args:
@@ -121,12 +124,16 @@ class AutoOxiStateDecorationTransformation(AbstractTransformation):
                 calculation-relaxed structures, which may tend to under (GGA) or
                 over bind (LDA). The default of 1.015 works for GGA. For
                 experimental structure, set this to 1.
+            zeros_on_fail (bool): If True and the BVAnalyzer fails to come up
+                with a guess for the oxidation states, we will set the all the
+                oxidation states to zero.
         """
         self.symm_tol = symm_tol
         self.max_radius = max_radius
         self.max_permutations = max_permutations
         self.distance_scale_factor = distance_scale_factor
         self.analyzer = BVAnalyzer(symm_tol, max_radius, max_permutations, distance_scale_factor)
+        self.zeros_on_fail = zeros_on_fail
 
     def apply_transformation(self, structure):
         """Apply the transformation.
@@ -137,7 +144,14 @@ class AutoOxiStateDecorationTransformation(AbstractTransformation):
         Returns:
             Oxidation state decorated Structure.
         """
-        return self.analyzer.get_oxi_state_decorated_structure(structure)
+        try:
+            return self.analyzer.get_oxi_state_decorated_structure(structure)
+        except ValueError as er:
+            if self.zeros_on_fail:
+                struct_ = structure.copy()
+                struct_.add_oxidation_state_by_site([0] * len(struct_))
+                return struct_
+            raise ValueError(f"BVAnalyzer failed with error: {er}")
 
 
 class OxidationStateRemovalTransformation(AbstractTransformation):
@@ -219,7 +233,7 @@ class SupercellTransformation(AbstractTransformation):
 
         # Try to find a scaling_matrix satisfying the required boundary distance with smaller cell.
         if allow_rotation and sum(min_expand != 0) > 1:
-            min1, min2, min3 = map(int, min_expand)
+            min1, min2, min3 = map(int, min_expand)  # type: ignore[call-overload]
             scaling_matrix = [
                 [min1 or 1, 1 if min1 and min2 else 0, 1 if min1 and min3 else 0],
                 [-1 if min2 and min1 else 0, min2 or 1, 1 if min2 and min3 else 0],
@@ -440,8 +454,17 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     ALGO_FAST = 0
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
+    ALGO_RANDOM = -1
 
-    def __init__(self, algo=ALGO_FAST, symmetrized_structures=False, no_oxi_states=False):
+    def __init__(
+        self,
+        algo: int = ALGO_FAST,
+        symmetrized_structures: bool = False,
+        no_oxi_states: bool = False,
+        occ_tol: float = 0.25,
+        symprec: float | None = None,
+        angle_tolerance: float | None = None,
+    ):
         """
         Args:
             algo (int): Algorithm to use.
@@ -450,13 +473,27 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 should be used for the grouping of sites.
             no_oxi_states (bool): Whether to remove oxidation states prior to
                 ordering.
+            occ_tol (float): Occupancy tolerance. If the total occupancy of a group is within this value
+                of an integer, it will be rounded to that integer otherwise raise a ValueError.
+                Defaults to 0.25.
+            symprec : float or None (default)
+                If a float, and symmetrized_structures is True, the linear tolerance
+                used to symmetrize structures with SpacegroupAnalyzer.
+            angle_tolerance : float or None (default)
+                If a float, and symmetrized_structures is True, the angle tolerance
+                used to symmetrize structures with SpacegroupAnalyzer.
         """
         self.algo = algo
         self._all_structures: list = []
         self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
+        self.symprec = symprec
+        self.angle_tolerance = angle_tolerance
+        self.occ_tol = occ_tol
 
-    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False) -> Structure:
+    def apply_transformation(
+        self, structure: Structure | SymmetrizedStructure, return_ranked_list: bool | int = False
+    ) -> Structure | list[Structure] | list[dict[str, Any]]:
         """For this transformation, the apply_transformation method will return
         only the ordered structure with the lowest Ewald energy, to be
         consistent with the method signature of the other transformations.
@@ -491,6 +528,11 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             for idx, site in enumerate(structure):
                 structure[idx] = {f"{k.symbol}0+": v for k, v in site.species.items()}  # type: ignore[assignment]
 
+        if self.symmetrized_structures and not isinstance(structure, SymmetrizedStructure):
+            structure = SpacegroupAnalyzer(
+                structure, **{k: getattr(self, k) for k in ("symprec", "angle_tolerance") if getattr(self, k, None)}
+            ).get_symmetrized_structure()
+
         equivalent_sites: list[list[int]] = []
         exemplars: list[PeriodicSite] = []
         # generate list of equivalent sites to order
@@ -504,7 +546,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if not site.species.almost_equals(sp):
                     continue
                 if self.symmetrized_structures:
-                    sym_equiv = structure.find_equivalent_sites(ex)
+                    sym_equiv = structure.find_equivalent_sites(ex)  # type:ignore[attr-defined]
                     sym_test = site in sym_equiv
                 else:
                     sym_test = True
@@ -518,6 +560,17 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         # generate the list of manipulations and input structure
         struct = Structure.from_sites(structure)
 
+        # We will first create an initial ordered structure by filling all sites
+        # with the species that has the highest oxidation state (initial_sp)
+        # replacing all other species on a given site.
+        # then, we process a list of manipulations to get the final structure.
+        # The manipulations are of the format:
+        # [oxi_ratio, 1, [0,1,2,3], Li+]
+        # which means -- Place 1 Li+ in any of these 4 sites
+        # the oxi_ratio is the ratio of the oxidation state of the species to
+        # the initial species. This is used to determine the energy of the
+        # manipulation in the EwaldMinimizer, but is not used in the purely random
+        # algorithm.
         manipulations = []
         for group in equivalent_sites:
             total_occupancy = dict(
@@ -525,24 +578,34 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             )
             # round total occupancy to possible values
             for key, val in total_occupancy.items():
-                if abs(val - round(val)) > 0.25:
+                if abs(val - round(val)) > self.occ_tol:
                     raise ValueError("Occupancy fractions not consistent with size of unit cell")
-                total_occupancy[key] = int(round(val))
+                total_occupancy[key] = round(val)
             # start with an ordered structure
-            initial_sp = max(total_occupancy, key=lambda x: abs(x.oxi_state))
+            initial_sp = max(total_occupancy, key=lambda x: abs(x.oxi_state))  # type:ignore[arg-type]
             for idx in group:
                 struct[idx] = initial_sp
             # determine the manipulations
             for key, val in total_occupancy.items():
                 if key == initial_sp:
                     continue
-                oxi_ratio = key.oxi_state / initial_sp.oxi_state if initial_sp.oxi_state else 0
+                oxi_ratio = key.oxi_state / initial_sp.oxi_state if initial_sp.oxi_state else 0  # type:ignore[operator]
                 manipulation = [oxi_ratio, val, list(group), key]
                 manipulations.append(manipulation)
             # determine the number of empty sites
             empty = len(group) - sum(total_occupancy.values())
             if empty > 0.5:
                 manipulations.append([0, empty, list(group), None])
+
+        if self.algo == self.ALGO_RANDOM:
+            rand_structures = get_randomly_manipulated_structures(
+                struct=struct, manipulations=manipulations, n_return=n_to_return
+            )
+            if return_ranked_list:
+                return [
+                    {"energy": 0.0, "energy_above_minimum": 0.0, "structure": s} for s in rand_structures[:n_to_return]
+                ]
+            return rand_structures[0]
 
         matrix = EwaldSummation(struct).total_energy_matrix
         ewald_m = EwaldMinimizer(matrix, manipulations, n_to_return, self.algo)
@@ -561,8 +624,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if manipulation[1] is None:
                     del_indices.append(manipulation[0])
                 else:
-                    struct_copy[manipulation[0]] = manipulation[1]
-            struct_copy.remove_sites(del_indices)
+                    struct_copy[manipulation[0]] = manipulation[1]  # type:ignore[index, assignment]
+            struct_copy.remove_sites(del_indices)  # type:ignore[arg-type]
 
             if self.no_oxi_states:
                 struct_copy.remove_oxidation_states()
@@ -671,9 +734,8 @@ class PerturbStructureTransformation(AbstractTransformation):
             distance: Distance of perturbation in angstroms. All sites
                 will be perturbed by exactly that distance in a random
                 direction.
-            min_distance: if None, all displacements will be equidistant. If int
-                or float, perturb each site a distance drawn from the uniform
-                distribution between 'min_distance' and 'distance'.
+            min_distance: Minimum distance for the perturbation range. Defaults to None, which means all
+            perturbations are the same magnitude.
         """
         self.distance = distance
         self.min_distance = min_distance
@@ -771,7 +833,7 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
                 old_occ = sp[k]
                 new_occ = float(Fraction(old_occ).limit_denominator(self.max_denominator))
                 if self.fix_denominator:
-                    new_occ = around(old_occ * self.max_denominator) / self.max_denominator
+                    new_occ = np.around(old_occ * self.max_denominator) / self.max_denominator
                 if round(abs(old_occ - new_occ), 6) > self.tol:
                     raise RuntimeError("Cannot discretize structure within tolerance!")
                 sp[k] = new_occ
@@ -880,3 +942,80 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
 
     def __repr__(self):
         return "ScaleToRelaxedTransformation"
+
+
+def _sample_random_manipulation(manipulation, rng, manipulated) -> list[tuple[int, SpeciesLike]]:
+    """Sample a single random manipulation.
+
+    Each manipulation is given in the form of a tuple
+    `(oxi_ratio, nsites, indices, sp)` where:
+    Which means choose nsites from the list of indices and replace them
+    With the species `sp`.
+    """
+    _, nsites, indices, sp = manipulation
+    maniped_indices = [i for i, _ in manipulated]
+    allowed_sites = [i for i in indices if i not in maniped_indices]
+    if len(allowed_sites) < nsites:
+        raise RuntimeError(
+            "No valid manipulations possible. "
+            f" You have already applied a manipulation to each site in this group {indices}"
+        )
+    sampled_sites = rng.choice(allowed_sites, nsites, replace=False).tolist()
+    sampled_sites.sort()
+    return [(i, sp) for i in sampled_sites]
+
+
+def _get_manipulation(manipulations: list, rng: Generator, max_attempts, seen: set[tuple]) -> tuple:
+    """Apply each manipulation."""
+    for _ in range(max_attempts):
+        manipulated: list[tuple] = []
+        for manip_ in manipulations:
+            new_manips = _sample_random_manipulation(manip_, rng, manipulated)
+            manipulated += new_manips
+        tm_ = tuple(manipulated)
+        if tm_ not in seen:
+            return tm_
+    raise RuntimeError(
+        "Could not apply manipulations to structure"
+        "this is likely because you have already applied all the possible manipulations"
+    )
+
+
+def _apply_manip(struct, manipulations) -> Structure:
+    """Apply manipulations to a structure."""
+    struct_copy = struct.copy()
+    rm_indices = []
+    for manip in manipulations:
+        idx, sp = manip
+        if sp is None:
+            rm_indices.append(idx)
+        else:
+            struct_copy.replace(idx, sp)
+    struct_copy.remove_sites(rm_indices)
+    return struct_copy
+
+
+def get_randomly_manipulated_structures(
+    struct: Structure, manipulations: list, seed=None, n_return: int = 1
+) -> list[Structure]:
+    """Get a structure with random manipulations applied.
+
+    Args:
+        struct: Input structure
+        manipulations: List of manipulations to apply
+        seed: Seed for random number generator
+        n_return: Number of structures to return
+
+    Returns:
+        List of structures with manipulations applied.
+    """
+    rng = np.random.default_rng(seed)
+    seen: set[tuple] = set()
+    sampled_manips = []
+
+    for _ in range(n_return):
+        manip_ = _get_manipulation(manipulations, rng, 1000, seen)
+        seen.add(manip_)
+        sampled_manips.append(manip_)
+
+    return [_apply_manip(struct, manip) for manip in sampled_manips]

@@ -26,7 +26,7 @@ from pymatgen.io.abinit.variable import InputVariable
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 logger = logging.getLogger(__name__)
 
@@ -98,9 +98,9 @@ class T(NamedTuple):
 
 
 _tolerances = {
-    "toldfe": T(1.0e-7, 1.0e-8, 1.0e-9),
-    "tolvrs": T(1.0e-7, 1.0e-8, 1.0e-9),
-    "tolwfr": T(1.0e-15, 1.0e-17, 1.0e-19),
+    "toldfe": T(1e-7, 1e-8, 1e-9),
+    "tolvrs": T(1e-7, 1e-8, 1e-9),
+    "tolwfr": T(1e-15, 1e-17, 1e-19),
     "tolrff": T(0.04, 0.02, 0.01),
 }
 del T
@@ -617,7 +617,7 @@ class AbstractInput(MutableMapping, abc.ABC):
         os.makedirs(dirname, exist_ok=True)
 
         # Write the input file.
-        with open(filepath, mode="w") as file:
+        with open(filepath, mode="w", encoding="utf-8") as file:
             file.write(str(self))
 
     def deepcopy(self):
@@ -753,7 +753,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             pseudo_dir = os.path.abspath(pseudo_dir)
             if not os.path.isdir(pseudo_dir):
                 raise self.Error(f"Directory {pseudo_dir} does not exist")
-            pseudos = [os.path.join(pseudo_dir, p) for p in pseudos]
+            pseudos = [os.path.join(pseudo_dir, p) for p in pseudos]  # type:ignore[arg-type]
 
         try:
             self._pseudos = PseudoTable.as_table(pseudos).get_pseudos_for_structure(self.structure)

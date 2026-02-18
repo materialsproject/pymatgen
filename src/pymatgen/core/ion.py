@@ -3,16 +3,16 @@
 from __future__ import annotations
 
 import re
-from copy import deepcopy
 from typing import TYPE_CHECKING
 
+from monty.dev import deprecated
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition, reduce_formula
 from pymatgen.util.string import Stringify, charge_string, formula_double_format
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 
 class Ion(Composition, MSONable, Stringify):
@@ -109,7 +109,7 @@ class Ion(Composition, MSONable, Stringify):
     def formula(self) -> str:
         """A formula string with appended charge. The
         charge is written with the sign preceding the magnitude, e.g.
-        'Ca1 +2'. Uncharged species have "(aq)" appended, e.g. "O2 (aq)".
+        "Ca1 +2". Uncharged species have "(aq)" appended, e.g. "O2 (aq)".
         """
         formula = super().formula
         return f"{formula} {charge_string(self.charge, brackets=False)}"
@@ -132,8 +132,8 @@ class Ion(Composition, MSONable, Stringify):
 
         Similar to Composition.get_reduced_formula_and_factor except that O-H formulas
         receive special handling to differentiate between hydrogen peroxide and OH-.
-        Formulas containing HO are written with oxygen first (e.g. 'Fe(OH)2' rather than
-        'Fe(HO)2'), and special formulas that apply to solids (e.g. Li2O2 instead of LiO)
+        Formulas containing HO are written with oxygen first (e.g. "Fe(OH)2" rather than
+        "Fe(HO)2"), and special formulas that apply to solids (e.g. Li2O2 instead of LiO)
         are not used.
 
         Note that the formula returned by this method does not contain a charge.
@@ -141,7 +141,7 @@ class Ion(Composition, MSONable, Stringify):
 
         Args:
             iupac_ordering (bool, optional): Whether to order the
-                formula by the iupac "electronegativity" series, defined in
+                formula by the IUPAC "electronegativity" series, defined in
                 Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
                 Recommendations 2005)". This ordering effectively follows
                 the groups and rows of the periodic table, except the
@@ -155,7 +155,7 @@ class Ion(Composition, MSONable, Stringify):
 
         Returns:
             tuple[str, float]: A pretty normalized formula and a multiplicative factor, i.e.,
-                H4O4 returns ('H2O2', 2.0).
+                H4O4 returns ("H2O2", 2.0).
         """
         all_int = all(abs(val - round(val)) < Composition.amount_tolerance for val in self.values())
         if not all_int:
@@ -171,8 +171,9 @@ class Ion(Composition, MSONable, Stringify):
                 nH2O = int(nO) if nH >= 2 * nO else int(nH) // 2
                 comp = self.composition - nH2O * Composition("H2O")
 
-        el_amt_dict = {k: int(round(v)) for k, v in comp.get_el_amt_dict().items()}
-        formula, factor = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
+        el_amt_dict = {k: round(v) for k, v in comp.get_el_amt_dict().items()}
+        formula, factor_int = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
+        factor = float(factor_int)
 
         # This line checks specifically that the contains an equal amount of O and H. When that is the case,
         # they should be displayed as "OH" rather than "HO".
@@ -247,7 +248,7 @@ class Ion(Composition, MSONable, Stringify):
     def reduced_formula(self) -> str:
         """A reduced formula string with appended charge. The
         charge is placed in brackets with the sign preceding the magnitude, e.g.
-        'Ca[+2]'. Uncharged species have "(aq)" appended, e.g. "O2(aq)".
+        "Ca[+2]". Uncharged species have "(aq)" appended, e.g. "O2(aq)".
         """
         formula, factor = self.get_reduced_formula_and_factor()
         charge = self._charge / factor
@@ -277,27 +278,41 @@ class Ion(Composition, MSONable, Stringify):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict[str, float]) -> Self:
         """Generate an ion object from a dict created by as_dict().
 
         Args:
             dct: {symbol: amount} dict.
         """
-        dct_copy = deepcopy(dct)
+        dct_copy = dict(dct)
         charge = dct_copy.pop("charge")
         composition = Composition(dct_copy)
         return cls(composition, charge)
 
-    @property
-    def to_reduced_dict(self) -> dict:
+    def as_reduced_dict(self) -> dict[str, float]:
         """
         Returns:
             dict with element symbol and reduced amount e.g.
-                {"Fe": 2.0, "O":3.0}.
+                {"Fe": 2.0, "O": 3.0}.
         """
-        dct = self.composition.to_reduced_dict
-        dct["charge"] = self.charge
-        return dct
+        unreduced = self.composition.as_dict()
+        reduced = self.composition.as_reduced_dict()
+
+        # Determine the reduction factor
+        factor: float = 1
+        for el in reduced:
+            if el in unreduced:
+                factor = unreduced[el] / reduced[el]
+                break
+
+        reduced["charge"] = self.charge / factor
+        return reduced
+
+    @property
+    @deprecated(as_reduced_dict, deadline=(2026, 4, 4))
+    def to_reduced_dict(self) -> dict[str, float]:
+        """Deprecated."""
+        return self.as_reduced_dict()
 
     @property
     def composition(self) -> Composition:

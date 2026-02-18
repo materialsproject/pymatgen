@@ -12,10 +12,11 @@ import os
 from enum import Enum, unique
 from typing import TYPE_CHECKING
 
+import orjson
 from monty.json import MontyEncoder
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 
 __author__ = "Matteo Giantomassi"
@@ -27,8 +28,8 @@ __status__ = "Production"
 __date__ = "May 16, 2016"
 
 # Load libxc info from JSON file
-with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"), encoding="utf-8") as file:
-    _all_xcfuncs = {int(k): v for k, v in json.load(file).items()}
+with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"), "rb") as file:
+    _all_xcfuncs = {int(k): v for k, v in orjson.loads(file.read()).items()}
 
 
 @unique

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import functools
 import itertools
-import json
 import logging
 import math
 import os
@@ -12,13 +11,14 @@ from collections import defaultdict
 from operator import mul
 from typing import TYPE_CHECKING
 
+import orjson
 from monty.design_patterns import cached_class
 
 from pymatgen.core import Species, get_el_sp
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.util.typing import SpeciesLike
 
@@ -28,6 +28,8 @@ __version__ = "1.2"
 __maintainer__ = "Will Richards"
 __email__ = "wrichard@mit.edu"
 __date__ = "Aug 31, 2012"
+
+logger = logging.getLogger(__name__)
 
 
 @due.dcite(
@@ -59,8 +61,8 @@ class SubstitutionProbability:
         else:
             module_dir = os.path.dirname(__file__)
             json_file = f"{module_dir}/data/lambda.json"
-            with open(json_file) as file:
-                self._lambda_table = json.load(file)
+            with open(json_file, "rb") as file:
+                self._lambda_table = orjson.loads(file.read())
 
         # build map of specie pairs to lambdas
         self.alpha = alpha
@@ -244,7 +246,7 @@ class SubstitutionPredictor:
                     _recurse([*output_prob, prob], [*output_species, sp])
 
         _recurse([], [])
-        logging.info(f"{len(output)} substitutions found")
+        logger.info(f"{len(output)} substitutions found")
         return output
 
     def composition_prediction(self, composition, to_this_composition=True):
@@ -275,5 +277,5 @@ class SubstitutionPredictor:
                 charge += subs[k].oxi_state * v
             if abs(charge) < 1e-8:
                 output.append(p)
-        logging.info(f"{len(output)} charge balanced substitutions found")
+        logger.info(f"{len(output)} charge balanced substitutions found")
         return output

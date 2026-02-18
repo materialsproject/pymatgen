@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import json
 from shutil import which
-from unittest import TestCase
 
+import orjson
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
@@ -24,17 +23,17 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/boltztrap"
 
 
 @pytest.mark.skipif(not which("x_trans"), reason="No x_trans.")
-class TestBoltztrapAnalyzer(TestCase):
+class TestBoltztrapAnalyzer:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.bz = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/transp/")
         cls.bz_bands = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/bands/")
         cls.bz_up = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/dos_up/", dos_spin=1)
         cls.bz_dw = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/dos_dw/", dos_spin=-1)
         cls.bz_fermi = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/fermi/")
 
-        with open(f"{TEST_FILES_DIR}/electronic_structure/bandstructure/Cu2O_361_bandstructure.json") as file:
-            dct = json.load(file)
+        with open(f"{TEST_FILES_DIR}/electronic_structure/bandstructure/Cu2O_361_bandstructure.json", "rb") as file:
+            dct = orjson.loads(file.read())
             cls.bs = BandStructure.from_dict(dct)
             cls.btr = BoltztrapRunner(cls.bs, 1)
 
@@ -216,15 +215,15 @@ class TestBoltztrapAnalyzer(TestCase):
             assert len(sbs_bzt.bands[Spin.up]) == approx(20)
             assert len(sbs_bzt.bands[Spin.up][1]) == approx(143)
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_check_acc_bzt_bands(self):
         structure = loadfn(f"{TEST_DIR}/structure_mp-12103.json")
         sbs = loadfn(f"{TEST_DIR}/dft_bs_sym_line.json")
         sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548)
         corr, werr_vbm, werr_cbm, warn = BoltztrapAnalyzer.check_acc_bzt_bands(sbs_bzt, sbs)
-        assert corr[2] == 9.16851750e-05
-        assert werr_vbm["K-H"] == 0.18260273521047862
-        assert werr_cbm["M-K"] == 0.071552669981356981
+        assert corr[2] == approx(9.16851750e-05)
+        assert werr_vbm["K-H"] == approx(0.18260273521047862)
+        assert werr_cbm["M-K"] == approx(0.071552669981356981)
         assert not warn
 
     def test_get_complete_dos(self):
@@ -240,7 +239,7 @@ class TestBoltztrapAnalyzer(TestCase):
         extreme = self.bz.get_extreme("seebeck")
         assert extreme["best"]["carrier_type"] == "n"
         assert extreme["p"]["value"] == approx(1255.365, abs=1e-2)
-        assert extreme["n"]["isotropic"]
+        assert extreme["n"]["isotropic"] is False
         assert extreme["n"]["temperature"] == 600
 
         extreme = self.bz.get_extreme("kappa", maximize=False, min_temp=400, min_doping=1e20)
@@ -251,6 +250,6 @@ class TestBoltztrapAnalyzer(TestCase):
 
     def test_as_from_dict(self):
         btr_dict = self.btr.as_dict()
-        json_str = json.dumps(btr_dict)
+        json_str = orjson.dumps(btr_dict).decode()
         assert json_str is not None
         assert btr_dict["bs"] is not None

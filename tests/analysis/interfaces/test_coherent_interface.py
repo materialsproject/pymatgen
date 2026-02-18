@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 from numpy.testing import assert_allclose
 
 from pymatgen.analysis.interfaces.coherent_interfaces import (
@@ -14,12 +12,12 @@ from pymatgen.analysis.interfaces.substrate_analyzer import SubstrateAnalyzer
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestInterfaceBuilder(PymatgenTest):
+class TestInterfaceBuilder(MatSciTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         si_struct = cls.get_structure("Si")
         sio2_struct = cls.get_structure("SiO2")
         cls.si_conventional = SpacegroupAnalyzer(si_struct).get_conventional_standard_structure()
@@ -51,8 +49,8 @@ class TestInterfaceBuilder(PymatgenTest):
         assert len(list(builder.get_interfaces(termination=("O2_Pmmm_1", "Si_R-3m_1")))) >= 6
 
 
-class TestCoherentInterfaceBuilder(unittest.TestCase):
-    def setUp(self):
+class TestCoherentInterfaceBuilder:
+    def setup_method(self):
         # build substrate & film structure
         basis = [[0, 0, 0], [0.25, 0.25, 0.25]]
         self.substrate = Structure(Lattice.cubic(a=5.431), ["Si", "Si"], basis)
@@ -61,7 +59,7 @@ class TestCoherentInterfaceBuilder(unittest.TestCase):
     def test_termination_searching(self):
         sub_analyzer = SubstrateAnalyzer()
         matches = list(sub_analyzer.calculate(substrate=self.substrate, film=self.film))
-        cib = CoherentInterfaceBuilder(
+        cib1 = CoherentInterfaceBuilder(
             film_structure=self.film,
             substrate_structure=self.substrate,
             film_miller=matches[0].film_miller,
@@ -71,9 +69,24 @@ class TestCoherentInterfaceBuilder(unittest.TestCase):
             label_index=True,
             filter_out_sym_slabs=False,
         )
-        assert cib.terminations == [
+        cib2 = CoherentInterfaceBuilder(
+            film_structure=self.film,
+            substrate_structure=self.substrate,
+            film_miller=matches[0].film_miller,
+            substrate_miller=matches[0].substrate_miller,
+            zslgen=sub_analyzer,
+            termination_ftol=(2, 0.1),
+            label_index=True,
+            filter_out_sym_slabs=False,
+        )
+        assert cib1.terminations == [
             ("1_Ge_P4/mmm_1", "1_Si_P4/mmm_1"),
             ("1_Ge_P4/mmm_1", "2_Si_P4/mmm_1"),
             ("2_Ge_P4/mmm_1", "1_Si_P4/mmm_1"),
             ("2_Ge_P4/mmm_1", "2_Si_P4/mmm_1"),
-        ], "termination results wrong"
+        ], "cib1 termination results wrong"
+
+        assert cib2.terminations == [
+            ("1_Ge_C2/m_2", "1_Si_P4/mmm_1"),
+            ("1_Ge_C2/m_2", "2_Si_P4/mmm_1"),
+        ], "cib2 termination results wrong"

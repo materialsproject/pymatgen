@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import pandas as pd
+from pytest import approx
 
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 from pymatgen.core.structure import Structure
@@ -11,9 +10,9 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
 
 
-class TestHeisenbergMapper(TestCase):
+class TestHeisenbergMapper:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.df = pd.read_json(f"{TEST_DIR}/mag_orderings_test_cases.json")
 
         # Good tests
@@ -47,7 +46,7 @@ class TestHeisenbergMapper(TestCase):
             assert n_interacts == 3
 
             dists = hm.dists
-            assert dists["nn"] == 2.51
+            assert dists["nn"] == approx(2.51)
 
     def test_exchange_params(self):
         for hm in self.hms:

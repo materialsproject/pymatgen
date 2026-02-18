@@ -166,8 +166,8 @@ class TranslateSitesTransformation(AbstractTransformation):
         """
         struct = structure.copy()
         if self.translation_vector.shape == (len(self.indices_to_move), 3):
-            for idx, idx in enumerate(self.indices_to_move):
-                struct.translate_sites(idx, self.translation_vector[idx], self.vector_in_frac_coords)
+            for idx, idx_to_move in enumerate(self.indices_to_move):
+                struct.translate_sites(idx_to_move, self.translation_vector[idx], self.vector_in_frac_coords)
         else:
             struct.translate_sites(
                 self.indices_to_move,
@@ -396,7 +396,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         for indices, fraction in zip(self.indices, self.fractions, strict=True):
             for ind in indices:
                 new_sp = {sp: occu * fraction for sp, occu in structure[ind].species.items()}
-                struct[ind] = new_sp
+                struct[ind] = new_sp  # type: ignore[assignment]
         # Perform enumeration
         from pymatgen.transformations.advanced_transformations import EnumerateStructureTransformation
 
@@ -426,14 +426,12 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         total_combos = 0
         for idx, frac in zip(self.indices, self.fractions, strict=True):
             n_to_remove = len(idx) * frac
-            if abs(n_to_remove - int(round(n_to_remove))) > 1e-3:
+            if abs(n_to_remove - round(n_to_remove)) > 1e-3:
                 raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")
-            n_to_remove = int(round(n_to_remove))
+            n_to_remove = round(n_to_remove)
             num_remove_dict[tuple(idx)] = n_to_remove
             n = len(idx)
-            total_combos += int(
-                round(math.factorial(n) / math.factorial(n_to_remove) / math.factorial(n - n_to_remove))
-            )
+            total_combos += round(math.factorial(n) / math.factorial(n_to_remove) / math.factorial(n - n_to_remove))
 
         self.logger.debug(f"Total combinations = {total_combos}")
 

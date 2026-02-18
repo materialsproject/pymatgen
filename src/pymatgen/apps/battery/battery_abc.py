@@ -14,10 +14,11 @@ from typing import TYPE_CHECKING
 from monty.json import MSONable
 from scipy.constants import N_A
 
-from pymatgen.core import Composition, Element
+from pymatgen.core import Composition
 
 if TYPE_CHECKING:
-    from pymatgen.entries.computed_entries import ComputedEntry
+    from pymatgen.entries import Entry
+    from pymatgen.util.typing import SpeciesLike
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -53,7 +54,7 @@ class AbstractVoltagePair(MSONable):
     vol_discharge: float
     frac_charge: float
     frac_discharge: float
-    working_ion_entry: ComputedEntry
+    working_ion_entry: Entry
     framework_formula: str
 
     def __post_init__(self):
@@ -62,7 +63,7 @@ class AbstractVoltagePair(MSONable):
         self.framework_formula = fw.reduced_formula
 
     @property
-    def working_ion(self) -> Element:
+    def working_ion(self) -> SpeciesLike:
         """Working ion as pymatgen Element object."""
         return self.working_ion_entry.elements[0]
 
@@ -128,7 +129,7 @@ class AbstractElectrode(Sequence, MSONable):
     """
 
     voltage_pairs: tuple[AbstractVoltagePair, ...]
-    working_ion_entry: ComputedEntry
+    working_ion_entry: Entry
     framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
 
     def __post_init__(self):

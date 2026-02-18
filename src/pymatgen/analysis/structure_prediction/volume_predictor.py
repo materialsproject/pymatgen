@@ -92,7 +92,7 @@ class RLSVolumePredictor:
 
                 return ref_structure.volume * (numerator / denominator) ** 3
             except Exception:
-                warnings.warn("Exception occurred. Will attempt atomic radii.")
+                warnings.warn("Exception occurred. Will attempt atomic radii.", stacklevel=2)
                 # If error occurs during use of ionic radii scheme, pass
                 # and see if we can resolve it using atomic radii.
 
@@ -180,10 +180,10 @@ class DLSVolumePredictor:
             if sp.atomic_radius:
                 sub_sites.extend([site for site in structure if site.specie == sp])
             else:
-                warnings.warn(f"VolumePredictor: no atomic radius data for {sp}")
+                warnings.warn(f"VolumePredictor: no atomic radius data for {sp}", stacklevel=2)
 
             if sp.symbol not in bond_params:
-                warnings.warn(f"VolumePredictor: bond parameters not found, used atomic radii for {sp}")
+                warnings.warn(f"VolumePredictor: bond parameters not found, used atomic radii for {sp}", stacklevel=2)
             else:
                 r, k = bond_params[sp.symbol]["r"], bond_params[sp.symbol]["k"]
                 bp_dict[sp] = float(r) + float(k) * std_x

@@ -23,7 +23,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 __author__ = "ncfrey"
 __version__ = "0.1"
@@ -31,6 +31,8 @@ __maintainer__ = "Nathan C. Frey"
 __email__ = "ncfrey@lbl.gov"
 __status__ = "Development"
 __date__ = "June 2019"
+
+logger = logging.getLogger(__name__)
 
 
 class HeisenbergMapper:
@@ -320,6 +322,8 @@ class HeisenbergMapper:
 
                 # Ignore the row if it is a duplicate to avoid singular matrix
                 # Create a temporary DataFrame with the new row
+                ex_mat = ex_mat.dropna(how="all", axis=1)
+                ex_row = ex_row.dropna(how="all", axis=1)
                 temp_df = pd.concat([ex_mat, ex_row], ignore_index=True)
                 if temp_df[j_columns].equals(temp_df[j_columns].drop_duplicates(keep="first")):
                     e_index = self.ordered_structures.index(sgraph.structure)
@@ -473,7 +477,7 @@ class HeisenbergMapper:
 
         # If m_avg for FM config is < 1 we won't get sensible results.
         if m_avg < 1:
-            logging.warning(
+            logger.warning(
                 "Local magnetic moments are small (< 1 muB / atom). The exchange parameters may "
                 "be wrong, but <J> and the mean field critical temperature estimate may be OK."
             )
@@ -520,9 +524,8 @@ class HeisenbergMapper:
             mft_t = max(eigen_vals)
 
         if mft_t > 1500:  # Not sensible!
-            logging.warning(
-                "This mean field estimate is too high! Probably "
-                "the true low energy orderings were not given as inputs."
+            logger.warning(
+                "This mean field estimate is too high! Probably the true low energy orderings were not given as inputs."
             )
 
         return mft_t
@@ -549,7 +552,7 @@ class HeisenbergMapper:
                 Only <J> is available. The interaction graph will not tell
                 you much.
                 """
-            logging.warning(warning_msg)
+            logger.warning(warning_msg)
 
         # J_ij exchange interaction matrix
         for idx in range(len(sgraph.graph.nodes)):
@@ -904,12 +907,8 @@ class HeisenbergModel(MSONable):
             wyckoff_ids[literal_eval(k)] = v
 
         # Reconstitute the structure and graph objects
-        structures = []
-        sgraphs = []
-        for v in dct["structures"]:
-            structures.append(Structure.from_dict(v))
-        for v in dct["sgraphs"]:
-            sgraphs.append(StructureGraph.from_dict(v))
+        structures = [Structure.from_dict(v) for v in dct["structures"]]
+        sgraphs = [StructureGraph.from_dict(v) for v in dct["sgraphs"]]
 
         # Interaction graph
         igraph = StructureGraph.from_dict(dct["igraph"])

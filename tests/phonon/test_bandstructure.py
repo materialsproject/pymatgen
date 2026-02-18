@@ -1,26 +1,26 @@
 from __future__ import annotations
 
 import copy
-import json
 
+import orjson
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 
-class TestPhononBandStructureSymmLine(PymatgenTest):
-    def setUp(self):
-        with open(f"{TEST_DIR}/NaCl_phonon_bandstructure.json") as file:
-            dct = json.load(file)
+class TestPhononBandStructureSymmLine(MatSciTest):
+    def setup_method(self):
+        with open(f"{TEST_DIR}/NaCl_phonon_bandstructure.json", "rb") as file:
+            dct = orjson.loads(file.read())
         self.bs = PhononBandStructureSymmLine.from_dict(dct)
 
-        with open(f"{TEST_DIR}/Si_phonon_bandstructure.json") as file:
-            dct = json.load(file)
+        with open(f"{TEST_DIR}/Si_phonon_bandstructure.json", "rb") as file:
+            dct = orjson.loads(file.read())
         self.bs2 = PhononBandStructureSymmLine.from_dict(dct)
 
     def test_repr(self):
@@ -44,7 +44,7 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
             self.bs.eigendisplacements[3][50][0],
             [0.0 + 0.0j, 0.14166569 + 0.04098339j, -0.14166569 - 0.04098339j],
         )
-        assert self.bs.has_eigendisplacements, True
+        assert self.bs.has_eigendisplacements
 
         assert_allclose(self.bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897])
 
@@ -90,13 +90,13 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
     def test_dict_methods(self):
         dct = self.bs.as_dict()
         assert dct is not None
-        assert json.dumps(dct) is not None
+        assert orjson.dumps(dct).decode() is not None
         dct = self.bs2.as_dict()
         assert dct is not None
-        assert json.dumps(dct) is not None
+        assert orjson.dumps(dct).decode() is not None
         dct = self.bs2.as_phononwebsite()
         assert dct is not None
-        assert json.dumps(dct) is not None
+        assert orjson.dumps(dct, option=orjson.OPT_SERIALIZE_NUMPY).decode() is not None
         self.assert_msonable(self.bs)
         self.assert_msonable(self.bs2)
 

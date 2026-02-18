@@ -18,9 +18,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Literal
 
-    from numpy.typing import ArrayLike
-
-    from pymatgen.util.typing import PbcLike
+    from numpy.typing import ArrayLike, NDArray
 
 
 # array size threshold for looping instead of broadcasting
@@ -102,7 +100,7 @@ def coord_list_mapping(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-
     return inds
 
 
-def coord_list_mapping_pbc(subset, superset, atol: float = 1e-8, pbc: PbcLike = (True, True, True)):
+def coord_list_mapping_pbc(subset, superset, atol: float = 1e-8, pbc: tuple[bool, bool, bool] = (True, True, True)):
     """Get the index mapping from a subset to a superset.
     Superset cannot contain duplicate matching rows.
 
@@ -116,8 +114,7 @@ def coord_list_mapping_pbc(subset, superset, atol: float = 1e-8, pbc: PbcLike = 
     Returns:
         list of indices such that superset[indices] = subset
     """
-    atol = np.ones(3) * atol
-    return coord_cython.coord_list_mapping_pbc(subset, superset, atol, pbc)
+    return coord_cython.coord_list_mapping_pbc(subset, superset, np.ones(3) * atol, pbc)
 
 
 def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: float) -> float:
@@ -133,12 +130,12 @@ def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: f
     Returns:
         Value at x.
     """
-    arr = np.array(sorted(zip(x_values, y_values, strict=True), key=lambda d: d[0]))
+    arr = np.array(sorted(zip(x_values, y_values, strict=True), key=lambda d: d[0]))  # type:ignore[arg-type,return-value]
 
-    indices = np.where(arr[:, 0] >= x)[0]
+    indices = np.where(arr[:, 0] > x)[0]
 
     if len(indices) == 0 or indices[0] == 0:
-        raise ValueError(f"{x=} is out of range of provided x_values ({min(x_values)}, {max(x_values)})")
+        raise ValueError(f"{x} is out of range of provided x_values ({min(x_values)}, {max(x_values)})")  # type:ignore[type-var,arg-type,str-bytes-safe]
 
     idx = indices[0]
     x1, x2 = arr[idx - 1][0], arr[idx][0]
@@ -164,7 +161,7 @@ def all_distances(coords1: ArrayLike, coords2: ArrayLike) -> np.ndarray:
     return np.sum(z, axis=-1) ** 0.5
 
 
-def pbc_diff(frac_coords1: ArrayLike, frac_coords2: ArrayLike, pbc: PbcLike = (True, True, True)):
+def pbc_diff(frac_coords1: ArrayLike, frac_coords2: ArrayLike, pbc: tuple[bool, bool, bool] = (True, True, True)):
     """Get the 'fractional distance' between two coordinates taking into
     account periodic boundary conditions.
 
@@ -209,7 +206,7 @@ def pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask=None, return_
 
 
 def find_in_coord_list_pbc(
-    frac_coord_list, frac_coord, atol: float = 1e-8, pbc: PbcLike = (True, True, True)
+    frac_coord_list, frac_coord, atol: float = 1e-8, pbc: tuple[bool, bool, bool] = (True, True, True)
 ) -> np.ndarray:
     """Get the indices of all points in a fractional coord list that are
     equal to a fractional coord (with a tolerance), taking into account
@@ -226,14 +223,16 @@ def find_in_coord_list_pbc(
         Indices of matches, e.g. [0, 1, 2, 3]. Empty list if not found.
     """
     if len(frac_coord_list) == 0:
-        return []
+        return np.array([], dtype=np.int_)
     frac_coords = np.tile(frac_coord, (len(frac_coord_list), 1))
     frac_dist = frac_coord_list - frac_coords
     frac_dist[:, pbc] -= np.round(frac_dist)[:, pbc]
     return np.where(np.all(np.abs(frac_dist) < atol, axis=1))[0]
 
 
-def in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: PbcLike = (True, True, True)) -> bool:
+def in_coord_list_pbc(
+    fcoord_list, fcoord, atol: float = 1e-8, pbc: tuple[bool, bool, bool] = (True, True, True)
+) -> bool:
     """Test if a particular fractional coord is within a fractional coord_list.
 
     Args:
@@ -249,7 +248,9 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: PbcLike = (T
     return len(find_in_coord_list_pbc(fcoord_list, fcoord, atol=atol, pbc=pbc)) > 0
 
 
-def is_coord_subset_pbc(subset, superset, atol: float = 1e-8, mask=None, pbc: PbcLike = (True, True, True)) -> bool:
+def is_coord_subset_pbc(
+    subset, superset, atol: float = 1e-8, mask=None, pbc: tuple[bool, bool, bool] = (True, True, True)
+) -> bool:
     """Test if all fractional coords in subset are contained in superset.
 
     Args:
@@ -270,11 +271,10 @@ def is_coord_subset_pbc(subset, superset, atol: float = 1e-8, mask=None, pbc: Pb
     mask_arr = (
         np.array(mask, dtype=np.int64) if mask is not None else np.zeros((len(subset), len(superset)), dtype=np.int64)
     )
-    atol = np.zeros(3, dtype=np.float64) + atol
-    return coord_cython.is_coord_subset_pbc(c1, c2, atol, mask_arr, pbc)
+    return coord_cython.is_coord_subset_pbc(c1, c2, np.zeros(3, dtype=np.float64) + atol, mask_arr, pbc)
 
 
-def lattice_points_in_supercell(supercell_matrix):
+def lattice_points_in_supercell(supercell_matrix: ArrayLike) -> NDArray:
     """Get the list of points on the original lattice contained in the
     supercell in fractional coordinates (with the supercell basis).
     e.g. [[2,0,0],[0,1,0],[0,0,1]] returns [[0,0,0],[0.5,0,0]].
@@ -367,14 +367,14 @@ class Simplex(MSONable):
         simplex_dim (int): Dimension of the simplex coordinate space.
     """
 
-    def __init__(self, coords) -> None:
+    def __init__(self, coords: Sequence[Sequence[float]]) -> None:
         """Initialize a Simplex from vertex coordinates.
 
         Args:
             coords ([[float]]): Coords of the vertices of the simplex. e.g.
                 [[1, 2, 3], [2, 4, 5], [6, 7, 8], [8, 9, 10].
         """
-        self._coords = np.array(coords)
+        self._coords = np.asarray(coords)
         self.space_dim, self.simplex_dim = self._coords.shape
         self.origin = self._coords[-1]
         if self.space_dim == self.simplex_dim + 1:
@@ -382,12 +382,25 @@ class Simplex(MSONable):
             self._aug = np.concatenate([coords, np.ones((self.space_dim, 1))], axis=-1)
             self._aug_inv = np.linalg.inv(self._aug)
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Simplex):
+            return NotImplemented
+        return any(np.allclose(p, other.coords) for p in itertools.permutations(self._coords))
+
+    def __hash__(self) -> int:
+        return len(self._coords)
+
+    def __repr__(self) -> str:
+        output = [f"{self.simplex_dim}-simplex in {self.space_dim}D space\nVertices:"]
+        output += [f"\t({', '.join(map(str, coord))})" for coord in self._coords]
+        return "\n".join(output)
+
     @property
     def volume(self) -> float:
         """Volume of the simplex."""
         return abs(np.linalg.det(self._aug)) / math.factorial(self.simplex_dim)
 
-    def bary_coords(self, point):
+    def bary_coords(self, point: ArrayLike) -> np.ndarray:
         """
         Args:
             point (ArrayLike): Point coordinates.
@@ -400,7 +413,7 @@ class Simplex(MSONable):
         except AttributeError as exc:
             raise ValueError("Simplex is not full-dimensional") from exc
 
-    def point_from_bary_coords(self, bary_coords: ArrayLike):
+    def point_from_bary_coords(self, bary_coords: ArrayLike) -> np.ndarray:
         """
         Args:
             bary_coords (ArrayLike): Barycentric coordinates (d+1, d).
@@ -428,9 +441,14 @@ class Simplex(MSONable):
             point (list[float]): Point to test
             tolerance (float): Tolerance to test if point is in simplex.
         """
-        return (self.bary_coords(point) >= -tolerance).all()
+        return bool((self.bary_coords(point) >= -tolerance).all())
 
-    def line_intersection(self, point1: Sequence[float], point2: Sequence[float], tolerance: float = 1e-8):
+    def line_intersection(
+        self,
+        point1: Sequence[float],
+        point2: Sequence[float],
+        tolerance: float = 1e-8,
+    ) -> list[np.ndarray]:
         """Compute the intersection points of a line with a simplex.
 
         Args:
@@ -456,7 +474,7 @@ class Simplex(MSONable):
                 found = False
                 # don't return duplicate points
                 for b in barys:
-                    if np.all(np.abs(b - p) < tolerance):
+                    if np.allclose(b, p, atol=tolerance, rtol=0):
                         found = True
                         break
                 if not found:
@@ -464,19 +482,6 @@ class Simplex(MSONable):
         if len(barys) >= 3:
             raise ValueError("More than 2 intersections found")
         return [self.point_from_bary_coords(b) for b in barys]
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Simplex):
-            return NotImplemented
-        return any(np.allclose(p, other.coords) for p in itertools.permutations(self._coords))
-
-    def __hash__(self) -> int:
-        return len(self._coords)
-
-    def __repr__(self) -> str:
-        output = [f"{self.simplex_dim}-simplex in {self.space_dim}D space\nVertices:"]
-        output += [f"\t({', '.join(map(str, coord))})" for coord in self._coords]
-        return "\n".join(output)
 
     @property
     def coords(self) -> np.ndarray:

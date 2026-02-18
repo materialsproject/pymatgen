@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import abc
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from pymatgen.core import Structure
 
 __author__ = "Shyue Ping Ong"
@@ -22,7 +24,7 @@ class AbstractTransformation(MSONable, abc.ABC):
     """Abstract transformation class."""
 
     @abc.abstractmethod
-    def apply_transformation(self, structure: Structure) -> Structure | list[dict[str, Any]]:
+    def apply_transformation(self, structure: Structure) -> Structure | list[dict[str, Any]] | list[Structure]:
         """Apply the transformation to a structure. Depending on whether a
         transformation is one-to-many, there may be an option to return a
         ranked list of structures.

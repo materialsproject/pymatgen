@@ -31,7 +31,7 @@ from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.electronic_structure.dos import CompleteDos
 
@@ -96,5 +96,5 @@ class XPS(Spectrum):
                 if weight is not None:
                     total += pdos.get_densities() * weight
                 else:
-                    warnings.warn(f"No cross-section for {el}{orb}")
+                    warnings.warn(f"No cross-section for {el}{orb}", stacklevel=2)
         return XPS(-dos.energies, total / np.max(total))

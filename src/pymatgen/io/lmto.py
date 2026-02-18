@@ -20,9 +20,9 @@ from pymatgen.util.num import round_to_sigfigs
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import Any
+    from typing import Any, Self
 
-    from typing_extensions import Self
+    from pymatgen.core.structure import IStructure
 
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -37,7 +37,7 @@ class LMTOCtrl:
     Currently, only HEADER, VERS and the structure can be used.
     """
 
-    def __init__(self, structure: Structure, header: str | None = None, version: str = "LMASA-47") -> None:
+    def __init__(self, structure: Structure | IStructure, header: str | None = None, version: str = "LMASA-47") -> None:
         """
         Args:
             structure (Structure): pymatgen object.
@@ -139,7 +139,7 @@ class LMTOCtrl:
         """Write a CTRL file with structure, HEADER, and VERS that can be
         used as input for lmhart.run.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(self.get_str(**kwargs))
 
     @classmethod
@@ -153,9 +153,9 @@ class LMTOCtrl:
         Returns:
             An LMTOCtrl object.
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             contents = file.read()
-        return cls.from_str(contents, **kwargs)
+        return cls.from_str(contents, **kwargs)  # type:ignore[arg-type]
 
     @classmethod
     def from_str(cls, data: str, sigfigs: int = 8) -> Self:
@@ -175,7 +175,7 @@ class LMTOCtrl:
             "HEADER": [],
             "VERS": [],
             "SYMGRP": [],
-            "STRUC": [],
+            "STRUC": [],  # codespell:ignore struc
             "CLASS": [],
             "SITE": [],
         }
@@ -200,7 +200,7 @@ class LMTOCtrl:
         }
 
         atom = None
-        for cat in ("STRUC", "CLASS", "SITE"):
+        for cat in ("STRUC", "CLASS", "SITE"):  # codespell:ignore struc
             fields = struct_lines[cat].split("=")
             for idx, field in enumerate(fields):
                 token = field.split()[-1]
@@ -322,7 +322,7 @@ class LMTOCopl:
               eV, set to True. Defaults to False for energies in Ry.
         """
         # COPL files have an extra trailing blank line
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             contents = file.read().split("\n")[:-1]
         # The parameters line is the second line in a COPL file. It
         # contains all parameters that are needed to map the file.

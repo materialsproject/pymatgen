@@ -18,9 +18,9 @@ except ImportError:
     f90nml = None
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, Self
 
-    from typing_extensions import Self
+    from pymatgen.core.structure import IStructure
 
 __author__ = "Rees Chang, Alex Ganose"
 __copyright__ = "Copyright 2019, The Materials Project"
@@ -180,7 +180,10 @@ class Control(MSONable, dict):
         """
         for param in self.required_params:
             if param not in self.as_dict():
-                warnings.warn(f"Required parameter {param!r} not specified!")
+                warnings.warn(
+                    f"Required parameter {param!r} not specified!",
+                    stacklevel=2,
+                )
 
         alloc_dict = _get_subdict(self, self.allocations_keys)
         alloc_nml = f90nml.Namelist({"allocations": alloc_dict})
@@ -202,7 +205,9 @@ class Control(MSONable, dict):
             file.write(control_str)
 
     @classmethod
-    def from_structure(cls, structure: Structure, reciprocal_density: int | None = 50000, **kwargs) -> Self:
+    def from_structure(
+        cls, structure: Structure | IStructure, reciprocal_density: int | None = 50000, **kwargs
+    ) -> Control:
         """Get a ShengBTE control object from a structure.
 
         Args:

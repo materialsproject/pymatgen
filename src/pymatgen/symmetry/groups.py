@@ -21,17 +21,16 @@ from monty.serialization import loadfn
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
-    from typing import ClassVar, Literal
+    from typing import ClassVar, Literal, Self, TypeAlias
 
-    from numpy.typing import ArrayLike
-    from typing_extensions import Self
+    from numpy.typing import ArrayLike, NDArray
 
     from pymatgen.core.lattice import Lattice
 
     # Don't import at runtime to avoid circular import
-    from pymatgen.core.operations import SymmOp  # noqa: TCH004
+    from pymatgen.core.operations import SymmOp  # noqa: TC004
 
-    CrystalSystem = Literal[
+    CrystalSystem: TypeAlias = Literal[
         "cubic",
         "hexagonal",
         "monoclinic",
@@ -43,6 +42,24 @@ if TYPE_CHECKING:
 
 
 SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.json"))
+
+PG_ABBREV_MAP = {
+    "2/m2/m2/m": "mmm",
+    "4/m2/m2/m": "4/mmm",
+    "-32/m": "-3m",
+    "6/m2/m2/m": "6/mmm",
+    "2/m-3": "m-3",
+    "4/m-32/m": "m-3m",
+}
+PG_SETTINGS_MAP = {  # only one setting per crystal class in SYMM_DATA database available right now
+    "m2m": "mm2",
+    "2mm": "mm2",
+    "-4m2": "-42m",
+    "-62m": "-6m2",
+    "312": "32",
+    "31m": "3m",
+    "-31m": "-3m",
+}
 
 
 class SymmetryGroup(Sequence, Stringify, ABC):
@@ -86,7 +103,11 @@ class SymmetryGroup(Sequence, Stringify, ABC):
         Returns:
             bool: True if this group is a subgroup of the supplied group.
         """
-        warnings.warn("This is not fully functional. Only trivial subsets are tested right now. ")
+        warnings.warn(
+            "This is not fully functional. Only trivial subsets are tested right now. "
+            "This will not work if the crystallographic directions of the two groups are different.",
+            stacklevel=2,
+        )
         return set(self.symmetry_ops).issubset(supergroup.symmetry_ops)
 
     def is_supergroup(self, subgroup: SymmetryGroup) -> bool:
@@ -98,7 +119,11 @@ class SymmetryGroup(Sequence, Stringify, ABC):
         Returns:
             bool: True if this group is a supergroup of the supplied group.
         """
-        warnings.warn("This is not fully functional. Only trivial subsets are tested right now. ")
+        warnings.warn(
+            "This is not fully functional. Only trivial subsets are tested right now. "
+            "This will not work if the crystallographic directions of the two groups are different.",
+            stacklevel=2,
+        )
         return set(subgroup.symmetry_ops).issubset(self.symmetry_ops)
 
     def to_latex_string(self) -> str:
@@ -125,9 +150,15 @@ class PointGroup(SymmetryGroup):
         Please note that only the 32 crystal classes are supported right now.
 
         Args:
-            int_symbol (str): International or Hermann-Mauguin Symbol.
+            int_symbol (str): International or Hermann-Mauguin Symbol. Please note that the PointGroup object
+            may have a different setting than specified in the int_symbol as only one setting per point group
+            is available right now.
         """
         from pymatgen.core.operations import SymmOp
+
+        int_symbol = int_symbol.replace(" ", "")
+        int_symbol = PG_ABBREV_MAP.get(int_symbol, int_symbol)
+        int_symbol = PG_SETTINGS_MAP.get(int_symbol, int_symbol)
 
         self.symbol = int_symbol
         self.generators = [
@@ -135,6 +166,7 @@ class PointGroup(SymmetryGroup):
         ]
         self._symmetry_ops = {SymmOp.from_rotation_and_translation(m) for m in self._generate_full_symmetry_ops()}
         self.order = len(self._symmetry_ops)
+        self.crystal_system = SYMM_DATA["point_group_crystal_system_map"][int_symbol]
 
     @property
     def symmetry_ops(self) -> set[SymmOp]:
@@ -144,7 +176,7 @@ class PointGroup(SymmetryGroup):
         """
         return self._symmetry_ops
 
-    def _generate_full_symmetry_ops(self) -> list[SymmOp]:
+    def _generate_full_symmetry_ops(self) -> list[NDArray]:
         symm_ops = list(self.generators)
         new_ops = self.generators
         while len(new_ops) > 0:
@@ -176,10 +208,50 @@ class PointGroup(SymmetryGroup):
                 orbit.append(pp)
         return orbit
 
+    def is_subgroup(self, supergroup: PointGroup) -> bool:
+        """True if this group is a subgroup of the supplied group.
+            Modification of SymmetryGroup method with a few more constraints.
+
+        Args:
+            supergroup (pointGroup): Supergroup to test.
+
+        Returns:
+            bool: True if this group is a subgroup of the supplied group.
+        """
+        possible_but_direction_differences = (
+            ["trigonal", "cubic"],
+            ["monoclinic", "tetragonal"],
+            ["monoclinic", "hexagonal"],
+            ["monoclinic", "trigonal"],
+            ["orthorhombic", "hexagonal"],
+            ["orthorhombic", "tetragonal"],
+        )
+        if [self.crystal_system, supergroup.crystal_system] in possible_but_direction_differences:
+            raise NotImplementedError
+        warnings.warn(
+            "This is not fully functional. Only trivial subsets are tested right now. "
+            "This will not work if the crystallographic directions of the two groups are different.",
+            stacklevel=2,
+        )
+        return set(self.symmetry_ops).issubset(supergroup.symmetry_ops)
+
+    def is_supergroup(self, subgroup: PointGroup) -> bool:
+        """True if this group is a subgroup of the supplied group.
+            Modification of SymmetryGroup method with a few more constraints.
+
+        Args:
+            subgroup (PointGroup): Subgroup to test.
+
+        Returns:
+            bool: True if this group is a supergroup of the supplied group.
+        """
+        return subgroup.is_subgroup(self)
+
     @classmethod
     def from_space_group(cls, sg_symbol: str) -> PointGroup:
         """Instantiate one of the 32 crystal classes from a space group symbol in
         Hermann Mauguin notation (int symbol or full symbol).
+        Please note that the axes of space group and crystal class may be different.
 
         Args:
             sg_symbol: space group symbol in Hermann Mauguin notation.
@@ -190,20 +262,6 @@ class PointGroup(SymmetryGroup):
         Returns:
             crystal class in Hermann-Mauguin notation.
         """
-        abbrev_map = {
-            "2/m2/m2/m": "mmm",
-            "4/m2/m2/m": "4/mmm",
-            "-32/m": "-3m",
-            "6/m2/m2/m": "6/mmm",
-            "2/m-3": "m-3",
-            "4/m-32/m": "m-3m",
-        }
-        non_standard_map = {
-            "m2m": "mm2",
-            "2mm": "mm2",
-            "-4m2": "-42m",  # technically not non-standard
-            "-62m": "-6m2",  # technically not non-standard
-        }
         symbol = re.sub(r" ", "", sg_symbol)
 
         symm_ops = loadfn(os.path.join(os.path.dirname(__file__), "symm_ops.json"))  # get short symbol if possible
@@ -223,8 +281,8 @@ class PointGroup(SymmetryGroup):
         symbol = symbol[1:]  # Remove centering
         symbol = symbol.translate(str.maketrans("abcden", "mmmmmm"))  # Remove translation from glide planes
         symbol = re.sub(r"_.", "", symbol)  # Remove translation from screw axes
-        symbol = abbrev_map.get(symbol, symbol)
-        symbol = non_standard_map.get(symbol, symbol)
+        symbol = PG_ABBREV_MAP.get(symbol, symbol)
+        symbol = PG_SETTINGS_MAP.get(symbol, symbol)
 
         if symbol not in SYMM_DATA["point_group_encoding"]:
             raise ValueError(f"Could not create a valid crystal class ({symbol}) from {sg_symbol=}")
@@ -320,7 +378,8 @@ class SpaceGroup(SymmetryGroup):
                     self.full_symbol = spg["hermann_mauguin_u"]
                     warnings.warn(
                         f"Full symbol not available, falling back to short Hermann Mauguin symbol "
-                        f"{self.symbol} instead"
+                        f"{self.symbol} instead",
+                        stacklevel=2,
                     )
                     self.point_group = spg["point_group"]
                 self.int_number = spg["number"]
@@ -461,7 +520,7 @@ class SpaceGroup(SymmetryGroup):
 
         orbit: list[np.ndarray] = [np.array(p, dtype=float)]
         identity = SymmOp.from_rotation_and_translation(np.eye(3), np.zeros(3))
-        generators: list[np.ndarray] = [identity]
+        generators: list[SymmOp] = [identity]
         for o in self.symmetry_ops:
             pp = o.operate(p)
             pp = np.mod(np.round(pp, decimals=10), 1)
@@ -565,7 +624,7 @@ class SpaceGroup(SymmetryGroup):
         if not isinstance(supergroup, SpaceGroup):
             return NotImplemented
 
-        if len(supergroup.symmetry_ops) < len(self.symmetry_ops):
+        if len(supergroup.symmetry_ops) < len(self.symmetry_ops) and supergroup.point_group != self.point_group:
             return False
 
         groups = [{supergroup.int_number}]
@@ -574,7 +633,10 @@ class SpaceGroup(SymmetryGroup):
         while True:
             new_sub_groups = set()
             for i in groups[-1]:
-                new_sub_groups.update([j for j in max_subgroups[i] if j not in all_groups])
+                if len(groups) == 1:
+                    new_sub_groups.update(list(max_subgroups[i]))
+                else:
+                    new_sub_groups.update([j for j in max_subgroups[i] if j not in all_groups])
             if self.int_number in new_sub_groups:
                 return True
 

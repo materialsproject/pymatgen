@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import copy
-import json
 from collections import defaultdict
-from unittest import TestCase
 
+import orjson
 import pytest
 from monty.json import MontyDecoder
 from pytest import approx
@@ -52,6 +51,9 @@ def test_energy_adjustment_repr():
             f"generated_by='{label}')"
         )
 
+    # Make sure int uncertainty also works
+    assert "uncertainty=0.0" in repr(EnergyAdjustment(10, uncertainty=0))
+
 
 def test_manual_energy_adjustment():
     ea = ManualEnergyAdjustment(10)
@@ -72,12 +74,16 @@ def test_constant_energy_adjustment():
     ea2 = ConstantEnergyAdjustment.from_dict(ea_dct)
     assert str(ea_dct) == str(ea2.as_dict())
 
+    ea3 = ConstantEnergyAdjustment(8, uncertainty=0)
+    assert "uncertainty=0.0" in repr(ea3)
+
 
 def test_composition_energy_adjustment():
     ea = CompositionEnergyAdjustment(2, 2, uncertainty_per_atom=0, name="H")
     assert ea.name == "H"
     assert ea.value == 4
     assert ea.explain == "Composition-based energy adjustment (2.000 eV/atom x 2 atoms)"
+    assert "uncertainty=0.0" in repr(ea)
     ea_dct = ea.as_dict()
     ea2 = CompositionEnergyAdjustment.from_dict(ea_dct)
     assert str(ea_dct) == str(ea2.as_dict())
@@ -86,17 +92,18 @@ def test_composition_energy_adjustment():
 def test_temp_energy_adjustment():
     ea = TemperatureEnergyAdjustment(-0.1, 298, 5, uncertainty_per_deg=0, name="entropy")
     assert ea.name == "entropy"
-    assert ea.value == -0.1 * 298 * 5
+    assert ea.value == approx(-0.1 * 298 * 5)
     assert ea.n_atoms == 5
     assert ea.temp == 298
     assert ea.explain == "Temperature-based energy adjustment (-0.1000 eV/K/atom x 298 K x 5 atoms)"
+    assert "uncertainty=0.0" in repr(ea)
     ea_dct = ea.as_dict()
     ea2 = TemperatureEnergyAdjustment.from_dict(ea_dct)
     assert str(ea_dct) == str(ea2.as_dict())
 
 
-class TestComputedEntry(TestCase):
-    def setUp(self):
+class TestComputedEntry:
+    def setup_method(self):
         self.entry = ComputedEntry(
             vasp_run.final_structure.composition,
             vasp_run.final_energy,
@@ -256,8 +263,8 @@ class TestComputedEntry(TestCase):
             assert getattr(new_ce, k, None) is not None
 
 
-class TestComputedStructureEntry(TestCase):
-    def setUp(self):
+class TestComputedStructureEntry:
+    def setup_method(self):
         self.entry = ComputedStructureEntry(vasp_run.final_structure, vasp_run.final_energy, parameters=vasp_run.incar)
 
     def test_energy(self):
@@ -453,8 +460,8 @@ class TestComputedStructureEntry(TestCase):
         assert copy3 != copy1
 
 
-class TestGibbsComputedStructureEntry(TestCase):
-    def setUp(self):
+class TestGibbsComputedStructureEntry:
+    def setup_method(self):
         self.temps = [300, 600, 900, 1200, 1500, 1800]
         self.struct = vasp_run.final_structure
         self.num_atoms = self.struct.composition.num_atoms
@@ -470,11 +477,13 @@ class TestGibbsComputedStructureEntry(TestCase):
             for temp in self.temps
         }
 
-        with open(f"{TEST_DIR}/Mn-O_entries.json") as file:
-            data = json.load(file)
-        with open(f"{TEST_DIR}/structure_CO2.json") as file:
-            self.co2_struct = MontyDecoder().process_decoded(json.load(file))
+        with open(f"{TEST_DIR}/Mn-O_entries.json", "rb") as file:
+            data = orjson.loads(file.read())
+        with open(f"{TEST_DIR}/structure_CO2.json", "rb") as file:
+            self.co2_struct = MontyDecoder().process_decoded(orjson.loads(file.read()))
 
+        with open(f"{TEST_DIR}/Mn-O_entries.json", "rb") as file:
+            data = orjson.loads(file.read())
         self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
 
     def test_gf_sisso(self):

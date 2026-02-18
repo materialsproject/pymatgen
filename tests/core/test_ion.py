@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 import pytest
 
@@ -9,8 +7,8 @@ from pymatgen.core import Composition, Element
 from pymatgen.core.ion import Ion
 
 
-class TestIon(TestCase):
-    def setUp(self):
+class TestIon:
+    def setup_method(self):
         self.comp = []
         self.comp.append(Ion.from_formula("Li+"))
         self.comp.append(Ion.from_formula("MnO4-"))
@@ -53,7 +51,7 @@ class TestIon(TestCase):
 
         assert Ion.from_formula("Na[+-+]").charge == 1
 
-    def test_special_formulas(self):
+    def test_get_reduced_formula_and_factor_special_formulas(self):
         special_formulas = [
             ("Cl-", "Cl[-1]"),
             ("H+", "H[+1]"),
@@ -87,9 +85,9 @@ class TestIon(TestCase):
             ("Zr(OH)4", "Zr(OH)4(aq)"),
         ]
         for tup in special_formulas:
-            assert (
-                Ion.from_formula(tup[0]).reduced_formula == tup[1]
-            ), f"Expected {tup[1]} but got {Ion.from_formula(tup[0]).reduced_formula}"
+            assert Ion.from_formula(tup[0]).reduced_formula == tup[1], (
+                f"Expected {tup[1]} but got {Ion.from_formula(tup[0]).reduced_formula}"
+            )
 
         assert Ion.from_formula("Fe(OH)4+").get_reduced_formula_and_factor(hydrates=True) == ("FeO2.2H2O", 1)
         assert Ion.from_formula("Zr(OH)4").get_reduced_formula_and_factor(hydrates=True) == ("ZrO2.2H2O", 1)
@@ -101,6 +99,14 @@ class TestIon(TestCase):
         assert Ion.from_formula("O3").get_reduced_formula_and_factor(hydrates=False) == ("O3", 1)
         assert Ion.from_formula("O6").get_reduced_formula_and_factor(hydrates=False) == ("O3", 2)
         assert Ion.from_formula("N8").get_reduced_formula_and_factor(hydrates=False) == ("N2", 4)
+
+    def test_get_reduced_formula_and_factor_non_int_amounts(self):
+        """Ensure get_reduced_formula_and_factor returns early for non-integer amounts."""
+        ion = Ion({"H": 0.5, "O": 1}, charge=-1)
+        formula, factor = ion.get_reduced_formula_and_factor()
+
+        assert formula == "H0.5O1-1"
+        assert factor == 1
 
     def test_formula(self):
         correct_formulas = [
@@ -116,8 +122,12 @@ class TestIon(TestCase):
         ]
         all_formulas = [c.formula for c in self.comp]
         assert all_formulas == correct_formulas
+
+        with pytest.raises(ValueError, match="Invalid formula"):
+            Ion.from_formula("Mn[2+3]")
+
         with pytest.raises(ValueError, match="co2 is an invalid formula"):
-            Ion.from_formula("(co2)(po4)2")
+            Ion.from_formula("(co2)(po4)2")  # raised by Composition._parse_formula
 
     def test_mixed_valence(self):
         comp = Ion(Composition({"Fe2+": 2, "Fe3+": 4, "Li+": 8}))
@@ -167,18 +177,22 @@ class TestIon(TestCase):
 
     def test_from_dict(self):
         sym_dict = {"P": 1, "O": 4, "charge": -2}
-        assert Ion.from_dict(sym_dict).reduced_formula == "PO4[-2]", "Creation form sym_amount dictionary failed!"
+        ion = Ion.from_dict(sym_dict)
+        assert ion.reduced_formula == "PO4[-2]"
+
+        # Ensure input dict was not modified
+        assert sym_dict == {"P": 1, "O": 4, "charge": -2}
 
     def test_as_dict(self):
         ion = Ion.from_dict({"Mn": 1, "O": 4, "charge": -1})
-        dct = ion.as_dict()
-        correct_dict = {"Mn": 1.0, "O": 4.0, "charge": -1.0}
-        assert dct == correct_dict
-        assert dct["charge"] == correct_dict["charge"]
-        correct_dict = {"Mn": 1.0, "O": 4.0, "charge": -1}
-        dct = ion.to_reduced_dict
-        assert dct == correct_dict
-        assert dct["charge"] == correct_dict["charge"]
+        assert ion.as_dict() == {"Mn": 1.0, "O": 4.0, "charge": -1.0}
+
+    def test_as_reduced_dict(self):
+        ion = Ion.from_dict({"Mn": 2, "O": 8, "charge": -2})
+        assert ion.as_reduced_dict() == {"Mn": 1, "O": 4, "charge": -1}
+
+        ion = Ion.from_dict({"Mn": 1, "O": 4, "charge": -1})
+        assert ion.as_reduced_dict() == {"Mn": 1, "O": 4, "charge": -1}
 
     def test_equals(self):
         rng = np.random.default_rng()
@@ -201,8 +215,31 @@ class TestIon(TestCase):
         assert self.comp[0] == self.comp[0]
         assert self.comp[0] != (self.comp[1])
 
+        assert Ion.from_dict({"Na": 1, "charge": 1}).__eq__("Na+") is NotImplemented
+
+    def test_add(self):
+        ion1 = Ion.from_dict({"Na": 1, "charge": 1})
+        ion2 = Ion.from_dict({"Cl": 1, "charge": -1})
+        result = ion1 + ion2
+
+        assert isinstance(result, Ion)
+        assert result.composition.as_dict() == {"Na": 1.0, "Cl": 1.0}
+        assert result.charge == 0
+
+    def test_sub(self):
+        ion1 = Ion.from_dict({"Ca": 2, "charge": 2})
+        ion2 = Ion.from_dict({"Ca": 1, "charge": 1})
+        result = ion1 - ion2
+
+        assert isinstance(result, Ion)
+        assert result.composition.as_dict() == {"Ca": 1.0}
+        assert result.charge == 1
+
     def test_mul(self):
         assert (self.comp[1] * 4).formula == "Mn4 O16 -4", "Incorrect composition after addition!"
+
+    def test_str(self):
+        assert str(Ion.from_dict({"Mn": 1, "O": 4, "charge": -1})) == "Mn1 O4 -1"
 
     def test_len(self):
         assert len(self.comp[1]) == 2, "Lengths are not equal!"

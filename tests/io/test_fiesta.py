@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 from pymatgen.core.structure import Molecule
 from pymatgen.io.fiesta import FiestaInput, FiestaOutput
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -9,8 +7,8 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/io/fiesta"
 
 
-class TestFiestaInput(TestCase):
-    def setUp(self):
+class TestFiestaInput:
+    def setup_method(self):
         coords = [
             [0.000000, 0.000000, 0.000000],
             [0.000000, 0.000000, 1.089000],
@@ -50,7 +48,7 @@ class TestFiestaInput(TestCase):
         assert cell_in.molecule.spin_multiplicity == 1
 
     def test_str_and_from_str(self):
-        ans = (
+        result = (
             "# number of atoms and species\n   5    2\n# number of valence bands\n    5\n"
             "# number of points and spacing in eV for correlation grid\n    14    0.500\n"
             "# relire=1 ou recalculer=0 Exc DFT\n    1\n"
@@ -65,14 +63,14 @@ class TestFiestaInput(TestCase):
             " 0.0 0.0 1.089 2\n 1.026719 0.0 -0.363 2\n -0.51336 -0.889165 -0.363 2\n -0.51336 0.889165 -0.363 2"
             "\n            "
         )
-        assert str(self.cell_in) == ans
-        cell_in = FiestaInput.from_str(ans)
+        assert str(self.cell_in) == result
+        cell_in = FiestaInput.from_str(result)
         assert cell_in.GW_options["nc_corr"] == "10"
         assert cell_in.cohsex_options["eigMethod"] == "C"
 
 
-class TestFiestaOutput(TestCase):
-    def setUp(self):
+class TestFiestaOutput:
+    def setup_method(self):
         self.log_fiesta = FiestaOutput(f"{TEST_DIR}/log_fiesta")
 
     def test_props(self):

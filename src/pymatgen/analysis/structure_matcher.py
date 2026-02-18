@@ -4,22 +4,21 @@ from __future__ import annotations
 
 import abc
 import itertools
+import math
 from functools import lru_cache
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.json import MSONable
+from scipy.optimize import linear_sum_assignment
 
 from pymatgen.core import SETTINGS, Composition, IStructure, Lattice, Structure, get_el_sp
-from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.util.coord_cython import is_coord_subset_pbc, pbc_shortest_vectors
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
-    from typing import Literal
-
-    from typing_extensions import Self
+    from typing import Literal, Self
 
     from pymatgen.util.typing import SpeciesLike
 
@@ -31,6 +30,33 @@ __email__ = "wrichard@mit.edu"
 __status__ = "Production"
 __date__ = "Dec 3, 2012"
 LRU_CACHE_SIZE = SETTINGS.get("STRUCTURE_MATCHER_CACHE_SIZE", 300)
+
+
+def get_linear_assignment_solution(cost_matrix: np.ndarray):
+    """Wrapper for SciPy's linear_sum_assignment.
+
+    Args:
+        costs: The cost matrix of the problem. cost[i,j] should be the
+            cost of matching x[i] to y[j]. The cost matrix may be
+            rectangular
+        epsilon: Tolerance for determining if solution vector is < 0
+
+    Returns:
+        min_cost: The minimum cost of the matching.
+        solution: The matching of the rows to columns. i.e solution = [1, 2, 0]
+            would match row 0 to column 1, row 1 to column 2 and row 2
+            to column 0. Total cost would be c[0, 1] + c[1, 2] + c[2, 0].
+    """
+
+    orig_c = np.asarray(cost_matrix, dtype=float)
+
+    n_rows, n_cols = orig_c.shape
+    if n_rows > n_cols:
+        raise ValueError("cost matrix must have at least as many columns as rows")
+
+    row_ind, col_ind = linear_sum_assignment(orig_c)
+
+    return col_ind, orig_c[row_ind, col_ind].sum()
 
 
 class SiteOrderedIStructure(IStructure):
@@ -48,7 +74,7 @@ class SiteOrderedIStructure(IStructure):
         """Check for IStructure equality and same site order."""
         if not super().__eq__(other):
             return False
-        other = cast(SiteOrderedIStructure, other)  # make mypy happy
+        other = cast("SiteOrderedIStructure", other)  # make mypy happy
 
         return list(self.sites) == list(other.sites)
 
@@ -441,9 +467,9 @@ class StructureMatcher(MSONable):
                 raise ValueError("Invalid argument for supercell_size.")
 
         if fu < 2 / 3:
-            return int(round(1 / fu)), False
+            return round(1 / fu), False
 
-        return int(round(fu)), True
+        return round(fu), True
 
     def _get_lattices(self, target_lattice, s, supercell_size=1):
         """
@@ -463,7 +489,7 @@ class StructureMatcher(MSONable):
             skip_rotation_matrix=True,
         )
         for latt, _, scale_m in lattices:
-            if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
+            if math.isclose(abs(np.linalg.det(scale_m)), supercell_size, abs_tol=0.5, rel_tol=0):
                 yield latt, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
@@ -541,8 +567,7 @@ class StructureMatcher(MSONable):
 
         # vectors are from s2 to s1
         vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask, return_d2=True, lll_frac_tol=lll_frac_tol)
-        lin = LinearAssignment(d_2)
-        sol = lin.solution
+        sol, _ = get_linear_assignment_solution(d_2)
         short_vecs = vecs[np.arange(len(sol)), sol]
         translation = np.mean(short_vecs, axis=0)
         f_translation = avg_lattice.get_fractional_coords(translation)
@@ -589,16 +614,16 @@ class StructureMatcher(MSONable):
 
     def fit(
         self,
-        struct1: Structure,
-        struct2: Structure,
+        struct1: Structure | IStructure,
+        struct2: Structure | IStructure,
         symmetric: bool = False,
         skip_structure_reduction: bool = False,
     ) -> bool:
         """Fit two structures.
 
         Args:
-            struct1 (Structure): 1st structure
-            struct2 (Structure): 2nd structure
+            struct1 (Structure | IStructure): 1st structure
+            struct2 (Structure | IStructure): 2nd structure
             symmetric (bool): Defaults to False
                 If True, check the equality both ways.
                 This only impacts a small percentage of structures
@@ -770,7 +795,7 @@ class StructureMatcher(MSONable):
         if (not self._subset) and mask.shape[1] != mask.shape[0]:
             return None
 
-        if LinearAssignment(mask).min_cost > 0:
+        if get_linear_assignment_solution(mask)[1] > 0:
             return None
 
         best_match = None
@@ -983,7 +1008,9 @@ class StructureMatcher(MSONable):
         return reduced
 
     @classmethod
-    def _get_reduced_structure(cls, struct: Structure, primitive_cell: bool = True, niggli: bool = True) -> Structure:
+    def _get_reduced_structure(
+        cls, struct: Structure | IStructure, primitive_cell: bool = True, niggli: bool = True
+    ) -> Structure:
         """Helper method to find a reduced structure."""
         return Structure.from_sites(
             cls._get_reduced_istructure(SiteOrderedIStructure.from_sites(struct), primitive_cell, niggli)
@@ -1014,7 +1041,9 @@ class StructureMatcher(MSONable):
 
         return None, None
 
-    def get_best_electronegativity_anonymous_mapping(self, struct1: Structure, struct2: Structure) -> dict | None:
+    def get_best_electronegativity_anonymous_mapping(
+        self, struct1: Structure | IStructure, struct2: Structure | IStructure
+    ) -> dict | None:
         """
         Performs an anonymous fitting, which allows distinct species in one
         structure to map to another. e.g. to compare if the Li2O and Na2O
@@ -1074,8 +1103,8 @@ class StructureMatcher(MSONable):
 
     def fit_anonymous(
         self,
-        struct1: Structure,
-        struct2: Structure,
+        struct1: Structure | IStructure,
+        struct2: Structure | IStructure,
         niggli: bool = True,
         skip_structure_reduction: bool = False,
     ) -> bool:
@@ -1203,7 +1232,7 @@ class StructureMatcher(MSONable):
         sites = [temp.sites[i] for i in mapping if i is not None]
 
         if include_ignored_species:
-            start = int(round(len(temp) / len(struct2) * len(s2)))
+            start = round(len(temp) / len(struct2) * len(s2))
             sites.extend(temp.sites[start:])
 
         return Structure.from_sites(sites)

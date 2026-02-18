@@ -31,7 +31,6 @@ from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Vasprun, VolumetricData
 from pymatgen.util.due import Doi, due
-from pymatgen.util.typing import PathLike
 
 if TYPE_CHECKING:
     from typing import Any, ClassVar, Literal
@@ -40,7 +39,7 @@ if TYPE_CHECKING:
 
     from pymatgen.core.structure import IStructure
     from pymatgen.electronic_structure.cohp import IcohpCollection
-    from pymatgen.util.typing import Tuple3Ints, Vector3D
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -54,6 +53,11 @@ due.cite(
     Doi("10.1002/cplu.202200123"),
     description="Automated Bonding Analysis with Crystal Orbital Hamilton Populations",
 )
+
+
+def _get_lines(filename) -> list[str]:
+    with zopen(filename, mode="rt", encoding="utf-8") as file:
+        return cast("list[str]", file.read().splitlines())
 
 
 class Cohpcar:
@@ -105,7 +109,7 @@ class Cohpcar:
             or (are_coops and are_multi_center_cobis)
             or (are_cobis and are_multi_center_cobis)
         ):
-            raise ValueError("You cannot have info about COOPs, COBIs and/or multi-center COBIS in the same file.")
+            raise ValueError("You cannot have info about COOPs, COBIs and/or multi-center COBIs in the same file.")
 
         self.are_coops = are_coops
         self.are_cobis = are_cobis
@@ -121,8 +125,7 @@ class Cohpcar:
             else:
                 self._filename = "COHPCAR.lobster"
 
-        with zopen(self._filename, mode="rt") as file:
-            lines = file.read().split("\n")
+        lines: list[str] = _get_lines(self._filename)
 
         # The parameters line is the second line in a COHPCAR file.
         # It contains all parameters that are needed to map the file.
@@ -133,24 +136,23 @@ class Cohpcar:
         self.is_spin_polarized = int(parameters[1]) == 2
         spins = [Spin.up, Spin.down] if int(parameters[1]) == 2 else [Spin.up]
         cohp_data: dict[str, dict[str, Any]] = {}
+
+        # The COHP/COBI data start from line num_bonds + 3
+        data = np.array([np.array(line.split(), dtype=float) for line in lines[num_bonds + 3 :]]).transpose()
+
         if not self.are_multi_center_cobis:
-            # The COHP data start in line num_bonds + 3
-            data = np.array([np.array(line.split(), dtype=float) for line in lines[num_bonds + 3 :]]).transpose()
             cohp_data = {
                 "average": {
                     "COHP": {spin: data[1 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
                     "ICOHP": {spin: data[2 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
                 }
             }
-        else:
-            # The COBI data start in line num_bonds + 3 if multi-center cobis exist
-            data = np.array([np.array(line.split(), dtype=float) for line in lines[num_bonds + 3 :]]).transpose()
 
         self.energies = data[0]
 
         orb_cohp: dict[str, Any] = {}
         # Present for LOBSTER versions older than 2.2.0
-        very_old = False
+        older_than_2_2_0: bool = False
 
         # The label has to be changed: there are more than one COHP for each atom combination
         # this is done to make the labeling consistent with ICOHPLIST.lobster
@@ -189,8 +191,8 @@ class Cohpcar:
                 else:
                     # Present for LOBSTER versions older than 2.2.0
                     if bond_num == 0:
-                        very_old = True
-                    if very_old:
+                        older_than_2_2_0 = True
+                    if older_than_2_2_0:
                         bond_num += 1
                         label = str(bond_num)
 
@@ -242,8 +244,8 @@ class Cohpcar:
                 else:
                     # Present for LOBSTER versions older than 2.2.0
                     if bond_num == 0:
-                        very_old = True
-                    if very_old:
+                        older_than_2_2_0 = True
+                    if older_than_2_2_0:
                         bond_num += 1
                         label = str(bond_num)
 
@@ -258,7 +260,7 @@ class Cohpcar:
                     }
 
         # Present for LOBSTER older than 2.2.0
-        if very_old:
+        if older_than_2_2_0:
             for bond_str in orb_cohp:
                 cohp_data[bond_str] = {
                     "COHP": None,
@@ -402,30 +404,40 @@ class Icohplist(MSONable):
             else:
                 self._filename = "ICOHPLIST.lobster"
 
-        # LOBSTER list files have an extra trailing blank line
-        # and we don't need the header.
         if self._icohpcollection is None:
-            with zopen(self._filename, mode="rt") as file:
-                all_lines = file.read().split("\n")
-                lines = all_lines[1:-1] if "spin" not in all_lines[1] else all_lines[2:-1]
-            if len(lines) == 0:
-                raise RuntimeError("ICOHPLIST file contains no data.")
+            with zopen(self._filename, mode="rt", encoding="utf-8") as file:
+                all_lines: list[str] = cast("list[str]", file.read().splitlines())
 
-            # Determine LOBSTER version
-            if len(lines[0].split()) == 8 and "spin" not in all_lines[1]:
-                version = "3.1.1"
-            elif (len(lines[0].split()) == 8 or len(lines[0].split()) == 9) and "spin" in all_lines[1]:
-                version = "5.1.0"
-            elif len(lines[0].split()) == 6:
-                version = "2.2.1"
-                warnings.warn("Please consider using a newer LOBSTER version. See www.cohp.de.")
-            else:
-                raise ValueError("Unsupported LOBSTER version.")
+                # --- detect header length robustly ---
+                header_len = 0
+                try:
+                    int(all_lines[0].split()[0])
+                except ValueError:
+                    header_len += 1
+                if header_len < len(all_lines) and "spin" in all_lines[header_len].lower():
+                    header_len += 1
+                lines = all_lines[header_len:]
+                if not lines:
+                    raise RuntimeError("ICOHPLIST file contains no data.")
+                # --- version by column count only ---
+                ncol = len(lines[0].split())
+                if ncol == 6:
+                    version = "2.2.1"
+                    warnings.warn(
+                        "Please consider using a newer LOBSTER version. See www.cohp.de.",
+                        stacklevel=2,
+                    )
+                elif ncol == 8:
+                    version = "3.1.1"
+                elif ncol == 9:
+                    version = "5.1.0"
+                else:
+                    raise ValueError(f"Unsupported LOBSTER version ({ncol} columns).")
 
             # If the calculation is spin polarized, the line in the middle
             # of the file will be another header line.
             # TODO: adapt this for orbital-wise stuff
-            if version in ("3.1.1", "2.2.1"):
+            if version in {"3.1.1", "2.2.1"}:
                 self.is_spin_polarized = "distance" in lines[len(lines) // 2]
             else:  # if version == "5.1.0":
                 self.is_spin_polarized = len(lines[0].split()) == 9
@@ -444,11 +456,8 @@ class Icohplist(MSONable):
                 for line in lines:
                     if (
                         ("_" not in line.split()[1] and version != "5.1.0")
-                        or "_" not in line.split()[1]
-                        and version == "5.1.0"
-                        or (line.split()[1].count("_") == 1)
-                        and version == "5.1.0"
-                        and self.is_lcfo
+                        or ("_" not in line.split()[1] and version == "5.1.0")
+                        or ((line.split()[1].count("_") == 1) and version == "5.1.0" and self.is_lcfo)
                     ):
                         data_without_orbitals.append(line)
                     elif line.split()[1].count("_") >= 2 and version == "5.1.0":
@@ -471,7 +480,7 @@ class Icohplist(MSONable):
             atom1_list: list[str] = []
             atom2_list: list[str] = []
             lens: list[float] = []
-            translations: list[Tuple3Ints] = []
+            translations: list[tuple[int, int, int]] = []
             nums: list[int] = []
             icohps: list[dict[Spin, float]] = []
 
@@ -588,6 +597,10 @@ class Icohplist(MSONable):
                 "translation": value._translation,
                 "orbitals": value._orbitals,
             }
+
+        # for LCFO only files drop the single orbital resolved entry when not in orbitalwise mode
+        if self.is_lcfo and not self.orbitalwise:
+            icohp_dict = {k: d for k, d in icohp_dict.items() if d.get("orbitals") is None}
         return icohp_dict
 
     @property
@@ -611,7 +624,7 @@ class NciCobiList:
             }
     """
 
-    def __init__(self, filename: PathLike | None = "NcICOBILIST.lobster") -> None:
+    def __init__(self, filename: PathLike = "NcICOBILIST.lobster") -> None:
         """
 
         LOBSTER < 4.1.0: no COBI/ICOBI/NcICOBI
@@ -619,11 +632,8 @@ class NciCobiList:
         Args:
             filename: Name of the NcICOBILIST file.
         """
-
-        # LOBSTER list files have an extra trailing blank line
-        # and we don't need the header
-        with zopen(filename, mode="rt") as file:
-            lines = file.read().split("\n")[1:-1]
+        # We don't need the header
+        lines = _get_lines(filename)[1:]
         if len(lines) == 0:
             raise RuntimeError("NcICOBILIST file contains no data.")
 
@@ -640,15 +650,16 @@ class NciCobiList:
                 self.orbital_wise = True
                 warnings.warn(
                     "This is an orbitalwise NcICOBILIST.lobster file. "
-                    "Currently, the orbitalwise information is not read!"
+                    "Currently, the orbitalwise information is not read!",
+                    stacklevel=2,
                 )
                 break  # condition has only to be met once
 
         if self.orbital_wise:
-            data_without_orbitals = []
-            for line in lines:
-                if "_" not in str(line.split()[3:]) and "s]" not in str(line.split()[3:]):
-                    data_without_orbitals.append(line)
+            data_without_orbitals = [
+                line for line in lines if "_" not in str(line.split()[3:]) and "s]" not in str(line.split()[3:])
+            ]
+
         else:
             data_without_orbitals = lines
 
@@ -753,7 +764,7 @@ class Doscar:
 
         tdensities = {}
         itdensities = {}
-        with zopen(doscar, mode="rt") as file:
+        with zopen(doscar, mode="rt", encoding="utf-8") as file:
             file.readline()  # Skip the first line
             efermi = float([file.readline() for nn in range(4)][3].split()[17])
             dos = []
@@ -768,9 +779,9 @@ class Doscar:
                     cdos = np.zeros((ndos, len(line)))
                     cdos[0] = np.array(line)
 
-                    for nd in range(1, ndos):
+                    for idx_dos in range(1, ndos):
                         line_parts = file.readline().split()
-                        cdos[nd] = np.array(line_parts)
+                        cdos[idx_dos] = np.array(line_parts)
                     dos.append(cdos)
 
                 line = file.readline()  # Read the next line to continue the loop
@@ -912,8 +923,7 @@ class Charge(MSONable):
         self.loewdin = [] if loewdin is None else loewdin
 
         if self.num_atoms is None:
-            with zopen(filename, mode="rt") as file:
-                lines = file.read().split("\n")[3:-3]
+            lines = _get_lines(filename)[3:-2]
             if len(lines) == 0:
                 raise RuntimeError("CHARGES file contains no data.")
 
@@ -1046,8 +1056,7 @@ class Lobsterout(MSONable):
                 else:
                     raise ValueError(f"{attr}={val} is not a valid attribute for Lobsterout")
         elif filename:
-            with zopen(filename, mode="rt") as file:
-                lines = file.read().split("\n")
+            lines = _get_lines(filename)
             if len(lines) == 0:
                 raise RuntimeError("lobsterout does not contain any data")
 
@@ -1089,18 +1098,20 @@ class Lobsterout(MSONable):
             self.has_doscar_lso = (
                 "writing DOSCAR.LSO.lobster..." in lines and "SKIPPING writing DOSCAR.LSO.lobster..." not in lines
             )
+
             try:
                 version_number = float(".".join(self.lobster_version.strip("v").split(".")[:2]))
             except ValueError:
                 version_number = 0.0
+
             if version_number < 5.1:
                 self.has_cohpcar = (
-                    "writing COOPCAR.lobster and ICOOPLIST.lobster..." in lines
-                    and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in lines
-                )
-                self.has_coopcar = (
                     "writing COHPCAR.lobster and ICOHPLIST.lobster..." in lines
                     and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in lines
+                )
+                self.has_coopcar = (
+                    "writing COOPCAR.lobster and ICOOPLIST.lobster..." in lines
+                    and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in lines
                 )
                 self.has_cobicar = (
                     "writing COBICAR.lobster and ICOBILIST.lobster..." in lines
@@ -1108,14 +1119,15 @@ class Lobsterout(MSONable):
                 )
             else:
                 self.has_cohpcar = (
-                    "writing COOPCAR.lobster..." in lines and "SKIPPING writing COOPCAR.lobster..." not in lines
-                )
-                self.has_coopcar = (
                     "writing COHPCAR.lobster..." in lines and "SKIPPING writing COHPCAR.lobster..." not in lines
                 )
-                self.has_cobicar = (
-                    "writing COBICAR.lobster..." in lines and "SKIPPING writing COBICAR.lobster..." not in lines
+                self.has_coopcar = (
+                    "writing COOPCAR.lobster..." in lines and "SKIPPING writing COOPCAR.lobster..." not in lines
                 )
+                self.has_cobicar = (
+                    "writing COBICAR.lobster..." in lines
+                    or "Writing COBICAR.lobster, ICOBILIST.lobster and NcICOBILIST.lobster..." in lines
+                ) and "SKIPPING writing COBICAR.lobster..." not in lines
 
             self.has_cobicar_lcfo = "writing COBICAR.LCFO.lobster..." in lines
             self.has_cohpcar_lcfo = "writing COHPCAR.LCFO.lobster..." in lines
@@ -1392,8 +1404,14 @@ class Fatband:
             structure (Structure): Structure object.
             efermi (float): Fermi level in eV.
         """
-        warnings.warn("Make sure all relevant FATBAND files were generated and read in!")
-        warnings.warn("Use Lobster 3.2.0 or newer for fatband calculations!")
+        warnings.warn(
+            "Make sure all relevant FATBAND files were generated and read in!",
+            stacklevel=2,
+        )
+        warnings.warn(
+            "Use Lobster 3.2.0 or newer for fatband calculations!",
+            stacklevel=2,
+        )
 
         if structure is None:
             raise ValueError("A structure object has to be provided")
@@ -1424,22 +1442,22 @@ class Fatband:
         parameters = []
 
         if not isinstance(filenames, list) or filenames is None:
-            filenames_new: list[str] = []
             if filenames is None:
                 filenames = "."
-            for name in os.listdir(filenames):
-                if fnmatch.fnmatch(name, "FATBAND_*.lobster"):
-                    filenames_new.append(os.path.join(filenames, name))
-            filenames = filenames_new  # type: ignore[assignment]
 
-        filenames = cast(list[PathLike], filenames)
+            filenames_new = [
+                os.path.join(filenames, name)
+                for name in os.listdir(filenames)
+                if fnmatch.fnmatch(name, "FATBAND_*.lobster")
+            ]
+
+            filenames = cast("list[PathLike]", filenames_new)
 
         if len(filenames) == 0:
             raise ValueError("No FATBAND files in folder or given")
 
         for fname in filenames:
-            with zopen(fname, mode="rt") as file:
-                lines = file.read().split("\n")
+            lines = _get_lines(fname)
 
             atom_names.append(os.path.split(fname)[1].split("_")[1].capitalize())
             parameters = lines[0].split()
@@ -1458,9 +1476,7 @@ class Fatband:
         for items in atom_orbital_dict.values():
             if len(set(items)) != len(items):
                 raise ValueError("The are two FATBAND files for the same atom and orbital. The program will stop.")
-            split = []
-            for item in items:
-                split.append(item.split("_")[0])
+            split = [item.split("_")[0] for item in items]
             for number in collections.Counter(split).values():
                 if number not in {1, 3, 5, 7}:
                     raise ValueError(
@@ -1472,8 +1488,7 @@ class Fatband:
         eigenvals: dict = {}
         p_eigenvals: dict = {}
         for ifilename, filename in enumerate(filenames):
-            with zopen(filename, mode="rt") as file:
-                lines = file.read().split("\n")
+            lines = _get_lines(filename)
 
             if ifilename == 0:
                 self.nbands = int(parameters[6])
@@ -1526,7 +1541,7 @@ class Fatband:
 
             idx_kpt = -1
             linenumber = iband = 0
-            for line in lines[1:-1]:
+            for line in lines[1:]:
                 if line.split()[0] == "#":
                     KPOINT = np.array(
                         [
@@ -1580,7 +1595,7 @@ class Fatband:
             lattice=self.lattice,
             efermi=self.efermi,  # type: ignore[arg-type]
             labels_dict=self.label_dict,
-            structure=self.structure,
+            structure=self.structure,  # type: ignore[arg-type]
             projections=self.p_eigenvals,
         )
 
@@ -1620,8 +1635,7 @@ class Bandoverlaps(MSONable):
         self.max_deviation = [] if max_deviation is None else max_deviation
 
         if not self.band_overlaps_dict:
-            with zopen(filename, mode="rt") as file:
-                lines = file.read().split("\n")
+            lines = _get_lines(filename)
 
             spin_numbers = [0, 1] if lines[0].split()[-1] == "0" else [1, 2]
 
@@ -1671,13 +1685,11 @@ class Bandoverlaps(MSONable):
                 overlaps = []
 
             else:
-                _lines = []
-                for el in line.split(" "):
-                    if el != "":
-                        _lines.append(float(el))
+                _lines = [float(el) for el in line.split(" ") if el != ""]
+
                 overlaps.append(_lines)
                 if len(overlaps) == len(_lines):
-                    self.band_overlaps_dict[spin]["matrices"].append(np.matrix(overlaps))
+                    self.band_overlaps_dict[spin]["matrices"].append(np.array(overlaps))
 
     def has_good_quality_maxDeviation(self, limit_maxDeviation: float = 0.1) -> bool:
         """Check if the maxDeviation from the ideal bandoverlap is smaller
@@ -1710,29 +1722,22 @@ class Bandoverlaps(MSONable):
         Returns:
             bool: True if the quality of the projection is good.
         """
-        for matrix in self.band_overlaps_dict[Spin.up]["matrices"]:
-            for iband1, band1 in enumerate(matrix):
-                for iband2, band2 in enumerate(band1):
-                    if iband1 < number_occ_bands_spin_up and iband2 < number_occ_bands_spin_up:
-                        if iband1 == iband2:
-                            if abs(band2 - 1.0).all() > limit_deviation:
-                                return False
-                        elif band2.all() > limit_deviation:
-                            return False
+        if spin_polarized and number_occ_bands_spin_down is None:
+            raise ValueError("number_occ_bands_spin_down has to be specified")
 
-        if spin_polarized:
-            for matrix in self.band_overlaps_dict[Spin.down]["matrices"]:
-                for iband1, band1 in enumerate(matrix):
-                    for iband2, band2 in enumerate(band1):
-                        if number_occ_bands_spin_down is None:
-                            raise ValueError("number_occ_bands_spin_down has to be specified")
+        for spin in (Spin.up, Spin.down) if spin_polarized else (Spin.up,):
+            if spin is Spin.up:
+                num_occ_bands = number_occ_bands_spin_up
+            else:
+                if number_occ_bands_spin_down is None:
+                    raise ValueError("number_occ_bands_spin_down has to be specified")
+                num_occ_bands = number_occ_bands_spin_down
 
-                        if iband1 < number_occ_bands_spin_down and iband2 < number_occ_bands_spin_down:
-                            if iband1 == iband2:
-                                if abs(band2 - 1.0).all() > limit_deviation:
-                                    return False
-                            elif band2.all() > limit_deviation:
-                                return False
+            for overlap_matrix in self.band_overlaps_dict[spin]["matrices"]:
+                sub_array = np.asarray(overlap_matrix)[:num_occ_bands, :num_occ_bands]
+
+                if not np.allclose(sub_array, np.identity(num_occ_bands), atol=limit_deviation, rtol=0):
+                    return False
 
         return True
 
@@ -1772,8 +1777,7 @@ class Grosspop(MSONable):
         self.is_lcfo = is_lcfo
         self.list_dict_grosspop = [] if list_dict_grosspop is None else list_dict_grosspop
         if not self.list_dict_grosspop:
-            with zopen(filename, mode="rt") as file:
-                lines = file.read().split("\n")
+            lines = _get_lines(filename)
 
             # Read file to list of dict
             small_dict: dict[str, Any] = {}
@@ -1889,7 +1893,7 @@ class Wavefunction:
     @staticmethod
     def _parse_file(
         filename: PathLike,
-    ) -> tuple[Tuple3Ints, list[Vector3D], list[float], list[float], list[float]]:
+    ) -> tuple[tuple[int, int, int], list[tuple[float, float, float]], list[float], list[float], list[float]]:
         """Parse wave function file.
 
         Args:
@@ -1902,15 +1906,14 @@ class Wavefunction:
             imaginary (list[float]): Imaginary parts of wave function.
             distance (list[float]): Distances to the first point in wave function file.
         """
-        with zopen(filename, mode="rt") as file:
-            lines = file.read().split("\n")
+        lines = _get_lines(filename)
 
         points = []
         distances = []
         reals = []
         imaginaries = []
         line_parts = lines[0].split()
-        grid: Tuple3Ints = (int(line_parts[7]), int(line_parts[8]), int(line_parts[9]))
+        grid: tuple[int, int, int] = (int(line_parts[7]), int(line_parts[8]), int(line_parts[9]))
 
         for line in lines[1:]:
             line_parts = line.split()
@@ -1925,7 +1928,7 @@ class Wavefunction:
 
         return grid, points, reals, imaginaries, distances
 
-    def set_volumetric_data(self, grid: Tuple3Ints, structure: Structure) -> None:
+    def set_volumetric_data(self, grid: tuple[int, int, int], structure: Structure) -> None:
         """Create the VolumetricData instances.
 
         Args:
@@ -2072,8 +2075,7 @@ class MadelungEnergies(MSONable):
         self.madelungenergies_mulliken = None if madelungenergies_mulliken is None else madelungenergies_mulliken
 
         if self.ewald_splitting is None:
-            with zopen(filename, mode="rt") as file:
-                lines = file.read().split("\n")[5]
+            lines = _get_lines(filename)[5]
             if len(lines) == 0:
                 raise RuntimeError("MadelungEnergies file contains no data.")
 
@@ -2143,15 +2145,14 @@ class SitePotential(MSONable):
         self.madelungenergies_mulliken: list | float = madelungenergies_mulliken or []
 
         if self.num_atoms is None:
-            with zopen(filename, mode="rt") as file:
-                lines = file.read().split("\n")
+            lines = _get_lines(filename)
             if len(lines) == 0:
                 raise RuntimeError("SitePotentials file contains no data.")
 
             self._filename = filename
             self.ewald_splitting = float(lines[0].split()[9])
 
-            lines = lines[5:-1]
+            lines = lines[5:]
             self.num_atoms = len(lines) - 2
             for atom in range(self.num_atoms):
                 line_parts = lines[atom].split()
@@ -2296,8 +2297,8 @@ class LobsterMatrices:
         """
 
         self._filename = str(filename)
-        with zopen(self._filename, mode="rt") as file:
-            lines = file.readlines()
+        with zopen(self._filename, mode="rt", encoding="utf-8") as file:
+            lines: list[str] = cast("list[str]", file.readlines())
         if len(lines) == 0:
             raise RuntimeError("Please check provided input file, it seems to be empty")
 
@@ -2339,7 +2340,7 @@ class LobsterMatrices:
         file_data: list[str],
         pattern: str,
         e_fermi: float,
-    ) -> tuple[list[float], dict, dict]:
+    ) -> tuple[list[np.ndarray], dict[Any, Any], dict[Any, Any]]:
         complex_matrices: dict = {}
         matrix_diagonal_values = []
         start_inxs_real = []
@@ -2440,8 +2441,7 @@ class Polarization(MSONable):
         self.rel_loewdin_pol_vector = {} if rel_loewdin_pol_vector is None else rel_loewdin_pol_vector
 
         if not self.rel_loewdin_pol_vector and not self.rel_mulliken_pol_vector:
-            with zopen(filename, mode="rt", encoding="utf-8") as file:
-                lines = file.read().split("\n")
+            lines = _get_lines(filename)
             if len(lines) == 0:
                 raise RuntimeError("Polarization file contains no data.")
 
@@ -2484,8 +2484,7 @@ class Bwdf(MSONable):
         self.bin_width = 0.0 if bin_width is None else bin_width
 
         if not self.bwdf:
-            with zopen(filename, mode="rt") as file:
-                lines = file.read().split("\n")
+            lines = _get_lines(filename)
             if len(lines) == 0:
                 raise RuntimeError("BWDF file contains no data.")
 

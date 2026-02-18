@@ -11,7 +11,7 @@ import numpy as np
 from monty.json import MSONable
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 __author__ = "waroquiers"
 
@@ -43,8 +43,10 @@ def get_all_simple_paths_edges(graph, source, target, cutoff=None, data=True):
     """
     edge_paths = []
     if not graph.is_multigraph():
-        for path in nx.all_simple_paths(graph, source, target, cutoff=cutoff):
-            edge_paths.append([(path[ii], path[ii + 1]) for ii in range(len(path) - 1)])
+        edge_paths.extend(
+            [(path[ii], path[ii + 1]) for ii in range(len(path) - 1)]
+            for path in nx.all_simple_paths(graph, source, target, cutoff=cutoff)
+        )
         return edge_paths
 
     node_paths = []
@@ -120,10 +122,7 @@ def _c2index_isreverse(c1, c2):
     elif c2_1_index == c2_0_index - 1:
         reverse = True
     else:
-        msg = (
-            "Second node of cycle c1 in cycle c2 is not just after or "
-            "just before first node of cycle c1 in cycle c2."
-        )
+        msg = "Second node of cycle c1 in cycle c2 is not just after or just before first node of cycle c1 in cycle c2."
         return None, None, msg
     return c2_0_index, reverse, ""
 
@@ -175,8 +174,8 @@ class SimpleGraphCycle(MSONable):
         if check_strict_ordering:
             try:
                 sorted_nodes = sorted(self.nodes)
-            except TypeError as te:
-                msg = te.args[0]
+            except TypeError as exc:
+                msg = exc.args[0]
                 if "'<' not supported between instances of" in msg:
                     return False, "The nodes are not sortable."
                 raise
@@ -366,8 +365,8 @@ class MultiGraphCycle(MSONable):
         if check_strict_ordering:
             try:
                 sorted_nodes = sorted(self.nodes)
-            except TypeError as te:
-                msg = te.args[0]
+            except TypeError as exc:
+                msg = exc.args[0]
                 if "'<' not supported between instances of" in msg:
                     return False, "The nodes are not sortable."
                 raise

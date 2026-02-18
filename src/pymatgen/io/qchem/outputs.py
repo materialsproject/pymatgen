@@ -33,6 +33,7 @@ except ImportError:
     openbabel = None
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from typing import Any
 
     from numpy.typing import NDArray
@@ -59,7 +60,7 @@ class QCOutput(MSONable):
         self.data["warnings"] = {}
         self.text = ""
         with zopen(filename, mode="rt", encoding="ISO-8859-1") as file:
-            self.text = file.read()
+            self.text = file.read()  # type:ignore[assignment]
 
         # Check if output file contains multiple output files. If so, print an error message and exit
         self.data["multiple_outputs"] = read_pattern(
@@ -481,7 +482,7 @@ class QCOutput(MSONable):
                 self.text,
                 {
                     "had": r"H_ad = (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
-                    "hda": r"H_da = (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
+                    "hda": r"H_da = (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",  # codespell:ignore hda
                     "coupling": r"The (?:averaged )?electronic coupling: (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
                 },
             )
@@ -490,10 +491,10 @@ class QCOutput(MSONable):
                 self.data["fodft_had_eV"] = None
             else:
                 self.data["fodft_had_eV"] = float(temp_dict["had"][0][0]) / 1000
-            if temp_dict.get("hda") is None or len(temp_dict.get("hda", [])) == 0:
+            if temp_dict.get("hda") is None or len(temp_dict.get("hda", [])) == 0:  # codespell:ignore hda
                 self.data["fodft_hda_eV"] = None
             else:
-                self.data["fodft_hda_eV"] = float(temp_dict["hda"][0][0]) / 1000
+                self.data["fodft_hda_eV"] = float(temp_dict["hda"][0][0]) / 1000  # codespell:ignore hda
             if temp_dict.get("coupling") is None or len(temp_dict.get("coupling", [])) == 0:
                 self.data["fodft_coupling_eV"] = None
             else:
@@ -661,12 +662,12 @@ class QCOutput(MSONable):
         2.) Creates separate QCCalcs for each one from the sub-files.
         """
         to_return = []
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             text = re.split(r"\s*(?:Running\s+)*Job\s+\d+\s+of\s+\d+\s+", file.read())
         if text[0] == "":
             text = text[1:]
         for i, sub_text in enumerate(text):
-            with open(f"{filename}.{i}", mode="w") as temp:
+            with open(f"{filename}.{i}", mode="w", encoding="utf-8") as temp:
                 temp.write(sub_text)
             tempOutput = QCOutput(f"{filename}.{i}")
             to_return.append(tempOutput)
@@ -1422,7 +1423,7 @@ class QCOutput(MSONable):
         if len(parsed_gradients) >= 1:
             sorted_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
             for ii, grad in enumerate(parsed_gradients):
-                for jj in range(int(len(grad) / 3)):
+                for jj in range(len(grad) // 3):
                     for kk in range(grad_format_length):
                         if grad[jj * 3][kk] != "None":
                             sorted_gradients[ii][jj * grad_format_length + kk][0] = grad[jj * 3][kk]
@@ -1457,7 +1458,7 @@ class QCOutput(MSONable):
 
                 sorted_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
                 for ii, grad in enumerate(parsed_gradients):
-                    for jj in range(int(len(grad) / 3)):
+                    for jj in range(len(grad) // 3):
                         for kk in range(grad_format_length):
                             if grad[jj * 3][kk] != "None":
                                 sorted_gradients[ii][jj * grad_format_length + kk][0] = grad[jj * 3][kk]
@@ -1523,7 +1524,7 @@ class QCOutput(MSONable):
                     self.data["errors"] += ["out_of_opt_cycles"]
                 elif read_pattern(
                     self.text,
-                    {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},
+                    {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},  # codespell:ignore lamda
                     terminate_on_match=True,
                 ).get("key") == [[]]:
                     self.data["errors"] += ["unable_to_determine_lamda"]
@@ -1746,7 +1747,7 @@ class QCOutput(MSONable):
                 self.data["errors"] += ["out_of_opt_cycles"]
             elif read_pattern(
                 self.text,
-                {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},
+                {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},  # codespell:ignore lamda
                 terminate_on_match=True,
             ).get("key") == [[]]:
                 self.data["errors"] += ["unable_to_determine_lamda"]
@@ -2308,7 +2309,8 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
         if site.specie.symbol != mol2[ii].specie.symbol:
             warnings.warn(
                 "Comparing molecules with different atom ordering! "
-                "Turning off special treatment for coordinating metals."
+                "Turning off special treatment for coordinating metals.",
+                stacklevel=2,
             )
             special_elements = []
 
@@ -2937,7 +2939,7 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
     return e2_dfs
 
 
-def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
+def nbo_parser(filename: str | Path) -> dict[str, list[pd.DataFrame]]:
     """
     Parse all the important sections of NBO output.
 
@@ -2952,7 +2954,7 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     """
     # Open the lines
     with zopen(filename, mode="rt", encoding="ISO-8859-1") as file:
-        lines = file.readlines()
+        lines: list[str] = file.readlines()  # type:ignore[assignment]
 
     # Compile the dataframes
     dfs = {}
@@ -2963,7 +2965,7 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     return dfs
 
 
-def gradient_parser(filename: str = "131.0") -> NDArray:
+def gradient_parser(filename: str | Path = "131.0") -> NDArray:
     """
     Parse the gradient data from a gradient scratch file.
 
@@ -2989,7 +2991,7 @@ def gradient_parser(filename: str = "131.0") -> NDArray:
     return np.array(grad)
 
 
-def hessian_parser(filename: str = "132.0", n_atoms: int | None = None) -> NDArray:
+def hessian_parser(filename: str | Path = "132.0", n_atoms: int | None = None) -> NDArray:
     """
     Parse the Hessian data from a Hessian scratch file.
 
@@ -3009,7 +3011,7 @@ def hessian_parser(filename: str = "132.0", n_atoms: int | None = None) -> NDArr
     return np.array(hessian)
 
 
-def orbital_coeffs_parser(filename: str = "53.0") -> NDArray:
+def orbital_coeffs_parser(filename: str | Path = "53.0") -> NDArray:
     """
     Parse the orbital coefficients from a scratch file.
 

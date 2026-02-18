@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from unittest import TestCase
+from datetime import UTC, datetime, timedelta
 
 import numpy as np
 import pytest
@@ -20,8 +19,8 @@ __email__ = "ajain@lbl.gov"
 __date__ = "2/14/13"
 
 
-class TestStructureNL(TestCase):
-    def setUp(self):
+class TestStructureNL:
+    def setup_method(self):
         # set up a Structure
         self.struct = Structure(np.eye(3, 3) * 3, ["Fe"], [[0, 0, 0]])
         self.s2 = Structure(np.eye(3, 3) * 3, ["Al"], [[0, 0, 0]])
@@ -46,8 +45,7 @@ class TestStructureNL(TestCase):
             ".com/retrieve/pii/S0927025612006295},\n volume = {68},"
             "\n year = {2013}\n}"
         )
-        repeat = "REPEAT" * 10000
-        self.superlong = f"@misc{{SuperLong,\ntitle = {{{repeat}}}}}"
+        self.superlong = f"@misc{{SuperLong,\ntitle = {{{'REPEAT' * 10000}}}}}"
         self.unicode_title = "@misc{Unicode_Title,\ntitle = {{A \u73ab is a rose}}}"
         self.junk = "This is junk text, not a BibTeX reference"
 
@@ -170,7 +168,7 @@ class TestStructureNL(TestCase):
 
     def test_eq(self):
         # test basic Equal()
-        created_at = datetime.now(tz=timezone.utc)
+        created_at = datetime.now(tz=UTC)
         struct_nl = StructureNL(
             self.struct,
             self.hulk,
@@ -194,7 +192,7 @@ class TestStructureNL(TestCase):
         assert struct_nl == struct_nl2
 
         # change the created at date, now they are no longer equal
-        created_at = datetime.now(tz=timezone.utc) + timedelta(days=-1)
+        created_at = datetime.now(tz=UTC) + timedelta(days=-1)
         snl_new_date = StructureNL(
             self.struct,
             self.hulk,
@@ -249,9 +247,9 @@ class TestStructureNL(TestCase):
             [complicated_node, self.valid_node],
         )
         round_trip_from_dict = StructureNL.from_dict(struct_nl.as_dict())
-        assert (
-            struct_nl == round_trip_from_dict
-        ), "to/from dict is broken when object embedding is used! Apparently MontyEncoding is broken..."
+        assert struct_nl == round_trip_from_dict, (
+            "to/from dict is broken when object embedding is used! Apparently MontyEncoding is broken..."
+        )
 
         # Test molecule
         mol_nl = StructureNL(self.mol, self.hulk, references=self.pmg)

@@ -4,6 +4,7 @@ entries given to the CorrectionCalculator constructor.
 
 from __future__ import annotations
 
+import logging
 import os
 import warnings
 
@@ -16,6 +17,8 @@ from scipy.optimize import curve_fit
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 from pymatgen.analysis.structure_analyzer import sulfide_type
 from pymatgen.core import Composition, Element
+
+logger = logging.getLogger(__name__)
 
 
 class CorrectionCalculator:
@@ -130,7 +133,10 @@ class CorrectionCalculator:
 
             compound = self.calc_compounds.get(name)
             if not compound:
-                warnings.warn(f"Compound {name} is not found in provided computed entries and is excluded from the fit")
+                warnings.warn(
+                    f"Compound {name} is not found in provided computed entries and is excluded from the fit",
+                    stacklevel=2,
+                )
                 continue
 
             # filter out compounds with large uncertainties
@@ -139,14 +145,17 @@ class CorrectionCalculator:
                 allow = False
                 warnings.warn(
                     f"Compound {name} is excluded from the fit due to high experimental "
-                    f"uncertainty ({relative_uncertainty:.1%})"
+                    f"uncertainty ({relative_uncertainty:.1%})",
+                    stacklevel=2,
                 )
 
             # filter out compounds containing certain polyanions
             for anion in self.exclude_polyanions:
                 if anion in name or anion in cmpd_info["formula"]:
                     allow = False
-                    warnings.warn(f"Compound {name} contains the poly{anion=} and is excluded from the fit")
+                    warnings.warn(
+                        f"Compound {name} contains the poly{anion=} and is excluded from the fit", stacklevel=2
+                    )
                     break
 
             # filter out compounds that are unstable
@@ -157,7 +166,9 @@ class CorrectionCalculator:
                     raise ValueError("Missing e above hull data")
                 if eah > self.allow_unstable:
                     allow = False
-                    warnings.warn(f"Compound {name} is unstable and excluded from the fit (e_above_hull = {eah})")
+                    warnings.warn(
+                        f"Compound {name} is unstable and excluded from the fit (e_above_hull = {eah})", stacklevel=2
+                    )
 
             if allow:
                 comp = Composition(name)
@@ -284,14 +295,14 @@ class CorrectionCalculator:
             layout=dict(title="Residual Errors", yaxis=dict(title="Residual Error (eV/atom)")),
         )
 
-        print("Residual Error:")
-        print(f"Median = {np.median(abs_errors)}")
-        print(f"Mean = {np.mean(abs_errors)}")
-        print(f"Std Dev = {np.std(abs_errors)}")
-        print("Original Error:")
-        print(f"Median = {abs(np.median(self.diffs))}")
-        print(f"Mean = {abs(np.mean(self.diffs))}")
-        print(f"Std Dev = {np.std(self.diffs)}")
+        logger.info("Residual Error:")
+        logger.info(f"Median = {np.median(abs_errors)}")
+        logger.info(f"Mean = {np.mean(abs_errors)}")
+        logger.info(f"Std Dev = {np.std(abs_errors)}")
+        logger.info("Original Error:")
+        logger.info(f"Median = {abs(np.median(self.diffs))}")
+        logger.info(f"Mean = {abs(np.mean(self.diffs))}")
+        logger.info(f"Std Dev = {np.std(self.diffs)}")
 
         return fig
 
@@ -353,14 +364,14 @@ class CorrectionCalculator:
             ),
         )
 
-        print("Residual Error:")
-        print(f"Median = {np.median(np.array(abs_errors))}")
-        print(f"Mean = {np.mean(np.array(abs_errors))}")
-        print(f"Std Dev = {np.std(np.array(abs_errors))}")
-        print("Original Error:")
-        print(f"Median = {abs(np.median(np.array(diffs_cpy)))}")
-        print(f"Mean = {abs(np.mean(np.array(diffs_cpy)))}")
-        print(f"Std Dev = {np.std(np.array(diffs_cpy))}")
+        logger.info("Residual Error:")
+        logger.info(f"Median = {np.median(np.array(abs_errors))}")
+        logger.info(f"Mean = {np.mean(np.array(abs_errors))}")
+        logger.info(f"Std Dev = {np.std(np.array(abs_errors))}")
+        logger.info("Original Error:")
+        logger.info(f"Median = {abs(np.median(np.array(diffs_cpy)))}")
+        logger.info(f"Mean = {abs(np.mean(np.array(diffs_cpy)))}")
+        logger.info(f"Std Dev = {np.std(np.array(diffs_cpy))}")
 
         return fig
 
@@ -443,5 +454,5 @@ class CorrectionCalculator:
         contents["Uncertainties"].yaml_set_start_comment(
             "Uncertainties corresponding to each energy correction (eV/atom)", indent=2
         )
-        with open(path, mode="w") as file:
+        with open(path, mode="w", encoding="utf-8") as file:
             yml.dump(contents, file)

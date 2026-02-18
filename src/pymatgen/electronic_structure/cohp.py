@@ -31,13 +31,12 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.num import round_to_sigfigs
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-    from typing import Any, Literal
+    from collections.abc import Mapping
+    from typing import Any, Literal, Self
 
-    from numpy.typing import NDArray
-    from typing_extensions import Self
+    from numpy.typing import ArrayLike, NDArray
 
-    from pymatgen.util.typing import PathLike, SpinLike, Vector3D
+    from pymatgen.util.typing import PathLike, SpinLike
 
 __author__ = "Marco Esters, Janine George"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -58,12 +57,12 @@ class Cohp(MSONable):
     def __init__(
         self,
         efermi: float,
-        energies: Sequence[float],
-        cohp: dict[Spin, NDArray],
+        energies: ArrayLike,
+        cohp: Mapping[Spin, NDArray],
         are_coops: bool = False,
         are_cobis: bool = False,
         are_multi_center_cobis: bool = False,
-        icohp: dict[Spin, NDArray] | None = None,
+        icohp: Mapping[Spin, NDArray] | None = None,
     ) -> None:
         """
         Args:
@@ -106,8 +105,7 @@ class Cohp(MSONable):
         format_header = "#" + " ".join("{:15s}" for __ in header)
         format_data = " ".join("{:.5f}" for __ in header)
         str_arr = [format_header.format(*header)]
-        for idx in range(len(self.energies)):
-            str_arr.append(format_data.format(*(d[idx] for d in data)))
+        str_arr.extend(format_data.format(*(d[idx] for d in data)) for idx in range(len(self.energies)))
         return "\n".join(str_arr)
 
     def as_dict(self) -> dict[str, Any]:
@@ -146,7 +144,7 @@ class Cohp(MSONable):
         if populations is None:
             return None
         if spin is None:
-            return populations
+            return populations  # type: ignore[return-value]
         if isinstance(spin, int):
             spin = Spin(spin)
         elif isinstance(spin, str):
@@ -378,8 +376,8 @@ class CompleteCohp(Cohp):
             The Cohp.
         """
         if label.lower() == "average":
-            divided_cohp: dict[Spin, Any] | None = self.cohp
-            divided_icohp: dict[Spin, Any] | None = self.icohp
+            divided_cohp: Mapping[Spin, NDArray] | None = self.cohp
+            divided_icohp: Mapping[Spin, NDArray] | None = self.icohp
         else:
             divided_cohp = self.all_cohps[label].get_cohp(spin=None, integrated=False)
             divided_icohp = self.all_cohps[label].get_icohp(spin=None)
@@ -390,8 +388,10 @@ class CompleteCohp(Cohp):
         if summed_spin_channels and Spin.down in self.cohp:
             if divided_icohp is None:
                 raise ValueError("divided_icohp is None")
-            final_cohp: dict[Spin, Any] = {Spin.up: np.sum([divided_cohp[Spin.up], divided_cohp[Spin.down]], axis=0)}
-            final_icohp: dict[Spin, Any] | None = {
+            final_cohp: Mapping[Spin, NDArray] = {
+                Spin.up: np.sum([divided_cohp[Spin.up], divided_cohp[Spin.down]], axis=0)
+            }
+            final_icohp: Mapping[Spin, NDArray] | None = {
                 Spin.up: np.sum([divided_icohp[Spin.up], divided_icohp[Spin.down]], axis=0)
             }
         else:
@@ -945,7 +945,7 @@ class IcohpValue(MSONable):
         atom1: str,
         atom2: str,
         length: float,
-        translation: Vector3D,
+        translation: tuple[float, float, float],
         num: int,
         icohp: dict[Spin, float],
         are_coops: bool = False,
@@ -958,7 +958,7 @@ class IcohpValue(MSONable):
             atom1 (str): The first atom that contributes to the bond.
             atom2 (str): The second atom that contributes to the bond.
             length (float): Bond length.
-            translation (Vector3D): cell translation vector, e.g. (0, 0, 0).
+            translation (tuple[float, float, float]): cell translation vector, e.g. (0, 0, 0).
             num (int): The number of equivalent bonds.
             icohp (dict[Spin, float]): {Spin.up: ICOHP_up, Spin.down: ICOHP_down}
             are_coops (bool): Whether these are COOPs.
@@ -1129,7 +1129,7 @@ class IcohpCollection(MSONable):
         list_atom1: list[str],
         list_atom2: list[str],
         list_length: list[float],
-        list_translation: list[Vector3D],
+        list_translation: list[tuple[float, float, float]],
         list_num: list[int],
         list_icohp: list[dict[Spin, float]],
         is_spin_polarized: bool,
@@ -1143,7 +1143,7 @@ class IcohpCollection(MSONable):
             list_atom1 (list[str]): Atom names, e.g. "O1".
             list_atom2 (list[str]): Atom names, e.g. "O1".
             list_length (list[float]): Bond lengths in Angstrom.
-            list_translation (list[Vector3D]): Cell translation vectors.
+            list_translation (list[tuple[float, float, float]]): Cell translation vectors.
             list_num (list[int]): Numbers of equivalent bonds, usually 1 starting from LOBSTER 3.0.0.
             list_icohp (list[dict]): Dicts as {Spin.up: ICOHP_up, Spin.down: ICOHP_down}.
             is_spin_polarized (bool): Whether the calculation is spin polarized.
@@ -1247,7 +1247,9 @@ class IcohpCollection(MSONable):
         for label in label_list:
             icohp = self._icohplist[label]
             if icohp.num_bonds != 1:
-                warnings.warn("One of the ICOHP values is an average over bonds. This is currently not considered.")
+                warnings.warn(
+                    "One of the ICOHP values is an average over bonds. This is currently not considered.", stacklevel=2
+                )
 
             if icohp._is_spin_polarized and summed_spin_channels:
                 sum_icohp += icohp.summed_icohp
@@ -1350,7 +1352,7 @@ class IcohpCollection(MSONable):
 
         if not self._is_spin_polarized:
             if spin == Spin.down:
-                warnings.warn("This spin channel does not exist. I am switching to Spin.up")
+                warnings.warn("This spin channel does not exist. I am switching to Spin.up", stacklevel=2)
             spin = Spin.up
 
         for value in self._icohplist.values():
@@ -1382,6 +1384,75 @@ class IcohpCollection(MSONable):
     def are_cobis(self) -> bool:
         """Whether this is COBI."""
         return self._are_cobis
+
+    def as_dict(self) -> dict[str, Any]:
+        """JSON-serializable dict representation of COHP."""
+        return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "are_coops": self._are_coops,
+            "are_cobis": self._are_cobis,
+            "list_labels": self._list_labels,
+            "list_atom1": self._list_atom1,
+            "list_atom2": self._list_atom2,
+            "list_length": self._list_length,
+            "list_translation": self._list_translation,
+            "list_num": self._list_num,
+            "list_icohp": [{str(spin): value for spin, value in icohp.items()} for icohp in self._list_icohp],
+            "is_spin_polarized": self._is_spin_polarized,
+            "list_orb_icohp": [
+                {
+                    key: {
+                        "icohp": {str(spin): value for spin, value in val["icohp"].items()},
+                        "orbitals": [[n, int(orb)] for n, orb in val["orbitals"]],
+                    }
+                    for key, val in entry.items()
+                }
+                for entry in self._list_orb_icohp
+            ],
+        }
+
+    @classmethod
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
+        """Generate IcohpCollection from a dict representation."""
+        list_icohp = []
+        for icohp_dict in dct["list_icohp"]:
+            new_icohp_dict = {}
+            for spin_key, value in icohp_dict.items():
+                # Convert string/int to Spin enum
+                spin_enum = (
+                    Spin(int(spin_key)) if isinstance(spin_key, int) or spin_key in ("1", "-1") else Spin[spin_key]
+                )
+                new_icohp_dict[spin_enum] = value
+            list_icohp.append(new_icohp_dict)
+
+        new_list_orb = [{orb_label: {} for orb_label in bond} for bond in dct["list_orb_icohp"]]  # type:ignore[var-annotated]
+        for bond_num, lab_orb_icohp in enumerate(dct["list_orb_icohp"]):
+            for orb in lab_orb_icohp:
+                for key in lab_orb_icohp[orb]:
+                    sub_dict = {}
+                    if key == "icohp":
+                        sub_dict[key] = {
+                            Spin.up: lab_orb_icohp[orb][key]["1"],
+                            Spin.down: lab_orb_icohp[orb][key]["-1"],
+                        }
+
+                    if key == "orbitals":
+                        orb_temp = []
+
+                        for item in lab_orb_icohp[orb][key]:
+                            item[1] = Orbital(item[1])
+                            orb_temp.append(item)
+                        sub_dict[key] = orb_temp  # type: ignore[assignment]
+
+                    new_list_orb[bond_num][orb].update(sub_dict)
+
+        dct["list_icohp"] = list_icohp
+        dct["list_orb_icohp"] = new_list_orb
+
+        init_dict = {k: v for k, v in dct.items() if "@" not in k}
+
+        return cls(**init_dict)
 
 
 def get_integrated_cohp_in_energy_range(
@@ -1416,7 +1487,7 @@ def get_integrated_cohp_in_energy_range(
         _icohps = cohp.get_orbital_resolved_cohp(label=label, orbitals=orbital)
         if _icohps is None:
             raise ValueError("_icohps is None")
-        icohps = _icohps.icohp
+        icohps = _icohps.icohp  # type: ignore[assignment]
 
     if icohps is None:
         raise ValueError("ichops is None")

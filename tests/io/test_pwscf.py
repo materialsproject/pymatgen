@@ -6,12 +6,12 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/pwscf"
 
 
-class TestPWInput(PymatgenTest):
+class TestPWInput(MatSciTest):
     def test_init(self):
         struct = self.get_structure("Li2O")
         with pytest.raises(PWInputError, match="Missing O2- in pseudo specification"):
@@ -389,7 +389,7 @@ CELL_PARAMETERS angstrom
 
         assert_allclose(lattice, pw_in.structure.lattice.matrix)
         assert pw_in.sections["system"]["smearing"] == "cold"
-        assert pw_in.sections["electrons"]["conv_thr"] == 5.3e-5
+        assert pw_in.sections["electrons"]["conv_thr"] == approx(5.3e-5)
         assert pw_in.kpoints_mode == "automatic"
         assert pw_in.kpoints_grid == (4, 4, 4)
         assert pw_in.kpoints_shift == (1, 1, 1)
@@ -542,8 +542,8 @@ CELL_PARAMETERS angstrom
         assert pw_str.strip() == str(PWInput.from_str(pw_str)).strip()
 
 
-class TestPWOutput(PymatgenTest):
-    def setUp(self):
+class TestPWOutput(MatSciTest):
+    def setup_method(self):
         self.pw_out = PWOutput(f"{TEST_DIR}/Si.pwscf.out")
 
     def test_properties(self):

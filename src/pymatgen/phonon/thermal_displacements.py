@@ -15,17 +15,12 @@ from pymatgen.io.cif import CifFile, CifParser, CifWriter, str2float
 from pymatgen.symmetry.groups import SYMM_DATA
 from pymatgen.util.due import Doi, due
 
-try:
-    import phonopy
-except ImportError:
-    phonopy = None
-
 if TYPE_CHECKING:
-    from os import PathLike
-    from typing import Literal
+    from typing import Literal, Self
 
-    from numpy.typing import ArrayLike
-    from typing_extensions import Self
+    from numpy.typing import ArrayLike, NDArray
+
+    from pymatgen.util.typing import PathLike
 
 __author__ = "J. George"
 __copyright__ = "Copyright 2022, The Materials Project"
@@ -51,10 +46,10 @@ class ThermalDisplacementMatrices(MSONable):
 
     def __init__(
         self,
-        thermal_displacement_matrix_cart: ArrayLike[ArrayLike],
+        thermal_displacement_matrix_cart: ArrayLike,
         structure: Structure,
         temperature: float | None,
-        thermal_displacement_matrix_cif: ArrayLike[ArrayLike] = None,
+        thermal_displacement_matrix_cif: ArrayLike | None = None,
     ) -> None:
         """
         Args:
@@ -69,11 +64,11 @@ class ThermalDisplacementMatrices(MSONable):
                 U11, U22, U33, U23, U13, U12 (xx, yy, zz, yz, xz, xy)
                 convention similar to "thermal_displacement_matrices.yaml" in phonopy.
         """
-        self.thermal_displacement_matrix_cart = np.array(thermal_displacement_matrix_cart)
+        self.thermal_displacement_matrix_cart = np.asarray(thermal_displacement_matrix_cart)
         self.structure = structure
         self.temperature = temperature
         if thermal_displacement_matrix_cif is not None:
-            self.thermal_displacement_matrix_cif = np.array(thermal_displacement_matrix_cif)
+            self.thermal_displacement_matrix_cif: None | NDArray = np.asarray(thermal_displacement_matrix_cif)
         else:
             self.thermal_displacement_matrix_cif = None
 
@@ -89,8 +84,8 @@ class ThermalDisplacementMatrices(MSONable):
 
     @staticmethod
     def get_full_matrix(
-        thermal_displacement: ArrayLike[ArrayLike],
-    ) -> np.ndarray[np.ndarray]:
+        thermal_displacement: ArrayLike,
+    ) -> np.ndarray:
         """Transfers the reduced matrix to the full matrix (order of reduced matrix U11, U22, U33, U23, U13, U12).
 
         Args:
@@ -99,8 +94,9 @@ class ThermalDisplacementMatrices(MSONable):
         Returns:
             3d numpy array including thermal displacements, first dimensions are the atoms
         """
-        matrix_form = np.zeros((len(thermal_displacement), 3, 3))
-        for idx, mat in enumerate(thermal_displacement):
+        td = np.array(thermal_displacement)
+        matrix_form = np.zeros((len(td), 3, 3))
+        for idx, mat in enumerate(td):
             # xx, yy, zz, yz, xz, xy
             matrix_form[idx][0][0] = mat[0]
             matrix_form[idx][1][1] = mat[1]
@@ -115,8 +111,8 @@ class ThermalDisplacementMatrices(MSONable):
 
     @staticmethod
     def get_reduced_matrix(
-        thermal_displacement: ArrayLike[ArrayLike],
-    ) -> np.ndarray[np.ndarray]:
+        thermal_displacement: ArrayLike,
+    ) -> np.ndarray:
         """Transfers the full matrix to reduced matrix (order of reduced matrix U11, U22, U33, U23, U13, U12).
 
         Args:
@@ -125,8 +121,9 @@ class ThermalDisplacementMatrices(MSONable):
         Returns:
             3d numpy array including thermal displacements, first dimensions are the atoms
         """
-        reduced_matrix = np.zeros((len(thermal_displacement), 6))
-        for idx, mat in enumerate(thermal_displacement):
+        td = np.array(thermal_displacement)
+        reduced_matrix = np.zeros((len(td), 6))
+        for idx, mat in enumerate(td):
             # xx, yy, zz, yz, xz, xy
             reduced_matrix[idx][0] = mat[0][0]
             reduced_matrix[idx][1] = mat[1][1]
@@ -220,7 +217,7 @@ class ThermalDisplacementMatrices(MSONable):
         writer.write_file(filename)
         # This will simply append the thermal displacement part to the CIF from the CifWriter
         # In the long run, CifWriter could be extended to handle thermal displacement matrices
-        with open(filename, mode="a") as file:
+        with open(filename, mode="a", encoding="utf-8") as file:
             file.write("loop_ \n")
             file.write("_atom_site_aniso_label\n")
             file.write("_atom_site_aniso_U_11\n")
@@ -231,11 +228,11 @@ class ThermalDisplacementMatrices(MSONable):
             file.write("_atom_site_aniso_U_12\n")
             file.write(f"# Additional Data for U_Aniso: {self.temperature}\n")
 
-            for idx, (site, matrix) in enumerate(zip(self.structure, self.Ucif, strict=True)):
-                file.write(
-                    f"{site.specie.symbol}{idx} {matrix[0][0]} {matrix[1][1]} {matrix[2][2]}"
-                    f" {matrix[1][2]} {matrix[0][2]} {matrix[0][1]}\n"
-                )
+            file.writelines(
+                f"{site.specie.symbol}{idx} {matrix[0][0]} {matrix[1][1]} {matrix[2][2]}"
+                f" {matrix[1][2]} {matrix[0][2]} {matrix[0][1]}\n"
+                for idx, (site, matrix) in enumerate(zip(self.structure, self.Ucif, strict=True))
+            )
 
     @staticmethod
     def _angle_dot(a: ArrayLike, b: ArrayLike) -> float:
@@ -272,8 +269,7 @@ class ThermalDisplacementMatrices(MSONable):
         for spec1, spec2 in zip(self.structure.species, other.structure.species, strict=True):
             if spec1 != spec2:
                 raise ValueError(
-                    "Species in both structures are not the same! "
-                    "Please use structures that are similar to each other"
+                    "Species in both structures are not the same! Please use structures that are similar to each other"
                 )
         # check if structures match
         structure_match = StructureMatcher()
@@ -313,16 +309,16 @@ class ThermalDisplacementMatrices(MSONable):
     def visualize_directionality_quality_criterion(
         self,
         other: ThermalDisplacementMatrices,
-        filename: str | PathLike = "visualization.vesta",
+        filename: PathLike = "visualization.vesta",
         which_structure: Literal[0, 1] = 0,
     ) -> None:
         """Will create a VESTA file for visualization of the directionality criterion.
 
         Args:
             other: ThermalDisplacementMatrices
-            filename:           Filename of the VESTA file
-            which_structure:    0 means structure of the self object will be used, 1 means structure of the other
-                                object will be used
+            filename: Filename of the VESTA file
+            which_structure: 0 means structure of the self object will be used,
+                1 means structure of the other object will be used
         """
         # will return a VESTA file including vectors to visualize the quality criterion
         result = self.compute_directionality_quality_criterion(other=other)
@@ -352,7 +348,7 @@ class ThermalDisplacementMatrices(MSONable):
                 f"{structure.lattice.alpha} {structure.lattice.beta} {structure.lattice.gamma}\n"
             )
             file.write("  0.000000   0.000000   0.000000   0.000000   0.000000   0.000000\n")  # error on parameters
-            file.write("STRUC\n")
+            file.write("STRUC\n")  # codespell:ignore struc
 
             for site_idx, site in enumerate(structure, start=1):
                 file.write(
@@ -412,16 +408,12 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def ratio_prolate(self) -> np.ndarray:
         """This will compute ratio between largest and smallest eigenvalue of Ucart."""
-        ratios = []
-        for us in self.U1U2U3:
-            ratios.append(np.max(us) / np.min(us))
-
-        return np.array(ratios)
+        return np.array([np.max(us) / np.min(us) for us in self.U1U2U3])
 
     @classmethod
     def from_Ucif(
         cls,
-        thermal_displacement_matrix_cif: ArrayLike[ArrayLike],
+        thermal_displacement_matrix_cif: ArrayLike,
         structure: Structure,
         temperature: float | None = None,
     ) -> Self:
@@ -510,10 +502,8 @@ class ThermalDisplacementMatrices(MSONable):
         Returns:
             ThermalDisplacementMatrices
         """
-        Ucif_matrix = []
         # U11, U22, U33, U23, U13, U12
-        for site in structure:
-            Ucif_matrix.append([site.properties[f"U{idx}_cif"] for idx in (11, 22, 33, 23, 13, 12)])
+        Ucif_matrix = [[site.properties[f"U{idx}_cif"] for idx in (11, 22, 33, 23, 13, 12)] for site in structure]
 
         return cls.from_Ucif(Ucif_matrix, structure, temperature=temperature)
 

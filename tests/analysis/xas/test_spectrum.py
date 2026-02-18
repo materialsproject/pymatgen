@@ -5,31 +5,31 @@ import json
 import numpy as np
 import pytest
 from monty.json import MontyDecoder
-from numpy.testing import assert_allclose, assert_array_equal
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.xas.spectrum import XAS, site_weighted_spectrum
 from pymatgen.core import Element
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/spectrum_test"
 
-with open(f"{TEST_DIR}/LiCoO2_k_xanes.json") as file:
+with open(f"{TEST_DIR}/LiCoO2_k_xanes.json", encoding="utf-8") as file:
     k_xanes_dict = json.load(file, cls=MontyDecoder)
-with open(f"{TEST_DIR}/LiCoO2_k_exafs.json") as file:
+with open(f"{TEST_DIR}/LiCoO2_k_exafs.json", encoding="utf-8") as file:
     k_exafs_dict = json.load(file, cls=MontyDecoder)
-with open(f"{TEST_DIR}/ZnO_l2_xanes.json") as file:
+with open(f"{TEST_DIR}/ZnO_l2_xanes.json", encoding="utf-8") as file:
     l2_xanes_dict = json.load(file, cls=MontyDecoder)
-with open(f"{TEST_DIR}/ZnO_l3_xanes.json") as file:
+with open(f"{TEST_DIR}/ZnO_l3_xanes.json", encoding="utf-8") as file:
     l3_xanes_dict = json.load(file, cls=MontyDecoder)
-with open(f"{TEST_DIR}/site1_k_xanes.json") as file:
+with open(f"{TEST_DIR}/site1_k_xanes.json", encoding="utf-8") as file:
     site1_xanes_dict = json.load(file, cls=MontyDecoder)
-with open(f"{TEST_DIR}/site2_k_xanes.json") as file:
+with open(f"{TEST_DIR}/site2_k_xanes.json", encoding="utf-8") as file:
     site2_xanes_dict = json.load(file, cls=MontyDecoder)
 
 
-class TestXAS(PymatgenTest):
-    def setUp(self):
+class TestXAS(MatSciTest):
+    def setup_method(self):
         self.k_xanes = XAS.from_dict(k_xanes_dict)
         self.k_exafs = XAS.from_dict(k_exafs_dict)
         self.l2_xanes = XAS.from_dict(l2_xanes_dict)
@@ -38,7 +38,7 @@ class TestXAS(PymatgenTest):
         self.site2_xanes = XAS.from_dict(site2_xanes_dict)
 
     def test_e0(self):
-        assert approx(self.k_xanes.e0) == 7728.565
+        assert self.k_xanes.e0 == approx(7728.565)
 
     def test_k(self):
         assert len(self.k_xanes.x) == len(self.k_xanes.k)
@@ -46,31 +46,31 @@ class TestXAS(PymatgenTest):
 
     def test_normalization(self):
         self.k_xanes.normalize(mode="sum")
-        assert approx(np.sum(self.k_xanes.y)) == 1.0
+        assert np.sum(self.k_xanes.y) == approx(1.0)
 
     def test_add_mul(self):
         scaled_spect = self.k_xanes + self.k_xanes
         scaled_spect2 = self.k_xanes * 3
         assert_allclose(scaled_spect.y, 2 * self.k_xanes.y)
         assert_allclose(scaled_spect2.y, 3 * self.k_xanes.y)
-        assert approx(self.k_xanes.get_interpolated_value(7720.422), abs=1e-3) == 0.274302
+        assert self.k_xanes.get_interpolated_value(7720.422) == approx(0.274302, abs=1e-3)
 
     def test_as_from_dict(self):
         xas = XAS.from_dict(self.k_xanes.as_dict())
         assert_allclose(xas.y, self.k_xanes.y)
 
     def test_attributes(self):
-        assert_array_equal(self.k_xanes.energy, self.k_xanes.x)
-        assert_array_equal(self.k_xanes.intensity, self.k_xanes.y)
+        assert_allclose(self.k_xanes.energy, self.k_xanes.x)
+        assert_allclose(self.k_xanes.intensity, self.k_xanes.y)
 
     def test_str(self):
         assert str(self.k_xanes) == "Co K Edge XANES for LiCoO2: <super: <class 'XAS'>, <XAS object>>"
 
     def test_validate(self):
-        y_zeros = np.zeros(len(self.k_xanes.x))
-        with pytest.raises(
-            ValueError,
-            match="Double check the intensities. Most of them are non-positive",
+        y_zeros = -np.ones(len(self.k_xanes.x))
+        with pytest.warns(
+            UserWarning,
+            match="Double check the intensities. More than 5% of them are negative.",
         ):
             XAS(
                 self.k_xanes.x,
@@ -78,6 +78,17 @@ class TestXAS(PymatgenTest):
                 self.k_xanes.structure,
                 self.k_xanes.absorbing_element,
             )
+
+    def test_zero_negative_intensity(self):
+        y_w_neg_intens = [(-1) ** i * v for i, v in enumerate(self.k_xanes.y)]
+        spectrum = XAS(
+            self.k_xanes.x,
+            y_w_neg_intens,
+            self.k_xanes.structure,
+            self.k_xanes.absorbing_element,
+            zero_negative_intensity=True,
+        )
+        assert all(v == 0.0 for i, v in enumerate(spectrum.y) if i % 2 == 1)
 
     def test_stitch_xafs(self):
         with pytest.raises(ValueError, match="Invalid mode. Only XAFS and L23 are supported"):
@@ -105,7 +116,7 @@ class TestXAS(PymatgenTest):
         self.l2_xanes.y[0] = 0.1
         with pytest.warns(UserWarning, match="jump") as warns:
             XAS.stitch(self.l2_xanes, self.l3_xanes, 100, mode="L23")
-            assert len(warns) == 1
+        assert len(warns) == 1
         self.l2_xanes = XAS.from_dict(l2_xanes_dict)
         l23 = XAS.stitch(self.l2_xanes, self.l3_xanes, 100, mode="L23")
         assert isinstance(l23, XAS)
@@ -126,7 +137,7 @@ class TestXAS(PymatgenTest):
     def test_site_weighted_spectrum(self):
         weighted_spectrum = site_weighted_spectrum([self.site1_xanes, self.site2_xanes])
         assert isinstance(weighted_spectrum, XAS)
-        assert len(weighted_spectrum.x), 500
+        assert len(weighted_spectrum.x) == 500
         # The site multiplicities for site1 and site2 are 4 and 2, respectively.
         assert weighted_spectrum.y[0] == approx((4 * self.site1_xanes.y[0] + 2 * self.site2_xanes.y[0]) / 6, abs=1e-2)
         assert min(weighted_spectrum.x) == max(min(self.site1_xanes.x), min(self.site2_xanes.x))

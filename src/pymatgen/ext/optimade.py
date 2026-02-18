@@ -15,14 +15,14 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.provenance import StructureNL
 
 if TYPE_CHECKING:
-    from typing import ClassVar
+    from typing import ClassVar, Self
 
-    from typing_extensions import Self
+    from pymatgen.core.structure import Molecule
 
-_logger = logging.getLogger(__name__)
-_handler = logging.StreamHandler(sys.stdout)
-_logger.addHandler(_handler)
-_logger.setLevel(logging.WARNING)
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler(sys.stdout)
+logger.addHandler(handler)
+logger.setLevel(logging.WARNING)
 
 
 class Provider(NamedTuple):
@@ -139,7 +139,7 @@ class OptimadeRester:
         # Optionally refresh the aliases before interpreting those provided by the user
         # or using potentially outdated set provided in the code
         if refresh_aliases:
-            _logger.warning("Refreshing OPTIMADE provider aliases from https://providers.optimade.org")
+            logger.warning("Refreshing OPTIMADE provider aliases from https://providers.optimade.org")
             self.refresh_aliases()
 
         if isinstance(aliases_or_resource_urls, str):
@@ -156,7 +156,7 @@ class OptimadeRester:
 
         if not aliases_or_resource_urls:
             aliases_or_resource_urls = list(self.aliases)
-            _logger.warning(
+            logger.warning(
                 "Connecting to all known OPTIMADE providers, this will be slow. Please connect to only the "
                 f"OPTIMADE providers you want to query. Choose from: {', '.join(self.aliases)}"
             )
@@ -172,7 +172,7 @@ class OptimadeRester:
                 self.resources[alias_or_resource_url] = alias_or_resource_url
 
             else:
-                _logger.error(f"The following is not a known alias or a valid url: {alias_or_resource_url}")
+                logger.error(f"The following is not a known alias or a valid url: {alias_or_resource_url}")
 
         self._providers = {url: self._validate_provider(provider_url=url) for url in self.resources.values()}
 
@@ -235,7 +235,7 @@ class OptimadeRester:
         nsites: int | None = None,
         chemical_formula_anonymous: str | None = None,
         chemical_formula_hill: str | None = None,
-    ) -> dict[str, dict[str, Structure]]:
+    ) -> dict[str, dict[str, Structure | Molecule]]:
         """Retrieve Structures from OPTIMADE providers.
 
         Not all functionality of OPTIMADE is currently exposed in this convenience method. To
@@ -307,7 +307,7 @@ class OptimadeRester:
 
         return self.get_snls_with_filter(optimade_filter, additional_response_fields=additional_response_fields)
 
-    def get_structures_with_filter(self, optimade_filter: str) -> dict[str, dict[str, Structure]]:
+    def get_structures_with_filter(self, optimade_filter: str) -> dict[str, dict[str, Structure | Molecule]]:
         """Get structures satisfying a given OPTIMADE filter.
 
         Args:
@@ -371,7 +371,7 @@ class OptimadeRester:
             except Exception:
                 # TODO: manually inspect failures to either (a) correct a bug or (b) raise more appropriate error
 
-                _logger.exception(f"Could not retrieve required information from provider {identifier} and {url=}")
+                logger.exception(f"Could not retrieve required information from provider {identifier} and {url=}")
 
         return all_snls
 
@@ -416,7 +416,7 @@ class OptimadeRester:
                 # TODO: follow `references` to add reference information here
                 snl = StructureNL(
                     structure,
-                    authors={},
+                    authors=[],
                     history=[
                         {
                             "name": identifier,
@@ -455,7 +455,7 @@ class OptimadeRester:
                     # TODO: follow `references` to add reference information here
                     snl = StructureNL(
                         structure,
-                        authors={},
+                        authors=[],
                         history=[
                             {
                                 "name": identifier,
@@ -473,7 +473,7 @@ class OptimadeRester:
                         exceptions.add(str(exc))
 
         if exceptions:
-            _logger.error(f'Failed to parse returned data for {url}: {", ".join(exceptions)}')
+            logger.error(f"Failed to parse returned data for {url}: {', '.join(exceptions)}")
 
         return snls
 
@@ -499,7 +499,7 @@ class OptimadeRester:
                 return False
 
         if not is_url(provider_url):
-            _logger.warning(f"An invalid url was supplied: {provider_url}")
+            logger.warning(f"An invalid url was supplied: {provider_url}")
             return None
 
         url = None
@@ -508,7 +508,7 @@ class OptimadeRester:
             url = urljoin(provider_url, "v1/info")
             provider_info_json = self._get_json(url)
         except Exception as exc:
-            _logger.warning(f"Failed to parse {url} when validating: {exc}")
+            logger.warning(f"Failed to parse {url} when validating: {exc}")
             return None
 
         try:
@@ -520,14 +520,14 @@ class OptimadeRester:
                 prefix=provider_info_json["meta"].get("provider", {}).get("prefix", "Unknown"),
             )
         except Exception as exc:
-            _logger.warning(f"Failed to extract required information from {url}: {exc}")
+            logger.warning(f"Failed to extract required information from {url}: {exc}")
             return None
 
     def _parse_provider(self, provider: str, provider_url: str) -> dict[str, Provider]:
         """Used internally to update the list of providers or to
         check a given URL is valid.
 
-        It does not raise exceptions but will instead _logger.warning and provide
+        It does not raise exceptions but will instead logger.warning and provide
         an empty dictionary in the case of invalid data.
 
         In future, when the specification is sufficiently well adopted,
@@ -550,7 +550,7 @@ class OptimadeRester:
             url = urljoin(provider_url, "v1/links")
             provider_link_json = self._get_json(url)
         except Exception:
-            _logger.exception(f"Failed to parse {url} when following links")
+            logger.exception(f"Failed to parse {url} when following links")
             return {}
 
         def _parse_provider_link(provider, provider_link_json):
@@ -569,9 +569,8 @@ class OptimadeRester:
                             prefix=link["attributes"].get("prefix"),
                         )
             except Exception:
-                # print(f"Failed to parse {provider}: {exc}")
+                logger.exception(f"Failed to parse {provider}:")
                 # Not all providers parse yet.
-                pass
             return ps
 
         return _parse_provider_link(provider, provider_link_json)

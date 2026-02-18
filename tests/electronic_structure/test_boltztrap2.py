@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 import shutil
-from unittest import TestCase
 
 import numpy as np
 import pytest
 from monty.serialization import loadfn
-from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.electronic_structure.core import OrbitalType, Spin
@@ -41,8 +39,8 @@ BZT_INTERP_FN = f"{TEST_DIR}/bztInterp.json.gz"
 BZT_TRANSP_FN = f"{TEST_DIR}/bztTranspProps.json.gz"
 
 
-class TestVasprunBSLoader(TestCase):
-    def setUp(self):
+class TestVasprunBSLoader:
+    def setup_method(self):
         self.loader = VasprunBSLoader(VASP_RUN)
         assert self.loader is not None
         self.loader = VasprunBSLoader(BAND_STRUCT, VASP_RUN.final_structure)
@@ -61,8 +59,8 @@ class TestVasprunBSLoader(TestCase):
         assert self.loader.is_spin_polarized is False
         assert self.loader.fermi == approx(0.185266535678, abs=1e-5)
         assert self.loader.structure.lattice.a == approx(4.64303565932548, abs=1e-5)
-        assert self.loader.nelect_all == 20.0
-        assert self.loader_sp.nelect_all == 10.0
+        assert self.loader.nelect_all == approx(20.0)
+        assert self.loader_sp.nelect_all == approx(10.0)
 
         assert self.loader.ebands_all.shape == (20, 120)
         assert self.loader.ebands_all[10, 100] == approx(0.2708057, abs=1e-5)
@@ -80,8 +78,9 @@ class TestVasprunBSLoader(TestCase):
         assert self.loader.get_volume() == approx(477.6256714925874, abs=1e-5)
 
 
-class TestBandstructureLoader(TestCase):
-    def setUp(self):
+@pytest.mark.filterwarnings("ignore:BandstructureLoader is deprecated:DeprecationWarning")
+class TestBandstructureLoader:
+    def setup_method(self):
         self.loader = BandstructureLoader(BAND_STRUCT, VASP_RUN.structures[-1])
         assert self.loader is not None
 
@@ -97,7 +96,7 @@ class TestBandstructureLoader(TestCase):
     def test_get_volume(self):
         assert self.loader.get_volume() == approx(477.6256714925874, abs=1e-5)
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_set_upper_lower_bands(self):
         min_bnd = min(self.loader_sp_up.ebands.min(), self.loader_sp_dn.ebands.min())
         max_bnd = max(self.loader_sp_up.ebands.max(), self.loader_sp_dn.ebands.max())
@@ -107,8 +106,9 @@ class TestBandstructureLoader(TestCase):
         assert self.loader_sp_dn.ebands.shape == (14, 198)
 
 
-class TestVasprunLoader(TestCase):
-    def setUp(self):
+@pytest.mark.filterwarnings("ignore:VasprunLoader is deprecated:DeprecationWarning")
+class TestVasprunLoader:
+    def setup_method(self):
         self.loader = VasprunLoader(VASP_RUN)
         assert self.loader.proj.shape == (120, 20, 2, 9)
         assert self.loader is not None
@@ -126,40 +126,39 @@ class TestVasprunLoader(TestCase):
         assert self.loader is not None
 
 
-class TestBztInterpolator(TestCase):
-    def setUp(self):
-        with ScratchDir("."):
-            shutil.copy(BZT_INTERP_FN, ".")
+class TestBztInterpolator:
+    def setup_method(self):
+        shutil.copy(BZT_INTERP_FN, ".")
 
-            loader = VasprunBSLoader(VASP_RUN)
-            self.bztInterp = BztInterpolator(loader, lpfac=2)
-            assert self.bztInterp is not None
-            self.bztInterp = BztInterpolator(loader, lpfac=2, save_bztInterp=True)
-            assert self.bztInterp is not None
-            self.bztInterp = BztInterpolator(loader, load_bztInterp=True)
-            assert self.bztInterp is not None
+        loader = VasprunBSLoader(VASP_RUN)
+        self.bztInterp = BztInterpolator(loader, lpfac=2)
+        assert self.bztInterp is not None
+        self.bztInterp = BztInterpolator(loader, lpfac=2, save_bztInterp=True)
+        assert self.bztInterp is not None
+        self.bztInterp = BztInterpolator(loader, load_bztInterp=True)
+        assert self.bztInterp is not None
 
-            loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
-            self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
-            assert self.bztInterp_sp is not None
-            self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2, save_bztInterp=True)
-            assert self.bztInterp_sp is not None
-            self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2, load_bztInterp=True)
-            assert self.bztInterp_sp is not None
+        loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
+        self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+        assert self.bztInterp_sp is not None
+        self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2, save_bztInterp=True)
+        assert self.bztInterp_sp is not None
+        self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2, load_bztInterp=True)
+        assert self.bztInterp_sp is not None
 
     def test_properties(self):
         assert self.bztInterp.cband.shape == (6, 3, 3, 3, 29791)
         assert self.bztInterp.eband.shape == (6, 29791)
         assert self.bztInterp.coeffs.shape == (6, 322)
-        assert self.bztInterp.data.nelect == 6.0
-        assert self.bztInterp.data.nelect_all == 20.0
+        assert self.bztInterp.data.nelect == approx(6.0)
+        assert self.bztInterp.data.nelect_all == approx(20.0)
         assert self.bztInterp.data.ebands.shape == (6, 120)
 
         assert self.bztInterp_sp.cband.shape == (10, 3, 3, 3, 23275)
         assert self.bztInterp_sp.eband.shape == (10, 23275)
         assert self.bztInterp_sp.coeffs.shape == (10, 519)
-        assert self.bztInterp_sp.data.nelect == 6.0
-        assert self.bztInterp_sp.data.nelect_all == 10.0
+        assert self.bztInterp_sp.data.nelect == approx(6.0)
+        assert self.bztInterp_sp.data.nelect_all == approx(10.0)
         assert self.bztInterp_sp.data.ebands.shape == (10, 198)
 
     def test_get_band_structure(self):
@@ -205,46 +204,45 @@ class TestBztInterpolator(TestCase):
         assert pdos == approx(272.194174, abs=1e-5)
 
 
-class TestBztTransportProperties(TestCase):
-    def setUp(self):
-        with ScratchDir("."):
-            shutil.copy(BZT_TRANSP_FN, ".")
+class TestBztTransportProperties:
+    def setup_method(self):
+        shutil.copy(BZT_TRANSP_FN, ".")
 
-            # non spin polarized
-            loader = VasprunBSLoader(VASP_RUN)
-            bztInterp = BztInterpolator(loader, lpfac=2)
+        # non spin polarized
+        loader = VasprunBSLoader(VASP_RUN)
+        bztInterp = BztInterpolator(loader, lpfac=2)
 
-            self.bztTransp = BztTransportProperties(
-                bztInterp,
-                temp_r=np.arange(300, 600, 100),
-                save_bztTranspProps=True,
-            )
-            assert self.bztTransp is not None
+        self.bztTransp = BztTransportProperties(
+            bztInterp,
+            temp_r=np.arange(300, 600, 100),
+            save_bztTranspProps=True,
+        )
+        assert self.bztTransp is not None
 
-            bztInterp = BztInterpolator(loader, lpfac=2)
-            self.bztTransp = BztTransportProperties(
-                bztInterp,
-                load_bztTranspProps=True,
-            )
-            assert self.bztTransp is not None
+        bztInterp = BztInterpolator(loader, lpfac=2)
+        self.bztTransp = BztTransportProperties(
+            bztInterp,
+            load_bztTranspProps=True,
+        )
+        assert self.bztTransp is not None
 
-            # spin polarized
-            loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
-            bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+        # spin polarized
+        loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
+        bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
 
-            self.bztTransp_sp = BztTransportProperties(
-                bztInterp_sp,
-                temp_r=np.arange(300, 600, 100),
-                save_bztTranspProps=True,
-            )
-            assert self.bztTransp_sp is not None
+        self.bztTransp_sp = BztTransportProperties(
+            bztInterp_sp,
+            temp_r=np.arange(300, 600, 100),
+            save_bztTranspProps=True,
+        )
+        assert self.bztTransp_sp is not None
 
-            bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
-            self.bztTransp_sp = BztTransportProperties(
-                bztInterp_sp,
-                load_bztTranspProps=True,
-            )
-            assert self.bztTransp_sp is not None
+        bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+        self.bztTransp_sp = BztTransportProperties(
+            bztInterp_sp,
+            load_bztTranspProps=True,
+        )
+        assert self.bztTransp_sp is not None
 
     def test_init(self):
         # non spin polarized

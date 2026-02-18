@@ -22,7 +22,8 @@ except ImportError:
     unit = None
     warnings.warn(
         "To use the pymatgen.io.openff module install openff-toolkit and openff-units"
-        "with `conda install -c conda-forge openff-toolkit openff-units`."
+        "with `conda install -c conda-forge openff-toolkit openff-units`.",
+        stacklevel=2,
     )
 
 
@@ -79,7 +80,7 @@ def mol_graph_to_openff_mol(mol_graph: MoleculeGraph, template_mol: tk.Molecule 
         # put formal charge on first atom if there is none present
         formal_charge = node.get("formal_charge")
         if formal_charge is None:
-            formal_charge = (i_node == 0) * int(round(mol_graph.molecule.charge, 0)) * unit.elementary_charge
+            formal_charge = (i_node == 0) * round(mol_graph.molecule.charge) * unit.elementary_charge
 
         # assume not aromatic if no info present
         is_aromatic = node.get("is_aromatic") or False
@@ -120,7 +121,7 @@ def mol_graph_from_openff_mol(molecule: tk.Molecule) -> MoleculeGraph:
     Returns:
         MoleculeGraph: The converted MoleculeGraph.
     """
-    mol_graph = MoleculeGraph.with_empty_graph(Molecule([], []), name="none")
+    mol_graph = MoleculeGraph.from_empty_graph(Molecule([], []), name="none")
     p_table = {el.Z: str(el) for el in Element}
     total_charge = cum_atoms = 0
 
@@ -285,7 +286,7 @@ def assign_partial_charges(
     # TODO: test this
     # assign partial charges
     if partial_charges is not None:
-        partial_charges = np.array(partial_charges)
+        partial_charges = np.array(partial_charges)  # type:ignore[assignment]
         chargs = partial_charges[list(atom_map.values())]  # type: ignore[index, call-overload]
         openff_mol.partial_charges = chargs * unit.elementary_charge
     elif openff_mol.n_atoms == 1:
@@ -325,18 +326,18 @@ def create_openff_mol(
         tk.Molecule: The created OpenFF Molecule.
     """
     if isinstance(geometry, str | Path):
-        geometry = Molecule.from_file(str(geometry))
+        geometry = Molecule.from_file(str(geometry))  # type:ignore[assignment]
 
     if partial_charges is not None:
         if geometry is None:
             raise ValueError("geometries must be set if partial_charges is set")
-        if len(partial_charges) != len(geometry):
+        if len(partial_charges) != len(geometry):  # type:ignore[arg-type]
             raise ValueError("partial charges must have same length & order as geometry")
 
     openff_mol = tk.Molecule.from_smiles(smile, allow_undefined_stereo=True)
 
     # add conformer
-    openff_mol, atom_map = add_conformer(openff_mol, geometry)
+    openff_mol, atom_map = add_conformer(openff_mol, geometry)  # type:ignore[arg-type]
     # assign partial charges
     openff_mol = assign_partial_charges(
         openff_mol,

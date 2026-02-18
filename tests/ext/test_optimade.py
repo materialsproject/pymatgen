@@ -4,7 +4,7 @@ import pytest
 import requests
 
 from pymatgen.ext.optimade import OptimadeRester
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 try:
     # 403 is returned when server detects bot-like behavior
@@ -36,7 +36,7 @@ except requests.exceptions.ConnectionError:
     mc2d_down = True
 
 
-class TestOptimade(PymatgenTest):
+class TestOptimade(MatSciTest):
     @pytest.mark.skipif(mp_website_down, reason="MP OPTIMADE is down.")
     def test_get_structures_mp(self):
         with OptimadeRester("mp") as optimade:
@@ -51,9 +51,9 @@ class TestOptimade(PymatgenTest):
                 test_struct = next(iter(structs["mp"].values()))
                 assert [str(el) for el in test_struct.types_of_species] == ["Ga", "N"]
 
-                assert len(structs["mp"]) == len(
-                    raw_filter_structs["mp"]
-                ), f"Raw filter {_filter} did not return the same number of results as the query builder."
+                assert len(structs["mp"]) == len(raw_filter_structs["mp"]), (
+                    f"Raw filter {_filter} did not return the same number of results as the query builder."
+                )
 
     @pytest.mark.skipif(mp_website_down, reason="MP OPTIMADE is down.")
     def test_get_snls_mp(self):

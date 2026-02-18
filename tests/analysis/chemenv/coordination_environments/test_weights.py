@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import json
-
+import orjson
 import pytest
 from pytest import approx
 
@@ -16,7 +15,7 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     SelfCSMNbSetWeight,
 )
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import StructureEnvironments
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "waroquiers"
 
@@ -39,7 +38,7 @@ class DummyVoronoiContainer:
     pass
 
 
-class StrategyWeights(PymatgenTest):
+class StrategyWeights(MatSciTest):
     def test_angle_weight(self):
         fake_nb_set = FakeNbSet()
         dummy_se = DummyStructureEnvironments()
@@ -68,10 +67,10 @@ class StrategyWeights(PymatgenTest):
         fake_nb_set.angles = []
         angle_weight = AngleNbSetWeight(aa=1)
         aw = angle_weight.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
-        assert abs(aw - 0) < 1e-8
+        assert abs(aw) < 1e-8
         angle_weight = AngleNbSetWeight(aa=2)
         aw = angle_weight.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
-        assert abs(aw - 0) < 1e-8
+        assert abs(aw) < 1e-8
 
         # nb_set with one neighbor
         fake_nb_set.angles = [3.08570351705799]
@@ -240,8 +239,8 @@ class StrategyWeights(PymatgenTest):
 
     def test_self_csms_weight(self):
         # Get the StructureEnvironments for K2NaNb2Fe7Si8H4O31 (mp-743972)
-        with open(f"{struct_env_dir}/se_mp-743972.json") as file:
-            dct = json.load(file)
+        with open(f"{struct_env_dir}/se_mp-743972.json", "rb") as file:
+            dct = orjson.loads(file.read())
         struct_envs = StructureEnvironments.from_dict(dct)
 
         # Get neighbors sets for which we get the weights
@@ -289,7 +288,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(self_w - 0) < 1e-8
+        assert abs(self_w) < 1e-8
         cn_map = (12, 0)
         self_w = self_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -297,7 +296,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(self_w - 0) < 1e-8
+        assert abs(self_w) < 1e-8
         cn_map = (12, 1)
         self_w = self_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -305,7 +304,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(self_w - 0) < 1e-8
+        assert abs(self_w) < 1e-8
         cn_map = (13, 2)
         self_w = self_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -316,8 +315,8 @@ class StrategyWeights(PymatgenTest):
         assert abs(self_w - 0.14204073172729198) < 1e-8
 
         # Get the StructureEnvironments for SiO2 (mp-7000)
-        with open(f"{struct_env_dir}/se_mp-7000.json") as file:
-            dct = json.load(file)
+        with open(f"{struct_env_dir}/se_mp-7000.json", "rb") as file:
+            dct = orjson.loads(file.read())
         struct_envs = StructureEnvironments.from_dict(dct)
 
         # Get neighbors sets for which we get the weights
@@ -360,8 +359,8 @@ class StrategyWeights(PymatgenTest):
 
     def test_delta_csms_weight(self):
         # Get the StructureEnvironments for K2NaNb2Fe7Si8H4O31 (mp-743972)
-        with open(f"{struct_env_dir}/se_mp-743972.json") as file:
-            dct = json.load(file)
+        with open(f"{struct_env_dir}/se_mp-743972.json", "rb") as file:
+            dct = orjson.loads(file.read())
         struct_envs = StructureEnvironments.from_dict(dct)
 
         # Get neighbors sets for which we get the weights
@@ -391,7 +390,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(delta_w - 0) < 1e-8
+        assert abs(delta_w) < 1e-8
         cn_map = (12, 2)
         delta_w = delta_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -399,7 +398,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(delta_w - 0) < 1e-8
+        assert abs(delta_w) < 1e-8
         cn_map = (12, 0)
         delta_w = delta_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -407,7 +406,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(delta_w - 0) < 1e-8
+        assert abs(delta_w) < 1e-8
         cn_map = (12, 1)
         delta_w = delta_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -415,7 +414,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(delta_w - 0) < 1e-8
+        assert abs(delta_w) < 1e-8
         cn_map = (13, 2)
         delta_w = delta_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -431,7 +430,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(delta_w - 0) < 1e-8
+        assert abs(delta_w) < 1e-8
         cn_map = (13, 1)
         delta_w = delta_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -439,7 +438,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(delta_w - 0) < 1e-8
+        assert abs(delta_w) < 1e-8
 
         effective_csm_estimator = {
             "function": "power2_inverse_decreasing",
@@ -492,8 +491,8 @@ class StrategyWeights(PymatgenTest):
         assert abs(delta_w - 0.103515625) < 1e-8
 
         # Get the StructureEnvironments for SiO2 (mp-7000)
-        with open(f"{struct_env_dir}/se_mp-7000.json") as file:
-            dct = json.load(file)
+        with open(f"{struct_env_dir}/se_mp-7000.json", "rb") as file:
+            dct = orjson.loads(file.read())
         struct_envs = StructureEnvironments.from_dict(dct)
 
         # Get neighbors sets for which we get the weights
@@ -524,7 +523,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(delta_w - 0) < 1e-8
+        assert abs(delta_w) < 1e-8
         cn_map = (4, 0)
         delta_w = delta_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -661,7 +660,7 @@ class StrategyWeights(PymatgenTest):
         cn_map7 = (7, 0)
 
         weight1 = dnbset_weight.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
-        assert abs(weight1 - 0) < 1e-8
+        assert abs(weight1) < 1e-8
         weight2 = dnbset_weight.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
         assert abs(weight2 - 0.103515625) < 1e-8
         weight3 = dnbset_weight.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
@@ -712,9 +711,9 @@ class StrategyWeights(PymatgenTest):
         weight_delta1 = delta_dnb_set_weight.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
         assert abs(weight_delta1 - 1) < 1e-8
         weight_delta2 = delta_dnb_set_weight.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
-        assert abs(weight_delta2 - 0) < 1e-8
+        assert abs(weight_delta2) < 1e-8
         weight_delta3 = delta_dnb_set_weight.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
-        assert abs(weight_delta3 - 0) < 1e-8
+        assert abs(weight_delta3) < 1e-8
 
         delta_dnb_set_weight2 = DeltaDistanceNbSetWeight(
             weight_function={
@@ -726,9 +725,9 @@ class StrategyWeights(PymatgenTest):
         weight_delta1 = delta_dnb_set_weight2.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
         assert abs(weight_delta1 - 0.5) < 1e-8
         weight_delta2 = delta_dnb_set_weight2.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
-        assert abs(weight_delta2 - 0) < 1e-8
+        assert abs(weight_delta2) < 1e-8
         weight_delta3 = delta_dnb_set_weight2.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
-        assert abs(weight_delta3 - 0) < 1e-8
+        assert abs(weight_delta3) < 1e-8
 
         delta_dnb_set_weight3 = DeltaDistanceNbSetWeight(
             weight_function={

@@ -12,8 +12,9 @@ from pymatgen.core.structure import Structure
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from typing import Self
 
-    from typing_extensions import Self
+    from pymatgen.core.structure import IStructure
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -29,7 +30,7 @@ class Cssr:
     a Structure to a Cssr file is supported.
     """
 
-    def __init__(self, structure: Structure):
+    def __init__(self, structure: Structure | IStructure):
         """
         Args:
             structure (Structure | IStructure): A structure to create the Cssr object.
@@ -57,7 +58,7 @@ class Cssr:
         Args:
             filename (str): Filename to write to.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self) + "\n")
 
     @classmethod
@@ -98,5 +99,5 @@ class Cssr:
         Returns:
             Cssr object.
         """
-        with zopen(filename, mode="rt") as file:
-            return cls.from_str(file.read())
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
+            return cls.from_str(file.read())  # type:ignore[arg-type]

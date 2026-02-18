@@ -10,9 +10,7 @@ from monty.json import MSONable
 from pymatgen.core.libxcfunc import LibxcFunc
 
 if TYPE_CHECKING:
-    from typing import Any, ClassVar, Literal
-
-    from typing_extensions import Self
+    from typing import Any, ClassVar, Literal, Self
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2016, The Materials Project"

@@ -9,8 +9,9 @@ from scipy.io import FortranEOFError, FortranFile
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Self
 
-    from typing_extensions import Self
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Mark Turiansky"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -90,7 +91,7 @@ class Unk:
         self.ng = self.data.shape[-3:]
 
     @classmethod
-    def from_file(cls, filename: str) -> Self:
+    def from_file(cls, filename: PathLike) -> Self:
         """
         Reads the UNK data from file.
 
@@ -100,17 +101,13 @@ class Unk:
         Returns:
             Unk object
         """
-        input_data = []
+        input_data: list = []
         with FortranFile(filename, mode="r") as file:
             *ng, ik, nbnd = file.read_ints()
-            for _ in range(nbnd):
-                input_data.append(
-                    # when reshaping need to specify ordering as fortran
-                    file.read_record(np.complex128).reshape(ng, order="F")
-                )
+            # when reshaping need to specify ordering as fortran
+            input_data.extend(file.read_record(np.complex128).reshape(ng, order="F") for _ in range(nbnd))
             try:
-                for _ in range(nbnd):
-                    input_data.append(file.read_record(np.complex128).reshape(ng, order="F"))
+                input_data.extend(file.read_record(np.complex128).reshape(ng, order="F") for _ in range(nbnd))
                 is_noncollinear = True
             except FortranEOFError:
                 is_noncollinear = False
@@ -126,7 +123,7 @@ class Unk:
             return cls(ik, temp_data)
         return cls(ik, data)
 
-    def write_file(self, filename: str) -> None:
+    def write_file(self, filename: PathLike) -> None:
         """Write the UNK file.
 
         Args:

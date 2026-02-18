@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import abc
 import collections
+import collections.abc
 import hashlib
 import logging
 import os
@@ -19,7 +20,7 @@ from typing import TYPE_CHECKING, NamedTuple
 from xml.etree import ElementTree as ET
 
 import numpy as np
-from monty.collections import AttrDict, Namespace
+from monty.collections import AttrDict
 from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
 from monty.json import MontyDecoder, MSONable
@@ -33,11 +34,10 @@ from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
-    from typing import Any, ClassVar
+    from typing import Any, ClassVar, Self
 
     import matplotlib.pyplot as plt
     from numpy.typing import NDArray
-    from typing_extensions import Self
 
     from pymatgen.core import Structure
 
@@ -92,13 +92,13 @@ class Pseudo(MSONable, abc.ABC):
     """
 
     @classmethod
-    def as_pseudo(cls, obj: Self | str) -> Self:
+    def as_pseudo(cls, obj: Pseudo | str) -> Pseudo:
         """Convert obj into a Pseudo.
 
         Args:
             obj (str | Pseudo): Path to the pseudo file or a Pseudo object.
         """
-        return obj if isinstance(obj, cls) else cls.from_file(obj)
+        return obj if isinstance(obj, cls) else cls.from_file(obj)  # type:ignore[arg-type]
 
     @classmethod
     def from_file(cls, filename: str) -> Self:
@@ -601,7 +601,9 @@ def _dict_from_lines(lines, key_nums, sep=None) -> dict:
     if len(lines) != len(key_nums):
         raise ValueError(f"{lines = }\n{key_nums = }")
 
-    kwargs = Namespace()
+    # TODO: PR 4223: kwargs was using `monty.collections.Namespace`,
+    # revert to original implementation if needed
+    kwargs: dict = {}
 
     for idx, nk in enumerate(key_nums):
         if nk == 0:
@@ -1509,12 +1511,11 @@ class PseudoTable(collections.abc.Sequence, MSONable):
     Individidual elements are accessed by name, symbol or atomic number.
 
     For example, the following all retrieve iron:
-
-    print(elements[26])
-    print(elements.Fe)
-    print(elements.symbol('Fe'))
-    print(elements.name('iron'))
-    print(elements.isotope('Fe'))
+    - elements[26]
+    - elements.Fe
+    - elements.symbol('Fe')
+    - elements.name('iron')
+    - elements.isotope('Fe')
     """
 
     @classmethod
@@ -1556,15 +1557,15 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             if exts is None:
                 exts = ("psp8",)
 
-            for pseudo in find_exts(top, exts, exclude_dirs=exclude_dirs):
+            for pseudo in find_exts(top, exts, exclude_dirs=exclude_dirs):  # type:ignore[assignment]
                 try:
-                    pseudos.append(Pseudo.from_file(pseudo))
+                    pseudos.append(Pseudo.from_file(pseudo))  # type:ignore[arg-type]
                 except Exception as exc:
                     logger.critical(f"Error in {pseudo}:\n{exc}")
 
         return cls(pseudos).sort_by_z()
 
-    def __init__(self, pseudos: Sequence[Pseudo]) -> None:
+    def __init__(self, pseudos: Sequence[Pseudo | str]) -> None:
         """
         Args:
             pseudos: List of pseudopotentials or filepaths.

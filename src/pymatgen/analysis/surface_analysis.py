@@ -55,9 +55,8 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
-    from pymatgen.util.typing import Tuple3Ints
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
@@ -193,7 +192,7 @@ class SlabEntry(ComputedStructureEntry):
         if slab_clean_comp.reduced_composition != ucell_entry.composition.reduced_composition:
             list_els = [next(iter(entry.composition.as_dict())) for entry in ref_entries]
             if not any(el in list_els for el in ucell_entry.composition.as_dict()):
-                warnings.warn("Elemental references missing for the non-dopant species.")
+                warnings.warn("Elemental references missing for the non-dopant species.", stacklevel=2)
 
         gamma = (Symbol("E_surf") - Symbol("Ebulk")) / (2 * Symbol("A"))
         ucell_comp = ucell_entry.composition
@@ -573,7 +572,7 @@ class SurfaceEnergyPlotter:
         all_chempots = np.linspace(min(chempot_range), max(chempot_range), increments)
 
         # initialize a dictionary of lists of fractional areas for each hkl
-        hkl_area_dict: dict[Tuple3Ints, list[float]] = {}
+        hkl_area_dict: dict[tuple[int, int, int], list[float]] = {}
         for hkl in self.all_slab_entries:
             hkl_area_dict[hkl] = []
 
@@ -659,7 +658,7 @@ class SurfaceEnergyPlotter:
 
         solution = linsolve(all_eqns, all_parameters)
         if not solution:
-            warnings.warn("No solution")
+            warnings.warn("No solution", stacklevel=2)
             return solution
         return {param: next(iter(solution))[idx] for idx, param in enumerate(all_parameters)}
 
@@ -1822,9 +1821,9 @@ class NanoscaleStability:
             r_list.append(radius)
 
         ru = "nm" if r_units == "nanometers" else r"\AA"
-        ax.xlabel(rf"Particle radius (${ru}$)")
+        ax.set_xlabel(rf"Particle radius (${ru}$)")
         eu = f"${e_units}/{ru}^3$"
-        ax.ylabel(rf"$G_{{form}}$ ({eu})")
+        ax.set_ylabel(rf"$G_{{form}}$ ({eu})")
 
         ax.plot(r_list, gform_list, label=label)
 
@@ -1883,6 +1882,8 @@ class NanoscaleStability:
                 scale_per_atom=scale_per_atom,
             )
 
+        # Add legend after all plots are added
+        ax.legend()
         return ax
 
 

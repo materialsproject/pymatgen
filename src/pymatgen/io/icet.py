@@ -27,6 +27,8 @@ if TYPE_CHECKING:
     from _icet import _ClusterSpace
     from ase import Atoms
 
+    from pymatgen.core.structure import IStructure
+
 
 class IcetSQS:
     """Interface to the Icet library of SQS structure generation tools.
@@ -49,7 +51,7 @@ class IcetSQS:
     }
     _sqs_kwarg_defaults: ClassVar[dict[str, Any]] = {
         "optimality_weight": None,
-        "tol": 1.0e-5,
+        "tol": 1e-5,
         "include_smaller_cells": False,  # for consistency with ATAT
         "pbc": (True, True, True),
     }
@@ -57,7 +59,7 @@ class IcetSQS:
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         scaling: int,
         instances: int | None,
         cluster_cutoffs: dict[int, float],
@@ -120,7 +122,10 @@ class IcetSQS:
 
         unrecognized_kwargs = {key for key in self.sqs_kwargs if key not in self.sqs_kwarg_names[sqs_method]}
         if len(unrecognized_kwargs) > 0:
-            warnings.warn(f"Ignoring unrecognized icet {sqs_method} kwargs: {', '.join(unrecognized_kwargs)}")
+            warnings.warn(
+                f"Ignoring unrecognized icet {sqs_method} kwargs: {', '.join(unrecognized_kwargs)}",
+                stacklevel=2,
+            )
 
         self.sqs_kwargs = {
             key: value for key, value in self.sqs_kwargs.items() if key in self.sqs_kwarg_names[sqs_method]
@@ -213,10 +218,16 @@ class IcetSQS:
             material = AseAtomsAdaptor.get_atoms(material)
 
         cluster_space = cluster_space or self._get_cluster_space()
+
+        orb_data_as_list = None
+        if hasattr(cluster_space, "orbit_data"):  # icet <= 2
+            orb_data_as_list = cluster_space.orbit_data
+        elif hasattr(cluster_space, "as_list"):  # icet >= 3
+            orb_data_as_list = cluster_space.as_list
         return compare_cluster_vectors(
-            cv_1=cluster_space.get_cluster_vector(material),
-            cv_2=self.sqs_vector,
-            orbit_data=cluster_space.orbit_data,
+            cluster_space.get_cluster_vector(material),
+            self.sqs_vector,
+            orb_data_as_list,
             **self._sqs_obj_kwargs,
         )
 

@@ -7,6 +7,7 @@ installed. Please consult the openbabel docs https://openbabel.org.
 from __future__ import annotations
 
 import copy
+import logging
 import warnings
 from typing import TYPE_CHECKING
 
@@ -20,7 +21,7 @@ except Exception:
     openbabel = pybel = None
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.analysis.graphs import MoleculeGraph
 
@@ -32,6 +33,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Apr 28, 2012"
 
+logger = logging.getLogger(__name__)
 
 needs_openbabel = requires(
     openbabel,
@@ -186,7 +188,8 @@ class BabelMolAdaptor:
             warnings.warn(
                 f"This input {forcefield=} is not supported "
                 "in openbabel. The forcefield will be reset as "
-                "default 'mmff94' for now."
+                "default 'mmff94' for now.",
+                stacklevel=2,
             )
             ff = openbabel.OBForceField.FindType("mmff94")
 
@@ -199,7 +202,8 @@ class BabelMolAdaptor:
                 "'SystematicRotorSearch', 'RandomRotorSearch' "
                 "and 'WeightedRotorSearch'. "
                 "The algorithm will be reset as default "
-                "'WeightedRotorSearch' for now."
+                "'WeightedRotorSearch' for now.",
+                stacklevel=2,
             )
             rotor_search = ff.WeightedRotorSearch
         rotor_search(*rotor_args)
@@ -265,11 +269,13 @@ class BabelMolAdaptor:
 
         ff = openbabel.OBForceField.FindType(forcefield)
         if ff == 0:
-            print(f"Could not find {forcefield=} in openbabel, the forcefield will be reset as default 'mmff94'")
+            logger.warning(
+                f"Could not find {forcefield=} in openbabel, the forcefield will be reset as default 'mmff94'"
+            )
             ff = openbabel.OBForceField.FindType("mmff94")
 
         if freeze_atoms:
-            print(f"{len(freeze_atoms)} atoms will be freezed")
+            logger.info(f"{len(freeze_atoms)} atoms will be freezed")
             constraints = openbabel.OBFFConstraints()
 
             for atom in openbabel.OBMolAtomIter(self._ob_mol):

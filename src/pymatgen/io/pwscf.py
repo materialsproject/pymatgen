@@ -14,9 +14,7 @@ from pymatgen.util.io_utils import clean_lines
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import Any, ClassVar
-
-    from typing_extensions import Self
+    from typing import Any, ClassVar, Self
 
 
 class PWInput:
@@ -275,8 +273,8 @@ class PWInput:
         Returns:
             PWInput object
         """
-        with zopen(filename, mode="rt") as file:
-            return cls.from_str(file.read())
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
     @classmethod
     def from_str(cls, string: str) -> Self:

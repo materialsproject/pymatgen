@@ -16,9 +16,10 @@ from monty.json import MontyDecoder, MontyEncoder, MSONable
 from pymatgen.core import ArrayWithUnit, Lattice, Species, Structure, units
 
 if TYPE_CHECKING:
-    from typing import Any, ClassVar
+    from typing import Any, ClassVar, Self
 
-    from typing_extensions import Self
+    from pymatgen.core.periodic_table import DummySpecies, Element
+    from pymatgen.core.structure import IStructure
 
 
 def lattice_from_abivars(cls=None, *args, **kwargs):
@@ -162,7 +163,7 @@ def structure_from_abivars(cls=None, *args, **kwargs) -> Structure:
     )
 
 
-def species_by_znucl(structure: Structure) -> list[Species]:
+def species_by_znucl(structure: IStructure | Structure) -> list[Species | Element | DummySpecies]:
     """Get list of unique specie found in structure **ordered according to sites**.
 
     Example:
@@ -185,7 +186,7 @@ def species_by_znucl(structure: Structure) -> list[Species]:
 
 
 def structure_to_abivars(
-    structure: Structure,
+    structure: Structure | IStructure,
     enforce_znucl: list | None = None,
     enforce_typat: list | None = None,
     **kwargs,
@@ -221,10 +222,8 @@ def structure_to_abivars(
                 f"enforce_typat contains {len(enforce_typat)} entries while it should be {len(structure)=}"
             )
 
-        if len(enforce_znucl) != structure.n_elems:
-            raise ValueError(
-                f"enforce_znucl contains {len(enforce_znucl)} entries while it should be {structure.n_elems=}"
-            )
+        # Do not check the length of enforce_znucl because it can be larger than the number of elements
+        # when we use alchemical pseudoatoms
 
     if enforce_order:
         znucl_type = enforce_znucl
@@ -233,7 +232,7 @@ def structure_to_abivars(
         types_of_specie = species_by_znucl(structure)
 
         znucl_type = [specie.number for specie in types_of_specie]
-        typat = np.zeros(n_atoms, int)
+        typat = np.zeros(n_atoms, int)  # type:ignore[assignment]
         for atm_idx, site in enumerate(structure):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
 
@@ -243,8 +242,8 @@ def structure_to_abivars(
 
     # Set small values to zero. This usually happens when the CIF file
     # does not give structure parameters with enough digits.
-    r_prim = np.where(np.abs(r_prim) > 1e-8, r_prim, 0.0)
-    x_red = np.where(np.abs(x_red) > 1e-8, x_red, 0.0)
+    r_prim = np.where(np.abs(r_prim) > 1e-8, r_prim, 0.0)  # type:ignore[assignment]
+    x_red = np.where(np.abs(x_red) > 1e-8, x_red, 0.0)  # type:ignore[assignment]
 
     # Info on atoms.
     dct = {
@@ -437,7 +436,7 @@ class Smearing(AbivarAble, MSONable):
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
-        other = cast(Smearing, other)
+        other = cast("Smearing", other)
 
         return self.occopt == other.occopt and np.allclose(self.tsmear, other.tsmear)
 
@@ -966,7 +965,7 @@ class KSampling(AbivarAble, MSONable):
 
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3.0)
 
-        num_div = [int(round(1.0 / lengths[i] * mult)) for i in range(3)]
+        num_div = [round(1.0 / lengths[i] * mult) for i in range(3)]
         # ensure that num_div[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
@@ -1208,7 +1207,7 @@ class PPModel(AbivarAble, MSONable):
         needed_attrs = ("mode", "plasmon_freq")
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
-        other = cast(PPModel, other)
+        other = cast("PPModel", other)
 
         if self.mode != other.mode:
             return False

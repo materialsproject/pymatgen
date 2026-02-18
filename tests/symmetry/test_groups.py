@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import subprocess
+import sys
+
 import numpy as np
 import pytest
 from pytest import approx
@@ -56,10 +59,15 @@ class TestPointGroup:
         pg_m3m = PointGroup("m-3m")
         pg_6mmm = PointGroup("6/mmm")
         pg_3m = PointGroup("-3m")
-        # TODO: Fix the test below.
+        # TODO: Fix the tests below.
         # assert pg3m.is_subgroup(pgm3m)
+        # assert PointGroup("32").is_subgroup(PointGroup("-6m2"))
         assert pg_3m.is_subgroup(pg_6mmm)
         assert not pg_m3m.is_supergroup(pg_6mmm)
+
+    def test_init_different_settings_and_full_notation(self):
+        PointGroup("2/m 2/m 2/m")
+        PointGroup("31m")
 
     def test_from_space_group(self):
         assert PointGroup.from_space_group("P 2_1/n2_1/m2_1/a").symbol == "mmm"
@@ -227,6 +235,8 @@ class TestSpaceGroup:
     def test_subgroup_supergroup(self):
         assert SpaceGroup("Pma2").is_subgroup(SpaceGroup("Pccm"))
         assert not SpaceGroup.from_int_number(229).is_subgroup(SpaceGroup.from_int_number(230))
+        assert SpaceGroup("P3").is_subgroup(SpaceGroup("P3"))  # Added after #3937
+        assert SpaceGroup("Fm-3m").is_subgroup(SpaceGroup("Pm-3m"))  # Added after #3937
 
     def test_hexagonal(self):
         for num in (146, 148, 155, 160, 161, 166, 167):
@@ -278,3 +288,7 @@ class TestSpaceGroup:
                 match=f"International number must be between 1 and 230, got {num}",
             ):
                 SpaceGroup.from_int_number(num)
+
+    def test_import(self):
+        # Ensure no circular import
+        subprocess.run([sys.executable, "-c", "from pymatgen.symmetry.groups import SpaceGroup"], check=True)

@@ -7,10 +7,11 @@ from __future__ import annotations
 
 import json
 import re
-from datetime import datetime, timezone
+import warnings
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
-from warnings import warn
 
+import orjson
 from monty.json import MSONable, jsanitize
 
 from pymatgen.core.structure import Structure
@@ -21,10 +22,8 @@ from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.util.provenance import StructureNL
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-    from typing import Any
-
-    from typing_extensions import Self
+    from collections.abc import Mapping, Sequence
+    from typing import Any, Self
 
     from pymatgen.alchemy.filters import AbstractStructureFilter
 
@@ -40,7 +39,7 @@ class TransformedStructure(MSONable):
         self,
         structure: Structure,
         transformations: (AbstractTransformation | Sequence[AbstractTransformation] | None) = None,
-        history: list[AbstractTransformation | dict[str, Any]] | None = None,
+        history: list[AbstractTransformation | Mapping[str, Any]] | None = None,
         other_parameters: dict[str, Any] | None = None,
     ) -> None:
         """Initialize a transformed structure from a structure.
@@ -54,7 +53,7 @@ class TransformedStructure(MSONable):
         self.final_structure = structure
         self.history = history or []
         self.other_parameters = other_parameters or {}
-        self._undone: list[tuple[AbstractTransformation | dict[str, Any], Structure]] = []
+        self._undone: list[tuple[AbstractTransformation | Mapping[str, Any], Structure]] = []
 
         if isinstance(transformations, AbstractTransformation):
             transformations = [transformations]
@@ -74,7 +73,7 @@ class TransformedStructure(MSONable):
             raise IndexError("Can't undo. Latest history has no input_structure")
         h = self.history.pop()
         self._undone.append((h, self.final_structure))
-        struct = h["input_structure"]
+        struct = h["input_structure"]  # type:ignore[index]
         if isinstance(struct, dict):
             struct = Structure.from_dict(struct)
         self.final_structure = struct
@@ -192,8 +191,8 @@ class TransformedStructure(MSONable):
                 to create VASP input files from structures
             **kwargs: All keyword args supported by the VASP input set.
         """
-        dct = vasp_input_set(self.final_structure, **kwargs).get_vasp_input()
-        dct["transformations.json"] = json.dumps(self.as_dict())
+        dct = vasp_input_set(self.final_structure, **kwargs).get_input_set()
+        dct["transformations.json"] = orjson.dumps(self.as_dict()).decode()
         return dct
 
     def write_vasp_input(
@@ -259,7 +258,7 @@ class TransformedStructure(MSONable):
         """Copy of all structures in the TransformedStructure. A
         structure is stored after every single transformation.
         """
-        h_structs = [Structure.from_dict(s["input_structure"]) for s in self.history if "input_structure" in s]
+        h_structs = [Structure.from_dict(s["input_structure"]) for s in self.history if "input_structure" in s]  # type: ignore[index]
         return [*h_structs, self.final_structure]
 
     @classmethod
@@ -302,7 +301,7 @@ class TransformedStructure(MSONable):
             source = "uploaded cif"
         source_info = {
             "source": source,
-            "datetime": str(datetime.now(tz=timezone.utc)),
+            "datetime": str(datetime.now(tz=UTC)),
             "original_file": raw_str,
             "cif_data": cif_dict[cif_keys[0]],
         }
@@ -330,7 +329,7 @@ class TransformedStructure(MSONable):
         struct = poscar.structure
         source_info = {
             "source": "POSCAR",
-            "datetime": str(datetime.now(tz=timezone.utc)),
+            "datetime": str(datetime.now(tz=UTC)),
             "original_file": raw_str,
         }
         return cls(struct, transformations, history=[source_info])
@@ -341,7 +340,7 @@ class TransformedStructure(MSONable):
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
         dct["history"] = jsanitize(self.history)
-        dct["last_modified"] = str(datetime.now(timezone.utc))
+        dct["last_modified"] = str(datetime.now(UTC))
         dct["other_parameters"] = jsanitize(self.other_parameters)
         return dct
 
@@ -362,7 +361,9 @@ class TransformedStructure(MSONable):
             StructureNL: The generated StructureNL object.
         """
         if self.other_parameters:
-            warn("Data in TransformedStructure.other_parameters discarded during type conversion to SNL")
+            warnings.warn(
+                "Data in TransformedStructure.other_parameters discarded during type conversion to SNL", stacklevel=2
+            )
         history = []
         for hist in self.history:
             snl_metadata = hist.pop("_snl", {})
@@ -386,9 +387,9 @@ class TransformedStructure(MSONable):
         Returns:
             TransformedStructure
         """
-        history: list[dict] = []
+        history: list = []
         for hist in snl.history:
             dct = hist.description
-            dct["_snl"] = {"url": hist.url, "name": hist.name}
-            history.append(dct)
-        return cls(snl.structure, history=history)
+            dct["_snl"] = {"url": hist.url, "name": hist.name}  # type:ignore[index]
+            history.append(dct)  # type:ignore[arg-type]
+        return cls(snl.structure, history=history)  # type:ignore[arg-type]

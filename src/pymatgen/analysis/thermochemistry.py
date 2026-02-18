@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from pymatgen.core.composition import Composition
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -120,6 +120,5 @@ class ThermoData:
 
     def __str__(self):
         return (
-            f"{self.type}_{self.formula}_{self.phaseinfo} = {self.value}, Valid T : {self.temp_range}, "
-            f"Ref = {self.ref}"
+            f"{self.type}_{self.formula}_{self.phaseinfo} = {self.value}, Valid T : {self.temp_range}, Ref = {self.ref}"
         )

@@ -10,11 +10,11 @@ from pymatgen.analysis.interfaces.zsl import ZSLGenerator, ZSLMatch, reduce_vect
 from pymatgen.core.surface import SlabGenerator, get_symmetrically_distinct_miller_indices
 
 if TYPE_CHECKING:
+    from typing import Self
+
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
     from pymatgen.core import Structure
-    from pymatgen.util.typing import Tuple3Ints
 
 
 @dataclass
@@ -25,8 +25,8 @@ class SubstrateMatch(ZSLMatch):
     energy if provided, and the elastic energy.
     """
 
-    film_miller: Tuple3Ints
-    substrate_miller: Tuple3Ints
+    film_miller: tuple[int, int, int]
+    substrate_miller: tuple[int, int, int]
     strain: Strain
     von_mises_strain: float
     ground_state_energy: float

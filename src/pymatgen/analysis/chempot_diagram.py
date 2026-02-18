@@ -22,20 +22,20 @@ who outlined many of its possible uses:
 
 from __future__ import annotations
 
-import json
-import os
 import warnings
 from functools import lru_cache
 from itertools import groupby
 from typing import TYPE_CHECKING
 
 import numpy as np
+import orjson
 import plotly.express as px
 from monty.json import MSONable
 from plotly.graph_objects import Figure, Mesh3d, Scatter, Scatter3d
 from scipy.spatial import ConvexHull, HalfspaceIntersection
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
+from pymatgen.core import PKG_DIR
 from pymatgen.core.composition import Composition, Element
 from pymatgen.util.coord import Simplex
 from pymatgen.util.due import Doi, due
@@ -44,8 +44,8 @@ from pymatgen.util.string import htmlify
 if TYPE_CHECKING:
     from pymatgen.entries.computed_entries import ComputedEntry
 
-with open(f"{os.path.dirname(__file__)}/../util/plotly_chempot_layouts.json") as file:
-    plotly_layouts = json.load(file)
+with open(f"{PKG_DIR}/util/plotly_chempot_layouts.json", "rb") as file:
+    plotly_layouts = orjson.loads(file.read())
 
 
 @due.dcite(
@@ -391,7 +391,7 @@ class ChemicalPotentialDiagram(MSONable):
         if formulas_to_draw:
             for formula in formulas_to_draw:
                 if formula not in domain_simplexes:
-                    warnings.warn(f"Specified formula to draw, {formula}, not found!")
+                    warnings.warn(f"Specified formula to draw, {formula}, not found!", stacklevel=2)
 
         if draw_formula_lines:
             data.extend(self._get_3d_formula_lines(draw_domains, formula_colors))

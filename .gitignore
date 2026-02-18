@@ -1,6 +1,6 @@
 __pycache__/
 .DS_Store
-pymatgen.egg-info
+*.egg-info
 *.o
 *.so
 *.pyc
@@ -8,7 +8,6 @@ pymatgen.egg-info
 *.swo
 *.pyd
 *.c
-pymatgen/pymatgen.cfg
 dist
 _build
 _site
@@ -21,13 +20,12 @@ build
 setuptools*
 .ipynb_checkpoints
 .cache
-.tox
 .eggs/
 .coverage
 .*_cache
 # VS Code
 .vscode/*
-
+*.code-workspace
 # Environments
 .env
 .venv

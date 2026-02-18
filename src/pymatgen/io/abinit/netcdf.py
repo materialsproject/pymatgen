@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.collections import AttrDict
-from monty.dev import requires
+from monty.dev import deprecated, requires
 from monty.functools import lazy_property
 from monty.string import marquee
 
@@ -19,13 +19,16 @@ from pymatgen.core.xcfunc import XcFunc
 from pymatgen.electronic_structure.core import Magmom
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 try:
     import netCDF4
 except ImportError:
     netCDF4 = None
-    warnings.warn("Can't import netCDF4. Some features will be disabled unless you pip install netCDF4.")
+    warnings.warn(
+        "Can't import netCDF4. Some features will be disabled unless you pip install netCDF4.",
+        stacklevel=2,
+    )
 
 
 logger = logging.getLogger(__name__)
@@ -495,4 +498,6 @@ class AbinitHeader(AttrDict):
 
     # to_string alias required for backwards compatibility
     # PLEASE DO NOT REMOVE THIS LINE AS THIS API HAS BEEN AROUND FOR SEVERAL YEARS
-    to_string = to_str
+    @deprecated(to_str)
+    def to_string(self, *args, **kwargs):
+        return self.to_str(*args, **kwargs)

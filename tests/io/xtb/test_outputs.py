@@ -7,7 +7,7 @@ from pytest import approx
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.outputs import check_for_structure_changes
 from pymatgen.io.xtb.outputs import CRESTOutput
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 try:
     from openbabel import openbabel
@@ -23,7 +23,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/xtb/sample_CREST_output"
 EXPECTED_DIR = f"{TEST_FILES_DIR}/io/xtb/expected_output"
 
 
-class TestCRESTOutput(PymatgenTest):
+class TestCRESTOutput(MatSciTest):
     """
     Checks that all attributes of CRESTOutput match the expected values for a
     sample CREST output directory.
@@ -44,11 +44,11 @@ class TestCRESTOutput(PymatgenTest):
         exp_best = Molecule.from_file(f"{EXPECTED_DIR}/expected_crest_best.xyz")
         for idx, c in enumerate(crest_out.sorted_structures_energies):
             for j, r in enumerate(c):
-                if openbabel:
+                if openbabel is not None:
                     assert check_for_structure_changes(r[0], expected_sorted_structures[idx][j]) == "no_change"
                 assert float(r[1]) == approx(float(expected_energies[idx][j]), abs=1e-4)
 
         assert crest_out.properly_terminated
-        if openbabel:
+        if openbabel is not None:
             assert check_for_structure_changes(crest_out.lowest_energy_structure, exp_best) == "no_change"
         assert crest_out.cmd_options == expected_cmd_options

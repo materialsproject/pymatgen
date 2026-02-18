@@ -24,6 +24,7 @@ b) Go to pymatgen/analysis/defects/tests and run
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 from typing import TYPE_CHECKING
@@ -41,15 +42,24 @@ try:
     from zeo.cluster import prune_voronoi_network_close_node
     from zeo.netstorage import AtomNetwork
 
-    zeo_found = True
+    zeo_found: bool = True
+    zeo_source: Literal["zeo", "pyzeo"] | None = "zeo"
 except ImportError:
-    zeo_found = False
-    AtomNetwork = prune_voronoi_network_close_node = None
+    try:
+        from pyzeo import AtomNetwork
+        from pyzeo.extension import prune_voronoi_network_close_node
+
+        zeo_found = True
+        zeo_source = "pyzeo"
+    except ImportError:
+        zeo_found = False
+        zeo_source = None
+        AtomNetwork = prune_voronoi_network_close_node = None
+
 
 if TYPE_CHECKING:
     from pathlib import Path
-
-    from typing_extensions import Self
+    from typing import Literal, Self
 
 __author__ = "Bharat Medasani"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -57,6 +67,9 @@ __version__ = "0.1"
 __maintainer__ = "Bharat Medasani"
 __email__ = "mbkumar@gmail.com"
 __data__ = "Aug 2, 2013"
+
+
+logger = logging.getLogger(__name__)
 
 
 class ZeoCssr(Cssr):
@@ -146,8 +159,8 @@ class ZeoCssr(Cssr):
         Returns:
             ZeoCssr object.
         """
-        with zopen(filename, mode="r") as file:
-            return cls.from_str(file.read())
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
 
 class ZeoVoronoiXYZ(XYZ):
@@ -200,8 +213,8 @@ class ZeoVoronoiXYZ(XYZ):
         Returns:
             XYZ object
         """
-        with zopen(filename) as file:
-            return cls.from_str(file.read())
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
     def __str__(self) -> str:
         output = [str(len(self._mols[0])), self._mols[0].formula]
@@ -251,8 +264,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
             rad_file = f"{name}.rad"
             rad_flag = True
             with open(rad_file, "w+", encoding="utf-8") as file:
-                for el in rad_dict:
-                    file.write(f"{el} {rad_dict[el].real}\n")
+                file.writelines(f"{el} {rad_dict[el].real}\n" for el in rad_dict)
 
         atom_net = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         vor_net, vor_edge_centers, vor_face_centers = atom_net.perform_voronoi_decomposition()
@@ -334,8 +346,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         rad_flag = True
         rad_file = f"{name}.rad"
         with open(rad_file, "w+", encoding="utf-8") as file:
-            for el in rad_dict:
-                print(f"{el} {rad_dict[el].real}", file=file)
+            file.writelines(f"{el} {val.real}\n" for el, val in rad_dict.items())
 
         atom_net = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         # vornet, vor_edge_centers, vor_face_centers = atom_net.perform_voronoi_decomposition()
@@ -400,8 +411,7 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
             rad_file = f"{name}.rad"
             rad_flag = True
             with open(rad_file, "w+", encoding="utf-8") as file:
-                for el in rad_dict:
-                    file.write(f"{el} {rad_dict[el].real}\n")
+                file.writelines(f"{el} {rad_dict[el].real}\n" for el in rad_dict)
 
         atom_net = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         out_file = "temp.res"

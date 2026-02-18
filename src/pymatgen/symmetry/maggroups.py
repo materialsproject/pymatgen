@@ -20,8 +20,7 @@ from pymatgen.util.string import transformation_to_string
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.core.lattice import Lattice
 
@@ -560,5 +559,5 @@ def _write_all_magnetic_space_groups_to_file(filename):
     all_msgs = list(map(MagneticSpaceGroup, range(1, 1652)))
     for msg in all_msgs:
         out += f"\n{msg.data_str()}\n\n--------\n"
-    with open(filename, mode="w") as file:
+    with open(filename, mode="w", encoding="utf-8") as file:
         file.write(out)

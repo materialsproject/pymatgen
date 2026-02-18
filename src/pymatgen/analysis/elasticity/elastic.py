@@ -25,10 +25,9 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Literal
+    from typing import Literal, Self
 
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
     from pymatgen.core import Structure
 
@@ -63,7 +62,7 @@ class NthOrderElasticTensor(Tensor):
         if obj.rank % 2 != 0:
             raise ValueError("ElasticTensor must have even rank")
         if not obj.is_voigt_symmetric(tol):
-            warnings.warn("Input elastic tensor does not satisfy standard Voigt symmetries")
+            warnings.warn("Input elastic tensor does not satisfy standard Voigt symmetries", stacklevel=2)
         return obj.view(cls)
 
     @property
@@ -214,7 +213,7 @@ class ElasticTensor(NthOrderElasticTensor):
             tol (float): tolerance for testing of orthogonality
         """
         n, m = get_uvec(n), get_uvec(m)
-        if not np.abs(np.dot(n, m)) < tol:
+        if np.abs(np.dot(n, m)) >= tol:
             raise ValueError("n and m must be orthogonal")
         v = self.compliance_tensor.einsum_sequence([n] * 2 + [m] * 2)
         v *= -1 / self.compliance_tensor.einsum_sequence([n] * 4)
@@ -476,7 +475,8 @@ class ElasticTensor(NthOrderElasticTensor):
         # convert the stress/strain to Nx6 arrays of voigt notation
         warnings.warn(
             "Pseudo-inverse fitting of Strain/Stress lists may yield "
-            "questionable results from vasp data, use with caution."
+            "questionable results from vasp data, use with caution.",
+            stacklevel=2,
         )
         stresses = np.array([Stress(stress).voigt for stress in stresses])
         with warnings.catch_warnings():
@@ -505,7 +505,9 @@ class ElasticTensor(NthOrderElasticTensor):
         if not set(strain_states) <= set(ss_dict):
             raise ValueError(f"Missing independent strain states: {set(strain_states) - set(ss_dict)}")
         if len(set(ss_dict) - set(strain_states)) > 0:
-            warnings.warn("Extra strain states in strain-stress pairs are neglected in independent strain fitting")
+            warnings.warn(
+                "Extra strain states in strain-stress pairs are neglected in independent strain fitting", stacklevel=2
+            )
         c_ij = np.zeros((6, 6))
         for ii in range(6):
             strains = ss_dict[strain_states[ii]]["strains"]
@@ -907,7 +909,7 @@ def find_eq_stress(strains, stresses, tol: float = 1e-10):
     eq_stress = stress_array[np.all(abs(strain_array) < tol, axis=(1, 2))]
 
     if eq_stress.size != 0:
-        all_same = (abs(eq_stress - eq_stress[0]) < 1e-8).all()
+        all_same = np.allclose(eq_stress, eq_stress[0], atol=1e-8, rtol=0)
         if len(eq_stress) > 1 and not all_same:
             raise ValueError(
                 "Multiple stresses found for equilibrium strain"
@@ -916,7 +918,7 @@ def find_eq_stress(strains, stresses, tol: float = 1e-10):
             )
         eq_stress = eq_stress[0]
     else:
-        warnings.warn("No eq state found, returning zero voigt stress")
+        warnings.warn("No eq state found, returning zero voigt stress", stacklevel=2)
         eq_stress = Stress(np.zeros((3, 3)))
     return eq_stress
 

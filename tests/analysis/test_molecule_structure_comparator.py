@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import pytest
 
 from pymatgen.analysis.molecule_structure_comparator import MoleculeStructureComparator
@@ -15,7 +13,7 @@ __author__ = "xiaohuiqu"
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/structural_change"
 
 
-class TestMoleculeStructureComparator(TestCase):
+class TestMoleculeStructureComparator:
     def test_are_equal(self):
         msc1 = MoleculeStructureComparator()
         mol1 = Molecule.from_file(f"{TEST_DIR}/t1.xyz")
@@ -141,7 +139,7 @@ class TestMoleculeStructureComparator(TestCase):
         d2 = MoleculeStructureComparator.from_dict(d1).as_dict()
         assert d1 == d2
 
-    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.xfail(reason="TODO: need someone to fix this")
     def test_structural_change_in_geom_opt(self):
         qcout_path = f"{TEST_DIR}/mol_1_3_bond.qcout"
         qcout = QCOutput(qcout_path)
@@ -178,7 +176,7 @@ class TestMoleculeStructureComparator(TestCase):
             [6, 9],
         ]
         bonds_13 = MoleculeStructureComparator.get_13_bonds(priority_bonds)
-        ans = (
+        assert bonds_13 == (
             (0, 3),
             (0, 4),
             (0, 5),
@@ -199,4 +197,3 @@ class TestMoleculeStructureComparator(TestCase):
             (6, 8),
             (6, 10),
         )
-        assert bonds_13 == tuple(ans)

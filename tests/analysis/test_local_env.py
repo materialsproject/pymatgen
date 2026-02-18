@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from math import pi
 from shutil import which
 from typing import get_args
 
@@ -11,6 +10,8 @@ from pytest import approx
 
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import (
+    CN_OPT_PARAMS,
+    DEFAULT_OP_PARAMS,
     BrunnerNNReal,
     BrunnerNNReciprocal,
     BrunnerNNRelative,
@@ -29,6 +30,8 @@ from pymatgen.analysis.local_env import (
     OpenBabelNN,
     ValenceIonicRadiusEvaluator,
     VoronoiNN,
+    cn_opt_params,
+    default_op_params,
     get_neighbors_of_site_with_index,
     metal_edge_extender,
     on_disorder_options,
@@ -37,13 +40,22 @@ from pymatgen.analysis.local_env import (
     solid_angle,
 )
 from pymatgen.core import Element, Lattice, Molecule, Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/local_env/fragmenter_files"
 
 
-class TestValenceIonicRadiusEvaluator(PymatgenTest):
-    def setUp(self):
+def test_opt_params():
+    assert isinstance(default_op_params, dict)
+    assert default_op_params == DEFAULT_OP_PARAMS
+
+    assert isinstance(cn_opt_params, dict)
+    assert list(cn_opt_params) == [2, 3, 4, 5, 6, 7, 8, 12]
+    assert cn_opt_params == CN_OPT_PARAMS
+
+
+class TestValenceIonicRadiusEvaluator(MatSciTest):
+    def setup_method(self):
         """Setup MgO rocksalt structure for testing Vacancy."""
         mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg"] * 4 + ["O"] * 4
@@ -77,8 +89,8 @@ class TestValenceIonicRadiusEvaluator(PymatgenTest):
             assert rad in {0.86, 1.26}
 
 
-class TestVoronoiNN(PymatgenTest):
-    def setUp(self):
+class TestVoronoiNN(MatSciTest):
+    def setup_method(self):
         self.struct = self.get_structure("LiFePO4")
         self.nn = VoronoiNN(targets=[Element("O")])
         self.s_sic = self.get_structure("Si")
@@ -113,7 +125,7 @@ class TestVoronoiNN(PymatgenTest):
             for nn in self.nn.get_voronoi_polyhedra(self.struct, n).values():
                 angle += nn["solid_angle"]
             assert 4 * np.pi == approx(angle)
-        assert solid_angle([0, 0, 0], [[1, 0, 0], [-1, 0, 0], [0, 1, 0]]) == pi
+        assert solid_angle([0, 0, 0], [[1, 0, 0], [-1, 0, 0], [0, 1, 0]]) == np.pi
 
     def test_nn_shell(self):
         # First, make a SC lattice. Make my math easier
@@ -156,7 +168,7 @@ class TestVoronoiNN(PymatgenTest):
         # Weight of getting back on to own site
         #  Square-square hop: 6*5 options times (0.125/0.32476)^2 weight each
         #  Hex-hex hop: 8*7 options times 1 weight each
-        assert approx(np.sum([x["weight"] for x in nns if x["site_index"] == 0]), abs=1e-3) == 60.4444
+        assert np.sum([x["weight"] for x in nns if x["site_index"] == 0]) == approx(60.4444, abs=1e-3)
 
     def test_adj_neighbors(self):
         # Make a simple cubic structure
@@ -248,8 +260,8 @@ class TestVoronoiNN(PymatgenTest):
         assert [len(x) for x in all_nns] == [8] * 16
 
 
-class TestJmolNN(PymatgenTest):
-    def setUp(self):
+class TestJmolNN(MatSciTest):
+    def setup_method(self):
         self.jmol = JmolNN()
         self.jmol_update = JmolNN(el_radius_updates={"Li": 1})
 
@@ -278,7 +290,7 @@ class TestJmolNN(PymatgenTest):
         assert len(self.jmol_update.get_nn(struct, 0)) == 2
 
 
-class TestIsayevNN(PymatgenTest):
+class TestIsayevNN(MatSciTest):
     def test_get_nn(self):
         inn = IsayevNN()
         struct = self.get_structure("LiFePO4")
@@ -289,8 +301,8 @@ class TestIsayevNN(PymatgenTest):
         assert len(inn.get_nn(struct, 0)) == 2
 
 
-class TestOpenBabelNN(PymatgenTest):
-    def setUp(self):
+class TestOpenBabelNN(MatSciTest):
+    def setup_method(self):
         pytest.importorskip("openbabel")
         self.benzene = Molecule.from_file(f"{TEST_DIR}/../benzene.xyz")
         self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/io/xyz/acetylene.xyz")
@@ -321,8 +333,8 @@ class TestOpenBabelNN(PymatgenTest):
         assert strategy.get_nn_info(self.acetylene, 0)[0]["weight"] == approx(1.19, abs=1e-2)
 
 
-class TestCovalentBondNN(PymatgenTest):
-    def setUp(self):
+class TestCovalentBondNN(MatSciTest):
+    def setup_method(self):
         self.benzene = Molecule.from_file(f"{TEST_DIR}/../benzene.xyz")
         self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/io/xyz/acetylene.xyz")
 
@@ -360,8 +372,8 @@ class TestCovalentBondNN(PymatgenTest):
         assert len(acetylene.graph.nodes) == 4
 
 
-class TestMiniDistNN(PymatgenTest):
-    def setUp(self):
+class TestMiniDistNN(MatSciTest):
+    def setup_method(self):
         self.diamond = Structure(
             Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264], [0, 0, 2.528]]),
             ["C0+", "C0+"],
@@ -473,8 +485,8 @@ class TestMiniDistNN(PymatgenTest):
         assert ops["octahedral"] == approx(0.9999995266669)
 
 
-class TestMotifIdentification(PymatgenTest):
-    def setUp(self):
+class TestMotifIdentification(MatSciTest):
+    def setup_method(self):
         self.silicon = Structure(
             Lattice.cubic(5.47),
             ["Si", "Si", "Si", "Si", "Si", "Si", "Si", "Si"],
@@ -571,8 +583,8 @@ class TestMotifIdentification(PymatgenTest):
         assert len(get_neighbors_of_site_with_index(self.diamond, 0, approach="min_VIRE")) == 4
 
 
-class TestNearNeighbor(PymatgenTest):
-    def setUp(self):
+class TestNearNeighbor(MatSciTest):
+    def setup_method(self):
         self.diamond = Structure(
             Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264], [0, 0, 2.528]]),
             ["C0+", "C0+"],
@@ -605,8 +617,8 @@ class TestNearNeighbor(PymatgenTest):
         )
 
 
-class TestLocalStructOrderParams(PymatgenTest):
-    def setUp(self):
+class TestLocalStructOrderParams(MatSciTest):
+    def setup_method(self):
         self.single_bond = Structure(
             Lattice.cubic(10),
             ["H", "H", "H"],
@@ -1170,8 +1182,8 @@ class TestLocalStructOrderParams(PymatgenTest):
             ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[2])
 
 
-class TestCrystalNN(PymatgenTest):
-    def setUp(self):
+class TestCrystalNN(MatSciTest):
+    def setup_method(self):
         self.lifepo4 = self.get_structure("LiFePO4")
         self.lifepo4.add_oxidation_state_by_guess()
         self.he_bcc = self.get_structure("He_BCC")
@@ -1317,8 +1329,8 @@ class TestCrystalNN(PymatgenTest):
             cnn.get_bonded_structure(self.disordered_struct, 0, on_disorder="error")
 
 
-class TestCutOffDictNN(PymatgenTest):
-    def setUp(self):
+class TestCutOffDictNN(MatSciTest):
+    def setup_method(self):
         self.diamond = Structure(
             Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264], [0, 0, 2.528]]),
             ["C", "C"],
@@ -1343,8 +1355,8 @@ class TestCutOffDictNN(PymatgenTest):
 
 
 @pytest.mark.skipif(not which("critic2"), reason="critic2 executable not present")
-class TestCritic2NN(PymatgenTest):
-    def setUp(self):
+class TestCritic2NN(MatSciTest):
+    def setup_method(self):
         self.diamond = Structure(
             Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264], [0, 0, 2.528]]),
             ["C", "C"],
@@ -1357,8 +1369,8 @@ class TestCritic2NN(PymatgenTest):
         # assert nn.get_cn(self.diamond, 0) == 4
 
 
-class TestMetalEdgeExtender(PymatgenTest):
-    def setUp(self):
+class TestMetalEdgeExtender(MatSciTest):
+    def setup_method(self):
         self.LiEC = Molecule.from_file(f"{TEST_DIR}/LiEC.xyz")
         self.phsh = Molecule.from_file(f"{TEST_DIR}/phsh.xyz")
         self.phsh_graph = MoleculeGraph.from_edges(

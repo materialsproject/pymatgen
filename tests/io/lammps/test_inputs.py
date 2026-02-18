@@ -11,14 +11,14 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile, LammpsRun, LammpsTemplateGen, write_lammps_inputs
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 
-class TestLammpsInputFile(PymatgenTest):
+class TestLammpsInputFile(MatSciTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.filename = f"{TEST_DIR}/lgps.in"
 
     def test_from_file(self):
@@ -34,7 +34,7 @@ class TestLammpsInputFile(PymatgenTest):
                     ("units", "metal"),
                     ("atom_style", "full"),
                     ("dimension", "3"),
-                    ("pair_style", "hybrid/overlay morse 15 coul/long 15"),
+                    ("pair_style", "hybrid/overlay morse 15 coul/long 15"),  # codespell:ignore coul
                     ("kspace_style", "ewald 1e-4"),
                     ("boundary", "p p p"),
                     ("#", "2) System definition"),
@@ -50,7 +50,7 @@ class TestLammpsInputFile(PymatgenTest):
                     ("pair_coeff", "2 4 morse 0.3147 2.257 2.409"),
                     ("pair_coeff", "3 4 morse 0.4104 2.329 2.200"),
                     ("pair_coeff", "4 4 morse 0.0241 1.359 4.284"),
-                    ("pair_coeff", "* * coul/long"),
+                    ("pair_coeff", "* * coul/long"),  # codespell:ignore coul
                     ("#", "Part A : energy minimization"),
                     ("thermo", "1"),
                     ("thermo_style", "custom step lx ly lz press pxx pyy pzz pe"),
@@ -640,14 +640,14 @@ write_data run.data"""
         ]
 
 
-class TestLammpsRun(PymatgenTest):
+class TestLammpsRun(MatSciTest):
     def test_md(self):
         struct = Structure.from_spacegroup(225, Lattice.cubic(3.62126), ["Cu"], [[0, 0, 0]])
         ld = LammpsData.from_structure(struct, atom_style="atomic")
         ff = "pair_style eam\npair_coeff * * Cu_u3.eam"
         md = LammpsRun.md(data=ld, force_field=ff, temperature=1600.0, nsteps=10000)
         md.write_inputs(output_dir="md")
-        with open(f"{self.tmp_path}/md/in.md") as file:
+        with open(f"{self.tmp_path}/md/in.md", encoding="utf-8") as file:
             md_script = file.read()
         script_string = """# Sample input script template for MD
 
@@ -690,14 +690,15 @@ run             10000
         assert os.path.isfile(f"{self.tmp_path}/md/md.data")
 
 
-class TestFunc(PymatgenTest):
+class TestFunc(MatSciTest):
+    @pytest.mark.filterwarnings("ignore:write_lammps_inputs is deprecated")
     def test_write_lammps_inputs(self):
         # script template
-        with open(f"{TEST_DIR}/kappa.txt") as file:
+        with open(f"{TEST_DIR}/kappa.txt", encoding="utf-8") as file:
             kappa_template = file.read()
         kappa_settings = {"method": "heat"}
         write_lammps_inputs(output_dir="heat", script_template=kappa_template, settings=kappa_settings)
-        with open(f"{self.tmp_path}/heat/in.lammps") as file:
+        with open(f"{self.tmp_path}/heat/in.lammps", encoding="utf-8") as file:
             kappa_script = file.read()
         fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
         # placeholders supposed to be filled
@@ -710,7 +711,7 @@ class TestFunc(PymatgenTest):
         pair_style = re.search(r"pair_style\slj/cut\s+(.*)\n", kappa_script)
         assert pair_style.group(1) == "${rc}"
 
-        with open(f"{TEST_DIR}/in.peptide") as file:
+        with open(f"{TEST_DIR}/in.peptide", encoding="utf-8") as file:
             peptide_script = file.read()
         # copy data file
         src = f"{TEST_DIR}/data.quartz"
@@ -721,12 +722,12 @@ class TestFunc(PymatgenTest):
         obj = LammpsData.from_file(src, atom_style="atomic")
         with pytest.warns(FutureWarning):
             write_lammps_inputs(output_dir="obj", script_template=peptide_script, data=obj)
-            obj_read = LammpsData.from_file(f"{self.tmp_path}/obj/data.peptide", atom_style="atomic")
-            pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
-            pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
+        obj_read = LammpsData.from_file(f"{self.tmp_path}/obj/data.peptide", atom_style="atomic")
+        pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
+        pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
 
 
-class TestLammpsTemplateGen(PymatgenTest):
+class TestLammpsTemplateGen(MatSciTest):
     def test_write_inputs(self):
         # simple script without data file
         lis = LammpsTemplateGen().get_input_set(
@@ -738,7 +739,7 @@ class TestLammpsTemplateGen(PymatgenTest):
         assert len(lis) == 1
         lis.write_input(self.tmp_path / "heat")
 
-        with open(self.tmp_path / "heat" / "in.lammps") as file:
+        with open(self.tmp_path / "heat" / "in.lammps", encoding="utf-8") as file:
             kappa_script = file.read()
         fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
         # placeholders supposed to be filled

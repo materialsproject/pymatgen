@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import tempfile
 from shutil import which
@@ -31,6 +32,8 @@ if TYPE_CHECKING:
 
 __author__ = "Kiran Mathew, Brandon Wood, Michael Humbert"
 __email__ = "kmathew@lbl.gov"
+
+logger = logging.getLogger(__name__)
 
 
 class Polymer:
@@ -233,7 +236,7 @@ class PackmolRunner:
         if not self.control_params.get("filetype"):
             self.control_params["filetype"] = filetype
         if not self.control_params.get("output"):
-            self.control_params["output"] = f"{output_file.split('.')[0]}.{self.control_params['filetype']}"
+            self.control_params["output"] = f"{output_file.split('.', maxsplit=1)[0]}.{self.control_params['filetype']}"
         if self.boxit:
             self._set_box()
 
@@ -265,8 +268,7 @@ class PackmolRunner:
             input_dir (str): path to the input directory
         """
         with open(f"{input_dir}/{self.input_file}", mode="w", encoding="utf-8") as inp:
-            for key, val in self.control_params.items():
-                inp.write(f"{key} {self._format_param_val(val)}\n")
+            inp.writelines(f"{key} {self._format_param_val(val)}\n" for key, val in self.control_params.items())
             # write the structures of the constituent molecules to file and set
             # the molecule id and the corresponding filename in the packmol
             # input file.
@@ -287,8 +289,7 @@ class PackmolRunner:
 
                 inp.write("\n")
                 inp.write(f"structure {os.path.join(input_dir, str(idx))}.{self.control_params['filetype']}\n")
-                for key, val in self.param_list[idx].items():
-                    inp.write(f"  {key} {self._format_param_val(val)}\n")
+                inp.writelines(f"  {key} {self._format_param_val(val)}\n" for key, val in self.param_list[idx].items())
                 inp.write("end structure\n")
 
     def run(self, site_property: str | None = None) -> Molecule:
@@ -305,7 +306,7 @@ class PackmolRunner:
         with tempfile.TemporaryDirectory() as scratch_dir:
             self._write_input(input_dir=scratch_dir)
             with (
-                open(os.path.join(scratch_dir, self.input_file)) as packmol_input,
+                open(os.path.join(scratch_dir, self.input_file), encoding="utf-8") as packmol_input,
                 Popen(self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE) as proc,
             ):
                 stdout, stderr = proc.communicate()
@@ -313,7 +314,7 @@ class PackmolRunner:
             if os.path.isfile(output_file):
                 packed_mol = BabelMolAdaptor.from_file(output_file, self.control_params["filetype"])
                 packed_mol = packed_mol.pymatgen_mol
-                print(f"packed molecule written to {self.control_params['output']}")
+                logger.info(f"packed molecule written to {self.control_params['output']}")
                 if site_property:
                     packed_mol = self.restore_site_properties(site_property=site_property, filename=output_file)
                 return packed_mol
@@ -458,7 +459,7 @@ class LammpsRunner:
     def run(self) -> tuple[bytes, bytes]:
         """Write the input/data files and run LAMMPS."""
         lammps_cmd = [*self.lammps_bin, "-in", self.input_filename]
-        print(f"Running: {' '.join(lammps_cmd)}")
+        logger.info(f"Running: {' '.join(lammps_cmd)}")
         with Popen(lammps_cmd, stdout=PIPE, stderr=PIPE) as process:
             stdout, stderr = process.communicate()
         return stdout, stderr

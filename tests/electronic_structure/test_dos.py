@@ -1,42 +1,42 @@
 from __future__ import annotations
 
-import json
+import gzip
 import re
-from unittest import TestCase
 
 import numpy as np
+import orjson
 import pytest
-from monty.io import zopen
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core import Element, Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
-from pymatgen.electronic_structure.dos import DOS, CompleteDos, FermiDos, LobsterCompleteDos
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.electronic_structure.dos import DOS, CompleteDos, Dos, FermiDos, LobsterCompleteDos
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/dos"
 
 
-class TestDos(TestCase):
-    def setUp(self):
-        with open(f"{TEST_DIR}/complete_dos.json") as file:
-            self.dos = CompleteDos.from_dict(json.load(file))
+class TestDos:
+    def setup_method(self):
+        with open(f"{TEST_DIR}/complete_dos.json", "rb") as file:
+            self.dos = CompleteDos.from_dict(orjson.loads(file.read()))
 
     def test_get_gap(self):
-        assert self.dos.get_gap() == approx(2.0589, abs=1e-4)
+        assert self.dos.get_gap() == approx(2.0698, abs=1e-4)
+        assert self.dos.get_interpolated_gap()[0] == approx(self.dos.get_gap())
         assert len(self.dos.energies) == 301
         assert self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(
             2.16815942458015, abs=1e-7
         )
-        assert self.dos.get_cbm_vbm() == approx((3.8729, 1.8140000000000001))
+        assert self.dos.get_cbm_vbm() == approx((3.8837, 1.8139), abs=1e-4)
 
         assert self.dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
         assert self.dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
         with pytest.raises(
             ValueError,
-            match=r"x=1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
+            match=r"1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
         ):
             self.dos.get_interpolated_value(1000)
 
@@ -57,10 +57,10 @@ class TestDos(TestCase):
         assert not isinstance(dos_dict["densities"]["1"][0], np.float64)
 
 
-class TestFermiDos(TestCase):
-    def setUp(self):
-        with open(f"{TEST_DIR}/complete_dos.json") as file:
-            self.dos = CompleteDos.from_dict(json.load(file))
+class TestFermiDos:
+    def setup_method(self):
+        with open(f"{TEST_DIR}/complete_dos.json", "rb") as file:
+            self.dos = CompleteDos.from_dict(orjson.loads(file.read()))
         self.dos = FermiDos(self.dos)
 
     def test_doping_fermi(self):
@@ -77,7 +77,7 @@ class TestFermiDos(TestCase):
             assert calc_fermis[j] == approx(f_ref, abs=1e-4)
 
         sci_dos = FermiDos(self.dos, bandgap=3.0)
-        assert sci_dos.get_gap() == 3.0
+        assert sci_dos.get_gap() == approx(3.0)
         old_cbm, old_vbm = self.dos.get_cbm_vbm()
         old_gap = old_cbm - old_vbm
         new_cbm, new_vbm = sci_dos.get_cbm_vbm()
@@ -85,13 +85,13 @@ class TestFermiDos(TestCase):
         assert old_vbm - new_vbm == approx((3.0 - old_gap) / 2.0)
         for idx, c_ref in enumerate(ref_dopings):
             if c_ref < 0:
-                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[idx] == approx(0.47, abs=1e-2)
+                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[idx] == approx(0.4651, abs=1e-2)
             else:
-                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[idx] == approx(-0.47, abs=1e-2)
+                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[idx] == approx(-0.4651, abs=1e-2)
 
-        assert sci_dos.get_fermi_interextrapolated(-1e26, 300) == approx(7.5108, abs=1e-4)
-        assert sci_dos.get_fermi_interextrapolated(1e26, 300) == approx(-1.4182, abs=1e-4)
-        assert sci_dos.get_fermi_interextrapolated(0.0, 300) == approx(2.9071, abs=1e-4)
+        assert sci_dos.get_fermi_interextrapolated(-1e26, 300) == approx(7.50533, abs=1e-4)
+        assert sci_dos.get_fermi_interextrapolated(1e26, 300) == approx(-1.41276, abs=1e-4)
+        assert sci_dos.get_fermi_interextrapolated(0.0, 300) == approx(2.9069, abs=1e-4)
 
     def test_as_dict(self):
         dos_dict = self.dos.as_dict()
@@ -103,16 +103,37 @@ class TestFermiDos(TestCase):
         assert isinstance(dos_dict["densities"]["1"][0], float)
         assert not isinstance(dos_dict["densities"]["1"][0], np.float64)
 
+    def test_get_vbm_cbm_doping(self):
+        dos = Dos(
+            energies=np.array([0.0, 0.5, 1.0, 1.5, 2.0]),
+            densities={
+                Spin.up: np.array([1.0, 2.0e-4, 0.0, 3.0e-4, 4.0]),
+                Spin.down: np.array([0.5, 1.0e-4, 0.0, 1.5e-4, 2.0]),
+            },
+            efermi=0.8,
+        )
+        fermi_dos = FermiDos(
+            dos,
+            structure=self.dos.structure,
+        )
+        assert fermi_dos.get_cbm_vbm() == approx((1.1667, 0.75), abs=1e-4)
+        assert np.isclose(
+            fermi_dos.get_doping(fermi_level=1.0, temperature=300),
+            -4.1557e11,  # <0 because e doping; greater DOS in CBM than VBM here, and efermi set to mid-gap
+            rtol=1e-3,
+        )
 
-class TestCompleteDos(TestCase):
-    def setUp(self):
-        with open(f"{TEST_DIR}/complete_dos.json") as file:
-            self.dos = CompleteDos.from_dict(json.load(file))
-        with zopen(f"{TEST_DIR}/pdag3_complete_dos.json.gz") as file:
-            self.dos_pdag3 = CompleteDos.from_dict(json.load(file))
+
+class TestCompleteDos:
+    def setup_method(self):
+        with open(f"{TEST_DIR}/complete_dos.json", "rb") as file:
+            self.dos = CompleteDos.from_dict(orjson.loads(file.read()))
+        with gzip.open(f"{TEST_DIR}/pdag3_complete_dos.json.gz", "rb") as file:
+            self.dos_pdag3 = CompleteDos.from_dict(orjson.loads(file.read()))
 
     def test_get_gap(self):
-        assert self.dos.get_gap() == approx(2.0589, abs=1e-4), "Wrong gap from dos!"
+        assert self.dos.get_gap() == approx(2.0698, abs=1e-4), "Wrong gap from dos!"
+        assert self.dos.get_interpolated_gap()[0] == approx(self.dos.get_gap())
         assert len(self.dos.energies) == 301
         assert self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(
             2.16815942458015, abs=1e-7
@@ -130,9 +151,9 @@ class TestCompleteDos(TestCase):
                 sum_element += pdos
 
         # The sums of the SPD or the element doses should be the same.
-        assert (abs(sum_spd.energies - sum_element.energies) < 0.0001).all()
-        assert (abs(sum_spd.densities[Spin.up] - sum_element.densities[Spin.up]) < 0.0001).all()
-        assert (abs(sum_spd.densities[Spin.down] - sum_element.densities[Spin.down]) < 0.0001).all()
+        assert_allclose(sum_spd.energies, sum_element.energies, atol=1e-4)
+        assert_allclose(sum_spd.densities[Spin.up], sum_element.densities[Spin.up], atol=1e-4)
+        assert_allclose(sum_spd.densities[Spin.down], sum_element.densities[Spin.down], atol=1e-4)
 
         site = self.dos.structure[0]
         assert self.dos.get_site_dos(site) is not None
@@ -145,13 +166,13 @@ class TestCompleteDos(TestCase):
         egt2g = self.dos.get_site_t2g_eg_resolved_dos(self.dos.structure[4])
         assert sum(egt2g["e_g"].get_densities(Spin.up)) == approx(15.004399999999997)
         assert sum(egt2g["t2g"].get_densities(Spin.up)) == approx(22.910399999999999)
-        assert self.dos.get_cbm_vbm() == approx((3.8729, 1.8140000000000001))
+        assert self.dos.get_cbm_vbm() == approx((3.8837, 1.8139), abs=1e-4)
 
         assert self.dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
         assert self.dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
         with pytest.raises(
             ValueError,
-            match=r"x=1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
+            match=r"1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
         ):
             self.dos.get_interpolated_value(1000)
 
@@ -170,7 +191,7 @@ class TestCompleteDos(TestCase):
                 sum_element += pdos
 
         # The sums of the SPD or the element doses should be the same.
-        assert (abs(sum_spd.energies - sum_element.energies) < 0.0001).all()
+        assert_allclose(sum_spd.energies, sum_element.energies, atol=1e-4)
 
     def test_str(self):
         assert str(self.dos).startswith("Complete DOS for Full Formula (Li1 Fe4 P4 O16)\nReduced Formula: LiFe4(PO4)4")
@@ -323,65 +344,65 @@ class TestCompleteDos(TestCase):
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric=metric, normalize=False)
 
 
-class TestDOS(PymatgenTest):
-    def setUp(self):
-        with open(f"{TEST_DIR}/complete_dos.json") as file:
-            dct = json.load(file)
+class TestDOS(MatSciTest):
+    def setup_method(self):
+        with open(f"{TEST_DIR}/complete_dos.json", "rb") as file:
+            dct = orjson.loads(file.read())
             ys = list(zip(dct["densities"]["1"], dct["densities"]["-1"], strict=True))
             self.dos = DOS(dct["energies"], ys, dct["efermi"])
 
     def test_get_gap(self):
-        assert self.dos.get_gap() == approx(2.0589, abs=1e-4)
+        assert self.dos.get_gap() == approx(2.0698, abs=1e-4)
+        assert self.dos.get_interpolated_gap()[0] == approx(self.dos.get_gap())
         assert len(self.dos.x) == 301
         assert self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(
             2.16815942458015, abs=1e-7
         )
-        assert_allclose(self.dos.get_cbm_vbm(), (3.8729, 1.8140000000000001))
+        assert_allclose(self.dos.get_cbm_vbm(), (3.8837, 1.8139), atol=1e-4)
 
         assert self.dos.get_interpolated_value(9.9)[0] == approx(1.744588888888891, abs=1e-7)
         assert self.dos.get_interpolated_value(9.9)[1] == approx(1.756888888888886, abs=1e-7)
         with pytest.raises(
             ValueError,
-            match=r"x=1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
+            match=r"1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
         ):
             self.dos.get_interpolated_value(1000)
 
-        assert_allclose(self.dos.get_cbm_vbm(spin=Spin.up), (3.8729, 1.2992999999999999))
+        assert_allclose(self.dos.get_cbm_vbm(spin=Spin.up), (3.878307, 1.29909), atol=1e-4)
+        assert_allclose(self.dos.get_cbm_vbm(spin=Spin.down), (4.645041, 1.813966), atol=1e-4)
 
-        assert_allclose(self.dos.get_cbm_vbm(spin=Spin.down), (4.645, 1.8140000000000001))
 
-
-class TestSpinPolarization(TestCase):
+class TestSpinPolarization:
     def test_spin_polarization(self):
         dos_path = f"{TEST_DIR}/dos_spin_polarization_mp-865805.json"
         dos = loadfn(dos_path)
         assert dos.spin_polarization == approx(0.6460514663341762)
 
 
-class TestLobsterCompleteDos(TestCase):
-    def setUp(self):
-        with open(f"{TEST_DIR}/LobsterCompleteDos_spin.json") as file:
-            data_spin = json.load(file)
+class TestLobsterCompleteDos:
+    def setup_method(self):
+        with open(f"{TEST_DIR}/LobsterCompleteDos_spin.json", "rb") as file:
+            data_spin = orjson.loads(file.read())
         self.LobsterCompleteDOS_spin = LobsterCompleteDos.from_dict(data_spin)
 
-        with open(f"{TEST_DIR}/LobsterCompleteDos_nonspin.json") as file:
-            data_nonspin = json.load(file)
+        with open(f"{TEST_DIR}/LobsterCompleteDos_nonspin.json", "rb") as file:
+            data_nonspin = orjson.loads(file.read())
         self.LobsterCompleteDOS_nonspin = LobsterCompleteDos.from_dict(data_nonspin)
 
-        with open(f"{TEST_DIR}/structure_KF.json") as file:
-            data_structure = json.load(file)
+        with open(f"{TEST_DIR}/structure_KF.json", "rb") as file:
+            data_structure = orjson.loads(file.read())
         self.structure = Structure.from_dict(data_structure)
 
-        with open(f"{TEST_DIR}/LobsterCompleteDos_MnO.json") as file:
-            data_MnO = json.load(file)
+        with open(f"{TEST_DIR}/LobsterCompleteDos_MnO.json", "rb") as file:
+            data_MnO = orjson.loads(file.read())
         self.LobsterCompleteDOS_MnO = LobsterCompleteDos.from_dict(data_MnO)
 
-        with open(f"{TEST_DIR}/LobsterCompleteDos_MnO_nonspin.json") as file:
-            data_MnO_nonspin = json.load(file)
+        with open(f"{TEST_DIR}/LobsterCompleteDos_MnO_nonspin.json", "rb") as file:
+            data_MnO_nonspin = orjson.loads(file.read())
         self.LobsterCompleteDOS_MnO_nonspin = LobsterCompleteDos.from_dict(data_MnO_nonspin)
 
-        with open(f"{TEST_DIR}/structure_MnO.json") as file:
-            data_MnO = json.load(file)
+        with open(f"{TEST_DIR}/structure_MnO.json", "rb") as file:
+            data_MnO = orjson.loads(file.read())
         self.structure_MnO = Structure.from_dict(data_MnO)
 
     def test_get_site_orbital_dos(self):

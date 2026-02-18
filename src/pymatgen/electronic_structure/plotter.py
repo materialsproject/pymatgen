@@ -19,7 +19,6 @@ from matplotlib.collections import LineCollection
 from matplotlib.gridspec import GridSpec
 from monty.dev import requires
 from monty.json import jsanitize
-from numpy.typing import ArrayLike
 
 from pymatgen.core import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
@@ -35,6 +34,8 @@ except ImportError:
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Literal
+
+    from numpy.typing import ArrayLike
 
     from pymatgen.electronic_structure.dos import CompleteDos, Dos
 
@@ -105,7 +106,7 @@ class DosPlotter:
         efermi = dos.efermi
         self._doses[label] = {
             "energies": energies,
-            "densities": densities,
+            "densities": densities,  # type:ignore[dict-item]
             "efermi": efermi,
         }
 
@@ -164,8 +165,8 @@ class DosPlotter:
         # Note that this complicated processing of energies is to allow for
         # stacked plots in matplotlib.
         for dos in self._doses.values():
-            energies = cast(ArrayLike, dos["energies"])
-            densities = cast(ArrayLike, dos["densities"])
+            energies = cast("ArrayLike", dos["energies"])
+            densities = cast("ArrayLike", dos["densities"])
             if not ys:
                 ys = {
                     Spin.up: np.zeros(energies.shape),
@@ -175,10 +176,10 @@ class DosPlotter:
             for spin in [Spin.up, Spin.down]:
                 if spin in densities:
                     if self.stack:
-                        ys[spin] += densities[spin]
+                        ys[spin] += densities[spin]  # type:ignore[index, arg-type]
                         new_dens[spin] = ys[spin].copy()
                     else:
-                        new_dens[spin] = densities[spin]
+                        new_dens[spin] = densities[spin]  # type:ignore[index, assignment]
             all_energies.append(energies)
             all_densities.append(new_dens)
 
@@ -196,9 +197,9 @@ class DosPlotter:
                         x = densities
                         y = energy
                     else:
-                        x = energy
+                        x = energy  # type:ignore[assignment]
                         y = densities
-                    all_pts.extend(list(zip(x, y, strict=True)))
+                    all_pts.extend(list(zip(x, y, strict=True)))  # type:ignore[arg-type]
                     if self.stack:
                         ax.fill(x, y, color=colors[idx % n_colors], label=str(key))
                     elif spin == Spin.down and beta_dashed:
@@ -228,13 +229,13 @@ class DosPlotter:
             if xlim is None:
                 raise RuntimeError("xlim cannot be None.")
             relevant_y = [p[1] for p in all_pts if xlim[0] < p[0] < xlim[1]]
-            ax.set_ylim((min(relevant_y), max(relevant_y)))
+            ax.set_ylim((min(relevant_y), max(relevant_y)))  # type:ignore[arg-type,type-var]
         if not xlim and invert_axes:
             ylim = ax.get_ylim()
             if ylim is None:
                 raise RuntimeError("ylim cannot be None.")
             relevant_y = [p[0] for p in all_pts if ylim[0] < p[1] < ylim[1]]
-            ax.set_xlim((min(relevant_y), max(relevant_y)))
+            ax.set_xlim((min(relevant_y), max(relevant_y)))  # type:ignore[arg-type,type-var]
 
         if self.zero_at_efermi:
             xlim = ax.get_xlim()
@@ -497,21 +498,21 @@ class BSPlotter:
         bg_str = ""
 
         if not bs_is_metal:
-            for index in cbm["kpoint_index"]:
-                cbm_plot.append(
-                    (
-                        bs.distance[index],
-                        (cbm["energy"] - zero_energy if zero_to_efermi else cbm["energy"]),
-                    )
+            cbm_plot.extend(
+                (
+                    bs.distance[index],
+                    (cbm["energy"] - zero_energy if zero_to_efermi else cbm["energy"]),
                 )
+                for index in cbm["kpoint_index"]
+            )
 
-            for index in vbm["kpoint_index"]:
-                vbm_plot.append(
-                    (
-                        bs.distance[index],
-                        (vbm["energy"] - zero_energy if zero_to_efermi else vbm["energy"]),
-                    )
+            vbm_plot.extend(
+                (
+                    bs.distance[index],
+                    (vbm["energy"] - zero_energy if zero_to_efermi else vbm["energy"]),
                 )
+                for index in vbm["kpoint_index"]
+            )
 
             bg = bs.get_band_gap()
             direct = "Indirect"
@@ -570,9 +571,9 @@ class BSPlotter:
                 # reducing smooth_k when the number
                 # of points are fewer then k
                 smooth_k = len(dist) - 1
-                warnings.warn(warning_m_fewer_k)
+                warnings.warn(warning_m_fewer_k, stacklevel=2)
             elif len(dist) == 1:
-                warnings.warn("Skipping single point branch")
+                warnings.warn("Skipping single point branch", stacklevel=2)
                 continue
 
             int_distances.append(np.linspace(dist[0], dist[-1], smooth_np))
@@ -587,7 +588,7 @@ class BSPlotter:
             int_energies.append(np.vstack(br_en))
 
             if np.any(np.isnan(int_energies[-1])):
-                warnings.warn(warning_nan)
+                warnings.warn(warning_nan, stacklevel=2)
 
         return int_distances, int_energies
 
@@ -860,7 +861,7 @@ class BSPlotter:
         Returns:
             plt.Axes: matplotlib Axes object with both band structures
         """
-        warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.")
+        warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.", stacklevel=2)
 
         # TODO: add exception if the band structures are not compatible
         ax = self.get_plot()
@@ -928,14 +929,15 @@ class BSPlotterProjected(BSPlotter):
         if isinstance(bs, list):
             warnings.warn(
                 "Multiple band structures are not handled by BSPlotterProjected. "
-                "Only the first in the list will be considered"
+                "Only the first in the list will be considered",
+                stacklevel=2,
             )
             bs = bs[0]
 
         if len(bs.projections) == 0:
             raise ValueError("Can't plot projections on a band structure without projections data")
 
-        self._bs: BandStructureSymmLine = bs
+        self._bs: BandStructureSymmLine = bs  # type: ignore[assignment]
         self._nb_bands: int = bs.nb_bands  # type: ignore[assignment]
 
     def _get_projections_by_branches(self, project_onto):
@@ -980,7 +982,7 @@ class BSPlotterProjected(BSPlotter):
         vbm_cbm_marker: bool = False,
         band_linewidth: float = 1.0,
         marker_size: float = 15.0,
-    ) -> plt.Axes:
+    ) -> list[plt.Axes]:
         """Generate a plot with subplots for each element-orbital pair.
 
         The orbitals are named as in the FATBAND file, e.g. "2p" or "2p_x".
@@ -1245,7 +1247,7 @@ class BSPlotterProjected(BSPlotter):
                                 proj[b][str(spin)][band_idx][j][str(el)][o]
                                 for o in proj[b][str(spin)][band_idx][j][str(el)]
                             )
-                        if sum_e == 0.0:
+                        if math.isclose(sum_e, 0.0):
                             color = [0.0] * len(elt_ordered)
                         else:
                             color = [
@@ -1332,7 +1334,7 @@ class BSPlotterProjected(BSPlotter):
         proj_br = []
         for index in indices:
             b = self._bs.branches[index]
-            print(b)
+            logger.info(b)
             if self._bs.is_spin_polarized:
                 proj_br.append(
                     {
@@ -1657,9 +1659,9 @@ class BSPlotterProjected(BSPlotter):
         """
         dictio, sum_morbs = self._Orbitals_SumOrbitals(dictio, sum_morbs)
         dictpa, sum_atoms, n_figs = self._number_of_subfigures(dictio, dictpa, sum_atoms, sum_morbs)
-        print(f"Number of subfigures: {n_figs}")
+        logger.info(f"Number of subfigures: {n_figs}")
         if n_figs > 9:
-            print(
+            logger.info(
                 f"The number of subfigures {n_figs} might be too manny and the implementation might take a long "
                 f"time.\n A smaller number or a plot with selected symmetry lines (selected_branches) might be better."
             )
@@ -1819,7 +1821,7 @@ class BSPlotterProjected(BSPlotter):
                 raise KeyError(f"The invalid element was put into 'dictio' as a key: {elt}")
 
         if sum_morbs is None:
-            print("You do not want to sum projection over orbitals.")
+            logger.info("You do not want to sum projection over orbitals.")
         elif not isinstance(sum_morbs, dict):
             raise TypeError("The invalid type of 'sum_orbs' was bound. It should be dict or 'None' type.")
         elif len(sum_morbs) == 0:
@@ -1863,7 +1865,7 @@ class BSPlotterProjected(BSPlotter):
                 elif sum_morbs is None:
                     pass
                 elif elt not in sum_morbs:
-                    print(f"You do not want to sum projection over orbitals of element: {elt}")
+                    logger.info(f"You do not want to sum projection over orbitals of element: {elt}")
                 else:
                     if len(sum_morbs[elt]) == 0:
                         raise ValueError(f"The empty list is an invalid value for sum_morbs[{elt}].")
@@ -1887,7 +1889,7 @@ class BSPlotterProjected(BSPlotter):
                 if sum_morbs is None:
                     pass
                 elif elt not in sum_morbs:
-                    print(f"You do not want to sum projection over orbitals of element: {elt}")
+                    logger.info(f"You do not want to sum projection over orbitals of element: {elt}")
                 else:
                     if len(sum_morbs[elt]) == 0:
                         raise ValueError(f"The empty list is an invalid value for sum_morbs[{elt}].")
@@ -1935,7 +1937,7 @@ class BSPlotterProjected(BSPlotter):
                         if isinstance(number, str):
                             if number.lower() == "all":
                                 dictpa[elt] = indices
-                                print(f"You want to consider all {elt!r} atoms.")
+                                logger.info(f"You want to consider all {elt!r} atoms.")
                                 break
 
                             raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
@@ -1962,7 +1964,7 @@ class BSPlotterProjected(BSPlotter):
                 raise KeyError(f"The element {elt!r} in not in both dictpa and dictio.")
 
         if sum_atoms is None:
-            print("You do not want to sum projection over atoms.")
+            logger.info("You do not want to sum projection over atoms.")
         elif not isinstance(sum_atoms, dict):
             raise TypeError("The invalid type of 'sum_atoms' was bound. It should be dict type.")
         elif len(sum_atoms) == 0:
@@ -1982,7 +1984,7 @@ class BSPlotterProjected(BSPlotter):
                             if isinstance(number, str):
                                 if number.lower() == "all":
                                     sum_atoms[elt] = indices
-                                    print(f"You want to sum projection over all {elt!r} atoms.")
+                                    logger.info(f"You want to sum projection over all {elt!r} atoms.")
                                     break
                                 raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
                             if isinstance(number, int):
@@ -2096,10 +2098,12 @@ class BSPlotterProjected(BSPlotter):
                 dictpa_d[elt] = []
                 if elt in sum_atoms:
                     _sites = self._bs.structure.sites
-                    indices = []
-                    for site_idx in range(len(_sites)):
-                        if next(iter(_sites[site_idx]._species)) == Element(elt):
-                            indices.append(site_idx + 1)
+                    indices = [
+                        site_idx + 1
+                        for site_idx in range(len(_sites))
+                        if next(iter(_sites[site_idx]._species)) == Element(elt)
+                    ]
+
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))
                     if flag_1 == len(indices) and flag_2 == len(indices):
@@ -2174,10 +2178,7 @@ class BSPlotterProjected(BSPlotter):
         ticks = self.get_ticks()
         distance = []
         label = []
-        rm_elems = []
-        for idx in range(1, len(ticks["distance"])):
-            if ticks["label"][idx] == ticks["label"][idx - 1]:
-                rm_elems.append(idx)
+        rm_elems = [idx for idx in range(1, len(ticks["distance"])) if ticks["label"][idx] == ticks["label"][idx - 1]]
         for idx in range(len(ticks["distance"])):
             if idx not in rm_elems:
                 distance.append(ticks["distance"][idx])
@@ -2347,7 +2348,8 @@ class BSDOSPlotter:
             warnings.warn(
                 "Cannot get element projected data; either the projection data "
                 "doesn't exist, or you don't have a compound with exactly 2 "
-                "or 3 or 4 unique elements."
+                "or 3 or 4 unique elements.",
+                stacklevel=2,
             )
             bs_projection = None
 
@@ -2389,7 +2391,7 @@ class BSDOSPlotter:
             left_kpoint = bs.kpoints[branch["start_index"]].cart_coords
             right_kpoint = bs.kpoints[branch["end_index"]].cart_coords
             distance = np.linalg.norm(right_kpoint - left_kpoint)
-            xlabel_distances.append(xlabel_distances[-1] + distance)
+            xlabel_distances.append(xlabel_distances[-1] + distance)  # type: ignore[arg-type]
 
             # add x-coordinates for kpoint data
             npts = branch["end_index"] - branch["start_index"]
@@ -2436,7 +2438,7 @@ class BSDOSPlotter:
             if spin in bs.bands:
                 band_energies[spin] = []
                 for band in bs.bands[spin]:
-                    band = cast(list[float], band)
+                    band = cast("list[float]", band)
                     band_energies[spin].append([e - bs.efermi for e in band])  # type: ignore[arg-type]
 
         # renormalize the DOS energies to Fermi level
@@ -2938,8 +2940,8 @@ class BoltztrapPlotter:
 
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
         ax.set_ylabel("Seebeck effective mass", fontsize=30)
-        ax.set_xticks(fontsize=25)
-        ax.set_yticks(fontsize=25)
+        ax.set_xticks(ax.get_xticks(), fontsize=25)
+        ax.set_yticks(ax.get_yticks(), fontsize=25)
         if output == "tensor":
             ax.legend(
                 [f"{dim}_{T}K" for T in temps for dim in ("x", "y", "z")],
@@ -2997,8 +2999,8 @@ class BoltztrapPlotter:
 
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
         ax.set_ylabel("Complexity Factor", fontsize=30)
-        ax.set_xticks(fontsize=25)
-        ax.set_yticks(fontsize=25)
+        ax.set_xticks(ax.get_xticks(), fontsize=25)
+        ax.set_yticks(ax.get_yticks(), fontsize=25)
         if output == "tensor":
             ax.legend(
                 [f"{dim}_{T}K" for T in temps for dim in ("x", "y", "z")],
@@ -3039,8 +3041,8 @@ class BoltztrapPlotter:
             ax.set_xlim(xlim[0], xlim[1])
         ax.set_ylabel("Seebeck \n coefficient  ($\\mu$V/K)", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
-        ax.set_xticks(fontsize=25)
-        ax.set_yticks(fontsize=25)
+        ax.set_xticks(ax.get_xticks(), fontsize=25)
+        ax.set_yticks(ax.get_yticks(), fontsize=25)
         plt.tight_layout()
         return ax
 
@@ -3049,7 +3051,7 @@ class BoltztrapPlotter:
         temp: float = 600,
         output: str = "eig",
         relaxation_time: float = 1e-14,
-        xlim: Sequence[float] | None = None,
+        xlim: tuple[float, float] | None = None,
     ):
         """Plot the conductivity in function of Fermi level. Semi-log plot.
 
@@ -3074,11 +3076,11 @@ class BoltztrapPlotter:
             ax.set_xlim(-0.5, self._bz.gap + 0.5)
         else:
             ax.set_xlim(xlim)
-        ax.set_ylim([1e13 * relaxation_time, 1e20 * relaxation_time])
+        ax.set_ylim((1e13 * relaxation_time, 1e20 * relaxation_time))
         ax.set_ylabel("conductivity,\n $\\Sigma$ (1/($\\Omega$ m))", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30.0)
-        ax.set_xticks(fontsize=25)
-        ax.set_yticks(fontsize=25)
+        ax.set_xticks(ax.get_xticks(), fontsize=25)
+        ax.set_yticks(ax.get_yticks(), fontsize=25)
         plt.tight_layout()
         return ax
 
@@ -3087,7 +3089,7 @@ class BoltztrapPlotter:
         temp: float = 600,
         output: str = "eig",
         relaxation_time: float = 1e-14,
-        xlim: Sequence[float] | None = None,
+        xlim: tuple[float, float] | None = None,
     ):
         """Plot the power factor in function of Fermi level. Semi-log plot.
 
@@ -3116,8 +3118,8 @@ class BoltztrapPlotter:
             ax.set_xlim(xlim)
         ax.set_ylabel("Power factor, ($\\mu$W/(mK$^2$))", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30.0)
-        ax.set_xticks(fontsize=25)
-        ax.set_yticks(fontsize=25)
+        ax.set_xticks(ax.get_xticks(), fontsize=25)
+        ax.set_yticks(ax.get_yticks(), fontsize=25)
         plt.tight_layout()
         return ax
 
@@ -3126,7 +3128,7 @@ class BoltztrapPlotter:
         temp: float = 600,
         output: str = "eig",
         relaxation_time: float = 1e-14,
-        xlim: Sequence[float] | None = None,
+        xlim: tuple[float, float] | None = None,
     ) -> plt.Axes:
         """Plot the ZT as function of Fermi level.
 
@@ -3153,8 +3155,8 @@ class BoltztrapPlotter:
             ax.set_xlim(xlim)
         ax.set_ylabel("ZT", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30.0)
-        ax.set_xticks(fontsize=25)
-        ax.set_yticks(fontsize=25)
+        ax.set_xticks(ax.get_xticks(), fontsize=25)
+        ax.set_yticks(ax.get_yticks(), fontsize=25)
         plt.tight_layout()
         return ax
 
@@ -3180,9 +3182,7 @@ class BoltztrapPlotter:
             plt.subplot(121 + idx)
             for dop in doping:
                 dop_idx = self._bz.doping[dop_type].index(dop)
-                sbk_temp = []
-                for temp in temperatures:
-                    sbk_temp.append(sbk[dop_type][temp][dop_idx])
+                sbk_temp = [sbk[dop_type][temp][dop_idx] for temp in temperatures]
                 if output == "average":
                     ax.plot(temperatures, sbk_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
@@ -3200,8 +3200,8 @@ class BoltztrapPlotter:
 
             ax.legend(loc="best", fontsize=15)
             ax.grid()
-            ax.set_xticks(fontsize=25)
-            ax.set_yticks(fontsize=25)
+            ax.set_xticks(ax.get_xticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
 
         plt.tight_layout()
 
@@ -3237,9 +3237,7 @@ class BoltztrapPlotter:
             plt.subplot(121 + idx)
             for dop in doping:
                 dop_idx = self._bz.doping[dop_type].index(dop)
-                cond_temp = []
-                for temp in temperatures:
-                    cond_temp.append(cond[dop_type][temp][dop_idx])
+                cond_temp = [cond[dop_type][temp][dop_idx] for temp in temperatures]
                 if output == "average":
                     ax.plot(temperatures, cond_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
@@ -3257,8 +3255,8 @@ class BoltztrapPlotter:
 
             ax.legend(loc="best", fontsize=15)
             ax.grid()
-            ax.set_xticks(fontsize=25)
-            ax.set_yticks(fontsize=25)
+            ax.set_xticks(ax.get_xticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
             ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
 
         plt.tight_layout()
@@ -3295,9 +3293,7 @@ class BoltztrapPlotter:
             plt.subplot(121 + idx)
             for dop in doping:
                 dop_idx = self._bz.doping[dop_type].index(dop)
-                pf_temp = []
-                for temp in temperatures:
-                    pf_temp.append(pow_factor[dop_type][temp][dop_idx])
+                pf_temp = [pow_factor[dop_type][temp][dop_idx] for temp in temperatures]
                 if output == "average":
                     ax.plot(temperatures, pf_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
@@ -3315,8 +3311,8 @@ class BoltztrapPlotter:
 
             ax.legend(loc="best", fontsize=15)
             ax.grid()
-            ax.set_xticks(fontsize=25)
-            ax.set_yticks(fontsize=25)
+            ax.set_xticks(ax.get_xticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
             ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
 
         plt.tight_layout()
@@ -3354,9 +3350,7 @@ class BoltztrapPlotter:
             plt.subplot(121 + idx)
             for dop in doping:
                 dop_idx = self._bz.doping[dop_type].index(dop)
-                zt_temp = []
-                for temp in temperatures:
-                    zt_temp.append(zt[dop_type][temp][dop_idx])
+                zt_temp = [zt[dop_type][temp][dop_idx] for temp in temperatures]
                 if output == "average":
                     ax.plot(temperatures, zt_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
@@ -3374,8 +3368,8 @@ class BoltztrapPlotter:
 
             ax.legend(loc="best", fontsize=15)
             ax.grid()
-            ax.set_xticks(fontsize=25)
-            ax.set_yticks(fontsize=25)
+            ax.set_xticks(ax.get_xticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
 
         plt.tight_layout()
         return ax
@@ -3470,8 +3464,8 @@ class BoltztrapPlotter:
             p = "lower right" if idx == 0 else "best"
             ax.legend(loc=p, fontsize=15)
             ax.grid()
-            ax.set_xticks(fontsize=25)
-            ax.set_yticks(fontsize=25)
+            ax.set_xticks(ax.get_xticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
 
         plt.tight_layout()
 
@@ -3528,8 +3522,8 @@ class BoltztrapPlotter:
             ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
             ax.legend(fontsize=15)
             ax.grid()
-            ax.set_xticks(fontsize=25)
-            ax.set_yticks(fontsize=25)
+            ax.set_xticks(ax.get_xticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
 
         plt.tight_layout()
 
@@ -3586,8 +3580,8 @@ class BoltztrapPlotter:
             p = "best"  # 'lower right' if i == 0 else ''
             ax.legend(loc=p, fontsize=15)
             ax.grid()
-            ax.set_xticks(fontsize=25)
-            ax.set_yticks(fontsize=25)
+            ax.set_xticks(ax.get_xticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
 
         plt.tight_layout()
 
@@ -3645,8 +3639,8 @@ class BoltztrapPlotter:
             p = "lower right" if idx == 0 else "best"
             ax.legend(loc=p, fontsize=15)
             ax.grid()
-            ax.set_xticks(fontsize=25)
-            ax.set_yticks(fontsize=25)
+            ax.set_xticks(ax.get_xticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
 
         plt.tight_layout()
 
@@ -3699,8 +3693,8 @@ class BoltztrapPlotter:
             p = "lower right" if idx == 0 else "best"
             ax.legend(loc=p, fontsize=15)
             ax.grid()
-            ax.set_xticks(fontsize=25)
-            ax.set_yticks(fontsize=25)
+            ax.set_xticks(ax.get_xticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
 
         plt.tight_layout()
 
@@ -3737,8 +3731,8 @@ class BoltztrapPlotter:
         ax.set_ylim(1e14, 1e22)
         ax.set_ylabel("carrier concentration (cm-3)", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
-        ax.set_xticks(fontsize=25)
-        ax.set_yticks(fontsize=25)
+        ax.set_xticks(ax.get_xticks(), fontsize=25)
+        ax.set_yticks(ax.get_yticks(), fontsize=25)
         plt.tight_layout()
         return ax
 
@@ -3760,8 +3754,8 @@ class BoltztrapPlotter:
         ax.set_ylim(1e14, 1e22)
         ax.set_ylabel("Hall carrier concentration (cm-3)", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
-        ax.set_xticks(fontsize=25)
-        ax.set_yticks(fontsize=25)
+        ax.set_xticks(ax.get_xticks(), fontsize=25)
+        ax.set_yticks(ax.get_yticks(), fontsize=25)
         plt.tight_layout()
         return ax
 
@@ -4069,7 +4063,7 @@ def plot_fermi_surface(
 
     if energy_levels is None:
         energy_levels = [en_min + 0.01] if cbm else [en_max - 0.01]
-        print(f"Energy level set to: {energy_levels[0]} eV")
+        logger.info(f"Energy level set to: {energy_levels[0]} eV")
 
     else:
         for e in energy_levels:
@@ -4281,7 +4275,13 @@ def plot_path(line, lattice=None, coords_are_cartesian=False, ax: plt.Axes = Non
     return fig, ax
 
 
-def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax: plt.Axes = None, **kwargs):
+def plot_labels(
+    labels,
+    lattice=None,
+    coords_are_cartesian=False,
+    ax: plt.Axes = None,
+    **kwargs,
+):
     """Add labels to a matplotlib Axes.
 
     Args:
@@ -4308,14 +4308,15 @@ def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax: plt.Axes =
         label = k
         if k.startswith("\\") or k.find("_") != -1:
             label = f"${k}$"
-        off = 0.01
-        if coords_are_cartesian:
-            coords = np.array(coords)
-        else:
+        offset: float = 0.01
+        if not coords_are_cartesian:
             if lattice is None:
-                raise ValueError("coords_are_cartesian False requires the lattice")
+                raise ValueError("coords_are_cartesian=False requires the lattice")
             coords = lattice.get_cartesian_coords(coords)
-        ax.text(*(coords + off), s=label, **kwargs)
+
+        coords = np.asarray(coords)
+        x, y, z = coords + offset
+        ax.text(x, y, z, label, **kwargs)
 
     return fig, ax
 

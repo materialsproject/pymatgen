@@ -1,7 +1,7 @@
 """This module implements an interface to the VAMPIRE code for atomistic
 simulations of magnetic materials.
 
-This module depends on a compiled vampire executable available in the path.
+This module depends on a compiled vampire executable available in the PATH.
 Please download at https://vampire.york.ac.uk/download/ and
 follow the instructions to compile the executable.
 
@@ -31,6 +31,8 @@ __email__ = "ncfrey@lbl.gov"
 __status__ = "Development"
 __date__ = "June 2019"
 
+logger = logging.getLogger(__name__)
+
 VAMP_EXE = which("vampire-serial")
 
 
@@ -51,7 +53,7 @@ class VampireCaller:
     """
 
     @requires(
-        VAMP_EXE,
+        VAMP_EXE is not None,
         "VampireCaller requires vampire-serial to be in the path."
         "Please follow the instructions at https://vampire.york.ac.uk/download/.",
     )
@@ -137,7 +139,7 @@ class VampireCaller:
         if stderr:
             van_helsing = stderr.decode()
             if len(van_helsing) > 27:  # Suppress blank warning msg
-                logging.warning(van_helsing)
+                logger.warning(van_helsing)
 
         if process.returncode != 0:
             raise RuntimeError(f"Vampire exited with return code {process.returncode}.")
@@ -225,7 +227,7 @@ class VampireCaller:
 
         self.mat_id_dict = mat_id_dict
 
-        with open(mat_file_name, mode="w") as file:
+        with open(mat_file_name, mode="w", encoding="utf-8") as file:
             file.write(mat_file)
 
     def _create_input(self):
@@ -296,7 +298,7 @@ class VampireCaller:
 
         input_script = "\n".join(input_script)
 
-        with open("input", mode="w") as file:
+        with open("input", mode="w", encoding="utf-8") as file:
             file.write(input_script)
 
     def _create_ucf(self):
@@ -363,7 +365,7 @@ class VampireCaller:
         ucf = "\n".join(ucf)
         ucf_file_name = f"{mat_name}.ucf"
 
-        with open(ucf_file_name, mode="w") as file:
+        with open(ucf_file_name, mode="w", encoding="utf-8") as file:
             file.write(ucf)
 
     @staticmethod

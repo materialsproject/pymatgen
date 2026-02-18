@@ -7,15 +7,13 @@ from fractions import Fraction
 from typing import TYPE_CHECKING
 
 import numpy as np
-from sympy import Matrix
-from sympy.parsing.sympy_parser import parse_expr
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.util.string import transformation_to_string
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -100,6 +98,10 @@ class JonesFaithfulTransformation:
         Returns:
             tuple[list[list[float]] | np.ndarray, list[float]]: transformation matrix & vector
         """
+        # Import sympy is expensive (PR4128)
+        from sympy import Matrix
+        from sympy.parsing.sympy_parser import parse_expr
+
         try:
             a, b, c = np.eye(3)
             b_change, o_shift = transformation_string.split(";")

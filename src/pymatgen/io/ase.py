@@ -1,24 +1,24 @@
 """
-This module provides conversion between the Atomic Simulation Environment
+This module provides conversion between the Atomic Simulation Environment (ASE)
 Atoms object and pymatgen Structure objects.
 """
 
 from __future__ import annotations
 
 import warnings
-from collections.abc import Iterable
+from copy import deepcopy
 from importlib.metadata import PackageNotFoundError
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, TypeVar, overload
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
 
-from pymatgen.core.structure import Lattice, Molecule, Structure
+from pymatgen.core.structure import IMolecule, IStructure, Lattice, Molecule, Structure
 
 try:
     from ase.atoms import Atoms
     from ase.calculators.singlepoint import SinglePointDFTCalculator
-    from ase.constraints import FixAtoms
+    from ase.constraints import FixAtoms, FixCartesian
     from ase.io.jsonio import decode, encode
     from ase.spacegroup import Spacegroup
 
@@ -26,7 +26,7 @@ try:
 
 except ImportError:
     NO_ASE_ERR = PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
-    encode = decode = FixAtoms = SinglePointDFTCalculator = Spacegroup = None
+    encode = decode = FixAtoms = FixCartesian = SinglePointDFTCalculator = Spacegroup = None
 
     class Atoms:  # type: ignore[no-redef]
         def __init__(self, *args, **kwargs):
@@ -34,10 +34,9 @@ except ImportError:
 
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, Self
 
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
     from pymatgen.core.structure import SiteCollection
 
@@ -47,6 +46,9 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
+
+IMoleculeT = TypeVar("IMoleculeT", bound=IMolecule)
+StructOrMolT = TypeVar("StructOrMolT", bound=Structure | Molecule)
 
 
 class MSONAtoms(Atoms, MSONable):
@@ -83,8 +85,36 @@ class MSONAtoms(Atoms, MSONable):
 class AseAtomsAdaptor:
     """Adaptor serves as a bridge between ASE Atoms and pymatgen objects."""
 
+    @overload
     @staticmethod
-    def get_atoms(structure: SiteCollection, msonable: bool = True, **kwargs) -> MSONAtoms | Atoms:
+    def get_atoms(
+        structure: SiteCollection,
+        msonable: Literal[True] = ...,
+        **kwargs: Any,
+    ) -> MSONAtoms: ...
+
+    @overload
+    @staticmethod
+    def get_atoms(
+        structure: SiteCollection,
+        msonable: Literal[False],
+        **kwargs: Any,
+    ) -> Atoms: ...
+
+    @overload
+    @staticmethod
+    def get_atoms(
+        structure: SiteCollection,
+        msonable: bool = True,
+        **kwargs: Any,
+    ) -> MSONAtoms | Atoms: ...
+
+    @staticmethod
+    def get_atoms(
+        structure: SiteCollection,
+        msonable: bool = True,
+        **kwargs,
+    ) -> MSONAtoms | Atoms:
         """Get ASE Atoms object from pymatgen structure or molecule.
 
         Args:
@@ -157,48 +187,55 @@ class AseAtomsAdaptor:
         # Get the oxidation states from the structure
         oxi_states: list[float | None] = [getattr(site.specie, "oxi_state", None) for site in structure]
 
-        # Read in selective dynamics if present. Note that the ASE FixAtoms class fixes (x,y,z), so
-        # here we make sure that [False, False, False] or [True, True, True] is set for the site selective
-        # dynamics property. As a consequence, if only a subset of dimensions are fixed, this won't get passed to ASE.
+        # Read in selective dynamics if present.
+        # Note that FixCartesian class uses an opposite notion of
+        # "fix" and "not fix" flags: in ASE True means fixed and False
+        # means not fixed.
+        fix_atoms: dict | None = None
         if "selective_dynamics" in structure.site_properties:
-            fix_atoms = []
+            fix_atoms = {
+                str([xc, yc, zc]): ([xc, yc, zc], [])
+                for xc in (True, False)
+                for yc in (True, False)
+                for zc in (True, False)
+            }
+            # [False, False, False] is free to move - no constraint in ASE.
+            del fix_atoms[str([False, False, False])]
             for site in structure:
                 selective_dynamics: ArrayLike = site.properties.get("selective_dynamics")  # type: ignore[assignment]
-                if (
-                    isinstance(selective_dynamics, Iterable)
-                    and True in selective_dynamics
-                    and False in selective_dynamics
-                ):
-                    raise ValueError(
-                        "ASE FixAtoms constraint does not support selective dynamics in only some dimensions. "
-                        f"Remove the {selective_dynamics=} and try again if you do not need them."
-                    )
-                is_fixed = bool(~np.all(site.properties["selective_dynamics"]))
-                fix_atoms.append(is_fixed)
-
+                for cmask_str in fix_atoms:
+                    cmask_site = (~np.array(selective_dynamics)).tolist()
+                    fix_atoms[cmask_str][1].append(cmask_str == str(cmask_site))
         else:
             fix_atoms = None
 
-        # Set the selective dynamics with the FixAtoms class.
+        # Set the selective dynamics with the FixCartesian class.
         if fix_atoms is not None:
-            atoms.set_constraint(FixAtoms(mask=fix_atoms))
+            atoms.set_constraint(
+                [
+                    FixAtoms(indices) if cmask == [True, True, True] else FixCartesian(indices, mask=cmask)
+                    for cmask, indices in fix_atoms.values()
+                    # Do not add empty constraints
+                    if any(indices)
+                ]
+            )
 
         # Add any remaining site properties to the ASE Atoms object
         for prop in structure.site_properties:
-            if prop not in [
+            if prop not in {
                 "magmom",
                 "charge",
                 "final_magmom",
                 "final_charge",
                 "selective_dynamics",
-            ]:
+            }:
                 atoms.set_array(prop, np.array(structure.site_properties[prop]))
         if any(oxi_states):
             atoms.set_array("oxi_states", np.array(oxi_states))
 
         # Atoms.info <---> Structure.properties
         if properties := structure.properties:
-            atoms.info = properties
+            atoms.info = deepcopy(properties)
 
         # Regenerate Spacegroup object from `.todict()` representation
         if isinstance(atoms.info.get("spacegroup"), dict):
@@ -223,16 +260,20 @@ class AseAtomsAdaptor:
         return atoms
 
     @staticmethod
-    def get_structure(atoms: Atoms, cls: type[Structure] = Structure, **cls_kwargs) -> Structure:
+    def get_structure(
+        atoms: Atoms,
+        cls: type[StructOrMolT] = Structure,
+        **cls_kwargs,
+    ) -> StructOrMolT:
         """Get pymatgen structure from ASE Atoms.
 
         Args:
-            atoms: ASE Atoms object
-            cls: The Structure class to instantiate (defaults to pymatgen Structure)
-            **cls_kwargs: Any additional kwargs to pass to the cls
+            atoms (Atoms): ASE Atoms object
+            cls: The structure class to instantiate (defaults to pymatgen Structure)
+            **cls_kwargs: Any additional kwargs to pass to the cls constructor
 
         Returns:
-            Structure: Equivalent pymatgen Structure
+            (I)Structure/(I)Molecule: Equivalent pymatgen (I)Structure/(I)Molecule
         """
         symbols = atoms.get_chemical_symbols()
         positions = atoms.get_positions()
@@ -254,36 +295,55 @@ class AseAtomsAdaptor:
         oxi_states = atoms.get_array("oxi_states") if atoms.has("oxi_states") else None
 
         # If the ASE Atoms object has constraints, make sure that they are of the
-        # kind FixAtoms, which are the only ones that can be supported in Pymatgen.
+        # FixAtoms or FixCartesian kind, which are the only ones that
+        # can be supported in Pymatgen.
         # By default, FixAtoms fixes all three (x, y, z) dimensions.
         if atoms.constraints:
             unsupported_constraint_type = False
-            constraint_indices = []
+            constraint_indices: dict = {
+                str([xc, yc, zc]): ([xc, yc, zc], [])
+                for xc in (True, False)
+                for yc in (True, False)
+                for zc in (True, False)
+            }
             for constraint in atoms.constraints:
                 if isinstance(constraint, FixAtoms):
-                    constraint_indices.extend(constraint.get_indices().tolist())
+                    constraint_indices[str([False] * 3)][1].extend(constraint.get_indices().tolist())
+                elif isinstance(constraint, FixCartesian):
+                    cmask = (~np.array(constraint.mask)).tolist()
+                    constraint_indices[str(cmask)][1].extend(constraint.get_indices().tolist())
                 else:
                     unsupported_constraint_type = True
             if unsupported_constraint_type:
                 warnings.warn(
-                    "Only FixAtoms is supported by Pymatgen. Other constraints will not be set.",
-                    UserWarning,
+                    "Only FixAtoms and FixCartesian is supported by Pymatgen. Other constraints will not be set.",
+                    stacklevel=2,
                 )
-            sel_dyn = [[False] * 3 if atom.index in constraint_indices else [True] * 3 for atom in atoms]
+            sel_dyn = []
+            for atom in atoms:
+                constrained = False
+                for mask, indices in constraint_indices.values():
+                    if atom.index in indices:
+                        sel_dyn.append(mask)
+                        constrained = True
+                        break  # Assume no duplicates
+                if not constrained:
+                    sel_dyn.append([True] * 3)
         else:
             sel_dyn = None
 
         # Atoms.info <---> Structure.properties
-        # But first make sure `spacegroup` is JSON serializable
-        if atoms.info.get("spacegroup") and isinstance(atoms.info["spacegroup"], Spacegroup):
-            atoms.info["spacegroup"] = atoms.info["spacegroup"].todict()
-        properties = getattr(atoms, "info", {})
+        properties = deepcopy(getattr(atoms, "info", {}))
+        # If present, convert Spacegroup object to JSON-serializable dict
+        if properties.get("spacegroup") and isinstance(properties["spacegroup"], Spacegroup):
+            properties["spacegroup"] = properties["spacegroup"].todict()
 
-        # Return a Molecule object if that was specifically requested;
-        # otherwise return a Structure object as expected
-        if cls == Molecule:
+        # Return a (I)Molecule object if that was specifically requested;
+        # otherwise return a (I)Structure object as expected
+        if issubclass(cls, IMolecule):
             structure = cls(symbols, positions, properties=properties, **cls_kwargs)
-        else:
+
+        elif issubclass(cls, IStructure):
             structure = cls(
                 Lattice(lattice, pbc=atoms.pbc),
                 symbols,
@@ -292,6 +352,9 @@ class AseAtomsAdaptor:
                 properties=properties,
                 **cls_kwargs,
             )
+
+        else:
+            raise TypeError(f"Unsupported {cls=}")
 
         # Atoms.calc <---> Structure.calc
         if calc := getattr(atoms, "calc", None):
@@ -336,7 +399,7 @@ class AseAtomsAdaptor:
 
         # Add any remaining site properties to the Pymatgen structure object
         for prop in atoms.arrays:
-            if prop not in [
+            if prop not in {
                 "numbers",
                 "positions",
                 "magmom",
@@ -346,22 +409,22 @@ class AseAtomsAdaptor:
                 "charge",
                 "final_charge",
                 "oxi_states",
-            ]:
+            }:
                 structure.add_site_property(prop, atoms.get_array(prop).tolist())
 
         return structure
 
     @staticmethod
-    def get_molecule(atoms: Atoms, cls: type[Molecule] = Molecule, **cls_kwargs) -> Molecule:
+    def get_molecule(atoms: Atoms, cls: type[IMoleculeT] = Molecule, **cls_kwargs) -> IMoleculeT:
         """Get pymatgen molecule from ASE Atoms.
 
         Args:
-            atoms: ASE Atoms object
-            cls: The Molecule class to instantiate (defaults to pymatgen molecule)
-            **cls_kwargs: Any additional kwargs to pass to the cls
+            atoms (Atom): ASE Atoms object
+            cls: The molecule class to instantiate (defaults to pymatgen Molecule)
+            **cls_kwargs: Any additional kwargs to pass to the cls constructor
 
         Returns:
-            Molecule: Equivalent pymatgen.core.structure.Molecule
+            MolT: Equivalent pymatgen (I)Molecule
         """
         molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls, **cls_kwargs)
 
@@ -378,4 +441,4 @@ class AseAtomsAdaptor:
 
         molecule.set_charge_and_spin(charge, spin_multiplicity=spin_mult)
 
-        return molecule
+        return molecule  # type:ignore[return-value]

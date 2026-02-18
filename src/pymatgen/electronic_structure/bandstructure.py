@@ -18,10 +18,12 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import pbc_diff
 
 if TYPE_CHECKING:
-    from typing import Any
+    from collections.abc import Mapping
+    from typing import Any, Self
 
-    from numpy.typing import NDArray
-    from typing_extensions import Self
+    from numpy.typing import ArrayLike, NDArray
+
+    from pymatgen.util.typing import SpeciesLike
 
 __author__ = "Geoffroy Hautier, Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -39,7 +41,7 @@ class Kpoint(MSONable):
 
     def __init__(
         self,
-        coords: NDArray,
+        coords: ArrayLike,
         lattice: Lattice,
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
@@ -57,7 +59,7 @@ class Kpoint(MSONable):
             label (str): The label of the Kpoint if any (None by default).
         """
         self._lattice = lattice
-        self._frac_coords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
+        self._frac_coords = lattice.get_fractional_coords(coords) if coords_are_cartesian else np.asarray(coords)
         self._label = label
 
         if to_unit_cell:
@@ -173,14 +175,14 @@ class BandStructure:
 
     def __init__(
         self,
-        kpoints: NDArray,
-        eigenvals: dict[Spin, NDArray],
+        kpoints: ArrayLike,
+        eigenvals: Mapping[Spin, ArrayLike],
         lattice: Lattice,
         efermi: float,
-        labels_dict: dict[str, Kpoint] | None = None,
+        labels_dict: Mapping[str, Kpoint] | None = None,
         coords_are_cartesian: bool = False,
         structure: Structure | None = None,
-        projections: dict[Spin, NDArray] | None = None,
+        projections: Mapping[Spin, NDArray] | None = None,
     ) -> None:
         """
         Args:
@@ -233,10 +235,10 @@ class BandStructure:
                     )
             self.kpoints.append(Kpoint(kpt, lattice, label=label, coords_are_cartesian=coords_are_cartesian))
         self.bands = {spin: np.array(v) for spin, v in eigenvals.items()}
-        self.nb_bands = len(eigenvals[Spin.up])
+        self.nb_bands = len(self.bands[Spin.up])
         self.is_spin_polarized = len(self.bands) == 2
 
-    def get_projection_on_elements(self) -> dict[Spin, NDArray]:
+    def get_projection_on_elements(self) -> dict[Spin, list[list[dict[str, float]]]]:
         """Get projections on elements.
 
         Returns:
@@ -246,7 +248,7 @@ class BandStructure:
         """
         if self.structure is None:
             raise ValueError("structure is None.")
-        result: dict[Spin, NDArray] = {}
+        result: dict[Spin, list[list[dict[str, float]]]] = {}
         for spin, val in self.projections.items():
             result[spin] = [[defaultdict(float) for _ in range(len(self.kpoints))] for _ in range(self.nb_bands)]
             for i, j, k in itertools.product(
@@ -350,13 +352,13 @@ class BandStructure:
                 if kpt.label == kpoint_vbm.label:
                     list_ind_kpts.append(idx)
         else:
-            list_ind_kpts.append(index)
+            list_ind_kpts.append(index)  # type:ignore[arg-type]
 
         # Get all other bands sharing the VBM
         list_ind_band = defaultdict(list)
         for spin in self.bands:
             for idx in range(self.nb_bands):
-                if math.fabs(self.bands[spin][idx][index] - max_tmp) < 0.001:
+                if math.isclose(self.bands[spin][idx][index], max_tmp, abs_tol=1e-3, rel_tol=0):
                     list_ind_band[spin].append(idx)
         proj = {}
         for spin, value in self.projections.items():
@@ -416,13 +418,13 @@ class BandStructure:
                 if kpt.label == kpoint_cbm.label:
                     list_index_kpoints.append(idx)
         else:
-            list_index_kpoints.append(index)
+            list_index_kpoints.append(index)  # type:ignore[arg-type]
 
         # Get all other bands sharing the CBM
         list_index_band = defaultdict(list)
         for spin in self.bands:
             for idx in range(self.nb_bands):
-                if math.fabs(self.bands[spin][idx][index] - max_tmp) < 0.001:
+                if math.isclose(self.bands[spin][idx][index], max_tmp, abs_tol=1e-3, rel_tol=0):
                     list_index_band[spin].append(idx)
         proj = {}
         for spin, value in self.projections.items():
@@ -518,7 +520,7 @@ class BandStructure:
         kpoint: NDArray,
         cartesian: bool = False,
         tol: float = 1e-2,
-    ) -> NDArray:
+    ) -> NDArray | None:
         """Get unique symmetrically equivalent Kpoints.
 
         Args:
@@ -549,7 +551,7 @@ class BandStructure:
         kpoint: NDArray,
         cartesian: bool = False,
         tol: float = 1e-2,
-    ) -> NDArray | None:
+    ) -> int | None:
         """Get degeneracy of a given kpoint based on structure symmetry.
 
         Args:
@@ -652,7 +654,8 @@ class BandStructure:
                 "Trying from_dict failed. Now we are trying the old "
                 "format. Please convert your BS dicts to the new "
                 "format. The old format will be retired in pymatgen "
-                "5.0."
+                "5.0.",
+                stacklevel=2,
             )
             return cls.from_old_dict(dct)
 
@@ -680,10 +683,12 @@ class BandStructure:
                     for jj in range(len(dct["projections"][spin][ii])):
                         dddd = []
                         for kk in range(len(dct["projections"][spin][ii][jj])):
-                            ddddd = []
                             orb = Orbital(kk).name
-                            for ll in range(len(dct["projections"][spin][ii][jj][orb])):
-                                ddddd.append(dct["projections"][spin][ii][jj][orb][ll])
+                            ddddd = [
+                                dct["projections"][spin][ii][jj][orb][ll]
+                                for ll in range(len(dct["projections"][spin][ii][jj][orb]))
+                            ]
+
                             dddd.append(np.array(ddddd))
                         ddd.append(np.array(dddd))
                     dd.append(np.array(ddd))
@@ -707,14 +712,14 @@ class BandStructureSymmLine(BandStructure, MSONable):
 
     def __init__(
         self,
-        kpoints: NDArray,
-        eigenvals: dict[Spin, list],
+        kpoints: ArrayLike,
+        eigenvals: Mapping[Spin, ArrayLike],
         lattice: Lattice,
         efermi: float,
-        labels_dict: dict[str, Kpoint],
+        labels_dict: Mapping[str, Kpoint],
         coords_are_cartesian: bool = False,
         structure: Structure | None = None,
-        projections: dict[Spin, NDArray] | None = None,
+        projections: Mapping[Spin, NDArray] | None = None,
     ) -> None:
         """
         Args:
@@ -763,7 +768,10 @@ class BandStructureSymmLine(BandStructure, MSONable):
             if label is not None and previous_label is not None:
                 self.distance.append(previous_distance)
             else:
-                self.distance.append(np.linalg.norm(kpt.cart_coords - previous_kpoint.cart_coords) + previous_distance)
+                self.distance.append(
+                    np.linalg.norm(kpt.cart_coords - previous_kpoint.cart_coords)  # type: ignore[arg-type]
+                    + previous_distance
+                )
             previous_kpoint = kpt
             previous_distance = self.distance[i]
             if label and previous_label:
@@ -823,19 +831,17 @@ class BandStructureSymmLine(BandStructure, MSONable):
             A list of dicts [{"name", "start_index", "end_index", "index"}]
                 indicating all branches in which the k_point is.
         """
-        to_return = []
-        for idx in self.get_equivalent_kpoints(index):
-            for branch in self.branches:
-                if branch["start_index"] <= idx <= branch["end_index"]:
-                    to_return.append(
-                        {
-                            "name": branch["name"],
-                            "start_index": branch["start_index"],
-                            "end_index": branch["end_index"],
-                            "index": idx,
-                        }
-                    )
-        return to_return
+        return [
+            {
+                "name": branch["name"],
+                "start_index": branch["start_index"],
+                "end_index": branch["end_index"],
+                "index": idx,
+            }
+            for idx in self.get_equivalent_kpoints(index)
+            for branch in self.branches
+            if branch["start_index"] <= idx <= branch["end_index"]
+        ]
 
     def apply_scissor(self, new_band_gap: float) -> Self:
         """Apply a scissor operator (shift of the CBM) to fit the given band gap.
@@ -980,7 +986,8 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                 "Trying from_dict failed. Now we are trying the old "
                 "format. Please convert your BS dicts to the new "
                 "format. The old format will be retired in pymatgen "
-                "5.0."
+                "5.0.",
+                stacklevel=2,
             )
             return cls.from_old_dict(dct)
 
@@ -1004,9 +1011,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
             for spin in dct["projections"]:
                 dd = []
                 for i in range(len(dct["projections"][spin])):
-                    ddd = []
-                    for j in range(len(dct["projections"][spin][i])):
-                        ddd.append(dct["projections"][spin][i][j])
+                    ddd = [dct["projections"][spin][i][j] for j in range(len(dct["projections"][spin][i]))]
                     dd.append(np.array(ddd))
                 projections[Spin(int(spin))] = np.array(dd)
 
@@ -1041,7 +1046,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
 
     def get_projections_on_elements_and_orbitals(
         self,
-        el_orb_spec: dict[Element, list],
+        el_orb_spec: dict[SpeciesLike, list],
     ) -> dict[Spin, list]:
         """Get projections on elements and specific orbitals.
 
@@ -1076,7 +1081,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
 
 
 @overload
-def get_reconstructed_band_structure(  # type: ignore[overload-overlap]
+def get_reconstructed_band_structure(
     list_bs: list[BandStructure],
     efermi: float | None = None,
 ) -> BandStructure:
@@ -1139,7 +1144,7 @@ def get_reconstructed_band_structure(
             eigenvals,
             rec_lattice,
             efermi,
-            labels_dict,
+            labels_dict,  # type:ignore[arg-type]
             structure=list_bs[0].structure,
             projections=projections,
         )
@@ -1148,7 +1153,7 @@ def get_reconstructed_band_structure(
         eigenvals,
         rec_lattice,
         efermi,
-        labels_dict,
+        labels_dict,  # type:ignore[arg-type]
         structure=list_bs[0].structure,
         projections=projections,
     )

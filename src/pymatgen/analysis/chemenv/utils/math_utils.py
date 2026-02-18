@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import math
 import operator
 from functools import reduce
-from math import sqrt
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -28,11 +28,10 @@ __date__ = "Feb 20, 2016"
 
 def _append_es2sequences(sequences, es):
     result = []
-    if not sequences:
-        for e in es:
+    for e in es:
+        if not sequences:
             result.append([e])
-    else:
-        for e in es:
+        else:
             result += [[*seq, e] for seq in sequences]
     return result
 
@@ -56,7 +55,7 @@ def prime_factors(n: int) -> list[int]:
         list of all prime factors of the given natural n.
     """
     idx = 2
-    while idx <= sqrt(n):
+    while idx <= math.sqrt(n):
         if n % idx == 0:
             lst = prime_factors(n // idx)
             lst.append(idx)
@@ -91,11 +90,10 @@ def divisors(n):
         List of divisors of n in ascending order.
     """
     factors = _factor_generator(n)
-    _divisors = []
+
     exponents = [[k**x for x in range(factors[k] + 1)] for k in list(factors)]
     factors = _cartesian_product(exponents)
-    for factor in factors:
-        _divisors.append(reduce(operator.mul, factor, 1))
+    _divisors = [reduce(operator.mul, factor, 1) for factor in factors]
     _divisors.sort()
     return _divisors
 

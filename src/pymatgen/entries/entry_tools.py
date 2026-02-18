@@ -5,6 +5,7 @@ entries, such as grouping entries by structure.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import csv
 import itertools
 import json
@@ -12,7 +13,7 @@ import logging
 import multiprocessing as mp
 import re
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -23,12 +24,11 @@ from pymatgen.core import Composition, Element
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-    from typing import Literal
-
-    from typing_extensions import Self
+    from typing import Literal, Self
 
     from pymatgen.entries import Entry
     from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+    from pymatgen.util.typing import SpeciesLike
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +122,7 @@ def group_entries_by_structure(
     """
     if comparator is None:
         comparator = SpeciesComparator()
-    start = datetime.now(tz=timezone.utc)
+    start = datetime.now(tz=UTC)
     logger.info(f"Started at {start}")
     entries_host = [(entry, _get_host(entry.structure, species_to_remove)) for entry in entries]
     if ncpus:
@@ -130,7 +130,7 @@ def group_entries_by_structure(
         for entry, host in entries_host:
             symm_entries[comparator.get_structure_hash(host)].append((entry, host))
 
-        logging.info(f"Using {ncpus} cpus")
+        logger.info(f"Using {ncpus} cpus")
         manager = mp.Manager()
         groups = manager.list()
         with mp.Pool(ncpus) as pool:
@@ -168,11 +168,9 @@ def group_entries_by_structure(
                 groups,
             )
         )
-    entry_groups = []
-    for g in groups:
-        entry_groups.append(json.loads(g, cls=MontyDecoder))
-    logging.info(f"Finished at {datetime.now(tz=timezone.utc)}")
-    logging.info(f"Took {datetime.now(tz=timezone.utc) - start}")
+    entry_groups = [json.loads(g, cls=MontyDecoder) for g in groups]
+    logger.info(f"Finished at {datetime.now(tz=UTC)}")
+    logger.info(f"Took {datetime.now(tz=UTC) - start}")
     return entry_groups
 
 
@@ -309,11 +307,11 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             latexify_names: Format entry names to be LaTex compatible,
                 e.g. Li_{2}O
         """
-        els: set[Element] = set()
+        els: set[SpeciesLike] = set()
         for entry in self.entries:
             els.update(entry.elements)
         elements = sorted(els, key=lambda a: a.X)
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             writer = csv.writer(
                 file,
                 delimiter=",",

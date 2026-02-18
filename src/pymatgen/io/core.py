@@ -37,7 +37,7 @@ from monty.io import zopen
 from monty.json import MSONable
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.util.typing import PathLike
 
@@ -74,8 +74,8 @@ class InputFile(MSONable):
         Args:
             filename: The filename to output to, including path.
         """
-        with zopen(Path(filename), mode="wt") as file:
-            file.write(self.get_str())
+        with zopen(Path(filename), mode="wt", encoding="utf-8") as file:
+            file.write(self.get_str())  # type:ignore[arg-type]
 
     @classmethod
     @abc.abstractmethod
@@ -102,8 +102,8 @@ class InputFile(MSONable):
         Returns:
             InputFile
         """
-        with zopen(Path(path), mode="rt") as file:
-            return cls.from_str(file.read())  # from_str not implemented
+        with zopen(Path(path), mode="rt", encoding="utf-8") as file:
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
 
 class InputSet(MSONable, MutableMapping):
@@ -218,8 +218,8 @@ class InputSet(MSONable, MutableMapping):
             if isinstance(contents, InputFile):
                 contents.write_file(file_path)
             else:
-                with zopen(file_path, mode="wt") as file:
-                    file.write(str(contents))
+                with zopen(file_path, mode="wt", encoding="utf-8") as file:
+                    file.write(str(contents))  # type:ignore[arg-type]
 
         if zip_inputs:
             filename = path / f"{type(self).__name__}.zip"

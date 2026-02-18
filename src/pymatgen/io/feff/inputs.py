@@ -25,7 +25,7 @@ from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 __author__ = "Alan Dozier, Kiran Mathew"
 __credits__ = "Anubhav Jain, Shyue Ping Ong"
@@ -188,14 +188,14 @@ class Header(MSONable):
         # if Structure, check symmetry
         if isinstance(self.struct, Structure):
             self.periodic = True
-            sym = SpacegroupAnalyzer(struct, **self.spacegroup_analyzer_settings)
+            sym = SpacegroupAnalyzer(struct, **self.spacegroup_analyzer_settings)  # type:ignore[arg-type]
             data = sym.get_symmetry_dataset()
-            self.space_number = data.get("number")
-            self.space_group = data.get("international")
+            self.space_number = data.number
+            self.space_group = data.international
         # for Molecule, skip the symmetry check
         elif isinstance(self.struct, Molecule):
             self.periodic = False
-            self.space_number = self.space_group = None
+            self.space_number = self.space_group = None  # type:ignore[assignment]
         else:
             raise TypeError("'struct' argument must be a Structure or Molecule!")
         self.comment = comment or "None given"
@@ -246,8 +246,8 @@ class Header(MSONable):
         Returns:
             Reads header string.
         """
-        with zopen(filename, mode="r") as file:
-            lines = file.readlines()
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
+            lines: list[str] = file.readlines()  # type:ignore[assignment]
             feff_header_str = []
             ln = 0
 
@@ -317,9 +317,7 @@ class Header(MSONable):
 
             n_atoms = int(lines[8].split(":")[-1].split()[0])
 
-            atomic_symbols = []
-            for i in range(9, 9 + n_atoms):
-                atomic_symbols.append(lines[i].split()[2])
+            atomic_symbols = [lines[i].split()[2] for i in range(9, 9 + n_atoms)]
 
             # read the atomic coordinates
             coords = []
@@ -434,8 +432,8 @@ class Atoms(MSONable):
         Returns:
             Atoms string.
         """
-        with zopen(filename, mode="rt") as fobject:
-            f = fobject.readlines()
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
+            f = file.readlines()
             coords = 0
             atoms_str = []
 
@@ -527,7 +525,7 @@ class Atoms(MSONable):
         Args:
             filename: path for file to be written
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(f"{self}\n")
 
 
@@ -554,7 +552,10 @@ class Tags(dict):
             value: value associated with key in dictionary
         """
         if key.strip().upper() not in VALID_FEFF_TAGS:
-            warnings.warn(f"{key.strip()} not in VALID_FEFF_TAGS list")
+            warnings.warn(
+                f"{key.strip()} not in VALID_FEFF_TAGS list",
+                stacklevel=2,
+            )
         super().__setitem__(
             key.strip(),
             Tags.proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,
@@ -601,11 +602,10 @@ class Tags(dict):
         keys = list(self)
         if sort_keys:
             keys = sorted(keys)
-        lines = []
+        lines: list = []
         for key in keys:
             if key == "IONS":
-                for tok in self[key]:
-                    lines.append(["ION", f"{tok[0]} {tok[1]:.4f}"])
+                lines.extend(["ION", f"{tok[0]} {tok[1]:.4f}"] for tok in self[key])
             elif isinstance(self[key], dict):
                 if key in ["ELNES", "EXELFS"]:
                     lines.append([key, self._stringify_val(self[key]["ENERGY"])])
@@ -651,7 +651,7 @@ class Tags(dict):
         Args:
             filename: filename and path to write to.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(f"{self}\n")
 
     @classmethod
@@ -665,8 +665,8 @@ class Tags(dict):
         Returns:
             Tags
         """
-        with zopen(filename, mode="rt") as file:
-            lines = list(clean_lines(file.readlines()))
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
+            lines: list[str] = list(clean_lines(file.readlines()))  # type:ignore[arg-type]
         params = {}
         eels_params = []
         ieels = -1
@@ -796,20 +796,48 @@ class Tags(dict):
 class Potential(MSONable):
     """FEFF atomic potential."""
 
-    def __init__(self, struct, absorbing_atom):
+    def __init__(self, struct, absorbing_atom, radius=None):
         """
         Args:
             struct (Structure): Structure object.
             absorbing_atom (str | int): Absorbing atom symbol or site index.
+            radius (float): radius of the atom cluster in Angstroms.
         """
         if not struct.is_ordered:
             raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
 
         self.struct = struct
-        atom_sym = get_absorbing_atom_symbol_index(absorbing_atom, struct)[0]
-        self.pot_dict = get_atom_map(struct, atom_sym)
+        if radius:
+            self.radius = radius
+        else:
+            self.radius = self.struct.distance_matrix.max()
 
-        self.absorbing_atom, _ = get_absorbing_atom_symbol_index(absorbing_atom, struct)
+        self.absorbing_atom, self.center_index = get_absorbing_atom_symbol_index(absorbing_atom, struct)
+        atom_sym = get_absorbing_atom_symbol_index(absorbing_atom, struct)[0]
+        self._cluster = self._set_cluster()
+        self.pot_dict = get_atom_map(self._cluster, atom_sym)
+
+    def _set_cluster(self):
+        """
+        Compute and set the cluster of atoms as a Molecule object. The site
+        coordinates are translated such that the absorbing atom (aka central
+        atom) is at the origin.
+
+        Returns:
+            Molecule
+        """
+        center = self.struct[self.center_index].coords
+        # this method builds a supercell containing all periodic images of
+        # the unit cell within the specified radius, excluding the central atom
+        sphere = self.struct.get_neighbors(self.struct[self.center_index], self.radius)
+
+        symbols = [self.absorbing_atom]
+        coords = [[0, 0, 0]]
+        for site_dist in sphere:
+            site_symbol = re.sub(r"[^aA-zZ]+", "", site_dist[0].species_string)
+            symbols.append(site_symbol)
+            coords.append(site_dist[0].coords - center)
+        return Molecule(symbols, coords)
 
     @staticmethod
     def pot_string_from_file(filename="feff.inp"):
@@ -825,8 +853,8 @@ class Potential(MSONable):
         Returns:
             FEFFPOT string.
         """
-        with zopen(filename, mode="rt") as f_object:
-            f = f_object.readlines()
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
+            f = file.readlines()
             ln = -1
             pot_str = ["POTENTIALS\n"]
             pot_tag = -1
@@ -899,7 +927,7 @@ class Potential(MSONable):
         """
         central_element = Element(self.absorbing_atom)
         ipotrow = [[0, central_element.Z, central_element.symbol, -1, -1, 0.0001, 0]]
-        for el, amt in self.struct.composition.items():
+        for el, amt in self._cluster.composition.items():
             # if there is only one atom and it is the absorbing element, it should
             # be excluded from this list. Otherwise the error `No atoms or overlap
             # cards for unique pot X` will be encountered.
@@ -931,7 +959,7 @@ class Potential(MSONable):
         Args:
             filename: filename and path to write potential file to.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self) + "\n")
 
 
@@ -973,7 +1001,7 @@ class Paths(MSONable):
 
     def write_file(self, filename="paths.dat"):
         """Write paths.dat."""
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self) + "\n")
 
 

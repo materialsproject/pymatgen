@@ -140,7 +140,7 @@ class WulffShape:
             symprec (float): for reciprocal lattice operation, default is 1e-5.
         """
         if any(se < 0 for se in e_surf_list):
-            warnings.warn("Unphysical (negative) surface energy detected.")
+            warnings.warn("Unphysical (negative) surface energy detected.", stacklevel=2)
 
         self.color_ind = list(range(len(miller_list)))
 
@@ -578,7 +578,7 @@ class WulffShape:
             x=[0],
             y=[0],
             z=[0],
-            colorbar=go.ColorBar(
+            colorbar=go.mesh3d.ColorBar(
                 title={
                     "text": f"Surface energy {units}",
                     "side": "right",
@@ -732,7 +732,6 @@ class WulffShape:
         """
         all_edges = []
         for facet in self.facets:
-            edges = []
             pt = self.get_line_in_facet(facet)
 
             lines = []
@@ -741,10 +740,6 @@ class WulffShape:
                     break
                 lines.append(tuple(sorted((tuple(pt[idx * 2]), tuple(pt[idx * 2 + 1])))))
 
-            for p in lines:
-                if p not in all_edges:
-                    edges.append(p)
-
-            all_edges.extend(edges)
+            all_edges.extend([p for p in lines if p not in all_edges])
 
         return len(all_edges)

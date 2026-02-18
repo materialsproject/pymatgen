@@ -34,12 +34,10 @@ from pymatgen.util.io_utils import clean_lines
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any, Literal
-
-    from typing_extensions import Self
+    from typing import Any, Literal, Self
 
     from pymatgen.core.sites import Site
-    from pymatgen.core.structure import SiteCollection
+    from pymatgen.core.structure import IStructure, SiteCollection
 
 __author__ = "Kiran Mathew, Zhi Deng, Tingzheng Hou"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -420,7 +418,7 @@ class LammpsData(MSONable):
                 "Dihedral Coeffs",
                 "Improper Coeffs",
             ]:
-                dfs: list[pd.DataFrame] = np.array_split(val, len(val.index))
+                dfs: list[pd.DataFrame] = [val.iloc[i : i + 1] for i in range(len(val.index))]
                 df_string = ""
                 for idx, df in enumerate(dfs):
                     if isinstance(df.iloc[0]["coeff1"], str):
@@ -647,7 +645,7 @@ class LammpsData(MSONable):
             sort_id (bool): Whether sort each section by id. Default to
                 True.
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             lines = file.readlines()
         kw_pattern = r"|".join(itertools.chain(*SECTION_KEYWORDS.values()))
         section_marks = [idx for idx, line in enumerate(lines) if re.search(kw_pattern, line)]
@@ -833,7 +831,10 @@ class LammpsData(MSONable):
             df_topology = pd.DataFrame(np.concatenate(topo_collector[key]), columns=SECTION_HEADERS[key][1:])
             df_topology["type"] = list(map(ff.maps[key].get, topo_labels[key]))
             if any(pd.isna(df_topology["type"])):  # Throw away undefined topologies
-                warnings.warn(f"Undefined {key.lower()} detected and removed")
+                warnings.warn(
+                    f"Undefined {key.lower()} detected and removed",
+                    stacklevel=2,
+                )
                 df_topology = df_topology.dropna(subset=["type"])
                 df_topology = df_topology.reset_index(drop=True)
             df_topology.index += 1
@@ -846,7 +847,7 @@ class LammpsData(MSONable):
     @classmethod
     def from_structure(
         cls,
-        structure: Structure,
+        structure: Structure | IStructure,
         ff_elements: Sequence[str] | None = None,
         atom_style: Literal["atomic", "charge"] = "charge",
         is_sort: bool = False,
@@ -1436,7 +1437,7 @@ class CombinedData(LammpsData):
         Returns:
             pandas.DataFrame
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             lines = file.readlines()
 
         str_io = StringIO("".join(lines[2:]))  # skip the 2nd line

@@ -140,7 +140,7 @@ if __name__ == "__main__":
         for icsm, csm in enumerate(csms):
             found = False
             for csm2 in csms_with_recorded_permutation:
-                if np.isclose(csm, csm2, rtol=0.0, atol=1.0e-6):
+                if np.isclose(csm, csm2, rtol=0.0, atol=1e-6):
                     found = True
                     break
             if not found:
@@ -159,5 +159,5 @@ if __name__ == "__main__":
     if test == "y":
         cg._algorithms = new_algos
         cg_dict = cg.as_dict()
-        with open(f"../coordination_geometries_files_new/{cg_symbol}.json", mode="w") as file:
+        with open(f"../coordination_geometries_files_new/{cg_symbol}.json", mode="w", encoding="utf-8") as file:
             json.dump(cg_dict, file)

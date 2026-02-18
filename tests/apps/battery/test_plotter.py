@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from unittest import TestCase
 
 from monty.json import MontyDecoder
 
@@ -15,15 +14,15 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
 
 
-class TestVoltageProfilePlotter(TestCase):
-    def setUp(self):
+class TestVoltageProfilePlotter:
+    def setup_method(self):
         entry_Li = ComputedEntry("Li", -1.90753119)
 
-        with open(f"{TEST_DIR}/LiTiO2_batt.json") as file:
+        with open(f"{TEST_DIR}/LiTiO2_batt.json", encoding="utf-8") as file:
             entries_LTO = json.load(file, cls=MontyDecoder)
         self.ie_LTO = InsertionElectrode.from_entries(entries_LTO, entry_Li)
 
-        with open(f"{TEST_DIR}/FeF3_batt.json") as file:
+        with open(f"{TEST_DIR}/FeF3_batt.json", encoding="utf-8") as file:
             entries = json.load(file, cls=MontyDecoder)
         self.ce_FF = ConversionElectrode.from_composition_and_entries(Composition("FeF3"), entries)
 

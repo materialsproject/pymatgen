@@ -26,11 +26,10 @@ from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.template import TemplateInputGen
 
 if TYPE_CHECKING:
-    from os import PathLike
-
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.io.core import InputSet
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng, Manas Likhit, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -273,7 +272,8 @@ class LammpsInputFile(InputFile):
             if commands or stage_name:
                 warnings.warn(
                     "A stage has been passed together with commands and stage_name. This is incompatible. "
-                    "Only the stage will be used."
+                    "Only the stage will be used.",
+                    stacklevel=2,
                 )
 
             # Make sure the given stage has the correct format
@@ -346,10 +346,11 @@ class LammpsInputFile(InputFile):
         stages = self.stages[: indices_stages_to_merge[0]]
 
         merge_name = "Merge of: " + ", ".join([self.stages_names[i] for i in indices_stages_to_merge])
-        merged_commands = []
-        for i in indices_stages_to_merge:
-            for j in range(len(self.stages[i]["commands"])):
-                merged_commands.append(self.stages[i]["commands"][j])
+        merged_commands = [
+            self.stages[i]["commands"][j]
+            for i in indices_stages_to_merge
+            for j in range(len(self.stages[i]["commands"]))
+        ]
 
         merged_stages = {"stage_name": merge_name, "commands": merged_commands}
         stages.append(merged_stages)
@@ -467,7 +468,10 @@ class LammpsInputFile(InputFile):
         self.stages = new_list_of_stages
 
         if n_removed == 0:
-            warnings.warn(f"{command} not found in the LammpsInputFile.")
+            warnings.warn(
+                f"{command} not found in the LammpsInputFile.",
+                stacklevel=2,
+            )
 
     def append(self, lmp_input_file: LammpsInputFile) -> None:
         """
@@ -536,7 +540,7 @@ class LammpsInputFile(InputFile):
 
     def write_file(
         self,
-        filename: str | PathLike,
+        filename: PathLike,
         ignore_comments: bool = False,
         keep_stages: bool = True,
     ) -> None:
@@ -549,7 +553,7 @@ class LammpsInputFile(InputFile):
                 If False, a single block is assumed.
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(self.get_str(ignore_comments=ignore_comments, keep_stages=keep_stages))
 
     @classmethod
@@ -649,7 +653,7 @@ class LammpsInputFile(InputFile):
             LammpsInputFile
         """
         filename = path if isinstance(path, Path) else Path(path)
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read(), ignore_comments=ignore_comments, keep_stages=keep_stages)
 
     def __repr__(self) -> str:
@@ -825,11 +829,9 @@ class LammpsInputFile(InputFile):
         string_list = string_list[imin : imax + 1]
 
         # Get rid of empty comments that are there just for cosmetic reasons
-        new_list = []
-        for string in string_list:
-            if len(string) > 1 or not (len(string.strip()) == 1 and string[0] == "#"):
-                new_list.append(string)
-        string_list = new_list
+        string_list = [
+            string for string in string_list if len(string) > 1 or not (len(string.strip()) == 1 and string[0] == "#")
+        ]
 
         # Keep only a single empty lines when there are multiple ones
         lines = [string_list[0]]
@@ -913,14 +915,18 @@ class LammpsRun(MSONable):
             output_dir (str): Directory to output the input files.
             **kwargs: kwargs supported by LammpsData.write_file.
         """
-        write_lammps_inputs(
-            output_dir=output_dir,
-            script_template=self.script_template,
-            settings=self.settings,
-            data=self.data,
-            script_filename=self.script_filename,
-            **kwargs,
-        )
+        # TODO: write_lammps_inputs is deprecated
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="write_lammps_inputs is deprecated")
+
+            write_lammps_inputs(
+                output_dir=output_dir,
+                script_template=self.script_template,
+                settings=self.settings,
+                data=self.data,
+                script_filename=self.script_filename,
+                **kwargs,
+            )
 
     @classmethod
     def md(
@@ -1060,10 +1066,13 @@ def write_lammps_inputs(
         ... timestep        0.005
         ...
         ... run             $nsteps'''
+
         >>> write_lammps_inputs(".", eam_template, settings={"temperature": 1600.0, "nsteps": 100})
-        >>> with open("in.lammps") as file:
+
+        >>> with open("in.lammps", encoding="utf-8") as file:
         ...     script = file.read()
-        >>> print(script)
+
+        >>> script
         units           metal
         atom_style      atomic
 
@@ -1101,4 +1110,7 @@ def write_lammps_inputs(
         elif isinstance(data, str) and os.path.isfile(data):
             shutil.copyfile(data, os.path.join(output_dir, data_filename))
         else:
-            warnings.warn(f"No data file supplied. Skip writing {data_filename}.")
+            warnings.warn(
+                f"No data file supplied. Skip writing {data_filename}.",
+                stacklevel=2,
+            )

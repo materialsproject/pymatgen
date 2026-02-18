@@ -6,6 +6,594 @@ nav_order: 4
 
 # Changelog
 
+## v2025.10.7
+
+- PR #4503 Replace print statements with logging across library code and tests (by @DanielYang59)
+- PR #4510 Suppress noisy RuntimeWarning messages from BoltzTraP2 during transport analysis (by @DanielYang59)
+- PR #4512 Ensure source distribution (sdist) is published to PyPI alongside wheels (by @DanielYang59)
+- PR #4494 Re-enable mypy “misc” rule and perform minor documentation, typing, and test cleanups (by @DanielYang59)
+- PR #4491 Deprecate projected_magnetisation in favor of projected_magnetization (US spelling) (by @DanielYang59)
+- PR #4493 Composition.get_wt_fraction now returns a float instead of FloatWithUnit (by @DanielYang59)
+- PR #4496 Implement __rtruediv__ for FloatWithUnit and fix ArrayWithUnit losing unit_type on unpickling; add unit tests (by @DanielYang59)
+- PR #4497 Improve pmg CLI tests; fix pmg diff header ordering and resolve pmg view color handling error (by @DanielYang59)
+- PR #4490 Replace internal linear_assignment with scipy.optimize.linear_sum_assignment (by @DanielYang59)
+- PR #4440 Add parsing/storage of vibrational modes and vibrational energy components to JDFTXOutfileSlice with tests (by @benrich37)
+- PR #4487 Fix variable name collision in TranslateSitesTransformation.apply_transformation; strengthen test to catch issue (by @Rastow)
+- PR #4463 Remove dev-only “ci” optional dependency group, migrate CI to uv, and update markdown docs (by @DanielYang59)
+- PR #4447 Correct has_cobicar detection when NcICOBILIST is present in LOBSTER outputs (by @tomdemeyere)
+- PR #4469 Loosen requests version pin and fix deprecations/new ruff issues (by @DanielYang59)
+- PR #4479 Introduce JdftxInputSet (moved from atomate2), add base YAML preset and basic tests (by @cote3804)
+- PR #4484 Make jdftx.outputs compatible with Python versions prior to 3.11 by removing starred-subscript usage (by @DanielYang59)
+- PR #4473 Fix labels and values in NEBAnalysis plots, prefer exact glob matches, and deprecate spline_options in favor of zero_slope_saddle flag (by @DanielYang59)
+- PR #4260 Move FHI-aims IO to external package (pyfhiaims) to reduce duplication and ease maintenance (by @tpurcell90)
+- PR #4476 Patch ReDOS vulnerability in GaussianInput.from_string (by @lbluque)
+- PR #4449 Address ruff PERF401 (manual list comprehension) for minor performance/cleanliness improvements (by @DanielYang59)
+- PR #4448 Remove sensitivity to trailing newline in LOBSTER output parsers; improves robustness (by @DanielYang59)
+- PR #4454 Correct documentation for Element density_of_solid and molar volume units (by @DanielYang59)
+- PR #4455 Cache optional dependency installs in CI for macOS/Ubuntu; enable mcsqs and pyzeo tests; convert some skips to xfail (by @DanielYang59)
+- PR #4461 Allow numpy arrays for selective dynamics in Structure and add tests; ensure JSON roundtrips (by @DanielYang59)
+- PR #4464 Fix typo referencing site.species in SpacegroupAnalyzer.get_primitive_standard_structure (by @boyoungzheng)
+- PR #4446 Improve performance of Species.__str__ by reducing redundant attribute lookups (by @kavanase)
+- PR #4438 Add basic S3 object retrieval support to the pymatgen user agent for large MP datasets (by @esoteric-ephemera)
+
+## v2025.6.14
+
+- Treat LATTICE_CONSTRAINTS as is for INCARs.
+- PR #4425 `JDFTXOutfileSlice.trajectory` revision by @benrich37
+    Major changes:
+    - feature 1: `JDFTXOutfileSlice.trajectory` is now initialized with `frame_properties` set
+    -- `JOutStructure.properties` filled with relevant data for `frame_properties`
+    -- More properties added to `JOutStructure.site_properties`
+    ## Todos
+    - Remove class attributes in `JOutStructure` now redundant to data stored in `JOutStructure.properties` and `JOutStructure.site_properties`
+- PR #4431 Single source of truth for POTCAR directory structure by @esoteric-ephemera
+    Modifies the pymatgen CLI to use the same POTCAR library directory structure as in `pymatgen.io.vasp.inputs` to close #4430. Possibly breaking from the CLI side (the directory structure will change)
+    Pinging @mkhorton since #4424 was probably motivated by similar concerns?
+- PR #4433 Speed up symmetry functions with faster `is_periodic_image` algorithm by @kavanase
+    I noticed that in some of our `doped` testing workflows, `SpacegroupAnalyzer.get_primitive_standard_structure()` is one of the main bottlenecks (as to be expected). One of the dominant cost factors here is the usage of `is_periodic_image`, which can be expensive for large structures due to many `np.allclose()` calls.
+    This PR implements a small change to instead use an equivalent (but faster) pure Python loop, which also breaks early if the tolerance is exceeded.
+    In my test case, this reduced the time spent on `is_periodic_image` (and thus `SpacegroupAnalyzer.get_primitive_standard_structure()`) from 35s to 10s.
+- PR #4432 Fingerprint sources by @JaGeo
+    Add correct papers to tanimoto fingerprints
+- PR #4061 Fix branch directory check in `io.vasp.outputs.get_band_structure_from_vasp_multiple_branches` by @DanielYang59
+    ### Summary
+    - Fix branch directory check in `io.vasp.outputs.get_band_structure_from_vasp_multiple_branches`, to fix #4060
+    - [ ] Improve unit test (waiting for data, I don't have experience with "VASP multi-branch bandstructure calculation")
+- PR #4409 Packmol constraints by @davidwaroquiers
+    Added possibility to set individual constraints in packmol.
+    Added some sanity checks.
+    Added unit tests.
+- PR #4428 Fixes a bug in `NanoscaleStability.plot_one_stability_map` and `plot_all_stability_map`. by @kmu
+    Major changes:
+    - Replaced incorrect `ax.xlabel()` and `ax.ylabel()` calls with correct `ax.set_xlabel()` and `ax.set_ylabel()`.
+    - Added `ax.legend()` to `plot_all_stability_map` so that labels passed via `ax.plot(..., label=...)` are displayed.
+    - Added `test_plot()` to `test_surface_analysis.py`.
+- PR #4424 Add additional name mappings for new LDA v64 potcars by @mkhorton
+    As title.
+- PR #4426 Fix uncertainty as int for `EnergyAdjustment` by @DanielYang59
+    - Avoid `==` or `!=` for possible float comparison
+    - Fix uncertainty as int for `EnergyAdjustment` cannot generate repr:
+    ```python
+    from pymatgen.entries.computed_entries import EnergyAdjustment
+    print(EnergyAdjustment(10, uncertainty=0))
+    ```
+    Gives:
+    ```
+    Traceback (most recent call last):
+    File "/Users/yang/developer/pymatgen/test_json.py", line 25, in <module>
+    print(EnergyAdjustment(10, uncertainty=0))
+    File "/Users/yang/developer/pymatgen/src/pymatgen/entries/computed_entries.py", line 108, in __repr__
+    return f"{type(self).__name__}({name=}, {value=:.3}, {uncertainty=:.3}, {description=}, {generated_by=})"
+    ^^^^^^^^^^^^^^^^^
+    ValueError: Precision not allowed in integer format specifier
+    ```
+- PR #4421 Cache `Lattice` property (`lengths/angles/volume`) for much faster `Structure.as_dict` by @DanielYang59
+    ### Summary
+    - `lengths/angles/volume` of `Lattice` would now be cached, related to #4385
+    - `verbosity` in `as_dict` of `PeriodicSite/Lattice` now explicitly requires literal 0 or 1 to be consistent with docstring, instead of checking `if verbosity > 0` (currently in grace period, only warning issued) https://github.com/materialsproject/pymatgen/blob/34608d0b92166e5fc4a9dd52ed465ae7dccfa525/src/pymatgen/core/lattice.py#L904-L905
+    ---
+    ### Cache frequently used `Lattice` properties
+    Currently `length/angles/volume` is not cached and is frequently used, for example accessing all lattice parameter related property would lead to `length/angles` being repeatedly calculated: https://github.com/materialsproject/pymatgen/blob/34608d0b92166e5fc4a9dd52ed465ae7dccfa525/src/pymatgen/core/lattice.py#L475-L524
+    `structure.as_dict` now around 8x faster
+    Before (1000 structure, each has 10-100 atoms):
+    ```
+    Total time: 3.29617 s
+    File: create_dummp_json_structure.py
+    Function: generate_and_save_structures at line 34
+    Line #      Hits         Time  Per Hit   % Time  Line Contents
+    ==============================================================
+    34                                           @profile
+    35                                           def generate_and_save_structures(n, output_dir):
+    36         1         20.0     20.0      0.0      os.makedirs(output_dir, exist_ok=True)
+    37
+    38      1001        222.0      0.2      0.0      for i in range(n):
+    39      1000     291789.0    291.8      8.9          structure = generate_dummy_structure()
+    40      1000        583.0      0.6      0.0          filename = f"structure_{i:04d}.json.gz"
+    41      1000       1942.0      1.9      0.1          filepath = os.path.join(output_dir, filename)
+    42
+    43      2000     224549.0    112.3      6.8          with gzip.open(filepath, "wb") as f:
+    44      1000    2761900.0   2761.9     83.8              dct = structure.as_dict()
+    45      1000      15163.0     15.2      0.5              f.write(orjson.dumps(dct))
+    ```
+    Now:
+    ```
+    Total time: 0.949622 s
+    File: create_dummp_json_structure.py
+    Function: generate_and_save_structures at line 34
+    Line #      Hits         Time  Per Hit   % Time  Line Contents
+    ==============================================================
+    34                                           @profile
+    35                                           def generate_and_save_structures(n, output_dir):
+    36         1         37.0     37.0      0.0      os.makedirs(output_dir, exist_ok=True)
+    37
+    38      1001        195.0      0.2      0.0      for i in range(n):
+    39      1000     286696.0    286.7     30.2          structure = generate_dummy_structure()
+    40      1000        511.0      0.5      0.1          filename = f"structure_{i:04d}.json.gz"
+    41      1000       1843.0      1.8      0.2          filepath = os.path.join(output_dir, filename)
+    42
+    43      2000     214130.0    107.1     22.5          with gzip.open(filepath, "wb") as f:
+    44      1000     431677.0    431.7     45.5              dct = structure.as_dict()
+    45      1000      14533.0     14.5      1.5              f.write(orjson.dumps(dct))
+    ```
+    ---
+    Also note `lattice` (the performance bottleneck) is not used in the dict for site: https://github.com/materialsproject/pymatgen/blob/34608d0b92166e5fc4a9dd52ed465ae7dccfa525/src/pymatgen/core/structure.py#L2856-L2857
+    So we could modify `as_dict` to control whether lattice would be generated at all
+    This could reduce the runtime slightly so I guess it's not worth the effort:
+    ```
+    Total time: 0.867376 s
+    ```
+- PR #4391 Add custom as_dict/from_dict method for proper initialization of attributes of IcohpCollection by @naik-aakash
+    Currently `IcohpCollection` instance is not serialized correctly, thus I added custom  from_dict  and as_dict methods here.
+
+## v2025.5.28
+
+- PR #4411 Add `orjson` as required dependency as default JSON handler when custom encoder/decoder is not needed by @DanielYang59
+- PR #4417 adding radd dunder method to Volumetric data + test_outputs by @wladerer
+- PR #4418 `JDFTXOutfileSlice` Durability Improvement by @benrich37
+    Major changes:
+    - feature 1: Improved durability of `JDFTXOutfileSlice._from_out_slice` method (less likely to error out on unexpected termination)
+    -- So long as one step of electronic minimization has started on an out file slice, parsing shouldn't error out
+    - fix 1: Allow partially dumped eigstats
+    - fix 2: Added missing optical band gap dumped by eigstats
+    - fix 3: Protect the final `JOutStructure` in initializing a `JOutStructures` with a try/except block
+    - fix 4: Detect if positions were only partially dumped and revert to data from `init_structure` in `JOutStructure`
+    - fix 5: Prevent partially dumped matrices from being used in initializing a `JOutStructure`
+    ## Todos
+    - feature 1: Ensure parse-ability as long as a `JDFTXOutfileSlice.infile` can be initialized
+- PR #4419 Fix Molecule.get_boxed_structure when reorder=False by @gpetretto
+- PR #4416 `JDFTXInfile` Comparison Methods by @benrich37
+    Major changes:
+    - feature 1: Convenience methods for comparing `JDFTXInfile` objects
+    -- `JDFTXInfile.is_comparable_to`
+    --- Returns True if at least one tag is found different
+    --- Optional arguments `exclude_tags`, `exclude_tag_categories`, `ensure_include_tags` to ignore certain tags in the comparison
+    ---- `exclude_tag_categories` defaults to `["export", "restart", "structure"]` as `"export"` and `"restart"` are very rarely pertinent  to comparability, `"structure"` as subtags of this category are generally the one thing being intentionally changed in comparisons (ie different local minima or a slab with/without an adsorbate)
+    -- `JDFTXInfile.get_filtered_differing_tags`
+    --- What is used in `JDFTXInfile.is_comparable_to` to get filtered differing tags between `JDFTXInfile` objects
+    --- Convenient as a "verbose" alternative to `JDFTXInfile.is_comparable_to`
+    -- `AbstractTag.is_equal_to` and `AbstractTag._is_equal_to`
+    --- Used in tag comparison for finding differing tags
+    --- `AbstractTag._is_equal_to` is an abstract method that must be implemented for each `AbstractTag` inheritor
+    - feature 2: Default `JDFTXInfile` object `pymatgen.io.jdftx.inputs.ref_infile`
+    -- Initialized from reading default JDFTx settings from `pymatgen.io.jdftx.jdftxinfile_default_inputs.default_inputs: dict`
+    -- Used in `JDFTXInfile.get_differing_tags_from` for tags in `self` missing from `other` that are identical to the default setting
+    - fix 1: Re-ordered contents of `JDFTXInfile` to follow the order: magic methods -> class methods / transformation methods -> validation methods -> properties -> private methods
+    - fix 2: Checking for `'selective_dynamics'` in `site_properties` for a `Structure` passed in `JDFTXInfile.from_structure` (used if `selective_dynamics` argument left as `None`)
+    ## Todos
+    - feature 1: Add examples to documentation on how to properly use new comparison methods
+    - feature 2: Improve the mapping of `TagContainer`s to their default values
+    -- The current implementation of comparison for tags to default values only works if the tag as written exactly matches the full default value - at the very least the missing subtags of a partially filled `TagContainer` needs to be filled with the default values before comparing to the full default value
+    -- Some subtags also change depending on the other subtags present for a particular tag (ie convergence threshold depending on algorithm specified for `'fluid-minimize'`, so an improved mapping for dynamic default values needs to be implemented
+- PR #4413 `JDFTXOutputs.bandstructure: BandStructure` by @benrich37
+    Major changes:
+    - feature 1: Added 'kpts' storable variable to JDFTXOutputs
+    -- Currently only able to obtain from the 'bandProjections' file
+    - feature 2: Added `bandstructure` attribute to JDFTXOutputs
+    -- Standard pymatgen `BandStrucure` object
+    -- Request-able as a `store_var`, but functions slightly differently
+    --- Ensures 'eigenvals' and 'kpts' are in `store_vars` and then is deleted
+    -- Initialized if JDFTXOutputs has successfully stored at least 'kpts' and 'eigenvals'
+    -- Fills `projections` field if also has stored 'bandProjections'
+    - feature 3: Added `wk_list` to `JDFTXOutputs`
+    -- List of weights for each k-point
+    -- Currently doesn't have a use, but will be helpful for `ElecData` initializing in [`crawfish`](https://github.com/benrich37/crawfish)
+    ## Todos
+    - feature 1: Add reading 'kpts' from the standalone 'kPts' file dumped by JDFTx
+    - feature 2: Outline how we might initialize `BandStructureSymmLine`(s) for calculations with explicitly defined 'kpoint' tags, as using 'kpoint's instead of `kpoint-folding` is most likely an indicator of a band-structure calculation
+- PR #4415 speed-up Structure instantiation by @danielzuegner
+    This PR speeds up the instantiation of `Structure` objects by preventing hash collisions in the `lru_cache` of `get_el_sp` and increasing its `maxsize`. The issue is that currently `Element` objects are hashed to the same value as the integer atomic numbers (e.g., `Element[H]` maps to the same hash as `int(1)`). This forces the `lru_hash` to perform an expensive `__eq__` comparison between the two, which reduces the performance of instantiating many `Structure` objects. Also here we increase the `maxsize` of `get_el_sp`'s `lru_cache` to 1024 for further performance improvements.
+    This reduces time taken to instantiate 100,000 `Structure` objects from 31 seconds to 8.7s (avoid hash collisions) to 6.1s (also increase `maxsize` to 1024).
+- PR #4410 JDFTx Inputs - boundary value checking by @benrich37
+    Major changes:
+    - feature 1: Revised boundary checking for input tags
+    -- Added a `validate_value_bounds` method to `AbstractTag`, that by default always returns `True, ""`
+    -- Added an alternate `AbstractNumericTag` that inherits `AbstractTag` to implement `validate_value_bounds` properly
+    --- Changed boundary storing to the following fields
+    ---- `ub` and `lb`
+    ----- Can either be `None`, or some value to indicate an upper or lower bound
+    ---- `ub_incl` and `lb_incl`
+    ----- If True, applies `>=` instead of `>` in comparative checks on upper and lower bounds
+    -- Switched inheritance of `FloatTag` and `IntTag` from `AbstractTag` to `AbstractNumericTag`
+    -- Implemented `validate_value_bounds` for `TagContainer` to dispatch checking for contained subtags
+    -- Added a method `validate_boundaries` to `JDFTXInfile` to run `validate_value_bounds` on all contained tags and values
+    -- Added `validate_value_boundaries` argument for initialization methods of `JDFTXInfile`, which will run `validate_boundaries` after initializing `JDFTXInfile` but before returning when True
+    --- Note that this is explicitly disabled when initializing a `JDFTXInfile` from the input summary in a `JDFTXOutfileSlice` - boundary values may exist internally in JDFTx for non-inclusive bounded tags as the default values, but cannot be passed in the input file. For this reason, errors on boundary checking must be an easily disabled feature for the construction and manipulation of a  `JDFTXInfile`, but out-of-bounds values must never be written when writing a file for passing to JDFTx.
+    ## Todos
+    - feature 1
+    -- Implement some way boundary checking can run when adding tags to a pre-existing `JDFTXInfile` object
+    --- boundary checking is currently only run when initializing from a pre-existing collection of input tags
+    --- writing this into `JDFTXInfile.__setitem__` is too extreme as it would require adding an attribute to `JDFTXInfile` to allow disabling the check
+    --- the better solution would be to implement a more obvious user-friendly method for reading in additional inputs so that the user doesn't need to learn how to properly write out the dictionary representation of complicated tag containers.
+    -- Fill out reference tags for other unimplemented boundaries
+- PR #4408 `to_jdftxinfile` method for JDFTXOutfile by @benrich37
+    Major changes:
+    - feature 1: Method `to_jdftxinfile` for JDFTXOutfile(Slice)
+    -- Uses internal `JDFTXInfile` and `Structure` to create a new `JDFTXInfile` object that can be ran to restart a calculation
+    - feature 2: Method `strip_structure_tags` for `JDFTXInfile`
+    -- Strips all structural tags from a `JDFTXInfile` for creating equivalent `JDFTXInfile` objects with updated associated structures
+    - fix 1: Changing 'nAlphaAdjustMax' shared tag from a `FloatTag` to an `IntTag`
+    - fix 2: Adding an optional `minval` field for certain `FloatTag`s which prevent writing error-raising values
+    -- Certain tag options in JDFTx can internally be the minimum value, but trying to pass the minimum value will raise an error
+    ## Todos
+    - feature 1: Testing for the `to_jdftxinfile`
+    -- I know the function works from having used it, but I haven't written in an explicit test for it yet.
+    - fix 2: Look through JDFTx source code and identify all the numeric tag value boundaries and add them to the FloatTag. This will likely require generalizing how boundaries are tested as a quick glance (see [here](https://github.com/shankar1729/jdftx/blob/master/jdftx/commands/fluid.cpp#L378)) shows there are tags that actually do use the `>=` operator
+    - Unrelated: Reduce bloat in outputs module
+    -- Remove references to deprecated fields
+    -- Begin phasing out redundant fields
+    --- i.e. `JDFTXOutfile.lattice` redundant to `JDFTXOutfile.structure.lattice.matrix`
+    -- Generalize how optimization logs are stored in outputs module objects
+    --- Fields like `grad_K` are part of a broad group of values that can be logged for an optimization step, and the fields present in each log varies a lot more than I previously thought when I initially wrote the JDFTx outputs module. Generalizing how these are stored into a dictionary of arbitrary keys should make the outputs module more robust, as well as helping reduce the bloat in the outputs module.
+- PR #4407 JDFTXInfile addition (`__add__`) method tweak by @benrich37
+    Changing addition method - now infiles with shared keys will either concatenate their inputs if the key is for a repeatable tag, or change to whatever value is in the second infile if it is not a repeatable tag. A bare minimum `if subval in params[key]` check is done to avoid adding duplicate values. This seems like something the `set` built-in could help with, but since the sub-values are dictionaries, using `set` is a little more difficult
+    Major changes:
+    - fix 1: Addition of two JDFTXInfiles (`jif1 = jif2 + jif3`) no longer requires each `jif2` and `jif3` to have a unique set of tags
+    -- For a non-repeatable tag 'key', `jif1['key'] == jif3['key']`
+    -- For a repeatable-tag 'key', `jif1['key'] = jif2['key'] + [val for val in jif3['key'] if not val in jif2['key']`
+    -- implemented in `src/pymatgen/io/jdftx/inputs.py`
+    -- tested in `tests/io/jdftx/test_jdftxinfile.py`
+    --- error raising test for conflicting tag values removed
+    ## Todos
+    - fix 1: Add more robust checking for if two repeatable tag values represent the same information.
+    -- This is likely fixed by implementing the pre-existing TODO - "Add default value filling like JDFTx does"
+    - fix 2: Incorporate something to collapse repeated dump tags of the same frequency into a single value.
+    -- The 'dump' tag currently can get bloated very quickly, as the newly implemented change for concatenating two repeatable tags will not detect that something like `{"End": {"State": True}}` is technically already in a list that contains something like `{"End": {"State": True, "Berry": True}}`
+    -- A cleanup function that can convert `{'dump': [{"End": {"State": True, "BGW": True}}, {"End": {"State": True, "Berry": True}}]` into `{'dump': [{"End": {"State": True, "BGW": True, "Berry": True}}]` would fix this bloat risk
+- PR #4404 Monoclinic Symmetry Handling Fix by @kavanase
+    This issue is related to https://github.com/materialsproject/pymatgen/issues/1929 (for which a patch solution was added that fixed one case of this occurrence, but not in general).
+    When handling monoclinic symmetry within `SpacegroupAnalyzer`, the standardisation attempts to reorder the lattice vectors depending on whether the alpha angle is >90 degrees or <90 degrees. If it is exactly 90 degrees, it defaults to the original lattice, however there was an issue with this implementation where it assumed that the beta and gamma angles were also 90 degrees (and so set the lattice matrix as `[[a, 0, 0], [0, b, 0], [0, 0, c]]`), which may not (and in most cases should not) be the case.
+    This was causing weird behaviour for me where the volume of the primitive structures being returned by `SpacegroupAnalyzer` was different to `Structure.find_primitive()` (by a non-integer factor). I've added a test for this case, and also confirmed that the general implementation here works for the failure case noted in https://github.com/materialsproject/pymatgen/issues/1929
+- PR #4406 `UFloat` update by @kavanase
+    This is a minor addition to https://github.com/materialsproject/pymatgen/pull/4400.
+    I found that there were some cases where an energy adjustment of `UFloat(0, 0)` were already present in `ComputedEntry.energy_adjustments`, avoiding the updated handling of setting `std_dev` to `np.nan` when it is 0 (and avoiding the `UFloat` warning about `std_dev` being 0).
+- PR #4403 Ensure structure symmetrization in OrderDisorderedStructureTransformation by @esoteric-ephemera
+    Close #4402 by ensuring that structures are always symmetrized when `symmetrized_structures = True` in `OrderDisorderedStructureTransformation`. Also allow for passing distance/angle precision kwargs to do on-the-fly symmetrization. Add tests
+- PR #4401 JDFTXStructure - partial fix for special case lattice tags by @benrich37
+    Major changes:
+    - fix 1: `pymatgen.io.jdftx.inputs.JDFTXStructure`
+    -- `JDFTXStructure.from_jdftxinfile` no longer assumes 'lattice' tag is provided in 3x3 matrix format
+    -- Testing in `tests/io/jdftx/test_jdftxinfile.py` for `Structure <-> JDFTXStructure <-> JDFTXInfile` conversion for `JDFTXInfile` with newly implemented special case values for 'lattice' tag
+    TODO:
+    -  Implement `JDFTXStructure.from_jdftxinfile` for JDFTXInfile with special case tag 'lattice' value and non-identity value for 'latt-scale' tag
+- PR #4400 Use `np.nan` instead of 0 for no uncertainty with `ufloat`, to avoid unnecessary warnings by @kavanase
+    Closes #4386
+- PR #4399 JDFTXOutfile `none_on_error` oversight fix by @benrich37
+    - Fixing an error in `pymatgen/io/jdftx/outputs.py` that causes construction of a `JDFTXOutfile` to fail if none_on_error is turned on and the final `JDFTXOutfileSlice` in `slices` is None (ie a very common issue when parsing an interrupted job that hasn't restarted yet).
+- PR #4397 JDFTx IO Module Overhaul by @benrich37
+    - Revised typing for updated `mypy` criteria
+    - Support for parsing JDFTx AIMD files
+    - Expanded input tag support
+- PR #4394 Updates to JDFTx inputs `generic_tags` helper module by @benrich37
+    Major changes:
+    - Phasing out use of redundant `TagContainer.multiline_tag` attribute
+    -- (this change may cause problems without the corresponding changes in `jdftxinfile_master_format.py`, but all the tests still pass. Just in case, I will be prioritizing finishing merges for the JDFTx inputs module to avoid any untested consequences)
+    - Fixing indentation on output of `TagContainer.write`
+    - Removing the warning (and the test for this warning) on special constraints for "ion" tag
+    -- Support for special constraints has been implemented on my fork and a PR for this support will soon be created
+- PR #4392 Brute force order matcher speedup by @kavanase
+    This is a small PR to add a `break_on_tol` option to `BruteForceOrderMatcher`, which allows one to massively speed up the molecule matching in cases where one just cares _if_ the molecules match within a given RMSD (rather than screening over _all_ possible permutations, to get the lowest possible RMSD).
+    The speedup factor can be anywhere from 0% to several orders of magnitude, depending on the number of possible permutations and when a matching permutation is found.
+    Also includes a small typo fix that for an error message that reference the original class name (in https://github.com/materialsproject/pymatgen/pull/1938) which was later renamed.
+    I've also added some tests for this.
+- PR #4393 Update JDFTx IO output utils private module by @benrich37
+    Major changes:
+    - function `get_colon_var_t1`
+    -- Renaming to `get_colon_val`, but keeping an alias until renaming is updated outside this module
+    -- Returning `np.nan` instead of `None` when "nan" is the value
+    - updating `correct_geom_opt_type` for working with JDFTx AIMD out files
+    - updating typing on array-construction functions
+    - correcting ordering and syntax of orbital labels to exactly match JDFTx
+- PR #4389 Adding missing reference options to JDFTx inputs submodule by @benrich37
+    Beginning process of merging over stress-test updates, starting with missing options for JDFTx input files
+    - Added missing DFT functional names
+    - Added missing subtags for elec-minimize
+
+## 2025.5.2
+
+- Remove lxml since it is slower for many Vasprun parsing situations.
+
+## v2025.5.1
+
+- lxml is now used for faster Vasprun parsing.
+- Minor bug fix for MPRester.get_entries summary_data for larger queries.
+- New JSON for ptable with better value/unit handling (also slightly faster) (@DanielYang59)
+- Handle missing trailing newline in ICOHPLIST.lobster (@alibh95)
+- Updated MVLSlabSet with MPSurfaceSet parameters from atomate1 (@abhardwaj73)
+
+## v2025.4.24
+
+- Structure now has a calc_property method that enables one to get a wide range of elasticity, EOS, and phonon properties using matcalc. Requires matcalc to be
+  installed.
+- Bug fix and expansion of pymatgen.ext.matproj.MPRester. Now property_data is always consistent with the returned entry in get_entries. Summary data, which is not
+  always consistent but is more comprehensive, can be obtained via a summary_data kwarg.
+- PR #4378 Avoid merging if a structure has only one site by @kmu
+    This PR fixes an error that occurs when calling `merge_sites` on a structure with only one site. For example:
+- PR #4372 Reapply update to ptable vdw radii CSV source and JSON with CRC handbook by @DanielYang59
+    - Update ptable vdw radii CSV source, to fix #4370
+    - [x] Revert #4345 and apply changes to CSV
+    vdw radii data source:
+    > John R. Rumble, ed., CRC Handbook of Chemistry and Physics, 105th Edition (Internet Version 2024), CRC Press/Taylor & Francis, Boca Raton, FL.
+    > If a specific table is cited, use the format: "Physical Constants of Organic Compounds," in CRC Handbook of Chemistry and Physics, 105th Edition (Internet Version 2024), John R. Rumble, ed., CRC Press/Taylor & Francis, Boca Raton, FL.
+
+## v2025.4.20
+
+- Updated `perturb` method to be in parity for Structure and Molecule.
+- PR #4226 Fix file existence check in ChargemolAnalysis to verify directory instead. by @lllangWV
+- PR #4324 GibbsComputedStructureEntry update to handle float temperature values by @slee-lab
+- PR #4303 Fix mcl kpoints by @dgaines2
+    Fixed errors in two of the k-points for the MCL reciprocal lattice (according to Table 16 in Setyawan-Curtarolo 2010)
+    M2 and D1 aren't included in the recommended k-point path, but third-party software that plots k-point paths using pymatgen labelled M2 in the path instead of M1 due to it being the "same" k-point.
+- PR #4344 Update "electron affinities" in `periodic_table.json` by @DanielYang59
+- PR #4365 Python 3.13 support by @DanielYang59
+
+## v2025.4.19
+
+- MPRester.get_entries and get_entries_in_chemsys now supports property_data. inc_structure, conventional_only and
+- PR #4367 fix perturb bug that displaced all atoms equally by @skasamatsu
+- PR #4361 Replace `pybtex` with `bibtexparser` by @DanielYang59
+- PR #4362 fix(MVLSlabSet): convert DIPOL vector to pure Python list before writing INCAR by @atulcthakur
+- PR #4363 Ensure `actual_kpoints_weights` is `list[float]` and add test by @kavanase
+- PR #4345 Fix inconsistent "Van der waals radius" and "Metallic radius" in `core.periodic_table.json` by @DanielYang59
+- PR #4212 Deprecate `PymatgenTest`, migrate tests to `pytest` from `unittest` by @DanielYang59
+
+## v2025.4.17
+
+- Bug fix for list based searches in MPRester.
+
+## v2025.4.16
+
+- Major new feature and breaking change: Legacy MP API is no longer supported. Pymatgen also no longer support mp-api in the backend. Instead, Pymatgen's MPRester now
+  has nearly 100% feature parity with mp-api's document searches. One major difference is that pymatgen's MPRester will follow the documented REST API end points exactly, i.e., users just need to refer to https://api.materialsproject.org/docs for the exact field names.
+- PR #4360 Speed up `Vasprun` parsing by @kavanase
+- PR #4343 Drop duplicate `iupac_ordering` entries in `core.periodic_table.json` by @DanielYang59
+- PR #4348 Remove deprecated grain boundary analysis by @DanielYang59
+- PR #4357 Fix circular import of `SymmOp` by @DanielYang59
+
+## v2025.4.10
+
+- Parity with MPRester.materials.summary.search in MPResterBasic.
+- PR #4355 Fix round-trip constraints handling of `AseAtomsAdaptor` by @yantar92
+    * src/pymatgen/io/ase.py (AseAtomsAdaptor.get_structure): When no explicit constraint is given for a site in ASE Atoms object, use "T T T" selective dynamics (no constraint).  The old code is plain wrong.
+    * tests/io/test_ase.py (test_back_forth): Add new test case.
+    Fixes #4354.
+    Thanks to @yaoyi92 for reporting!
+- PR #4352 Replace `to_dict` with `as_dict` by @DanielYang59
+    - Deprecate `to_dict` with `as_dict`, to close #4351
+    - Updated `contributing.md` to note preferred naming convention
+    - [x] Regenerate `docs`
+    The recent additional of JDFTx IOs have a relatively short grace period of 6 months, and others have one year
+- PR #4342 Correct Mn "ionic radii" in `core.periodic_table.json` by @DanielYang59
+    - Correct Mn "ionic radii" in `core.periodic_table.json`
+    Our csv parser should copy the high spin ionic radii to the base entry:
+    <img width="858" alt="image" src="https://github.com/user-attachments/assets/00f3ecff-3c78-4583-90b8-106ed362b78b" />
+    https://github.com/materialsproject/pymatgen/blob/4c7892f5c9dcc51a1389b3ad2ada77632989a13e/dev_scripts/update_pt_data.py#L84-L87
+- PR #4341 Remove "Electrical resistivity" for Se as "high" by @DanielYang59
+    ### Summary
+    - Remove "Electrical resistivity" for Se as "high", to fix #4312
+    Current the data for Electrical resistivity of Se is "high" (with `10<sup>-8</sup> &Omega; m` as the unit), and our parser would interpret it to:
+    ```python
+    from pymatgen.core import Element
+    print(Element.Se.electrical_resistivity)  # 1e-08 m ohm
+    ```
+    This is the only data as "high" in `periodic_table.json` AFAIK.
+    After this, it would be None with a warning:
+    ```
+    /Users/yang/developer/pymatgen/debug/test_elements.py:3: UserWarning: No data available for electrical_resistivity for Se
+    print(Element.Se.electrical_resistivity)
+    None
+    ```
+- PR #4334 Updated Potentials Class in FEFF io to consider radius by @CharlesCardot
+    Changed the Potentials class to consider the same radius that is used in
+    the Atoms class. This is necessary to avoid a situation where the radius is small enough to only have a subset of the unique elements in a structure, but all the elements have potentials defined, which causes FEFF to fail when run.
+    Major changes:
+    - fix 1: **Previous behavior**: When creating a FEFFDictset using the feff.io tools, the potentials class defined a potential for every unique element in a structure, while the atoms class defined an atom coordinate for every atom in a radius around the absorbing atom. If the radius was defined to be small, only a subset of the unique atoms in the structure would be included in the atom class. **New behavior**: Updated the potentials class to only create potentials for atoms inside the radius specified when creating a FEFFDictset. Without this, a too small radius for a structure with unique elements outside of that radius would cause FEFF to fail, given that there was a Potential defined for an element that did not exist in the Atoms flag.
+    ## Todos
+    None, the work is complete
+- PR #4068 Fix `monty` imports, enhance test for `Outcar` parser to cover uncompressed format by @DanielYang59
+    ### Summary
+    - Test `monty` fix for reverse readline, close #4033 and close #4237
+    - Replace `reverse_readline` with faster `reverse_readfile`
+    - Fix incorrect `monty` imports
+    - [x] Enhance unit test for reported Outcar parser (need to test **unzipped format**)
+- PR #4331 Optimized cube file parsing in from_cube for improved speed by @OliMarc
+    # **Summary**
+    ### **Major Changes:**
+    This PR enhances the `from_cube` function in `io.common.VolumetricData` to significantly improve performance. When processing large `.cube` files, the original implementation took minutes to read and set Pymatgen objects. The optimized version incorporates several key improvements: file reading is now handled with `readlines()` instead of multiple `readline()` calls, reducing I/O operations. Voxel data parsing has been rewritten to use NumPy vectorized parsing instead of loops, making numerical processing faster. Atom site parsing has been improved by replacing the loop-based `readline()` approach with list comprehensions. Additionally, volumetric data parsing now leverages `np.fromstring()` instead of converting lists to NumPy arrays.
+- PR #4329 Add protostructure and prototype functions from aviary by @CompRhys
+    Adds functions to get protostructure labels from spglib, moyo and aflow-sym. This avoids users who wish to use this functionality from needing to download `aviary` [to use these functions](https://github.com/CompRhys/aviary/blob/main/aviary/wren/utils.py).
+- PR #4321 [Breaking] `from_ase_atoms` constructor for `(I)Structure/(I)Molecule` returns the corresponding type by @DanielYang59
+    ### Summary
+    - Fix `from_ase_atoms` for `Molecule`, to close #4320
+    - [x]  Add tests
+- PR #4296 Make dict representation of `SymmetrizedStructure` MSONable by @DanielYang59
+    ### Summary
+    - Make dict representation of `SymmetrizedStructure` MSONable, to fix #3018
+    - [x] Unit test
+- PR #4323 Tweak POSCAR / XDATCAR to accommodate malformed files by @esoteric-ephemera
+    Related to [this matsci.org issue](https://matsci.org/t/xdatcar-error-when-reading-xdatcar-could-not-convert-string-to-float/61831): sometimes the XDATCAR can be malformed because fortran uses fixed format floats when printing. In those cases, there's no space between coordinates:
+    ```
+    Direct configuration= 2
+    -0.63265286-0.11227753 -0.15402785
+    -0.12414874 -0.01213420 -0.28106824
+    ...
+    ```
+    In some cases, this issue is reparable (a negative sign separates coordinates). This PR implements a fix when it is reparable and adds a few Trajectory-like convenience features to `Xdatcar`
+
+## v2025.3.10
+
+1. **PR #3680** - Add support for `vaspout.h5`, improvements to POTCAR handling by @esoteric-ephemera
+   - Added support for parsing `vaspout.h5` and improvements in POTCAR handling.
+   - Major additions include methods for processing `vaspout.h5` and ensuring compatibility with existing VASP I/O infrastructure.
+
+2. **PR #4319** - Update `abitimer` in `io.abinit` by @gpetretto
+   - Fixes parsing issues for newer versions of Abinit.
+   - Updates compatibility with `pandas > 2` and includes test files for validation.
+
+3. **PR #4315** - Patch to allow `pyzeo` integration by @daniel-sintef
+   - Provides a patch to swap out `zeo++` with `pyzeo`, which is a more actively maintained version.
+
+4. **PR #4281** - Add method to get the Pearson symbol to `SpaceGroupAnalyzer` by @CompRhys
+   - Introduced a new method to retrieve the Pearson Symbol in `SpaceGroupAnalyzer`.
+
+6. **PR #4295** - Pass `kwargs` to `IStructure.to` method in JSON format by @DanielYang59
+   - Provides finer control over `json.dumps` behavior during format conversion.
+
+7. **PR #4306** - `IStructure.to` defaults to JSON when `filename` is unspecified by @DanielYang59
+   - Adjusts default file output behavior to JSON.
+
+8. **PR #4297** - Bugfix for `Structure/ase.Atoms` interconversion by @wolearyc
+   - Ensures deep copying to avoid shared memory issues between `Atoms.info` and `Structure.properties`.
+
+9. **PR #4304** - `MagneticStructureEnumerator`: Expose `max_orderings` argument by @mkhorton
+    - Makes `max_orderings` configurable via keyword argument.
+
+10. **PR #4299** - Update inequality in `get_linear_interpolated_value` by @kavanase
+    - Fixes interpolation logic to handle edge cases more robustly.
+
+## v2025.2.18
+
+1. **PR #4288**: `Dos.get_cbm_vbm` updates by @kavanase
+   - Improvements for determining VBM/CBM eigenvalues from a DOS object to match expected values for `emmet-core` tests.
+
+2. **PR #4278**: [Breaking] Fix valence electron configuration parsing by @DanielYang59
+   - Addresses valence electron configuration parsing issue in `PotcarSingle.electron_configuration`, resolving #4269.
+
+3. **PR #4275**: Fix default `transformation_kwargs` in `MagneticStructureEnumerator` by @DanielYang59
+   - Corrects default `transformation_kwargs` to close #4184, with additional comment and type cleanup.
+
+4. **PR #4274**: Move `occ_tol` to init in `OrderDisorderedStructureTransformation` by @Tinaatucsd
+   - Resolved incompatibility with `StandardTransmuter` by moving `occ_tol` to class initialization.
+
+5. **PR #4276**: Fix timeout in `EnumlibAdaptor` by @DanielYang59
+   - Adjusts timeout handling to fix #4185 with associated unit test corrections.
+
+6. **PR #4280**: Pre-commit autoupdate by @pre-commit-ci[bot]
+   - Updates multiple pre-commit configurations, including ruff-pre-commit and markdownlint-cli.
+
+7. **PR #4290**: Migrate type annotation tweaks from #4100 by @DanielYang59
+   - Integrates type annotation improvements to aid review, addressing #4286.
+
+8. **PR #4291**: Remove deprecated memory units from `core` by @DanielYang59
+   - Eliminates outdated memory units in `core` for clarity.
+
+9. **PR #4292**: Fix for `plotly` `PDPlotter`/`ChemicalPotentialDiagram.get_plot()` by @kavanase
+   - Resolves deprecated `titlefont` issue in plotly v6, updating dependency requirements.
+
+10. **PR #4283**: `Composition` support formula strings with curly brackets by @janosh
+    - Expands formula parsing to include curly brackets, with added tests for verification.
+
+11. **PR #4279**: Fix P1 SymmOp string for `CifParser.get_symops` by @DanielYang59
+    - Corrects SymmOp string to close #4230, supplemented by a unit test.
+
+12. **PR #4265**: Clarify return type for `core.Composition.reduced_composition` by @DanielYang59
+    - Refines return types and cleans up types in `core.Composition`.
+
+13. **PR #4268**: Add `Structure.get_symmetry_dataset` method by @janosh
+    - Introduces convenience method for `moyopy` symmetry analysis with a new optional dependency set.
+
+14. **PR #4271**: Add missing parenthesis to `BoltztrapAnalyzer.get_extreme.is_isotropic` by @DanielYang59
+    - Minor syntax fix and cleanup for the method, resolving #4165.
+
+15. **PR #4270**: Add `seed: int = 0` parameter to `Structure.perturb()` by @janosh
+
+16. New NEBSet and CINEBSet for NEB calculations. These replace the old MITNEBSet. @shyuep
+
+## v2025.1.24
+
+1. **PR #4159 by @DanielYang59**
+   - Avoid using full equality `==` to compare float values to address issue #4158.
+   - Recommend using `assert_allclose` over `assert_array_equal` for float arrays due to numerical imprecision.
+   - Implement a ~3x speedup tweak to the `_proj` implementation.
+   - Partially replace sequence of float comparison using `==` for list/tuple/dict as referenced [here](https://github.com/materialsproject/pymatgen/blob/bd9fba9ec62437b5b62fbd0b2c2c723216cc5a2c/tests/core/test_bonds.py#L56).
+   - Introduce other type and comment tweaks.
+
+2. **PR #4190 by @benrich37**
+   - **Feature 0:** Hierarchical structure using class objects to represent data within a JDFTx out file.
+     - Main hierarchy classes:
+       - `JDFTXOutputs`
+         - `JDFTXOutputs.outfile`
+         - `JDFTXOutfile`
+         - `JDFTXOutfile.slices[i]`
+         - `JDFTXOutfileSlice`, etc.
+   - **Feature 1:** `outputs.py` module with `JDFTXOutfile` for representing a JDFTx out file.
+   - **Feature 2:** `jdftxoutfileslice.py` module with `JDFTXOutfileSlice` for file slices of a single JDFTx call.
+   - **Feature 3:** `joutstructures.py` with `JOutStructures` for representing structures from an out file slice.
+   - **Feature 4:** `joutstructure.py` with `JOutStructure` for each single structure within an out file.
+   - **Feature 5:** `jelstep.py` with `JElStep` and `JElSteps` for SCF steps and convergences.
+   - **Feature 6:** `jminsettings.py` with `JMinSettings` for minimization settings representations.
+
+3. **PR #4189 by @benrich37**
+   - **Feature 1:** `inputs.py` module containing `JDFTXInfile` for Pythonic representation of JDFTx calculation inputs.
+   - **Feature 2:** `generic_tags.py` module with "Tag" objects (`AbstractTag` and its inheritors) for JDFTx input structure representation.
+   - **Feature 3:** `jdftxinfile_master_format.py` for creating proper "Tag" objects for inputs.
+   - **Feature 4:** `jdftxinfile_ref_options.py` for holding lists of acceptable strings for input tags.
+
+## v2025.1.23
+
+1. **PR #4255 by @peikai**: This PR resolves an inconsistency in the `run_type` for entries in a mixing scheme. The entry type was changed to 'r2SCAN', but the `MaterialsProjectDFTMixingScheme()` expected 'R2SCAN', causing errors and ignored entries in GGA(+U)/R2SCAN mixing scheme corrections.
+
+2. **PR #4160 by @DanielYang59**: Enhancements and clarifications were made to the `io.vasp.outputs.Outcar` docstring/comment. This includes more specific type annotations for parsers and updating the default value in `getattr` to `False` for condition checks.
+
+3. **PR #4257 by @njzjz**: This PR covers the intention to build Linux arm64 wheels, referencing the availability of free hosted runners for public repositories. However, specific features and fixes were not detailed.
+
+4. **PR #4240 by @kavanase**: A minor fix in `FermiDos` improves the robustness of the `get_doping` method, addressing issues with handling rare cases with minimal energy increments between VBM and CBM indices.
+
+5. **PR #4254 by @tpurcell90**: Adjustments regarding the use of libxc with FHI-aims to automatically add an override warning call, ensuring the process behaves as expected.
+
+6. **PR #4256 by @kavanase**: Addresses a behavior issue with `Composition` for mixed species and element compositions, providing a fix that ensures compositions are interpreted correctly, avoiding incorrect results in representations and calculations.
+
+7. **PR #4253 by @esoteric-ephemera**: This PR introduces the ability to convert between ASE and pymatgen trajectories, maintaining additional data such as energies, forces, and stresses, thus improving integration between the two programs and addressing related issues.
+
+These updates range from bug fixes and enhancements to new features aimed at improving the functionality and reliability of the codebase.
+
+## 2025.1.9
+- Iterating Element no longer contains isotopes (D and T). (@DanielYang59)
+- Remove is_rare_earth_metal from ElementBase (@jdewasseigeosium)
+- Fix DOS parsing for SOC calculations (@kavanase)
+- Added Pure Random Algo to OrderDisorderedStructureTransformation (@jmmshn)
+- Fix ion formula check in ion_or_solid_comp_object of analysis.pourbaix_diagram (@DanielYang59)
+- AseAtomsAdaptor: Support arbitrary selective dynamics constraints (@yantar92)
+- Explicit UTF-8 encoding for zopen and open. (@DanielYang59)
+
+## 2024.11.13
+
+- CP2K fixes (@janosh)
+- Fix borg.hive.SimpleVaspToComputedEntryDrone.assimilate ValueError when core file missing (@DanielYang59)
+- Revert breaking analysis.local_env default_op_params/cn_opt_params rename (@DanielYang59)
+- Added new Flag for AutoOxiStateDecorationTransformation (@jmmshn)
+- Fixed execution of packmol in relative path. (@davidwaroquiers)
+- Improve element mismatch handling with POTCAR for Poscar.from_file/str (@DanielYang59)
+- Preprocess Structure Reduction Before Bulk Match (@lan496)
+- Add min "thickness" check in CifParser to filter invalid structure which leads to infinite loop (@DanielYang59)
+
+## 2024.10.29
+- VaspDir has been renamed and moved to pymatgen.io.common.PMGDir for more general support of all IO classes. Note that
+  this is a backwards incompatible change. It should not affect many users since VaspDir was introduced only in the last
+  one week.
+- Fixed execution of packmol in relative path. (@davidwaroquiers)
+- VaspDoc.get_incar_tags: Use Mediawiki API (@yantar92)
+- Fix comment pass in Kpoints constructors (@DanielYang59)
+
 ## v2024.10.27
 - Bug fix for parsing of dielectric calculations from vasprun.xml.
 

@@ -32,13 +32,12 @@ from pymatgen.io.lobster import Charge, Icohplist
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing import Any, Literal
+    from typing import Any, Literal, Self
 
     import matplotlib as mpl
     from numpy.typing import NDArray
-    from typing_extensions import Self
 
-    from pymatgen.core import PeriodicNeighbor, PeriodicSite, Structure
+    from pymatgen.core import IStructure, PeriodicNeighbor, PeriodicSite, Structure
     from pymatgen.core.periodic_table import Element
     from pymatgen.electronic_structure.cohp import IcohpCollection, IcohpValue
     from pymatgen.util.typing import PathLike
@@ -65,7 +64,7 @@ class LobsterNeighbors(NearNeighbors):
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         filename_icohp: PathLike | None = "ICOHPLIST.lobster",
         obj_icohp: Icohplist | None = None,
         are_coops: bool = False,
@@ -190,21 +189,21 @@ class LobsterNeighbors(NearNeighbors):
             if valences_from_charges and filename_charge is not None:
                 chg = Charge(filename=filename_charge)
                 if which_charge == "Mulliken":
-                    self.valences = chg.Mulliken
+                    self.valences = chg.mulliken
                 elif which_charge == "Loewdin":
-                    self.valences = chg.Loewdin
+                    self.valences = chg.loewdin
 
             elif valences_from_charges and obj_charge is not None:
                 chg = obj_charge
                 if which_charge == "Mulliken":
-                    self.valences = chg.Mulliken
+                    self.valences = chg.mulliken
                 elif which_charge == "Loewdin":
-                    self.valences = chg.Loewdin
+                    self.valences = chg.loewdin
 
             else:
                 bv_analyzer = BVAnalyzer()
                 try:
-                    self.valences = bv_analyzer.get_valences(structure=self.structure)
+                    self.valences = bv_analyzer.get_valences(structure=self.structure)  # type:ignore[arg-type]
                 except ValueError as exc:
                     self.valences = None
                     if additional_condition in {1, 3, 5, 6}:
@@ -265,7 +264,7 @@ class LobsterNeighbors(NearNeighbors):
 
     def get_nn_info(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         n: int,
         use_weights: bool = False,
     ) -> dict[str, Any]:
@@ -311,7 +310,7 @@ class LobsterNeighbors(NearNeighbors):
             LobsterLightStructureEnvironments
         """
         lgf = LocalGeometryFinder()
-        lgf.setup_structure(structure=self.structure)
+        lgf.setup_structure(structure=self.structure)  # type:ignore[arg-type]
         list_ce_symbols = []
         list_csm = []
         list_permut = []
@@ -342,7 +341,7 @@ class LobsterNeighbors(NearNeighbors):
                     list_ce_symbol=list_ce_symbols,
                     list_csm=list_csm,
                     list_permutation=list_permut,
-                    list_neighsite=self.list_neighsite,
+                    list_neighsite=self.list_neighsite,  # type:ignore[arg-type]
                     list_neighisite=self.list_neighisite,
                     structure=self.structure,
                     valences=self.valences,
@@ -384,7 +383,7 @@ class LobsterNeighbors(NearNeighbors):
             list_ce_symbol=new_list_ce_symbols,
             list_csm=new_list_csm,
             list_permutation=new_list_permut,
-            list_neighsite=new_list_neighsite,
+            list_neighsite=new_list_neighsite,  # type:ignore[arg-type]
             list_neighisite=new_list_neighisite,
             structure=self.structure,
             valences=self.valences,
@@ -436,7 +435,7 @@ class LobsterNeighbors(NearNeighbors):
             if idx in isites:
                 for key, icohpsum in zip(self.list_keys[idx], self.list_icohps[idx], strict=True):
                     summed_icohps += icohpsum
-                    list_icohps.append(icohpsum)
+                    list_icohps.append(icohpsum)  # type:ignore[arg-type]
                     labels.append(key)
                     atoms.append(
                         [
@@ -617,7 +616,7 @@ class LobsterNeighbors(NearNeighbors):
 
                 summed_cohp = None
 
-        return plot_label, summed_cohp
+        return plot_label, summed_cohp  # type:ignore[return-value]
 
     def _get_plot_label(self, atoms: list[list[str]], per_bond: bool) -> str:
         """Count the types of bonds and append a label."""
@@ -682,8 +681,8 @@ class LobsterNeighbors(NearNeighbors):
                         unitcell1 = self._determine_unit_cell(n_site)
                         unitcell2 = self._determine_unit_cell(n_site2)
 
-                        index_n_site = self._get_original_site(self.structure, n_site)
-                        index_n_site2 = self._get_original_site(self.structure, n_site2)
+                        index_n_site = self._get_original_site(self.structure, n_site)  # type:ignore[arg-type]
+                        index_n_site2 = self._get_original_site(self.structure, n_site2)  # type:ignore[arg-type]
 
                         if index_n_site < index_n_site2:
                             translation = list(np.array(unitcell1) - np.array(unitcell2))
@@ -820,7 +819,7 @@ class LobsterNeighbors(NearNeighbors):
                     {
                         "site": neighbor,
                         "image": tuple(
-                            int(round(idx))
+                            round(idx)
                             for idx in (
                                 neighbor.frac_coords
                                 - self.structure[
@@ -861,7 +860,7 @@ class LobsterNeighbors(NearNeighbors):
                     {
                         "site": neighbor,
                         "image": tuple(
-                            int(round(idx))
+                            round(idx)
                             for idx in (
                                 neighbor.frac_coords
                                 - self.structure[
@@ -913,7 +912,7 @@ class LobsterNeighbors(NearNeighbors):
         Returns:
             Tuple of ICOHPs, keys, lengths, neighisite, neighsite, coords.
         """
-        list_icohps: list[list[IcohpValue]] = []
+        list_icohps: list[list[float]] = []
         list_keys: list[list[str]] = []
         list_lengths: list[list[float]] = []
         list_neighisite: list[list[int]] = []
@@ -1013,7 +1012,7 @@ class LobsterNeighbors(NearNeighbors):
                 list_lengths.append([])
                 list_keys.append([])
                 list_coords.append([])
-        return (
+        return (  # type:ignore[return-value]
             list_icohps,
             list_keys,
             list_lengths,
@@ -1027,7 +1026,7 @@ class LobsterNeighbors(NearNeighbors):
         site_idx: int,
         icohps: dict[str, IcohpValue],
         additional_condition: Literal[0, 1, 2, 3, 4, 5, 6],
-    ) -> tuple[list[str], list[float], list[int], list[IcohpValue]]:
+    ) -> tuple[list[str], list[float], list[int], list[float]]:
         """Find all relevant atoms that fulfill the additional condition.
 
         Args:
@@ -1041,7 +1040,7 @@ class LobsterNeighbors(NearNeighbors):
         keys_from_ICOHPs: list[str] = []
         lengths_from_ICOHPs: list[float] = []
         neighbors_from_ICOHPs: list[int] = []
-        icohps_from_ICOHPs: list[IcohpValue] = []
+        icohps_from_ICOHPs: list[float] = []
 
         for key, icohp in icohps.items():
             atomnr1 = self._get_atomnumber(icohp._atom1)
@@ -1377,7 +1376,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
         list_permutation: list,
         list_neighsite: list[PeriodicSite],
         list_neighisite: list[list[int]],
-        structure: Structure,
+        structure: Structure | IStructure,
         valences: list[float] | None = None,
     ) -> Self:
         """Set up a LightStructureEnvironments from LOBSTER.
@@ -1443,7 +1442,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
 
             if list_neighisite[site_idx] is not None:
                 nb_set = cls.NeighborsSet(
-                    structure=structure,
+                    structure=structure,  # type:ignore[arg-type]
                     isite=site_idx,
                     all_nbs_sites=all_nbs_sites,
                     all_nbs_sites_indices=all_nbs_sites_indices[site_idx],
@@ -1451,7 +1450,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
 
             else:
                 nb_set = cls.NeighborsSet(
-                    structure=structure,
+                    structure=structure,  # type:ignore[arg-type]
                     isite=site_idx,
                     all_nbs_sites=[],
                     all_nbs_sites_indices=[],

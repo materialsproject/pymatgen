@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import bisect
 import math
+import warnings
 from copy import copy, deepcopy
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
-from warnings import warn
 
 import numpy as np
 from monty.json import MSONable
@@ -18,9 +18,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing import Any
-
-    from typing_extensions import Self
+    from typing import Any, Self
 
 __author__ = "Shyue Ping Ong, William Davidson Richard"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -176,9 +174,7 @@ class EwaldSummation(MSONable):
 
         if len(matches) != len(sub_structure):
             output = ["Missing sites."]
-            for site in sub_structure:
-                if site not in matches:
-                    output.append(f"unmatched = {site}")
+            output.extend(f"unmatched = {site}" for site in sub_structure if site not in matches)
             raise ValueError("\n".join(output))
 
         return sum(sum(total_energy_matrix))
@@ -288,7 +284,7 @@ class EwaldSummation(MSONable):
             self._initialized = True
 
         if self._charged:
-            warn("Per atom energies for charged structures not supported in EwaldSummation")
+            warnings.warn("Per atom energies for charged structures not supported in EwaldSummation", stacklevel=2)
         return np.sum(self._recip[:, site_index]) + np.sum(self._real[:, site_index]) + self._point[site_index]
 
     def _calc_ewald_terms(self):
@@ -535,7 +531,7 @@ class EwaldMinimizer:
         # sets this to true it breaks the recursion and stops the search.
         self._finished = False
 
-        self._start_time = datetime.now(tz=timezone.utc)
+        self._start_time = datetime.now(tz=UTC)
 
         self.minimize_matrix()
 
@@ -605,7 +601,7 @@ class EwaldMinimizer:
         interaction_correction = np.sum(step3)
 
         if self._algo == self.ALGO_TIME_LIMIT:
-            elapsed_time = datetime.now(tz=timezone.utc) - self._start_time
+            elapsed_time = datetime.now(tz=UTC) - self._start_time
             speedup_parameter = elapsed_time.total_seconds() / 1800
             avg_int = np.sum(interaction_matrix, axis=None)
             avg_frac = np.mean(np.outer(1 - fractions, 1 - fractions))

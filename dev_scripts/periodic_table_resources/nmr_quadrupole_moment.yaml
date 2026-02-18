@@ -1,0 +1,87 @@
+NMR Quadrupole Moment:
+  # NOTE: most data could be found in the CRC handbook (except for C-11), also
+  # the handbook has much more data than here
+  reference: "CRC Handbook of Chemistry and Physics, 95 th, Nuclear Spins, Moments, and Other Data Related to NMR Spectroscopy"
+  unit: mbarn
+  data:
+    Al:
+      Al-27: 146.6
+    B:
+      B-10: 84.59
+      B-11: 40.59
+    Be:
+      Be-9: 52.88
+    C:
+      C-11: 33.27
+    Ca:
+      Ca-41: -66.5
+      Ca-43: -40.8
+    Cl:
+      Cl-35: -81.65
+      Cl-37: -64.35
+    Co:
+      Co-59: 420.3
+    Cr:
+      Cr-53: -150.5
+    Cu:
+      Cu-63: -220.15
+      Cu-65: -204.14
+    F:
+      F-19: -94.2
+    Fe:
+      Fe-57: 160
+    H:
+      H-2: 2.86
+    Hg:
+      Hg-201: 387.6
+    I:
+      I-127: -696.12
+      I-129: -604.1
+    In:
+      In-113: 759.8
+      In-115: 770.8
+    K:
+      K-39: 58.5
+      K-40: -73
+      K-41: 71.1
+    La:
+      La-139: 200.6
+    Li:
+      Li-6: -0.808
+      Li-7: -40.1
+    Mg:
+      Mg-25: 199.4
+    Mn:
+      Mn-55: 330.1
+    N:
+      N-14: 20.44
+    Na:
+      Na-23: 104.1
+    Ne:
+      Ne-21: 101.55
+    Ni:
+      Ni-61: 162.15
+    O:
+      O-17: -25.58
+    Ra:
+      Ra-223: 1210.3
+    S:
+      S-33: -67.8
+      S-35: 47.1
+    Sb:
+      Sb-121: -543.11
+      Sb-123: -692.14
+    Sc:
+      Sc-45: -220.2
+    Sn:
+      Sn-119: -132.1
+    Sr:
+      Sr-87: 305.2
+    Ti:
+      Ti-47: 302.1
+      Ti-49: 247.11
+    V:
+      V-50: 210.4
+      V-51: -52.1
+    Zn:
+      Zn-67: 150.15

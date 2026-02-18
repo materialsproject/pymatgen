@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
 
 from pymatgen.core import Lattice
 from pymatgen.electronic_structure.core import Magmom, Orbital, Spin
@@ -38,7 +39,7 @@ class TestMagmom:
     def test_init(self):
         # backwards compatibility for scalar-like magmoms
         magmom = Magmom(2.0)
-        assert float(magmom) == 2.0
+        assert float(magmom) == approx(2.0)
         # backwards compatibility for list-like magmoms
         magmom2 = Magmom([1, 2, 3])
         assert list(magmom2) == [1, 2, 3]
@@ -97,7 +98,7 @@ class TestMagmom:
         for magmom in magmoms:
             assert Magmom.are_collinear(magmom)
         ncl_magmoms = [[[0, 0, 1], [0, 0, 1], [1, 2, 3]]]
-        assert Magmom.are_collinear(ncl_magmoms) is False
+        assert not Magmom.are_collinear(ncl_magmoms)
 
     def test_have_consistent_saxis(self):
         magmom1 = Magmom([1, 2, 3])
