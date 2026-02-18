@@ -191,7 +191,8 @@ class ChargemolAnalysis:
             if len(paths) > 1:
                 warnings.warn(f"Multiple files detected, using {os.path.basename(paths[0])}", stacklevel=2)
             fpath = paths[0]
-        return os.path.abspath(fpath)
+            return os.path.abspath(fpath)
+        return None
 
     def _execute_chargemol(self, **job_control_kwargs):
         """Internal function to run Chargemol.
