@@ -17,8 +17,7 @@ from pymatgen.entries.computed_entries import ComputedEntry
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.core import Element, Species
     from pymatgen.util.typing import CompositionLike

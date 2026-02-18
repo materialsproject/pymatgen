@@ -22,10 +22,9 @@ from pymatgen.io.vasp import Outcar
 from pymatgen.util.plotting import pretty_plot
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, Self
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike
 

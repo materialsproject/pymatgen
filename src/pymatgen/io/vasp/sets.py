@@ -56,9 +56,7 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import Literal
-
-    from typing_extensions import Self
+    from typing import Literal, Self
 
     from pymatgen.core.structure import IStructure
     from pymatgen.util.typing import Kpoint, PathLike

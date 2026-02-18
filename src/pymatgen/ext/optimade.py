@@ -15,9 +15,7 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.provenance import StructureNL
 
 if TYPE_CHECKING:
-    from typing import ClassVar
-
-    from typing_extensions import Self
+    from typing import ClassVar, Self
 
     from pymatgen.core.structure import Molecule
 

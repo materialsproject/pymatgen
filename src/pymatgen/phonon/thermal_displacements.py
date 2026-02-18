@@ -16,10 +16,9 @@ from pymatgen.symmetry.groups import SYMM_DATA
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing import Literal
+    from typing import Literal, Self
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike
 

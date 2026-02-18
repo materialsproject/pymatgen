@@ -49,7 +49,7 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
-    from typing import Any, ClassVar, SupportsIndex, TypeAlias
+    from typing import Any, ClassVar, Self, SupportsIndex, TypeAlias
 
     import moyopy
     import pandas as pd
@@ -60,7 +60,6 @@ if TYPE_CHECKING:
     from ase.optimize.optimize import Optimizer
     from matgl.ext.ase import TrajectoryObserver
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.util.typing import CompositionLike, PathLike, SpeciesLike
 

@@ -15,9 +15,7 @@ from .utils import lower_and_check_unique, read_pattern, read_table_pattern
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import Any, Literal
-
-    from typing_extensions import Self
+    from typing import Any, Literal, Self
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"

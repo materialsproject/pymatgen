@@ -16,9 +16,7 @@ from monty.json import MontyDecoder, MontyEncoder, MSONable
 from pymatgen.core import ArrayWithUnit, Lattice, Species, Structure, units
 
 if TYPE_CHECKING:
-    from typing import Any, ClassVar
-
-    from typing_extensions import Self
+    from typing import Any, ClassVar, Self
 
     from pymatgen.core.periodic_table import DummySpecies, Element
     from pymatgen.core.structure import IStructure

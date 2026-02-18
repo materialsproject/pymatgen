@@ -44,9 +44,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
-    from typing import Any, Literal
-
-    from typing_extensions import Self
+    from typing import Any, Literal, Self
 
     from pymatgen.core.lattice import Lattice
     from pymatgen.core.structure import Molecule, Structure
