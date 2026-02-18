@@ -13,7 +13,7 @@ from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.util.string import transformation_to_string
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"

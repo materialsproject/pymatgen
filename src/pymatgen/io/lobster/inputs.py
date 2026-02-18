@@ -30,9 +30,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing import Any, ClassVar, Literal
-
-    from typing_extensions import Self
+    from typing import Any, ClassVar, Literal, Self
 
     from pymatgen.core.composition import Composition
     from pymatgen.core.structure import IStructure

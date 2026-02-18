@@ -20,9 +20,7 @@ from pymatgen.util.num import round_to_sigfigs
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import Any
-
-    from typing_extensions import Self
+    from typing import Any, Self
 
     from pymatgen.core.structure import IStructure
 
