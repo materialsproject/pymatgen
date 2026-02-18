@@ -8,6 +8,7 @@ from __future__ import annotations
 import collections
 import collections.abc
 import logging
+import math
 import os
 import re
 import sys
@@ -531,7 +532,7 @@ class ParallelEfficiency(dict):
                 values = peff[key][:]
                 if len(values) > 1:
                     ref_value = values.pop(self._ref_idx)
-                    if ref_value != 1.0:
+                    if not math.isclose(ref_value, 1.0):
                         raise ValueError(f"expect ref_value to be 1.0, got {ref_value}")
 
                 data.append((sect_name, self.estimator(values)))

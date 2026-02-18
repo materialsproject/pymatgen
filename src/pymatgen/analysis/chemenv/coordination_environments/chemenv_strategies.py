@@ -8,6 +8,7 @@ fraction. The choice of the strategy depends on the purpose of the user.
 from __future__ import annotations
 
 import abc
+import math
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -1876,7 +1877,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
                     delta_csm_cn_map2 = (cn2, inb_set2)
 
                     # early-exit if proven worst-case
-                    if nb_set_weight == 0.0:
+                    if math.isclose(nb_set_weight, 0.0):
                         if additional_info is not None:
                             set_info(additional_info, "delta_csms", isite, cn_map, delta_csm)
                             set_info(additional_info, "delta_csms_weights", isite, cn_map, nb_set_weight)
@@ -2742,7 +2743,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         # normalize to fractions
         w_nb_sets = {cm: d["Product"] for cm, d in weights_isite.items()}
         total = float(sum(w_nb_sets.values()))
-        if total == 0.0:
+        if math.isclose(total, 0.0):
             return []
 
         nb_sets_fractions = {cm: w / total for cm, w in w_nb_sets.items()}

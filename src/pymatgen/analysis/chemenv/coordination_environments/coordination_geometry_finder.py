@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import itertools
 import logging
+import math
 import time
 import warnings
 from random import shuffle
@@ -353,7 +354,7 @@ def symmetry_measure(points_distorted, points_perfect):
     denom = float(pp.ravel().dot(pp.ravel()))  # == sum(pp^2)
 
     # Guard against pathological denom=0 (shouldn't happen for real geometries).
-    csm = 0.0 if denom == 0.0 else (num / denom) * 100.0
+    csm = 0.0 if math.isclose(denom, 0.0) else (num / denom) * 100.0
 
     return {"symmetry_measure": csm, "scaling_factor": sf, "rotation_matrix": rot}
 
