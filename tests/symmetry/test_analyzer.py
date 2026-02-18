@@ -466,6 +466,7 @@ class TestSpacegroupAnalyzer(MatSciTest):
 
     def test_bad_structure(self):
         struct = Structure(Lattice.cubic(5), ["H", "H"], [[0.0, 0.0, 0.0], [0.001, 0.0, 0.0]])
+
         with pytest.raises(SymmetryUndeterminedError):
             SpacegroupAnalyzer(struct, 0.1)
 
