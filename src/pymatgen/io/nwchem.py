@@ -451,21 +451,35 @@ class NwInput(MSONable):
                 continue
 
             tokens = line.split()
+
             if tokens[0].lower() == "geometry":
                 geom_options = tokens[1:]
-                line = lines.pop(0).strip()
-                tokens = line.split()
-                if tokens[0].lower() == "symmetry":
-                    symmetry_options = tokens[1:]
-                    line = lines.pop(0).strip()
-                # Parse geometry
                 species = []
                 coords = []
-                while line.lower() != "end":
-                    tokens = line.split()
-                    species.append(tokens[0])
-                    coords.append([float(i) for i in tokens[1:]])
+                symmetry_options = None
+
+                # Parse geometry
+                while lines:
                     line = lines.pop(0).strip()
+                    if not line:  # skip blank lines
+                        continue
+
+                    # Stop at end
+                    if line.lower() == "end":
+                        break
+
+                    tokens = line.split()
+                    key = tokens[0].lower()
+
+                    # Handle symmetry line anywhere in the block
+                    if key == "symmetry":
+                        symmetry_options = tokens[1:]
+                        continue
+
+                    # Otherwise, treat as an atom line
+                    species.append(tokens[0])
+                    coords.append([float(x) for x in tokens[1:]])
+
                 mol = Molecule(species, coords)
             elif tokens[0].lower() == "charge":
                 charge = int(tokens[1])
