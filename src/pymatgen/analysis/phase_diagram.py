@@ -449,7 +449,9 @@ class PhaseDiagram(MSONable):
         elements = list(self.elements)
         dim = len(elements)
 
-        entries = sorted(self.entries, key=lambda e: e.composition.reduced_composition)
+        entries = sorted(
+            self.entries, key=lambda e: (e.composition.reduced_composition, e.energy_per_atom, str(e.name))
+        )
 
         el_refs: dict[Element, PDEntry] = {}
         min_entries: list[PDEntry] = []
