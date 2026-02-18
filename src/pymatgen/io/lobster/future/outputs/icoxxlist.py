@@ -86,11 +86,7 @@ class ICOXXLIST(LobsterInteractionsHolder):
                 centers = [first_center, second_center]
                 length = float(matches[2])
 
-                cells = (
-                    [[], []]
-                    if matches[3] is None
-                    else [[0, 0, 0], [int(i) for i in matches[3].split()]]
-                )
+                cells = [[], []] if matches[3] is None else [[0, 0, 0], [int(i) for i in matches[3].split()]]
 
                 bond_tmp: LobsterInteractionData = {
                     "index": index,
@@ -116,9 +112,7 @@ class ICOXXLIST(LobsterInteractionsHolder):
 
                 interaction_counter += 1
 
-        self.data = np.full(
-            (len(self.interactions), len(self.spins)), np.nan, dtype=np.float64
-        )
+        self.data = np.full((len(self.interactions), len(self.spins)), np.nan, dtype=np.float64)
 
         for i, interaction in enumerate(self.interactions):
             if "icoxx" in interaction:
@@ -172,11 +166,7 @@ class ICOXXLIST(LobsterInteractionsHolder):
                 ]
                 length = float(matches[2])
 
-                cells = (
-                    [[], []]
-                    if matches[3] is None
-                    else [[0, 0, 0], [int(i) for i in matches[3].split()]]
-                )
+                cells = [[], []] if matches[3] is None else [[0, 0, 0], [int(i) for i in matches[3].split()]]
 
                 bond_tmp: LobsterInteractionData = {
                     "index": index,
@@ -194,9 +184,7 @@ class ICOXXLIST(LobsterInteractionsHolder):
 
                 self.interactions.append(bond_tmp)
 
-        self.data = np.full(
-            (len(self.interactions), len(self.spins)), np.nan, dtype=np.float64
-        )
+        self.data = np.full((len(self.interactions), len(self.spins)), np.nan, dtype=np.float64)
 
         for i, interaction in enumerate(self.interactions):
             if "icoxx" in interaction:
@@ -231,9 +219,7 @@ class ICOXXLIST(LobsterInteractionsHolder):
         Returns:
             NDArray[np.floating]: Array of data for specified bonds.
         """
-        interaction_indices = self.get_interaction_indices_by_properties(
-            indices, centers, cells, orbitals, length
-        )
+        interaction_indices = self.get_interaction_indices_by_properties(indices, centers, cells, orbitals, length)
 
         spins = spins or self.spins
         spin_indices = [0 if spin == Spin.up else 1 for spin in spins]
@@ -382,9 +368,7 @@ class NcICOBILIST(LobsterInteractionsHolder):
                     if match := re.search(self.interactions_regex, center):
                         match = match.groups()
                     else:
-                        raise ValueError(
-                            f"Could not parse interaction center line: {line}"
-                        )
+                        raise ValueError(f"Could not parse interaction center line: {line}")
 
                     bond_tmp["centers"].append(match[0])
 
@@ -417,15 +401,11 @@ class NcICOBILIST(LobsterInteractionsHolder):
                     if "icoxx" in interaction:
                         interaction["icoxx"][Spin.down] = nc_icobi_value
                 else:
-                    raise ValueError(
-                        f"Invalid spin value {current_spin} in line: {line}"
-                    )
+                    raise ValueError(f"Invalid spin value {current_spin} in line: {line}")
 
                 interaction_counter += 1
 
-        self.data = np.full(
-            (len(self.interactions), len(self.spins)), np.nan, dtype=np.float64
-        )
+        self.data = np.full((len(self.interactions), len(self.spins)), np.nan, dtype=np.float64)
 
         for i, interaction in enumerate(self.interactions):
             if "icoxx" in interaction:

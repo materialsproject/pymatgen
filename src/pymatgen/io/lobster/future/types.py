@@ -49,9 +49,7 @@ class LobsterInteractionData(LobsterInteraction, total=False):
     icoxx: dict[Spin, NDArray[floating] | float]
 
 
-LobsterPopulations: TypeAlias = dict[
-    str, dict[str, dict[Spin, dict[Literal["mulliken", "loewdin"], float]]]
-]
+LobsterPopulations: TypeAlias = dict[str, dict[str, dict[Spin, dict[Literal["mulliken", "loewdin"], float]]]]
 
 LobsterMatrixData: TypeAlias = dict[str, dict[Spin | None, NDArray[complexfloating]]]
 

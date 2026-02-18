@@ -6,9 +6,7 @@ from typing import TypeVar
 F = TypeVar("F", bound=Callable)
 
 
-def version_processor(
-    min_version: str = "0.0", max_version: str | None = None
-) -> Callable[[F], F]:
+def version_processor(min_version: str = "0.0", max_version: str | None = None) -> Callable[[F], F]:
     """Decorator to mark a method as a version processor.
 
     Args:

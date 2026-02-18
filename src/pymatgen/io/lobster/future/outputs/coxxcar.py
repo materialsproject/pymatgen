@@ -242,9 +242,7 @@ class COXXCAR(LobsterInteractionsHolder):
         Returns:
             np.ndarray: Array with shape (n_energies, n_selected_columns).
         """
-        bond_indices = self.get_interaction_indices_by_properties(
-            indices, centers, cells, orbitals, length
-        )
+        bond_indices = self.get_interaction_indices_by_properties(indices, centers, cells, orbitals, length)
         spins = spins or self.spins
 
         return self.data[
@@ -284,9 +282,7 @@ class COXXCAR(LobsterInteractionsHolder):
             interaction_indices = [interaction_indices]
 
         if set(spins) - set(self.spins):
-            raise ValueError(
-                f"Requested `Spin` {spins} is not valid. Valid `Spin`s are: {self.spins}."
-            )
+            raise ValueError(f"Requested `Spin` {spins} is not valid. Valid `Spin`s are: {self.spins}.")
 
         index_range = np.arange(0, self.num_bonds * 2 * len(spins) + 1)
 

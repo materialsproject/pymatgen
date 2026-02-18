@@ -23,10 +23,7 @@ def natural_sort(list_to_sort: str) -> list[Any]:
         >>> natural_sort(["file10", "file2", "file1"])
         ['file1', 'file2', 'file10']
     """
-    return [
-        int(text) if text.isdigit() else text.lower()
-        for text in re.split(r"(\d+)", list_to_sort)
-    ]
+    return [int(text) if text.isdigit() else text.lower() for text in re.split(r"(\d+)", list_to_sort)]
 
 
 def parse_orbital_from_text(text: str) -> str | None:

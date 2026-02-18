@@ -109,17 +109,13 @@ class DOSCAR(LobsterFile):
                     center_match = center_match.strip()
 
                     if center_match.startswith("Z="):
-                        center_match = Element.from_Z(
-                            int(center_match.split()[-1])
-                        ).symbol
+                        center_match = Element.from_Z(int(center_match.split()[-1])).symbol
 
                     center_counts[center_match] += 1
 
                     separator = "_" if self.is_lcfo else ""
 
-                    centers.append(
-                        f"{center_match}{separator}{center_counts[center_match]}"
-                    )
+                    centers.append(f"{center_match}{separator}{center_counts[center_match]}")
 
                 if orbital_match := match.group(4):
                     orbitals += [[orb.strip() for orb in orbital_match.split()]]
@@ -135,14 +131,10 @@ class DOSCAR(LobsterFile):
         if len(data[0][0, :]) == 5:
             self.spins.append(Spin.down)
         elif len(data[0][0, :]) != 3:
-            raise ValueError(
-                "There is something wrong with the DOSCAR. Can't extract spin polarization."
-            )
+            raise ValueError("There is something wrong with the DOSCAR. Can't extract spin polarization.")
 
         if efermi is None:
-            raise ValueError(
-                "There is something wrong with the DOSCAR. Can't find efermi."
-            )
+            raise ValueError("There is something wrong with the DOSCAR. Can't find efermi.")
 
         energies = data[0][:, 0]
         projected_dos = {}
@@ -165,9 +157,7 @@ class DOSCAR(LobsterFile):
                 projected_dos[center] = {}
 
             for spin_index, spin in enumerate(self.spins):
-                for orbital_index, row in enumerate(
-                    range(spin_index + 1, block_data.shape[1], len(self.spins))
-                ):
+                for orbital_index, row in enumerate(range(spin_index + 1, block_data.shape[1], len(self.spins))):
                     orbital = orbitals[atom_counter][orbital_index]
 
                     if orbital not in projected_dos[center]:
