@@ -40,10 +40,9 @@ from pymatgen.util.string import str_delimited
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
-    from typing import Any, ClassVar, Literal
+    from typing import Any, ClassVar, Literal, Self
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.core.structure import IStructure
     from pymatgen.symmetry.bandstructure import HighSymmKpath

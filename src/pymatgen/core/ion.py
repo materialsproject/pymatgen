@@ -12,7 +12,7 @@ from pymatgen.core.composition import Composition, reduce_formula
 from pymatgen.util.string import Stringify, charge_string, formula_double_format
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 
 class Ion(Composition, MSONable, Stringify):

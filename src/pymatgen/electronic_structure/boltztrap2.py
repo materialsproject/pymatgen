@@ -44,9 +44,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import Literal
-
-    from typing_extensions import Self
+    from typing import Literal, Self
 
 try:
     from BoltzTraP2 import bandlib as BL

@@ -20,7 +20,7 @@ from pymatgen.analysis.chemenv.utils.graph_utils import get_delta
 from pymatgen.analysis.chemenv.utils.math_utils import get_linearly_independent_vectors
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 logger = logging.getLogger(__name__)
 

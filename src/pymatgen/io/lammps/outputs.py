@@ -18,9 +18,7 @@ from monty.json import MSONable
 from pymatgen.io.lammps.data import LammpsBox
 
 if TYPE_CHECKING:
-    from typing import Any
-
-    from typing_extensions import Self
+    from typing import Any, Self
 
 __author__ = "Kiran Mathew, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"

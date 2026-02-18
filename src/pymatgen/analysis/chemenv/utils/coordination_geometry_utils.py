@@ -15,9 +15,9 @@ from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from typing import Self
 
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
