@@ -3,12 +3,12 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from itertools import islice
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.io.lobster.future.core import LobsterFile, LobsterInteractionsHolder
+from pymatgen.io.lobster.future.core import LobsterInteractionsHolder
 from pymatgen.io.lobster.future.outputs.coxxcar import COXXCAR
 from pymatgen.io.lobster.future.utils import parse_orbital_from_text
 from pymatgen.io.lobster.future.versioning import version_processor
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from pymatgen.io.lobster.future.types import LobsterInteractionData
 
 
-class ICOXXLIST(LobsterFile, LobsterInteractionsHolder):
+class ICOXXLIST(LobsterInteractionsHolder):
     """Reader for ICOXX data files (ICOHPLIST, ICOOPLIST, ICOBILIST).
 
     Parses interaction data from ICOXXLIST files, including spin-resolved values.
@@ -86,7 +86,11 @@ class ICOXXLIST(LobsterFile, LobsterInteractionsHolder):
                 centers = [first_center, second_center]
                 length = float(matches[2])
 
-                cells = [[], []] if matches[3] is None else [[0, 0, 0], [int(i) for i in matches[3].split()]]
+                cells = (
+                    [[], []]
+                    if matches[3] is None
+                    else [[0, 0, 0], [int(i) for i in matches[3].split()]]
+                )
 
                 bond_tmp: LobsterInteractionData = {
                     "index": index,
@@ -112,7 +116,9 @@ class ICOXXLIST(LobsterFile, LobsterInteractionsHolder):
 
                 interaction_counter += 1
 
-        self.data = np.full((len(self.interactions), len(self.spins)), np.nan, dtype=np.float64)
+        self.data = np.full(
+            (len(self.interactions), len(self.spins)), np.nan, dtype=np.float64
+        )
 
         for i, interaction in enumerate(self.interactions):
             if "icoxx" in interaction:
@@ -166,7 +172,11 @@ class ICOXXLIST(LobsterFile, LobsterInteractionsHolder):
                 ]
                 length = float(matches[2])
 
-                cells = [[], []] if matches[3] is None else [[0, 0, 0], [int(i) for i in matches[3].split()]]
+                cells = (
+                    [[], []]
+                    if matches[3] is None
+                    else [[0, 0, 0], [int(i) for i in matches[3].split()]]
+                )
 
                 bond_tmp: LobsterInteractionData = {
                     "index": index,
@@ -184,7 +194,9 @@ class ICOXXLIST(LobsterFile, LobsterInteractionsHolder):
 
                 self.interactions.append(bond_tmp)
 
-        self.data = np.full((len(self.interactions), len(self.spins)), np.nan, dtype=np.float64)
+        self.data = np.full(
+            (len(self.interactions), len(self.spins)), np.nan, dtype=np.float64
+        )
 
         for i, interaction in enumerate(self.interactions):
             if "icoxx" in interaction:
@@ -219,7 +231,9 @@ class ICOXXLIST(LobsterFile, LobsterInteractionsHolder):
         Returns:
             NDArray[np.floating]: Array of data for specified bonds.
         """
-        interaction_indices = self.get_interaction_indices_by_properties(indices, centers, cells, orbitals, length)
+        interaction_indices = self.get_interaction_indices_by_properties(
+            indices, centers, cells, orbitals, length
+        )
 
         spins = spins or self.spins
         spin_indices = [0 if spin == Spin.up else 1 for spin in spins]
@@ -237,25 +251,6 @@ class ICOXXLIST(LobsterFile, LobsterInteractionsHolder):
             interaction["icoxx"] = {}
             for spin, index in spin_indices.items():
                 interaction["icoxx"][spin] = float(self.data[i, index])
-
-    @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> ICOXXLIST:
-        """Deserialize object from dictionary produced by `as_dict`.
-
-        Args:
-            d (dict): Dictionary produced by `as_dict`.
-
-        Returns:
-            COXXCAR: Reconstructed instance.
-        """
-        instance = super().from_dict(d)
-        instance.data = np.asarray(instance.data, dtype=np.float64)
-
-        instance.process_data_into_interactions()
-
-        return instance
-
-    get_interactions_by_properties = COXXCAR.get_interactions_by_properties
 
 
 class ICOHPLIST(ICOXXLIST):
@@ -327,7 +322,7 @@ class ICOBILIST_LCFO(ICOBILIST):
     is_lcfo: ClassVar[bool] = True
 
 
-class NcICOBILIST(LobsterFile, LobsterInteractionsHolder):
+class NcICOBILIST(LobsterInteractionsHolder):
     """Reader for NcICOBILIST.lobster files.
 
     Parses non-conventional ICOBI interaction data.
@@ -387,7 +382,9 @@ class NcICOBILIST(LobsterFile, LobsterInteractionsHolder):
                     if match := re.search(self.interactions_regex, center):
                         match = match.groups()
                     else:
-                        raise ValueError(f"Could not parse interaction center line: {line}")
+                        raise ValueError(
+                            f"Could not parse interaction center line: {line}"
+                        )
 
                     bond_tmp["centers"].append(match[0])
 
@@ -420,26 +417,28 @@ class NcICOBILIST(LobsterFile, LobsterInteractionsHolder):
                     if "icoxx" in interaction:
                         interaction["icoxx"][Spin.down] = nc_icobi_value
                 else:
-                    raise ValueError(f"Invalid spin value {current_spin} in line: {line}")
+                    raise ValueError(
+                        f"Invalid spin value {current_spin} in line: {line}"
+                    )
 
                 interaction_counter += 1
 
-            self.data = np.full((len(self.interactions), len(self.spins)), np.nan, dtype=np.float64)
+        self.data = np.full(
+            (len(self.interactions), len(self.spins)), np.nan, dtype=np.float64
+        )
 
-            for i, interaction in enumerate(self.interactions):
-                if "icoxx" in interaction:
-                    icoxx = interaction["icoxx"]
-                else:
-                    raise ValueError(f"No ICOXX data found for interaction: {interaction}")
+        for i, interaction in enumerate(self.interactions):
+            if "icoxx" in interaction:
+                icoxx = interaction["icoxx"]
+            else:
+                raise ValueError(f"No ICOXX data found for interaction: {interaction}")
 
-                if Spin.up in icoxx:
-                    self.data[i, 0] = icoxx[Spin.up]
-                if Spin.down in icoxx:
-                    self.data[i, 1] = icoxx[Spin.down]
+            if Spin.up in icoxx:
+                self.data[i, 0] = icoxx[Spin.up]
+            if Spin.down in icoxx:
+                self.data[i, 1] = icoxx[Spin.down]
 
     get_data_by_properties = ICOXXLIST.get_data_by_properties
-
-    get_interactions_by_properties = COXXCAR.get_interactions_by_properties
 
     process_data_into_interactions = ICOXXLIST.process_data_into_interactions
 
@@ -447,20 +446,3 @@ class NcICOBILIST(LobsterFile, LobsterInteractionsHolder):
     def get_default_filename(cls) -> str:
         """Return the default filename for NcICOBILIST."""
         return "NcICOBILIST.lobster"
-
-    @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> NcICOBILIST:
-        """Deserialize object from dictionary produced by `as_dict`.
-
-        Args:
-            d (dict): Dictionary produced by `as_dict`.
-
-        Returns:
-            COXXCAR: Reconstructed instance.
-        """
-        instance = super().from_dict(d)
-
-        instance.data = np.asarray(instance.data, dtype=np.float64)
-        instance.process_data_into_interactions()
-
-        return instance

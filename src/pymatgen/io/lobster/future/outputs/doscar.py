@@ -47,15 +47,14 @@ class DOSCAR(LobsterFile):
         self,
         filename: PathLike | None = None,
         process_immediately: bool = True,
+        lobster_version: str | None = None,
     ) -> None:
         """Initialize a DOSCAR object.
 
         Args:
             filename (PathLike | None): Path to the DOSCAR file, typically "DOSCAR.lobster".
-            structure_file (PathLike | None): Path to the structure file. For VASP, typically "POSCAR".
-                Ignored if `structure` is provided directly.
-            structure (IStructure | None): Structure object. If provided, `structure_file` is ignored.
             process_immediately (bool): Whether to process the file immediately upon initialization.
+            lobster_version (str | None): LOBSTER version string to use for parsing. If None, attempts to detect
 
         Raises:
             ValueError: If neither `structure_file` nor `structure` is provided.
@@ -67,6 +66,7 @@ class DOSCAR(LobsterFile):
         super().__init__(
             filename=filename,
             process_immediately=process_immediately,
+            lobster_version=lobster_version,
         )
 
     @version_processor()

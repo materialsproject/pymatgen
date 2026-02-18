@@ -17,7 +17,13 @@ from pymatgen.io.lobster.future.utils import convert_spin_keys, restore_spin_key
 if TYPE_CHECKING:
     from collections.abc import Callable, Generator
 
-    from pymatgen.io.lobster.future.types import LobsterInteraction, LobsterInteractionData, Spin
+    from numpy.typing import NDArray
+
+    from pymatgen.io.lobster.future.types import (
+        LobsterInteraction,
+        LobsterInteractionData,
+        Spin,
+    )
     from pymatgen.util.typing import PathLike
 
 
@@ -39,16 +45,27 @@ class LobsterFile(MSONable):
 
     spins: list[Spin] | None = None
 
-    def __init__(self, filename: PathLike | None = None, process_immediately: bool = True):
+    def __init__(
+        self,
+        filename: PathLike | None = None,
+        process_immediately: bool = True,
+        lobster_version: str | None = None,
+    ) -> None:
         """
         Initialize a LobsterFile instance.
 
         Args:
             filename (PathLike | None): Path to the file. If None, uses the default filename.
             process_immediately (bool): Whether to process the file immediately upon initialization. Defaults to True.
+            lobster_version (str | None): LOBSTER version string to use for parsing. If None, attempts to detect
+            from file or falls back to default.
         """
-        self.filename = Path(filename or self.get_default_filename()).expanduser().resolve()
-        self.lobster_version = self.get_file_version() or LOBSTER_VERSION
+        self.filename = (
+            Path(filename or self.get_default_filename()).expanduser().resolve()
+        )
+        self.lobster_version = (
+            lobster_version or self.get_file_version() or LOBSTER_VERSION
+        )
 
         if process_immediately:
             self.process()
@@ -91,7 +108,9 @@ class LobsterFile(MSONable):
             minimum_version,
             maximum_version,
         ), processor in self.version_processors.items():
-            if LobsterFile.check_version(self.lobster_version, minimum_version, maximum_version):
+            if LobsterFile.check_version(
+                self.lobster_version, minimum_version, maximum_version
+            ):
                 eligible_methods.append((minimum_version, processor))
 
         if not eligible_methods:
@@ -135,7 +154,6 @@ class LobsterFile(MSONable):
 
         return True
 
-    @abstractmethod
     def get_file_version(self) -> str | None:
         """
         Retrieves the file version. Override in subclasses to extract version from file content if possible.
@@ -143,7 +161,6 @@ class LobsterFile(MSONable):
         Returns:
             str | None: Version string (e.g., "1.2.3") if found, else None.
         """
-        ...
 
     @classmethod
     @abstractmethod
@@ -175,7 +192,7 @@ class LobsterFile(MSONable):
 
             return cast("list[str]", lines)
 
-    def iterate_lines(self) -> Generator[str, None, None]:
+    def iterate_lines(self) -> Generator[str]:
         """
         Iterates over lines in the file, yielding each line as a string.
 
@@ -219,7 +236,9 @@ class LobsterFile(MSONable):
         instance = cls.__new__(cls)
 
         decoded_dictionary = {
-            k: restore_spin_keys(MontyDecoder().process_decoded(v)) for k, v in d.items() if not k.startswith("@")
+            k: restore_spin_keys(MontyDecoder().process_decoded(v))
+            for k, v in d.items()
+            if not k.startswith("@")
         }
 
         for k, v in decoded_dictionary.items():
@@ -250,7 +269,7 @@ class LobsterFile(MSONable):
         return self.has_spin and len(self.spins) > 1
 
 
-class LobsterInteractionsHolder:
+class LobsterInteractionsHolder(LobsterFile):
     """
     Container for LOBSTER interaction data. This class holds interaction metadata. It provides methods for filtering and
     retrieving interaction data based on various criteria.
@@ -259,12 +278,8 @@ class LobsterInteractionsHolder:
         interactions (list[LobsterInteractionData]): List of interaction metadata dicts.
     """
 
-    def __init__(self):
-        """
-        Initializes the LobsterInteractionsHolder object. Attributes are expected to be set by the caller or by
-        deserialization.
-        """
-        self.interactions: list[LobsterInteractionData]
+    interactions: list[LobsterInteractionData]
+    data: NDArray[np.float64]
 
     def get_interaction_indices_by_properties(
         self,
@@ -293,7 +308,13 @@ class LobsterInteractionsHolder:
         matching_sets = []
 
         if indices is not None:
-            matching_sets.append({i for i, bond in enumerate(self.interactions) if bond["index"] in indices})
+            matching_sets.append(
+                {
+                    i
+                    for i, bond in enumerate(self.interactions)
+                    if bond["index"] in indices
+                }
+            )
 
         if centers is not None:
             center_counts = Counter(centers)
@@ -316,16 +337,22 @@ class LobsterInteractionsHolder:
                     i
                     for i, bond in enumerate(self.interactions)
                     if bond.get("cells")
-                    and all(np.all(np.equal(bond.get("cells"), cell), axis=1).any() for cell in cells if cell)
+                    and all(
+                        np.all(np.equal(bond.get("cells"), cell), axis=1).any()
+                        for cell in cells
+                        if cell
+                    )
                 }
             )
 
         if orbitals is not None:
-
             if not orbitals:
                 matching_sets.append(
-                    {i for i, bond in enumerate(self.interactions) 
-                    if all(o is None for o in bond.get("orbitals", []))}
+                    {
+                        i
+                        for i, bond in enumerate(self.interactions)
+                        if all(o is None for o in bond.get("orbitals", []))
+                    }
                 )
             else:
                 orbital_counts = Counter(orbitals)
@@ -335,7 +362,8 @@ class LobsterInteractionsHolder:
                     bond_orbitals = bond.get("orbitals", [])
 
                     if all(
-                        sum(orbital_suffix in b for b in bond_orbitals if b) >= required_count
+                        sum(orbital_suffix in b for b in bond_orbitals if b)
+                        >= required_count
                         for orbital_suffix, required_count in orbital_counts.items()
                     ):
                         matching_orbitals.add(i)
@@ -347,11 +375,40 @@ class LobsterInteractionsHolder:
                 {
                     i
                     for i, bond in enumerate(self.interactions)
-                    if (this_length := bond.get("length")) is not None and length[0] <= this_length <= length[1]
+                    if (this_length := bond.get("length")) is not None
+                    and length[0] <= this_length <= length[1]
                 }
             )
 
         return sorted(set.intersection(*matching_sets)) if matching_sets else []
+
+    def get_interactions_by_properties(
+        self: LobsterInteractionsHolder,
+        indices: list[int] | None = None,
+        centers: list[str] | None = None,
+        cells: list[list[int]] | None = None,
+        orbitals: list[str] | None = None,
+        length: tuple[float, float] | None = None,
+    ) -> list[LobsterInteractionData]:
+        """Return interaction metadata dicts that match the provided filters.
+
+        Args:
+            indices (list[int] | None): Interaction indices to filter.
+            centers (list[str] | None): Atom centers to filter.
+            cells (list[list[int]] | None): Unit cell indices to filter.
+            orbitals (list[str] | None): Orbitals to filter.
+            length (tuple[float, float] | None): Length range to filter.
+
+        Returns:
+            list[dict]: List of interaction dictionaries matching the filters.
+        """
+        interaction_indices = self.get_interaction_indices_by_properties(
+            indices, centers, cells, orbitals, length
+        )
+
+        return [
+            bond for i, bond in enumerate(self.interactions) if i in interaction_indices
+        ]
 
     @staticmethod
     def get_label_from_interaction(
@@ -396,3 +453,30 @@ class LobsterInteractionsHolder:
             parts[-1] += f"({interaction['length']:.3f})"
 
         return "->".join(parts)
+
+    @abstractmethod
+    def process_data_into_interactions(self) -> None:
+        """
+        Abstract method to process raw data into structured interaction metadata. Must be implemented by subclasses.
+        This method should populate the `interactions` attribute based on the raw `data` and any other relevant
+        attributes. The exact processing logic will depend on the specific format and content of the data in the
+        subclass.
+        """
+        ...
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> Self:
+        """Deserialize object from dictionary produced by `as_dict`.
+
+        Args:
+            d (dict): Dictionary produced by `as_dict`.
+
+        Returns:
+            COXXCAR: Reconstructed instance.
+        """
+        instance = super().from_dict(d)
+        instance.data = np.asarray(instance.data, dtype=np.float64)
+
+        instance.process_data_into_interactions()
+
+        return instance

@@ -91,11 +91,9 @@ class LobsterOut(LobsterFile):
         )
 
         self.has_error = "ERROR:" in lines
-    
+
         if self.has_error:
-            self.error_lines = [
-                line for line in lines if line.startswith("ERROR:")
-            ]
+            self.error_lines = [line for line in lines if line.startswith("ERROR:")]
             raise RuntimeError(
                 f"LOBSTER calculation ended with errors:\n{self.error_lines}"
             )

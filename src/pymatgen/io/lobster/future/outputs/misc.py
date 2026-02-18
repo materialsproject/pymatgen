@@ -38,7 +38,13 @@ class Wavefunction(LobsterFile):
         structure (Structure): Structure object associated with the calculation.
     """
 
-    def __init__(self, filename: PathLike, structure: Structure, process_immediately: bool = True) -> None:
+    def __init__(
+        self,
+        filename: PathLike,
+        structure: Structure,
+        process_immediately: bool = True,
+        lobster_version: str | None = None,
+    ) -> None:
         """Initialize the Wavefunction parser.
 
         Args:
@@ -46,7 +52,11 @@ class Wavefunction(LobsterFile):
             structure (Structure): The Structure object.
             process_immediately (bool): Whether to parse the file immediately. Defaults to True.
         """
-        super().__init__(filename, process_immediately=process_immediately)
+        super().__init__(
+            filename,
+            process_immediately=process_immediately,
+            lobster_version=lobster_version,
+        )
 
         self.structure = structure
 
@@ -62,29 +72,36 @@ class Wavefunction(LobsterFile):
         Raises:
             ValueError: If the number of real or imaginary parts does not match the expected grid size.
         """
-        lines = self.lines
+        lines_generator = self.iterate_lines()
 
-        self.points = []
-        self.distances = []
-        self.reals = []
-        self.imaginaries = []
-
-        line_parts = lines[0].split()
+        line_parts = next(lines_generator).split()
 
         self.grid: tuple[int, int, int] = [
             int(line_parts[7]),
             int(line_parts[8]),
             int(line_parts[9]),
         ]
+        n_points = self.grid[0] * self.grid[1] * self.grid[2]
 
-        for line in lines[1:]:
+        self.points = np.empty((n_points, 3), dtype=np.float64)
+        self.distances = np.empty(n_points, dtype=np.float64)
+        self.reals = np.empty(n_points, dtype=np.float64)
+        self.imaginaries = np.empty(n_points, dtype=np.float64)
+
+        i = 0
+        for line in lines_generator:
             line_parts = line.split()
 
             if len(line_parts) >= 6:
-                self.points.append((float(line_parts[0]), float(line_parts[1]), float(line_parts[2])))
-                self.distances.append(float(line_parts[3]))
-                self.reals.append(float(line_parts[4]))
-                self.imaginaries.append(float(line_parts[5]))
+                self.points[i] = (
+                    float(line_parts[0]),
+                    float(line_parts[1]),
+                    float(line_parts[2]),
+                )
+                self.distances[i] = float(line_parts[3])
+                self.reals[i] = float(line_parts[4])
+                self.imaginaries[i] = float(line_parts[5])
+                i += 1
 
         if (
             len(self.reals) != self.grid[0] * self.grid[1] * self.grid[2]
@@ -92,16 +109,9 @@ class Wavefunction(LobsterFile):
         ):
             raise ValueError("Something went wrong while reading the file")
 
-        self.convert_to_numpy_arrays()
-
-    def convert_to_numpy_arrays(self) -> None:
-        """Convert lists in the wave function to numpy arrays."""
-        self.points = np.asarray(self.points, dtype=np.float64)
-        self.distances = np.asarray(self.distances, dtype=np.float64)
-        self.reals = np.asarray(self.reals, dtype=np.float64)
-        self.imaginaries = np.asarray(self.imaginaries, dtype=np.float64)
-
-    def set_volumetric_data(self, grid: tuple[int, int, int], structure: Structure) -> None:
+    def set_volumetric_data(
+        self, grid: tuple[int, int, int], structure: Structure
+    ) -> None:
         """Create VolumetricData instances for real, imaginary, and density parts.
 
         Args:
@@ -124,7 +134,9 @@ class Wavefunction(LobsterFile):
         new_imaginary = []
         new_density = []
 
-        for runner, (x, y, z) in enumerate(itertools.product(range(Nx + 1), range(Ny + 1), range(Nz + 1))):
+        for runner, (x, y, z) in enumerate(
+            itertools.product(range(Nx + 1), range(Ny + 1), range(Nz + 1))
+        ):
             x_here = x / float(Nx) * a[0] + y / float(Ny) * b[0] + z / float(Nz) * c[0]
             y_here = x / float(Nx) * a[1] + y / float(Ny) * b[1] + z / float(Nz) * c[1]
             z_here = x / float(Nx) * a[2] + y / float(Ny) * b[2] + z / float(Nz) * c[2]
@@ -148,15 +160,21 @@ class Wavefunction(LobsterFile):
 
                 new_real.append(self.reals[runner])
                 new_imaginary.append(self.imaginaries[runner])
-                new_density.append(self.reals[runner] ** 2 + self.imaginaries[runner] ** 2)
+                new_density.append(
+                    self.reals[runner] ** 2 + self.imaginaries[runner] ** 2
+                )
 
         self.final_real = np.reshape(new_real, [Nx, Ny, Nz])
         self.final_imaginary = np.reshape(new_imaginary, [Nx, Ny, Nz])
         self.final_density = np.reshape(new_density, [Nx, Ny, Nz])
 
         self.volumetricdata_real = VolumetricData(structure, {"total": self.final_real})
-        self.volumetricdata_imaginary = VolumetricData(structure, {"total": self.final_imaginary})
-        self.volumetricdata_density = VolumetricData(structure, {"total": self.final_density})
+        self.volumetricdata_imaginary = VolumetricData(
+            structure, {"total": self.final_imaginary}
+        )
+        self.volumetricdata_density = VolumetricData(
+            structure, {"total": self.final_density}
+        )
 
     def get_volumetricdata_real(self) -> VolumetricData:
         """Get VolumetricData object for the real part of the wave function.
@@ -222,7 +240,11 @@ class Wavefunction(LobsterFile):
     def from_dict(cls, d: dict[str, Any]) -> Self:
         """"""
         instance = super().from_dict(d)
-        instance.convert_to_numpy_arrays()
+
+        instance.points = np.asarray(instance.points, dtype=np.float64)
+        instance.distances = np.asarray(instance.distances, dtype=np.float64)
+        instance.reals = np.asarray(instance.reals, dtype=np.float64)
+        instance.imaginaries = np.asarray(instance.imaginaries, dtype=np.float64)
 
         return instance
 
@@ -292,7 +314,9 @@ class SitePotentials(LobsterFile):
             if ewald_splitting := re.search(r"splitting parameter\s+(\S+)", line):
                 self.ewald_splitting = float(ewald_splitting.group(1))
 
-            if madelung_energies := re.search(r"Madelung Energy \(eV\)\s*(\S+)\s+(\S+)", line):
+            if madelung_energies := re.search(
+                r"Madelung Energy \(eV\)\s*(\S+)\s+(\S+)", line
+            ):
                 self.madelung_energies_mulliken = float(madelung_energies.group(1))
                 self.madelung_energies_loewdin = float(madelung_energies.group(2))
 
@@ -357,6 +381,7 @@ class LobsterMatrices(LobsterFile):
         matrix_type: str | None = None,
         efermi: float | None = None,
         process_immediately: bool = True,
+        lobster_version: str | None = None,
     ) -> None:
         """Initialize LOBSTER matrices parser.
 
@@ -366,7 +391,11 @@ class LobsterMatrices(LobsterFile):
             efermi: Fermi level in eV (required for Hamilton matrices)
             process_immediately: Whether to parse the file immediately
         """
-        super().__init__(filename=filename, process_immediately=False)
+        super().__init__(
+            filename=filename,
+            process_immediately=False,
+            lobster_version=lobster_version,
+        )
 
         self.efermi = efermi
 
@@ -403,7 +432,11 @@ class LobsterMatrices(LobsterFile):
         Returns:
             None
         """
-        header_regex_pattern = r"kpoint\s+(\d+)" if self.matrix_type == "overlap" else r"(\d+)\s+kpoint\s+(\d+)"
+        header_regex_pattern = (
+            r"kpoint\s+(\d+)"
+            if self.matrix_type == "overlap"
+            else r"(\d+)\s+kpoint\s+(\d+)"
+        )
 
         current_kpoint, current_spin = None, None
         multiplier = 1
@@ -421,15 +454,25 @@ class LobsterMatrices(LobsterFile):
             elif "imag parts" in line.lower():
                 multiplier = 1j
             elif line.startswith("basisfunction"):
-                num_parts = len(re.findall(r"band\s+\d+", line)) if "band" in line else len(line.split()[1:])
+                num_parts = (
+                    len(re.findall(r"band\s+\d+", line))
+                    if "band" in line
+                    else len(line.split()[1:])
+                )
 
                 if current_kpoint not in self.matrices:
                     if current_kpoint is None:
-                        raise ValueError("Could not read any k-point before matrix data.")
+                        raise ValueError(
+                            "Could not read any k-point before matrix data."
+                        )
 
-                    self.matrices[current_kpoint] = {current_spin: np.zeros((num_parts, num_parts), dtype=complex)}
+                    self.matrices[current_kpoint] = {
+                        current_spin: np.zeros((num_parts, num_parts), dtype=complex)
+                    }
                 elif current_spin not in self.matrices[current_kpoint]:
-                    self.matrices[current_kpoint][current_spin] = np.zeros((num_parts, num_parts), dtype=complex)
+                    self.matrices[current_kpoint][current_spin] = np.zeros(
+                        (num_parts, num_parts), dtype=complex
+                    )
 
                 values = []
                 for _ in range(num_parts):
@@ -437,7 +480,10 @@ class LobsterMatrices(LobsterFile):
 
                     values.append([float(val) * multiplier for val in line_split[1:]])
 
-                    if len(self.centers) != num_parts and len(self.orbitals) != num_parts:
+                    if (
+                        len(self.centers) != num_parts
+                        and len(self.orbitals) != num_parts
+                    ):
                         self.centers.append(line_split[0].split("_")[0].title())
                         orbital = parse_orbital_from_text(line_split[0])
 
@@ -448,9 +494,13 @@ class LobsterMatrices(LobsterFile):
 
                         self.orbitals.append(orbital)
 
-                self.matrices[current_kpoint][current_spin] += np.array(values, dtype=complex)
+                self.matrices[current_kpoint][current_spin] += np.array(
+                    values, dtype=complex
+                )
 
-    def get_onsite_values(self, center: str | None = None, orbital: str | None = None) -> dict | float | floating:
+    def get_onsite_values(
+        self, center: str | None = None, orbital: str | None = None
+    ) -> dict | float | floating:
         """Get onsite values for specific centers/orbitals.
 
         Args:
@@ -466,7 +516,11 @@ class LobsterMatrices(LobsterFile):
 
         for i, (c, o) in enumerate(zip(self.centers, self.orbitals, strict=True)):
             if (center is None or c == center) and (orbital is None or o == orbital):
-                values = [m[i, i].real - energy_shift for kpoint in self.matrices.values() for m in kpoint.values()]
+                values = [
+                    m[i, i].real - energy_shift
+                    for kpoint in self.matrices.values()
+                    for m in kpoint.values()
+                ]
                 avg_value = np.mean(values)
 
                 if center and orbital:
@@ -496,7 +550,10 @@ class LobsterMatrices(LobsterFile):
         for kpoint in dictionary["matrices"]:
             for spin in dictionary["matrices"][kpoint]:
                 matrix_data = dictionary["matrices"][kpoint][spin]
-                dictionary["matrices"][kpoint][spin] = {"real": matrix_data.real, "imag": matrix_data.imag}
+                dictionary["matrices"][kpoint][spin] = {
+                    "real": matrix_data.real,
+                    "imag": matrix_data.imag,
+                }
 
         return dictionary
 
@@ -508,7 +565,9 @@ class LobsterMatrices(LobsterFile):
         for kpoint in instance.matrices:
             for spin in instance.matrices[kpoint]:
                 matrix_data = instance.matrices[kpoint][spin]
-                instance.matrices[kpoint][spin] = np.asarray(matrix_data["real"]) + 1j * np.asarray(matrix_data["imag"])
+                instance.matrices[kpoint][spin] = np.asarray(
+                    matrix_data["real"]
+                ) + 1j * np.asarray(matrix_data["imag"])
 
         return instance
 
@@ -537,8 +596,12 @@ class POLARIZATION(LobsterFile):
                 self.rel_mulliken_pol_vector[cleanlines[0]] = float(cleanlines[1])
                 self.rel_loewdin_pol_vector[cleanlines[0]] = float(cleanlines[2])
             if cleanlines and len(cleanlines) == 4:
-                self.rel_mulliken_pol_vector[cleanlines[0].replace(":", "")] = cleanlines[1].replace("\u03bc", "u")
-                self.rel_loewdin_pol_vector[cleanlines[2].replace(":", "")] = cleanlines[3].replace("\u03bc", "u")
+                self.rel_mulliken_pol_vector[cleanlines[0].replace(":", "")] = (
+                    cleanlines[1].replace("\u03bc", "u")
+                )
+                self.rel_loewdin_pol_vector[cleanlines[2].replace(":", "")] = (
+                    cleanlines[3].replace("\u03bc", "u")
+                )
 
     @classmethod
     def get_default_filename(cls) -> str:
@@ -565,6 +628,7 @@ class BWDF(LobsterFile):
         self,
         filename: PathLike | None = None,
         process_immediately: bool = True,
+        lobster_version: str | None = None,
     ) -> None:
         """
         Args:
@@ -575,7 +639,11 @@ class BWDF(LobsterFile):
         self.centers = np.array([])
         self.data = np.array([[]])
 
-        super().__init__(filename=filename, process_immediately=process_immediately)
+        super().__init__(
+            filename=filename,
+            process_immediately=process_immediately,
+            lobster_version=lobster_version,
+        )
 
     @version_processor()
     def parse_file(self) -> None:
@@ -585,7 +653,7 @@ class BWDF(LobsterFile):
             None
         """
         self.bwdf = {}
-        self.data = np.genfromtxt(self.lines[1:], dtype=float)
+        self.data = np.genfromtxt(self.iterate_lines(), dtype=float, skip_header=1)
 
         self.process_data_into_bwdf_centers()
 

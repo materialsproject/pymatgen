@@ -735,7 +735,7 @@ class TestFatbands(MatSciTest):
 
 class TestBandOverlaps(MatSciTest):
     def setup_method(self):
-        with pytest.raises(RuntimeError, match="could not convert string"):
+        with pytest.raises(RuntimeError, match="Incomplete or non-numeric data found in bandOverlaps"):
             self.band_overlaps1 = BandOverlaps(f"{TEST_DIR}/bandOverlaps.lobster.1")
 
         self.band_overlaps1 = BandOverlaps(f"{TEST_DIR}/bandOverlaps.lobster.1", process_immediately=False)

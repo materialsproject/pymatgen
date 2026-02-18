@@ -2,24 +2,22 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
+from itertools import islice
 from typing import TYPE_CHECKING
 
 import numpy as np
-from typing_extensions import Self
 
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.io.lobster.future.core import LobsterFile, LobsterInteractionsHolder
+from pymatgen.io.lobster.future.core import LobsterInteractionsHolder
 from pymatgen.io.lobster.future.versioning import version_processor
 
 if TYPE_CHECKING:
-    from typing import Any, ClassVar, Literal
+    from typing import ClassVar, Literal
 
     from numpy.typing import NDArray
 
-    from pymatgen.io.lobster.future.types import LobsterInteractionData
 
-
-class COXXCAR(LobsterFile, LobsterInteractionsHolder):
+class COXXCAR(LobsterInteractionsHolder):
     """Reader for COXXCAR-style files (COOPCAR, COHPCAR, COBICAR).
 
     Parses LOBSTER's COXXCAR outputs and organizes bond and orbital-resolved interaction data.
@@ -48,13 +46,13 @@ class COXXCAR(LobsterFile, LobsterInteractionsHolder):
         """
         return self.data[:, 0]
 
-    def parse_header(self, lines: list[str]) -> None:
+    def parse_header(self) -> None:
         """Parse the file header and set metadata attributes.
 
         Args:
             lines (list[str]): Lines of the COXXCAR file.
         """
-        data = lines[1].split()
+        data = list(islice(self.iterate_lines(), 2))[1].split()
 
         self.num_bonds = int(data[0])
         self.num_data = int(data[2])
@@ -65,9 +63,7 @@ class COXXCAR(LobsterFile, LobsterInteractionsHolder):
         else:
             self.spins = [Spin.up]
 
-        self.parse_bonds(lines)
-
-    def parse_bonds(self, lines: list[str]) -> None:
+    def parse_bonds(self) -> None:
         """Parse the bonds/interactions header block.
 
         Args:
@@ -75,21 +71,23 @@ class COXXCAR(LobsterFile, LobsterInteractionsHolder):
         """
         self.interactions = []
 
-        if "Average" in lines[2]:
-            self.interactions.append(
-                {
-                    "index": 0,
-                    "centers": ["Average"],
-                    "orbitals": [None],
-                    "cells": [[]],
-                    "length": None,
-                }
-            )
-            start_index = 3
-        else:
-            start_index = 2
+        self.parse_header()
 
-        for line in lines[start_index : self.num_bonds + 2]:
+        lines_generator = islice(self.iterate_lines(), 2, self.num_bonds + 2)
+
+        for line in lines_generator:
+            if "Average" in line:
+                self.interactions.append(
+                    {
+                        "index": 0,
+                        "centers": ["Average"],
+                        "orbitals": [None],
+                        "cells": [[]],
+                        "length": None,
+                    }
+                )
+                continue
+
             bond_index, bond_data = line.split(":", 1)
 
             if bond_regex_results := re.search(r"No\.(\d+)", bond_index):
@@ -129,7 +127,7 @@ class COXXCAR(LobsterFile, LobsterInteractionsHolder):
 
             self.interactions.append(bond)
 
-    def parse_data(self, lines: list[str]) -> None:
+    def parse_data(self) -> None:
         """Parse the numerical data block into `self.data` and validate shape.
 
         Args:
@@ -139,7 +137,7 @@ class COXXCAR(LobsterFile, LobsterInteractionsHolder):
             ValueError: If the parsed data array shape does not match the expected shape.
         """
         self.data = np.genfromtxt(
-            lines,
+            self.iterate_lines(),
             dtype=np.float64,
             skip_header=self.num_bonds + 2,
             loose=False,
@@ -177,12 +175,10 @@ class COXXCAR(LobsterFile, LobsterInteractionsHolder):
                 interaction["icoxx"][Spin.down] = self.data[:, real_indices[3]]
 
     @version_processor(min_version="5.1")
-    def parse_file(self):
+    def parse_file(self) -> None:
         """Parse the full COXXCAR file (header and data)."""
-        lines = self.lines
-
-        self.parse_header(lines)
-        self.parse_data(lines)
+        self.parse_bonds()
+        self.parse_data()
 
     def get_data_indices_by_properties(
         self,
@@ -246,7 +242,9 @@ class COXXCAR(LobsterFile, LobsterInteractionsHolder):
         Returns:
             np.ndarray: Array with shape (n_energies, n_selected_columns).
         """
-        bond_indices = self.get_interaction_indices_by_properties(indices, centers, cells, orbitals, length)
+        bond_indices = self.get_interaction_indices_by_properties(
+            indices, centers, cells, orbitals, length
+        )
         spins = spins or self.spins
 
         return self.data[
@@ -257,30 +255,6 @@ class COXXCAR(LobsterFile, LobsterInteractionsHolder):
                 data_type=data_type,
             ),
         ]
-
-    def get_interactions_by_properties(
-        self: LobsterInteractionsHolder,
-        indices: list[int] | None = None,
-        centers: list[str] | None = None,
-        cells: list[list[int]] | None = None,
-        orbitals: list[str] | None = None,
-        length: tuple[float, float] | None = None,
-    ) -> list[LobsterInteractionData]:
-        """Return interaction metadata dicts that match the provided filters.
-
-        Args:
-            indices (list[int] | None): Interaction indices to filter.
-            centers (list[str] | None): Atom centers to filter.
-            cells (list[list[int]] | None): Unit cell indices to filter.
-            orbitals (list[str] | None): Orbitals to filter.
-            length (tuple[float, float] | None): Length range to filter.
-
-        Returns:
-            list[dict]: List of interaction dictionaries matching the filters.
-        """
-        interaction_indices = self.get_interaction_indices_by_properties(indices, centers, cells, orbitals, length)
-
-        return [bond for i, bond in enumerate(self.interactions) if i in interaction_indices]
 
     def interaction_indices_to_data_indices_mapping(
         self,
@@ -310,7 +284,9 @@ class COXXCAR(LobsterFile, LobsterInteractionsHolder):
             interaction_indices = [interaction_indices]
 
         if set(spins) - set(self.spins):
-            raise ValueError(f"Requested `Spin` {spins} is not valid. Valid `Spin`s are: {self.spins}.")
+            raise ValueError(
+                f"Requested `Spin` {spins} is not valid. Valid `Spin`s are: {self.spins}."
+            )
 
         index_range = np.arange(0, self.num_bonds * 2 * len(spins) + 1)
 
@@ -335,23 +311,6 @@ class COXXCAR(LobsterFile, LobsterInteractionsHolder):
         real_indices = np.intersect1d(real_indices, index_range)
 
         return sorted(real_indices.tolist())
-
-    @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> Self:
-        """Deserialize object from dictionary produced by `as_dict`.
-
-        Args:
-            d (dict): Dictionary produced by `as_dict`.
-
-        Returns:
-            COXXCAR: Reconstructed instance.
-        """
-        instance = super().from_dict(d)
-        instance.data = np.asarray(instance.data, dtype=np.float64)
-
-        instance.process_data_into_interactions()
-
-        return instance
 
 
 class COBICAR(COXXCAR):

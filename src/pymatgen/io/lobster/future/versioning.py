@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from collections.abc import Callable
+from typing import TypeVar
 
-if TYPE_CHECKING:
-    from collections.abc import Callable
+F = TypeVar("F", bound=Callable)
 
 
 def version_processor(
     min_version: str = "0.0", max_version: str | None = None
-) -> Callable[[Callable], Callable]:
+) -> Callable[[F], F]:
     """Decorator to mark a method as a version processor.
 
     Args:
@@ -16,10 +16,10 @@ def version_processor(
         max_version (str | None): Maximum version for which the processor is valid.
 
     Returns:
-        Callable[[Callable], Callable]: Decorator for versioned processor methods.
+        Callable[[F], F]: Decorator for versioned processor methods.
     """
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: F) -> F:
         setattr(func, "version_info", (min_version, max_version))  # NOQA: B010
 
         return func
