@@ -5,6 +5,8 @@ IMolecule and IStructure.
 
 from __future__ import annotations
 
+import collections
+import collections.abc
 import contextlib
 import functools
 import inspect
@@ -18,7 +20,6 @@ import sys
 import warnings
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from collections.abc import Iterable, MutableSequence, Sequence
 from fnmatch import fnmatch
 from typing import TYPE_CHECKING, Literal, cast, get_args, overload
 
@@ -47,7 +48,7 @@ from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supe
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    from collections.abc import Callable, Iterable, Iterator, Sequence
     from typing import Any, ClassVar, Self, SupportsIndex, TypeAlias
 
     import moyopy
@@ -208,7 +209,7 @@ class PeriodicNeighbor(PeriodicSite):
         return super(Site, cls).from_dict(dct)
 
 
-class SiteCollection(Sequence, ABC):
+class SiteCollection(collections.abc.Sequence, ABC):
     """Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
     periodicity) and Structure (a collection of PeriodicSites, i.e.,
@@ -248,7 +249,7 @@ class SiteCollection(Sequence, ABC):
     def sites(self, sites: Sequence[PeriodicSite]) -> None:
         """Set the sites in the Structure."""
         # If self is mutable Structure or Molecule, set _sites as list
-        is_mutable = isinstance(self._sites, MutableSequence)
+        is_mutable = isinstance(self._sites, collections.abc.MutableSequence)
         self._sites: list[PeriodicSite] | tuple[PeriodicSite, ...] = list(sites) if is_mutable else tuple(sites)
 
     @abstractmethod
@@ -1174,7 +1175,7 @@ class IStructure(SiteCollection, MSONable):
         new_charge = self._charge * np.linalg.det(scale_matrix) if self._charge else None
         return Structure.from_sites(new_sites, charge=new_charge, to_unit_cell=True).relabel_sites(ignore_uniq=True)
 
-    def __rmul__(self, scaling_matrix) -> Structure:
+    def __rmul__(self, scaling_matrix):
         """Similar to __mul__ to preserve commutativeness."""
         return self * scaling_matrix
 
@@ -2448,7 +2449,7 @@ class IStructure(SiteCollection, MSONable):
         if not (interpolate_lattices or self.lattice == end_structure.lattice):
             raise ValueError("Structures with different lattices!")
 
-        images = nimages if isinstance(nimages, Iterable) else np.arange(nimages + 1) / nimages
+        images = nimages if isinstance(nimages, collections.abc.Iterable) else np.arange(nimages + 1) / nimages
 
         # Check that both structures have the same species
         for idx, site in enumerate(self):
@@ -4153,7 +4154,7 @@ class IMolecule(SiteCollection, MSONable):
         raise ValueError("Cannot determine file type.")
 
 
-class Structure(IStructure, MutableSequence):
+class Structure(IStructure, collections.abc.MutableSequence):
     """Mutable version of structure."""
 
     __hash__ = None  # type: ignore[assignment]
@@ -4284,7 +4285,7 @@ class Structure(IStructure, MutableSequence):
                     raise ValueError("Site assignments makes sense only for single int indices!")
                 self._sites[ii] = site
 
-            elif isinstance(site, str) or (not isinstance(site, Sequence)):
+            elif isinstance(site, str) or (not isinstance(site, collections.abc.Sequence)):
                 self._sites[ii].species = site  # type: ignore[assignment]
 
             else:
@@ -4682,7 +4683,7 @@ class Structure(IStructure, MutableSequence):
         Returns:
             Structure: self with translated sites.
         """
-        if not isinstance(indices, Iterable):
+        if not isinstance(indices, collections.abc.Iterable):
             indices = [indices]
 
         for idx in indices:
@@ -5078,7 +5079,7 @@ class Structure(IStructure, MutableSequence):
         raise ValueError(f"Unsupported {prototype=}!")
 
 
-class Molecule(IMolecule, MutableSequence):
+class Molecule(IMolecule, collections.abc.MutableSequence):
     """Mutable Molecule. It has all the methods in IMolecule,
     and allows a user to perform edits on the molecule.
     """
@@ -5171,7 +5172,7 @@ class Molecule(IMolecule, MutableSequence):
         for ii in indices:
             if isinstance(site, Site):
                 self._sites[ii] = site
-            elif isinstance(site, str) or not isinstance(site, Sequence):
+            elif isinstance(site, str) or not isinstance(site, collections.abc.Sequence):
                 self._sites[ii].species = site  # type: ignore[assignment]
             else:
                 self._sites[ii].species = site[0]  # type: ignore[assignment, index]
