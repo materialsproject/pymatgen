@@ -22,9 +22,10 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list_pbc
 
 if TYPE_CHECKING:
+    from typing import Self
+
     from matplotlib.axes import Axes
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
     from pymatgen.core.surface import Slab
 

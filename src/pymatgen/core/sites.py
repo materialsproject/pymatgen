@@ -18,10 +18,9 @@ from pymatgen.util.coord import pbc_diff
 from pymatgen.util.misc import is_np_dict_equal
 
 if TYPE_CHECKING:
-    from typing import Any, Literal
+    from typing import Any, Literal, Self
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.util.typing import CompositionLike, SpeciesLike
 

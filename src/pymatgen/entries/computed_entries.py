@@ -26,9 +26,7 @@ from pymatgen.entries import Entry
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing import Literal
-
-    from typing_extensions import Self
+    from typing import Literal, Self
 
     from pymatgen.analysis.phase_diagram import PhaseDiagram
     from pymatgen.core import Structure

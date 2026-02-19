@@ -26,9 +26,10 @@ from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.core import Element, PeriodicNeighbor, PeriodicSite, Species, Structure
 
 if TYPE_CHECKING:
+    from typing import Self
+
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
-    from typing_extensions import Self
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"

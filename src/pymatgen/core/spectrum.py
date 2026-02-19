@@ -15,10 +15,9 @@ from pymatgen.util.coord import get_linear_interpolated_value
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing import Literal
+    from typing import Literal, Self
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
 
 def lorentzian(x: NDArray, x_0: float = 0, sigma: float = 1.0) -> NDArray:

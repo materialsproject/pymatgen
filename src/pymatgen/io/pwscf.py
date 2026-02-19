@@ -14,9 +14,7 @@ from pymatgen.util.io_utils import clean_lines
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import Any, ClassVar
-
-    from typing_extensions import Self
+    from typing import Any, ClassVar, Self
 
 
 class PWInput:

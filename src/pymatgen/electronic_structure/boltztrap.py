@@ -42,10 +42,9 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 if TYPE_CHECKING:
-    from typing import Any, Literal
+    from typing import Any, Literal, Self
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.core.structure import Structure
@@ -1662,7 +1661,7 @@ class BoltztrapAnalyzer:
         for temp in self._hall:
             for i in self._hall[temp]:
                 trace = (i[1][2][0] + i[2][0][1] + i[0][1][2]) / 3.0
-                if trace != 0.0:
+                if not math.isclose(trace, 0.0):
                     result[temp].append(1e-6 / (trace * constants.e))
                 else:
                     result[temp].append(0.0)

@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Literal
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import ArrayLike, NDArray
 
 
 # array size threshold for looping instead of broadcasting
@@ -274,7 +274,7 @@ def is_coord_subset_pbc(
     return coord_cython.is_coord_subset_pbc(c1, c2, np.zeros(3, dtype=np.float64) + atol, mask_arr, pbc)
 
 
-def lattice_points_in_supercell(supercell_matrix):
+def lattice_points_in_supercell(supercell_matrix: ArrayLike) -> NDArray:
     """Get the list of points on the original lattice contained in the
     supercell in fractional coordinates (with the supercell basis).
     e.g. [[2,0,0],[0,1,0],[0,0,1]] returns [[0,0,0],[0.5,0,0]].
