@@ -1125,7 +1125,8 @@ class IStructure(SiteCollection, MSONable):
         self,
         scaling_matrix: int | Sequence[int] | Sequence[Sequence[int]],
     ) -> Structure:
-        """Make a supercell. Allow sites outside the unit cell.
+        """Make a supercell. Allow sites outside the unit cell (would not fold sites
+        into the cell, use `make_supercell(to_unit_cell=True)`).
 
         Args:
             scaling_matrix: A scaling matrix for transforming the lattice
@@ -4801,8 +4802,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
                    c.
                 c. A number, which simply scales all lattice vectors by the
                    same factor.
-            to_unit_cell (bool): Whether or not to fold sites back into the unit cell
-                if they have fractional coords > 1. Defaults to True.
+            to_unit_cell (bool): Whether or not to fold sites in the supercell
+                if they have fractional coords >= 1. Defaults to True.
             in_place (bool): Whether to perform the operation in-place or to return
                 a new Structure object. Defaults to True.
 
