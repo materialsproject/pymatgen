@@ -755,7 +755,7 @@ class CompleteDos(Dos):
                 for orb, pdos in atom_dos.items():
                     if orb in (Orbital.dxy, Orbital.dxz, Orbital.dyz):
                         t2g_dos.append(pdos)
-                    elif orb in (Orbital.dx2, Orbital.dz2):
+                    elif orb in (Orbital.dx2_y2, Orbital.dz2):
                         eg_dos.append(pdos)
         return {
             "t2g": Dos(self.efermi, self.energies, functools.reduce(add_densities, t2g_dos)),
@@ -1459,7 +1459,7 @@ class LobsterCompleteDos(CompleteDos):
 
                     if orbital in (Orbital.dxy, Orbital.dxz, Orbital.dyz):
                         t2g_dos.append(pdos)
-                    elif orbital in (Orbital.dx2, Orbital.dz2):
+                    elif orbital in (Orbital.dx2_y2, Orbital.dz2):
                         eg_dos.append(pdos)
         return {
             "t2g": Dos(self.efermi, self.energies, functools.reduce(add_densities, t2g_dos)),

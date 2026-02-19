@@ -555,7 +555,7 @@ orb_ref_to_o_dict = {
     "dyz": int(Orbital.dyz),
     "dz2": int(Orbital.dz2),
     "dxz": int(Orbital.dxz),
-    "dx2-y2": int(Orbital.dx2),
+    "dx2-y2": int(Orbital.dx2_y2),
     # Keep the f-orbitals arbitrary-ish until they get designated names in pymatgen.
     orb_ref_list[-1][0]: int(Orbital.f_3),
     orb_ref_list[-1][1]: int(Orbital.f_2),

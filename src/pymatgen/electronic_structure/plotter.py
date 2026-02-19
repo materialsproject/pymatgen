@@ -1299,7 +1299,7 @@ class BSPlotterProjected(BSPlotter):
             "dyz": 5,
             "dz2": 6,
             "dxz": 7,
-            "dx2": 8,
+            "dx2_y2": 8,
             "f_3": 9,
             "f_2": 10,
             "f_1": 11,
@@ -1654,7 +1654,7 @@ class BSPlotterProjected(BSPlotter):
             character for the corresponding elements
             and orbitals. List of individual orbitals and their numbers (set up
             by VASP and no special meaning):
-            s = 0; py = 1 pz = 2 px = 3; dxy = 4 dyz = 5 dz2 = 6 dxz = 7 dx2 = 8;
+            s = 0; py = 1 pz = 2 px = 3; dxy = 4 dyz = 5 dz2 = 6 dxz = 7 dx2_y2 = 8;
             f_3 = 9 f_2 = 10 f_1 = 11 f0 = 12 f1 = 13 f2 = 14 f3 = 15
         """
         dictio, sum_morbs = self._Orbitals_SumOrbitals(dictio, sum_morbs)
@@ -1776,7 +1776,7 @@ class BSPlotterProjected(BSPlotter):
             "dxy",
             "dyz",
             "dxz",
-            "dx2",
+            "dx2_y2",
             "dz2",
             "f_3",
             "f_2",
@@ -1788,7 +1788,7 @@ class BSPlotterProjected(BSPlotter):
         ]
         individual_orbs = {
             "p": ["px", "py", "pz"],
-            "d": ["dxy", "dyz", "dxz", "dx2", "dz2"],
+            "d": ["dxy", "dyz", "dxz", "dx2_y2", "dz2"],
             "f": ["f_3", "f_2", "f_1", "f0", "f1", "f2", "f3"],
         }
 
@@ -2045,7 +2045,7 @@ class BSPlotterProjected(BSPlotter):
     def _summarize_keys_for_plot(self, dictio, dictpa, sum_atoms, sum_morbs):
         individual_orbs = {
             "p": ["px", "py", "pz"],
-            "d": ["dxy", "dyz", "dxz", "dx2", "dz2"],
+            "d": ["dxy", "dyz", "dxz", "dx2_y2", "dz2"],
             "f": ["f_3", "f_2", "f_1", "f0", "f1", "f2", "f3"],
         }
 

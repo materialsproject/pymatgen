@@ -332,7 +332,7 @@ class TestCohpcar(MatSciTest):
             *["f_1"] * 4,
             *["f_2"] * 4,
             *["f_3"] * 4,
-            *["dx2"] * 4,
+            *["dx2_y2"] * 4,
             *["dxy"] * 4,
             *["dxz"] * 4,
             *["dyz"] * 4,

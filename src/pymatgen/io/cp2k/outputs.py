@@ -1725,7 +1725,7 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
             if label == "d+1":
                 return "dxz"
             if label == "d+2":
-                return "dx2"
+                return "dx2_y2"
             if label == "f-3":
                 return "f_3"
             if label == "f-2":
