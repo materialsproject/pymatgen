@@ -6355,7 +6355,7 @@ class Vaspout(Vasprun):
 
         # for whatever reason, the naming of orbitals is different in vaspout.h5
         vasp_to_pmg_orb = {
-            "x2-y2": "dx2",
+            "x2-y2": "dx2_y2",
             "fy3x2": "f_3",
             "fxyz": "f_2",
             "fyz2": "f_1",
