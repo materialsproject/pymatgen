@@ -577,7 +577,7 @@ class MagOrderParameterConstraint(MSONable):
 
         if order_parameter > 1 or order_parameter < 0:
             raise ValueError("Order parameter must lie between 0 and 1")
-        if order_parameter != 0.5:
+        if not math.isclose(order_parameter, 0.5):
             warnings.warn(
                 "Use care when using a non-standard order parameter, "
                 "though it can be useful in some cases it can also "
