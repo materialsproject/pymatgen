@@ -1661,7 +1661,7 @@ class BoltztrapAnalyzer:
         for temp in self._hall:
             for i in self._hall[temp]:
                 trace = (i[1][2][0] + i[2][0][1] + i[0][1][2]) / 3.0
-                if trace != 0.0:
+                if not math.isclose(trace, 0.0):
                     result[temp].append(1e-6 / (trace * constants.e))
                 else:
                     result[temp].append(0.0)

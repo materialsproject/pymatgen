@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 import numpy as np
 import pytest
 from pytest import approx
@@ -168,7 +170,7 @@ class TestDftSet(MatSciTest):
             element_defaults=element_defaults,
         )
         fe_kind = dft_set["force_eval"]["subsys"]["Fe_1"]
-        assert fe_kind["magnetization"].values[0] == 4.0
+        assert math.isclose(fe_kind["magnetization"].values[0], 4.0)
 
         # Test 3: Site properties take precedence over element defaults
         fe_structure.add_site_property("magmom", [2.0, -2.0])

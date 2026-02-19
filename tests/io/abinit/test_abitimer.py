@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 import pytest
 
 from pymatgen.io.abinit.abitimer import AbinitTimerParser
@@ -29,7 +31,7 @@ class TestAbinitTimer:
 
         assert len(tparser.timers()) == 1
         timer = tparser.timers()[0]
-        assert timer.cpu_time == 5.1
+        assert math.isclose(timer.cpu_time, 5.1)
         assert timer.get_dataframe() is not None
 
         assert timer.to_table()
@@ -48,7 +50,7 @@ class TestAbinitTimer:
 
         assert len(tparser.timers()) == 1
         timer = tparser.timers()[0]
-        assert timer.cpu_time == 0.3
+        assert math.isclose(timer.cpu_time, 0.3)
         assert timer.get_dataframe() is not None
 
         assert timer.to_table()

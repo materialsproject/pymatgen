@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import gzip
+import math
 import os
 
 import numpy as np
@@ -1677,15 +1678,15 @@ class TestBandoverlaps:
                     # Assert for expected results
                     if (
                         (
-                            actual_deviation == 0.05
+                            math.isclose(actual_deviation, 0.05)
                             and number_occ_bands_spin_up <= 7
                             and number_occ_bands_spin_down <= 7
                             and spin is Spin.up
                         )
-                        or (actual_deviation == 0.05 and spin is Spin.down)
-                        or actual_deviation == 0.1
+                        or (math.isclose(actual_deviation, 0.05) and spin is Spin.down)
+                        or math.isclose(actual_deviation, 0.1)
                         or (
-                            actual_deviation in [0.2, 0.5, 1.0]
+                            any(np.isclose(actual_deviation, [0.2, 0.5, 1.0]))
                             and number_occ_bands_spin_up == 0
                             and number_occ_bands_spin_down == 0
                         )
