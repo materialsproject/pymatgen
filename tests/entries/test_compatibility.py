@@ -2236,6 +2236,20 @@ class TestMaterialsProjectAqueousCompatibility:
         MaterialsProjectAqueousCompatibility().process_entries(entries, inplace=False)
         assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy, strict=True))
 
+    def test_solid_compat_args_propagation(self):
+        hydrate_entry = ComputedEntry(Composition("FeH4O2"), -10)
+
+        compat = MaterialsProjectAqueousCompatibility(
+            o2_energy=-10, h2o_energy=-20, h2o_adjustments=-0.5, solid_compat=MaterialsProject2020Compatibility()
+        )
+
+        # the solid compatibility object raises the error
+        with pytest.raises(CompatibilityError, match="invalid run type"):
+            entries = compat.process_entries([hydrate_entry], on_error="raise")
+
+        entries = compat.process_entries([hydrate_entry], on_error="ignore")
+        assert len(entries) == 0
+
     @pytest.mark.skipif(sys.platform.startswith("win"), reason="Windows broken permissions.")
     def test_parallel_process_entries(self):
         hydrate_entry = ComputedEntry(Composition("FeH4O2"), -10)  # nH2O = 2

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import cmath
 import gzip
 import json
 import logging
@@ -2070,11 +2071,11 @@ class TestWavecar(MatSciTest):
         mesh = self.wavecar.fft_mesh(0, 5)
         ind = np.argmax(np.abs(mesh))
         assert np.unravel_index(ind, mesh.shape) == (14, 1, 1)
-        assert mesh[tuple((self.wavecar.ng / 2).astype(int))] == 0j
+        assert cmath.isclose(mesh[tuple((self.wavecar.ng / 2).astype(int))], 0j)
         mesh = self.wavecar.fft_mesh(0, 5, shift=False)
         ind = np.argmax(np.abs(mesh))
         assert np.unravel_index(ind, mesh.shape) == (6, 8, 8)
-        assert mesh[0, 0, 0] == 0j
+        assert cmath.isclose(mesh[0, 0, 0], 0j)
 
     def test_fft_mesh_advanced(self):
         ik = ib = 0
