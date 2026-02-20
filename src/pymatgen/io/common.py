@@ -24,10 +24,9 @@ from pymatgen.electronic_structure.core import Spin
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from typing import Any, ClassVar, TextIO
+    from typing import Any, ClassVar, Self, TextIO
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.core.structure import IStructure
     from pymatgen.util.typing import PathLike

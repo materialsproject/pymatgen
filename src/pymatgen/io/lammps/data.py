@@ -35,10 +35,9 @@ from pymatgen.util.io_utils import clean_lines
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any, Literal
+    from typing import Any, Literal, Self
 
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
     from pymatgen.core.sites import Site
     from pymatgen.core.structure import IMolecule, IStructure, SiteCollection
@@ -502,7 +501,7 @@ class LammpsData(MSONable):
                 "Dihedral Coeffs",
                 "Improper Coeffs",
             ]:
-                dfs: list[pd.DataFrame] = np.array_split(val, len(val.index))
+                dfs: list[pd.DataFrame] = [val.iloc[i : i + 1] for i in range(len(val.index))]
                 df_string = ""
                 for idx, df in enumerate(dfs):
                     if isinstance(df.iloc[0]["coeff1"], str):

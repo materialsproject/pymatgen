@@ -40,10 +40,9 @@ from pymatgen.util.string import str_delimited
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
-    from typing import Any, ClassVar, Literal
+    from typing import Any, ClassVar, Literal, Self
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.core.structure import IStructure
     from pymatgen.symmetry.bandstructure import HighSymmKpath
@@ -2006,7 +2005,7 @@ class PotcarSingle:
         self.data = data
 
         # VASP parses header in vasprun.xml and this differs from the TITEL
-        self.header = data.split("\n")[0].strip()
+        self.header = data.split("\n", maxsplit=1)[0].strip()
 
         match = re.search(r"(?s)(parameters from PSCTR are:.*?END of PSCTR-controll parameters)", data)
         search_lines = match[1] if match else ""

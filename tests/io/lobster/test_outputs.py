@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import gzip
+import math
 import os
 
 import numpy as np
@@ -1677,15 +1678,15 @@ class TestBandoverlaps:
                     # Assert for expected results
                     if (
                         (
-                            actual_deviation == 0.05
+                            math.isclose(actual_deviation, 0.05)
                             and number_occ_bands_spin_up <= 7
                             and number_occ_bands_spin_down <= 7
                             and spin is Spin.up
                         )
-                        or (actual_deviation == 0.05 and spin is Spin.down)
-                        or actual_deviation == 0.1
+                        or (math.isclose(actual_deviation, 0.05) and spin is Spin.down)
+                        or math.isclose(actual_deviation, 0.1)
                         or (
-                            actual_deviation in [0.2, 0.5, 1.0]
+                            any(np.isclose(actual_deviation, [0.2, 0.5, 1.0]))
                             and number_occ_bands_spin_up == 0
                             and number_occ_bands_spin_down == 0
                         )
@@ -2169,14 +2170,15 @@ class TestIcohplist(MatSciTest):
         assert self.icohp_lcfo_non_orbitalwise.icohplist["16"]["icohp"][Spin.down] == approx(-0.29842)
 
     def test_msonable(self):
-        dict_data = self.icobi_orbitalwise_spinpolarized.as_dict()
-        icohplist_from_dict = Icohplist.from_dict(dict_data)
-        all_attributes = vars(self.icobi_orbitalwise_spinpolarized)
-        for attr_name, attr_value in all_attributes.items():
-            if isinstance(attr_value, IcohpCollection):
-                assert getattr(icohplist_from_dict, attr_name).as_dict() == attr_value.as_dict()
-            else:
-                assert getattr(icohplist_from_dict, attr_name) == attr_value
+        for icohplist_obj in [self.icobi_orbitalwise_spinpolarized, self.icohp_nacl_511_nsp, self.icohp_lcfo]:
+            dict_data = icohplist_obj.as_dict()
+            icohplist_from_dict = Icohplist.from_dict(dict_data)
+            all_attributes = vars(icohplist_obj)
+            for attr_name, attr_value in all_attributes.items():
+                if isinstance(attr_value, IcohpCollection):
+                    assert getattr(icohplist_from_dict, attr_name).as_dict() == attr_value.as_dict()
+                else:
+                    assert getattr(icohplist_from_dict, attr_name) == attr_value
 
     def test_missing_trailing_newline(self):
         fname = f"{self.tmp_path}/icohplist"

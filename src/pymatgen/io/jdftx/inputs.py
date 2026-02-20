@@ -37,10 +37,9 @@ from pymatgen.util.typing import SpeciesLike
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
+    from typing import Any, Self
 
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike
 
@@ -828,7 +827,7 @@ class JDFTXInfile(dict, MSONable):
             bool: Whether the value is numeric.
         """
         # data-types that might accidentally be identified as numeric
-        if type(value) in [bool]:
+        if isinstance(value, bool):
             return False
         try:
             float(value)

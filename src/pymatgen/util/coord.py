@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Literal
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import ArrayLike, NDArray
 
 
 # array size threshold for looping instead of broadcasting
@@ -274,7 +274,7 @@ def is_coord_subset_pbc(
     return coord_cython.is_coord_subset_pbc(c1, c2, np.zeros(3, dtype=np.float64) + atol, mask_arr, pbc)
 
 
-def lattice_points_in_supercell(supercell_matrix):
+def lattice_points_in_supercell(supercell_matrix: ArrayLike) -> NDArray:
     """Get the list of points on the original lattice contained in the
     supercell in fractional coordinates (with the supercell basis).
     e.g. [[2,0,0],[0,1,0],[0,0,1]] returns [[0,0,0],[0.5,0,0]].
@@ -367,14 +367,14 @@ class Simplex(MSONable):
         simplex_dim (int): Dimension of the simplex coordinate space.
     """
 
-    def __init__(self, coords) -> None:
+    def __init__(self, coords: Sequence[Sequence[float]]) -> None:
         """Initialize a Simplex from vertex coordinates.
 
         Args:
             coords ([[float]]): Coords of the vertices of the simplex. e.g.
                 [[1, 2, 3], [2, 4, 5], [6, 7, 8], [8, 9, 10].
         """
-        self._coords = np.array(coords)
+        self._coords = np.asarray(coords)
         self.space_dim, self.simplex_dim = self._coords.shape
         self.origin = self._coords[-1]
         if self.space_dim == self.simplex_dim + 1:
@@ -382,12 +382,25 @@ class Simplex(MSONable):
             self._aug = np.concatenate([coords, np.ones((self.space_dim, 1))], axis=-1)
             self._aug_inv = np.linalg.inv(self._aug)
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Simplex):
+            return NotImplemented
+        return any(np.allclose(p, other.coords) for p in itertools.permutations(self._coords))
+
+    def __hash__(self) -> int:
+        return len(self._coords)
+
+    def __repr__(self) -> str:
+        output = [f"{self.simplex_dim}-simplex in {self.space_dim}D space\nVertices:"]
+        output += [f"\t({', '.join(map(str, coord))})" for coord in self._coords]
+        return "\n".join(output)
+
     @property
     def volume(self) -> float:
         """Volume of the simplex."""
         return abs(np.linalg.det(self._aug)) / math.factorial(self.simplex_dim)
 
-    def bary_coords(self, point):
+    def bary_coords(self, point: ArrayLike) -> np.ndarray:
         """
         Args:
             point (ArrayLike): Point coordinates.
@@ -400,7 +413,7 @@ class Simplex(MSONable):
         except AttributeError as exc:
             raise ValueError("Simplex is not full-dimensional") from exc
 
-    def point_from_bary_coords(self, bary_coords: ArrayLike):
+    def point_from_bary_coords(self, bary_coords: ArrayLike) -> np.ndarray:
         """
         Args:
             bary_coords (ArrayLike): Barycentric coordinates (d+1, d).
@@ -428,9 +441,14 @@ class Simplex(MSONable):
             point (list[float]): Point to test
             tolerance (float): Tolerance to test if point is in simplex.
         """
-        return (self.bary_coords(point) >= -tolerance).all()
+        return bool((self.bary_coords(point) >= -tolerance).all())
 
-    def line_intersection(self, point1: Sequence[float], point2: Sequence[float], tolerance: float = 1e-8):
+    def line_intersection(
+        self,
+        point1: Sequence[float],
+        point2: Sequence[float],
+        tolerance: float = 1e-8,
+    ) -> list[np.ndarray]:
         """Compute the intersection points of a line with a simplex.
 
         Args:
@@ -464,19 +482,6 @@ class Simplex(MSONable):
         if len(barys) >= 3:
             raise ValueError("More than 2 intersections found")
         return [self.point_from_bary_coords(b) for b in barys]
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Simplex):
-            return NotImplemented
-        return any(np.allclose(p, other.coords) for p in itertools.permutations(self._coords))
-
-    def __hash__(self) -> int:
-        return len(self._coords)
-
-    def __repr__(self) -> str:
-        output = [f"{self.simplex_dim}-simplex in {self.space_dim}D space\nVertices:"]
-        output += [f"\t({', '.join(map(str, coord))})" for coord in self._coords]
-        return "\n".join(output)
 
     @property
     def coords(self) -> np.ndarray:

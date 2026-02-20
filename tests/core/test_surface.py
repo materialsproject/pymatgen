@@ -163,30 +163,30 @@ class TestSlab(MatSciTest):
         assert_allclose(slab.dipole, [-4.209, 0, 0])
         assert slab.is_polar()
 
-    def test_surface_sites_and_symmetry(self):
+    @pytest.mark.parametrize("center_slab", [True, False])
+    def test_surface_sites_and_symmetry(self, center_slab):
         # test if surfaces are equivalent by using
         # Laue symmetry and surface site equivalence
 
-        for boolean in [True, False]:
-            # We will also set the slab to be centered and
-            # off centered in order to test the center of mass
-            slab_gen = SlabGenerator(self.ag_fcc, (3, 1, 0), 10, 10, center_slab=boolean)
-            slab = slab_gen.get_slabs()[0]
-            surf_sites_dict = slab.get_surface_sites()
-            assert len(surf_sites_dict["top"]) == len(surf_sites_dict["bottom"])
-            total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict)
-            assert slab.is_symmetric()
-            assert total_surf_sites / 2 == 4
+        # We will also set the slab to be centered and
+        # off centered in order to test the center of mass
+        slab_gen = SlabGenerator(self.ag_fcc, (3, 1, 0), 10, 10, center_slab=center_slab)
+        slab = slab_gen.get_slabs()[0]
+        surf_sites_dict = slab.get_surface_sites()
+        assert len(surf_sites_dict["top"]) == len(surf_sites_dict["bottom"])
+        total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict)
+        assert slab.is_symmetric()
+        assert total_surf_sites == 8
 
-            # Test if the ratio of surface sites per area is
-            # constant, i.e. are the surface energies the same?
-            r1 = total_surf_sites / (2 * slab.surface_area)
-            slab_gen = SlabGenerator(self.ag_fcc, (3, 1, 0), 10, 10, primitive=False)
-            slab = slab_gen.get_slabs()[0]
-            surf_sites_dict = slab.get_surface_sites()
-            total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict)
-            r2 = total_surf_sites / (2 * slab.surface_area)
-            assert_allclose(r1, r2)
+        # Test if the ratio of surface sites per area is
+        # constant, i.e. are the surface energies the same?
+        r1 = total_surf_sites / (2 * slab.surface_area)
+        slab_gen = SlabGenerator(self.ag_fcc, (3, 1, 0), 10, 10, primitive=False)
+        slab = slab_gen.get_slabs()[0]
+        surf_sites_dict = slab.get_surface_sites()
+        total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict)
+        r2 = total_surf_sites / (2 * slab.surface_area)
+        assert_allclose(r1, r2)
 
     def test_symmetrization(self):
         # Restricted to primitive_elemental materials due to the risk of

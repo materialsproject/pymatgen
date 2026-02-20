@@ -18,9 +18,7 @@ from monty.json import MSONable
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing import ClassVar
-
-    from typing_extensions import Self
+    from typing import ClassVar, Self
 
 __author__ = "Xiaohui Qu"
 __copyright__ = "Copyright 2011, The Materials Project"

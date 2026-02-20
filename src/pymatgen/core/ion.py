@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import re
 from typing import TYPE_CHECKING
 
@@ -12,7 +13,7 @@ from pymatgen.core.composition import Composition, reduce_formula
 from pymatgen.util.string import Stringify, charge_string, formula_double_format
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 
 class Ion(Composition, MSONable, Stringify):
@@ -227,7 +228,7 @@ class Ion(Composition, MSONable, Stringify):
         elif formula == "CSN":
             formula = "SCN"
         # triiodide, nitride, an phosphide
-        elif (formula in ["N", "P"] and self.charge == -1) or (formula == "I" and self.charge == 1 / 3):
+        elif (formula in ["N", "P"] and self.charge == -1) or (formula == "I" and math.isclose(self.charge, 1 / 3)):
             formula += "3"
             factor /= 3
         # formate # codespell:ignore
