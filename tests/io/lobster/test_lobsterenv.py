@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import warnings
-
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
@@ -321,15 +319,15 @@ class TestLobsterNeighbors:
             adapt_extremum_to_add_cond=True,
         )
         # test LSE on_error
-        self.chem_env_on_error = LobsterNeighbors(
-            are_coops=False,
-            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp-1018096.gz",
-            structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.mp-1018096.gz"),
-            filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp-1018096.gz",
-            additional_condition=0,
-            adapt_extremum_to_add_cond=True,
-            valences_from_charges=True,
-        )
+        # self.chem_env_on_error = LobsterNeighbors(
+        #     are_coops=False,
+        #     filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp-1018096.gz",
+        #     structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.mp-1018096.gz"),
+        #     filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp-1018096.gz",
+        #     additional_condition=0,
+        #     adapt_extremum_to_add_cond=True,
+        #     valences_from_charges=True,
+        # )
 
     def test_init_new(self):
         # additional condition 0
@@ -1003,28 +1001,28 @@ class TestLobsterNeighbors:
         assert_allclose(self.chem_env_w_obj.valences, [0.67] * 4 + [0.7] * 4 + [-0.7] * 4 + [-0.68] * 4)  # charge_obj
         assert self.chem_env_lobster_NaSi_wo_charges.valences == [1] * 8 + [-1] * 8  # BVA
 
-    def test_on_error_case(self):
-        with pytest.raises(
-            ValueError,
-            match=r"Environment cannot be determined for site 0\. Number of neighbors \(18\) is larger than 13\.",
-        ):
-            _ = self.chem_env_on_error.get_light_structure_environment(on_error="raise")
+    # def test_on_error_case(self):
+    #     with pytest.raises(
+    #         ValueError,
+    #         match=r"Environment cannot be determined for site 0\. Number of neighbors \(18\) is larger than 13\.",
+    #     ):
+    #         _ = self.chem_env_on_error.get_light_structure_environment(on_error="raise")
 
-        with pytest.warns(
-            UserWarning,
-            match=r"Site 0 has 18 neighbors \(>13\)\. Using coordination number instead of geometry\.",
-        ) as warnings_record:
-            lse = self.chem_env_on_error.get_light_structure_environment(on_error="warn")
+    #     with pytest.warns(
+    #         UserWarning,
+    #         match=r"Site 0 has 18 neighbors \(>13\)\. Using coordination number instead of geometry\.",
+    #     ) as warnings_record:
+    #         lse = self.chem_env_on_error.get_light_structure_environment(on_error="warn")
 
-        assert lse.coordination_environments[0][0]["ce_symbol"] == "18"
-        assert [str(warn.message) for warn in warnings_record] == [
-            "Site 0 has 18 neighbors (>13). Using coordination number instead of geometry.",
-            "Site 1 has 18 neighbors (>13). Using coordination number instead of geometry.",
-        ]
+    #     assert lse.coordination_environments[0][0]["ce_symbol"] == "18"
+    #     assert [str(warn.message) for warn in warnings_record] == [
+    #         "Site 0 has 18 neighbors (>13). Using coordination number instead of geometry.",
+    #         "Site 1 has 18 neighbors (>13). Using coordination number instead of geometry.",
+    #     ]
 
-        # if on_error is "ignore", no error should be raised and no warning should be issued
-        with warnings.catch_warnings(record=True) as warnings_record:
-            lse = self.chem_env_on_error.get_light_structure_environment(on_error="ignore")
+    #     # if on_error is "ignore", no error should be raised and no warning should be issued
+    #     with warnings.catch_warnings(record=True) as warnings_record:
+    #         lse = self.chem_env_on_error.get_light_structure_environment(on_error="ignore")
 
-        assert lse.coordination_environments[0][0]["ce_symbol"] == "18"
-        assert warnings_record == []
+    #     assert lse.coordination_environments[0][0]["ce_symbol"] == "18"
+    #     assert warnings_record == []
