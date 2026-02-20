@@ -138,6 +138,7 @@ class Lobsterin(UserDict, MSONable):
         "createFatband",
         "customSTOforAtom",
         "cobiBetween",
+        "molecule",
         "printLmosOnAtomswriteAtomicDensities",
     )
 
