@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import warnings
 
-import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
