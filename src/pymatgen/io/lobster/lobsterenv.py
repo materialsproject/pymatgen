@@ -271,6 +271,7 @@ class LobsterNeighbors(NearNeighbors):
         bonding_list_2: Icohplist | None = None,
         id_blist_sg1: Literal["icoop", "icobi"] = "icoop",
         id_blist_sg2: Literal["icoop", "icobi"] = "icobi",
+        backward_compatibility: bool = False,
     ):
         """
         Args:
@@ -307,6 +308,7 @@ class LobsterNeighbors(NearNeighbors):
             bonding_list_2 (Icohplist): Additional ICOOP, ICOBI data for structure graphs.
             id_blist_sg1 ("icoop" | "icobi"): Identity of data in bonding_list_1.
             id_blist_sg2 ("icoop" | "icobi"): Identity of data in bonding_list_2.
+            backward_compatibility (bool): If True, will use the old behavior of the code.
         """
         self.structure = structure
         self.ICOHP = icoxxlist_obj
@@ -325,6 +327,8 @@ class LobsterNeighbors(NearNeighbors):
         self.additional_condition = additional_condition
         self.are_coops = are_coops
         self.are_cobis = are_cobis
+
+        self.backward_compatibility = backward_compatibility
 
         # validate
         if self.id_blist_sg1 not in {"icoop", "icobi"} or self.id_blist_sg2 not in {"icoop", "icobi"}:

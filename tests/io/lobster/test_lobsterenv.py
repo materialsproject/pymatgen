@@ -48,8 +48,8 @@ class TestLobsterNeighbors:
         # test __init_new__ using from_files
         self.chem_env_lobster0_from_file = LobsterNeighbors.from_files(
             are_coops=False,
-            structure_path=f"{TEST_DIR}/POSCAR.mp_190.gz",
-            icoxxlist_path=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
+            structure_path=f"{TEST_DIR}/CONTCAR.mp-190.gz",
+            icoxxlist_path=f"{TEST_DIR}/ICOHPLIST.lobster.mp-190.gz",
             additional_condition=0,
         )
 
@@ -63,8 +63,8 @@ class TestLobsterNeighbors:
 
         self.chem_env_lobster5_from_file = LobsterNeighbors.from_files(
             are_coops=False,
-            structure_path=f"{TEST_DIR}/POSCAR.mp_190.gz",
-            icoxxlist_path=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
+            structure_path=f"{TEST_DIR}/CONTCAR.mp-190.gz",
+            icoxxlist_path=f"{TEST_DIR}/ICOHPLIST.lobster.mp-190.gz",
             additional_condition=5,
         )
 
@@ -78,8 +78,8 @@ class TestLobsterNeighbors:
 
         self.chem_env_lobster6_from_file = LobsterNeighbors.from_files(
             are_coops=False,
-            structure_path=f"{TEST_DIR}/POSCAR.mp_190.gz",
-            icoxxlist_path=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
+            structure_path=f"{TEST_DIR}/CONTCAR.mp-190.gz",
+            icoxxlist_path=f"{TEST_DIR}/ICOHPLIST.lobster.mp-190.gz",
             additional_condition=6,
         )
 
@@ -161,7 +161,7 @@ class TestLobsterNeighbors:
 
         self.chem_env_lobster1_coop_NaCl_from_file = LobsterNeighbors.from_files(
             are_coops=True,
-            structure_path=f"{TEST_DIR}/POSCAR.NaCl.gz",
+            structure_path=f"{TEST_DIR}/CONTCAR.NaCl.gz",
             icoxxlist_path=f"{TEST_DIR}/ICOOPLIST.lobster.NaCl.gz",
             additional_condition=1,
             noise_cutoff=None,
@@ -177,7 +177,7 @@ class TestLobsterNeighbors:
 
         self.chem_env_lobster1_cobi_NaCl_from_file = LobsterNeighbors.from_files(
             are_coops=True,
-            structure_path=f"{TEST_DIR}/POSCAR.NaCl.gz",
+            structure_path=f"{TEST_DIR}/CONTCAR.NaCl.gz",
             icoxxlist_path=f"{TEST_DIR}/ICOBILIST.lobster.NaCl.gz",
             additional_condition=1,
             noise_cutoff=None,
