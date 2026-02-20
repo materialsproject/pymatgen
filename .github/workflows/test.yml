@@ -71,7 +71,8 @@ jobs:
     steps:
       - name: Check out repo
         uses: actions/checkout@v5
-
+        with:
+          submodules: true
       - name: Create mamba environment
         uses: mamba-org/setup-micromamba@main
         with:
@@ -114,7 +115,7 @@ jobs:
         env:
           MPLBACKEND: Agg # non-interactive backend for matplotlib
           PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
-          PMG_TEST_FILES_DIR: "${{ github.workspace }}/tests/files"
+          PMG_TEST_FILES_DIR: "${{ github.workspace }}/pymatgen-test-files"
           PYTHONWARNDEFAULTENCODING: "true" # PEP 597: Enable optional EncodingWarning
         run: |
           pytest tests \
