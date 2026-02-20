@@ -194,7 +194,7 @@ class JElStep:
             fillings_line (str): A line of text from a JDFTx out file containing the electronic
             minimization data.
         """
-        _fillings_line = fillings_line.split("magneticMoment: [ ")[1].split(" ]")[0].strip()
+        _fillings_line = fillings_line.split("magneticMoment: [ ")[1].split(" ]", maxsplit=1)[0].strip()
         self.abs_magneticmoment = get_colon_val(_fillings_line, "Abs: ")
         self.tot_magneticmoment = get_colon_val(_fillings_line, "Tot: ")
 
@@ -567,5 +567,5 @@ def _read_converged_line(line_text: str) -> tuple[None | bool, None | str]:
         convergence for a JDFTx optimization step.
     """
     converged = True
-    converged_reason = line_text.split("(")[1].split(")")[0].strip()
+    converged_reason = line_text.split("(")[1].split(")", maxsplit=1)[0].strip()
     return converged, converged_reason
