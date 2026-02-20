@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import warnings
+
+import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -43,6 +46,13 @@ class TestLobsterNeighbors:
             structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.mp-190.gz"),
             additional_condition=0,
         )
+        # test __init_new__ using from_files
+        self.chem_env_lobster0_from_file = LobsterNeighbors.from_files(
+            are_coops=False,
+            structure_path=f"{TEST_DIR}/POSCAR.mp_190.gz",
+            icoxxlist_path=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
+            additional_condition=0,
+        )
 
         # only cation-cation, anion-anion bonds
         self.chem_env_lobster5 = LobsterNeighbors(
@@ -52,11 +62,25 @@ class TestLobsterNeighbors:
             additional_condition=5,
         )
 
+        self.chem_env_lobster5_from_file = LobsterNeighbors.from_files(
+            are_coops=False,
+            structure_path=f"{TEST_DIR}/POSCAR.mp_190.gz",
+            icoxxlist_path=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
+            additional_condition=5,
+        )
+
         # only cation-cation bonds
         self.chem_env_lobster6 = LobsterNeighbors(
             are_coops=False,
             filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp-190.gz",
             structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.mp-190.gz"),
+            additional_condition=6,
+        )
+
+        self.chem_env_lobster6_from_file = LobsterNeighbors.from_files(
+            are_coops=False,
+            structure_path=f"{TEST_DIR}/POSCAR.mp_190.gz",
+            icoxxlist_path=f"{TEST_DIR}/ICOHPLIST.lobster.mp_190.gz",
             additional_condition=6,
         )
 
@@ -136,10 +160,26 @@ class TestLobsterNeighbors:
             noise_cutoff=None,
         )
 
+        self.chem_env_lobster1_coop_NaCl_from_file = LobsterNeighbors.from_files(
+            are_coops=True,
+            structure_path=f"{TEST_DIR}/POSCAR.NaCl.gz",
+            icoxxlist_path=f"{TEST_DIR}/ICOOPLIST.lobster.NaCl.gz",
+            additional_condition=1,
+            noise_cutoff=None,
+        )
+
         self.chem_env_lobster1_cobi_NaCl = LobsterNeighbors(
             are_coops=True,
             filename_icohp=f"{TEST_DIR}/ICOBILIST.lobster.NaCl.gz",
             structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.NaCl.gz"),
+            additional_condition=1,
+            noise_cutoff=None,
+        )
+
+        self.chem_env_lobster1_cobi_NaCl_from_file = LobsterNeighbors.from_files(
+            are_coops=True,
+            structure_path=f"{TEST_DIR}/POSCAR.NaCl.gz",
+            icoxxlist_path=f"{TEST_DIR}/ICOBILIST.lobster.NaCl.gz",
             additional_condition=1,
             noise_cutoff=None,
         )
@@ -285,6 +325,58 @@ class TestLobsterNeighbors:
             additional_condition=0,
             adapt_extremum_to_add_cond=True,
         )
+        # test LSE on_error
+        self.chem_env_on_error = LobsterNeighbors(
+            are_coops=False,
+            filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp-1018096.gz",
+            structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.mp-1018096.gz"),
+            filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp-1018096.gz",
+            additional_condition=0,
+            adapt_extremum_to_add_cond=True,
+            valences_from_charges=True,
+        )
+
+    def test_init_new(self):
+        # additional condition 0
+        ref_lse = self.chem_env_lobster0.get_light_structure_environment(only_cation_environments=False)
+        test_lse = self.chem_env_lobster0_from_file.get_light_structure_environment(only_cation_environments=False)
+
+        assert self.chem_env_lobster0.anion_types == self.chem_env_lobster0_from_file.anion_types
+        assert ref_lse.coordination_environments == test_lse.coordination_environments
+        assert ref_lse.valences == test_lse.valences
+
+        # additional condition 5
+        ref_lse = self.chem_env_lobster5.get_light_structure_environment(only_cation_environments=False)
+        test_lse = self.chem_env_lobster5_from_file.get_light_structure_environment(only_cation_environments=False)
+
+        assert self.chem_env_lobster5.anion_types == self.chem_env_lobster5_from_file.anion_types
+        assert ref_lse.coordination_environments == test_lse.coordination_environments
+        assert ref_lse.valences == test_lse.valences
+
+        # additional condition 6
+        ref_lse = self.chem_env_lobster6.get_light_structure_environment(only_cation_environments=False)
+        test_lse = self.chem_env_lobster6_from_file.get_light_structure_environment(only_cation_environments=False)
+        assert self.chem_env_lobster6.anion_types == self.chem_env_lobster6_from_file.anion_types
+        assert ref_lse.coordination_environments == test_lse.coordination_environments
+        assert ref_lse.valences == test_lse.valences
+
+        # coop NaCl
+        ref_lse = self.chem_env_lobster1_coop_NaCl.get_light_structure_environment(only_cation_environments=False)
+        test_lse = self.chem_env_lobster1_coop_NaCl_from_file.get_light_structure_environment(
+            only_cation_environments=False
+        )
+        assert self.chem_env_lobster1_coop_NaCl.anion_types == self.chem_env_lobster1_coop_NaCl_from_file.anion_types
+        assert ref_lse.coordination_environments == test_lse.coordination_environments
+        assert ref_lse.valences == test_lse.valences
+
+        # cobi NaCl
+        ref_lse = self.chem_env_lobster1_cobi_NaCl.get_light_structure_environment(only_cation_environments=False)
+        test_lse = self.chem_env_lobster1_cobi_NaCl_from_file.get_light_structure_environment(
+            only_cation_environments=False
+        )
+        assert self.chem_env_lobster1_cobi_NaCl.anion_types == self.chem_env_lobster1_cobi_NaCl_from_file.anion_types
+        assert ref_lse.coordination_environments == test_lse.coordination_environments
+        assert ref_lse.valences == test_lse.valences
 
     def test_cation_anion_mode_without_ions(self):
         with pytest.raises(
@@ -865,7 +957,7 @@ class TestLobsterNeighbors:
             structure_file=f"{TEST_DIR}/CONTCAR.NaSi.gz",
         )
         plot_label_obj, _summed_cohpcar_NaSi_obj = self.chem_env_w_obj.get_info_cohps_to_neighbors(
-            obj_cohpcar=obj_cohpcar,
+            coxxcar_obj=obj_cohpcar,
             isites=[8],
             onlycation_isites=False,
             only_bonds_to=["Na"],
@@ -941,3 +1033,29 @@ class TestLobsterNeighbors:
                 structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.mp-190.gz"),
                 backward_compatibility=True,
             )
+
+    def test_on_error_case(self):
+        with pytest.raises(
+            ValueError,
+            match=r"Environment cannot be determined for site 0\. Number of neighbors \(18\) is larger than 13\.",
+        ):
+            _ = self.chem_env_on_error.get_light_structure_environment(on_error="raise")
+
+        with pytest.warns(
+            UserWarning,
+            match=r"Site 0 has 18 neighbors \(>13\)\. Using coordination number instead of geometry\.",
+        ) as warnings_record:
+            lse = self.chem_env_on_error.get_light_structure_environment(on_error="warn")
+
+        assert lse.coordination_environments[0][0]["ce_symbol"] == "18"
+        assert [str(warn.message) for warn in warnings_record] == [
+            "Site 0 has 18 neighbors (>13). Using coordination number instead of geometry.",
+            "Site 1 has 18 neighbors (>13). Using coordination number instead of geometry.",
+        ]
+
+        # if on_error is "ignore", no error should be raised and no warning should be issued
+        with warnings.catch_warnings(record=True) as warnings_record:
+            lse = self.chem_env_on_error.get_light_structure_environment(on_error="ignore")
+
+        assert lse.coordination_environments[0][0]["ce_symbol"] == "18"
+        assert warnings_record == []
