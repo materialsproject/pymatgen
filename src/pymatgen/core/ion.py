@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import re
 from typing import TYPE_CHECKING
 
@@ -227,7 +228,7 @@ class Ion(Composition, MSONable, Stringify):
         elif formula == "CSN":
             formula = "SCN"
         # triiodide, nitride, an phosphide
-        elif (formula in ["N", "P"] and self.charge == -1) or (formula == "I" and self.charge == 1 / 3):
+        elif (formula in ["N", "P"] and self.charge == -1) or (formula == "I" and math.isclose(self.charge, 1 / 3)):
             formula += "3"
             factor /= 3
         # formate # codespell:ignore

@@ -134,9 +134,7 @@ class GROSSPOP(LobsterFile):
                 for i, spin in enumerate(self.spins):
                     populations[spin] = {}
                     for j, key in enumerate(keys):
-                        populations[spin][key] = float(
-                            groups[3 + i + j * len(self.spins)]
-                        )
+                        populations[spin][key] = float(groups[3 + i + j * len(self.spins)])
 
     @classmethod
     def get_default_filename(cls) -> str:

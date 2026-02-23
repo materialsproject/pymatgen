@@ -10,14 +10,7 @@ DOI: 10.1002/cplu.202200123.
 from __future__ import annotations
 
 from pymatgen.io.lobster.future.outputs.bands import BandOverlaps, Fatband, Fatbands
-from pymatgen.io.lobster.future.outputs.coxxcar import (
-    COBICAR,
-    COBICAR_LCFO,
-    COHPCAR,
-    COHPCAR_LCFO,
-    COOPCAR,
-    COXXCAR,
-)
+from pymatgen.io.lobster.future.outputs.coxxcar import COBICAR, COBICAR_LCFO, COHPCAR, COHPCAR_LCFO, COOPCAR, COXXCAR
 from pymatgen.io.lobster.future.outputs.doscar import DOSCAR, DOSCAR_LCFO
 from pymatgen.io.lobster.future.outputs.icoxxlist import (
     ICOBILIST,
@@ -38,12 +31,7 @@ from pymatgen.io.lobster.future.outputs.misc import (
     SitePotentials,
     Wavefunction,
 )
-from pymatgen.io.lobster.future.outputs.populations import (
-    CHARGE,
-    CHARGE_LCFO,
-    GROSSPOP,
-    GROSSPOP_LCFO,
-)
+from pymatgen.io.lobster.future.outputs.populations import CHARGE, CHARGE_LCFO, GROSSPOP, GROSSPOP_LCFO
 from pymatgen.util.due import Doi, due  # type: ignore[import]
 
 __author__ = "Tom Demeyere"

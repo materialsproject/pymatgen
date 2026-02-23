@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from dataclasses import asdict
 
 import numpy as np
@@ -218,7 +219,8 @@ class TestSpacegroupAnalyzer(MatSciTest):
         refined_struct = sg.get_refined_structure(keep_site_properties=True)
         assert len(refined_struct) != len(structure), "this test is only interesting if the number of sites changes"
         for site in refined_struct:
-            assert (1.0 if site.specie.name == "Dy" else -1.0) == site.properties["magmom"]
+            expected_magmom = 1.0 if site.specie.name == "Dy" else -1.0
+            assert math.isclose(expected_magmom, site.properties["magmom"])
 
     def test_symmetrized_structure(self):
         symm_struct = self.sg.get_symmetrized_structure()
@@ -283,7 +285,8 @@ class TestSpacegroupAnalyzer(MatSciTest):
             "this test is only interesting if the number of sites changes"
         )
         for site in primitive_structure:
-            assert (1.0 if site.specie.name == "Na" else -1.0) == site.properties["magmom"]
+            expected_magmom = 1.0 if site.specie.name == "Na" else -1.0
+            assert math.isclose(expected_magmom, site.properties["magmom"])
 
     def test_get_ir_reciprocal_mesh(self):
         grid = self.sg.get_ir_reciprocal_mesh()

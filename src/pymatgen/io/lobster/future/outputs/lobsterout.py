@@ -62,18 +62,9 @@ class LobsterOut(LobsterFile):
         """
         lines = self.lines
 
-        self.has_cohpcar = (
-            "writing COOPCAR.lobster..." in lines
-            and "SKIPPING writing COOPCAR.lobster..." not in lines
-        )
-        self.has_coopcar = (
-            "writing COHPCAR.lobster..." in lines
-            and "SKIPPING writing COHPCAR.lobster..." not in lines
-        )
-        self.has_cobicar = (
-            "writing COBICAR.lobster..." in lines
-            and "SKIPPING writing COBICAR.lobster..." not in lines
-        )
+        self.has_cohpcar = "writing COOPCAR.lobster..." in lines and "SKIPPING writing COOPCAR.lobster..." not in lines
+        self.has_coopcar = "writing COHPCAR.lobster..." in lines and "SKIPPING writing COHPCAR.lobster..." not in lines
+        self.has_cobicar = "writing COBICAR.lobster..." in lines and "SKIPPING writing COBICAR.lobster..." not in lines
 
         self._process_common()
 
@@ -86,17 +77,13 @@ class LobsterOut(LobsterFile):
         """
         lines = self.lines
 
-        self.is_restart_from_projection = (
-            "loading projection from projectionData.lobster..." in lines
-        )
+        self.is_restart_from_projection = "loading projection from projectionData.lobster..." in lines
 
         self.has_error = "ERROR:" in lines
 
         if self.has_error:
             self.error_lines = [line for line in lines if line.startswith("ERROR:")]
-            raise RuntimeError(
-                f"LOBSTER calculation ended with errors:\n{self.error_lines}"
-            )
+            raise RuntimeError(f"LOBSTER calculation ended with errors:\n{self.error_lines}")
 
         self.number_of_threads = self._get_threads(lines)
         self.dft_program = self._get_dft_program(lines)
@@ -106,9 +93,7 @@ class LobsterOut(LobsterFile):
             lines=lines, number_of_spins=self.number_of_spins
         )
 
-        self.elements, self.basis_type, self.basis_functions = (
-            self._get_elements_basistype_basisfunctions(lines)
-        )
+        self.elements, self.basis_type, self.basis_functions = self._get_elements_basistype_basisfunctions(lines)
 
         wall_time, user_time, sys_time = self._get_timing(lines)
         self.timing = {
@@ -123,37 +108,25 @@ class LobsterOut(LobsterFile):
 
         self.info_lines = self._get_all_info_lines(lines)
 
-        self.has_doscar = (
-            "writing DOSCAR.lobster..." in lines
-            and "SKIPPING writing DOSCAR.lobster..." not in lines
-        )
+        self.has_doscar = "writing DOSCAR.lobster..." in lines and "SKIPPING writing DOSCAR.lobster..." not in lines
         self.has_doscar_lso = (
-            "writing DOSCAR.LSO.lobster..." in lines
-            and "SKIPPING writing DOSCAR.LSO.lobster..." not in lines
+            "writing DOSCAR.LSO.lobster..." in lines and "SKIPPING writing DOSCAR.LSO.lobster..." not in lines
         )
 
         self.has_cobicar_lcfo = "writing COBICAR.LCFO.lobster..." in lines
         self.has_cohpcar_lcfo = "writing COHPCAR.LCFO.lobster..." in lines
         self.has_coopcar_lcfo = "writing COOPCAR.LCFO.lobster..." in lines
         self.has_doscar_lcfo = "writing DOSCAR.LCFO.lobster..." in lines
-        self.has_polarization = (
-            "writing polarization to POLARIZATION.lobster..." in lines
-        )
+        self.has_polarization = "writing polarization to POLARIZATION.lobster..." in lines
         self.has_charge = "SKIPPING writing CHARGE.lobster..." not in lines
         self.has_projection = "saving projection to projectionData.lobster..." in lines
-        self.has_bandoverlaps = (
-            "WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster."
-            in lines
-        )
+        self.has_bandoverlaps = "WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster." in lines
         self.has_fatbands = self._has_fatband(lines)
-        self.has_grosspopulation = (
-            "writing CHARGE.lobster and GROSSPOP.lobster..." in lines
-        )
+        self.has_grosspopulation = "writing CHARGE.lobster and GROSSPOP.lobster..." in lines
         self.has_density_of_energies = "writing DensityOfEnergy.lobster..." in lines
         self.has_madelung = (
             "writing SitePotentials.lobster and MadelungEnergies.lobster..." in lines
-            and "skipping writing SitePotentials.lobster and MadelungEnergies.lobster..."
-            not in lines
+            and "skipping writing SitePotentials.lobster and MadelungEnergies.lobster..." not in lines
         )
         self.has_mofecar = "Writing MOFECAR.lobster and IMOFELIST.lobster..." in lines
 
@@ -305,18 +278,11 @@ class LobsterOut(LobsterFile):
             line_parts = line.split()
             if len(line_parts) > 2 and line_parts[2] == "spilling:":
                 if line_parts[1] == "charge":
-                    charge_spillings.append(
-                        float(line_parts[3].replace("%", "")) / 100.0
-                    )
+                    charge_spillings.append(float(line_parts[3].replace("%", "")) / 100.0)
                 elif line_parts[1] == "total":
-                    total_spillings.append(
-                        float(line_parts[3].replace("%", "")) / 100.0
-                    )
+                    total_spillings.append(float(line_parts[3].replace("%", "")) / 100.0)
 
-            if (
-                len(charge_spillings) == number_of_spins
-                and len(total_spillings) == number_of_spins
-            ):
+            if len(charge_spillings) == number_of_spins and len(total_spillings) == number_of_spins:
                 break
 
         return charge_spillings, total_spillings

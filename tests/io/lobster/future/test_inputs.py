@@ -127,9 +127,7 @@ class TestLobsterIn(MatSciTest):
             ValueError,
             match="No basis functions are provided. The program cannot calculate nbands.",
         ):
-            lobsterin2._get_nbands(
-                structure=Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Fe3O4")
-            )
+            lobsterin2._get_nbands(structure=Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Fe3O4"))
 
     def test_standard_settings(self):
         # test standard settings
@@ -267,9 +265,7 @@ class TestLobsterIn(MatSciTest):
     def test_diff(self):
         # test diff
         assert self.LobsterIn.diff(self.LobsterIn2)["Different"] == {}
-        assert self.LobsterIn.diff(self.LobsterIn2)["Same"][
-            "cohpstartenergy"
-        ] == approx(-15.0)
+        assert self.LobsterIn.diff(self.LobsterIn2)["Same"]["cohpstartenergy"] == approx(-15.0)
 
         # test diff in both directions
         for entry in self.LobsterIn.diff(self.LobsterIn3)["Same"]:
@@ -283,9 +279,7 @@ class TestLobsterIn(MatSciTest):
 
         assert (
             self.LobsterIn.diff(self.LobsterIn3)["Different"]["skipcohp"]["lobsterin1"]
-            == self.LobsterIn3.diff(self.LobsterIn)["Different"]["skipcohp"][
-                "lobsterin2"
-            ]
+            == self.LobsterIn3.diff(self.LobsterIn)["Different"]["skipcohp"]["lobsterin2"]
         )
 
     def test_diff_case_insensitivity(self):

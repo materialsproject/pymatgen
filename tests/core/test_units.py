@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import pickle
 
 import numpy as np
@@ -33,7 +34,7 @@ from pymatgen.util.testing import MatSciTest
 
 def test_unit_conversions():
     assert Ha_to_eV == approx(27.211386245988)
-    assert eV_to_Ha == 1 / Ha_to_eV
+    assert math.isclose(eV_to_Ha, 1 / Ha_to_eV)
     assert Ry_to_eV == approx(Ha_to_eV / 2)
     assert bohr_to_angstrom == approx(0.529177210903)
     assert amu_to_kg == approx(1.66053906660e-27)
@@ -61,7 +62,7 @@ class TestUnit(MatSciTest):
         u = Unit({"m": 1})  # meter
         base, factor = u.as_base_units
         assert base == {"m": 1}
-        assert factor == 1.0
+        assert math.isclose(factor, 1.0)
 
         u = Unit({"cm": 1})
         base, factor = u.as_base_units
@@ -72,13 +73,13 @@ class TestUnit(MatSciTest):
         u = Unit({"N": 1})
         base, factor = u.as_base_units
         assert base == {"kg": 1, "m": 1, "s": -2}
-        assert factor == 1.0
+        assert math.isclose(factor, 1.0)
 
         # energy
         u = Unit({"J": 1})
         base, factor = u.as_base_units
         assert base == {"kg": 1, "m": 2, "s": -2}
-        assert factor == 1.0
+        assert math.isclose(factor, 1.0)
 
     def test_get_conversion_factor(self):
         # same unit
@@ -398,7 +399,7 @@ class TestArrayWithUnit(MatSciTest):
         """
         x = LengthArray(4.2, "ang")
         assert float(x.to("cm")) == approx(4.2e-08)
-        assert float(x.to("pm")) == 420
+        assert float(x.to("pm")) == approx(420)
         assert str(x / 2) == "2.1 ang"
 
     def test_array_algebra(self):
@@ -495,7 +496,7 @@ class TestDataPersistence(MatSciTest):
             if isinstance(orig, ArrayWithUnit):
                 assert_array_equal(orig, new)
             else:
-                assert float(orig) == float(new)
+                assert math.isclose(float(orig), float(new))
             assert orig.unit == new.unit
             assert orig.unit_type == new.unit_type
 
@@ -504,7 +505,7 @@ class TestObjWithUnit:
     def test_scalar(self):
         e = obj_with_unit(2.5, "eV")
         assert isinstance(e, FloatWithUnit)
-        assert float(e) == 2.5
+        assert math.isclose(float(e), 2.5)
         assert str(e.unit) == "eV"
 
     def test_array(self):

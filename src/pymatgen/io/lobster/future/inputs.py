@@ -30,9 +30,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing import Any, ClassVar, Literal
-
-    from typing_extensions import Self
+    from typing import Any, ClassVar, Literal, Self
 
     from pymatgen.core.composition import Composition
     from pymatgen.core.structure import IStructure
@@ -153,18 +151,10 @@ class LobsterIn(UserDict, MSONable):
     )
 
     # Generate {lowered: original} mappings
-    FLOAT_KEYWORDS: ClassVar[dict[str, str]] = {
-        key.lower(): key for key in _FLOAT_KEYWORDS
-    }
-    STRING_KEYWORDS: ClassVar[dict[str, str]] = {
-        key.lower(): key for key in _STRING_KEYWORDS
-    }
-    BOOLEAN_KEYWORDS: ClassVar[dict[str, str]] = {
-        key.lower(): key for key in _BOOLEAN_KEYWORDS
-    }
-    LIST_KEYWORDS: ClassVar[dict[str, str]] = {
-        key.lower(): key for key in _LIST_KEYWORDS
-    }
+    FLOAT_KEYWORDS: ClassVar[dict[str, str]] = {key.lower(): key for key in _FLOAT_KEYWORDS}
+    STRING_KEYWORDS: ClassVar[dict[str, str]] = {key.lower(): key for key in _STRING_KEYWORDS}
+    BOOLEAN_KEYWORDS: ClassVar[dict[str, str]] = {key.lower(): key for key in _BOOLEAN_KEYWORDS}
+    LIST_KEYWORDS: ClassVar[dict[str, str]] = {key.lower(): key for key in _LIST_KEYWORDS}
 
     # All known keywords
     AVAILABLE_KEYWORDS: ClassVar[dict[str, str]] = {
@@ -308,20 +298,14 @@ class LobsterIn(UserDict, MSONable):
 
         with open(path, mode="w", encoding="utf-8") as file:
             for key in self:
-                if (
-                    key in type(self).FLOAT_KEYWORDS
-                    or key in type(self).STRING_KEYWORDS
-                ):
-                    file.write(
-                        f"{type(self).AVAILABLE_KEYWORDS[key]} {self.get(key)}\n"
-                    )
+                if key in type(self).FLOAT_KEYWORDS or key in type(self).STRING_KEYWORDS:
+                    file.write(f"{type(self).AVAILABLE_KEYWORDS[key]} {self.get(key)}\n")
 
                 elif key in type(self).BOOLEAN_KEYWORDS:
                     file.write(f"{type(self).BOOLEAN_KEYWORDS[key]}\n")
 
                 elif key in type(self).LIST_KEYWORDS:
-                    for value in self.get(key):  # type: ignore[union-attr]
-                        file.write(f"{type(self).LIST_KEYWORDS[key]} {value}\n")
+                    file.writelines(f"{type(self).LIST_KEYWORDS[key]} {value}\n" for value in self.get(key))
 
     def as_dict(self) -> dict:
         """Converts the LobsterIn object to a dictionary.
@@ -344,9 +328,7 @@ class LobsterIn(UserDict, MSONable):
         Returns:
             LobsterIn: The created LobsterIn object.
         """
-        return cls(
-            {key: val for key, val in dct.items() if key not in {"@module", "@class"}}
-        )
+        return cls({key: val for key, val in dct.items() if key not in {"@module", "@class"}})
 
     def _get_nbands(self, structure: Structure) -> int:
         """Calculates the number of bands based on the structure and basis functions.
@@ -361,18 +343,14 @@ class LobsterIn(UserDict, MSONable):
             ValueError: If no basis functions are provided.
         """
         if self.get("basisfunctions") is None:
-            raise ValueError(
-                "No basis functions are provided. The program cannot calculate nbands."
-            )
+            raise ValueError("No basis functions are provided. The program cannot calculate nbands.")
 
         basis_functions: list[str] = []
         for string_basis in self["basisfunctions"]:
             string_basis_raw = string_basis.strip().split(" ")
             while "" in string_basis_raw:
                 string_basis_raw.remove("")
-            for _idx in range(
-                int(structure.composition.element_composition[string_basis_raw[0]])
-            ):
+            for _idx in range(int(structure.composition.element_composition[string_basis_raw[0]])):
                 basis_functions.extend(string_basis_raw[1:])
 
         num_basis_functions = 0
@@ -449,9 +427,7 @@ class LobsterIn(UserDict, MSONable):
             ValueError: If the POSCAR does not match the POTCAR or if basis information is missing.
         """
         if address_basis_file is None:
-            address_basis_file = (
-                f"{MODULE_DIR}/lobster_basis/BASIS_PBE_54_standard.yaml"
-            )
+            address_basis_file = f"{MODULE_DIR}/lobster_basis/BASIS_PBE_54_standard.yaml"
 
         atom_types_potcar = [name.split("_")[0] for name in potcar_symbols]
 
@@ -492,18 +468,14 @@ class LobsterIn(UserDict, MSONable):
         max_basis = LobsterIn.get_basis(
             structure=structure,
             potcar_symbols=potcar_symbols,
-            address_basis_file=address_basis_file_max
-            or f"{MODULE_DIR}/lobster_basis/BASIS_PBE_54_max.yaml",
+            address_basis_file=address_basis_file_max or f"{MODULE_DIR}/lobster_basis/BASIS_PBE_54_max.yaml",
         )
         min_basis = LobsterIn.get_basis(
             structure=structure,
             potcar_symbols=potcar_symbols,
-            address_basis_file=address_basis_file_min
-            or f"{MODULE_DIR}/lobster_basis/BASIS_PBE_54_min.yaml",
+            address_basis_file=address_basis_file_min or f"{MODULE_DIR}/lobster_basis/BASIS_PBE_54_min.yaml",
         )
-        all_basis = get_all_possible_basis_combinations(
-            min_basis=min_basis, max_basis=max_basis
-        )
+        all_basis = get_all_possible_basis_combinations(min_basis=min_basis, max_basis=max_basis)
         list_basis_dict = []
         for basis in all_basis:
             basis_dict = {}
@@ -560,9 +532,7 @@ class LobsterIn(UserDict, MSONable):
         """
         structure = Structure.from_file(POSCAR_input)
         if not from_grid:
-            kpoint_grid = Kpoints.automatic_density_by_vol(
-                structure, reciprocal_density
-            ).kpts
+            kpoint_grid = Kpoints.automatic_density_by_vol(structure, reciprocal_density).kpts
             mesh = kpoint_grid[0]
         else:
             mesh = input_grid
@@ -594,9 +564,7 @@ class LobsterIn(UserDict, MSONable):
         # For now, we are setting MAGMOM to zero. (Taken from INCAR class)
         cell = matrix, positions, zs, magmoms
         # TODO: what about this shift?
-        mapping, grid = spglib.get_ir_reciprocal_mesh(
-            mesh, cell, is_shift=[0, 0, 0]
-        )  # type:ignore[arg-type]
+        mapping, grid = spglib.get_ir_reciprocal_mesh(mesh, cell, is_shift=[0, 0, 0])  # type:ignore[arg-type]
 
         # Get the KPOINTS for the grid
         if isym == -1:
@@ -644,19 +612,13 @@ class LobsterIn(UserDict, MSONable):
                     "standard primitive cell first."
                 )
 
-            frac_k_points, labels = kpath.get_kpoints(
-                line_density=kpoints_line_density, coords_are_cartesian=False
-            )
+            frac_k_points, labels = kpath.get_kpoints(line_density=kpoints_line_density, coords_are_cartesian=False)
 
             for k, f in enumerate(frac_k_points):
                 kpts.append(f)
                 weights.append(0.0)
                 all_labels.append(labels[k])
-        comment = (
-            f"{isym=}, grid: {mesh} plus kpoint path"
-            if line_mode
-            else f"{isym=}, grid: {mesh}"
-        )
+        comment = f"{isym=}, grid: {mesh} plus kpoint path" if line_mode else f"{isym=}, grid: {mesh}"
 
         kpoints_instance = Kpoints(
             comment=comment,
@@ -684,9 +646,7 @@ class LobsterIn(UserDict, MSONable):
             ValueError: If invalid keywords are found or if there are duplicate keywords.
         """
         with zopen(lobsterin, mode="rt", encoding="utf-8") as file:
-            lines: list[str] = file.read().split(
-                "\n"
-            )  # type:ignore[arg-type,assignment]
+            lines: list[str] = file.read().split("\n")  # type:ignore[arg-type,assignment]
         if not lines:
             raise RuntimeError("lobsterin file contains no data.")
 
@@ -702,9 +662,7 @@ class LobsterIn(UserDict, MSONable):
                     continue
 
                 # Avoid duplicates for float/string keywords
-                if (
-                    key in cls.FLOAT_KEYWORDS or key in cls.STRING_KEYWORDS
-                ) and key in lobsterin_dict:
+                if (key in cls.FLOAT_KEYWORDS or key in cls.STRING_KEYWORDS) and key in lobsterin_dict:
                     raise ValueError(f"Same keyword {key} twice!")
 
                 # Parse by keyword type
@@ -935,9 +893,7 @@ class LobsterIn(UserDict, MSONable):
             lobsterin_dict["gaussianSmearingWidth"] = incar["SIGMA"]
 
         if incar["ISMEAR"] != 0 and option == "standard_with_fatband":
-            raise ValueError(
-                "ISMEAR has to be 0 for a fatband calculation with Lobster"
-            )
+            raise ValueError("ISMEAR has to be 0 for a fatband calculation with Lobster")
 
         if dict_for_basis is not None:
             # dict_for_basis = {"Fe":"3p 3d 4s 4f", "C": "2s 2p"}
@@ -947,9 +903,7 @@ class LobsterIn(UserDict, MSONable):
             # Get basis functions from POTCAR
             potcar_names = cls._get_potcar_symbols(POTCAR_input=POTCAR_input)
 
-            basis = cls.get_basis(
-                structure=Structure.from_file(POSCAR_input), potcar_symbols=potcar_names
-            )
+            basis = cls.get_basis(structure=Structure.from_file(POSCAR_input), potcar_symbols=potcar_names)
         else:
             raise ValueError("basis cannot be generated")
 
@@ -961,9 +915,7 @@ class LobsterIn(UserDict, MSONable):
         return cls(lobsterin_dict)
 
 
-def get_all_possible_basis_combinations(
-    min_basis: list, max_basis: list
-) -> list[list[str]]:
+def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> list[list[str]]:
     """Get all possible basis combinations.
 
     Args:
@@ -987,9 +939,7 @@ def get_all_possible_basis_combinations(
                 basis_dict[el[0]]["variable"].append(basis)
         for L in range(len(basis_dict[el[0]]["variable"]) + 1):
             for subset in itertools.combinations(basis_dict[el[0]]["variable"], L):
-                basis_dict[el[0]]["combinations"].append(
-                    " ".join([el[0]] + basis_dict[el[0]]["fixed"] + list(subset))
-                )
+                basis_dict[el[0]]["combinations"].append(" ".join([el[0]] + basis_dict[el[0]]["fixed"] + list(subset)))
 
     list_basis = [item["combinations"] for item in basis_dict.values()]
 
