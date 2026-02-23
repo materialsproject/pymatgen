@@ -32,7 +32,7 @@ _MODULE_DIR: Path = Path(__file__).absolute().parent
 
 STRUCTURES_DIR: Path = _MODULE_DIR / "structures"
 
-TEST_FILES_DIR: Path = Path(SETTINGS.get("PMG_TEST_FILES_DIR", f"{ROOT}/../tests/files"))
+TEST_FILES_DIR: Path = Path(SETTINGS.get("PMG_TEST_FILES_DIR", f"{ROOT}/../pymatgen-test-files"))
 VASP_IN_DIR: str = f"{TEST_FILES_DIR}/io/vasp/inputs"
 VASP_OUT_DIR: str = f"{TEST_FILES_DIR}/io/vasp/outputs"
 

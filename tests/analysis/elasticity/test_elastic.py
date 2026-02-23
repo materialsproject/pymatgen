@@ -29,7 +29,7 @@ from pymatgen.core.tensors import Tensor
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/analysis/elasticity"
+TEST_DIR = f"{TEST_FILES_DIR}/core/elasticity"
 
 
 class TestElasticTensor(MatSciTest):

@@ -3443,11 +3443,9 @@ class PDPlotter:
             highlight_entries = []
 
         stable_coords: list[Sequence[float]] = []
-        unstable_coords: list[Sequence[float]] = []
         highlight_coords: list[Sequence[float]] = []
 
         stable_entries: list[PDEntry] = []
-        unstable_entries: list[PDEntry] = []
         highlight_ents: list[PDEntry] = []
 
         # Stable entries
@@ -3459,14 +3457,23 @@ class PDPlotter:
                 stable_coords.append(coord)
                 stable_entries.append(entry)
 
-        # Unstable entries
+        # Unstable entries (lowest energy only per composition)
+        min_unstable: dict[str, tuple[Sequence[float], PDEntry]] = {}
+
         for coord, entry in zip(self.pd_plot_data[2].values(), self.pd_plot_data[2], strict=True):
             if entry in highlight_entries:
                 highlight_coords.append(coord)
                 highlight_ents.append(entry)
-            else:
-                unstable_coords.append(coord)
-                unstable_entries.append(entry)
+                continue
+
+            formula = entry.composition.reduced_formula
+            e_above_hull = self._pd.get_e_above_hull(entry)
+
+            if formula not in min_unstable or e_above_hull < self._pd.get_e_above_hull(min_unstable[formula][1]):
+                min_unstable[formula] = (coord, entry)
+
+        unstable_coords = [coord for coord, _ in min_unstable.values()]
+        unstable_entries = [entry for _, entry in min_unstable.values()]
 
         stable_props = get_marker_props(stable_coords, stable_entries)
         unstable_props = get_marker_props(unstable_coords, unstable_entries)

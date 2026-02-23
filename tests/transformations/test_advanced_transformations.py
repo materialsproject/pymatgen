@@ -53,7 +53,7 @@ def get_table():
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    json_path = f"{TEST_FILES_DIR}/analysis/struct_predictor/test_lambda.json"
+    json_path = f"{TEST_FILES_DIR}/core/struct_predictor/test_lambda.json"
     with open(json_path, "rb") as file:
         return orjson.loads(file.read())
 

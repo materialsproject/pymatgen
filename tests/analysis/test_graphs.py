@@ -43,7 +43,7 @@ __email__ = "mkhorton@lbl.gov"
 __status__ = "Beta"
 __date__ = "August 2017"
 
-TEST_DIR = f"{TEST_FILES_DIR}/analysis/graphs"
+TEST_DIR = f"{TEST_FILES_DIR}/core/graphs"
 
 
 class TestStructureGraph(MatSciTest):
