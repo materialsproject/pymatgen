@@ -1041,20 +1041,20 @@ class TestLobsterNeighbors:
             _ = self.chem_env_on_error.get_light_structure_environment(on_error="raise")
 
         with pytest.warns(
-             UserWarning,
-             match=r"Site 0 has 18 neighbors \(>13\)\. Using coordination number instead of geometry\.",
+            UserWarning,
+            match=r"Site 0 has 18 neighbors \(>13\)\. Using coordination number instead of geometry\.",
         ) as warnings_record:
-             lse = self.chem_env_on_error.get_light_structure_environment(on_error="warn")
+            lse = self.chem_env_on_error.get_light_structure_environment(on_error="warn")
 
         assert lse.coordination_environments[0][0]["ce_symbol"] == "18"
         assert [str(warn.message) for warn in warnings_record] == [
-             "Site 0 has 18 neighbors (>13). Using coordination number instead of geometry.",
-             "Site 1 has 18 neighbors (>13). Using coordination number instead of geometry.",
+            "Site 0 has 18 neighbors (>13). Using coordination number instead of geometry.",
+            "Site 1 has 18 neighbors (>13). Using coordination number instead of geometry.",
         ]
 
         # if on_error is "ignore", no error should be raised and no warning should be issued
         with warnings.catch_warnings(record=True) as warnings_record:
-             lse = self.chem_env_on_error.get_light_structure_environment(on_error="ignore")
+            lse = self.chem_env_on_error.get_light_structure_environment(on_error="ignore")
 
         assert lse.coordination_environments[0][0]["ce_symbol"] == "18"
         assert warnings_record == []
