@@ -325,15 +325,15 @@ class TestLobsterNeighbors:
             adapt_extremum_to_add_cond=True,
         )
         # test LSE on_error
-        # self.chem_env_on_error = LobsterNeighbors(
-        #     are_coops=False,
-        #     filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp-1018096.gz",
-        #     structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.mp-1018096.gz"),
-        #     filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp-1018096.gz",
-        #     additional_condition=0,
-        #     adapt_extremum_to_add_cond=True,
-        #     valences_from_charges=True,
-        # )
+        self.chem_env_on_error = LobsterNeighbors(
+             are_coops=False,
+             filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp-1018096.gz",
+             structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.mp-1018096.gz"),
+             filename_charge=f"{TEST_DIR}/CHARGE.lobster.mp-1018096.gz",
+             additional_condition=0,
+             adapt_extremum_to_add_cond=True,
+             valences_from_charges=True,
+        )
 
     def test_init_new(self):
         # additional condition 0
