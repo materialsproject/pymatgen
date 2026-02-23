@@ -152,7 +152,7 @@ include = ["pymatgen", "pymatgen.*"]
 "pymatgen.analysis.prototypes" = ["*.json.gz"]
 "pymatgen.analysis.solar" = ["am1.5G.dat"]
 "pymatgen.entries" = ["*.json.gz", "*.yaml", "data/*.json"]
-"pymatgen.core" = ["*.json", "*.json.gz"]
+"pymatgen.core" = ["*.json", "*.json.gz", "data/*.json"]
 "pymatgen" = ["py.typed"]
 "pymatgen.io.vasp" = ["*.json", "*.json.bz2", "*.json.gz", "*.yaml"]
 "pymatgen.io.feff" = ["*.yaml"]
@@ -254,7 +254,8 @@ docstring-code-format = true
 "dev_scripts/*" = ["D"]
 
 [tool.pytest.ini_options]
-addopts = "-n auto --durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
+# addopts = "-n auto --durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
+addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
     # NOTE: the LAST matching option would be used
     "ignore::UserWarning",

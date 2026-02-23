@@ -1,0 +1,3 @@
+[submodule "pymatgen-test-files"]
+	path = pymatgen-test-files
+	url = git@github.com:materialyzeai/pymatgen-test-files.git

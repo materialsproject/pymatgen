@@ -42,7 +42,7 @@ from pymatgen.analysis.local_env import (
 from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/analysis/local_env/fragmenter_files"
+TEST_DIR = f"{TEST_FILES_DIR}/core/local_env/fragmenter_files"
 
 
 def test_opt_params():
