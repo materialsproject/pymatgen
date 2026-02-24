@@ -55,29 +55,6 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "bibtexparser>=1.4.0",
-    "joblib>=1",
-    "matplotlib>=3.8",
-    "monty>=2026.2.18",
-    "networkx>=2.7", # PR4116
-    # NumPy documentation suggests pinning the current major version as the C API is used
-    # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
-    "numpy>=1.25.0,<3",
-    "orjson>=3.10,<4",
-    "palettable>=3.3.3",
-    "pandas>=2",
-    "plotly>=5.0.0",
-    "requests>=2.30",
-    "ruamel.yaml>=0.17.0",
-    "scipy>=1.13.0",
-    # scipy<1.14.1 is incompatible with NumPy 2.0 on Windows
-    # https://github.com/scipy/scipy/issues/21052
-    "scipy>=1.14.1; platform_system == 'Windows'",
-    "spglib>=2.5",
-    "sympy>=1.3", # PR #4116
-    "tabulate>=0.9",
-    "tqdm>=4.60",
-    "uncertainties>=3.1.4",
     "pymatgen-core"
 ]
 version = "2025.10.7"
@@ -153,17 +130,9 @@ include = ["pymatgen", "pymatgen.*"]
 "pymatgen.analysis.prototypes" = ["*.json.gz"]
 "pymatgen.analysis.solar" = ["am1.5G.dat"]
 "pymatgen.entries" = ["*.json.gz", "*.yaml", "data/*.json"]
-"pymatgen.core" = ["*.json", "*.json.gz", "data/*.json"]
 "pymatgen" = ["py.typed"]
-"pymatgen.io.vasp" = ["*.json", "*.json.bz2", "*.json.gz", "*.yaml"]
-"pymatgen.io.feff" = ["*.yaml"]
-"pymatgen.io.cp2k" = ["*.yaml"]
 "pymatgen.io.lobster" = ["lobster_basis/*.yaml", "future/lobster_basis/*.yaml"]
-"pymatgen.command_line" = ["*"]
-"pymatgen.util" = ["*.json", "structures/*.json"]
 "pymatgen.vis" = ["*.yaml"]
-"pymatgen.io.lammps" = ["CoeffsDataType.yaml", "templates/*.template"]
-"pymatgen.symmetry" = ["*.json", "*.sqlite", "*.yaml"]
 
 [tool.cibuildwheel.linux]
 archs = ["auto64"]
