@@ -26,6 +26,7 @@ from scipy.optimize import minimize
 from scipy.spatial import ConvexHull
 from tqdm import tqdm
 
+import pymatgen
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.core import DummySpecies, Element, get_el_sp
 from pymatgen.core.composition import Composition
@@ -48,7 +49,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 with open(
-    os.path.join(os.path.dirname(__file__), "..", "util", "plotly_pd_layouts.json"),
+    os.path.join(os.path.dirname(pymatgen.util.__file__), "plotly_pd_layouts.json"),
     "rb",
 ) as file:
     plotly_layouts = orjson.loads(file.read())
