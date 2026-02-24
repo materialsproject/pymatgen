@@ -25,7 +25,7 @@ try:
 except (ImportError, RuntimeError):
     openbabel = None
 
-TEST_DIR = f"{TEST_FILES_DIR}/analysis/molecule_matcher"
+TEST_DIR = f"{TEST_FILES_DIR}/core/molecule_matcher"
 
 
 ob_align_missing = openbabel is None or "OBAlign" not in dir(openbabel)

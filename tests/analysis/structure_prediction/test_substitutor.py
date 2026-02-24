@@ -6,7 +6,7 @@ from pymatgen.analysis.structure_prediction.substitutor import Substitutor
 from pymatgen.core import Composition, Species
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/analysis/struct_predictor"
+TEST_DIR = f"{TEST_FILES_DIR}/core/struct_predictor"
 
 
 def get_table():
