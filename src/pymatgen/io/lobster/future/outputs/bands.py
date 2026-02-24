@@ -286,7 +286,7 @@ class Fatbands(MSONable):
                 for k, w, n in zip(
                     full_kpoints.kpts,
                     full_kpoints.kpts_weights,
-                    (full_kpoints.labels if full_kpoints.labels else [None] * len(full_kpoints.kpts)),
+                    (full_kpoints.labels or [None] * len(full_kpoints.kpts)),
                     strict=True,
                 )
                 if w == 0
