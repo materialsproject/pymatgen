@@ -10,7 +10,7 @@ import re
 import warnings
 from collections import defaultdict
 from functools import lru_cache
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,6 +20,7 @@ from matplotlib import cm
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import LinearSegmentedColormap, Normalize
 from matplotlib.font_manager import FontProperties
+from monty.dev import deprecated
 from monty.json import MontyDecoder, MSONable
 from scipy import interpolate
 from scipy.optimize import minimize
@@ -44,6 +45,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike, NDArray
 
     from pymatgen.entries.computed_entries import ComputedEntry
+    from pymatgen.util.typing import CompositionLike
 
 logger = logging.getLogger(__name__)
 
@@ -71,14 +73,14 @@ class PDEntry(Entry):
 
     def __init__(
         self,
-        composition: Composition,
+        composition: CompositionLike,
         energy: float,
         name: str | None = None,
         attribute: object = None,
     ) -> None:
         """
         Args:
-            composition (Composition): Composition
+            composition (CompositionLike): Composition
             energy (float): Energy for composition.
             name (str): Optional parameter to name the entry. Defaults
                 to the reduced chemical formula.
@@ -343,8 +345,8 @@ class PhaseDiagram(MSONable):
 
     def __init__(
         self,
-        entries: Sequence[PDEntry] | set[PDEntry],
-        elements: Sequence[Element] = (),
+        entries: Collection[Entry],
+        elements: Collection[Element] | None = None,
         *,
         computed_data: dict[str, Any] | None = None,
     ) -> None:
@@ -366,7 +368,7 @@ class PhaseDiagram(MSONable):
         if not entries:
             raise ValueError("Unable to build phase diagram without entries.")
 
-        self.elements = elements
+        self.elements = list(elements) if elements else sorted({els for e in entries for els in e.elements})
         self.entries = entries
 
         if computed_data is None:
@@ -380,18 +382,14 @@ class PhaseDiagram(MSONable):
             computed_data["el_refs"] = [(Element(el_str), entry) for el_str, entry in computed_data["el_refs"]]
 
         self.computed_data = computed_data
-
-        self.facets: list[NDArray[int]] = computed_data["facets"]
-        self.simplexes: list[Simplex] = computed_data["simplexes"]
-        self.all_entries: list[PDEntry] = computed_data["all_entries"]
-        self.qhull_data: np.ndarray = computed_data["qhull_data"]
-        self.dim: int = computed_data["dim"]
-        self.el_refs: dict[Element, PDEntry] = dict(computed_data["el_refs"])
-        self.qhull_entries: tuple[PDEntry, ...] = tuple(computed_data["qhull_entries"])
-        self._qhull_spaces: tuple = tuple(frozenset(e.elements) for e in self.qhull_entries)
-        self._stable_entries: tuple[PDEntry, ...] = tuple(
-            {self.qhull_entries[idx] for idx in set(itertools.chain(*self.facets))}
-        )
+        self.facets = computed_data["facets"]
+        self.qhull_data = np.asarray(computed_data["qhull_data"])
+        self.simplexes = [Simplex(self.qhull_data[facet, :-1]) for facet in self.facets]
+        self.all_entries = computed_data["all_entries"]
+        self.el_refs = dict(computed_data["el_refs"])
+        self.qhull_entries = tuple(computed_data["qhull_entries"])
+        self._qhull_spaces = tuple(frozenset(e.elements) for e in self.qhull_entries)
+        self._stable_entries = tuple({self.qhull_entries[idx] for idx in set(itertools.chain(*self.facets))})
         self._stable_spaces = tuple(frozenset(e.elements) for e in self._stable_entries)
 
     def __repr__(self) -> str:
@@ -406,16 +404,27 @@ class PhaseDiagram(MSONable):
     def as_dict(self) -> dict[str, Any]:
         """Get MSONable dict representation of PhaseDiagram."""
 
-        qhull_entry_indices = [self.all_entries.index(e) for e in self.qhull_entries]
+        entry_to_index = {entry: idx for idx, entry in enumerate(self.all_entries)}
+        qhull_entry_indices = [entry_to_index[e] for e in self.qhull_entries]
+
+        # Create a copy of computed_data to avoid modifying the original
+        computed_data = self.computed_data.copy()
+        computed_data["el_refs"] = [(el.symbol, entry_to_index[entry]) for el, entry in computed_data["el_refs"]]
+        computed_data["all_entries"] = [e.as_dict() for e in computed_data["all_entries"]]
+        computed_data["qhull_entries"] = qhull_entry_indices
+        computed_data["qhull_data"] = (
+            computed_data["qhull_data"].tolist()
+            if isinstance(computed_data["qhull_data"], np.ndarray)
+            else computed_data["qhull_data"]
+        )
+        computed_data["facets"] = [list(facet) for facet in self.facets]
+        computed_data.pop("simplexes", None)  # Reconstructed from qhull_data and facets
 
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "elements": [e.as_dict() for e in self.elements],
-            "computed_data": self.computed_data
-            | {
-                "qhull_entries": qhull_entry_indices,
-            },
+            "elements": [el.symbol for el in self.elements],
+            "computed_data": computed_data,
         }
 
     @classmethod
@@ -427,25 +436,65 @@ class PhaseDiagram(MSONable):
         Returns:
             PhaseDiagram
         """
-        computed_data = dct.get("computed_data")
-        elements = [Element.from_dict(elem) for elem in dct["elements"]]
+        try:
+            computed_data = dct.get("computed_data")
+            elements = [Element(elem) for elem in dct["elements"]]
 
-        # for backwards compatibility, check for old format
-        if "all_entries" in dct:
-            entries = [MontyDecoder().process_decoded(entry) for entry in dct["all_entries"]]
-        else:
-            entries = [MontyDecoder().process_decoded(entry) for entry in computed_data["all_entries"]]
+            # for backwards compatibility, check for old format
+            if "all_entries" in dct:
+                entries = [MontyDecoder().process_decoded(entry) for entry in dct["all_entries"]]
+            else:
+                entries = [MontyDecoder().process_decoded(entry) for entry in computed_data["all_entries"]]
 
-            complete_qhull_entries = [computed_data["all_entries"][i] for i in computed_data["qhull_entries"]]
+                # Reconstruct computed_data to match _compute() format: (str, Entry) tuples for el_refs
+                computed_data = computed_data.copy()
+                computed_data["qhull_entries"] = [entries[i] for i in computed_data["qhull_entries"]]
+                # el_refs stored as (str, index) - convert to (str, Entry)
+                computed_data["el_refs"] = [(el_str, entries[idx]) for el_str, idx in computed_data["el_refs"]]
 
-            computed_data = computed_data | {"qhull_entries": complete_qhull_entries}
+            return cls(entries, elements, computed_data=computed_data)
+        except (TypeError, KeyError, ValueError):
+            # Fall back to legacy format
+            return cls._from_dict_legacy(dct)
+
+    @classmethod
+    @deprecated(from_dict, "Deprecated on 2025-02-03.", deadline=(2026, 6, 1))
+    def _from_dict_legacy(cls, dct: dict[str, Any]) -> Self:
+        """Load from legacy JSON format (pre-2025).
+
+        Args:
+            dct (dict): Legacy dictionary representation of PhaseDiagram.
+
+        Returns:
+            PhaseDiagram
+        """
+        decoder = MontyDecoder()
+
+        # Legacy format has elements as list of dicts with @module/@class
+        elements = [decoder.process_decoded(elem) for elem in dct["elements"]]
+
+        computed_data = dct.get("computed_data", {}).copy()
+
+        # Legacy format stored all_entries inside computed_data
+        entries = [decoder.process_decoded(entry) for entry in computed_data["all_entries"]]
+
+        # Legacy qhull_data was serialized as numpy array dict
+        if isinstance(computed_data.get("qhull_data"), dict):
+            computed_data["qhull_data"] = decoder.process_decoded(computed_data["qhull_data"])
+
+        # Convert qhull_entries from indices to actual entries
+        computed_data["qhull_entries"] = [entries[i] for i in computed_data["qhull_entries"]]
+
+        # Legacy el_refs stored as list of [Element_dict, Entry_dict] pairs
+        el_refs_raw = computed_data.get("el_refs", [])
+        computed_data["el_refs"] = [
+            (decoder.process_decoded(el_dict), decoder.process_decoded(entry_dict))
+            for el_dict, entry_dict in el_refs_raw
+        ]
 
         return cls(entries, elements, computed_data=computed_data)
 
     def _compute(self) -> dict[str, Any]:
-        if self.elements == ():
-            self.elements = sorted({els for e in self.entries for els in e.elements})
-
         elements = list(self.elements)
         dim = len(elements)
 
@@ -453,9 +502,9 @@ class PhaseDiagram(MSONable):
             self.entries, key=lambda e: (e.composition.reduced_composition, e.energy_per_atom, str(e.name))
         )
 
-        el_refs: dict[Element, PDEntry] = {}
-        min_entries: list[PDEntry] = []
-        all_entries: list[PDEntry] = []
+        el_refs: dict[Element, Entry] = {}
+        min_entries: list[Entry] = []
+        all_entries: list[Entry] = []
         for composition, group_iter in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
             group = list(group_iter)
             min_entry = min(group, key=lambda e: e.energy_per_atom)
@@ -505,18 +554,18 @@ class PhaseDiagram(MSONable):
                     final_facets.append(facet)
             facets = final_facets
 
-        simplexes = [Simplex(qhull_data[facet, :-1]) for facet in facets]
-        self.elements = elements
         return {
             "facets": facets,
-            "simplexes": simplexes,
             "all_entries": all_entries,
             "qhull_data": qhull_data,
-            "dim": dim,
-            # Dictionary with Element keys is not JSON-serializable
-            "el_refs": list(el_refs.items()),
+            "el_refs": list(el_refs.items()),  # Dictionary with Element keys is not JSON-serializable
             "qhull_entries": qhull_entries,
         }
+
+    @property
+    def dim(self) -> int:
+        """The dimensionality of the phase diagram."""
+        return len(self.elements)
 
     def pd_coords(self, comp: Composition) -> np.ndarray:
         """
@@ -896,6 +945,9 @@ class PhaseDiagram(MSONable):
 
         # Handle elemental materials
         if entry.is_element:
+            # If stable_only=True, use check_stable=True for fast path
+            if stable_only:
+                kwargs.setdefault("check_stable", True)
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True, **kwargs)
 
         # Select space to compare against
@@ -1259,11 +1311,11 @@ class PhaseDiagram(MSONable):
             if elem.composition.reduced_composition == target_comp.reduced_composition:
                 multiplier = elem.composition[dep_elt] / target_comp[dep_elt]
                 ef = elem.energy / multiplier
-                all_coords: list[dict] = []
+                all_coords: list[dict[Element, float]] = []
                 for simplex in chempots:
                     for v in simplex._coords:
                         elements = [elem for elem in self.elements if elem != dep_elt]
-                        res = {}
+                        res: dict[Element, float] = {}
                         for idx, el in enumerate(elements):
                             res[el] = v[idx] + mu_ref[idx]
                         res[dep_elt] = (np.dot(v + mu_ref, coeff) + ef) / target_comp[dep_elt]
@@ -1438,18 +1490,27 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
        doi:10.1016/j.elecom.2010.01.010
     """
 
-    def __init__(self, entries, chempots, elements=None, *, computed_data=None):
+    def __init__(
+        self,
+        entries: Collection[Entry],
+        chempots: dict[Element, float],
+        elements: Collection[Element] | None = None,
+        *,
+        computed_data: dict[str, Any] | None = None,
+    ):
         """Standard constructor for grand potential phase diagram.
 
+        TODO: update serialization here.
+
         Args:
-            entries ([PDEntry]): A list of PDEntry-like objects having an
+            entries (Sequence[Entry]): A list of Entry objects having an
                 energy, energy_per_atom and composition.
-            chempots ({Element: float}): Specify the chemical potentials
+            chempots (dict[Element, float]): Specify the chemical potentials
                 of the open elements.
-            elements ([Element]): Optional list of elements in the phase
+            elements (Sequence[Element]): Optional list of elements in the phase
                 diagram. If set to None, the elements are determined from
                 the entries themselves.
-            computed_data (dict): A dict containing pre-computed data. This allows
+            computed_data (dict[str, Any]): A dict containing pre-computed data. This allows
                 PhaseDiagram object to be reconstituted without performing the
                 expensive convex hull computation. The dict is the output from the
                 PhaseDiagram._compute() method and is stored in PhaseDiagram.computed_data
@@ -1511,7 +1572,12 @@ class CompoundPhaseDiagram(PhaseDiagram):
     # Tolerance for determining if amount of a composition is positive.
     amount_tol: ClassVar[float] = 1e-5
 
-    def __init__(self, entries, terminal_compositions, normalize_terminal_compositions=True):
+    def __init__(
+        self,
+        entries: Sequence[Entry],
+        terminal_compositions: Sequence[Composition],
+        normalize_terminal_compositions: bool = True,
+    ):
         """Initialize a CompoundPhaseDiagram.
 
         Args:
@@ -1562,13 +1628,17 @@ class CompoundPhaseDiagram(PhaseDiagram):
 
         return ret
 
-    def transform_entries(self, entries, terminal_compositions):
+    def transform_entries(
+        self, entries: Sequence[Entry], terminal_compositions: Sequence[Composition]
+    ) -> tuple[list[TransformedPDEntry], dict[Composition, DummySpecies]]:
         """
         Method to transform all entries to the composition coordinate in the
         terminal compositions. If the entry does not fall within the space
         defined by the terminal compositions, they are excluded. For example,
         Li3PO4 is mapped into a Li2O:1.5, P2O5:0.5 composition. The terminal
         compositions are represented by DummySpecies.
+
+        TODO: update serialization here.
 
         Args:
             entries: Sequence of all input entries
@@ -1665,36 +1735,35 @@ class PatchedPhaseDiagram(PhaseDiagram):
         - get_phase_separation_energ
     """
 
-    def __init__(
+    def _compute(
         self,
         entries: Sequence[Entry] | set[Entry],
         elements: Sequence[Element] | None = None,
         keep_all_spaces: bool = False,
         verbose: bool = False,
-    ) -> None:
+    ) -> dict[str, Any]:
         """
+        Compute the phase diagram data for PatchedPhaseDiagram.
+
         Args:
-            entries (list[PDEntry]): A list of PDEntry-like objects having an
-                energy, energy_per_atom and composition.
-            elements (list[Element], optional): Optional list of elements in the phase
-                diagram. If set to None, the elements are determined from
-                the entries themselves and are sorted alphabetically.
-                If specified, element ordering (e.g. for pd coordinates)
-                is preserved.
-            keep_all_spaces (bool): Pass True to keep chemical spaces that are subspaces
-                of other spaces.
-            verbose (bool): Whether to show progress bar during convex hull construction.
+            entries: A list of Entry objects.
+            elements: Optional list of elements in the phase diagram.
+            keep_all_spaces: Whether to keep chemical spaces that are subspaces of other spaces.
+            verbose: Whether to show progress bar during convex hull construction.
+
+        Returns:
+            dict containing computed_data with proper indexing for serialization.
         """
         if elements is None:
             elements = sorted({els for entry in entries for els in entry.elements})
 
-        self.dim = len(elements)
+        dim = len(elements)
 
         entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
 
-        el_refs: dict[Element, PDEntry] = {}
-        min_entries = []
-        all_entries: list[PDEntry] = []
+        el_refs: dict[Element, Entry] = {}
+        min_entries: list[Entry] = []
+        all_entries: list[Entry] = []
         for composition, group_iter in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
             group = list(group_iter)
             min_entry = min(group, key=lambda e: e.energy_per_atom)
@@ -1703,12 +1772,14 @@ class PatchedPhaseDiagram(PhaseDiagram):
             min_entries.append(min_entry)
             all_entries.extend(group)
 
-        if len(el_refs) < self.dim:
+        if len(el_refs) < dim:
             missing = set(elements) - set(el_refs)
             raise ValueError(f"Missing terminal entries for elements {sorted(map(str, missing))}")
-        if len(el_refs) > self.dim:
+        if len(el_refs) > dim:
             extra = set(el_refs) - set(elements)
             raise ValueError(f"There are more terminal elements than dimensions: {extra}")
+
+        entry_to_index = {entry: idx for idx, entry in enumerate(all_entries)}
 
         data = np.array(
             [
@@ -1729,29 +1800,143 @@ class PatchedPhaseDiagram(PhaseDiagram):
         inds.extend([min_entries.index(el) for el in el_refs.values()])
 
         qhull_entries = tuple(min_entries[idx] for idx in inds)
-        # make qhull spaces frozensets since they become keys to self.pds dict and frozensets are hashable
-        # prevent repeating elements in chemical space and avoid the ordering problem (i.e. Fe-O == O-Fe automatically)
         qhull_spaces = tuple(frozenset(entry.elements) for entry in qhull_entries)
 
-        # Get all unique chemical spaces
         spaces = {s for s in qhull_spaces if len(s) > 1}
+        spaces = PatchedPhaseDiagram.remove_redundant_spaces(spaces, keep_all_spaces)
+        spaces_list = sorted(spaces, key=len, reverse=True)  # Calculate pds for smaller dimension spaces last
 
-        # Remove redundant chemical spaces
-        spaces = self.remove_redundant_spaces(spaces, keep_all_spaces)
+        # Build PhaseDiagrams for each space and collect their computed_data
+        pds_computed_data = {}
+        for space in tqdm(spaces_list, disable=not verbose):
+            space_entries = [e for e, s in zip(qhull_entries, qhull_spaces, strict=True) if space.issuperset(s)]
+            pd = PhaseDiagram(space_entries)
 
-        # TODO comprhys: refactor to have self._compute method to allow serialization
-        self.spaces = sorted(spaces, key=len, reverse=True)  # Calculate pds for smaller dimension spaces last
-        self.qhull_entries = qhull_entries
-        self._qhull_spaces = qhull_spaces
-        self.pds = dict(self._get_pd_patch_for_space(s) for s in tqdm(self.spaces, disable=not verbose))
-        self.all_entries = all_entries
-        self.el_refs = el_refs
-        self.elements = elements
+            # NOTE: We must preserve order to keep facets valid
+            try:
+                subspace_all_entry_indices = [entry_to_index[pd_entry] for pd_entry in pd.all_entries]
+            except KeyError as exc:
+                missing_entry = exc.args[0]
+                raise ValueError(f"pd.all_entries entry {missing_entry} not found in all_entries") from exc
 
-        # Add terminal elements as we may not have PD patches including them
+            pd_entry_to_index = {entry: idx for idx, entry in enumerate(pd.all_entries)}
+            subspace_qhull_entry_indices = [pd_entry_to_index[entry] for entry in pd.qhull_entries]
+            subspace_el_refs = [(el, pd_entry_to_index[entry]) for el, entry in pd.computed_data["el_refs"]]
+
+            pds_computed_data[space] = {
+                "all_entries": subspace_all_entry_indices,
+                "qhull_entries": subspace_qhull_entry_indices,
+                "facets": pd.computed_data["facets"],
+                "qhull_data": pd.qhull_data.tolist(),
+                "el_refs": subspace_el_refs,
+                "elements": tuple(pd.elements),
+            }
+
+        return {
+            "all_entries": all_entries,
+            "el_refs": [(el.symbol, entry_to_index[entry]) for el, entry in el_refs.items()],
+            "qhull_entries": [entry_to_index[entry] for entry in qhull_entries],
+            "spaces": spaces_list,
+            "pds": pds_computed_data,
+        }
+
+    def __init__(
+        self,
+        entries: Sequence[Entry] | set[Entry],
+        elements: Sequence[Element] | None = None,
+        keep_all_spaces: bool = False,
+        verbose: bool = False,
+        *,
+        computed_data: dict[str, Any] | None = None,
+    ) -> None:
+        """
+        Args:
+            entries (Sequence[Entry] | set[Entry]): A list of Entry objects having an
+                energy, energy_per_atom and composition.
+            elements (Sequence[Element], optional): Optional list of elements in the phase
+                diagram. If set to None, the elements are determined from
+                the entries themselves and are sorted alphabetically.
+                If specified, element ordering (e.g. for pd coordinates)
+                is preserved.
+            keep_all_spaces (bool): Pass True to keep chemical spaces that are subspaces
+                of other spaces.
+            verbose (bool): Whether to show progress bar during convex hull construction.
+            computed_data (dict): A dict containing pre-computed data. This allows
+                PatchedPhaseDiagram object to be reconstituted without performing the
+                expensive convex hull computation. The dict is the output from the
+                PatchedPhaseDiagram._compute() method.
+        """
+        self.elements = list(elements) if elements else sorted({el for e in entries for el in e.elements})
+
+        if computed_data is None:
+            computed_data = self._compute(entries, elements, keep_all_spaces, verbose)
+        else:
+            computed_data = MontyDecoder().process_decoded(computed_data)
+            if not isinstance(computed_data, dict):
+                raise TypeError(f"computed_data should be dict, got {type(computed_data).__name__}")
+
+        self.computed_data = computed_data
+        self.all_entries = computed_data["all_entries"]
+
+        # Convert el_refs from [(el_symbol, index), ...] or [(el_symbol, Entry), ...] to {Element: Entry}
+        el_refs_data = computed_data["el_refs"]
+        if el_refs_data and not isinstance(el_refs_data[0][1], int):
+            raise TypeError("computed_data['el_refs'] must contain integer indices")
+
+        def _ensure_element(el: Element | str) -> Element:
+            return el if isinstance(el, Element) else Element(el)
+
+        self.el_refs = {_ensure_element(el_symbol): self.all_entries[idx] for el_symbol, idx in el_refs_data}
+
+        # Convert qhull_entries from indices to entry objects
+        # When from _compute(), qhull_entries are indices; when from from_dict(), they're already entries
+        qhull_entries_data = computed_data["qhull_entries"]
+        if qhull_entries_data and not isinstance(qhull_entries_data[0], int):
+            raise TypeError("computed_data['qhull_entries'] must be indices into all_entries")
+        self.qhull_entries = tuple(self.all_entries[idx] for idx in qhull_entries_data)
+
+        self._qhull_spaces = tuple(frozenset(e.elements) for e in self.qhull_entries)
+        # Convert spaces from tuples (serialized) or frozensets (in-memory) to frozensets
+        self.spaces = [
+            space if isinstance(space, frozenset) else frozenset(Element(el) for el in space)
+            for space in computed_data["spaces"]
+        ]
+
+        # Reconstruct PhaseDiagrams from computed_data
+        self.pds = {}
+        for space_key, pd_computed_data in computed_data["pds"].items():
+            # Handle both frozenset (in-memory) and tuple (serialized) keys
+            if not isinstance(space_key, frozenset):
+                space_key = frozenset(Element(el) for el in space_key)
+
+            subspace_elements = [
+                Element(el) if not isinstance(el, Element) else el for el in pd_computed_data["elements"]
+            ]
+            subspace_all_entries_data = pd_computed_data["all_entries"]
+            if subspace_all_entries_data and not isinstance(subspace_all_entries_data[0], int):
+                raise TypeError("subspace 'all_entries' must contain indices into PatchedPhaseDiagram.all_entries")
+            subspace_all_entries = [self.all_entries[idx] for idx in subspace_all_entries_data]
+            pd_computed_data_with_entries = pd_computed_data.copy()
+            pd_computed_data_with_entries["all_entries"] = subspace_all_entries
+            pd_computed_data_with_entries["elements"] = subspace_elements
+            pd_computed_data_with_entries["qhull_entries"] = [
+                subspace_all_entries[idx] for idx in pd_computed_data["qhull_entries"]
+            ]
+            pd_computed_data_with_entries["el_refs"] = [
+                (
+                    _ensure_element(el_symbol),
+                    subspace_all_entries[idx],
+                )
+                for el_symbol, idx in pd_computed_data["el_refs"]
+            ]
+            self.pds[space_key] = PhaseDiagram(
+                subspace_all_entries, elements=subspace_elements, computed_data=pd_computed_data_with_entries
+            )
+
         # NOTE add el_refs in case no multielement entries are present for el
-        _stable_entries = {se for pd in self.pds.values() for se in pd._stable_entries}
-        self._stable_entries = tuple(_stable_entries | {*self.el_refs.values()})
+        self._stable_entries = tuple(
+            {se for pd in self.pds.values() for se in pd._stable_entries} | {*self.el_refs.values()}
+        )
         self._stable_spaces = tuple(frozenset(entry.elements) for entry in self._stable_entries)
 
     def __repr__(self):
@@ -1776,42 +1961,50 @@ class PatchedPhaseDiagram(PhaseDiagram):
         return item in self.pds
 
     def as_dict(self) -> dict[str, Any]:
-        """Write the entries and elements used to construct the PatchedPhaseDiagram
-        to a dictionary.
+        """Write the entries and elements used to construct the PatchedPhaseDiagram to a dictionary."""
+        entry_to_index = {entry: idx for idx, entry in enumerate(self.all_entries)}
 
-        NOTE unlike PhaseDiagram the computation involved in constructing the
-        PatchedPhaseDiagram is not saved on serialization. This is done because
-        hierarchically calling the `PhaseDiagram.as_dict()` method would break the
-        link in memory between entries in overlapping patches leading to a
-        ballooning of the amount of memory used.
+        computed_data: dict[str, Any] = {
+            "all_entries": [e.as_dict() for e in self.all_entries],
+            "qhull_entries": [entry_to_index[entry] for entry in self.qhull_entries],
+            "el_refs": [(element.symbol, entry_to_index[entry]) for element, entry in self.el_refs.items()],
+        }
 
-        NOTE For memory efficiency the best way to store patched phase diagrams is
-        via pickling. As this allows all the entries in overlapping patches to share
-        the same id in memory when unpickling.
+        spaces_serialized = [tuple(sorted(element.symbol for element in space)) for space in self.spaces]
 
-        Returns:
-            dict[str, Any]: MSONable dictionary representation of PatchedPhaseDiagram.
-        """
+        pds_remapped: dict[str, Any] = {}
+        for space, pd in self.pds.items():
+            space_key_serialized = "-".join(sorted(element.symbol for element in space))
+
+            subspace_all_entry_indices = [entry_to_index[entry] for entry in pd.all_entries]
+            subspace_qhull_indices = [entry_to_index[entry] for entry in pd.qhull_entries]
+            subspace_el_refs = [(element.symbol, entry_to_index[entry]) for element, entry in pd.el_refs.items()]
+
+            qhull_data = np.asarray(pd.qhull_data).tolist()
+            facets = [facet.tolist() for facet in pd.facets]
+
+            pds_remapped[space_key_serialized] = {
+                "all_entries": subspace_all_entry_indices,
+                "qhull_entries": subspace_qhull_indices,
+                "facets": facets,
+                "qhull_data": qhull_data,
+                "el_refs": subspace_el_refs,
+                "elements": [element.symbol for element in pd.elements],
+            }
+
+        computed_data["spaces"] = spaces_serialized
+        computed_data["pds"] = pds_remapped
+
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "all_entries": [entry.as_dict() for entry in self.all_entries],
-            "elements": [entry.as_dict() for entry in self.elements],
+            "elements": [element.symbol for element in self.elements],
+            "computed_data": computed_data,
         }
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
         """Reconstruct PatchedPhaseDiagram from dictionary serialization.
-
-        NOTE unlike PhaseDiagram the computation involved in constructing the
-        PatchedPhaseDiagram is not saved on serialization. This is done because
-        hierarchically calling the `PhaseDiagram.as_dict()` method would break the
-        link in memory between entries in overlapping patches leading to a
-        ballooning of the amount of memory used.
-
-        NOTE For memory efficiency the best way to store patched phase diagrams is
-        via pickling. As this allows all the entries in overlapping patches to share
-        the same id in memory when unpickling.
 
         Args:
             dct (dict): dictionary representation of PatchedPhaseDiagram.
@@ -1819,24 +2012,56 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Returns:
             PatchedPhaseDiagram
         """
-        entries = [MontyDecoder().process_decoded(entry) for entry in dct["all_entries"]]
-        elements = [Element.from_dict(elem) for elem in dct["elements"]]
-        return cls(entries, elements)
+        computed_data = dct["computed_data"]
+        elements = [Element(elem) for elem in dct["elements"]]
+        decoder = MontyDecoder()
+        all_entries = [decoder.process_decoded(entry) for entry in computed_data["all_entries"]]
+
+        computed_data_reconstructed = computed_data.copy()
+        computed_data_reconstructed["all_entries"] = all_entries
+
+        # qhull_entries and el_refs are already indices into all_entries
+        pds_reconstructed = {}
+        for space_key, pd_data in computed_data["pds"].items():
+            space_key_frozen = frozenset(Element(el) for el in space_key.split("-"))
+
+            facets = [np.array(facet, dtype=int) for facet in pd_data["facets"]]
+            subspace_elements = [Element(el) if not isinstance(el, Element) else el for el in pd_data["elements"]]
+
+            # Create mapping from global index to subspace index
+            subspace_indices = pd_data["all_entries"]
+            global_to_sub_idx = {global_idx: sub_idx for sub_idx, global_idx in enumerate(subspace_indices)}
+
+            # simplexes reconstructed in PhaseDiagram.__init__ from qhull_data and facets
+            pds_reconstructed[space_key_frozen] = {
+                "all_entries": subspace_indices,
+                "qhull_entries": [global_to_sub_idx[idx] for idx in pd_data["qhull_entries"]],
+                "facets": facets,
+                "qhull_data": np.array(pd_data["qhull_data"]),
+                "el_refs": [(Element(el), global_to_sub_idx[idx]) for el, idx in pd_data["el_refs"]],
+                "elements": subspace_elements,
+            }
+
+        computed_data_reconstructed["pds"] = pds_reconstructed
+
+        return cls(entries=all_entries, elements=elements, computed_data=computed_data_reconstructed)
 
     @staticmethod
-    def remove_redundant_spaces(spaces, keep_all_spaces=False):
+    def remove_redundant_spaces(
+        spaces: set[frozenset[Element]], keep_all_spaces: bool = False
+    ) -> set[frozenset[Element]]:
         if keep_all_spaces or len(spaces) <= 1:
             return spaces
 
         # Sort spaces by size in descending order and pre-compute lengths
         sorted_spaces = sorted(spaces, key=len, reverse=True)
 
-        result = []
+        result = list()
         for idx, space_i in enumerate(sorted_spaces):
             if not any(space_i.issubset(larger_space) for larger_space in sorted_spaces[:idx]):
                 result.append(space_i)
 
-        return result
+        return set(result)
 
     def get_pd_for_entry(self, entry: Entry | Composition) -> PhaseDiagram:
         """Get the possible phase diagrams for an entry.
@@ -1912,18 +2137,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
             check_stable=check_stable,
             on_error=on_error,
         )
-
-    def _get_pd_patch_for_space(self, space: frozenset[Element]) -> tuple[frozenset[Element], PhaseDiagram]:
-        """
-        Args:
-            space (frozenset[Element]): chemical space of the form A-B-X.
-
-        Returns:
-            space, PhaseDiagram for the given chemical space
-        """
-        space_entries = [e for e, s in zip(self.qhull_entries, self._qhull_spaces, strict=True) if space.issuperset(s)]
-
-        return space, PhaseDiagram(space_entries)
 
     # NOTE the following functions are not implemented for PatchedPhaseDiagram
 

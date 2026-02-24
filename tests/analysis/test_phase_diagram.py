@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import plotly.graph_objects as go
 import pytest
+from monty.json import MontyDecoder
 from monty.serialization import dumpfn, loadfn
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -636,17 +637,39 @@ class TestPhaseDiagram(MatSciTest):
         pd_dict = pd.as_dict()
         pd_roundtrip = PhaseDiagram.from_dict(pd_dict)
         assert pd.all_entries[0].entry_id == pd_roundtrip.all_entries[0].entry_id
-        dd = self.pd.as_dict()
-        new_pd = PhaseDiagram.from_dict(dd)
-        new_pd_dict = new_pd.as_dict()
-        assert len(new_pd_dict) == len(dd)
-        for k, v in new_pd_dict.items():
-            # Direct equality on dict values can fail when they contain NumPy arrays,
-            # because array equality is elementwise and has ambiguous truth value.
-            # Comparing their reprs instead avoids that issue while still verifying
-            # round-trip consistency.
-            assert repr(v) == repr(dd[k])
-        assert isinstance(new_pd.to_json(), str)
+
+        pd_dict = self.pd.as_dict()
+        reconstructed_pd = PhaseDiagram.from_dict(pd_dict)
+        reconstructed_pd_dict = reconstructed_pd.as_dict()
+        assert reconstructed_pd_dict == pd_dict
+        assert isinstance(pd.to_json(), str)
+
+        assert MontyDecoder().process_decoded(pd_dict).as_dict() == pd_dict
+
+        for entry in self.pd.all_entries:
+            # NOTE: allow_negative=True is necessary due to fp errors we see after serialization
+            decomp_rpd, e_above_hull_rppd = reconstructed_pd.get_decomp_and_e_above_hull(entry, allow_negative=True)
+            decomp_pd, e_above_hull_ppd = self.pd.get_decomp_and_e_above_hull(entry)
+
+            # Check that decompositions sum to the original composition
+            for decomp, name in [(decomp_pd, "pd"), (decomp_rpd, "rpd")]:
+                decomp_comp = Composition({})
+                for e, amount in decomp.items():
+                    comp_scaled = e.composition.fractional_composition * amount
+                    decomp_comp += comp_scaled
+                assert decomp_comp.almost_equals(
+                    entry.composition.fractional_composition, rtol=0, atol=Composition.amount_tolerance
+                ), (
+                    f"Decomposition for {entry} from {name} does not sum to original composition! "
+                    f"Expected {entry.composition}, got {decomp_comp}"
+                )
+
+            # Compare decompositions by matching entries by composition
+            # since serialization creates new entry objects with potentially slightly different energies
+            decomp_pd_by_comp = {e.composition: amount for e, amount in decomp_pd.items()}
+            decomp_rpd_by_comp = {e.composition: amount for e, amount in decomp_rpd.items()}
+            assert decomp_pd_by_comp == approx(decomp_rpd_by_comp), f"Decomposition for {entry} is not correct!"
+            assert np.isclose(e_above_hull_rppd, e_above_hull_ppd, rtol=1e-4, atol=1e-4)
 
     def test_read_json(self):
         dumpfn(self.pd, f"{self.tmp_path}/pd.json")
@@ -815,10 +838,24 @@ class TestPatchedPhaseDiagram:
             assert np.isclose(e_hull_pd, e_hull_ppd)
 
     def test_get_decomp_and_e_above_hull(self):
-        for entry in self.pd.stable_entries:
+        for entry in self.pd.all_entries:
             decomp_pd, e_above_hull_pd = self.pd.get_decomp_and_e_above_hull(entry)
             decomp_ppd, e_above_hull_ppd = self.ppd.get_decomp_and_e_above_hull(entry, check_stable=True)
-            assert decomp_pd == decomp_ppd
+
+            # Check that decompositions sum to the original composition
+            for decomp, name in [(decomp_pd, "pd"), (decomp_ppd, "ppd")]:
+                decomp_comp = Composition({})
+                for e, amount in decomp.items():
+                    comp_scaled = e.composition.fractional_composition * amount
+                    decomp_comp += comp_scaled
+                assert decomp_comp.almost_equals(
+                    entry.composition.fractional_composition, rtol=0, atol=Composition.amount_tolerance
+                ), (
+                    f"Decomposition for {entry} from {name} does not sum to original composition! "
+                    f"Expected {entry.composition}, got {decomp_comp}"
+                )
+
+            assert decomp_pd == approx(decomp_ppd)
             assert np.isclose(e_above_hull_pd, e_above_hull_ppd)
 
     def test_repr(self):
@@ -828,10 +865,53 @@ class TestPatchedPhaseDiagram:
         ppd_dict = self.ppd.as_dict()
         assert ppd_dict["@module"] == type(self.ppd).__module__
         assert ppd_dict["@class"] == type(self.ppd).__name__
-        assert ppd_dict["all_entries"] == [entry.as_dict() for entry in self.ppd.all_entries]
-        assert ppd_dict["elements"] == [elem.as_dict() for elem in self.ppd.elements]
-        # test round-trip dict serialization
-        assert PatchedPhaseDiagram.from_dict(ppd_dict).as_dict() == ppd_dict
+
+        # Check format with computed_data
+        assert "computed_data" in ppd_dict
+        computed_data = ppd_dict["computed_data"]
+        assert "all_entries" in computed_data
+        assert isinstance(computed_data["all_entries"], list)
+        assert all(isinstance(entry, dict) for entry in computed_data["all_entries"])
+
+        # Verify entries can be reconstructed
+        reconstructed_entries = [MontyDecoder().process_decoded(entry) for entry in computed_data["all_entries"]]
+        assert len(reconstructed_entries) == len(self.ppd.all_entries)
+        assert ppd_dict["elements"] == [elem.symbol for elem in self.ppd.elements]
+
+        reconstructed_ppd = PatchedPhaseDiagram.from_dict(ppd_dict)
+        reconstructed_dict = reconstructed_ppd.as_dict()
+        assert ppd_dict == reconstructed_dict
+
+        assert MontyDecoder().process_decoded(ppd_dict).as_dict() == ppd_dict
+
+        for entry in self.ppd.all_entries:
+            decomp_pd, e_above_hull_pd = self.pd.get_decomp_and_e_above_hull(entry)
+            for pd, name in [
+                (self.ppd, "ppd"),
+                (reconstructed_ppd, "rppd"),
+            ]:
+                # NOTE: allow_negative=True is necessary due to fp errors we see after serialization
+                decomp, e_above_hull = pd.get_decomp_and_e_above_hull(entry, check_stable=True, allow_negative=True)
+                decomp_comp = Composition({})
+                for e, amount in decomp.items():
+                    comp_scaled = e.composition.fractional_composition * amount
+                    decomp_comp += comp_scaled
+                assert decomp_comp.almost_equals(
+                    entry.composition.fractional_composition, rtol=0, atol=Composition.amount_tolerance
+                ), (
+                    f"Decomposition for {entry} from {name} does not sum to original composition! "
+                    f"Expected {entry.composition}, got {decomp_comp}"
+                )
+
+                assert decomp == approx(decomp_pd), f"Decomposition for {entry} is not correct!"
+                assert np.isclose(e_above_hull, e_above_hull_pd)
+
+    def test_read_json(self, tmp_path):
+        dumpfn(self.ppd, f"{tmp_path}/ppd.json")
+        ppd = loadfn(f"{tmp_path}/ppd.json")
+        assert isinstance(ppd, PatchedPhaseDiagram)
+        assert ppd.elements == self.ppd.elements
+        assert {*ppd.as_dict()} == {*self.ppd.as_dict()}
 
     def test_get_pd_for_entry(self):
         for entry in self.ppd.all_entries:

@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from typing import Literal
 
     from pymatgen.core import DummySpecies, Element, Species
+    from pymatgen.util.typing import CompositionLike
 
 
 __author__ = "Shyue Ping Ong, Anubhav Jain, Ayush Gupta"
@@ -37,20 +38,19 @@ class Entry(MSONable, ABC):
     which inherit from Entry must define a .energy property.
     """
 
-    def __init__(self, composition: Composition | str | dict[str, float], energy: float) -> None:
+    def __init__(self, composition: CompositionLike, energy: float) -> None:
         """Initialize an Entry.
 
         Args:
-            composition (Composition): Composition of the entry. For
+            composition (CompositionLike): Composition of the entry. For
                 flexibility, this can take the form of all the typical input taken by a
                 Composition, including a {symbol: amt} dict, a string formula, and others.
             energy (float): Energy of the entry.
         """
-        if isinstance(composition, Composition):
-            self._composition = composition
-        else:
-            self._composition = Composition(composition)
-        # self._composition = Composition(composition)
+        if not isinstance(composition, Composition):
+            composition = Composition(composition)
+
+        self._composition = composition
         self._energy = energy
 
     @property
