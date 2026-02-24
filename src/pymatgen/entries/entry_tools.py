@@ -26,8 +26,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import Literal, Self
 
-    from pymatgen.entries import Entry
-    from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+    from pymatgen.core.entries import ComputedEntry, ComputedStructureEntry, Entry
     from pymatgen.util.typing import SpeciesLike
 
 logger = logging.getLogger(__name__)

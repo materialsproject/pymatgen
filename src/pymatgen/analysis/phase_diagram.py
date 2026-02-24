@@ -30,7 +30,7 @@ import pymatgen
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.core import DummySpecies, Element, get_el_sp
 from pymatgen.core.composition import Composition
-from pymatgen.entries import Entry
+from pymatgen.core.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
@@ -44,7 +44,7 @@ if TYPE_CHECKING:
     from matplotlib.colors import Colormap
     from numpy.typing import ArrayLike, NDArray
 
-    from pymatgen.entries.computed_entries import ComputedEntry
+    from pymatgen.core.entries import ComputedEntry
 
 logger = logging.getLogger(__name__)
 
