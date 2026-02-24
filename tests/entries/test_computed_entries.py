@@ -477,8 +477,6 @@ class TestGibbsComputedStructureEntry:
             for temp in self.temps
         }
 
-        with open(f"{TEST_DIR}/Mn-O_entries.json", "rb") as file:
-            data = orjson.loads(file.read())
         with open(f"{TEST_DIR}/structure_CO2.json", "rb") as file:
             self.co2_struct = MontyDecoder().process_decoded(orjson.loads(file.read()))
 

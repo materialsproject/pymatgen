@@ -14,14 +14,14 @@ from scipy.constants import N_A
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair
 from pymatgen.core import Composition, Element
+from pymatgen.core.entries import ComputedEntry
 from pymatgen.core.units import Charge, Time
-from pymatgen.entries.computed_entries import ComputedEntry
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import Self
 
-    from pymatgen.entries import Entry
+    from pymatgen.core.entries import Entry
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

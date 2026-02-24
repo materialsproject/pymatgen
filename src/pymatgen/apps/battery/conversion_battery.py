@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import Self
 
-    from pymatgen.entries.computed_entries import ComputedEntry
+    from pymatgen.core.entries import ComputedEntry
 
 
 @dataclass
