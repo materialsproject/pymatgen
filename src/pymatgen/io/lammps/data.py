@@ -17,6 +17,7 @@ from __future__ import annotations
 import itertools
 import re
 import warnings
+from dataclasses import dataclass, field
 from io import StringIO
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -36,8 +37,10 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Literal, Self
 
+    from numpy.typing import ArrayLike
+
     from pymatgen.core.sites import Site
-    from pymatgen.core.structure import IStructure, SiteCollection
+    from pymatgen.core.structure import IMolecule, IStructure, SiteCollection
 
 __author__ = "Kiran Mathew, Zhi Deng, Tingzheng Hou"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -108,6 +111,86 @@ ATOMS_HEADERS = {
     "full": ["molecule-ID", "type", "q", "x", "y", "z"],
     "molecular": ["molecule-ID", "type", "x", "y", "z"],
 }
+
+
+@dataclass
+class LammpsForceField:
+    """
+    Super light wrapper class to store force field information with
+    basic validation: If a {some}_coeff is specified,
+    {some}_style must be specified. If species is specified as a string,
+    it will be split into a list of strings.
+    """
+
+    pair_style: str | None = field(default=None)
+    pair_coeff: list | str | None = field(default=None)
+    bond_style: str | None = field(default=None)
+    bond_coeff: list | str | None = field(default=None)
+    angle_style: str | None = field(default=None)
+    angle_coeff: list | str | None = field(default=None)
+    dihedral_style: str | None = field(default=None)
+    dihedral_coeff: list | str | None = field(default=None)
+    improper_style: str | None = field(default=None)
+    improper_coeff: list | str | None = field(default=None)
+    species: list | str | None = field(default=None)
+
+    def __post_init__(self):
+        if self.species:
+            if isinstance(self.species, str):
+                self.species = self.species.split()
+            if not all(isinstance(s, str) for s in self.species):
+                raise ValueError("Species must be a list of strings")
+        has_atleast_one = False
+        for kw in ["pair_coeff", "bond_coeff", "angle_coeff", "dihedral_coeff", "improper_coeff"]:
+            if self.__getattribute__(kw):
+                type_kw = kw.split("_")[0]
+                if not self.__getattribute__(f"{type_kw}_style"):
+                    raise ValueError(
+                        f"{type_kw}_style must be specified \
+                        when {kw} is specified"
+                    )
+                has_atleast_one = True
+        if not has_atleast_one:
+            raise ValueError(
+                "At least one of pair_coeff, \
+                bond_coeff, angle_coeff, dihedral_coeff, or \
+                    improper_coeff must be specified"
+            )
+
+    def as_dict(self):
+        return {
+            "pair_style": self.pair_style,
+            "pair_coeff": self.pair_coeff,
+            "bond_style": self.bond_style,
+            "bond_coeff": self.bond_coeff,
+            "angle_style": self.angle_style,
+            "angle_coeff": self.angle_coeff,
+            "dihedral_style": self.dihedral_style,
+            "dihedral_coeff": self.dihedral_coeff,
+            "improper_style": self.improper_style,
+            "improper_coeff": self.improper_coeff,
+            "species": self.species,
+        }
+
+    @classmethod
+    def from_dict(cls, dct: dict):
+        kw_list = [
+            "pair_style",
+            "pair_coeff",
+            "bond_style",
+            "bond_coeff",
+            "angle_style",
+            "angle_coeff",
+            "dihedral_style",
+            "dihedral_coeff",
+            "improper_style",
+            "improper_coeff",
+            "species",
+        ]
+        build_dct = {}
+        for kw in kw_list:
+            build_dct[kw] = dct.get(kw)
+        return cls(**build_dct)
 
 
 class LammpsBox(MSONable):
@@ -257,8 +340,8 @@ class LammpsData(MSONable):
                 keys, and each value is a DataFrame.
             atom_style (str): Output atom_style. Default to "full".
         """
-        if velocities is not None and len(atoms) != len(velocities):
-            raise ValueError(f"{len(atoms)=} and {len(velocities)=} mismatch")
+        # if velocities is not None and len(atoms) != len(velocities):
+        #    raise ValueError(f"{len(atoms)=} and {len(velocities)=} mismatch")
 
         if force_field:
             all_ff_kws = SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]
@@ -849,7 +932,7 @@ class LammpsData(MSONable):
         cls,
         structure: Structure | IStructure,
         ff_elements: Sequence[str] | None = None,
-        atom_style: Literal["atomic", "charge"] = "charge",
+        atom_style: Literal["atomic", "charge", "full"] = "charge",
         is_sort: bool = False,
     ) -> Self:
         """Simple constructor building LammpsData from a structure without
@@ -861,7 +944,7 @@ class LammpsData(MSONable):
                 be present due to force field settings but not
                 necessarily in the structure. Default to None.
             atom_style (str): Choose between "atomic" (neutral) and
-                "charge" (charged). Default to "charge".
+                "charge" (charged) and "full". Default to "charge".
             is_sort (bool): whether to sort sites
         """
         struct = structure.get_sorted_structure() if is_sort else structure.copy()
@@ -889,6 +972,48 @@ class LammpsData(MSONable):
         ff = ForceField(mass_info)
         topo = Topology(boxed_s)
         return cls.from_ff_and_topologies(box=box, ff=ff, topologies=[topo], atom_style=atom_style)
+
+    @classmethod
+    def from_molecule(
+        cls, molecule: Molecule | IMolecule, box_or_lattice: LammpsBox | Lattice | ArrayLike, **kwargs
+    ) -> Self:
+        """Simple constructor building LammpsData from a molecule and a Lattice without
+        force field parameters. When dealing with molecules however, it is RECOMMENDED to
+        define a LammpsData object from a ForceField object and a Topology object
+        instead, which allows for more flexibility in defining force field parameters and
+        topologies. This implementation is mainly for convenience, and does not assign
+        "bonds" and "angles" sections in the topology!
+
+        Args:
+            molecule (Molecule): Input molecule.
+            box_or_lattice (LammpsBox or Lattice or ArrayLike): Simulation box or lattice.
+            ff_elements ([str]): List of strings of elements that must
+                be present due to force field settings but not
+                necessarily in the molecule. Default to None.
+            atom_style (str): Choose between "atomic" (neutral) and
+                "charge" (charged) and "full". Default to "charge".
+        """
+
+        if isinstance(box_or_lattice, LammpsBox):
+            box_or_lattice = box_or_lattice.to_lattice()
+
+        box_or_lattice.pbc = (False, False, False)
+
+        structure = Structure(
+            lattice=box_or_lattice,
+            species=molecule.species,
+            coords=molecule.cart_coords,
+            site_properties=molecule.site_properties if hasattr(molecule, "site_properties") else {},
+            charge=molecule.charge if hasattr(molecule, "charge") else 0,
+            coords_are_cartesian=True,
+            labels=molecule.labels if hasattr(molecule, "labels") else None,
+            properties=molecule.properties if hasattr(molecule, "properties") else {},
+        )
+
+        return cls.from_structure(
+            structure=structure,
+            **kwargs,
+        )
 
     def set_charge_atom(self, charges: dict[int, float]) -> None:
         """Set the charges of specific atoms of the data.
@@ -1297,7 +1422,7 @@ class CombinedData(LammpsData):
         self._coordinates.index = self._coordinates.index.map(int)
         max_xyz = self._coordinates[["x", "y", "z"]].max().max()
         min_xyz = self._coordinates[["x", "y", "z"]].min().min()
-        self.box = LammpsBox(np.array(3 * [[min_xyz - 0.5, max_xyz + 0.5]]))
+        self.box = LammpsBox(3 * [[min_xyz - 0.5, max_xyz + 0.5]])
         self.atom_style = atom_style
         self.n = sum(self._list_of_numbers)
         self.names = []
