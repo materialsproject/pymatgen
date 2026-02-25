@@ -840,8 +840,8 @@ class TestCompleteCohp(MatSciTest):
         self.cohp_lobster_forb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
 
         # spinpolarized case:
-        filepath = f"{TEST_DIR}/environments/COHPCAR.lobster.mp-190.gz"
-        structure = f"{TEST_DIR}/environments/POSCAR.mp_190.gz"
+        filepath = f"{TEST_DIR}/environments/COHPCAR.lobster.mp-190_2.gz"
+        structure = f"{TEST_DIR}/environments/CONTCAR.mp-190.gz"
         self.cohp_lobster_spin_polarized = CompleteCohp.from_file(
             "lobster", filename=filepath, structure_file=structure
         )
@@ -1269,8 +1269,8 @@ class TestMethod:
         structure = f"{TEST_DIR}/POSCAR.orbitalwise"
         self.cohp_orb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
 
-        filepath = f"{TEST_DIR}/environments/COHPCAR.lobster.mp-190.gz"
-        structure = f"{TEST_DIR}/environments/POSCAR.mp_190.gz"
+        filepath = f"{TEST_DIR}/environments/COHPCAR.lobster.mp-190_2.gz"
+        structure = f"{TEST_DIR}/environments/CONTCAR.mp-190.gz"
         self.cohp_lobster_spin_polarized = CompleteCohp.from_file(
             "lobster", filename=filepath, structure_file=structure
         )
