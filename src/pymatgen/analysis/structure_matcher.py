@@ -388,6 +388,7 @@ class StructureMatcher(MSONable):
         comparator: AbstractComparator | None = None,
         supercell_size: Literal["num_sites", "num_atoms", "volume"] = "num_sites",
         ignored_species: Sequence[SpeciesLike] = (),
+        allow_inversion: bool = True,
     ) -> None:
         """
         Args:
@@ -430,6 +431,11 @@ class StructureMatcher(MSONable):
                 except for certain ions, e.g. Li-ion intercalation frameworks.
                 This is more useful than allow_subset because it allows better
                 control over what species are ignored in the matching.
+            allow_inversion (bool): Whether to allow inversion operation for
+                lattice finding. Defaults to True. Setting this to False means that
+                only proper rotations will be considered when finding lattices, which
+                is relevant for distinguishing between enantiomorphic structures.
+
         """
         self.ltol = ltol
         self.stol = stol
@@ -441,6 +447,7 @@ class StructureMatcher(MSONable):
         self._supercell_size = supercell_size
         self._subset = allow_subset
         self._ignored_species = ignored_species
+        self._allow_inversion = allow_inversion
 
     def _get_supercell_size(self, s1, s2):
         """Get the supercell size, and whether the supercell should be applied to s1.
@@ -480,16 +487,18 @@ class StructureMatcher(MSONable):
         Args:
             target_lattice (Lattice): target lattice.
             s (Structure): input structure.
-            supercell_size (int): Number of primitive cells in returned lattice
+            supercell_size (int): Number of primitive cells in returned lattice.
         """
         lattices = s.lattice.find_all_mappings(
             target_lattice,
             ltol=self.ltol,
             atol=self.angle_tol,
-            skip_rotation_matrix=True,
+            skip_rotation_matrix=self._allow_inversion,
         )
-        for latt, _, scale_m in lattices:
-            if math.isclose(abs(np.linalg.det(scale_m)), supercell_size, abs_tol=0.5, rel_tol=0):
+        for latt, rmat, scale_m in lattices:
+            if math.isclose(abs(np.linalg.det(scale_m)), supercell_size, abs_tol=0.5, rel_tol=0) and (
+                self._allow_inversion or np.linalg.det(rmat) > 0
+            ):
                 yield latt, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
@@ -903,6 +912,7 @@ class StructureMatcher(MSONable):
             "allow_subset": self._subset,
             "supercell_size": self._supercell_size,
             "ignored_species": self._ignored_species,
+            "allow_inversion": self._allow_inversion,
         }
 
     @classmethod
