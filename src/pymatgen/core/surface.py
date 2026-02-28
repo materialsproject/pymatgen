@@ -1156,7 +1156,7 @@ class SlabGenerator:
 
         # Reduce to primitive cell
         if self.primitive:
-            prim_slab = struct.get_primitive_structure(tolerance=tol)
+            prim_slab = struct.get_primitive_structure(tolerance=tol, reduce=False)
 
             if energy is not None:
                 energy *= prim_slab.volume / struct.volume
@@ -1170,7 +1170,8 @@ class SlabGenerator:
                     "alpha": prim_slab_l.alpha,
                     "beta": prim_slab_l.beta,
                     "gamma": prim_slab_l.gamma,
-                }
+                },
+                reduce=False
             )
 
             # Ensure lattice a and b are consistent between the OUC and the slab

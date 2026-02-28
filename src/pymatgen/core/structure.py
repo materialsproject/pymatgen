@@ -2558,6 +2558,7 @@ class IStructure(SiteCollection, MSONable):
         tolerance: float = 0.25,
         use_site_props: bool = False,
         constrain_latt: list | dict | None = None,
+        reduce: bool = True,
     ) -> Self | Structure:
         """Find a smaller unit cell than the input. Sometimes it doesn't
         find the smallest possible one, so this method is recursively called
@@ -2577,6 +2578,7 @@ class IStructure(SiteCollection, MSONable):
                 preserve, e.g. ["alpha", "c"] or dict with the lattice
                 parameter names as keys and values we want the parameters to
                 be e.g. {"alpha": 90, "c": 2.5}.
+            reduce (bool): Whether get_reduced_sructure is called prior to returning.
 
         Returns:
             The most primitive structure found.
@@ -2745,7 +2747,9 @@ class IStructure(SiteCollection, MSONable):
                         tolerance=tolerance,
                         use_site_props=use_site_props,
                         constrain_latt=constrain_latt,
-                    ).get_reduced_structure()
+                    )
+                    if reduce:
+                        primitive = primitive.get_reduced_structure()
                     if not constrain_latt:
                         return primitive
 
