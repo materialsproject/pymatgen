@@ -436,6 +436,30 @@ class TestSlabGenerator(MatSciTest):
             assert np.dot(a_vec, gen._normal) == approx(0)
             assert np.dot(b_vec, gen._normal) == approx(0)
 
+    def test_get_slab_oriented_unit_cell_obeys_constrained_lattice(self):
+        bulk = Structure.from_spacegroup(
+            "Fm-3m",
+            Lattice.cubic(4.194),
+            ["Mg", "O"],
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
+        )
+        slab = SlabGenerator(
+            initial_structure=bulk,
+            miller_index=(1, 1, 1),
+            min_slab_size=10,
+            min_vacuum_size=20,
+            primitive=True,
+            lll_reduce=False,
+            center_slab=False,
+            max_normal_search=None,
+        ).get_slab(shift=0)
+
+        slab_l = slab.lattice
+        ouc_l = slab.oriented_unit_cell.lattice
+        assert ouc_l.a == approx(slab_l.a)
+        assert ouc_l.b == approx(slab_l.b)
+        assert ouc_l.gamma == approx(slab_l.gamma)
+
     def test_normal_search(self):
         fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         for miller in [(1, 0, 0), (1, 1, 0), (1, 1, 1), (2, 1, 1)]:
