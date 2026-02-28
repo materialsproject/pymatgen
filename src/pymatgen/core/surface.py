@@ -1171,15 +1171,16 @@ class SlabGenerator:
                     "beta": prim_slab_l.beta,
                     "gamma": prim_slab_l.gamma,
                 },
-                reduce=False
+                reduce=False,
             )
 
             # Ensure lattice a and b are consistent between the OUC and the slab
-            a_b_consistent = np.isclose(prim_slab_l.a, prim_ouc.lattice.a) and np.isclose(prim_slab_l.b, prim_ouc.lattice.b)
+            a_b_consistent = np.isclose(prim_slab_l.a, prim_ouc.lattice.a) and np.isclose(
+                prim_slab_l.b, prim_ouc.lattice.b
+            )
             if a_b_consistent:
                 struct = prim_slab
                 ouc = prim_ouc
-
 
         return Slab(
             struct.lattice,

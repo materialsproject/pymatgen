@@ -2578,7 +2578,8 @@ class IStructure(SiteCollection, MSONable):
                 preserve, e.g. ["alpha", "c"] or dict with the lattice
                 parameter names as keys and values we want the parameters to
                 be e.g. {"alpha": 90, "c": 2.5}.
-            reduce (bool): Whether get_reduced_sructure is called prior to returning.
+            reduce (bool): Whether get_reduced_structure is called prior to
+                checking lattice constraints and returning structure.
 
         Returns:
             The most primitive structure found.
