@@ -436,6 +436,32 @@ class TestSlabGenerator(MatSciTest):
             assert np.dot(a_vec, gen._normal) == approx(0)
             assert np.dot(b_vec, gen._normal) == approx(0)
 
+    def test_get_slab_oriented_unit_cell_obeys_constrained_lattice(self):
+        bulk = Structure.from_spacegroup(
+            "Fm-3m",
+            Lattice.cubic(4.194),
+            ["Mg", "O"],
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
+        )
+        slab = SlabGenerator(
+            initial_structure=bulk,
+            miller_index=(1, 1, 1),
+            min_slab_size=10,
+            min_vacuum_size=20,
+            primitive=True,
+            lll_reduce=False,
+            center_slab=False,
+            max_normal_search=None,
+        ).get_slab(shift=0)
+
+        slab_l = slab.lattice
+        ouc_l = slab.oriented_unit_cell.lattice
+        assert ouc_l.a == approx(slab_l.a)
+        assert ouc_l.b == approx(slab_l.b)
+        assert ouc_l.alpha == approx(slab_l.alpha)
+        assert ouc_l.beta == approx(slab_l.beta)
+        assert ouc_l.gamma == approx(slab_l.gamma)
+
     def test_normal_search(self):
         fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         for miller in [(1, 0, 0), (1, 1, 0), (1, 1, 1), (2, 1, 1)]:
@@ -630,8 +656,8 @@ class TestSlabGenerator(MatSciTest):
         # expect 2 and 6 bonds broken so we check for this.
         # Number of broken bonds are floats due to primitive
         # flag check and subsequent transformation of slabs.
-        assert slabs[0].energy == approx(8.0)
-        assert slabs[1].energy == approx(24.0)
+        assert slabs[0].energy == approx(2.0)
+        assert slabs[1].energy == approx(6.0)
 
 
 class TestReconstructionGenerator(MatSciTest):
