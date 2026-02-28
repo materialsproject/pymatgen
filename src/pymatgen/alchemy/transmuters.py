@@ -19,8 +19,7 @@ from pymatgen.io.vasp.sets import MPRelaxSet, VaspInputSet
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.alchemy.filters import AbstractStructureFilter
 

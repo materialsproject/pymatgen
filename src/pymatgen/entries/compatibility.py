@@ -9,7 +9,7 @@ import copy
 import os
 import warnings
 from collections import defaultdict
-from typing import TYPE_CHECKING, TypeAlias, cast
+from typing import TYPE_CHECKING, TypeAlias, TypeVar, cast
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -48,10 +48,11 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "April 2020"
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
+MODULE_DIR: str = os.path.dirname(os.path.abspath(__file__))
+MU_H2O: float = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
 MP2020_COMPAT_CONFIG = loadfn(f"{MODULE_DIR}/MP2020Compatibility.yaml")
 MP_COMPAT_CONFIG = loadfn(f"{MODULE_DIR}/MPCompatibility.yaml")
+SMOOTH_PES_CONFIG = loadfn(f"{MODULE_DIR}/SmoothPESCompatibility.yaml")
 
 # This was compiled by cross-referencing structures in Materials Project from exp_compounds.json.gz
 # used in the fitting of the MP2020 correction scheme, and applying the BVAnalyzer algorithm to
@@ -77,6 +78,7 @@ if (
     raise RuntimeError("MP2020Compatibility.yaml expected to have the same Hubbard U corrections for O and F")
 
 AnyComputedEntry: TypeAlias = ComputedEntry | ComputedStructureEntry
+TypeVarAnyEntry = TypeVar("TypeVarAnyEntry", bound=AnyComputedEntry)
 
 
 class CompatibilityError(Exception):
@@ -577,10 +579,10 @@ class Compatibility(MSONable, abc.ABC):
 
     def process_entry(
         self,
-        entry: ComputedEntry,
+        entry: TypeVarAnyEntry,
         inplace: bool = True,
         **kwargs,
-    ) -> ComputedEntry | None:
+    ) -> TypeVarAnyEntry | None:
         """Process a single entry with the chosen Corrections.
         Note that this method may change the original entry.
 
@@ -595,21 +597,21 @@ class Compatibility(MSONable, abc.ABC):
         if not inplace:
             entry = copy.deepcopy(entry)
 
-        _entry: tuple[ComputedEntry, bool] | None = self._process_entry_inplace(entry, **kwargs)
+        _entry: tuple[TypeVarAnyEntry, bool] | None = self._process_entry_inplace(entry, **kwargs)
 
         return _entry[0] if _entry is not None else None
 
     def _process_entry_inplace(
         self,
-        entry: AnyComputedEntry,
+        entry: TypeVarAnyEntry,
         clean: bool = True,
         on_error: Literal["ignore", "warn", "raise"] = "ignore",
-    ) -> tuple[ComputedEntry, bool] | None:
+    ) -> tuple[TypeVarAnyEntry, bool] | None:
         """Process a single entry with the chosen Corrections.
         Note that this method will change the original entry.
 
         Args:
-            entry (AnyComputedEntry): An AnyComputedEntry object.
+            entry (TypeVarAnyEntry): A TypeVarAnyEntry object.
             clean (bool): Whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Defaults to True.
@@ -617,7 +619,7 @@ class Compatibility(MSONable, abc.ABC):
                 raises CompatibilityError. Defaults to "ignore".
 
         Returns:
-            tuple[AnyComputedEntry, ignore_entry (bool)] if entry is compatible, else None.
+            tuple[TypeVarAnyEntry, ignore_entry (bool)] if entry is compatible, else None.
         """
         ignore_entry: bool = False
         # If clean, remove all previous adjustments from the entry
@@ -662,13 +664,13 @@ class Compatibility(MSONable, abc.ABC):
 
     def process_entries(
         self,
-        entries: AnyComputedEntry | list[AnyComputedEntry],
+        entries: TypeVarAnyEntry | list[TypeVarAnyEntry],
         clean: bool = True,
         verbose: bool = False,
         inplace: bool = True,
         n_workers: int = 1,
         on_error: Literal["ignore", "warn", "raise"] = "ignore",
-    ) -> list[AnyComputedEntry]:
+    ) -> list[TypeVarAnyEntry]:
         """Process a sequence of entries with the chosen Compatibility scheme.
 
         Warning: This method changes entries in place! All changes can be undone and original entries
@@ -695,7 +697,7 @@ class Compatibility(MSONable, abc.ABC):
         if isinstance(entries, ComputedEntry):  # True for ComputedStructureEntry too
             entries = [entries]
 
-        processed_entry_list: list[AnyComputedEntry] = []
+        processed_entry_list: list[TypeVarAnyEntry] = []
 
         # if inplace = False, process entries on a copy
         if not inplace:
@@ -968,6 +970,8 @@ class MaterialsProject2020Compatibility(Compatibility):
     oxidation states to entry.data or pass ComputedStructureEntry.
     """
 
+    DEFAULT_CONFIG_FILE = MP2020_COMPAT_CONFIG
+
     def __init__(
         self,
         compat_type: str = "Advanced",
@@ -1046,7 +1050,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         else:
             self.config_file = None
 
-            config = MP2020_COMPAT_CONFIG
+            config = self.DEFAULT_CONFIG_FILE
 
         self.name = config["Name"]
         self.comp_correction = config["Corrections"].get("CompositionCorrections", defaultdict(float))
@@ -1123,7 +1127,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                         self.comp_correction["S"],
                         comp["S"],
                         uncertainty_per_atom=self.comp_errors["S"],
-                        name="MP2020 anion correction (S)",
+                        name=f"{self.name} anion correction (S)",
                         cls=self.as_dict(),
                     )
                 )
@@ -1166,7 +1170,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                     self.comp_correction[ox_type],
                     comp["O"],
                     uncertainty_per_atom=self.comp_errors[ox_type],
-                    name=f"MP2020 anion correction ({ox_type})",
+                    name=f"{self.name} anion correction ({ox_type})",
                     cls=self.as_dict(),
                 )
             )
@@ -1229,7 +1233,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                             self.comp_correction[anion],
                             comp[anion],
                             uncertainty_per_atom=self.comp_errors[anion],
-                            name=f"MP2020 anion correction ({anion})",
+                            name=f"{self.name} anion correction ({anion})",
                             cls=self.as_dict(),
                         )
                     )
@@ -1257,7 +1261,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                         u_corrections[symbol],
                         comp[el],
                         uncertainty_per_atom=u_errors[symbol],
-                        name=f"MP2020 GGA/GGA+U mixing correction ({symbol})",
+                        name=f"{self.name} GGA/GGA+U mixing correction ({symbol})",
                         cls=self.as_dict(),
                     )
                 )
@@ -1570,13 +1574,13 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
     def process_entries(
         self,
-        entries: list[AnyComputedEntry],
+        entries: list[TypeVarAnyEntry],
         clean: bool = False,
         verbose: bool = False,
         inplace: bool = True,
         n_workers: int = 1,
         on_error: Literal["ignore", "warn", "raise"] = "ignore",
-    ) -> list[AnyComputedEntry]:
+    ) -> list[TypeVarAnyEntry]:
         """Process a sequence of entries with the chosen Compatibility scheme.
 
         Args:
@@ -1606,7 +1610,9 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         # Pre-process entries with the given solid compatibility class
         if self.solid_compat:
-            entries = self.solid_compat.process_entries(entries, clean=True, inplace=inplace, n_workers=n_workers)
+            entries = self.solid_compat.process_entries(
+                entries, clean=True, verbose=verbose, inplace=inplace, n_workers=n_workers, on_error=on_error
+            )
 
         # when processing single entries, all H2 polymorphs will get assigned the
         # same energy
@@ -1645,6 +1651,32 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             n_workers=n_workers,
             on_error=on_error,
         )
+
+
+@cached_class
+@due.dcite(Doi("10.48550/arXiv.2601.21056", "Smooth PES correction for Hubbard U in MLIPs"))
+class SmoothPESCompatibility(MaterialsProject2020Compatibility):
+    """Energy correction scheme producing a smooth potential energy surface (PES).
+
+    This class implements per-atom energy shifts to align PBE+U and PBE energies,
+    producing a smoother PES for MLIP training. Unlike the Materials Project
+    correction schemes which target phase diagram accuracy, this scheme prioritizes
+    PES continuity.
+
+    The correction addresses systematic artifacts in MLIPs trained on datasets
+    (e.g., MPtrj, Alexandria, OMat24) that use the Materials Project's selective
+    Hubbard U correction. The selective +U creates incompatible PES: a lower-energy
+    GGA surface and a higher-energy GGA+U one. MLIPs interpolate between them,
+    leading to underbinding or spurious repulsion between U-corrected metals and
+    oxygen/fluorine-containing species.
+
+    References:
+        Warford, T., Thiemann, F.L., Csányi, G. Better without U: Impact of
+        Selective Hubbard U Correction on Foundational MLIPs. arXiv:2601.21056, 2026.
+        https://arxiv.org/abs/2601.21056
+    """
+
+    DEFAULT_CONFIG_FILE = SMOOTH_PES_CONFIG
 
 
 def needs_u_correction(

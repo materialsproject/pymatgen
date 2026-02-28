@@ -6,7 +6,9 @@ which provides basic methods for creating and manipulating rank 2 tensors.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import itertools
+import logging
 import os
 import string
 import warnings
@@ -24,16 +26,16 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
+    from typing import Any, Self
 
     from numpy.typing import NDArray
-    from typing_extensions import Self
 
     from pymatgen.core import Structure
 
 __author__ = "Joseph Montoya"
 __credits__ = "Maarten de Jong, Shyam Dwaraknath, Wei Chen, Mark Asta, Anubhav Jain, Terence Lew"
 
+logger = logging.getLogger(__name__)
 
 DEFAULT_QUAD = loadfn(os.path.join(os.path.dirname(__file__), "quad_data.json"))
 
@@ -89,13 +91,11 @@ class Tensor(np.ndarray, MSONable):
         self._vscale = getattr(obj, "_vscale", None)
         self._vdict = getattr(obj, "_vdict", None)
 
-    def __array_wrap__(self, obj):
-        """Overrides __array_wrap__ methods in ndarray superclass to avoid errors
-        associated with functions that return scalar values.
-        """
-        if len(obj.shape) == 0:
-            return obj[()]
-        return np.ndarray.__array_wrap__(self, obj)
+    def __array_wrap__(self, obj, context=None, return_scalar=None):
+        """Override to properly handle scalars and be compatible with NumPy 2.0."""
+        if obj.ndim == 0:
+            return obj.item()
+        return np.ndarray.__array_wrap__(self, obj, context)
 
     def __hash__(self) -> int:  # type:ignore[override]
         """Define a hash function, since numpy arrays have their own __eq__ method."""
@@ -642,14 +642,14 @@ class Tensor(np.ndarray, MSONable):
                 old[new_mask] = new[new_mask]
 
             if verbose:
-                print(f"Preconditioning for {len(sops)} symmops")
+                logger.info(f"Preconditioning for {len(sops)} symmops")
             for sop in sops:
                 rot = guess.transform(sop)
                 # Store non-zero entries of new that weren't previously
                 # in the guess in the guess
                 merge(guess, rot)
             if verbose:
-                print("Preconditioning for voigt symmetry")
+                logger.info("Preconditioning for voigt symmetry")
             if vsym:
                 v = guess.voigt
                 perms = list(itertools.permutations(range(len(v.shape))))
@@ -673,7 +673,7 @@ class Tensor(np.ndarray, MSONable):
             test_new[mask] = self[mask]
             test_old = test_new
             if verbose:
-                print(f"Iteration {idx}: {np.max(diff)}")
+                logger.info(f"Iteration {idx}: {np.max(diff)}")
         if not converged:
             max_diff = np.max(np.abs(self - test_new))
             warnings.warn(f"Warning, populated tensor is not converged with max diff of {max_diff}", stacklevel=2)

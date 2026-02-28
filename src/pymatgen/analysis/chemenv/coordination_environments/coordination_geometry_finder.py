@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import itertools
 import logging
+import math
 import time
 import warnings
 from random import shuffle
@@ -49,9 +50,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing import ClassVar
-
-    from typing_extensions import Self
+    from typing import ClassVar, Self
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -99,63 +98,101 @@ class AbstractGeometry:
         Raises:
             ValueError if the parameters are not consistent.
         """
-        bcoords = np.array(bare_coords)
-        self.bare_centre = np.array(central_site)
-        self.bare_points_without_centre = bcoords
-        self.bare_points_with_centre = np.array(central_site)
-        self.bare_points_with_centre = np.concatenate(([self.bare_points_with_centre], bcoords))
-        self.centroid_without_centre = np.mean(self.bare_points_without_centre, axis=0)
-        self.centroid_with_centre = np.mean(self.bare_points_with_centre, axis=0)
-        self._points_wcs_csc = self.bare_points_with_centre - self.bare_centre
-        self._points_wocs_csc = self.bare_points_without_centre - self.bare_centre
-        self._points_wcs_ctwcc = self.bare_points_with_centre - self.centroid_with_centre
-        self._points_wocs_ctwcc = self.bare_points_without_centre - self.centroid_with_centre
-        self._points_wcs_ctwocc = self.bare_points_with_centre - self.centroid_without_centre
-        self._points_wocs_ctwocc = self.bare_points_without_centre - self.centroid_without_centre
+        # Use asarray once (dtype=float) to avoid repeated conversions later.
+        bcoords = np.asarray(bare_coords, dtype=float)
+        # Central site may be None; only convert if provided to avoid object arrays.
+        central = None if central_site is None else np.asarray(central_site, dtype=float)
 
+        # Reuse sum and n multiple times (saves recomputation and function overhead).
+        n = bcoords.shape[0]
+        sum_b = bcoords.sum(axis=0) if n else np.zeros(3, float)
+
+        # Build the "with-centre" stack only if central is provided (avoids concat on None).
+        if central is None:
+            # Keep a consistent 2D array even if central is missing; this array is not
+            # used in code paths that require central, but it avoids shape conditionals.
+            bare_with_centre = bcoords if n else np.empty((0, 3), float)
+            centroid_with_centre = sum_b / float(max(n, 1))  # safe fallback; not used unless requested
+        else:
+            # vstack is faster than concatenating Python lists of arrays here.
+            bare_with_centre = np.vstack((central, bcoords))
+            centroid_with_centre = (sum_b + central) / float(n + 1)
+
+        centroid_without_centre = sum_b / float(n) if n else np.zeros(3, float)
+
+        # Store "bare" attributes.
+        self.bare_centre = central
+        self.bare_points_without_centre = bcoords
+        self.bare_points_with_centre = bare_with_centre
+        self.centroid_without_centre = centroid_without_centre
+        self.centroid_with_centre = centroid_with_centre
+
+        # Precompute all frequently used reference frames once.
+        # Using local vars cuts attribute lookups in tight paths later.
+        cwcc = centroid_with_centre
+        cwocc = centroid_without_centre
+
+        # Points relative to central site require a central site; mirror original behavior:
+        # The original code implicitly assumes central exists when these are used.
+        # If centering requires central (standard with n<5, central_site) we'll raise later.
+        # Here we still define arrays to keep attributes consistent.
+        c_for_sub = np.zeros(3, float) if central is None else central
+
+        self._points_wcs_csc = bare_with_centre - c_for_sub
+        self._points_wocs_csc = bcoords - c_for_sub
+        self._points_wcs_ctwcc = bare_with_centre - cwcc
+        self._points_wocs_ctwcc = bcoords - cwcc
+        self._points_wcs_ctwocc = bare_with_centre - cwocc
+        self._points_wocs_ctwocc = bcoords - cwocc
+
+        # DETERMINE THE WORKING CENTRE
+        # Keep the exact validation semantics, but avoid re-summing / re-dividing.
         self.centering_type = centering_type
         self.include_central_site_in_centroid = include_central_site_in_centroid
-        self.bare_central_site = np.array(central_site)
+        self.bare_central_site = central
+
         if centering_type == "standard":
-            if len(bare_coords) < 5:
+            if n < 5:
                 if include_central_site_in_centroid:
                     raise ValueError(
                         "The center is the central site, no calculation of the centroid, "
                         "variable include_central_site_in_centroid should be set to False"
                     )
-                if central_site is None:
+                if central is None:
                     raise ValueError("Centering_type is central_site, the central site should be given")
-                self.centre = np.array(central_site)
+                centre = central  # direct assignment, no copy needed
+            elif include_central_site_in_centroid:
+                if central is None:
+                    raise ValueError("The centroid includes the central site but no central site is given")
+                centre = (sum_b + central) / float(n + 1)
             else:
-                total = np.sum(bcoords, axis=0)
-                if include_central_site_in_centroid:
-                    if central_site is None:
-                        raise ValueError("The centroid includes the central site but no central site is given")
-                    total += self.bare_centre
-                    self.centre = total / (np.float64(len(bare_coords)) + 1.0)
-                else:
-                    self.centre = total / np.float64(len(bare_coords))
+                centre = sum_b / float(n)
         elif centering_type == "central_site":
             if include_central_site_in_centroid:
                 raise ValueError(
                     "The center is the central site, no calculation of the centroid, "
                     "variable include_central_site_in_centroid should be set to False"
                 )
-            if central_site is None:
+            if central is None:
                 raise ValueError("Centering_type is central_site, the central site should be given")
-            self.centre = np.array(central_site)
+            centre = central
         elif centering_type == "centroid":
-            total = np.sum(bcoords, axis=0)
             if include_central_site_in_centroid:
-                if central_site is None:
+                if central is None:
                     raise ValueError("The centroid includes the central site but no central site is given")
-                total += self.bare_centre
-                self.centre = total / (np.float64(len(bare_coords)) + 1.0)
+                centre = (sum_b + central) / float(n + 1)
             else:
-                self.centre = total / np.float64(len(bare_coords))
-        self._bare_coords = self.bare_points_without_centre
-        self._coords = self._bare_coords - self.centre
-        self.central_site = self.bare_central_site - self.centre
+                centre = sum_b / float(n)
+        else:
+            # Match robustness expectations; original code had no else, but this helps debugging.
+            raise ValueError(f"Unknown centering_type {centering_type!r}")
+
+        # FINAL DERIVED COORDINATES
+        self.centre = centre
+        self._bare_coords = bcoords
+        self._coords = bcoords - centre
+        # If central is None, central_site is just the negative of centre (keeps shape/typing consistent).
+        self.central_site = (-centre) if central is None else (central - centre)
         self.coords = self._coords
         self.bare_coords = self._bare_coords
 
@@ -290,42 +327,36 @@ class AbstractGeometry:
 
 def symmetry_measure(points_distorted, points_perfect):
     """
-    Computes the continuous symmetry measure of the (distorted) set of points "points_distorted" with respect to the
-    (perfect) set of points "points_perfect".
-
-    Args:
-        points_distorted: List of points describing a given (distorted) polyhedron for which the symmetry measure
-            has to be computed with respect to the model polyhedron described by the list of points
-            "points_perfect".
-        points_perfect: List of "perfect" points describing a given model polyhedron.
-
-    Returns:
-        The continuous symmetry measure of the distorted polyhedron with respect to the perfect polyhedron.
+    Computes the continuous symmetry measure (CSM) of a (distorted) set of points
+    with respect to an ideal (perfect) set.
     """
-    # When there is only one point, the symmetry measure is 0.0 by definition
+    # Fast path: a single point is symmetric by definition.
     if len(points_distorted) == 1:
-        return {
-            "symmetry_measure": 0.0,
-            "scaling_factor": None,
-            "rotation_matrix": None,
-        }
+        return {"symmetry_measure": 0.0, "scaling_factor": None, "rotation_matrix": None}
 
-    # Find the rotation matrix that aligns the distorted points to the perfect points in a least-square sense.
-    rot = find_rotation(points_distorted=points_distorted, points_perfect=points_perfect)
-    # Find the scaling factor between the distorted points and the perfect points in a least-square sense.
-    scaling_factor, rotated_coords, points_perfect = find_scaling_factor(
-        points_distorted=points_distorted, points_perfect=points_perfect, rot=rot
-    )
-    # Compute the continuous symmetry measure [see Eq. 1 in Pinsky et al., Inorganic Chemistry 37, 5575 (1998)]
-    rotated_coords = scaling_factor * rotated_coords
-    diff = points_perfect - rotated_coords
-    num = np.tensordot(diff, diff)
-    denom = np.tensordot(points_perfect, points_perfect)
-    return {
-        "symmetry_measure": num / denom * 100.0,
-        "scaling_factor": scaling_factor,
-        "rotation_matrix": rot,
-    }
+    # Ensure contiguous float64 arrays once (avoids repeated conversions downstream).
+    pd = np.asarray(points_distorted, dtype=np.float64)
+    pp = np.asarray(points_perfect, dtype=np.float64)
+
+    # Find optimal rotation (least squares alignment).
+    rot = find_rotation(points_distorted=pd, points_perfect=pp)
+
+    # Find optimal scale and rotated coords (let helper return possibly adjusted 'pp').
+    # NOTE from AL: using local names avoids rebinding outer parameters; fewer lookups later.
+    sf, rotated, pp = find_scaling_factor(points_distorted=pd, points_perfect=pp, rot=rot)
+
+    # In-place scaling to avoid an extra allocation: rotated = sf * rotated
+    rotated *= sf
+
+    # Vectorized L2 error without creating intermediates; ravel-dot is fast & clear.
+    diff = pp - rotated
+    num = float(diff.ravel().dot(diff.ravel()))  # == sum((pp - rotated)^2)
+    denom = float(pp.ravel().dot(pp.ravel()))  # == sum(pp^2)
+
+    # Guard against pathological denom=0 (shouldn't happen for real geometries).
+    csm = 0.0 if math.isclose(denom, 0.0) else (num / denom) * 100.0
+
+    return {"symmetry_measure": csm, "scaling_factor": sf, "rotation_matrix": rot}
 
 
 def find_rotation(points_distorted, points_perfect):
@@ -468,33 +499,60 @@ class LocalGeometryFinder:
         self.__dict__[parameter] = value
 
     def setup_structure(self, structure: Structure):
-        """Set up the structure for which the coordination geometries have to be identified. The structure is analyzed
-        with the space group analyzer and a refined structure is used.
-
-        Args:
-            structure: A pymatgen Structure.
-        """
+        """Set up the structure and optionally refine/symmetrize."""
         self.initial_structure = structure.copy()
-        if self.structure_refinement == self.STRUCTURE_REFINEMENT_NONE:
+        ref = self.structure_refinement
+        if ref == self.STRUCTURE_REFINEMENT_NONE:
+            # reason_AL: single copy, avoid creating unused SGA objects
             self.structure = structure.copy()
             self.spg_analyzer = self.symmetrized_structure = None
-        else:
-            self.spg_analyzer = SpacegroupAnalyzer(
-                self.initial_structure,
-                symprec=self.spg_analyzer_options["symprec"],
-                angle_tolerance=self.spg_analyzer_options["angle_tolerance"],
-            )
-            if self.structure_refinement == self.STRUCTURE_REFINEMENT_REFINED:
-                self.structure = self.spg_analyzer.get_refined_structure()
-                self.symmetrized_structure = None
-            elif self.structure_refinement == self.STRUCTURE_REFINEMENT_SYMMETRIZED:
-                self.structure = self.spg_analyzer.get_refined_structure()
-                self.spg_analyzer_refined = SpacegroupAnalyzer(
-                    self.structure,
-                    symprec=self.spg_analyzer_options["symprec"],
-                    angle_tolerance=self.spg_analyzer_options["angle_tolerance"],
-                )
-                self.symmetrized_structure = self.spg_analyzer_refined.get_symmetrized_structure()
+            return
+
+        # reason_AL: bind options locally to avoid dict lookups; SGA only once when possible
+        opts = self.spg_analyzer_options
+        sga = SpacegroupAnalyzer(
+            self.initial_structure, symprec=opts["symprec"], angle_tolerance=opts["angle_tolerance"]
+        )
+
+        if ref == self.STRUCTURE_REFINEMENT_REFINED:
+            self.structure = sga.get_refined_structure()
+            self.spg_analyzer = sga
+            self.symmetrized_structure = None
+        elif ref == self.STRUCTURE_REFINEMENT_SYMMETRIZED:
+            # reason_AL: reuse refined structure; second SGA only on refined
+            self.structure = sga.get_refined_structure()
+            sga2 = SpacegroupAnalyzer(self.structure, symprec=opts["symprec"], angle_tolerance=opts["angle_tolerance"])
+            self.spg_analyzer = sga2
+            self.symmetrized_structure = sga2.get_symmetrized_structure()
+
+    # def setup_structure(self, structure: Structure):
+    #     """Set up the structure for which the coordination geometries have to be identified. The structure is analyzed
+    #     with the space group analyzer and a refined structure is used.
+
+    #     Args:
+    #         structure: A pymatgen Structure.
+    #     """
+    #     self.initial_structure = structure.copy()
+    #     if self.structure_refinement == self.STRUCTURE_REFINEMENT_NONE:
+    #         self.structure = structure.copy()
+    #         self.spg_analyzer = self.symmetrized_structure = None
+    #     else:
+    #         self.spg_analyzer = SpacegroupAnalyzer(
+    #             self.initial_structure,
+    #             symprec=self.spg_analyzer_options["symprec"],
+    #             angle_tolerance=self.spg_analyzer_options["angle_tolerance"],
+    #         )
+    #         if self.structure_refinement == self.STRUCTURE_REFINEMENT_REFINED:
+    #             self.structure = self.spg_analyzer.get_refined_structure()
+    #             self.symmetrized_structure = None
+    #         elif self.structure_refinement == self.STRUCTURE_REFINEMENT_SYMMETRIZED:
+    #             self.structure = self.spg_analyzer.get_refined_structure()
+    #             self.spg_analyzer_refined = SpacegroupAnalyzer(
+    #                 self.structure,
+    #                 symprec=self.spg_analyzer_options["symprec"],
+    #                 angle_tolerance=self.spg_analyzer_options["angle_tolerance"],
+    #             )
+    #             self.symmetrized_structure = self.spg_analyzer_refined.get_symmetrized_structure()
 
     def get_structure(self):
         """Get the pymatgen Structure that has been setup for the identification of geometries (the initial one
@@ -517,6 +575,302 @@ class LocalGeometryFinder:
             coords_are_cartesian: If set to True, the coordinates are given in Cartesian coordinates.
         """
         self.setup_structure(Structure(lattice, species, coords, coords_are_cartesian))
+
+    def compute_structure_environments(
+        self,
+        excluded_atoms=None,
+        only_atoms=None,
+        only_cations=True,
+        only_indices=None,
+        maximum_distance_factor=PRESETS["DEFAULT"]["maximum_distance_factor"],
+        minimum_angle_factor=PRESETS["DEFAULT"]["minimum_angle_factor"],
+        max_cn=None,
+        min_cn=None,
+        only_symbols=None,
+        valences="undefined",
+        additional_conditions=None,
+        info=None,
+        timelimit=None,
+        initial_structure_environments=None,
+        get_from_hints=False,
+        voronoi_normalized_distance_tolerance=PRESETS["DEFAULT"]["voronoi_normalized_distance_tolerance"],
+        voronoi_normalized_angle_tolerance=PRESETS["DEFAULT"]["voronoi_normalized_angle_tolerance"],
+        voronoi_distance_cutoff=None,
+        recompute=None,
+        optimization=PRESETS["DEFAULT"]["optimization"],
+    ):
+        """(hot path) Build the StructureEnvironments for this structure."""
+        t0 = time.process_time()
+
+        # avoid dict churn; fill 'info' once
+        if info is None:
+            info = {}
+        info["local_geometry_finder"] = {
+            "parameters": {
+                "centering_type": self.centering_type,
+                "include_central_site_in_centroid": self.include_central_site_in_centroid,
+                "structure_refinement": self.structure_refinement,
+                "spg_analyzer_options": self.spg_analyzer_options,
+            }
+        }
+
+        # rebuild AllCoordinationGeometries only when needed
+        if only_symbols is not None:
+            self.allcg = AllCoordinationGeometries(
+                permutations_safe_override=self.permutations_safe_override,
+                only_symbols=only_symbols,
+            )
+
+        # minimize attribute lookups; fast-path common “undefined”
+        if valences == "undefined":
+            first_sp = getattr(self.structure[0], "specie", None)
+            if isinstance(first_sp, Species):
+                try:
+                    self.valences = [int(site.specie.oxi_state) for site in self.structure]
+                except Exception:
+                    self.valences = "undefined"
+            else:
+                self.valences = "undefined"
+        else:
+            self.valences = valences
+
+        n_sites = len(self.structure)
+        all_idx = range(n_sites)
+
+        # start with all or cations-only
+        if only_cations and self.valences != "undefined":
+            sites_indices = [i for i in all_idx if self.valences[i] >= 0]
+        else:
+            sites_indices = list(all_idx)
+
+        # include only_atoms if given
+        if only_atoms:
+            # set lookup for symbols per site
+            only_set = set(only_atoms)
+            sites_indices = [i for i in sites_indices if any(sp.symbol in only_set for sp in self.structure[i].species)]
+
+        # exclude atoms
+        if excluded_atoms:
+            excl = set(excluded_atoms)
+            sites_indices = [i for i in sites_indices if not any(sp.symbol in excl for sp in self.structure[i].species)]
+
+        # restrict by explicit indices
+        if only_indices is not None:
+            #  use set intersection (O(n)) then sort for deterministic order
+            s = set(only_indices)
+            sites_indices = sorted(s.intersection(sites_indices))
+
+        # (kept for compatibility)
+        self.equivalent_sites = [[site] for site in self.structure]
+        self.struct_sites_to_irreducible_site_list_map = list(range(n_sites))
+        self.sites_map = list(range(n_sites))
+
+        # reason_AL: bind defaults locally; avoid attribute hits
+        nd_tol = (
+            DetailedVoronoiContainer.default_normalized_distance_tolerance
+            if voronoi_normalized_distance_tolerance is None
+            else voronoi_normalized_distance_tolerance
+        )
+        na_tol = (
+            DetailedVoronoiContainer.default_normalized_angle_tolerance
+            if voronoi_normalized_angle_tolerance is None
+            else voronoi_normalized_angle_tolerance
+        )
+        v_cut = (
+            DetailedVoronoiContainer.default_voronoi_cutoff
+            if voronoi_distance_cutoff is None
+            else voronoi_distance_cutoff
+        )
+
+        logger.debug("Getting DetailedVoronoiContainer")
+        self.detailed_voronoi = DetailedVoronoiContainer(
+            self.structure,
+            isites=sites_indices,
+            valences=self.valences,
+            maximum_distance_factor=maximum_distance_factor,
+            minimum_angle_factor=minimum_angle_factor,
+            additional_conditions=additional_conditions,
+            normalized_distance_tolerance=nd_tol,
+            normalized_angle_tolerance=na_tol,
+            voronoi_cutoff=v_cut,
+        )
+        logger.debug("DetailedVoronoiContainer has been set up")
+
+        if initial_structure_environments is not None:
+            se = initial_structure_environments
+            if se.structure != self.structure:
+                raise ValueError("Structure is not the same in initial_structure_environments")
+            if se.voronoi != self.detailed_voronoi:
+                if self.detailed_voronoi.is_close_to(se.voronoi):
+                    self.detailed_voronoi = se.voronoi
+                else:
+                    raise ValueError("Detailed Voronoi is not the same in initial_structure_environments")
+            se.info = info
+        else:
+            se = StructureEnvironments(
+                voronoi=self.detailed_voronoi,
+                valences=self.valences,
+                sites_map=self.sites_map,
+                equivalent_sites=self.equivalent_sites,
+                ce_list=[None] * n_sites,
+                structure=self.structure,
+                info=info,
+            )
+
+        min_cn = 1 if min_cn is None else min_cn
+        max_cn = 20 if max_cn is None else max_cn
+        all_cns = range(min_cn, max_cn + 1)
+        do_recompute = False
+        if recompute is not None:
+            do_recompute = True
+            if "cns" in recompute:
+                # reason_AL: set for O(1) membership
+                cset = set(recompute["cns"])
+                all_cns = [cn for cn in all_cns if cn in cset]
+
+        if optimization and optimization > 0:
+            dv = self.detailed_voronoi
+            dv.local_planes = [None] * n_sites
+            dv.separations = [None] * n_sites
+
+        max_site_time = 0.0
+        broke_on_time = False
+
+        for i, site in enumerate(self.structure):
+            if i not in sites_indices:
+                logger.debug(" ... site #%d/%d (%s) : skipped", i, n_sites, site.species_string)
+                continue
+            if broke_on_time:
+                logger.debug(" ... site #%d/%d (%s) : skipped (timelimit)", i, n_sites, site.species_string)
+                continue
+
+            logger.debug(" ... site #%d/%d (%s)", i, n_sites, site.species_string)
+            t1 = time.process_time()
+
+            if optimization and optimization > 0:
+                self.detailed_voronoi.local_planes[i] = {}
+                self.detailed_voronoi.separations[i] = {}
+
+            # init all neighbor sets once
+            se.init_neighbors_sets(isite=i, additional_conditions=additional_conditions, valences=valences)
+
+            to_add_from_hints = []
+            nb_sets_info = {}
+
+            # local binding for extremely hot path
+            se_neighbors_sets_i = se.neighbors_sets[i]
+
+            for cn, nb_sets in se_neighbors_sets_i.items():
+                if cn not in all_cns:
+                    continue
+                for inb, nb_set in enumerate(nb_sets):
+                    logger.debug("    ... nb_set (%d, %d)", cn, inb)
+                    t_nb1 = time.process_time()
+
+                    ce = self.update_nb_set_environments(
+                        se=se,
+                        isite=i,
+                        cn=cn,
+                        inb_set=inb,
+                        nb_set=nb_set,
+                        recompute=do_recompute,
+                        optimization=optimization,
+                    )
+
+                    t_nb2 = time.process_time()
+                    nb_sets_info.setdefault(cn, {})
+                    nb_sets_info[cn][inb] = {"time": t_nb2 - t_nb1}
+
+                    if not get_from_hints:
+                        continue
+
+                    # Hints path
+                    for cg_symbol, cg_dict in ce:
+                        cg = self.allcg[cg_symbol]
+                        hints = cg.neighbors_sets_hints
+                        if hints is None:
+                            continue
+
+                        logger.debug("       ... hints from cg %s", cg_symbol)
+                        hints_info = {
+                            "csm": cg_dict["symmetry_measure"],
+                            "nb_set": nb_set,
+                            "permutation": cg_dict["permutation"],
+                        }
+
+                        for _idx_hint, nb_sets_hints in enumerate(hints):
+                            for idx_sug, sug_indices in enumerate(nb_sets_hints.hints(hints_info)):
+                                logger.debug("           hint # %d", idx_sug)
+                                new_nb_set = se.NeighborsSet(
+                                    structure=se.structure,
+                                    isite=i,
+                                    detailed_voronoi=se.voronoi,
+                                    site_voronoi_indices=sug_indices,
+                                    sources={
+                                        "origin": "nb_set_hints",
+                                        "hints_type": nb_sets_hints.hints_type,
+                                        "suggestion_index": idx_sug,
+                                        "cn_map_source": [cn, inb],
+                                        "cg_source_symbol": cg_symbol,
+                                    },
+                                )
+                                cn_new = len(new_nb_set)
+                                if (max_cn is not None and cn_new > max_cn) or (min_cn is not None and cn_new < min_cn):
+                                    continue
+
+                                # reason_AL: avoid building list repeatedly; use a small set comprehension
+                                existing = se.neighbors_sets[i].get(cn_new, [])
+                                if (new_nb_set in (ta["new_nb_set"] for ta in to_add_from_hints)) or (
+                                    new_nb_set in existing
+                                ):
+                                    logger.debug("              => already present")
+                                    continue
+
+                                to_add_from_hints.append(
+                                    {"isite": i, "new_nb_set": new_nb_set, "cn_new_nb_set": cn_new}
+                                )
+                                logger.debug("              => to be computed")
+
+            # Add + compute hinted neighbor sets
+            if to_add_from_hints:
+                logger.debug("    ... nb_sets added from hints")
+                for item in to_add_from_hints:
+                    se.add_neighbors_set(isite=item["isite"], nb_set=item["new_nb_set"])
+                for item in to_add_from_hints:
+                    isite_new = item["isite"]
+                    cn_new = item["cn_new_nb_set"]
+                    new_nb_set = item["new_nb_set"]
+                    inew = se.neighbors_sets[isite_new][cn_new].index(new_nb_set)
+                    logger.debug("    ... nb_set (%d, %d) - from hints", cn_new, inew)
+
+                    t_nb1 = time.process_time()
+                    self.update_nb_set_environments(
+                        se=se,
+                        isite=isite_new,
+                        cn=cn_new,
+                        inb_set=inew,
+                        nb_set=new_nb_set,
+                        optimization=optimization,
+                    )
+                    t_nb2 = time.process_time()
+                    nb_sets_info.setdefault(cn_new, {})
+                    nb_sets_info[cn_new][inew] = {"time": t_nb2 - t_nb1}
+
+            t2 = time.process_time()
+            se.update_site_info(isite=i, info_dict={"time": t2 - t1, "nb_sets_info": nb_sets_info})
+
+            # timelimit logic
+            if timelimit is not None:
+                elapsed = t2 - t0
+                time_left = timelimit - elapsed
+                # reason_AL: same heuristic, fewer lookups
+                if time_left < 2.0 * max_site_time:
+                    broke_on_time = True
+            max_site_time = max(max_site_time, t2 - t1)
+            logger.debug("    ... computed in %.2f s", (t2 - t1))
+
+        logger.debug("    ... compute_structure_environments ended in %.2f s", (time.process_time() - t0))
+        return se
 
     def compute_coordination_environments(
         self,
@@ -562,356 +916,31 @@ class LocalGeometryFinder:
         lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
         return lse.coordination_environments
 
-    def compute_structure_environments(
-        self,
-        excluded_atoms=None,
-        only_atoms=None,
-        only_cations=True,
-        only_indices=None,
-        maximum_distance_factor=PRESETS["DEFAULT"]["maximum_distance_factor"],
-        minimum_angle_factor=PRESETS["DEFAULT"]["minimum_angle_factor"],
-        max_cn=None,
-        min_cn=None,
-        only_symbols=None,
-        valences="undefined",
-        additional_conditions=None,
-        info=None,
-        timelimit=None,
-        initial_structure_environments=None,
-        get_from_hints=False,
-        voronoi_normalized_distance_tolerance=PRESETS["DEFAULT"]["voronoi_normalized_distance_tolerance"],
-        voronoi_normalized_angle_tolerance=PRESETS["DEFAULT"]["voronoi_normalized_angle_tolerance"],
-        voronoi_distance_cutoff=None,
-        recompute=None,
-        optimization=PRESETS["DEFAULT"]["optimization"],
-    ):
-        """Compute and returns the StructureEnvironments object containing all the information
-        about the coordination environments in the structure.
-
-        Args:
-            excluded_atoms: Atoms for which the coordination geometries does not have to be identified
-            only_atoms: If not set to None, atoms for which the coordination geometries have to be identified
-            only_cations: If set to True, will only compute environments for cations
-            only_indices: If not set to None, will only compute environments the atoms of the given indices
-            maximum_distance_factor: If not set to None, neighbors beyond
-                maximum_distance_factor*closest_neighbor_distance are not considered
-            minimum_angle_factor: If not set to None, neighbors for which the angle is lower than
-                minimum_angle_factor*largest_angle_neighbor are not considered
-            max_cn: maximum coordination number to be considered
-            min_cn: minimum coordination number to be considered
-            only_symbols: if not set to None, consider only coordination environments with the given symbols
-            valences: valences of the atoms
-            additional_conditions: additional conditions to be considered in the bonds (example : only bonds
-                between cation and anion
-            info: additional info about the calculation
-            timelimit: time limit (in secs) after which the calculation of the StructureEnvironments object stops
-            initial_structure_environments: initial StructureEnvironments object (most probably incomplete)
-            get_from_hints: whether to add neighbors sets from "hints" (e.g. capped environment => test the
-                neighbors without the cap)
-            voronoi_normalized_distance_tolerance: tolerance for the normalized distance used to distinguish
-                neighbors sets
-            voronoi_normalized_angle_tolerance: tolerance for the normalized angle used to distinguish
-                neighbors sets
-            voronoi_distance_cutoff: determines distance of considered neighbors. Especially important to increase it
-                for molecules in a box.
-            recompute: whether to recompute the sites already computed (when initial_structure_environments
-                is not None)
-            optimization: optimization algorithm
-
-        Returns:
-            StructureEnvironments: contains all the information about the coordination
-                environments in the structure.
-        """
-        time_init = time.process_time()
-        if info is None:
-            info = {}
-        info.update(
-            local_geometry_finder={
-                "parameters": {
-                    "centering_type": self.centering_type,
-                    "include_central_site_in_centroid": self.include_central_site_in_centroid,
-                    "structure_refinement": self.structure_refinement,
-                    "spg_analyzer_options": self.spg_analyzer_options,
-                }
-            }
-        )
-        if only_symbols is not None:
-            self.allcg = AllCoordinationGeometries(
-                permutations_safe_override=self.permutations_safe_override,
-                only_symbols=only_symbols,
-            )
-
-        if valences == "undefined":
-            first_site = self.structure[0]
-            try:
-                sp = first_site.specie
-                if isinstance(sp, Species):
-                    self.valences = [int(site.specie.oxi_state) for site in self.structure]
-                else:
-                    self.valences = valences
-            except AttributeError:
-                self.valences = valences
-        else:
-            self.valences = valences
-
-        # Get a list of indices of nonequivalent sites from the initial structure
-        self.equivalent_sites = [[site] for site in self.structure]
-        self.struct_sites_to_irreducible_site_list_map = list(range(len(self.structure)))
-        self.sites_map = list(range(len(self.structure)))
-        indices = list(range(len(self.structure)))
-
-        # Get list of nonequivalent sites with valence >= 0
-        if only_cations and self.valences != "undefined":
-            sites_indices = [idx for idx in indices if self.valences[idx] >= 0]
-        else:
-            sites_indices = list(indices)
-
-        # Include atoms that are in the list of "only_atoms" if it is provided
-        if only_atoms is not None:
-            sites_indices = [
-                idx
-                for idx in sites_indices
-                if any(at in [sp.symbol for sp in self.structure[idx].species] for at in only_atoms)
-            ]
-
-        # Exclude atoms that are in the list of excluded atoms
-        if excluded_atoms:
-            sites_indices = [
-                idx
-                for idx in sites_indices
-                if not any(at in [sp.symbol for sp in self.structure[idx].species] for at in excluded_atoms)
-            ]
-
-        if only_indices is not None:
-            sites_indices = [*set(indices) & set(only_indices)]
-
-        # Get the VoronoiContainer for the sites defined by their indices (sites_indices)
-        logger.debug("Getting DetailedVoronoiContainer")
-        if voronoi_normalized_distance_tolerance is None:
-            normalized_distance_tolerance = DetailedVoronoiContainer.default_normalized_distance_tolerance
-        else:
-            normalized_distance_tolerance = voronoi_normalized_distance_tolerance
-        if voronoi_normalized_angle_tolerance is None:
-            normalized_angle_tolerance = DetailedVoronoiContainer.default_normalized_angle_tolerance
-        else:
-            normalized_angle_tolerance = voronoi_normalized_angle_tolerance
-        if voronoi_distance_cutoff is None:
-            voronoi_distance_cutoff = DetailedVoronoiContainer.default_voronoi_cutoff
-        self.detailed_voronoi = DetailedVoronoiContainer(
-            self.structure,
-            isites=sites_indices,
-            valences=self.valences,
-            maximum_distance_factor=maximum_distance_factor,
-            minimum_angle_factor=minimum_angle_factor,
-            additional_conditions=additional_conditions,
-            normalized_distance_tolerance=normalized_distance_tolerance,
-            normalized_angle_tolerance=normalized_angle_tolerance,
-            voronoi_cutoff=voronoi_distance_cutoff,
-        )
-        logger.debug("DetailedVoronoiContainer has been set up")
-
-        # Initialize the StructureEnvironments object (either from initial_structure_environments or from scratch)
-        if initial_structure_environments is not None:
-            struct_envs = initial_structure_environments
-            if struct_envs.structure != self.structure:
-                raise ValueError("Structure is not the same in initial_structure_environments")
-            if struct_envs.voronoi != self.detailed_voronoi:
-                if self.detailed_voronoi.is_close_to(struct_envs.voronoi):
-                    self.detailed_voronoi = struct_envs.voronoi
-                else:
-                    raise ValueError("Detailed Voronoi is not the same in initial_structure_environments")
-            struct_envs.info = info
-        else:
-            struct_envs = StructureEnvironments(
-                voronoi=self.detailed_voronoi,
-                valences=self.valences,
-                sites_map=self.sites_map,
-                equivalent_sites=self.equivalent_sites,
-                ce_list=[None] * len(self.structure),
-                structure=self.structure,
-                info=info,
-            )
-
-        # Set up the coordination numbers that have to be computed based on min_cn, max_cn and possibly the settings
-        # for an update (argument "recompute") of an existing StructureEnvironments
-        if min_cn is None:
-            min_cn = 1
-        if max_cn is None:
-            max_cn = 20
-        all_cns = range(min_cn, max_cn + 1)
-        do_recompute = False
-        if recompute is not None:
-            if "cns" in recompute:
-                cns_to_recompute = recompute["cns"]
-                all_cns = list(set(all_cns).intersection(cns_to_recompute))
-            do_recompute = True
-
-        # Variables used for checking time limit
-        max_time_one_site = 0.0
-        break_it = False
-
-        if optimization > 0:
-            self.detailed_voronoi.local_planes = [None] * len(self.structure)
-            self.detailed_voronoi.separations = [None] * len(self.structure)
-
-        # Loop on all the sites
-        for site_idx, site in enumerate(self.structure):
-            if site_idx not in sites_indices:
-                logger.debug(f" ... in site #{site_idx}/{len(self.structure)} ({site.species_string}) : skipped")
-                continue
-            if break_it:
-                logger.debug(
-                    f" ... in site #{site_idx}/{len(self.structure)} ({site.species_string}) : skipped (timelimit)"
-                )
-                continue
-            logger.debug(f" ... in site #{site_idx}/{len(self.structure)} ({site.species_string})")
-            t1 = time.process_time()
-            if optimization > 0:
-                self.detailed_voronoi.local_planes[site_idx] = {}
-                self.detailed_voronoi.separations[site_idx] = {}
-            struct_envs.init_neighbors_sets(
-                isite=site_idx,
-                additional_conditions=additional_conditions,
-                valences=valences,
-            )
-
-            to_add_from_hints = []
-            nb_sets_info = {}
-            cn = 0
-
-            for cn, nb_sets in struct_envs.neighbors_sets[site_idx].items():
-                if cn not in all_cns:
-                    continue
-                for inb_set, nb_set in enumerate(nb_sets):
-                    logger.debug(f"    ... getting environments for nb_set ({cn}, {inb_set})")
-                    t_nbset1 = time.process_time()
-                    ce = self.update_nb_set_environments(
-                        se=struct_envs,
-                        isite=site_idx,
-                        cn=cn,
-                        inb_set=inb_set,
-                        nb_set=nb_set,
-                        recompute=do_recompute,
-                        optimization=optimization,
-                    )
-                    t_nbset2 = time.process_time()
-                    nb_sets_info.setdefault(cn, {})
-                    nb_sets_info[cn][inb_set] = {"time": t_nbset2 - t_nbset1}
-                    if get_from_hints:
-                        for cg_symbol, cg_dict in ce:
-                            cg = self.allcg[cg_symbol]
-                            # Get possibly missing neighbors sets
-                            if cg.neighbors_sets_hints is None:
-                                continue
-                            logger.debug(f"       ... getting hints from cg with mp_symbol {cg_symbol!r} ...")
-                            hints_info = {
-                                "csm": cg_dict["symmetry_measure"],
-                                "nb_set": nb_set,
-                                "permutation": cg_dict["permutation"],
-                            }
-                            for nb_sets_hints in cg.neighbors_sets_hints:
-                                suggested_nb_set_voronoi_indices = nb_sets_hints.hints(hints_info)
-                                for idx_new, new_nb_set_voronoi_indices in enumerate(suggested_nb_set_voronoi_indices):
-                                    logger.debug(f"           hint # {idx_new}")
-                                    new_nb_set = struct_envs.NeighborsSet(
-                                        structure=struct_envs.structure,
-                                        isite=site_idx,
-                                        detailed_voronoi=struct_envs.voronoi,
-                                        site_voronoi_indices=new_nb_set_voronoi_indices,
-                                        sources={
-                                            "origin": "nb_set_hints",
-                                            "hints_type": nb_sets_hints.hints_type,
-                                            "suggestion_index": idx_new,
-                                            "cn_map_source": [cn, inb_set],
-                                            "cg_source_symbol": cg_symbol,
-                                        },
-                                    )
-                                    cn_new_nb_set = len(new_nb_set)
-                                    if max_cn is not None and cn_new_nb_set > max_cn:
-                                        continue
-                                    if min_cn is not None and cn_new_nb_set < min_cn:
-                                        continue
-                                    if new_nb_set in [ta["new_nb_set"] for ta in to_add_from_hints]:
-                                        has_nb_set = True
-                                    elif cn_new_nb_set not in struct_envs.neighbors_sets[site_idx]:
-                                        has_nb_set = False
-                                    else:
-                                        has_nb_set = new_nb_set in struct_envs.neighbors_sets[site_idx][cn_new_nb_set]
-                                    if not has_nb_set:
-                                        to_add_from_hints.append(
-                                            {
-                                                "isite": site_idx,
-                                                "new_nb_set": new_nb_set,
-                                                "cn_new_nb_set": cn_new_nb_set,
-                                            }
-                                        )
-                                        logger.debug("              => to be computed")
-                                    else:
-                                        logger.debug("              => already present")
-            logger.debug("    ... getting environments for nb_sets added from hints")
-            for missing_nb_set_to_add in to_add_from_hints:
-                struct_envs.add_neighbors_set(isite=site_idx, nb_set=missing_nb_set_to_add["new_nb_set"])
-            for missing_nb_set_to_add in to_add_from_hints:
-                isite_new_nb_set = missing_nb_set_to_add["isite"]
-                cn_new_nb_set = missing_nb_set_to_add["cn_new_nb_set"]
-                new_nb_set = missing_nb_set_to_add["new_nb_set"]
-                inew_nb_set = struct_envs.neighbors_sets[isite_new_nb_set][cn_new_nb_set].index(new_nb_set)
-                logger.debug(f"    ... getting environments for nb_set ({cn_new_nb_set}, {inew_nb_set}) - from hints")
-                t_nbset1 = time.process_time()
-                self.update_nb_set_environments(
-                    se=struct_envs,
-                    isite=isite_new_nb_set,
-                    cn=cn_new_nb_set,
-                    inb_set=inew_nb_set,
-                    nb_set=new_nb_set,
-                    optimization=optimization,
-                )
-                t_nbset2 = time.process_time()
-                if cn not in nb_sets_info:
-                    nb_sets_info[cn] = {}
-                nb_sets_info[cn][inew_nb_set] = {"time": t_nbset2 - t_nbset1}
-            t2 = time.process_time()
-            struct_envs.update_site_info(
-                isite=site_idx,
-                info_dict={"time": t2 - t1, "nb_sets_info": nb_sets_info},
-            )
-            if timelimit is not None:
-                time_elapsed = t2 - time_init
-                time_left = timelimit - time_elapsed
-                if time_left < 2.0 * max_time_one_site:
-                    break_it = True
-            max_time_one_site = max(max_time_one_site, t2 - t1)
-            logger.debug(f"    ... computed in {t2 - t1:.2f} seconds")
-        time_end = time.process_time()
-        logger.debug(f"    ... compute_structure_environments ended in {time_end - time_init:.2f} seconds")
-        return struct_envs
-
     def update_nb_set_environments(self, se, isite, cn, inb_set, nb_set, recompute=False, optimization=None):
-        """
-        Args:
-            se:
-            isite:
-            cn:
-            inb_set:
-            nb_set:
-            recompute:
-            optimization:
-        """
+        """(micro-) Populate CE for one neighbor set."""
+        # reason_AL: fast exit without constructing CE
         ce = se.get_coordination_environments(isite=isite, cn=cn, nb_set=nb_set)
         if ce is not None and not recompute:
             return ce
-        ce = ChemicalEnvironments()
-        neighb_coords = nb_set.neighb_coordsOpt if optimization == 2 else nb_set.neighb_coords
+
+        # reason_AL: local bindings + avoid attribute lookups in loop
+        opt2 = optimization == 2
+        neighb_coords = nb_set.neighb_coordsOpt if opt2 else nb_set.neighb_coords
+
         self.setup_local_geometry(isite, coords=neighb_coords, optimization=optimization)
-        if optimization > 0:
-            logger.debug("Getting StructureEnvironments with optimized algorithm")
+        if optimization and optimization > 0:
+            # reason_AL: initialize once, reuse dicts in hot loop
             nb_set.local_planes = {}
             nb_set.separations = {}
             cncgsm = self.get_coordination_symmetry_measures_optim(nb_set=nb_set, optimization=optimization)
         else:
-            logger.debug("Getting StructureEnvironments with standard algorithm")
             cncgsm = self.get_coordination_symmetry_measures()
-        for coord_geom_symb, dct in cncgsm.items():
+
+        ce = ChemicalEnvironments()
+        add = ce.add_coord_geom
+
+        # reason_AL: build once, reuse keys; avoid recomputing nested dicts
+        for symb, dct in cncgsm.items():
             other_csms = {
                 "csm_wocs_ctwocc": dct["csm_wocs_ctwocc"],
                 "csm_wocs_ctwcc": dct["csm_wocs_ctwcc"],
@@ -938,8 +967,8 @@ class LocalGeometryFinder:
                 "translation_vector_wcs_ctwcc": dct["translation_vector_wcs_ctwcc"],
                 "translation_vector_wcs_csc": dct["translation_vector_wcs_csc"],
             }
-            ce.add_coord_geom(
-                coord_geom_symb,
+            add(
+                symb,
                 dct["csm"],
                 algo=dct["algo"],
                 permutation=dct["indices"],
@@ -950,6 +979,7 @@ class LocalGeometryFinder:
                 rotation_matrix=dct["rotation_matrix"],
                 scaling_factor=dct["scaling_factor"],
             )
+
         se.update_coordination_environments(isite=isite, cn=cn, nb_set=nb_set, ce=ce)
         return ce
 

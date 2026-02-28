@@ -42,16 +42,18 @@ Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theor
 
 from __future__ import annotations
 
+import gzip
+import logging
 import os
 import platform
 import subprocess
 import warnings
 from glob import glob
-from shutil import which
+from shutil import copyfile, which
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import TYPE_CHECKING
 
 import numpy as np
-from monty.tempfile import ScratchDir
 
 from pymatgen.core import Element
 from pymatgen.io.vasp.inputs import Potcar
@@ -68,6 +70,8 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "01/18/21"
+
+logger = logging.getLogger(__name__)
 
 CHARGEMOL_EXE = (
     which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
@@ -107,12 +111,13 @@ class ChargemolAnalysis:
             )
         if atomic_densities_path == "":
             atomic_densities_path = os.getcwd()
-        self._atomic_densities_path = atomic_densities_path
+        self._atomic_densities_path = str(atomic_densities_path)
 
         self._chgcar_path = self._get_filepath(path, "CHGCAR")
         self._potcar_path = self._get_filepath(path, "POTCAR")
         self._aeccar0_path = self._get_filepath(path, "AECCAR0")
         self._aeccar2_path = self._get_filepath(path, "AECCAR2")
+        self._temp_potcar_file = None
 
         if run_chargemol and not (
             self._chgcar_path and self._potcar_path and self._aeccar0_path and self._aeccar2_path
@@ -129,7 +134,24 @@ class ChargemolAnalysis:
             warnings.warn("No CHGCAR found. Some properties may be unavailable.", stacklevel=2)
 
         if self._potcar_path:
-            self.potcar = Potcar.from_file(self._potcar_path)
+            potcar = Potcar.from_file(self._potcar_path)
+            self.nelect = [p.nelectrons for p in potcar]
+
+            # chargemol can't process version 64 POTCARs current because of the SHA and COPY fields
+            CHGMOL_BAD_POTCAR_KEYS = ("SHA", "COPYR")
+            if any(k in p.data for p in potcar for k in CHGMOL_BAD_POTCAR_KEYS):
+                self._temp_potcar_file = NamedTemporaryFile()  # noqa: SIM115
+                with open(self._temp_potcar_file.name, "w") as f:
+                    f.write(
+                        "\n".join(
+                            line
+                            for p in potcar
+                            for line in p.data.splitlines()
+                            if not any(k in line for k in CHGMOL_BAD_POTCAR_KEYS)
+                        )
+                    )
+                    f.seek(0)
+                self._potcar_path = self._temp_potcar_file.name
         else:
             warnings.warn("No POTCAR found. Some properties may be unavailable.", stacklevel=2)
 
@@ -140,6 +162,9 @@ class ChargemolAnalysis:
             self._execute_chargemol()
         else:
             self._from_data_dir(chargemol_output_path=path)
+
+        if self._temp_potcar_file:
+            self._temp_potcar_file.close()
 
     @staticmethod
     def _get_filepath(path, filename, suffix=""):
@@ -166,7 +191,8 @@ class ChargemolAnalysis:
             if len(paths) > 1:
                 warnings.warn(f"Multiple files detected, using {os.path.basename(paths[0])}", stacklevel=2)
             fpath = paths[0]
-        return fpath
+            return os.path.abspath(fpath)
+        return None
 
     def _execute_chargemol(self, **job_control_kwargs):
         """Internal function to run Chargemol.
@@ -178,14 +204,18 @@ class ChargemolAnalysis:
                 Default: None.
             job_control_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
-        with ScratchDir("."):
+        cwd = os.getcwd()
+        with TemporaryDirectory() as tmp_dir:
+            os.chdir(tmp_dir)
             try:
-                os.symlink(self._chgcar_path, "./CHGCAR")
-                os.symlink(self._potcar_path, "./POTCAR")
-                os.symlink(self._aeccar0_path, "./AECCAR0")
-                os.symlink(self._aeccar2_path, "./AECCAR2")
-            except OSError as exc:
-                print(f"Error creating symbolic link: {exc}")
+                for file_name in ("chgcar", "potcar", "aeccar0", "aeccar2"):
+                    if (fp := getattr(self, f"_{file_name}_path")).endswith(".gz"):
+                        with gzip.open(fp, "rt") as f_in, open(file_name.upper(), "w") as f_out:
+                            f_out.write(f_in.read())
+                    else:
+                        copyfile(fp, file_name.upper())
+            except OSError:
+                logger.exception("Error copying files.")
 
             # write job_script file:
             self._write_jobscript_for_chargemol(**job_control_kwargs)
@@ -204,7 +234,8 @@ class ChargemolAnalysis:
                     "Please check your Chargemol installation."
                 )
 
-            self._from_data_dir()
+            self._from_data_dir(chargemol_output_path=tmp_dir)
+            os.chdir(cwd)
 
     def _from_data_dir(self, chargemol_output_path=None):
         """Internal command to parse Chargemol files from a directory.
@@ -301,12 +332,10 @@ class ChargemolAnalysis:
         """
         if nelect:
             charge = nelect + self.get_charge_transfer(atom_index, charge_type=charge_type)
-        elif self.potcar and self.natoms:
+        elif self.nelect and self.natoms:
             charge = None
-            potcar_indices = []
-            for idx, val in enumerate(self.natoms):
-                potcar_indices += [idx] * val
-            nelect = self.potcar[potcar_indices[atom_index]].nelectrons
+            potcar_indices = [idx for idx, val in enumerate(self.natoms) for _ in range(val)]
+            nelect = self.nelect[potcar_indices[atom_index]]
             charge = nelect + self.get_charge_transfer(atom_index, charge_type=charge_type)
         else:
             charge = None

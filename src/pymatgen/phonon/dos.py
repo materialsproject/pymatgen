@@ -8,19 +8,19 @@ import numpy as np
 import scipy.constants as const
 from monty.functools import lazy_property
 from monty.json import MSONable
-from packaging import version
 from scipy.ndimage import gaussian_filter1d
 from scipy.stats import wasserstein_distance
 
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_linear_interpolated_value
 
-if version.parse(np.__version__) < version.parse("2.0.0"):
+if np.lib.NumpyVersion(np.__version__) < "2.0.0":
     np.trapezoid = np.trapz  # type:ignore[assignment]  # noqa: NPY201
 
 if TYPE_CHECKING:
+    from typing import Self
+
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
 BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera  # Boltzmann constant in THz/K
 THZ_TO_J = const.value("hertz-joule relationship") * const.tera

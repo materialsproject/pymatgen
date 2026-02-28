@@ -6,7 +6,9 @@ It also provides tools to analyze and to visualize the parallel efficiency.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import logging
+import math
 import os
 import re
 import sys
@@ -227,15 +229,9 @@ class AbinitTimerParser(collections.abc.Iterable):
         for idx, timer in enumerate(self.timers()):
             if idx == 0:
                 section_names = [s.name for s in timer.order_sections(ordkey)]
-                # check = section_names
             # else:
             #     new_set = {s.name for s in timer.order_sections(ordkey)}
             #     section_names.intersection_update(new_set)
-            #     check = check | new_set
-
-        # if check != section_names:
-        #  print("sections", section_names)
-        #  print("check",check)
 
         return section_names
 
@@ -536,7 +532,7 @@ class ParallelEfficiency(dict):
                 values = peff[key][:]
                 if len(values) > 1:
                     ref_value = values.pop(self._ref_idx)
-                    if ref_value != 1.0:
+                    if not math.isclose(ref_value, 1.0):
                         raise ValueError(f"expect ref_value to be 1.0, got {ref_value}")
 
                 data.append((sect_name, self.estimator(values)))

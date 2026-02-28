@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from pymatgen.core import Element, IStructure, Structure
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.core.structure import IStructure
 
@@ -89,7 +89,7 @@ class XSF:
             16      0.0000000     0.0000000     0.0000000  see (5)
             30      1.3550000    -1.3550000    -1.3550000
         """
-        lattice: list[float] = []
+        lattice: list[list[float]] = []
         coords: list[list[float]] = []
         species: list[int] = []
         lines = input_string.splitlines()

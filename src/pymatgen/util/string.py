@@ -117,10 +117,10 @@ def str_delimited(
 ) -> str:
     r"""Given a tuple of tuples, generate a delimited string form.
     >>> results = (("a", "b", "c"), ("d", "e", "f"), (1, 2, 3))
-    >>> print(str_delimited(results, delimiter=","))
-        a,b,c
-        d,e,f
-        1,2,3.
+    >>> str_delimited(results, delimiter=",")
+    a,b,c
+    d,e,f
+    1,2,3.
 
     Args:
         results (Sequence[Sequence[Any]]): 2D sequence of arbitrary types.

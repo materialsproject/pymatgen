@@ -16,9 +16,7 @@ from monty.json import MontyDecoder, MontyEncoder, MSONable
 from pymatgen.core import ArrayWithUnit, Lattice, Species, Structure, units
 
 if TYPE_CHECKING:
-    from typing import Any, ClassVar
-
-    from typing_extensions import Self
+    from typing import Any, ClassVar, Self
 
     from pymatgen.core.periodic_table import DummySpecies, Element
     from pymatgen.core.structure import IStructure
@@ -224,10 +222,8 @@ def structure_to_abivars(
                 f"enforce_typat contains {len(enforce_typat)} entries while it should be {len(structure)=}"
             )
 
-        if len(enforce_znucl) != structure.n_elems:
-            raise ValueError(
-                f"enforce_znucl contains {len(enforce_znucl)} entries while it should be {structure.n_elems=}"
-            )
+        # Do not check the length of enforce_znucl because it can be larger than the number of elements
+        # when we use alchemical pseudoatoms
 
     if enforce_order:
         znucl_type = enforce_znucl

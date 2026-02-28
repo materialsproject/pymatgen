@@ -20,6 +20,9 @@ from .outputs_test_utils import (
     example_sp_outfile_known,
     example_sp_outfile_known_simple,
     example_sp_outfile_path,
+    example_vib_modes_known,
+    example_vib_nrg_components,
+    example_vib_outfile_path,
     jdftxoutfile_fromfile_matches_known,
     jdftxoutfile_fromfile_matches_known_simple,
     noeigstats_outfile_known_simple,
@@ -94,3 +97,20 @@ def test_none_on_partial(ex_outfile_path: Path):
             getattr(outfile1, var),
             getattr(outfile2, var),
         )
+
+
+@pytest.mark.parametrize(
+    ("example_vib_outfile_path", "example_vib_modes_known", "example_vib_nrg_components"),
+    [
+        (example_vib_outfile_path, example_vib_modes_known, example_vib_nrg_components),
+    ],
+)
+def test_vib_parse(
+    example_vib_outfile_path: Path, example_vib_modes_known: list[dict], example_vib_nrg_components: dict
+):
+    """
+    Test that the vibration modes are parsed correctly from the outfile.
+    """
+    jdftxoutfile = JDFTXOutfile.from_file(example_vib_outfile_path)
+    assert_same_value(jdftxoutfile.slices[-1].vibrational_modes, example_vib_modes_known)
+    assert_same_value(jdftxoutfile.slices[-1].vibrational_energy_components, example_vib_nrg_components)

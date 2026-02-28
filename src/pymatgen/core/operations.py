@@ -18,10 +18,9 @@ from pymatgen.util.string import transformation_to_string
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
+    from typing import Any, Self
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 
@@ -126,7 +125,7 @@ class SymmOp(MSONable):
         Returns:
             Coordinates of point after operation.
         """
-        affine_point = np.asarray([*point, 1])
+        affine_point = np.append(point, 1.0)
         return np.dot(self.affine_matrix, affine_point)[:3]
 
     def operate_multi(self, points: ArrayLike) -> NDArray[np.float64]:

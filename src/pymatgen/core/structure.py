@@ -6,6 +6,7 @@ IMolecule and IStructure.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import contextlib
 import functools
 import inspect
@@ -38,7 +39,7 @@ from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
+from pymatgen.core.periodic_table import _PT_UNIT, DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.units import Length, Mass
 from pymatgen.electronic_structure.core import Magmom
@@ -48,7 +49,7 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
-    from typing import Any, ClassVar, SupportsIndex, TypeAlias
+    from typing import Any, ClassVar, Self, SupportsIndex, TypeAlias
 
     import moyopy
     import pandas as pd
@@ -59,7 +60,6 @@ if TYPE_CHECKING:
     from ase.optimize.optimize import Optimizer
     from matgl.ext.ase import TrajectoryObserver
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.util.typing import CompositionLike, PathLike, SpeciesLike
 
@@ -77,7 +77,6 @@ FileFormats: TypeAlias = Literal[
     "aims",
     "",
 ]
-StructureSources: TypeAlias = Literal["Materials Project", "COD"]
 
 
 class Neighbor(Site):
@@ -1122,7 +1121,10 @@ class IStructure(SiteCollection, MSONable):
         """Use the composition hash for now."""
         return hash(self.composition)
 
-    def __mul__(self, scaling_matrix: int | Sequence[int] | Sequence[Sequence[int]]) -> Structure:
+    def __mul__(
+        self,
+        scaling_matrix: int | Sequence[int] | Sequence[Sequence[int]],
+    ) -> Structure:
         """Make a supercell. Allow sites outside the unit cell.
 
         Args:
@@ -1153,7 +1155,7 @@ class IStructure(SiteCollection, MSONable):
         new_lattice = Lattice(np.dot(scale_matrix, self.lattice.matrix))
 
         frac_lattice = lattice_points_in_supercell(scale_matrix)
-        cart_lattice = new_lattice.get_cartesian_coords(frac_lattice)
+        cart_lattice: NDArray = new_lattice.get_cartesian_coords(frac_lattice)
 
         new_sites = []
         for site in self:
@@ -1171,7 +1173,7 @@ class IStructure(SiteCollection, MSONable):
                 new_sites.append(periodic_site)
 
         new_charge = self._charge * np.linalg.det(scale_matrix) if self._charge else None
-        return Structure.from_sites(new_sites, charge=new_charge, to_unit_cell=True)
+        return Structure.from_sites(new_sites, charge=new_charge, to_unit_cell=True).relabel_sites(ignore_uniq=True)
 
     def __rmul__(self, scaling_matrix):
         """Similar to __mul__ to preserve commutativeness."""
@@ -1540,7 +1542,7 @@ class IStructure(SiteCollection, MSONable):
     @property
     def density(self) -> float:
         """The density in units of g/cm^3."""
-        mass = Mass(self.composition.weight, "amu")
+        mass = Mass(self.composition.weight, _PT_UNIT["Atomic mass"])
         return mass.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
     @property
@@ -2425,7 +2427,7 @@ class IStructure(SiteCollection, MSONable):
             autosort_tol (float): A distance tolerance in angstrom in
                 which to automatically sort end_structure to match to the
                 closest points in this particular structure. This is usually
-                what you want in a NEB calculation. 0 implies no sorting.
+                what you want in an NEB calculation. 0 implies no sorting.
                 Otherwise, a 0.5 value usually works pretty well.
             end_amplitude (float): The fractional amplitude of the endpoint
                 of the interpolation, or a cofactor of the distortion vector
@@ -3051,7 +3053,7 @@ class IStructure(SiteCollection, MSONable):
         return str(writer)
 
     @classmethod
-    def from_id(cls, id_: str, source: StructureSources = "Materials Project", **kwargs) -> Structure:
+    def from_id(cls, id_, source: Literal["Materials Project", "COD"] = "Materials Project", **kwargs) -> Structure:
         """
         Load a structure file based on an id, usually from an online source.
 
@@ -3065,11 +3067,13 @@ class IStructure(SiteCollection, MSONable):
 
             mpr = MPRester(**kwargs)
             return mpr.get_structure_by_material_id(id_)  # type: ignore[attr-defined]
+
         if source == "COD":
             from pymatgen.ext.cod import COD
 
             cod = COD()
             return cod.get_structure_by_id(int(id_))
+
         raise ValueError(f"Invalid source: {source}")
 
     @classmethod
@@ -4780,7 +4784,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         scaling_matrix: ArrayLike,
         to_unit_cell: bool = True,
         in_place: bool = True,
-    ) -> Structure:
+    ) -> Self:
         """Create a supercell.
 
         Args:
@@ -4806,8 +4810,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
             Structure: self if in_place is True else self.copy() after making supercell
         """
         # TODO (janosh) maybe default in_place to False after a depreciation period
-        struct: Structure = self if in_place else self.copy()
-        supercell: Structure = struct * scaling_matrix
+        struct: Self = self if in_place else self.copy()
+        supercell = struct * scaling_matrix
         if to_unit_cell:
             for site in supercell:
                 site.to_unit_cell(in_place=True)
@@ -4816,7 +4820,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return struct
 
-    def scale_lattice(self, volume: float) -> Structure:
+    def scale_lattice(self, volume: float) -> Self:
         """Perform scaling of the lattice vectors so that length proportions
         and angles are preserved.
 

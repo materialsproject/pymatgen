@@ -20,9 +20,7 @@ from pymatgen.io.vasp.outputs import Dynmat, Oszicar, Vasprun
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
-
-    from typing_extensions import Self
+    from typing import Any, Self
 
     from pymatgen.util.typing import PathLike
 
@@ -89,7 +87,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         self,
         inc_structure: bool = False,
         parameters: list[str] | None = None,
-        data: dict | None = None,
+        data: list | None = None,
     ) -> None:
         """
         Args:
@@ -113,7 +111,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         }
         if parameters:
             self._parameters.update(parameters)
-        self._data = data or {}
+        self._data = data or []
 
     def __str__(self) -> str:
         return "VaspToComputedEntryDrone"

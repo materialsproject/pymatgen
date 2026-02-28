@@ -7,9 +7,9 @@ from __future__ import annotations
 
 import json
 import re
-from datetime import datetime, timezone
+import warnings
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
-from warnings import warn
 
 import orjson
 from monty.json import MSONable, jsanitize
@@ -23,9 +23,7 @@ from pymatgen.util.provenance import StructureNL
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
-    from typing import Any
-
-    from typing_extensions import Self
+    from typing import Any, Self
 
     from pymatgen.alchemy.filters import AbstractStructureFilter
 
@@ -303,7 +301,7 @@ class TransformedStructure(MSONable):
             source = "uploaded cif"
         source_info = {
             "source": source,
-            "datetime": str(datetime.now(tz=timezone.utc)),
+            "datetime": str(datetime.now(tz=UTC)),
             "original_file": raw_str,
             "cif_data": cif_dict[cif_keys[0]],
         }
@@ -331,7 +329,7 @@ class TransformedStructure(MSONable):
         struct = poscar.structure
         source_info = {
             "source": "POSCAR",
-            "datetime": str(datetime.now(tz=timezone.utc)),
+            "datetime": str(datetime.now(tz=UTC)),
             "original_file": raw_str,
         }
         return cls(struct, transformations, history=[source_info])
@@ -342,7 +340,7 @@ class TransformedStructure(MSONable):
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
         dct["history"] = jsanitize(self.history)
-        dct["last_modified"] = str(datetime.now(timezone.utc))
+        dct["last_modified"] = str(datetime.now(UTC))
         dct["other_parameters"] = jsanitize(self.other_parameters)
         return dct
 
@@ -363,7 +361,9 @@ class TransformedStructure(MSONable):
             StructureNL: The generated StructureNL object.
         """
         if self.other_parameters:
-            warn("Data in TransformedStructure.other_parameters discarded during type conversion to SNL", stacklevel=2)
+            warnings.warn(
+                "Data in TransformedStructure.other_parameters discarded during type conversion to SNL", stacklevel=2
+            )
         history = []
         for hist in self.history:
             snl_metadata = hist.pop("_snl", {})

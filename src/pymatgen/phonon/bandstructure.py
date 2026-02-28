@@ -14,10 +14,9 @@ from pymatgen.electronic_structure.bandstructure import Kpoint
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
+    from typing import Any, Self
 
-    from numpy.typing import ArrayLike
-    from typing_extensions import Self
+    from numpy.typing import ArrayLike, NDArray
 
     from pymatgen.util.typing import PathLike
 
@@ -74,7 +73,7 @@ class PhononBandStructure(MSONable):
         nac_frequencies: ArrayLike | None = None,
         eigendisplacements: ArrayLike = None,
         nac_eigendisplacements: ArrayLike | None = None,
-        labels_dict: dict | None = None,
+        labels_dict: dict[str, Kpoint] | None = None,
         coords_are_cartesian: bool = False,
         structure: Structure | None = None,
     ) -> None:
@@ -113,11 +112,13 @@ class PhononBandStructure(MSONable):
         """
         self.lattice_rec = lattice
         self.qpoints: list[Kpoint] = []
-        self.labels_dict = {}
         self.structure = structure
+
         if eigendisplacements is None:
             eigendisplacements = np.array([])
         self.eigendisplacements = eigendisplacements
+
+        self.labels_dict = {}
         if labels_dict is None:
             labels_dict = {}
 
@@ -145,14 +146,17 @@ class PhononBandStructure(MSONable):
         self.nb_qpoints = len(self.qpoints)
 
         # normalize directions for nac_frequencies and nac_eigendisplacements
-        self.nac_frequencies: list[tuple[list[float], np.ndarray]] = []
-        self.nac_eigendisplacements: list[tuple[list[float], np.ndarray]] = []
+        self.nac_frequencies: list[tuple[list, NDArray]] = []
         if nac_frequencies is not None:
             for freq in nac_frequencies:
-                self.nac_frequencies.append(([idx / np.linalg.norm(freq[0]) for idx in freq[0]], freq[1]))  # type:ignore[arg-type]
+                self.nac_frequencies.append(([idx / np.linalg.norm(freq[0]) for idx in freq[0]], np.asarray(freq[1])))
+
+        self.nac_eigendisplacements: list[tuple[list, NDArray]] = []
         if nac_eigendisplacements is not None:
             for freq in nac_eigendisplacements:
-                self.nac_eigendisplacements.append(([idx / np.linalg.norm(freq[0]) for idx in freq[0]], freq[1]))  # type:ignore[arg-type]
+                self.nac_eigendisplacements.append(
+                    ([idx / np.linalg.norm(freq[0]) for idx in freq[0]], np.asarray(freq[1]))
+                )
 
     def get_gamma_point(self) -> Kpoint | None:
         """Get the Gamma q-point as a Kpoint object (or None if not found)."""

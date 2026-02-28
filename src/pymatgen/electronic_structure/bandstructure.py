@@ -19,10 +19,9 @@ from pymatgen.util.coord import pbc_diff
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Any
+    from typing import Any, Self
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.util.typing import SpeciesLike
 
@@ -353,7 +352,7 @@ class BandStructure:
                 if kpt.label == kpoint_vbm.label:
                     list_ind_kpts.append(idx)
         else:
-            list_ind_kpts.append(index)
+            list_ind_kpts.append(index)  # type:ignore[arg-type]
 
         # Get all other bands sharing the VBM
         list_ind_band = defaultdict(list)
@@ -419,7 +418,7 @@ class BandStructure:
                 if kpt.label == kpoint_cbm.label:
                     list_index_kpoints.append(idx)
         else:
-            list_index_kpoints.append(index)
+            list_index_kpoints.append(index)  # type:ignore[arg-type]
 
         # Get all other bands sharing the CBM
         list_index_band = defaultdict(list)

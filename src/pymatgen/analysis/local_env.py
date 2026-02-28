@@ -34,9 +34,7 @@ except Exception:
     openbabel = None
 
 if TYPE_CHECKING:
-    from typing import Any, TypeAlias
-
-    from typing_extensions import Self
+    from typing import Any, Self, TypeAlias
 
     from pymatgen.analysis.graphs import MoleculeGraph
     from pymatgen.core.composition import SpeciesLike
@@ -682,7 +680,7 @@ class NearNeighbors:
                 params.append(tmp)
             lsops = LocalStructOrderParams(types, parameters=params)
             sites = [structure[n], *self.get_nn(structure, n)]
-            lostop_vals = lsops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))
+            lostop_vals = lsops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))  # type:ignore[arg-type]
             dct = {}
             for idx, lsop in enumerate(lostop_vals):
                 dct[names[idx]] = lsop

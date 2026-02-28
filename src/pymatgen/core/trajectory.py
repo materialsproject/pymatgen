@@ -26,9 +26,7 @@ else:
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
-    from typing import Any
-
-    from typing_extensions import Self
+    from typing import Any, Self
 
     from pymatgen.util.typing import PathLike, SitePropsType
 

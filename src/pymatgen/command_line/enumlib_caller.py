@@ -402,7 +402,7 @@ class EnumlibAdaptor:
                         )
                     else:
                         logger.debug("Skipping sites that include species X.")
-                structs.append(Structure.from_sites(sorted(sites)))
+                structs.append(Structure.from_sites(sorted(sites)))  # type:ignore[arg-type]
 
         logger.debug(f"Read in a total of {num_structs} structures.")
         return structs
