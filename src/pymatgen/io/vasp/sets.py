@@ -1297,6 +1297,93 @@ class MPRelaxSet(VaspInputSet):
     CONFIG = _load_yaml_config("MPRelaxSet")
 
 
+def _set_dispersion_correction(
+    vasp_input_set: VaspInputSet,
+    xc_functional: str,
+    dispersion: str | None = None,
+) -> None:
+    """Update the INCAR settings for a given XC functional and dispersion correction.
+
+    Args:
+        vasp_input_set (VaspInputSet): The VaspInputSet instance to update.
+            Supported types are MPScanRelaxSet and MP24RelaxSet.
+        xc_functional (str): The exchange-correlation functional to use.
+            Supported values are "SCAN", "r2SCAN", "PBE", and "PBEsol".
+        dispersion (str | None): The dispersion correction to use.
+            Supported values are "rVV10" and "D4". If None, no dispersion correction is applied.
+
+    Returns:
+        None: The function updates the INCAR settings of the VaspInputSet in place.
+    """
+
+    xc = xc_functional.lower()
+    vdw = dispersion.lower() if dispersion is not None else None
+
+    to_func_metagga = {"scan": "SCAN", "r2scan": "R2SCAN"}
+    to_func_gga = {"pbe": "PE", "pbesol": "PS"}
+
+    config_updates: dict[str, Any] = {}
+
+    # Clean up potentially existing vdW parameters
+    vdw_tags = ["LUSE_VDW", "IVDW", "IVDW_NL", "BPARAM", "CPARAM", "VDW_S6", "VDW_S8", "VDW_A1", "VDW_A2"]
+    for tag in vdw_tags:
+        if tag in vasp_input_set._config_dict["INCAR"]:
+            warnings.warn(
+                f"Removing existing INCAR tag '{tag}' to avoid conflicts when setting XC functional "
+                f"'{xc_functional}' with dispersion correction '{dispersion}'.",
+                stacklevel=2,
+            )
+            vasp_input_set._config_dict["INCAR"].pop(tag, None)
+
+    # Update the XC functional flags
+    if xc in to_func_metagga:
+        config_updates |= {"METAGGA": to_func_metagga[xc]}
+        vasp_input_set._config_dict["INCAR"].pop("GGA", None)
+    elif xc in to_func_gga:
+        config_updates |= {"GGA": to_func_gga[xc]}
+        vasp_input_set._config_dict["INCAR"].pop("METAGGA", None)
+    else:
+        raise ValueError(f"Unknown XC functional {xc_functional}!")
+
+    # Update the van der Waals parameters
+    if vdw == "rvv10":
+        rvv10_params_by_xc = {
+            "scan": {"BPARAM": 15.7, "CPARAM": 0.0093, "LUSE_VDW": True, "IVDW_NL": 2, "LASPH": True},
+            "r2scan": {"BPARAM": 11.95, "CPARAM": 0.0093, "LUSE_VDW": True, "IVDW_NL": 2, "LASPH": True},
+            "pbe": {"BPARAM": 10, "CPARAM": 0.0093, "LUSE_VDW": True, "IVDW_NL": 2, "LASPH": True},
+        }
+        config_updates |= rvv10_params_by_xc[xc]
+
+        if xc == "pbe":
+            warnings.warn(
+                "Use of rVV10L with PBE is recommended for layered materials using VASP 6.4.0 and above.", stacklevel=2
+            )
+        elif xc not in rvv10_params_by_xc:
+            raise ValueError(f"rVV10 parameters for XC functional '{xc_functional}' are not defined yet.")
+
+    elif vdw == "d4":
+        d4_pars = {
+            "scan": {"S6": 1.0, "S8": 1.46126056, "A1": 0.62930855, "A2": 6.31284039},
+            "r2scan": {"S6": 1.0, "S8": 0.60187490, "A1": 0.51559235, "A2": 5.77342911},
+            "pbe": {"S6": 1.0, "S8": 0.95948085, "A1": 0.38574991, "A2": 4.80688534},
+            "pbesol": {"S6": 1.0, "S8": 1.71885698, "A1": 0.47901421, "A2": 5.96771589},
+            "hse06": {"S6": 1.0, "S8": 1.19528249, "A1": 0.38663183, "A2": 5.19133469},
+        }
+        if xc not in d4_pars:
+            raise ValueError(f"D4 parameters for XC functional '{xc_functional}' are not defined yet.")
+        pars = d4_pars[xc]
+        config_updates |= {"IVDW": 13, **{f"VDW_{k}": v for k, v in pars.items()}}
+
+    elif isinstance(vdw, str):
+        warnings.warn(
+            f"Dispersion correction '{dispersion}' with {xc} is not supported in this class and will be ignored.",
+            stacklevel=2,
+        )
+
+    if len(config_updates) > 0:
+        vasp_input_set._config_dict["INCAR"].update(config_updates)
+
+
 @due.dcite(
     Doi("10.1021/acs.jpclett.0c02405"),
     description="Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation",
@@ -1313,13 +1400,13 @@ class MPRelaxSet(VaspInputSet):
 class MPScanRelaxSet(VaspInputSet):
     """Write a relaxation input set using the accurate and numerically
     efficient r2SCAN variant of the Strongly Constrained and Appropriately Normed
-    (SCAN) metaGGA density functional.
+    (SCAN) meta-GGA density functional.
 
     Notes:
         1. This functional is officially supported in VASP 6.0.0 and above. On older version,
         source code may be obtained by contacting the authors of the referenced manuscript.
         The original SCAN functional, available from VASP 5.4.3 onwards, maybe used instead
-        by passing `user_incar_settings={"METAGGA": "SCAN"}` when instantiating this InputSet.
+        by passing `xc_functional="SCAN"` when instantiating this InputSet.
         r2SCAN and SCAN are expected to yield very similar results.
 
         2. Meta-GGA calculations require POTCAR files that include
@@ -1344,10 +1431,12 @@ class MPScanRelaxSet(VaspInputSet):
             and Mueller [1] (see References). Note that if 'user_incar_settings'
             or 'user_kpoints_settings' override KSPACING, the calculation from
             bandgap is not performed.
-        vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
-            van der Waals density functional by combing the SCAN functional
-            with the rVV10 non-local correlation functional. rvv10 is the only
-            dispersion correction available for SCAN at this time.
+        xc_functional (str): set "r2SCAN" (default) or "SCAN" to choose the meta-GGA
+            exchange-correlation functional.
+        dispersion (str | None): set "rVV10" (default None) to enable r2SCAN+rVV10 or
+            SCAN+rVV10, which is a versatile van der Waals density functional by combing
+            the r2SCAN/SCAN functional with the rVV10 non-local correlation functional.
+            rVV10 is the only dispersion correction available for r2SCAN and SCAN in MPScanRelaxSet class.
         **kwargs: Keywords supported by VaspInputSet.
 
     References:
@@ -1358,8 +1447,16 @@ class MPScanRelaxSet(VaspInputSet):
         James W. Furness, Aaron D. Kaplan, Jinliang Ning, John P. Perdew, and Jianwei Sun.
         Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation.
         The Journal of Physical Chemistry Letters 11, 8208-8215 (2022) DOI: 10.1021/acs.jpclett.0c02405
+
+        Jinliang Ning, Manish Kothakonda, James W. Furness, Aaron D. Kaplan, Sebastian Ehlert,
+            Jan Gerit Brandenburg, John P. Perdew, and Jianwei Sun.
+        Workhorse minimally empirical dispersion-corrected density functional with tests for
+            weakly bound systems: r2SCAN+rVV10.
+        Phys. Rev. B 106, 075422 (2022) DOI: 10.1103/PhysRevB.106.075422
     """
 
+    xc_functional: Literal["r2SCAN", "SCAN"] = "r2SCAN"
+    dispersion: Literal["rVV10"] | None = None
     bandgap: float | None = None
     auto_kspacing: bool = True
     user_potcar_functional: UserPotcarFunctional = "PBE_54"
@@ -1369,15 +1466,9 @@ class MPScanRelaxSet(VaspInputSet):
 
     def __post_init__(self) -> None:
         super().__post_init__()
-        if self.vdw and self.vdw != "rvv10":
-            warnings.warn(
-                "Use of van der waals functionals other than rVV10 with SCAN is not supported at this time. ",
-                stacklevel=2,
-            )
-            # Delete any vdw parameters that may have been added to the INCAR
-            vdw_par = loadfn(f"{MODULE_DIR}/vdW_parameters.yaml")
-            for k in vdw_par[self.vdw]:
-                self._config_dict["INCAR"].pop(k, None)
+        if isinstance(self.dispersion, str) and self.dispersion.lower() != "rvv10":
+            raise ValueError("Only rVV10 (or None) is supported for dispersion in MPScanRelaxSet.")
+        _set_dispersion_correction(self, self.xc_functional, self.dispersion)
 
 
 @dataclass
@@ -1429,56 +1520,9 @@ class MP24RelaxSet(VaspInputSet):
 
     def __post_init__(self) -> None:
         super().__post_init__()
-
-        to_func = {
-            "r2SCAN": "R2SCAN",
-            "PBE": "PE",
-            "PBEsol": "PS",
-        }
-
-        config_updates: dict[str, Any] = {}
-        if self.xc_functional == "r2SCAN":
-            config_updates |= {"METAGGA": to_func[self.xc_functional]}
-            self._config_dict["INCAR"].pop("GGA", None)
-        elif self.xc_functional in ["PBE", "PBEsol"]:
-            config_updates |= {"GGA": to_func[self.xc_functional]}
-            self._config_dict["INCAR"].pop("METAGGA", None)
-        else:
-            raise ValueError(f"Unknown XC functional {self.xc_functional}!")
-
-        if self.dispersion == "rVV10":
-            if self.xc_functional == "r2SCAN":
-                config_updates |= {"BPARAM": 11.95, "CPARAM": 0.0093, "LUSE_VDW": True}
-            else:
-                raise ValueError(
-                    "Use of rVV10 with functionals other than r2 / SCAN is not currently supported in VASP."
-                )
-
-        elif self.dispersion == "D4":
-            d4_pars = {
-                "r2SCAN": {
-                    "S6": 1.0,
-                    "S8": 0.60187490,
-                    "A1": 0.51559235,
-                    "A2": 5.77342911,
-                },
-                "PBE": {
-                    "S6": 1.0,
-                    "S8": 0.95948085,
-                    "A1": 0.38574991,
-                    "A2": 4.80688534,
-                },
-                "PBEsol": {
-                    "S6": 1.0,
-                    "S8": 1.71885698,
-                    "A1": 0.47901421,
-                    "A2": 5.96771589,
-                },
-            }
-            config_updates |= {"IVDW": 13, **{f"VDW_{k}": v for k, v in d4_pars[self.xc_functional].items()}}
-
-        if len(config_updates) > 0:
-            self._config_dict["INCAR"].update(config_updates)
+        if self.xc_functional.lower() not in {"r2scan", "pbe", "pbesol"}:
+            raise ValueError("xc_functional must be one of 'r2SCAN', 'PBE', or 'PBEsol'.")
+        _set_dispersion_correction(self, self.xc_functional, self.dispersion)
 
     @staticmethod
     def _sigmoid_interp(
