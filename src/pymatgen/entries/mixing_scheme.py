@@ -15,13 +15,13 @@ import pandas as pd
 
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.entries import ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen.entries.compatibility import (
     Compatibility,
     CompatibilityError,
     MaterialsProject2020Compatibility,
     TypeVarAnyEntry,
 )
-from pymatgen.entries.computed_entries import ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen.entries.entry_tools import EntrySet
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
