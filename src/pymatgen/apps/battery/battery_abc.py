@@ -17,7 +17,7 @@ from scipy.constants import N_A
 from pymatgen.core import Composition
 
 if TYPE_CHECKING:
-    from pymatgen.entries import Entry
+    from pymatgen.core.entries import Entry
     from pymatgen.util.typing import SpeciesLike
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
