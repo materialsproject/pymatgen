@@ -133,7 +133,6 @@ class Slab(Structure):
                 fractional_coords. Defaults to None for no properties.
             energy (float): A value for the energy.
         """
-        self.oriented_unit_cell = oriented_unit_cell
         self.miller_index = miller_index
         self.shift = shift
         self.reconstruction = reconstruction
@@ -153,6 +152,30 @@ class Slab(Structure):
                 lattice.beta,
                 lattice.gamma,
             )
+
+            oriented_unit_cell = copy.deepcopy(oriented_unit_cell)
+            ouc_lattice = oriented_unit_cell.lattice
+            ouc_lattice = Lattice.from_parameters(
+                ouc_lattice.a,
+                ouc_lattice.b,
+                ouc_lattice.c,
+                ouc_lattice.alpha,
+                ouc_lattice.beta,
+                ouc_lattice.gamma,
+            )
+            
+            self.oriented_unit_cell = Structure(
+                ouc_lattice,
+                oriented_unit_cell.species,
+                oriented_unit_cell.frac_coords,
+                charge = oriented_unit_cell.charge,
+                coords_are_cartesian=False,
+                site_properties=oriented_unit_cell.site_properties,
+                labels=oriented_unit_cell.labels,
+                properties=oriented_unit_cell.properties,
+            )
+        else:
+            self.oriented_unit_cell = oriented_unit_cell
 
         super().__init__(
             lattice,
