@@ -13,7 +13,7 @@ from monty.json import MontyDecoder, MSONable
 from uncertainties import UFloat, ufloat
 
 from pymatgen.core.composition import Composition
-from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.core.entries import ComputedEntry
 
 if TYPE_CHECKING:
     from collections.abc import Mapping

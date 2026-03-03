@@ -42,7 +42,7 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.string import htmlify
 
 if TYPE_CHECKING:
-    from pymatgen.entries.computed_entries import ComputedEntry
+    from pymatgen.core.entries import ComputedEntry
 
 with open(f"{PKG_DIR}/util/plotly_chempot_layouts.json", "rb") as file:
     plotly_layouts = orjson.loads(file.read())

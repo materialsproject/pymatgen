@@ -1510,7 +1510,7 @@ class TestLobsterMatrices(MatSciTest):
 
         assert isinstance(self.overlap_matrices.matrices["1"], dict)
         for spin in self.overlap_matrices.matrices["1"]:
-            assert spin in [None]
+            assert spin is None
             assert isinstance(self.overlap_matrices.matrices["1"][spin], np.ndarray)
             assert self.overlap_matrices.matrices["1"][spin].shape == (4, 4)
 
