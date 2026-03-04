@@ -32,12 +32,13 @@ If you would like your own tool to be listed here, please submit a PR. For a mor
 * [Atomate2](https://github.com/materialsproject/atomate2): atomate2 is a library of computational materials science workflows.
 * [LobsterPy](https://github.com/JaGeo/LobsterPy): Automatically analyze [Lobster runs](https://cohp.de).
 * [pymatviz](https://github.com/janosh/pymatviz): Complements `pymatgen` with additional plotting functionality for larger datasets common in materials informatics.
-* [DiSCoVeR](https://github.com/sparks-baird/mat_discover): A materials discovery algorithm geared towards exploring
-  high-performance candidates in new chemical spaces.
+* [DiSCoVeR](https://github.com/sparks-baird/mat_discover): A materials discovery algorithm geared towards exploring high-performance candidates in new chemical spaces.
 * [rxn-network](https://github.com/GENESIS-EFRC/reaction-network): Reaction Network is a Python package for predicting likely inorganic chemical reaction pathways using graph theory.
 * [Matbench](https://github.com/materialsproject/matbench): Benchmarks for machine learning property prediction.
 * [Matbench Discovery](https://github.com/janosh/matbench-discovery): Benchmark for machine learning crystal stability prediction.
 * [matgl](https://github.com/materialsvirtuallab/matgl): Graph deep learning library for materials. Implements M3GNet and MEGNet in DGL and Pytorch with more to come.
 * [chgnet](https://github.com/CederGroupHub/chgnet): Pretrained universal neural network potential for charge-informed atomistic modeling.
+* [doped](https://github.com/SMTG-Bham/doped): Comprehensive toolkit for defect supercell calculations and thermodynamic analyses.
+* [ShakeNBreak](https://github.com/SMTG-Bham/ShakeNBreak): Defect structure-searching via chemically-guided bond distortions.
 * [DebyeCalculator](https://github.com/FrederikLizakJohansen/DebyeCalculator): A vectorised implementation of the Debye Scattering Equation on CPU and GPU.
 * [ramannoodle](https://github.com/wolearyc/ramannoodle): Efficiently compute off-resonance Raman spectra from first principles calculations (e.g. VASP) using polynomial and ML models.

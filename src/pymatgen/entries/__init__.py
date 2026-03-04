@@ -16,3 +16,12 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Mar 03, 2020"
+
+import warnings
+
+warnings.warn(
+    "Entry, ComputedEntry and ComputedStructureEntry have been moved to pymatgen.core.entries module. "
+    "This stub will be removed v2027.1.",
+    DeprecationWarning,
+    stacklevel=2,
+)
