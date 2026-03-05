@@ -575,7 +575,7 @@ class Icohplist(MSONable):
                 list_atom1=atom1_list,
                 list_atom2=atom2_list,
                 list_length=lens,
-                list_translation=translations,  # type: ignore[arg-type]
+                list_translation=translations,
                 list_num=nums,
                 list_icohp=icohps,
                 is_spin_polarized=self.is_spin_polarized,
