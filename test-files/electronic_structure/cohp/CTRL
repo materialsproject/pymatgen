@@ -1,0 +1,71 @@
+HEADER    Fe, cubic body-centred 
+VERS      LMASA-47 
+IO        VERBOS=40 HELP=F WKP=F IACTIV=F ERRTOL=2 OUTPUT=* ERR=* 
+SYMGRP    NGEN=3 GENGRP=I R4X R3D 
+          SPCGRP=Im-3m USESYM=F 
+STRUC     ALAT=5.4169021 
+          PLAT=-.5 0.5 0.5 
+               0.5 -.5 0.5 
+               0.5 0.5 -.5 FIXLAT=T 
+DIM       NBAS=1 NCLASS=1 NL=3 LDIM=9 IDIM=0 NSYMOP=48 NKP=413 
+OPTIONS   NSPIN=2 REL=T CCOR=T NONLOC=F NRXC=1 NRMIX=2 CORDRD=F 
+          NITATOM=30 CHARGE=F FATBAND=F AFM=F SEWALD=F FS=F 
+          CARTESIAN=T WRIBAS=F Q=---- COHP=T IREP=F RMES=F BEGBND=0 
+          ENDBND=0 
+CLASS     ATOM=Fe Z=26 R=2.66713369 LMX=2 CONF=4 4 3 4 IDXDN=1 1 1 
+SITE      ATOM=Fe POS=0 0 0 
+SCALE     SCLWSR=T OMMAX1=.16 .18 .20 OMMAX2=.40 .45 .50 
+STR       KAPPA2=0 RMAXS=3.8 NDIMIN=0 NOCALC=F IALPHA=0 
+          DOWATS=F DELTR=.1 LMAXW=8 
+          ATOM=Fe SIGMA=.7 .7 .7 
+START     NIT=30 BROY=T WC=-1 NMIX=1 BETA=.5 
+          FREE=F CNVG=.00001 CNVGET=.00001 BEGMOM=T CNTROL=T 
+          EFERMI=-.0856831 VMTZ=-.79526307 
+          ATOM=Fe  P=4.66953420 4.42509863 3.68051376 
+                     4.66418721 4.40335148 3.86664340 
+                   Q=0.32813415 -.00610405 0.00487259 
+                     0.42086558 -.00373186 0.00564149 
+                     2.13128767 0.00473415 0.01023256 
+                     0.31557213 -.00780414 0.00530755 
+                     0.36672695 -.00580530 0.00502723 
+                     4.43741257 0.01733486 0.04454202 
+              enu   =-.42620460 -.25476791 -.20220805 
+                     -.46657091 -.32310201 -.23503188 
+              c     =-.26199467 0.75491011 -.05682882 
+                     -.29578346 0.71972535 -.21121575 
+              sqrdel=-.43411617 0.41633276 0.12982412 
+                     -.43028814 0.41423861 0.11559789 
+              p     =0.03883547 0.02354482 1.24802587 
+                     0.04026620 0.02362646 1.70331964 
+              gamma =0.42988734 0.11509975 0.00434920 
+                     0.42934891 0.11507372 -.00167904 
+CHARGE    LMTODAT=T ELF=F ADDCOR=F SPINDENS=F CHARWIN=F EMIN=-2 EMAX=2 
+          UNOCCUP=F 
+PLOT      ORIGIN=0 0 0 
+              R1=1 0 0 NDELR1=12 
+              R2=0 1 0 NDELR2=12 
+              R3=0 0 1 NDELR3=12 
+          FORMAT=1 
+BZ        NKABC=24 24 24 TETRA=T METAL=T TOL=.000001 
+          N=0 W=.005 RANGE=5 NPTS=1001 
+EWALD     NKDMX=250 AS=2 TOL=.000001 
+RHOFIT    FIT=F KAPPA2=0 RMAXS=3.5 OUTPUT=5 
+          ATOM=Fe LMXRHO=2 SIGMA=.7 .7 .7 
+SCELL     PLAT=-.5 0.5 0.5 
+               0.5 -.5 0.5 
+               0.5 0.5 -.5 EQUIV=T 
+HARTREE   BEGATOM=T LT1=2 LT2=2 LT3=2 
+DOS       NOPTS=801 EMIN=-.8 EMAX=2.5 
+SYML      NQ=30 Q1=0.0 0.0 0.0 LAB1=G 
+                Q2=0.5 0.5 0.0 LAB2=N 
+          NQ=20 Q1=0.5 0.5 0.0 LAB1=N 
+                Q2=0.5 0.5 0.5 LAB2=P 
+          NQ=35 Q1=0.5 0.5 0.5 LAB1=P 
+                Q2=0.0 0.0 0.0 LAB2=G 
+          NQ=40 Q1=0.0 0.0 0.0 LAB1=G 
+                Q2=0.0 1.0 0.0 LAB2=H 
+          NQ=30 Q1=0.0 1.0 0.0 LAB1=H 
+                Q2=0.5 0.5 0.0 LAB2=N 
+FINDES    RMINES=.9 RMAXES=4 NRXYZ=24 24 24 
+COHP      ONLY_H=F f(N(E))=F WGAUSS=5 
+          CLASS1=1 CLASS2=1 DIMIN=.5 DIMAX=4.75 
