@@ -42,7 +42,7 @@
                     "run_type_1": "GGA(+U)",
                     "run_type_2": "R2SCAN",
                     "compat_1": {
-                        "@module": "pymatgen.core.entries.compatibility",
+                        "@module": "pymatgen.entries.compatibility",
                         "@class": "MaterialsProject2020Compatibility",
                         "@version": null
                     },
@@ -423,7 +423,7 @@
                     "run_type_1": "GGA(+U)",
                     "run_type_2": "R2SCAN",
                     "compat_1": {
-                        "@module": "pymatgen.core.entries.compatibility",
+                        "@module": "pymatgen.entries.compatibility",
                         "@class": "MaterialsProject2020Compatibility",
                         "@version": null
                     },
