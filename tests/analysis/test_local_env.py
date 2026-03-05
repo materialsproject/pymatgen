@@ -46,7 +46,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 TEST_DIR = f"{TEST_FILES_DIR}/core/local_env/fragmenter_files"
 
 
-pytestmark = pytest.mark.skipif(os.getenv("GITHUB_ACTIONS") == "true", reason="Do not run in CI.")
+pytestmark = pytest.mark.skipif(not os.path.exists(TEST_DIR), reason="Requires test files")
 
 
 def test_opt_params():
