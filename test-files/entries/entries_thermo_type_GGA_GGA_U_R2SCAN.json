@@ -17,16 +17,16 @@
                 "uncertainty": 0.0,
                 "name": "MP GGA(+U)/R2SCAN mixing adjustment",
                 "cls": {
-                    "@module": "pymatgen.core.entries.mixing_scheme",
+                    "@module": "pymatgen.entries.mixing_scheme",
                     "@class": "MaterialsProjectDFTMixingScheme",
                     "@version": null,
                     "structure_matcher": {
                         "version": "1.0",
-                        "@module": "pymatgen.analysis.structure_matcher",
+                        "@module": "pymatgen.core.structure_matcher",
                         "@class": "StructureMatcher",
                         "comparator": {
                             "version": "1.0",
-                            "@module": "pymatgen.analysis.structure_matcher",
+                            "@module": "pymatgen.core.structure_matcher",
                             "@class": "SpeciesComparator"
                         },
                         "stol": 0.3,
@@ -398,16 +398,16 @@
                 "uncertainty": 0.0,
                 "name": "MP GGA(+U)/R2SCAN mixing adjustment",
                 "cls": {
-                    "@module": "pymatgen.core.entries.mixing_scheme",
+                    "@module": "pymatgen.entries.mixing_scheme",
                     "@class": "MaterialsProjectDFTMixingScheme",
                     "@version": null,
                     "structure_matcher": {
                         "version": "1.0",
-                        "@module": "pymatgen.analysis.structure_matcher",
+                        "@module": "pymatgen.core.structure_matcher",
                         "@class": "StructureMatcher",
                         "comparator": {
                             "version": "1.0",
-                            "@module": "pymatgen.analysis.structure_matcher",
+                            "@module": "pymatgen.core.structure_matcher",
                             "@class": "SpeciesComparator"
                         },
                         "stol": 0.3,
