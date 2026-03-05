@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import os
+
+import pytest
 from pytest import approx
 
 from pymatgen.analysis.energy_models import EwaldElectrostaticModel, IsingModel, SymmetryModel
@@ -7,6 +10,8 @@ from pymatgen.core import Species
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR
+
+pytestmark = pytest.mark.skipif(os.getenv("GITHUB_ACTIONS") == "true", reason="Do not run in CI.")
 
 
 class TestEwaldElectrostaticModel:

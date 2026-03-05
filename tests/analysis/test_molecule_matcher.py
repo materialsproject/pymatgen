@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import platform
 
 import numpy as np
@@ -28,6 +29,7 @@ except (ImportError, RuntimeError):
 TEST_DIR = f"{TEST_FILES_DIR}/core/molecule_matcher"
 
 
+pytestmark = pytest.mark.skipif(not os.path.exists(TEST_DIR), reason="Requires test files")
 ob_align_missing = openbabel is None or "OBAlign" not in dir(openbabel)
 
 
