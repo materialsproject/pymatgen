@@ -1,0 +1,160 @@
+# Created by the Bilbao Crystallographic Server
+# http://www.cryst.ehu.es
+# Date: 02/17/2016 21:26:10
+# Database entry: 1.6 NiO
+# Cif-like file for the case 1.6
+
+
+data_5yOhtAoR
+_audit_creation_date            2016-02-17
+_audit_creation_method          "Bilbao Crystallographic Server"
+
+_chemical_name_systematic
+;
+;
+_chemical_name_common                    ?
+_chemical_formula_moiety                 ?
+_chemical_formula_structural             ?
+_chemical_formula_analytical             ?
+_chemical_formula_iupac                  ?
+_chemical_formula_sum                    'Ni O'
+_chemical_formula_weight                 ?
+_chemical_melting_point                  ?
+_chemical_compound_source                ?
+_chemical_absolute_configuration         .
+
+
+_citation_journal_abbrev        "Physica B"
+_citation_journal_volume        385Ð386
+_citation_page_first            394
+_citation_page_last             ?
+_citation_article_id            .
+_citation_year                  2006
+_citation_DOI                   ?
+
+loop_
+_citation_author_name
+"Ressouche, E."
+
+_atomic_positions_source_database_code_ICSD  .
+_atomic_positions_source_other               .
+
+_transition_temperature     523
+_experiment_temperature     ?
+
+loop_
+_irrep_id
+_irrep_dimension
+_irrep_small_dimension
+_irrep_direction_type
+_irrep_action
+_irrep_modes_number
+_irrep_presence
+mL3+ 8 2 special primary . .
+
+_exptl_crystal_magnetic_properties_details
+;
+SNP
+arbitrary spin scale.
+spins along the (11-2) direction, perpendicular to the propagation vector
+monoclinic axis along (1,-1,0) direction, also perpendicular to k.
+;
+
+_active_magnetic_irreps_details
+;
+irrep mL3+, special direction.
+a secondary weak spin component (irrep mL2+, 1dim-irrep) along the propagation vector, direction (1,1,1), is allowed and sometimes reported. Not included here.
+;
+
+_parent_space_group.name_H-M                        'F m -3m'
+_parent_space_group.IT_number                       225
+_parent_space_group.transform_to_standard_Pp_abc    'a,b,c;0,0,0'
+
+loop_
+_magnetic_propagation_vector_seq_id
+_magnetic_propagation_vector_kxkykz
+k1 1/2,1/2,1/2
+
+_magnetic_space_group.standard_setting              'no'
+_magnetic_space_group.transform_from_parent_Pp_abc  '2a,2b,2c;0,0,0'
+_magnetic_space_group.transform_to_standard_Pp_abc  'a/4+b/4-c/2,a/4-b/4,-a/2-b/2;0,0,0'
+
+loop_
+_magnetic_atom_site_moment_symmetry_constraints_label
+_atom_site_magnetic_moment_symmetry_constraints_mxmymz
+Ni mx,mx,mz
+
+_space_group.magn_number_BNS   15.90
+_space_group.magn_name_BNS     "C_c 2/c"
+_space_group.magn_point_group "2/m1'"
+_space_group.magn_point_group_number "5.2.13"
+_cell_length_a                 8.3500
+_cell_length_b                 8.3500
+_cell_length_c                 8.3500
+_cell_angle_alpha              90.0000
+_cell_angle_beta               90.0000
+_cell_angle_gamma              90.0000
+
+loop_
+_space_group_symop.magn_id
+_space_group_symop.magn_operation_xyz
+_space_group_symop.magn_operation_mxmymz
+1 x,y,z,+1 mx,my,mz
+2 -y+3/4,-x+3/4,-z,+1 -my,-mx,-mz
+3 -x+1/4,-y+3/4,-z,+1 mx,my,mz
+4 y,x+1/2,z,+1 -my,-mx,-mz
+
+loop_
+_space_group_symop.magn_centering_id
+_space_group_symop.magn_centering_xyz
+_space_group_symop.magn_centering_mxmymz
+1 x,y,z,+1 mx,my,mz
+2 x,y+1/4,z+3/4,+1 mx,my,mz
+3 x,y+1/2,z+1/2,+1 mx,my,mz
+4 x,y+3/4,z+1/4,+1 mx,my,mz
+5 x+1/4,y,z+3/4,+1 mx,my,mz
+6 x+1/4,y+1/4,z+1/2,+1 mx,my,mz
+7 x+1/4,y+1/2,z+1/4,+1 mx,my,mz
+8 x+1/4,y+3/4,z,+1 mx,my,mz
+9 x+1/2,y,z+1/2,+1 mx,my,mz
+10 x+1/2,y+1/4,z+1/4,+1 mx,my,mz
+11 x+1/2,y+1/2,z,+1 mx,my,mz
+12 x+1/2,y+3/4,z+3/4,+1 mx,my,mz
+13 x+3/4,y,z+1/4,+1 mx,my,mz
+14 x+3/4,y+1/4,z,+1 mx,my,mz
+15 x+3/4,y+1/2,z+3/4,+1 mx,my,mz
+16 x+3/4,y+3/4,z+1/2,+1 mx,my,mz
+17 x+3/4,y+3/4,z,-1 -mx,-my,-mz
+18 x+3/4,y,z+3/4,-1 -mx,-my,-mz
+19 x+3/4,y+1/4,z+1/2,-1 -mx,-my,-mz
+20 x+3/4,y+1/2,z+1/4,-1 -mx,-my,-mz
+21 x,y+3/4,z+3/4,-1 -mx,-my,-mz
+22 x,y,z+1/2,-1 -mx,-my,-mz
+23 x,y+1/4,z+1/4,-1 -mx,-my,-mz
+24 x,y+1/2,z,-1 -mx,-my,-mz
+25 x+1/4,y+3/4,z+1/2,-1 -mx,-my,-mz
+26 x+1/4,y,z+1/4,-1 -mx,-my,-mz
+27 x+1/4,y+1/4,z,-1 -mx,-my,-mz
+28 x+1/4,y+1/2,z+3/4,-1 -mx,-my,-mz
+29 x+1/2,y+3/4,z+1/4,-1 -mx,-my,-mz
+30 x+1/2,y,z,-1 -mx,-my,-mz
+31 x+1/2,y+1/4,z+3/4,-1 -mx,-my,-mz
+32 x+1/2,y+1/2,z+1/2,-1 -mx,-my,-mz
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+Ni Ni 0.00000 0.00000 0.00000 1
+O O 0.75000 0.50000 0.00000 1
+
+loop_
+_atom_site_moment_label
+_atom_site_moment_crystalaxis_x
+_atom_site_moment_crystalaxis_y
+_atom_site_moment_crystalaxis_z
+Ni 1. 1. -2.
+
