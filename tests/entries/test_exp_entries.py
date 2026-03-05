@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 import json
+import os
 
+import pytest
 from monty.json import MontyDecoder
 from pytest import approx
 
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.util.testing import TEST_FILES_DIR
+
+pytestmark = pytest.mark.skipif(not os.path.exists(f"{TEST_FILES_DIR}/entries"), reason="Requires test files")
 
 
 class TestExpEntry:

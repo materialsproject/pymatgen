@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import os
 from collections import defaultdict
 
 import orjson
@@ -24,6 +25,9 @@ from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/entries"
+
+
+pytestmark = pytest.mark.skipif(not os.path.exists(TEST_DIR), reason="Requires test files")
 
 vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.xml.gz")
 
