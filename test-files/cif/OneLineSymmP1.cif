@@ -1,0 +1,27 @@
+data_2002297
+_symmetry_equiv_pos_as_xyz       x,y,z
+_cell_angle_alpha                90.(0)
+_cell_angle_beta                 118.99
+_cell_angle_gamma                90.(0)
+_cell_length_a                   5.387
+_cell_length_b                   8.575
+_cell_length_c                   5.22
+loop_
+_atom_site_label
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+Pb1 0.0599 0.25 0.0302
+Pb2 0.947 0.7501 0.974
+Ga1 0.3488 0.0535 0.7127
+Ga2 0.6585 0.9486 0.368
+Ga3 0.6576 0.5523 0.3674
+Ga4 0.3478 0.4476 0.7118
+O1 0.3684 0.0607 0.3715
+O2 0.3668 0.4426 0.3667
+O3 0.0042 0.9985 0.6753
+O4 0.001 0.5028 0.6724
+O5 0.6349 0.8408 0.0012
+O6 0.6399 0.5608 0.0042
+O7 0.6242 0.7523 0.4883
+O8 0.3868 0.2494 0.8706

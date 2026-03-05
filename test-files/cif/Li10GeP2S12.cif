@@ -1,0 +1,56 @@
+#======================================================================
+
+# CRYSTAL DATA
+
+#----------------------------------------------------------------------
+
+data_VESTA_phase_1
+
+
+_pd_phase_name                         'Li10 S12 P2 Ge'
+_cell_length_a                         8.69407(18)
+_cell_length_b                         8.69407(18)
+_cell_length_c                         12.5994(4)
+_cell_angle_alpha                      90
+_cell_angle_beta                       90
+_cell_angle_gamma                      90
+_symmetry_space_group_name_H-M         'P 42/n m c'
+_symmetry_Int_Tables_number            137
+
+loop_
+_symmetry_equiv_pos_as_xyz
+   'x, y, z'
+   '-x, -y, z'
+   '-y+1/2, x+1/2, z+1/2'
+   'y+1/2, -x+1/2, z+1/2'
+   '-x+1/2, y+1/2, -z+1/2'
+   'x+1/2, -y+1/2, -z+1/2'
+   'y, x, -z'
+   '-y, -x, -z'
+   '-x+1/2, -y+1/2, -z+1/2'
+   'x+1/2, y+1/2, -z+1/2'
+   'y, -x, -z'
+   '-y, x, -z'
+   'x, -y, z'
+   '-x, y, z'
+   '-y+1/2, -x+1/2, z+1/2'
+   'y+1/2, x+1/2, z+1/2'
+
+loop_
+   _atom_site_label
+   _atom_site_occupancy
+   _atom_site_fract_x
+   _atom_site_fract_y
+   _atom_site_fract_z
+   _atom_site_thermal_displace_type
+   _atom_site_B_iso_or_equiv
+   _atom_site_type_symbol
+   Li1      0.691  0.2563(5)    0.2718(3)    0.1832(2)   Biso  1.000  Li
+   Li2      1.0    0            0.50000      0.9446(2)   Biso  1.000  Li
+   Li3      0.643  0.2463(3)    0.2463(3)    0           Biso  1.000  Li
+   Ge1      0.515  0            0.50000      0.6907(6)   Biso  1.000  Ge
+   P1       0.485  0            0.50000      0.6907(6)   Biso  1.000  P
+   P2       1.0    0            0            0.50000     Biso  1.000  P
+   S1       1.0    0            0.1843(15)   0.4103(11)  Biso  1.000  S
+   S2       1.0    0            0.2991(18)   0.0950(11)  Biso  1.000  S
+   S3       1.0    0            0.6990(15)   0.7914(12)  Biso  1.000  S
