@@ -104,7 +104,7 @@ jobs:
         env:
           MPLBACKEND: Agg # non-interactive backend for matplotlib
           PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
-          PMG_TEST_FILES_DIR: "${{ github.workspace }}/pymatgen-test-files"
+          PMG_TEST_FILES_DIR: "${{ github.workspace }}/test-files"
           PYTHONWARNDEFAULTENCODING: "true" # PEP 597: Enable optional EncodingWarning
         run: |
           pytest tests -n auto
