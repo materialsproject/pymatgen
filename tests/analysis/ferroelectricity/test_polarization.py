@@ -15,7 +15,7 @@ from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/ferroelectricity"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/ferroelectricity"
 bto_folders = ["nonpolar_polarization"]
 bto_folders += [f"interpolation_{idx}_polarization" for idx in range(8, 0, -1)]
 bto_folders += ["polar_polarization"]
