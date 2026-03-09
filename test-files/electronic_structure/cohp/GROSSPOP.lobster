@@ -1,4 +1,4 @@
-Mulliken and Loewdin gross orbital population 
+Mulliken and Loewdin gross orbital population
 
   atom#    atom   basisfunction     Mulliken GP      Loewdin GP
       1      Si             3s            0.52            0.61
@@ -54,4 +54,3 @@ Mulliken and Loewdin gross orbital population
                           2p_z            1.79            1.77
                           2p_x            1.75            1.73
                          total            7.18            6.92
-

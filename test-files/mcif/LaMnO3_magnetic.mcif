@@ -91,19 +91,19 @@ _cell_angle_gamma              90.0000
 loop_
 _space_group_symop_magn_operation.id
 _space_group_symop_magn_operation.xyz
-1 x,y,z,+1 
-2 -x,y+1/2,-z,+1 
-3 -x,-y,-z,+1 
-4 x,-y+1/2,z,+1 
-5 x+1/2,-y+1/2,-z+1/2,-1 
-6 -x+1/2,-y,z+1/2,-1 
-7 -x+1/2,y+1/2,z+1/2,-1 
-8 x+1/2,y,-z+1/2,-1 
+1 x,y,z,+1
+2 -x,y+1/2,-z,+1
+3 -x,-y,-z,+1
+4 x,-y+1/2,z,+1
+5 x+1/2,-y+1/2,-z+1/2,-1
+6 -x+1/2,-y,z+1/2,-1
+7 -x+1/2,y+1/2,z+1/2,-1
+8 x+1/2,y,-z+1/2,-1
 
 loop_
 _space_group_symop_magn_centering.id
 _space_group_symop_magn_centering.xyz
-1 x,y,z,+1 
+1 x,y,z,+1
 
 loop_
 _atom_site_label
@@ -124,4 +124,3 @@ _atom_site_moment.crystalaxis_y
 _atom_site_moment.crystalaxis_z
 _atom_site_moment.symmform
 Mn 3.87(3) 0.0 0.0 mx,my,mz
-
