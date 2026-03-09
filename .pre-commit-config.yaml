@@ -1,4 +1,4 @@
-exclude: ^(docs|tests/files|tasks.py)
+exclude: ^(docs|test-files|tasks.py)
 
 ci:
   autoupdate_schedule: monthly
