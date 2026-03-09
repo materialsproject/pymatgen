@@ -107,7 +107,7 @@ jobs:
           PMG_TEST_FILES_DIR: "${{ github.workspace }}/test-files"
           PYTHONWARNDEFAULTENCODING: "true" # PEP 597: Enable optional EncodingWarning
         run: |
-          pytest tests -n auto
+          pytest tests
 
   trigger_atomate2_ci:
     needs: test
