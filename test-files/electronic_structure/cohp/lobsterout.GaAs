@@ -6,12 +6,12 @@ detecting used PAW program... VASP
 initializing PW system...
 initializing Augmentations...
 recommended basis functions:
-As 4p 4s
-Ga 3d 4p 4s
+As 4p 4s 
+Ga 3d 4p 4s 
 initializing LCAO system...
 setting up local basis functions...
-As (Bunge) 4s 4p_y 4p_z 4p_x
-Ga (Bunge) 4s 4p_y 4p_z 4p_x 3d_xy 3d_yz 3d_z^2 3d_xz 3d_x^2-y^2
+As (Bunge) 4s 4p_y 4p_z 4p_x 
+Ga (Bunge) 4s 4p_y 4p_z 4p_x 3d_xy 3d_yz 3d_z^2 3d_xz 3d_x^2-y^2 
 INFO: There are more PAW bands than local basis functions available.
 INFO: To prevent trouble in orthonormalization and Hamiltonian reconstruction
 INFO: the PAW bands from 14 and upwards will be ignored.
