@@ -1,0 +1,54 @@
+# minimal example from 189913 ICSD
+# only data included necessary to replicate bug, not full entry
+data_189913-ICSD
+_cell_length_a 10.474
+_cell_length_b 10.474
+_cell_length_c 38.782
+_cell_angle_alpha 90.
+_cell_angle_beta 90.
+_cell_angle_gamma 120.
+_cell_formula_units_Z 36
+_symmetry_space_group_name_H-M 'R -3 H'
+_symmetry_Int_Tables_number 148
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz
+1 'x-y, x, -z'
+2 'y, -x+y, -z'
+3 '-x, -y, -z'
+4 '-x+y, -x, z'
+5 '-y, x-y, z'
+6 'x, y, z'
+7 'x-y+2/3, x+1/3, -z+1/3'
+8 'y+2/3, -x+y+1/3, -z+1/3'
+9 '-x+2/3, -y+1/3, -z+1/3'
+10 '-x+y+2/3, -x+1/3, z+1/3'
+11 '-y+2/3, x-y+1/3, z+1/3'
+12 'x+2/3, y+1/3, z+1/3'
+13 'x-y+1/3, x+2/3, -z+2/3'
+14 'y+1/3, -x+y+2/3, -z+2/3'
+15 '-x+1/3, -y+2/3, -z+2/3'
+16 '-x+y+1/3, -x+2/3, z+2/3'
+17 '-y+1/3, x-y+2/3, z+2/3'
+18 'x+1/3, y+2/3, z+2/3'
+loop_
+_atom_type_symbol
+_atom_type_oxidation_number
+N5+ 5
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_B_iso_or_equiv
+_atom_site_occupancy
+_atom_site_attached_hydrogens
+N1 N5+ 6 c 0.3333 0.6667 0.01544(3) 0.0088(2) 1. 0
+N2 N5+ 18 f 0.22978(8) 0.27765(8) 0.035869(18) 0.00886(12) 1. 0
+N3 N5+ 6 c 0 0 0.10463(3) 0.0086(2) 1. 0
+N4 N5+ 6 c 0.3333 0.6667 0.11280(3) 0.0088(2) 1. 0
+N5 N5+ 18 f 0.62626(8) 0.54808(8) 0.072709(18) 0.00918(12) 1. 0
+N6 N5+ 18 f 0.41097(8) 0.35547(8) 0.156045(18) 0.00907(12) 1. 0

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 from itertools import starmap
 
@@ -12,6 +13,9 @@ from pymatgen.entries.entry_tools import EntrySet, group_entries_by_composition,
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/entries"
+
+
+pytestmark = pytest.mark.skipif(not os.path.exists(TEST_DIR), reason="Requires test files")
 
 
 class TestFunc(MatSciTest):

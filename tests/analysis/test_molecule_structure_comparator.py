@@ -8,9 +8,12 @@ from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "xiaohuiqu"
-
+import os
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/structural_change"
+
+
+pytestmark = pytest.mark.skipif(not os.path.exists(TEST_DIR), reason="Requires test files")
 
 
 class TestMoleculeStructureComparator:

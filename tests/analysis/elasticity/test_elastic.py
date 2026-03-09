@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import warnings
 from copy import deepcopy
 
@@ -30,6 +31,7 @@ from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/core/elasticity"
+pytestmark = pytest.mark.skipif(not os.path.exists(TEST_DIR), reason="Requires test files")
 
 
 class TestElasticTensor(MatSciTest):
