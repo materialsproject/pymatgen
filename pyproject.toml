@@ -11,10 +11,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pymatgen"
-authors = [{ name = "Pymatgen Development Team", email = "ongsp@ucsd.edu" }]
+authors = [{ name = "Pymatgen Development Team", email = "shyue@nus.edu.sg" }]
 maintainers = [
     { name = "Matthew Horton", email = "m.k.horton@gmail.com" },
-    { name = "Shyue Ping Ong", email = "ongsp@ucsd.edu" },
+    { name = "Shyue Ping Ong", email = "shyue@nus.edu.sg" },
 ]
 description = """
 Python Materials Genomics is a robust materials analysis code that defines core object representations for structures
