@@ -21,7 +21,7 @@ __version__ = "0.1"
 __email__ = "janine.george@uclouvain.be"
 __date__ = "Jan 14, 2021"
 
-TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp/environments"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/lobster_env"
 
 
 class TestLobsterNeighbors:
@@ -384,8 +384,8 @@ class TestLobsterNeighbors:
         ):
             _ = LobsterNeighbors(
                 are_coops=False,
-                filename_icohp=f"{TEST_DIR}/../ICOHPLIST.lobster",
-                structure=Structure.from_file(f"{TEST_DIR}/../POSCAR"),
+                filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.gz",
+                structure=Structure.from_file(f"{TEST_DIR}/POSCAR.gz"),
                 valences_from_charges=False,
                 additional_condition=1,
             )
@@ -395,8 +395,8 @@ class TestLobsterNeighbors:
         ):
             _ = LobsterNeighbors(
                 are_coops=False,
-                filename_icohp=f"{TEST_DIR}/../ICOHPLIST.lobster",
-                structure=Structure.from_file(f"{TEST_DIR}/../POSCAR"),
+                filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.gz",
+                structure=Structure.from_file(f"{TEST_DIR}/POSCAR.gz"),
                 valences_from_charges=False,
                 additional_condition=1,
                 valences=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
