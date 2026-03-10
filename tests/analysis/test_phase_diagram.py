@@ -29,7 +29,7 @@ from pymatgen.analysis.phase_diagram import (
     uniquelines,
 )
 from pymatgen.core import Composition, DummySpecies, Element
-from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.core.entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 

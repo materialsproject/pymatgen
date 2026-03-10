@@ -45,7 +45,7 @@ if TYPE_CHECKING:
     from matplotlib.colors import Colormap
     from numpy.typing import ArrayLike, NDArray
 
-    from pymatgen.core.entries.computed_entries import ComputedEntry
+    from pymatgen.core.entries import ComputedEntry
     from pymatgen.util.typing import CompositionLike
 
 logger = logging.getLogger(__name__)
