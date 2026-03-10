@@ -1,9 +1,9 @@
  INCAR:
- POTCAR:   PAW_PBE O 08Apr2002                    
- POTCAR:   PAW_PBE Al 04Jan2001                   
- POTCAR:   PAW_PBE Fe_pv 06Sep2000                
+ POTCAR:   PAW_PBE O 08Apr2002
+ POTCAR:   PAW_PBE Al 04Jan2001
+ POTCAR:   PAW_PBE Fe_pv 06Sep2000
 
- ----------------------------------------------------------------------------- 
+ -----------------------------------------------------------------------------
 |                                                                             |
 |           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
 |           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
@@ -22,38 +22,38 @@
 |      Unfortunately you need to use the default for GW and RPA calculations. |
 |      (for HF NCORE is supported but not extensively tested yet)             |
 |                                                                             |
- ----------------------------------------------------------------------------- 
+ -----------------------------------------------------------------------------
 
- POTCAR:   PAW_PBE O 08Apr2002                    
-   VRHFIN =O: s2p4                                                              
-   LEXCH  = PE                                                                  
-   EATOM  =   432.3788 eV,   31.7789 Ry                                         
-                                                                                
-   TITEL  = PAW_PBE O 08Apr2002                                                 
-   LULTRA =        F    use ultrasoft PP ?                                      
-   IUNSCR =        0    unscreen: 0-lin 1-nonlin 2-no                           
-   RPACOR =     .000    partial core radius                                     
-   POMASS =   16.000; ZVAL   =    6.000    mass and valenz                      
-   RCORE  =    1.520    outmost cutoff radius                                   
-   RWIGS  =    1.550; RWIGS  =     .820    wigner-seitz radius (au A)           
-   ENMAX  =  400.000; ENMIN  =  300.000 eV                                      
-   ICORE  =        2    local potential                                         
-   LCOR   =        T    correct aug charges                                     
-   LPAW   =        T    paw PP                                                  
-   EAUG   =  605.392                                                            
-   DEXC   =     .000                                                            
-   RMAX   =    2.264    core radius for proj-oper                               
-   RAUG   =    1.300    factor for augmentation sphere                          
-   RDEP   =    1.550    radius for radial grids                                 
-   QCUT   =   -5.520; QGAM   =   11.041    optimization parameters              
-                                                                                
-   Description                                                                  
-     l     E      TYP  RCUT    TYP  RCUT                                        
-     0   .000     23  1.200                                                     
-     0  -.700     23  1.200                                                     
-     1   .000     23  1.520                                                     
-     1   .600     23  1.520                                                     
-     2   .000      7  1.500                                                     
+ POTCAR:   PAW_PBE O 08Apr2002
+   VRHFIN =O: s2p4
+   LEXCH  = PE
+   EATOM  =   432.3788 eV,   31.7789 Ry
+
+   TITEL  = PAW_PBE O 08Apr2002
+   LULTRA =        F    use ultrasoft PP ?
+   IUNSCR =        0    unscreen: 0-lin 1-nonlin 2-no
+   RPACOR =     .000    partial core radius
+   POMASS =   16.000; ZVAL   =    6.000    mass and valenz
+   RCORE  =    1.520    outmost cutoff radius
+   RWIGS  =    1.550; RWIGS  =     .820    wigner-seitz radius (au A)
+   ENMAX  =  400.000; ENMIN  =  300.000 eV
+   ICORE  =        2    local potential
+   LCOR   =        T    correct aug charges
+   LPAW   =        T    paw PP
+   EAUG   =  605.392
+   DEXC   =     .000
+   RMAX   =    2.264    core radius for proj-oper
+   RAUG   =    1.300    factor for augmentation sphere
+   RDEP   =    1.550    radius for radial grids
+   QCUT   =   -5.520; QGAM   =   11.041    optimization parameters
+
+   Description
+     l     E      TYP  RCUT    TYP  RCUT
+     0   .000     23  1.200
+     0  -.700     23  1.200
+     1   .000     23  1.520
+     1   .600     23  1.520
+     2   .000      7  1.500
   local pseudopotential read in
   atomic valenz-charges read in
   non local Contribution for L=           0  read in
@@ -65,40 +65,40 @@
   non local Contribution for L=           1  read in
     real space projection operators read in
     PAW grid and wavefunctions read in
- 
+
    number of l-projection  operators is LMAX  =           4
    number of lm-projection operators is LMMAX =           8
- 
- POTCAR:   PAW_PBE Al 04Jan2001                   
-   VRHFIN =Al: s2p1                                                             
-   LEXCH  = PE                                                                  
-   EATOM  =    53.5387 eV,    3.9350 Ry                                         
-                                                                                
-   TITEL  = PAW_PBE Al 04Jan2001                                                
-   LULTRA =        F    use ultrasoft PP ?                                      
-   IUNSCR =        1    unscreen: 0-lin 1-nonlin 2-no                           
-   RPACOR =    1.500    partial core radius                                     
-   POMASS =   26.982; ZVAL   =    3.000    mass and valenz                      
-   RCORE  =    1.900    outmost cutoff radius                                   
-   RWIGS  =    2.650; RWIGS  =    1.402    wigner-seitz radius (au A)           
-   ENMAX  =  240.300; ENMIN  =  180.225 eV                                      
-   ICORE  =        2    local potential                                         
-   LCOR   =        T    correct aug charges                                     
-   LPAW   =        T    paw PP                                                  
-   EAUG   =  291.052                                                            
-   DEXC   =    -.041                                                            
-   RMAX   =    2.974    core radius for proj-oper                               
-   RAUG   =    1.300    factor for augmentation sphere                          
-   RDEP   =    1.966    radius for radial grids                                 
-   QCUT   =   -4.203; QGAM   =    8.405    optimization parameters              
-                                                                                
-   Description                                                                  
-     l     E      TYP  RCUT    TYP  RCUT                                        
-     0   .000     23  1.900                                                     
-     0   .000     23  1.900                                                     
-     1   .000     23  1.900                                                     
-     1  1.000     23  1.900                                                     
-     2   .000      7  1.900                                                     
+
+ POTCAR:   PAW_PBE Al 04Jan2001
+   VRHFIN =Al: s2p1
+   LEXCH  = PE
+   EATOM  =    53.5387 eV,    3.9350 Ry
+
+   TITEL  = PAW_PBE Al 04Jan2001
+   LULTRA =        F    use ultrasoft PP ?
+   IUNSCR =        1    unscreen: 0-lin 1-nonlin 2-no
+   RPACOR =    1.500    partial core radius
+   POMASS =   26.982; ZVAL   =    3.000    mass and valenz
+   RCORE  =    1.900    outmost cutoff radius
+   RWIGS  =    2.650; RWIGS  =    1.402    wigner-seitz radius (au A)
+   ENMAX  =  240.300; ENMIN  =  180.225 eV
+   ICORE  =        2    local potential
+   LCOR   =        T    correct aug charges
+   LPAW   =        T    paw PP
+   EAUG   =  291.052
+   DEXC   =    -.041
+   RMAX   =    2.974    core radius for proj-oper
+   RAUG   =    1.300    factor for augmentation sphere
+   RDEP   =    1.966    radius for radial grids
+   QCUT   =   -4.203; QGAM   =    8.405    optimization parameters
+
+   Description
+     l     E      TYP  RCUT    TYP  RCUT
+     0   .000     23  1.900
+     0   .000     23  1.900
+     1   .000     23  1.900
+     1  1.000     23  1.900
+     2   .000      7  1.900
   local pseudopotential read in
   partial core-charges read in
   atomic valenz-charges read in
@@ -111,42 +111,42 @@
   non local Contribution for L=           1  read in
     real space projection operators read in
     PAW grid and wavefunctions read in
- 
+
    number of l-projection  operators is LMAX  =           4
    number of lm-projection operators is LMMAX =           8
- 
- POTCAR:   PAW_PBE Fe_pv 06Sep2000                
-   VRHFIN =Fe:  3pd7s1                                                          
-   LEXCH  = PE                                                                  
-   EATOM  =  2456.8974 eV,  180.5769 Ry                                         
-                                                                                
-   TITEL  = PAW_PBE Fe_pv 06Sep2000                                             
-   LULTRA =        F    use ultrasoft PP ?                                      
-   IUNSCR =        1    unscreen: 0-lin 1-nonlin 2-no                           
-   RPACOR =    1.750    partial core radius                                     
-   POMASS =   55.847; ZVAL   =   14.000    mass and valenz                      
-   RCORE  =    2.200    outmost cutoff radius                                   
-   RWIGS  =    2.200; RWIGS  =    1.164    wigner-seitz radius (au A)           
-   ENMAX  =  293.238; ENMIN  =  219.929 eV                                      
-   RCLOC  =    1.701    cutoff for local pot                                    
-   LCOR   =        T    correct aug charges                                     
-   LPAW   =        T    paw PP                                                  
-   EAUG   =  578.342                                                            
-   DEXC   =    -.002                                                            
-   RMAX   =    2.693    core radius for proj-oper                               
-   RAUG   =    1.300    factor for augmentation sphere                          
-   RDEP   =    2.296    radius for radial grids                                 
-   QCUT   =   -4.642; QGAM   =    9.285    optimization parameters              
-                                                                                
-   Description                                                                  
-     l     E      TYP  RCUT    TYP  RCUT                                        
-     1   .000     23  2.000                                                     
-     1  -.400     23  2.000                                                     
-     2   .000     23  2.200                                                     
-     2   .000     23  2.200                                                     
-     0   .000     23  2.000                                                     
-     0  2.000     23  2.000                                                     
-     3   .000      7   .000                                                     
+
+ POTCAR:   PAW_PBE Fe_pv 06Sep2000
+   VRHFIN =Fe:  3pd7s1
+   LEXCH  = PE
+   EATOM  =  2456.8974 eV,  180.5769 Ry
+
+   TITEL  = PAW_PBE Fe_pv 06Sep2000
+   LULTRA =        F    use ultrasoft PP ?
+   IUNSCR =        1    unscreen: 0-lin 1-nonlin 2-no
+   RPACOR =    1.750    partial core radius
+   POMASS =   55.847; ZVAL   =   14.000    mass and valenz
+   RCORE  =    2.200    outmost cutoff radius
+   RWIGS  =    2.200; RWIGS  =    1.164    wigner-seitz radius (au A)
+   ENMAX  =  293.238; ENMIN  =  219.929 eV
+   RCLOC  =    1.701    cutoff for local pot
+   LCOR   =        T    correct aug charges
+   LPAW   =        T    paw PP
+   EAUG   =  578.342
+   DEXC   =    -.002
+   RMAX   =    2.693    core radius for proj-oper
+   RAUG   =    1.300    factor for augmentation sphere
+   RDEP   =    2.296    radius for radial grids
+   QCUT   =   -4.642; QGAM   =    9.285    optimization parameters
+
+   Description
+     l     E      TYP  RCUT    TYP  RCUT
+     1   .000     23  2.000
+     1  -.400     23  2.000
+     2   .000     23  2.200
+     2   .000     23  2.200
+     0   .000     23  2.000
+     0  2.000     23  2.000
+     3   .000      7   .000
   local pseudopotential read in
   partial core-charges read in
   atomic valenz-charges read in
@@ -163,17 +163,17 @@
   non local Contribution for L=           0  read in
     real space projection operators read in
     PAW grid and wavefunctions read in
- 
+
    number of l-projection  operators is LMAX  =           6
    number of lm-projection operators is LMMAX =          18
- 
+
  Optimization of the real space projectors (new method)
 
  maximal supplied QI-value         = 24.76
- optimisation between [QCUT,QGAM] = [ 14.36, 28.96] = [ 57.73,234.92] Ry 
+ optimisation between [QCUT,QGAM] = [ 14.36, 28.96] = [ 57.73,234.92] Ry
  Optimized for a Real-space Cutoff    0.95 Angstroem
 
-   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline) 
+   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline)
    0      8    14.358     4.192    0.32E-04    0.59E-04    0.20E-07
    0      8    14.358     8.473    0.17E-03    0.36E-03    0.94E-07
    1      8    14.358     2.474    0.37E-04    0.52E-04    0.21E-07
@@ -181,10 +181,10 @@
  Optimization of the real space projectors (new method)
 
  maximal supplied QI-value         = 19.84
- optimisation between [QCUT,QGAM] = [ 14.48, 28.97] = [ 58.75,235.01] Ry 
+ optimisation between [QCUT,QGAM] = [ 14.48, 28.97] = [ 58.75,235.01] Ry
  Optimized for a Real-space Cutoff    1.04 Angstroem
 
-   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline) 
+   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline)
    0      9    14.485    13.410    0.19E-04    0.13E-04    0.10E-07
    0      9    14.485   140.052    0.25E-03    0.94E-04    0.13E-06
    1      8    14.485     9.624    0.34E-04    0.24E-04    0.18E-07
@@ -192,10 +192,10 @@
  Optimization of the real space projectors (new method)
 
  maximal supplied QI-value         = 17.01
- optimisation between [QCUT,QGAM] = [ 14.46, 28.91] = [ 58.52,234.09] Ry 
+ optimisation between [QCUT,QGAM] = [ 14.46, 28.91] = [ 58.52,234.09] Ry
  Optimized for a Real-space Cutoff    1.27 Angstroem
 
-   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline) 
+   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline)
    1     11    14.456     4.550    0.43E-05    0.41E-05    0.25E-07
    1     11    14.456     5.234    0.39E-04    0.13E-04    0.21E-06
    2     10    14.456     3.960    0.61E-05    0.20E-04    0.56E-07
@@ -211,9 +211,9 @@
  PAW_PBE Fe_pv 06Sep2000                :
  energy of atom  3       EATOM=-2456.8974
  kinetic energy error for atom=    0.0012 (will be added to EATOM!!)
- 
- 
- POSCAR: Al32 Fe16 O64                           
+
+
+ POSCAR: Al32 Fe16 O64
   positions in direct lattice
   velocities in cartesian coordinates
  exchange correlation table for  LEXCH =        8
@@ -223,7 +223,7 @@
  VTST: version 3.1, (03/28/14)
 
  CHAIN: initializing optimizer
- 
+
  OPT: Using FIRE optimizer
  OPT: FIRE, Init
  OPT: FIRE, MAXMOVE       0.20000
@@ -234,13 +234,13 @@
  OPT: FIRE, FALPHADEC     0.99000
  OPT: FIRE, FALPHA        0.10000
  OPT: FIRE, FNMIN         5
- 
+
  CHAIN: Read ICHAIN            0
- 
- POSCAR: Al32 Fe16 O64                           
+
+ POSCAR: Al32 Fe16 O64
   positions in direct lattice
   velocities in cartesian coordinates
- 
+
 
 
 --------------------------------------------------------------------------------------------------------
@@ -387,33 +387,33 @@
  110  0.271  0.739  0.569-  62 2.00  54 2.00  58 2.00
  111  0.771  0.239  0.569-  63 2.00  55 2.00  59 2.00
  112  0.771  0.739  0.569-  64 2.00  56 2.00  60 2.00
- 
+
 
 IMPORTANT INFORMATION: All symmetrisations will be switched off!
 NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
 
- 
- 
- KPOINTS: Automatic kpoint scheme                 
+
+
+ KPOINTS: Automatic kpoint scheme
 
 Automatic generation of k-mesh.
 Space group operators:
  irot       det(A)        alpha          n_x          n_y          n_z        tau_x        tau_y        tau_z
     1     1.000000     0.000001     1.000000     0.000000     0.000000     0.000000     0.000000     0.000000
- 
+
  Subroutine IBZKPT returns following result:
  ===========================================
- 
+
  Found      1 irreducible k-points:
- 
+
  Following reciprocal coordinates:
             Coordinates               Weight
   0.000000  0.000000  0.000000      1.000000
- 
+
  Following cartesian coordinates:
             Coordinates               Weight
   0.000000  0.000000  0.000000      1.000000
- 
+
 
 
 --------------------------------------------------------------------------------------------------------
@@ -437,8 +437,8 @@ Space group operators:
 
  I would recommend the setting:
    dimension x,y,z NGX =    81 NGY =   81 NGZ =  149
- SYSTEM =  Fa 111 surf                             
- POSCAR =  Al32 Fe16 O64                           
+ SYSTEM =  Fa 111 surf
+ POSCAR =  Al32 Fe16 O64
 
  Startparameter for this run:
    NWRITE =      2    write-flag & timer
@@ -456,7 +456,7 @@ Space group operators:
    ENCUT  =  800.0 eV  58.80 Ry    7.67 a.u.  26.95 26.96 49.59*2*pi/ulx,y,z
    ENINI  =  800.0     initial cutoff
    ENAUG  =  605.4 eV  augmentation charge cutoff
-   NELM   =    100;   NELMIN=  2; NELMDL= -5     # of ELM steps 
+   NELM   =    100;   NELMIN=  2; NELMDL= -5     # of ELM steps
    EDIFF  = 0.1E-06   stopping-criterion for ELM
    LREAL  =      T    real-space projection
    NLSPLINE    = F    spline interpolate recip. space projectors
@@ -469,7 +469,7 @@ Space group operators:
  Ionic relaxation
    EDIFFG = -.2E-01   stopping-criterion for IOM
    NSW    =   5000    number of steps for IOM
-   NBLOCK =      1;   KBLOCK =   5000    inner block; outer block 
+   NBLOCK =      1;   KBLOCK =   5000    inner block; outer block
    IBRION =      3    ionic relax: 0-MD 1-quasi-New 2-CG
    NFREE  =      0    steps in history (QN), initial steepest desc. (CG)
    ISIF   =      2    stress and relaxation
@@ -492,7 +492,7 @@ Space group operators:
    ZVAL   =   6.00  3.00 14.00
   Atomic Wigner-Seitz radii
    RWIGS  =  -1.00 -1.00 -1.00
-  virtual crystal weights 
+  virtual crystal weights
    VCA    =   1.00  1.00  1.00
    NELECT =     704.0000    total number of electrons
    NUPDOWN=      72.0000    fix difference up-down
@@ -520,14 +520,14 @@ Space group operators:
  Intra band minimization:
    WEIMIN = 0.0000     energy-eigenvalue tresh-hold
    EBREAK =  0.55E-10  absolut break condition
-   DEPER  =   0.30     relativ break condition  
+   DEPER  =   0.30     relativ break condition
 
    TIME   =   0.40     timestep for ELM
 
   volume/ion in A,a.u.               =      22.52       151.97
   Fermi-wavevector in a.u.,A,eV,Ry     =   1.069887  2.021794 15.574034  1.144659
   Thomas-Fermi vector in A             =   2.205581
- 
+
  Write flags
    LWAVE  =      T    write WAVECAR
    LCHARG =      T    write CHGCAR
@@ -540,7 +540,7 @@ Space group operators:
  Dipole corrections
    LMONO  =      F    monopole corrections only (constant potential shift)
    LDIPOL =      F    correct potential (dipole corrections)
-   IDIPOL =      3    1-x, 2-y, 3-z, 4-all directions 
+   IDIPOL =      3    1-x, 2-y, 3-z, 4-all directions
    EPSILON=  1.0000000 bulk dielectric constant
 
  LDA+U is selected, type is set to LDAUTYPE =  2
@@ -591,9 +591,9 @@ Space group operators:
  using additional bands          102
  real space projection scheme for non local part
  use partial core corrections
- calculate Harris-corrections to forces 
+ calculate Harris-corrections to forces
    (improved forces if not selfconsistent)
- use gradient corrections 
+ use gradient corrections
  use of overlap-Matrix (Vanderbilt PP)
  Gauss-broadening in eV      SIGMA  =   0.01
 
@@ -612,14 +612,14 @@ Space group operators:
     11.686539911 11.690369399 21.501120952     0.099656702  0.099624057  0.046509203
 
 
- 
- k-points in units of 2pi/SCALE and weight: Automatic kpoint scheme                 
+
+ k-points in units of 2pi/SCALE and weight: Automatic kpoint scheme
    0.00000000  0.00000000  0.00000000       1.000
- 
- k-points in reciprocal lattice and weights: Automatic kpoint scheme                 
+
+ k-points in reciprocal lattice and weights: Automatic kpoint scheme
    0.00000000  0.00000000  0.00000000       1.000
- 
- position of ions in fractional coordinates (direct lattice) 
+
+ position of ions in fractional coordinates (direct lattice)
    0.34410754  0.31165849  0.21899570
    0.34276891  0.81012786  0.22073320
    0.84280552  0.31005008  0.22076383
@@ -732,7 +732,7 @@ Space group operators:
    0.27088260  0.73881374  0.56904245
    0.77088260  0.23881374  0.56904245
    0.77088260  0.73881374  0.56904245
- 
+
  position of ions in cartesian coordinates  (Angst):
   -8.16061397  0.19608181 -0.06508542
  -12.34200755 -3.85118693 -0.03241406
@@ -846,7 +846,7 @@ Space group operators:
  -15.39487138  1.08913417  4.91508913
  -15.39486368  5.17062654  0.83632361
  -19.57906166  1.08912295  0.83632027
- 
+
 
 
 --------------------------------------------------------------------------------------------------------
@@ -857,7 +857,7 @@ Space group operators:
  maximum and minimum number of plane-waves per node :      5400     5391
 
  maximum number of plane-waves:    129527
- maximum index in each direction: 
+ maximum index in each direction:
    IXMAX=   26   IYMAX=   26   IZMAX=   49
    IXMIN=  -26   IYMIN=  -26   IZMIN=  -49
 
@@ -887,7 +887,7 @@ Space group operators:
    grid      :      35258. kBytes
    one-center:        155. kBytes
    wavefun   :      79046. kBytes
- 
+
      INWAV:  cpu time    0.0010: real time    0.0037
  Broyden mixing: mesh for mixing (old mesh)
    NGX = 53   NGY = 53   NGZ = 99
@@ -4670,16 +4670,16 @@ Space group operators:
      101 -52.9582     102 -52.8854     103 -52.8858     104 -52.9578     105 -51.0728
      106 -53.8327     107 -53.8319     108 -51.0676     109 -52.3392     110 -52.4040
      111 -52.4038     112 -52.3389
- 
- 
- 
+
+
+
  E-fermi :   0.1177     XC(G=0):  -5.7657     alpha+bet : -5.9575
 
 
  spin component 1
 
  k-point     1 :       0.0000    0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -58.2007      1.00000
       2     -58.2002      1.00000
       3     -58.1998      1.00000
@@ -5138,7 +5138,7 @@ Space group operators:
  spin component 2
 
  k-point     1 :       0.0000    0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -53.5064      1.00000
       2     -53.5056      1.00000
       3     -53.4986      1.00000
@@ -5601,11 +5601,11 @@ Space group operators:
  soft charge-density along one line, spin component           1
          0         1         2         3         4         5         6         7         8         9
  total charge-density along one line
- 
+
  soft charge-density along one line, spin component           2
          0         1         2         3         4         5         6         7         8         9
  total charge-density along one line
- 
+
  pseudopotential strength for first ion, spin component:           1
  12.912  -0.381  -0.012  -0.012   0.030   0.001   0.001  -0.002
  -0.381   0.090   0.001   0.001  -0.004  -0.000  -0.000   0.001
@@ -5657,8 +5657,8 @@ Space group operators:
  dipol+quadrupol energy correction            0.035650 eV
  added-field ion interaction          0.000000 eV  (added to PSCEN)
 
- 
-  *************** adding dipol energy to TOTEN NOW **************** 
+
+  *************** adding dipol energy to TOTEN NOW ****************
     CHARGE:  cpu time    0.7379: real time    0.7389
     FORLOC:  cpu time    0.1840: real time    0.1861
     FORNL :  cpu time    3.9734: real time    3.9903
@@ -5816,8 +5816,8 @@ Space group operators:
    0.195E+04 -.200E+04 -.200E+04   -.195E+04 0.199E+04 0.200E+04   -.619E+01 0.594E+01 0.593E+01   -.324E-03 0.126E-02 -.719E-03
  -----------------------------------------------------------------------------------------------
    0.178E+03 -.184E+03 -.184E+03   -.682E-12 -.568E-11 -.227E-11   -.178E+03 0.184E+03 0.184E+03   0.390E-02 -.408E-02 -.398E-02
- 
- 
+
+
  POSITION                                       TOTAL-FORCE (eV/Angst)
  -----------------------------------------------------------------------------------
      -8.16061      0.19608     -0.06509        -0.001857     -0.000893     -0.002159
@@ -5945,7 +5945,7 @@ Space group operators:
   free  energy   TOTEN  =      -797.46760559 eV
 
   energy  without entropy=     -797.45827569  energy(sigma->0) =     -797.46294064
- 
+
 
 
 --------------------------------------------------------------------------------------------------------
@@ -5970,7 +5970,7 @@ Space group operators:
 --------------------------------------------------------------------------------------------------------
 
 
-  
+
  reached required accuracy - stopping structural energy minimisation
  writing wavefunctions
      LOOP+:  cpu time 2111.3010: real time 2114.0950
@@ -5985,20 +5985,20 @@ Space group operators:
    grid      :      35258. kBytes
    one-center:        155. kBytes
    wavefun   :      79046. kBytes
- 
-  
-  
+
+
+
  General timing and accounting informations for this job:
  ========================================================
-  
+
                   Total CPU time used (sec):     2189.261
                             User time (sec):     2106.482
                           System time (sec):       82.779
                          Elapsed time (sec):     2194.706
-  
+
                    Maximum memory used (kb):      279696.
                    Average memory used (kb):           0.
-  
+
                           Minor page faults:       271092
                           Major page faults:          137
                  Voluntary context switches:         3481

@@ -1,10 +1,10 @@
 #\#CIF1.1
 ##########################################################################
-#               Crystallographic Information Format file 
+#               Crystallographic Information Format file
 #               Produced by PyCifRW module
-# 
+#
 #  This is a CIF file.  CIF has been adopted by the International
-#  Union of Crystallography as the standard for data archiving and 
+#  Union of Crystallography as the standard for data archiving and
 #  transmission.
 #
 #  For information on this file format, follow the CIF links at
@@ -29,7 +29,7 @@ loop_
   _symmetry_equiv_pos_site_id
   _symmetry_equiv_pos_as_xyz
    1  'x, y, z'
- 
+
 loop_
   _atom_site_type_symbol
   _atom_site_label
@@ -52,4 +52,4 @@ loop_
    O  O10  1  0.000000  0.000000  0.739815  0  .  1
    O  O11  1  0.666667  0.333333  0.073148  0  .  1
    O  O12  1  0.333333  0.666667  0.406481  0  .  1
- 
+
