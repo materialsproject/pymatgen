@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import warnings
 
+from pymatgen.analysis.compatibility.computed_entries import *  # noqa: F403
 from pymatgen.core.entries import *  # noqa: F403
 
 warnings.warn(

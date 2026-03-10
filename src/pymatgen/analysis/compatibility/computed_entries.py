@@ -17,7 +17,6 @@ from monty.json import MontyDecoder
 from scipy.interpolate import interp1d
 
 from pymatgen.core.composition import Composition
-from pymatgen.core.entries import *  # noqa: F403
 from pymatgen.core.entries import ComputedStructureEntry
 from pymatgen.util.due import Doi, due
 
