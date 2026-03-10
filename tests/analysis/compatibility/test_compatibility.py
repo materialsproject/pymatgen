@@ -13,12 +13,7 @@ import pytest
 from monty.json import MontyDecoder
 from pytest import approx
 
-import pymatgen.entries
-from pymatgen.core import Element, Species
-from pymatgen.core.composition import Composition
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.entries.compatibility import (
+from pymatgen.analysis.compatibility import (
     MP2020_COMPAT_CONFIG,
     MP_COMPAT_CONFIG,
     MU_H2O,
@@ -33,14 +28,19 @@ from pymatgen.entries.compatibility import (
     SmoothPESCompatibility,
     needs_u_correction,
 )
-from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, ConstantEnergyAdjustment
+from pymatgen.core import Element, Species
+from pymatgen.core.composition import Composition
+from pymatgen.core.entries import ComputedEntry, ComputedStructureEntry, ConstantEnergyAdjustment
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR
 
 if TYPE_CHECKING:
     from pymatgen.util.typing import CompositionLike
 
+import pymatgen
 
-PMG_ENTRIES_DIR = os.path.dirname(os.path.abspath(pymatgen.entries.__file__))
+PMG_ENTRIES_DIR = os.path.dirname(os.path.abspath(pymatgen.analysis.compatibility.__file__))
 
 
 @pytest.mark.filterwarnings("ignore:MaterialsProjectCompatibility is deprecated")

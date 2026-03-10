@@ -11,10 +11,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pymatgen"
-authors = [{ name = "Pymatgen Development Team", email = "ongsp@ucsd.edu" }]
+authors = [{ name = "Pymatgen Development Team", email = "shyue@nus.edu.sg" }]
 maintainers = [
     { name = "Matthew Horton", email = "m.k.horton@gmail.com" },
-    { name = "Shyue Ping Ong", email = "ongsp@ucsd.edu" },
+    { name = "Shyue Ping Ong", email = "shyue@nus.edu.sg" },
 ]
 description = """
 Python Materials Genomics is a robust materials analysis code that defines core object representations for structures
@@ -55,7 +55,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "pymatgen-core"
+    "pymatgen-core>=2026.3.9"
 ]
 version = "2025.10.7"
 
@@ -125,7 +125,7 @@ include = ["pymatgen", "pymatgen.*"]
 "pymatgen.analysis.magnetism" = ["default_magmoms.yaml"]
 "pymatgen.analysis.prototypes" = ["*.json.gz"]
 "pymatgen.analysis.solar" = ["am1.5G.dat"]
-"pymatgen.entries" = ["*.json.gz", "*.yaml", "data/*.json"]
+"pymatgen.analysis.compatibility" = ["*.json.gz", "*.yaml", "data/*.json"]
 "pymatgen" = ["py.typed"]
 "pymatgen.io.lobster" = ["lobster_basis/*.yaml", "future/lobster_basis/*.yaml"]
 "pymatgen.vis" = ["*.yaml"]

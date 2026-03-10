@@ -9,8 +9,8 @@ import pytest
 from monty.json import MontyDecoder
 from pytest import approx
 
+from pymatgen.analysis.compatibility import MaterialsProject2020Compatibility
 from pymatgen.analysis.phase_diagram import PhaseDiagram
-from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import (
     CompositionEnergyAdjustment,
     ComputedEntry,
