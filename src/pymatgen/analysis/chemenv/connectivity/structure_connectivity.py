@@ -16,7 +16,7 @@ from pymatgen.analysis.chemenv.connectivity.environment_nodes import get_environ
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"

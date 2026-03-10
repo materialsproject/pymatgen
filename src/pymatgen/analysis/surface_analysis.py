@@ -47,15 +47,15 @@ from sympy.solvers import linsolve, solve
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.core import Structure
 from pymatgen.core.composition import Composition
+from pymatgen.core.entries import ComputedStructureEntry
 from pymatgen.core.surface import get_slab_regions
-from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.io.vasp.outputs import Locpot, Outcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656

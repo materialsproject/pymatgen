@@ -35,6 +35,7 @@ try:
     import pygraphviz
 except ImportError:
     pygraphviz = None
+import os
 
 __author__ = "Matthew Horton, Evan Spotte-Smith"
 __version__ = "0.1"
@@ -43,7 +44,10 @@ __email__ = "mkhorton@lbl.gov"
 __status__ = "Beta"
 __date__ = "August 2017"
 
-TEST_DIR = f"{TEST_FILES_DIR}/analysis/graphs"
+TEST_DIR = f"{TEST_FILES_DIR}/core/graphs"
+
+
+pytestmark = pytest.mark.skipif(not os.path.exists(TEST_DIR), reason="Requires test files")
 
 
 class TestStructureGraph(MatSciTest):

@@ -34,9 +34,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import Any
-
-    from typing_extensions import Self
+    from typing import Any, Self
 
     from pymatgen.core.structure import Structure
     from pymatgen.entries.compatibility import AnyComputedEntry

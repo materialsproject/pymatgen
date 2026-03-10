@@ -1,4 +1,4 @@
-exclude: ^(docs|tests/files|tasks.py)
+exclude: ^(docs|test-files|tasks.py)
 
 ci:
   autoupdate_schedule: monthly
@@ -8,7 +8,7 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.14
+    rev: v0.15.4
     hooks:
       - id: ruff
         args: [--fix, --unsafe-fixes]
@@ -61,7 +61,7 @@ repos:
         args: [--disable, MD013, MD024, MD025, MD033, MD041, "--"]
 
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.9.0
+    rev: 0.9.1
     hooks:
       - id: nbstripout
         args: [--drop-empty-cells, --keep-output]

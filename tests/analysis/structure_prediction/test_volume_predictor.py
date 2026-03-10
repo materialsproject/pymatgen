@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 import pytest
 from pytest import approx
 
@@ -7,7 +9,8 @@ from pymatgen.analysis.structure_prediction.volume_predictor import DLSVolumePre
 from pymatgen.core import Structure
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/analysis/structure_prediction"
+TEST_DIR = f"{TEST_FILES_DIR}/core/structure_prediction"
+pytestmark = pytest.mark.skipif(not os.path.exists(TEST_DIR), reason="Requires test files")
 
 
 class TestRLSVolumePredictor(MatSciTest):

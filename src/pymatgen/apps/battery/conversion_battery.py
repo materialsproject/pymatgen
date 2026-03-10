@@ -15,10 +15,9 @@ from pymatgen.core.units import Charge, Time
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from typing import Self
 
-    from typing_extensions import Self
-
-    from pymatgen.entries.computed_entries import ComputedEntry
+    from pymatgen.core.entries import ComputedEntry
 
 
 @dataclass

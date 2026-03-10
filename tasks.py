@@ -14,7 +14,7 @@ import os
 import re
 import subprocess
 import webbrowser
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 import requests
@@ -156,7 +156,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
         dry_run (bool, optional): If True, the function will only print the changes without
             updating the actual change log file. Defaults to False.
     """
-    version = version or f"{datetime.now(tz=timezone.utc):%Y.%-m.%-d}"
+    version = version or f"{datetime.now(tz=UTC):%Y.%-m.%-d}"
     print(f"Getting all commits since {__version__}")
     output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{__version__}..HEAD"])
     lines = []
@@ -231,7 +231,7 @@ def release(ctx: Context, version: str | None = None, nodoc: bool = False) -> No
         version (str, optional): The version to release.
         nodoc (bool, optional): Whether to skip documentation generation.
     """
-    version = version or f"{datetime.now(tz=timezone.utc):%Y.%-m.%-d}"
+    version = version or f"{datetime.now(tz=UTC):%Y.%-m.%-d}"
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx, version)
     if not nodoc:

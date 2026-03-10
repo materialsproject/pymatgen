@@ -11,7 +11,6 @@ on:
         "tests/**/*.*",
         ".github/workflows/*",
         "pyproject.toml",
-        "setup.py",
       ]
   pull_request:
     branches: [master]
@@ -21,7 +20,6 @@ on:
         "tests/**/*.*",
         ".github/workflows/*",
         "pyproject.toml",
-        "setup.py",
       ]
   workflow_dispatch:
   workflow_call: # make this workflow reusable by release.yml
@@ -40,30 +38,21 @@ jobs:
       fail-fast: false
       matrix:
         # Maximize CI coverage of different platforms and Python versions while minimizing the
-        # total number of jobs. We run all pytest splits with the oldest supported Python
+        # total number of jobs. We run all pytest jobs with the oldest supported Python
         # version on windows (most likely to surface errors) and with
         # newest version on Ubuntu (to get complete coverage).
         config:
           - os: windows-latest
-            python: "3.10"  # Test lowest supported Python version
+            python: "3.11"  # Test lowest supported Python version
             resolution: lowest-direct
-            extras: optional,prototypes
-          - os: windows-latest
-            python: "3.11"
-            resolution: highest
-            extras: prototypes,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
+            extras: optional
           - os: macos-latest
             python: "3.13"
-            resolution: lowest-direct
-            extras: prototypes # test with only required dependencies installed
+            resolution: lowest-direct # test with only required dependencies installed
           - os: ubuntu-latest
             python: "3.14"  # Test highest supported Python version
             resolution: highest
             extras: prototypes,optional
-
-        # pytest-split automatically distributes work load so parallel jobs finish in similar time
-        # update durations file with `pytest --store-durations --durations-path tests/files/.pytest-split-durations`
-        split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     runs-on: ${{ matrix.config.os }}
     env:
@@ -71,7 +60,8 @@ jobs:
     steps:
       - name: Check out repo
         uses: actions/checkout@v5
-
+        with:
+          submodules: true
       - name: Create mamba environment
         uses: mamba-org/setup-micromamba@main
         with:
@@ -110,16 +100,14 @@ jobs:
         if: (matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest') && steps.optbin-cache.outputs.cache-hit != 'true'
         run: bash .github/workflows/_install_opt_unit_deps.sh "$OPT_BIN_DIR"
 
-      - name: pytest split ${{ matrix.split }}
+      - name: pytest
         env:
           MPLBACKEND: Agg # non-interactive backend for matplotlib
           PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
-          PMG_TEST_FILES_DIR: "${{ github.workspace }}/tests/files"
+          PMG_TEST_FILES_DIR: "${{ github.workspace }}/test-files"
           PYTHONWARNDEFAULTENCODING: "true" # PEP 597: Enable optional EncodingWarning
         run: |
-          pytest tests \
-            -n auto --splits 10 --group ${{ matrix.split }} \
-            --durations-path tests/files/.pytest-split-durations \
+          pytest tests
 
   trigger_atomate2_ci:
     needs: test
@@ -138,11 +126,3 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/materialsproject/atomate2/dispatches \
             -d '{"event_type": "pymatgen-ci-trigger", "client_payload": {"pymatgen_ref": "${{ github.sha }}"}}'
-
-  all_pass:
-    # This step is added to indicate all the tests have passed to make it easier to do auto-merge of PRs.
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Echo
-        run: echo "All tests pass"

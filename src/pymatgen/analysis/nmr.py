@@ -12,9 +12,7 @@ from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing import Any
-
-    from typing_extensions import Self
+    from typing import Any, Self
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"

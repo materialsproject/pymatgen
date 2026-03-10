@@ -16,7 +16,7 @@ from pymatgen.io.vasp.sets import _load_yaml_config
 from pymatgen.util.testing import VASP_IN_DIR
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 
 class PotcarScrambler:

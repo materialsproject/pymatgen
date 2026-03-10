@@ -736,7 +736,7 @@ class WulffShape:
 
             lines = []
             for idx in range(len(pt)):
-                if idx == len(pt) / 2:
+                if idx * 2 == len(pt):
                     break
                 lines.append(tuple(sorted((tuple(pt[idx * 2]), tuple(pt[idx * 2 + 1])))))
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 
 import numpy as np
 import pytest
@@ -20,7 +21,10 @@ from pymatgen.core import Element, Lattice, Structure, SymmOp
 from pymatgen.util.coord import find_in_coord_list_pbc
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, MatSciTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/analysis/structure_matcher"
+TEST_DIR = f"{TEST_FILES_DIR}/core/structure_matcher"
+
+
+pytestmark = pytest.mark.skipif(not os.path.exists(TEST_DIR), reason="Requires test files")
 
 
 class TestLinearAssignment:

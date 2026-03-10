@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+import math
 import re
 from itertools import permutations, product
 from shutil import which
@@ -156,7 +157,7 @@ def test_get_protostructure_label_from_spglib_edge_case():
 
     defaults = inspect.signature(get_protostructure_label_from_spglib).parameters
 
-    assert defaults["init_symprec"].default == 0.1
+    assert math.isclose(defaults["init_symprec"].default, 0.1)
 
     spg_analyzer = SpacegroupAnalyzer(struct, symprec=defaults["init_symprec"].default, angle_tolerance=5)
 
@@ -351,6 +352,8 @@ def test_get_protostructure_label_from_aflow(structure, expected):
 
 @pytest.mark.parametrize(("structure", "expected"), zip(TEST_STRUCTS, TEST_PROTOSTRUCTURES, strict=False))
 def test_get_protostructure_label_from_moyopy(structure, expected):
+    pytest.importorskip("moyopy", reason="moyopy not installed")
+
     """Check that moyopy gives correct protostructure label simple cases."""
     assert get_protostructure_label_from_moyopy(structure) == expected, (
         f"unexpected moyopy protostructure for {structure=}"

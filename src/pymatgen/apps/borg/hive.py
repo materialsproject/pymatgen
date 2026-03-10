@@ -13,16 +13,14 @@ import orjson
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+from pymatgen.core.entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar
 from pymatgen.io.vasp.outputs import Dynmat, Oszicar, Vasprun
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
-
-    from typing_extensions import Self
+    from typing import Any, Self
 
     from pymatgen.util.typing import PathLike
 

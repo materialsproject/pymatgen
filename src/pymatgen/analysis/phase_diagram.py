@@ -27,10 +27,11 @@ from scipy.optimize import minimize
 from scipy.spatial import ConvexHull
 from tqdm import tqdm
 
+import pymatgen
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.core import DummySpecies, Element, get_el_sp
 from pymatgen.core.composition import Composition
-from pymatgen.entries import Entry
+from pymatgen.core.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
@@ -39,19 +40,18 @@ from pymatgen.util.string import htmlify, latexify
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterator, Sequence
     from io import StringIO
-    from typing import Any, ClassVar, Literal
+    from typing import Any, ClassVar, Literal, Self
 
     from matplotlib.colors import Colormap
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
-    from pymatgen.entries.computed_entries import ComputedEntry
+    from pymatgen.core.entries.computed_entries import ComputedEntry
     from pymatgen.util.typing import CompositionLike
 
 logger = logging.getLogger(__name__)
 
 with open(
-    os.path.join(os.path.dirname(__file__), "..", "util", "plotly_pd_layouts.json"),
+    os.path.join(os.path.dirname(pymatgen.util.__file__), "plotly_pd_layouts.json"),
     "rb",
 ) as file:
     plotly_layouts = orjson.loads(file.read())
@@ -499,7 +499,9 @@ class PhaseDiagram(MSONable):
         elements = list(self.elements)
         dim = len(elements)
 
-        entries = sorted(self.entries, key=lambda e: e.composition.reduced_composition)
+        entries = sorted(
+            self.entries, key=lambda e: (e.composition.reduced_composition, e.energy_per_atom, str(e.name))
+        )
 
         el_refs: dict[Element, Entry] = {}
         min_entries: list[Entry] = []
@@ -3442,11 +3444,9 @@ class PDPlotter:
             highlight_entries = []
 
         stable_coords: list[Sequence[float]] = []
-        unstable_coords: list[Sequence[float]] = []
         highlight_coords: list[Sequence[float]] = []
 
         stable_entries: list[PDEntry] = []
-        unstable_entries: list[PDEntry] = []
         highlight_ents: list[PDEntry] = []
 
         # Stable entries
@@ -3458,14 +3458,23 @@ class PDPlotter:
                 stable_coords.append(coord)
                 stable_entries.append(entry)
 
-        # Unstable entries
+        # Unstable entries (lowest energy only per composition)
+        min_unstable: dict[str, tuple[Sequence[float], PDEntry]] = {}
+
         for coord, entry in zip(self.pd_plot_data[2].values(), self.pd_plot_data[2], strict=True):
             if entry in highlight_entries:
                 highlight_coords.append(coord)
                 highlight_ents.append(entry)
-            else:
-                unstable_coords.append(coord)
-                unstable_entries.append(entry)
+                continue
+
+            formula = entry.composition.reduced_formula
+            e_above_hull = self._pd.get_e_above_hull(entry)
+
+            if formula not in min_unstable or e_above_hull < self._pd.get_e_above_hull(min_unstable[formula][1]):
+                min_unstable[formula] = (coord, entry)
+
+        unstable_coords = [coord for coord, _ in min_unstable.values()]
+        unstable_entries = [entry for _, entry in min_unstable.values()]
 
         stable_props = get_marker_props(stable_coords, stable_entries)
         unstable_props = get_marker_props(unstable_coords, unstable_entries)

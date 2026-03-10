@@ -15,9 +15,7 @@ from pymatgen.analysis.chemenv.utils.math_utils import (
 )
 
 if TYPE_CHECKING:
-    from typing import ClassVar
-
-    from typing_extensions import Self
+    from typing import ClassVar, Self
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
