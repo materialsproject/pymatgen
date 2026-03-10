@@ -55,7 +55,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "pymatgen-core"
+    "pymatgen-core>=2026.3.9"
 ]
 version = "2025.10.7"
 
