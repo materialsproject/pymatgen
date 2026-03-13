@@ -1,4 +1,4 @@
-  PAW_PBE H_h 06Feb2004                  
+  PAW_PBE H_h 06Feb2004
  1.00000000000000000
  parameters from PSCTR are:
    VRHFIN =H: ultrasoft test
@@ -21,7 +21,7 @@
    RAUG   =    1.000    factor for augmentation sphere
    RDEP   =     .817    radius for radial grids
    QCUT   =   -7.783; QGAM   =   15.567    optimization parameters
- 
+
    Description
      l     E      TYP  RCUT    TYP  RCUT
      0   .000     23   .800
@@ -584,7 +584,7 @@ END of PSCTR-controll parameters
    .80256107E-03   .12506699E-02   .13816999E-02   .12865718E-02   .10492595E-02
  PAW radial sets
  353 0.432452186722727727
-(5E20.12)                                
+(5E20.12)
  augmentation charges (non sperical)
    .375101769016E-02   .311985808949E-03   .387117264741E-04   .311985808949E-03   .133868651721E-05
    .259899317847E-03   .387117264741E-04   .259899317847E-03  -.260654236902E-02
@@ -1456,7 +1456,7 @@ END of PSCTR-controll parameters
    .296734565668E+01   .000000000000E+00   .000000000000E+00   .000000000000E+00   .000000000000E+00
    .000000000000E+00   .000000000000E+00   .000000000000E+00
  End of Dataset
-  PAW_PBE C_h 06Feb2004                  
+  PAW_PBE C_h 06Feb2004
  4.00000000000000000
  parameters from PSCTR are:
    VRHFIN =C: s2p2
@@ -1480,7 +1480,7 @@ END of PSCTR-controll parameters
    RAUG   =    1.300    factor for augmentation sphere
    RDEP   =    1.162    radius for radial grids
    QCUT   =   -7.383; QGAM   =   14.767    optimization parameters
- 
+
    Description
      l     E      TYP  RCUT    TYP  RCUT
      0   .000     23  1.100
@@ -2288,7 +2288,7 @@ END of PSCTR-controll parameters
   -.81116479E+00  -.62292069E+00  -.45133081E+00  -.30256130E+00  -.18004885E+00
  PAW radial sets
  325 0.576959285096636298
-(5E20.12)                                
+(5E20.12)
  augmentation charges (non sperical)
   -.376734119743E-01  -.663290869890E-03  -.438661906044E-01   .160122228687E-03  -.663290869890E-03
   -.386423244831E-05   .229831097305E-03   .335825365578E-05  -.438661906044E-01   .229831097305E-03
@@ -3224,7 +3224,7 @@ END of PSCTR-controll parameters
   -.130149724974E+00  -.143696002279E+00  -.119812643343E+01  -.119383485919E+01  -.118775396249E+01
   -.117988676144E+01  -.117024507488E+01  -.115884946438E+01  -.114572911440E+01  -.113092166374E+01
  End of Dataset
-  PAW_PBE O_h 06Feb2004                  
+  PAW_PBE O_h 06Feb2004
  6.00000000000000000
  parameters from PSCTR are:
    VRHFIN =O: s2p4
@@ -3248,7 +3248,7 @@ END of PSCTR-controll parameters
    RAUG   =    1.300    factor for augmentation sphere
    RDEP   =    1.125    radius for radial grids
    QCUT   =   -7.501; QGAM   =   15.002    optimization parameters
- 
+
    Description
      l     E      TYP  RCUT    TYP  RCUT
      0   .000     23  1.100
@@ -4056,7 +4056,7 @@ END of PSCTR-controll parameters
   -.67252503E+00  -.51556870E+00  -.37296185E+00  -.24962020E+00  -.14822875E+00
  PAW radial sets
  321 0.595475537203011829
-(5E20.12)                                
+(5E20.12)
  augmentation charges (non sperical)
   -.140642419338E+00   .505703420332E-03  -.533846307351E-01   .500863790681E-03   .505703420332E-03
   -.376319503631E-05  -.129759693603E-04  -.697702252775E-06  -.533846307351E-01  -.129759693603E-04
@@ -4992,7 +4992,7 @@ END of PSCTR-controll parameters
   -.153985182475E+01  -.150387532806E+01  -.146630767920E+01  -.142728489100E+01  -.138694744952E+01
   -.134543952478E+01
  End of Dataset
-  PAW_PBE Mg_sv 12Apr2007                
+  PAW_PBE Mg_sv 12Apr2007
  10.0000000000000000
  parameters from PSCTR are:
    VRHFIN =Mg: p6s2
@@ -5016,7 +5016,7 @@ END of PSCTR-controll parameters
    RDEP   =    1.781    radius for radial grids
    RDEPT  =    1.300    core radius for aug-charge
    QCUT   =   -6.033; QGAM   =   12.066    optimization parameters
- 
+
    Description
      l     E      TYP  RCUT    TYP  RCUT
      0   .000     23  1.200
@@ -5670,7 +5670,7 @@ END of PSCTR-controll parameters
    .95109459E-02   .11262239E-01   .11176237E-01   .98760810E-02   .78884658E-02
  PAW radial sets
  331 0.729766604545011965
-(5E20.12)                                
+(5E20.12)
  augmentation charges (non sperical)
    .516370987551E-01   .374773419240E+00   .419878263875E+00  -.405439311939E+00   .186701925793E-01
    .374773419240E+00   .187711862914E+00   .342546297020E+00  -.190727168315E+00   .732418251698E-01

@@ -1,5 +1,5 @@
- vasp.5.2.12 11Nov11 complex                                                    
-  
+ vasp.5.2.12 11Nov11 complex
+
  executed on             LinuxIFC date 2016.04.26  06:03:45
  running on   16 nodes
  distr:  one band on    4 nodes,    4 groups
@@ -9,40 +9,40 @@
 
 
  INCAR:
- POTCAR:   PAW_PBE Zn 06Sep2000                   
- POTCAR:   PAW_PBE Se 06Sep2000                   
- POTCAR:   PAW_PBE Zn 06Sep2000                   
-   VRHFIN =Zn: d10 p2                                                           
-   LEXCH  = PE                                                                  
-   EATOM  =  1749.0928 eV,  128.5547 Ry                                         
-                                                                                
-   TITEL  = PAW_PBE Zn 06Sep2000                                                
-   LULTRA =        F    use ultrasoft PP ?                                      
-   IUNSCR =        1    unscreen: 0-lin 1-nonlin 2-no                           
-   RPACOR =    2.000    partial core radius                                     
-   POMASS =   65.390; ZVAL   =   12.000    mass and valenz                      
-   RCORE  =    2.300    outmost cutoff radius                                   
-   RWIGS  =    2.400; RWIGS  =    1.270    wigner-seitz radius (au A)           
-   ENMAX  =  276.727; ENMIN  =  207.545 eV                                      
-   RCLOC  =    1.828    cutoff for local pot                                    
-   LCOR   =        T    correct aug charges                                     
-   LPAW   =        T    paw PP                                                  
-   EAUG   =  575.892                                                            
-   DEXC   =    -.003                                                            
-   RMAX   =    2.772    core radius for proj-oper                               
-   RAUG   =    1.300    factor for augmentation sphere                          
-   RDEP   =    2.324    radius for radial grids                                 
-   QCUT   =   -4.510; QGAM   =    9.020    optimization parameters              
-                                                                                
-   Description                                                                  
-     l     E      TYP  RCUT    TYP  RCUT                                        
-     2   .000     23  2.300                                                     
-     2   .000     23  2.300                                                     
-     0   .000     23  2.300                                                     
-     0   .000     23  2.300                                                     
-     1  -.200     23  2.300                                                     
-     1   .000     23  2.300                                                     
-     3   .000      7   .000                                                     
+ POTCAR:   PAW_PBE Zn 06Sep2000
+ POTCAR:   PAW_PBE Se 06Sep2000
+ POTCAR:   PAW_PBE Zn 06Sep2000
+   VRHFIN =Zn: d10 p2
+   LEXCH  = PE
+   EATOM  =  1749.0928 eV,  128.5547 Ry
+
+   TITEL  = PAW_PBE Zn 06Sep2000
+   LULTRA =        F    use ultrasoft PP ?
+   IUNSCR =        1    unscreen: 0-lin 1-nonlin 2-no
+   RPACOR =    2.000    partial core radius
+   POMASS =   65.390; ZVAL   =   12.000    mass and valenz
+   RCORE  =    2.300    outmost cutoff radius
+   RWIGS  =    2.400; RWIGS  =    1.270    wigner-seitz radius (au A)
+   ENMAX  =  276.727; ENMIN  =  207.545 eV
+   RCLOC  =    1.828    cutoff for local pot
+   LCOR   =        T    correct aug charges
+   LPAW   =        T    paw PP
+   EAUG   =  575.892
+   DEXC   =    -.003
+   RMAX   =    2.772    core radius for proj-oper
+   RAUG   =    1.300    factor for augmentation sphere
+   RDEP   =    2.324    radius for radial grids
+   QCUT   =   -4.510; QGAM   =    9.020    optimization parameters
+
+   Description
+     l     E      TYP  RCUT    TYP  RCUT
+     2   .000     23  2.300
+     2   .000     23  2.300
+     0   .000     23  2.300
+     0   .000     23  2.300
+     1  -.200     23  2.300
+     1   .000     23  2.300
+     3   .000      7   .000
   local pseudopotential read in
   partial core-charges read in
   atomic valenz-charges read in
@@ -59,41 +59,41 @@
   non local Contribution for L=           1  read in
     real space projection operators read in
     PAW grid and wavefunctions read in
- 
+
    number of l-projection  operators is LMAX  =           6
    number of lm-projection operators is LMMAX =          18
- 
- POTCAR:   PAW_PBE Se 06Sep2000                   
-   VRHFIN =Se: s2p4                                                             
-   LEXCH  = PE                                                                  
-   EATOM  =   256.9644 eV,   18.8864 Ry                                         
-                                                                                
-   TITEL  = PAW_PBE Se 06Sep2000                                                
-   LULTRA =        F    use ultrasoft PP ?                                      
-   IUNSCR =        1    unscreen: 0-lin 1-nonlin 2-no                           
-   RPACOR =    1.900    partial core radius                                     
-   POMASS =   78.960; ZVAL   =    6.000    mass and valenz                      
-   RCORE  =    2.100    outmost cutoff radius                                   
-   RWIGS  =    2.200; RWIGS  =    1.164    wigner-seitz radius (au A)           
-   ENMAX  =  211.534; ENMIN  =  158.651 eV                                      
-   ICORE  =        3    local potential                                         
-   LCOR   =        T    correct aug charges                                     
-   LPAW   =        T    paw PP                                                  
-   EAUG   =  446.842                                                            
-   DEXC   =    -.031                                                            
-   RMAX   =    3.170    core radius for proj-oper                               
-   RAUG   =    1.300    factor for augmentation sphere                          
-   RDEP   =    2.177    radius for radial grids                                 
-   QCUT   =   -3.943; QGAM   =    7.886    optimization parameters              
-                                                                                
-   Description                                                                  
-     l     E      TYP  RCUT    TYP  RCUT                                        
-     0   .000     23  2.100                                                     
-     0   .000     23  2.100                                                     
-     1   .000     23  2.100                                                     
-     1   .000     23  2.100                                                     
-     2   .000     23  2.100                                                     
-     3  -.100      7  2.100                                                     
+
+ POTCAR:   PAW_PBE Se 06Sep2000
+   VRHFIN =Se: s2p4
+   LEXCH  = PE
+   EATOM  =   256.9644 eV,   18.8864 Ry
+
+   TITEL  = PAW_PBE Se 06Sep2000
+   LULTRA =        F    use ultrasoft PP ?
+   IUNSCR =        1    unscreen: 0-lin 1-nonlin 2-no
+   RPACOR =    1.900    partial core radius
+   POMASS =   78.960; ZVAL   =    6.000    mass and valenz
+   RCORE  =    2.100    outmost cutoff radius
+   RWIGS  =    2.200; RWIGS  =    1.164    wigner-seitz radius (au A)
+   ENMAX  =  211.534; ENMIN  =  158.651 eV
+   ICORE  =        3    local potential
+   LCOR   =        T    correct aug charges
+   LPAW   =        T    paw PP
+   EAUG   =  446.842
+   DEXC   =    -.031
+   RMAX   =    3.170    core radius for proj-oper
+   RAUG   =    1.300    factor for augmentation sphere
+   RDEP   =    2.177    radius for radial grids
+   QCUT   =   -3.943; QGAM   =    7.886    optimization parameters
+
+   Description
+     l     E      TYP  RCUT    TYP  RCUT
+     0   .000     23  2.100
+     0   .000     23  2.100
+     1   .000     23  2.100
+     1   .000     23  2.100
+     2   .000     23  2.100
+     3  -.100      7  2.100
   local pseudopotential read in
   partial core-charges read in
   atomic valenz-charges read in
@@ -108,12 +108,12 @@
   non local Contribution for L=           2  read in
     real space projection operators read in
     PAW grid and wavefunctions read in
- 
+
    number of l-projection  operators is LMAX  =           5
    number of lm-projection operators is LMMAX =          13
- 
 
- ----------------------------------------------------------------------------- 
+
+ -----------------------------------------------------------------------------
 |                                                                             |
 |  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
 |                                                                             |
@@ -123,15 +123,15 @@
 |      is also less accurate ...                                              |
 |      Therefore set LREAL=.FALSE. in the  INCAR file                         |
 |                                                                             |
- ----------------------------------------------------------------------------- 
+ -----------------------------------------------------------------------------
 
  Optimization of the real space projectors (new method)
 
  maximal supplied QI-value         = 16.25
- optimisation between [QCUT,QGAM] = [ 11.54, 23.24] = [ 37.28,151.24] Ry 
+ optimisation between [QCUT,QGAM] = [ 11.54, 23.24] = [ 37.28,151.24] Ry
  Optimized for a Real-space Cutoff    1.49 Angstroem
 
-   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline) 
+   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline)
    2      9    11.539     5.523    0.17E-04    0.12E-04    0.43E-07
    2      9    11.539     9.671    0.18E-03    0.96E-04    0.20E-06
    0     10    11.539    11.246    0.19E-04    0.18E-05    0.16E-07
@@ -141,10 +141,10 @@
  Optimization of the real space projectors (new method)
 
  maximal supplied QI-value         = 17.95
- optimisation between [QCUT,QGAM] = [ 11.67, 23.34] = [ 38.13,152.52] Ry 
+ optimisation between [QCUT,QGAM] = [ 11.67, 23.34] = [ 38.13,152.52] Ry
  Optimized for a Real-space Cutoff    1.25 Angstroem
 
-   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline) 
+   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline)
    0      9    11.669     6.499    0.13E-04    0.81E-05    0.11E-07
    0      9    11.669    52.623    0.18E-03    0.46E-04    0.72E-07
    1      8    11.669     4.229    0.40E-04    0.45E-04    0.31E-07
@@ -156,9 +156,9 @@
  PAW_PBE Se 06Sep2000                   :
  energy of atom  2       EATOM= -256.9644
  kinetic energy error for atom=    0.0007 (will be added to EATOM!!)
- 
- 
- POSCAR: Zn1 Se1                                 
+
+
+ POSCAR: Zn1 Se1
   positions in direct lattice
   No initial velocities read in
  exchange correlation table for  LEXCH =        8
@@ -168,14 +168,14 @@
  VTST: version 3.1, (03/28/14)
 
  CHAIN: initializing optimizer
- 
+
  OPT: Using VASP Dynamics algorithm
  CHAIN: Read ICHAIN            0
- 
- POSCAR: Zn1 Se1                                 
+
+ POSCAR: Zn1 Se1
   positions in direct lattice
   No initial velocities read in
- 
+
 
 
 --------------------------------------------------------------------------------------------------------
@@ -184,14 +184,14 @@
  ion  position               nearest neighbor table
    1  0.000  0.000  0.000-   2 2.49   2 2.49   2 2.49   2 2.49
    2  0.250  0.250  0.250-   1 2.49   1 2.49   1 2.49   1 2.49
- 
+
 
 IMPORTANT INFORMATION: All symmetrisations will be switched off!
 NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
 
- 
- 
- KPOINTS: Non SCF run on uniform grid             
+
+
+ KPOINTS: Non SCF run on uniform grid
   k-points in reciprocal lattice
 
 
@@ -216,8 +216,8 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
 
  I would recommend the setting:
    dimension x,y,z NGX =    30 NGY =   30 NGZ =   30
- SYSTEM =  unknown system                          
- POSCAR =  Zn1 Se1                                 
+ SYSTEM =  unknown system
+ POSCAR =  Zn1 Se1
 
  Startparameter for this run:
    NWRITE =      2    write-flag & timer
@@ -235,7 +235,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
    ENCUT  =  520.0 eV  38.22 Ry    6.18 a.u.   7.55  7.55  7.55*2*pi/ulx,y,z
    ENINI  =  520.0     initial cutoff
    ENAUG  =  575.9 eV  augmentation charge cutoff
-   NELM   =    100;   NELMIN=  2; NELMDL= -5     # of ELM steps 
+   NELM   =    100;   NELMIN=  2; NELMDL= -5     # of ELM steps
    EDIFF  = 0.2E-05   stopping-criterion for ELM
    LREAL  =      T    real-space projection
    NLSPLINE    = F    spline interpolate recip. space projectors
@@ -248,7 +248,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
  Ionic relaxation
    EDIFFG = 0.2E-04   stopping-criterion for IOM
    NSW    =      0    number of steps for IOM
-   NBLOCK =      1;   KBLOCK =      1    inner block; outer block 
+   NBLOCK =      1;   KBLOCK =      1    inner block; outer block
    IBRION =     -1    ionic relax: 0-MD 1-quasi-New 2-CG
    NFREE  =      0    steps in history (QN), initial steepest desc. (CG)
    ISIF   =      3    stress and relaxation
@@ -271,7 +271,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
    ZVAL   =  12.00  6.00
   Atomic Wigner-Seitz radii
    RWIGS  =  -1.00 -1.00
-  virtual crystal weights 
+  virtual crystal weights
    VCA    =   1.00  1.00
    NELECT =      18.0000    total number of electrons
    NUPDOWN=      -1.0000    fix difference up-down
@@ -299,14 +299,14 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
  Intra band minimization:
    WEIMIN = 0.0000     energy-eigenvalue tresh-hold
    EBREAK =  0.25E-07  absolut break condition
-   DEPER  =   0.30     relativ break condition  
+   DEPER  =   0.30     relativ break condition
 
    TIME   =   0.40     timestep for ELM
 
   volume/ion in A,a.u.               =      23.67       159.73
   Fermi-wavevector in a.u.,A,eV,Ry     =   1.186033  2.241277 19.138964  1.406674
   Thomas-Fermi vector in A             =   2.322214
- 
+
  Write flags
    LWAVE  =      F    write WAVECAR
    LCHARG =      F    write CHGCAR
@@ -319,7 +319,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
  Dipole corrections
    LMONO  =      F    monopole corrections only (constant potential shift)
    LDIPOL =      F    correct potential (dipole corrections)
-   IDIPOL =      0    1-x, 2-y, 3-z, 4-all directions 
+   IDIPOL =      0    1-x, 2-y, 3-z, 4-all directions
    EPSILON=  1.0000000 bulk dielectric constant
 
  Exchange correlation treatment:
@@ -362,9 +362,9 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
  using additional bands           11
  real space projection scheme for non local part
  use partial core corrections
- calculate Harris-corrections to forces 
+ calculate Harris-corrections to forces
    (improved forces if not selfconsistent)
- use gradient corrections 
+ use gradient corrections
  WARNING: stress and forces are not correct
   (second derivative of E(xc) not defined)
  use of overlap-Matrix (Vanderbilt PP)
@@ -385,8 +385,8 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      4.060447554  4.060447554  4.060447554     0.301628048  0.301628048  0.301628048
 
 
- 
- k-points in units of 2pi/SCALE and weight: Non SCF run on uniform grid             
+
+ k-points in units of 2pi/SCALE and weight: Non SCF run on uniform grid
    0.00000000  0.00000000  0.00000000       0.000
   -0.01024383  0.01024383  0.01024383       0.002
   -0.02048765  0.02048765  0.02048765       0.002
@@ -552,8 +552,8 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
    0.17414503 -0.11268208 -0.01024383       0.005
    0.16390121 -0.10243826  0.00000000       0.005
    0.17414503 -0.09219443 -0.01024383       0.005
- 
- k-points in reciprocal lattice and weights: Non SCF run on uniform grid             
+
+ k-points in reciprocal lattice and weights: Non SCF run on uniform grid
    0.00000000  0.00000000  0.00000000       0.000
    0.05882353  0.00000000  0.00000000       0.002
    0.11764706  0.00000000  0.00000000       0.002
@@ -719,15 +719,15 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
   -0.35294118  0.47058824  0.17647059       0.005
   -0.29411765  0.47058824  0.17647059       0.005
   -0.29411765  0.47058824  0.23529412       0.005
- 
- position of ions in fractional coordinates (direct lattice) 
+
+ position of ions in fractional coordinates (direct lattice)
    0.00000000  0.00000000  0.00000000
    0.25000000  0.25000000  0.25000000
- 
+
  position of ions in cartesian coordinates  (Angst):
    0.00000000  0.00000000  0.00000000
    1.43558500  1.43558500  1.43558500
- 
+
 
 
 --------------------------------------------------------------------------------------------------------
@@ -902,7 +902,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
  maximum and minimum number of plane-waves per node :       330      307
 
  maximum number of plane-waves:      1303
- maximum index in each direction: 
+ maximum index in each direction:
    IXMAX=    8   IYMAX=    7   IZMAX=    7
    IXMIN=   -8   IYMIN=   -8   IZMIN=   -7
 
@@ -932,9 +932,9 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
    grid      :       1117. kBytes
    one-center:         15. kBytes
    wavefun   :       4593. kBytes
- 
+
  initial charge density was supplied:
- number of electron      18.0000015 magnetization 
+ number of electron      18.0000015 magnetization
  keeping initial charge density in first step
 
 
@@ -967,8 +967,8 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
 
  eigenvalue-minimisations  :  6624
  total energy-change (2. order) : 0.1034676E+03  (-0.8390706E+03)
- number of electron      18.0000015 magnetization 
- augmentation part       18.0000015 magnetization 
+ number of electron      18.0000015 magnetization
+ augmentation part       18.0000015 magnetization
 
  Free energy of the ion-electron system (eV)
   ---------------------------------------------------
@@ -1002,8 +1002,8 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
 
  eigenvalue-minimisations  :  6764
  total energy-change (2. order) :-0.1011991E+03  (-0.9295755E+02)
- number of electron      18.0000015 magnetization 
- augmentation part       18.0000015 magnetization 
+ number of electron      18.0000015 magnetization
+ augmentation part       18.0000015 magnetization
 
  Free energy of the ion-electron system (eV)
   ---------------------------------------------------
@@ -1037,8 +1037,8 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
 
  eigenvalue-minimisations  :  7776
  total energy-change (2. order) :-0.8356288E+01  (-0.8265410E+01)
- number of electron      18.0000015 magnetization 
- augmentation part       18.0000015 magnetization 
+ number of electron      18.0000015 magnetization
+ augmentation part       18.0000015 magnetization
 
  Free energy of the ion-electron system (eV)
   ---------------------------------------------------
@@ -1072,8 +1072,8 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
 
  eigenvalue-minimisations  :  7664
  total energy-change (2. order) :-0.9809283E-01  (-0.9802779E-01)
- number of electron      18.0000015 magnetization 
- augmentation part       18.0000015 magnetization 
+ number of electron      18.0000015 magnetization
+ augmentation part       18.0000015 magnetization
 
  Free energy of the ion-electron system (eV)
   ---------------------------------------------------
@@ -1107,8 +1107,8 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
 
  eigenvalue-minimisations  :  7288
  total energy-change (2. order) :-0.3188424E-03  (-0.3188374E-03)
- number of electron      18.0000015 magnetization 
- augmentation part       18.0000015 magnetization 
+ number of electron      18.0000015 magnetization
+ augmentation part       18.0000015 magnetization
 
  Free energy of the ion-electron system (eV)
   ---------------------------------------------------
@@ -1142,8 +1142,8 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
 
  eigenvalue-minimisations  :  7768
  total energy-change (2. order) :-0.1865097E-05  (-0.1865085E-05)
- number of electron      18.0000015 magnetization 
- augmentation part       18.0000015 magnetization 
+ number of electron      18.0000015 magnetization
+ augmentation part       18.0000015 magnetization
 
  Free energy of the ion-electron system (eV)
   ---------------------------------------------------
@@ -1171,14 +1171,14 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
   the test charge radii are     0.9521  1.0808
   (the norm of the test charge is              1.0000)
        1 -37.3420       2 -56.2997
- 
- 
- 
+
+
+
  E-fermi :   1.3043     XC(G=0):  -9.1454     alpha+bet : -6.9410
 
 
  k-point   1 :       0.0000    0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.6951      2.00000
       2      -5.1442      2.00000
       3      -5.1442      2.00000
@@ -1201,7 +1201,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      17.0081      0.00000
 
  k-point   2 :       0.0588    0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.6739      2.00000
       2      -5.1425      2.00000
       3      -5.1408      2.00000
@@ -1224,7 +1224,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      17.3868      0.00000
 
  k-point   3 :       0.1176    0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.6120      2.00000
       2      -5.1360      2.00000
       3      -5.1313      2.00000
@@ -1247,7 +1247,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.2849      0.00000
 
  k-point   4 :       0.1765    0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.5150      2.00000
       2      -5.1200      2.00000
       3      -5.1175      2.00000
@@ -1270,7 +1270,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.4421      0.00000
 
  k-point   5 :       0.2353    0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.3928      2.00000
       2      -5.1019      2.00000
       3      -5.1019      2.00000
@@ -1293,7 +1293,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.5509      0.00000
 
  k-point   6 :       0.2941    0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.2592      2.00000
       2      -5.0873      2.00000
       3      -5.0873      2.00000
@@ -1316,7 +1316,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.5793      0.00000
 
  k-point   7 :       0.3529    0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.1322      2.00000
       2      -5.0758      2.00000
       3      -5.0758      2.00000
@@ -1339,7 +1339,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.1045      0.00000
 
  k-point   8 :       0.4118    0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0317      2.00000
       2      -5.0682      2.00000
       3      -5.0682      2.00000
@@ -1362,7 +1362,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.0502      0.00000
 
  k-point   9 :       0.4706    0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9758      2.00000
       2      -5.0646      2.00000
       3      -5.0646      2.00000
@@ -1385,7 +1385,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      21.3330      0.00000
 
  k-point  10 :       0.0588    0.0588    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.6668      2.00000
       2      -5.1453      2.00000
       3      -5.1380      2.00000
@@ -1408,7 +1408,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      17.5486      0.00000
 
  k-point  11 :       0.1176    0.0588    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.6184      2.00000
       2      -5.1433      2.00000
       3      -5.1293      2.00000
@@ -1431,7 +1431,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.3149      0.00000
 
  k-point  12 :       0.1765    0.0588    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.5331      2.00000
       2      -5.1338      2.00000
       3      -5.1151      2.00000
@@ -1454,7 +1454,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.3873      0.00000
 
  k-point  13 :       0.2353    0.0588    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.4191      2.00000
       2      -5.1153      2.00000
       3      -5.0993      2.00000
@@ -1477,7 +1477,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.5555      0.00000
 
  k-point  14 :       0.2941    0.0588    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.2890      2.00000
       2      -5.0957      2.00000
       3      -5.0841      2.00000
@@ -1500,7 +1500,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.6071      0.00000
 
  k-point  15 :       0.3529    0.0588    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.1592      2.00000
       2      -5.0810      2.00000
       3      -5.0719      2.00000
@@ -1523,7 +1523,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.6598      0.00000
 
  k-point  16 :       0.4118    0.0588    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0491      2.00000
       2      -5.0710      2.00000
       3      -5.0638      2.00000
@@ -1546,7 +1546,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.6438      0.00000
 
  k-point  17 :       0.4706    0.0588    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9777      2.00000
       2      -5.0651      2.00000
       3      -5.0599      2.00000
@@ -1569,7 +1569,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.9025      0.00000
 
  k-point  18 :      -0.4706    0.0588    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9589      2.00000
       2      -5.0629      2.00000
       3      -5.0598      2.00000
@@ -1592,7 +1592,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      21.4933      0.00000
 
  k-point  19 :      -0.4118    0.0588    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9963      2.00000
       2      -5.0641      2.00000
       3      -5.0633      2.00000
@@ -1615,7 +1615,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.3934      0.00000
 
  k-point  20 :      -0.3529    0.0588    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0826      2.00000
       2      -5.0708      2.00000
       3      -5.0691      2.00000
@@ -1638,7 +1638,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.2575      0.00000
 
  k-point  21 :      -0.2941    0.0588    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.2016      2.00000
       2      -5.0822      2.00000
       3      -5.0784      2.00000
@@ -1661,7 +1661,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.6377      0.00000
 
  k-point  22 :      -0.2353    0.0588    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.3335      2.00000
       2      -5.0967      2.00000
       3      -5.0926      2.00000
@@ -1684,7 +1684,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.5248      0.00000
 
  k-point  23 :      -0.1765    0.0588    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.4599      2.00000
       2      -5.1146      2.00000
       3      -5.1125      2.00000
@@ -1707,7 +1707,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.1095      0.00000
 
  k-point  24 :      -0.1176    0.0588    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.5654      2.00000
       2      -5.1330      2.00000
       3      -5.1267      2.00000
@@ -1730,7 +1730,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.9270      0.00000
 
  k-point  25 :      -0.0588    0.0588    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.6391      2.00000
       2      -5.1410      2.00000
       3      -5.1368      2.00000
@@ -1753,7 +1753,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      17.9469      0.00000
 
  k-point  26 :       0.1176    0.1176    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.5842      2.00000
       2      -5.1475      2.00000
       3      -5.1199      2.00000
@@ -1776,7 +1776,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.9757      0.00000
 
  k-point  27 :       0.1765    0.1176    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.5124      2.00000
       2      -5.1442      2.00000
       3      -5.1058      2.00000
@@ -1799,7 +1799,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.9642      0.00000
 
  k-point  28 :       0.2353    0.1176    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.4099      2.00000
       2      -5.1306      2.00000
       3      -5.0892      2.00000
@@ -1822,7 +1822,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.9073      0.00000
 
  k-point  29 :       0.2941    0.1176    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.2876      2.00000
       2      -5.1080      2.00000
       3      -5.0729      2.00000
@@ -1845,7 +1845,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.5407      0.00000
 
  k-point  30 :       0.3529    0.1176    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.1603      2.00000
       2      -5.0866      2.00000
       3      -5.0595      2.00000
@@ -1868,7 +1868,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.8661      0.00000
 
  k-point  31 :       0.4118    0.1176    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0462      2.00000
       2      -5.0726      2.00000
       3      -5.0505      2.00000
@@ -1891,7 +1891,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.1534      0.00000
 
  k-point  32 :       0.4706    0.1176    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9640      2.00000
       2      -5.0645      2.00000
       3      -5.0460      2.00000
@@ -1914,7 +1914,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.4411      0.00000
 
  k-point  33 :      -0.4706    0.1176    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9287      2.00000
       2      -5.0603      2.00000
       3      -5.0458      2.00000
@@ -1937,7 +1937,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      21.3002      0.00000
 
  k-point  34 :      -0.4118    0.1176    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9474      2.00000
       2      -5.0592      2.00000
       3      -5.0496      2.00000
@@ -1960,7 +1960,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.3743      0.00000
 
  k-point  35 :      -0.3529    0.1176    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0163      2.00000
       2      -5.0613      2.00000
       3      -5.0575      2.00000
@@ -1983,7 +1983,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.1740      0.00000
 
  k-point  36 :      -0.2941    0.1176    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.1223      2.00000
       2      -5.0695      2.00000
       3      -5.0673      2.00000
@@ -2006,7 +2006,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.9218      0.00000
 
  k-point  37 :      -0.2353    0.1176    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.2474      2.00000
       2      -5.0847      2.00000
       3      -5.0784      2.00000
@@ -2029,7 +2029,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.9570      0.00000
 
  k-point  38 :      -0.1765    0.1176    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.3730      2.00000
       2      -5.1011      2.00000
       3      -5.0991      2.00000
@@ -2052,7 +2052,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.4248      0.00000
 
  k-point  39 :      -0.1176    0.1176    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.4831      2.00000
       2      -5.1220      2.00000
       3      -5.1160      2.00000
@@ -2075,7 +2075,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.9317      0.00000
 
  k-point  40 :       0.1765    0.1765    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.4548      2.00000
       2      -5.1476      2.00000
       3      -5.0910      2.00000
@@ -2098,7 +2098,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.8878      0.00000
 
  k-point  41 :       0.2353    0.1765    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.3659      2.00000
       2      -5.1407      2.00000
       3      -5.0732      2.00000
@@ -2121,7 +2121,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.9450      0.00000
 
  k-point  42 :       0.2941    0.1765    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.2550      2.00000
       2      -5.1216      2.00000
       3      -5.0553      2.00000
@@ -2144,7 +2144,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.5306      0.00000
 
  k-point  43 :       0.3529    0.1765    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.1353      2.00000
       2      -5.0955      2.00000
       3      -5.0403      2.00000
@@ -2167,7 +2167,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.4422      0.00000
 
  k-point  44 :       0.4118    0.1765    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0230      2.00000
       2      -5.0749      2.00000
       3      -5.0299      2.00000
@@ -2190,7 +2190,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.4426      0.00000
 
  k-point  45 :       0.4706    0.1765    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9357      2.00000
       2      -5.0632      2.00000
       3      -5.0246      2.00000
@@ -2213,7 +2213,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.3145      0.00000
 
  k-point  46 :      -0.4706    0.1765    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8886      2.00000
       2      -5.0573      2.00000
       3      -5.0243      2.00000
@@ -2236,7 +2236,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.9663      0.00000
 
  k-point  47 :      -0.4118    0.1765    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8905      2.00000
       2      -5.0545      2.00000
       3      -5.0287      2.00000
@@ -2259,7 +2259,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.1144      0.00000
 
  k-point  48 :      -0.3529    0.1765    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9412      2.00000
       2      -5.0541      2.00000
       3      -5.0377      2.00000
@@ -2282,7 +2282,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.9629      0.00000
 
  k-point  49 :      -0.2941    0.1765    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0309      2.00000
       2      -5.0567      2.00000
       3      -5.0510      2.00000
@@ -2305,7 +2305,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.1779      0.00000
 
  k-point  50 :      -0.2353    0.1765    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.1441      2.00000
       2      -5.0675      2.00000
       3      -5.0636      2.00000
@@ -2328,7 +2328,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.7838      0.00000
 
  k-point  51 :      -0.1765    0.1765    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.2635      2.00000
       2      -5.0852      2.00000
       3      -5.0770      2.00000
@@ -2351,7 +2351,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.9245      0.00000
 
  k-point  52 :       0.2353    0.2353    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.2914      2.00000
       2      -5.1414      2.00000
       3      -5.0537      2.00000
@@ -2374,7 +2374,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.5549      0.00000
 
  k-point  53 :       0.2941    0.2353    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.1945      2.00000
       2      -5.1296      2.00000
       3      -5.0338      2.00000
@@ -2397,7 +2397,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.4587      0.00000
 
  k-point  54 :       0.3529    0.2353    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0864      2.00000
       2      -5.1062      2.00000
       3      -5.0168      2.00000
@@ -2420,7 +2420,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.3601      0.00000
 
  k-point  55 :       0.4118    0.2353    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9816      2.00000
       2      -5.0806      2.00000
       3      -5.0046      2.00000
@@ -2443,7 +2443,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.9889      0.00000
 
  k-point  56 :       0.4706    0.2353    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8957      2.00000
       2      -5.0636      2.00000
       3      -4.9984      2.00000
@@ -2466,7 +2466,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.2237      0.00000
 
  k-point  57 :      -0.4706    0.2353    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8430      2.00000
       2      -5.0551      2.00000
       3      -4.9980      2.00000
@@ -2489,7 +2489,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.6802      0.00000
 
  k-point  58 :      -0.4118    0.2353    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8327      2.00000
       2      -5.0510      2.00000
       3      -5.0033      2.00000
@@ -2512,7 +2512,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.8727      0.00000
 
  k-point  59 :      -0.3529    0.2353    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8667      2.00000
       2      -5.0493      2.00000
       3      -5.0139      2.00000
@@ -2535,7 +2535,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.9994      0.00000
 
  k-point  60 :      -0.2941    0.2353    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9387      2.00000
       2      -5.0498      2.00000
       3      -5.0293      2.00000
@@ -2558,7 +2558,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.2757      0.00000
 
  k-point  61 :      -0.2353    0.2353    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0362      2.00000
       2      -5.0540      2.00000
       3      -5.0481      2.00000
@@ -2581,7 +2581,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.2390      0.00000
 
  k-point  62 :       0.2941    0.2941    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.1127      2.00000
       2      -5.1271      2.00000
       3      -5.0117      2.00000
@@ -2604,7 +2604,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.0728      0.00000
 
  k-point  63 :       0.3529    0.2941    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0194      2.00000
       2      -5.1123      2.00000
       3      -4.9924      2.00000
@@ -2627,7 +2627,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.2461      0.00000
 
  k-point  64 :       0.4118    0.2941    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9269      2.00000
       2      -5.0895      2.00000
       3      -4.9783      2.00000
@@ -2650,7 +2650,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.9094      0.00000
 
  k-point  65 :       0.4706    0.2941    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8488      2.00000
       2      -5.0687      2.00000
       3      -4.9710      2.00000
@@ -2673,7 +2673,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.9188      0.00000
 
  k-point  66 :      -0.4706    0.2941    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7975      2.00000
       2      -5.0562      2.00000
       3      -4.9705      2.00000
@@ -2696,7 +2696,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.7274      0.00000
 
  k-point  67 :      -0.4118    0.2941    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7814      2.00000
       2      -5.0502      2.00000
       3      -4.9768      2.00000
@@ -2719,7 +2719,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.9039      0.00000
 
  k-point  68 :      -0.3529    0.2941    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8032      2.00000
       2      -5.0474      2.00000
       3      -4.9896      2.00000
@@ -2742,7 +2742,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.2572      0.00000
 
  k-point  69 :      -0.2941    0.2941    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8587      2.00000
       2      -5.0471      2.00000
       3      -5.0078      2.00000
@@ -2765,7 +2765,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.9362      0.00000
 
  k-point  70 :       0.3529    0.3529    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9424      2.00000
       2      -5.1091      2.00000
       3      -4.9708      2.00000
@@ -2788,7 +2788,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.5980      0.00000
 
  k-point  71 :       0.4118    0.3529    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8660      2.00000
       2      -5.0961      2.00000
       3      -4.9549      2.00000
@@ -2811,7 +2811,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.2475      0.00000
 
  k-point  72 :       0.4706    0.3529    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8013      2.00000
       2      -5.0784      2.00000
       3      -4.9464      2.00000
@@ -2834,7 +2834,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.7651      0.00000
 
  k-point  73 :      -0.4706    0.3529    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7584      2.00000
       2      -5.0630      2.00000
       3      -4.9459      2.00000
@@ -2857,7 +2857,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.0967      0.00000
 
  k-point  74 :      -0.4118    0.3529    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7439      2.00000
       2      -5.0534      2.00000
       3      -4.9534      2.00000
@@ -2880,7 +2880,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.7666      0.00000
 
  k-point  75 :      -0.3529    0.3529    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7599      2.00000
       2      -5.0486      2.00000
       3      -4.9685      2.00000
@@ -2903,7 +2903,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.4027      0.00000
 
  k-point  76 :       0.4118    0.4118    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8075      2.00000
       2      -5.0956      2.00000
       3      -4.9376      2.00000
@@ -2926,7 +2926,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.5330      0.00000
 
  k-point  77 :       0.4706    0.4118    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7603      2.00000
       2      -5.0872      2.00000
       3      -4.9284      2.00000
@@ -2949,7 +2949,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.5458      0.00000
 
  k-point  78 :      -0.4706    0.4118    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7318      2.00000
       2      -5.0742      2.00000
       3      -4.9280      2.00000
@@ -2972,7 +2972,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.4409      0.00000
 
  k-point  79 :      -0.4118    0.4118    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7263      2.00000
       2      -5.0617      2.00000
       3      -4.9365      2.00000
@@ -2995,7 +2995,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.7926      0.00000
 
  k-point  80 :       0.4706    0.4706    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7325      2.00000
       2      -5.0898      2.00000
       3      -4.9189      2.00000
@@ -3018,7 +3018,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.4520      0.00000
 
  k-point  81 :      -0.4706    0.4706    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7225      2.00000
       2      -5.0848      2.00000
       3      -4.9187      2.00000
@@ -3041,7 +3041,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.4007      0.00000
 
  k-point  82 :       0.1765    0.1176    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.5583      2.00000
       2      -5.1406      2.00000
       3      -5.1196      2.00000
@@ -3064,7 +3064,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.1814      0.00000
 
  k-point  83 :       0.2353    0.1176    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.4643      2.00000
       2      -5.1288      2.00000
       3      -5.1044      2.00000
@@ -3087,7 +3087,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.2866      0.00000
 
  k-point  84 :       0.2941    0.1176    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.3460      2.00000
       2      -5.1081      2.00000
       3      -5.0865      2.00000
@@ -3110,7 +3110,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.4753      0.00000
 
  k-point  85 :       0.3529    0.1176    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.2171      2.00000
       2      -5.0879      2.00000
       3      -5.0718      2.00000
@@ -3133,7 +3133,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.6016      0.00000
 
  k-point  86 :       0.4118    0.1176    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0947      2.00000
       2      -5.0737      2.00000
       3      -5.0612      2.00000
@@ -3156,7 +3156,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.7272      0.00000
 
  k-point  87 :       0.4706    0.1176    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9982      2.00000
       2      -5.0650      2.00000
       3      -5.0545      2.00000
@@ -3179,7 +3179,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.8366      0.00000
 
  k-point  88 :      -0.4706    0.1176    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9447      2.00000
       2      -5.0610      2.00000
       3      -5.0513      2.00000
@@ -3202,7 +3202,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      21.0714      0.00000
 
  k-point  89 :       0.2353    0.1765    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.4320      2.00000
       2      -5.1389      2.00000
       3      -5.0903      2.00000
@@ -3225,7 +3225,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.9832      0.00000
 
  k-point  90 :       0.2941    0.1765    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.3251      2.00000
       2      -5.1223      2.00000
       3      -5.0729      2.00000
@@ -3248,7 +3248,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.4725      0.00000
 
  k-point  91 :       0.3529    0.1765    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.2038      2.00000
       2      -5.0977      2.00000
       3      -5.0576      2.00000
@@ -3271,7 +3271,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.3664      0.00000
 
  k-point  92 :       0.4118    0.1765    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0837      2.00000
       2      -5.0769      2.00000
       3      -5.0458      2.00000
@@ -3294,7 +3294,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.3177      0.00000
 
  k-point  93 :       0.4706    0.1765    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9826      2.00000
       2      -5.0645      2.00000
       3      -5.0381      2.00000
@@ -3317,7 +3317,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.1110      0.00000
 
  k-point  94 :      -0.4706    0.1765    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9178      2.00000
       2      -5.0582      2.00000
       3      -5.0347      2.00000
@@ -3340,7 +3340,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.5275      0.00000
 
  k-point  95 :      -0.4118    0.1765    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9012      2.00000
       2      -5.0556      2.00000
       3      -5.0355      2.00000
@@ -3363,7 +3363,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.8685      0.00000
 
  k-point  96 :      -0.3529    0.1765    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9361      2.00000
       2      -5.0560      2.00000
       3      -5.0403      2.00000
@@ -3386,7 +3386,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.6639      0.00000
 
  k-point  97 :      -0.2941    0.1765    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0158      2.00000
       2      -5.0606      2.00000
       3      -5.0487      2.00000
@@ -3409,7 +3409,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.9542      0.00000
 
  k-point  98 :      -0.2353    0.1765    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.1257      2.00000
       2      -5.0725      2.00000
       3      -5.0585      2.00000
@@ -3432,7 +3432,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.7884      0.00000
 
  k-point  99 :      -0.1765    0.1765    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.2481      2.00000
       2      -5.0918      2.00000
       3      -5.0707      2.00000
@@ -3455,7 +3455,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.7149      0.00000
 
  k-point 100 :      -0.1176    0.1765    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.3658      2.00000
       2      -5.1138      2.00000
       3      -5.0874      2.00000
@@ -3478,7 +3478,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.4256      0.00000
 
  k-point 101 :       0.2941    0.2353    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.2728      2.00000
       2      -5.1310      2.00000
       3      -5.0549      2.00000
@@ -3501,7 +3501,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.4961      0.00000
 
  k-point 102 :       0.3529    0.2353    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.1630      2.00000
       2      -5.1092      2.00000
       3      -5.0385      2.00000
@@ -3524,7 +3524,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.9136      0.00000
 
  k-point 103 :       0.4118    0.2353    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0504      2.00000
       2      -5.0831      2.00000
       3      -5.0254      2.00000
@@ -3547,7 +3547,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.0320      0.00000
 
  k-point 104 :       0.4706    0.2353    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9509      2.00000
       2      -5.0647      2.00000
       3      -5.0163      2.00000
@@ -3570,7 +3570,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.2321      0.00000
 
  k-point 105 :      -0.4706    0.2353    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8807      2.00000
       2      -5.0554      2.00000
       3      -5.0121      2.00000
@@ -3593,7 +3593,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.2515      0.00000
 
  k-point 106 :      -0.4118    0.2353    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8521      2.00000
       2      -5.0510      2.00000
       3      -5.0132      2.00000
@@ -3616,7 +3616,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.5593      0.00000
 
  k-point 107 :      -0.3529    0.2353    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8703      2.00000
       2      -5.0491      2.00000
       3      -5.0197      2.00000
@@ -3639,7 +3639,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.4252      0.00000
 
  k-point 108 :      -0.2941    0.2353    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9320      2.00000
       2      -5.0492      2.00000
       3      -5.0316      2.00000
@@ -3662,7 +3662,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.0123      0.00000
 
  k-point 109 :      -0.2353    0.2353    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0259      2.00000
       2      -5.0532      2.00000
       3      -5.0474      2.00000
@@ -3685,7 +3685,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.0123      0.00000
 
  k-point 110 :      -0.1765    0.2353    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.1367      2.00000
       2      -5.0706      2.00000
       3      -5.0579      2.00000
@@ -3708,7 +3708,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.4751      0.00000
 
  k-point 111 :       0.3529    0.2941    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0991      2.00000
       2      -5.1157      2.00000
       3      -5.0161      2.00000
@@ -3731,7 +3731,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.5534      0.00000
 
  k-point 112 :       0.4118    0.2941    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9984      2.00000
       2      -5.0921      2.00000
       3      -5.0022      2.00000
@@ -3754,7 +3754,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.8496      0.00000
 
  k-point 113 :       0.4706    0.2941    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9066      2.00000
       2      -5.0692      2.00000
       3      -4.9919      2.00000
@@ -3777,7 +3777,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.9099      0.00000
 
  k-point 114 :      -0.4706    0.2941    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8378      2.00000
       2      -5.0553      2.00000
       3      -4.9865      2.00000
@@ -3800,7 +3800,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.3653      0.00000
 
  k-point 115 :      -0.4118    0.2941    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8034      2.00000
       2      -5.0488      2.00000
       3      -4.9875      2.00000
@@ -3823,7 +3823,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.3415      0.00000
 
  k-point 116 :      -0.3529    0.2941    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8094      2.00000
       2      -5.0457      2.00000
       3      -4.9953      2.00000
@@ -3846,7 +3846,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.4131      0.00000
 
  k-point 117 :      -0.2941    0.2941    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8546      2.00000
       2      -5.0443      2.00000
       3      -5.0095      2.00000
@@ -3869,7 +3869,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.7596      0.00000
 
  k-point 118 :      -0.2353    0.2941    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9308      2.00000
       2      -5.0454      2.00000
       3      -5.0287      2.00000
@@ -3892,7 +3892,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.5070      0.00000
 
  k-point 119 :       0.4118    0.3529    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9341      2.00000
       2      -5.0981      2.00000
       3      -4.9777      2.00000
@@ -3915,7 +3915,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      18.7408      0.00000
 
  k-point 120 :       0.4706    0.3529    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8552      2.00000
       2      -5.0781      2.00000
       3      -4.9676      2.00000
@@ -3938,7 +3938,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.3959      0.00000
 
  k-point 121 :      -0.4706    0.3529    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7945      2.00000
       2      -5.0609      2.00000
       3      -4.9617      2.00000
@@ -3961,7 +3961,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.0243      0.00000
 
  k-point 122 :      -0.4118    0.3529    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7616      2.00000
       2      -5.0507      2.00000
       3      -4.9626      2.00000
@@ -3984,7 +3984,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.2516      0.00000
 
  k-point 123 :      -0.3529    0.3529    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7618      2.00000
       2      -5.0458      2.00000
       3      -4.9716      2.00000
@@ -4007,7 +4007,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.5495      0.00000
 
  k-point 124 :      -0.2941    0.3529    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7947      2.00000
       2      -5.0437      2.00000
       3      -4.9880      2.00000
@@ -4030,7 +4030,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.3789      0.00000
 
  k-point 125 :       0.4706    0.4118    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8038      2.00000
       2      -5.0859      2.00000
       3      -4.9453      2.00000
@@ -4053,7 +4053,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.6122      0.00000
 
  k-point 126 :      -0.4706    0.4118    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7570      2.00000
       2      -5.0713      2.00000
       3      -4.9409      2.00000
@@ -4076,7 +4076,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.8279      0.00000
 
  k-point 127 :      -0.4118    0.4118    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7328      2.00000
       2      -5.0582      2.00000
       3      -4.9426      2.00000
@@ -4099,7 +4099,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.0943      0.00000
 
  k-point 128 :      -0.3529    0.4118    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7347      2.00000
       2      -5.0496      2.00000
       3      -4.9530      2.00000
@@ -4122,7 +4122,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.5425      0.00000
 
  k-point 129 :      -0.4706    0.4706    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7316      2.00000
       2      -5.0809      2.00000
       3      -4.9260      2.00000
@@ -4145,7 +4145,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.9435      0.00000
 
  k-point 130 :      -0.4118    0.4706    0.0588
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7220      2.00000
       2      -5.0697      2.00000
       3      -4.9305      2.00000
@@ -4168,7 +4168,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.7667      0.00000
 
  k-point 131 :       0.3529    0.2353    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.2190      2.00000
       2      -5.1027      2.00000
       3      -5.0573      2.00000
@@ -4191,7 +4191,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.2521      0.00000
 
  k-point 132 :       0.4118    0.2353    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.1042      2.00000
       2      -5.0780      2.00000
       3      -5.0451      2.00000
@@ -4214,7 +4214,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.5935      0.00000
 
  k-point 133 :       0.4706    0.2353    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9963      2.00000
       2      -5.0597      2.00000
       3      -5.0349      2.00000
@@ -4237,7 +4237,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.1520      0.00000
 
  k-point 134 :      -0.4706    0.2353    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9117      2.00000
       2      -5.0513      2.00000
       3      -5.0259      2.00000
@@ -4260,7 +4260,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.0789      0.00000
 
  k-point 135 :      -0.4118    0.2353    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8652      2.00000
       2      -5.0487      2.00000
       3      -5.0206      2.00000
@@ -4283,7 +4283,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.2689      0.00000
 
  k-point 136 :       0.4118    0.2941    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0601      2.00000
       2      -5.0865      2.00000
       3      -5.0263      2.00000
@@ -4306,7 +4306,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.1033      0.00000
 
  k-point 137 :       0.4706    0.2941    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9598      2.00000
       2      -5.0629      2.00000
       3      -5.0166      2.00000
@@ -4329,7 +4329,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.8760      0.00000
 
  k-point 138 :      -0.4706    0.2941    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8768      2.00000
       2      -5.0488      2.00000
       3      -5.0073      2.00000
@@ -4352,7 +4352,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.2781      0.00000
 
  k-point 139 :      -0.4118    0.2941    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8248      2.00000
       2      -5.0434      2.00000
       3      -5.0011      2.00000
@@ -4375,7 +4375,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.0157      0.00000
 
  k-point 140 :      -0.3529    0.2941    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8127      2.00000
       2      -5.0414      2.00000
       3      -5.0017      2.00000
@@ -4398,7 +4398,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.0190      0.00000
 
  k-point 141 :      -0.2941    0.2941    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8427      2.00000
       2      -5.0404      2.00000
       3      -5.0101      2.00000
@@ -4421,7 +4421,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.7718      0.00000
 
  k-point 142 :      -0.2353    0.2941    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9093      2.00000
       2      -5.0418      2.00000
       3      -5.0249      2.00000
@@ -4444,7 +4444,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.2865      0.00000
 
  k-point 143 :      -0.1765    0.2941    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -11.0012      2.00000
       2      -5.0548      2.00000
       3      -5.0369      2.00000
@@ -4467,7 +4467,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.8004      0.00000
 
  k-point 144 :       0.4706    0.3529    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.9106      2.00000
       2      -5.0711      2.00000
       3      -4.9935      2.00000
@@ -4490,7 +4490,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.4003      0.00000
 
  k-point 145 :      -0.4706    0.3529    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8356      2.00000
       2      -5.0529      2.00000
       3      -4.9855      2.00000
@@ -4513,7 +4513,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.5656      0.00000
 
  k-point 146 :      -0.4118    0.3529    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7851      2.00000
       2      -5.0431      2.00000
       3      -4.9790      2.00000
@@ -4536,7 +4536,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.8714      0.00000
 
  k-point 147 :      -0.3529    0.3529    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7672      2.00000
       2      -5.0390      2.00000
       3      -4.9794      2.00000
@@ -4559,7 +4559,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.8921      0.00000
 
  k-point 148 :      -0.2941    0.3529    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7850      2.00000
       2      -5.0369      2.00000
       3      -4.9892      2.00000
@@ -4582,7 +4582,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.5115      0.00000
 
  k-point 149 :      -0.2353    0.3529    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8351      2.00000
       2      -5.0363      2.00000
       3      -5.0067      2.00000
@@ -4605,7 +4605,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.6917      0.00000
 
  k-point 150 :      -0.4706    0.4118    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7936      2.00000
       2      -5.0625      2.00000
       3      -4.9622      2.00000
@@ -4628,7 +4628,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.2980      0.00000
 
  k-point 151 :      -0.4118    0.4118    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7514      2.00000
       2      -5.0493      2.00000
       3      -4.9579      2.00000
@@ -4651,7 +4651,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.8244      0.00000
 
  k-point 152 :      -0.3529    0.4118    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7352      2.00000
       2      -5.0415      2.00000
       3      -4.9592      2.00000
@@ -4674,7 +4674,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.9067      0.00000
 
  k-point 153 :      -0.2941    0.4118    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7471      2.00000
       2      -5.0378      2.00000
       3      -4.9702      2.00000
@@ -4697,7 +4697,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.8451      0.00000
 
  k-point 154 :      -0.4118    0.4706    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7291      2.00000
       2      -5.0598      2.00000
       3      -4.9413      2.00000
@@ -4720,7 +4720,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.0323      0.00000
 
  k-point 155 :      -0.3529    0.4706    0.1176
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7216      2.00000
       2      -5.0488      2.00000
       3      -4.9463      2.00000
@@ -4743,7 +4743,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.2516      0.00000
 
  k-point 156 :      -0.4706    0.3529    0.1765
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8757      2.00000
       2      -5.0437      2.00000
       3      -5.0090      2.00000
@@ -4766,7 +4766,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.7133      0.00000
 
  k-point 157 :      -0.4118    0.3529    0.1765
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.8108      2.00000
       2      -5.0355      2.00000
       3      -4.9968      2.00000
@@ -4789,7 +4789,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.5979      0.00000
 
  k-point 158 :      -0.3529    0.3529    0.1765
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7754      2.00000
       2      -5.0341      2.00000
       3      -4.9873      2.00000
@@ -4812,7 +4812,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.7456      0.00000
 
  k-point 159 :      -0.4118    0.4118    0.1765
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7789      2.00000
       2      -5.0397      2.00000
       3      -4.9778      2.00000
@@ -4835,7 +4835,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.2973      0.00000
 
  k-point 160 :      -0.3529    0.4118    0.1765
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7450      2.00000
       2      -5.0335      2.00000
       3      -4.9700      2.00000
@@ -4858,7 +4858,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.7260      0.00000
 
  k-point 161 :      -0.2941    0.4118    0.1765
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7393      2.00000
       2      -5.0314      2.00000
       3      -4.9703      2.00000
@@ -4881,7 +4881,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.0591      0.00000
 
  k-point 162 :      -0.2353    0.4118    0.1765
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7625      2.00000
       2      -5.0311      2.00000
       3      -4.9814      2.00000
@@ -4904,7 +4904,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      19.6997      0.00000
 
  k-point 163 :      -0.3529    0.4706    0.1765
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7260      2.00000
       2      -5.0392      2.00000
       3      -4.9552      2.00000
@@ -4927,7 +4927,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.0433      0.00000
 
  k-point 164 :      -0.2941    0.4706    0.1765
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7219      2.00000
       2      -5.0333      2.00000
       3      -4.9580      2.00000
@@ -4950,7 +4950,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
      20      20.2743      0.00000
 
  k-point 165 :      -0.2941    0.4706    0.2353
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -10.7234      2.00000
       2      -5.0295      2.00000
       3      -4.9615      2.00000
@@ -4979,7 +4979,7 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
  soft charge-density along one line, spin component           1
          0         1         2         3         4         5         6         7         8         9
  total charge-density along one line
- 
+
  pseudopotential strength for first ion, spin component:           1
 -10.676  -0.000  -0.000  -0.000  -0.000   2.319   0.000   0.000
  -0.000 -10.676   0.000  -0.000  -0.000   0.000   2.319  -0.000
@@ -5023,18 +5023,18 @@ NOSYMM: (Re-)initialisation of all symmetry stuff for point group C_1.
 ------------------------ aborting loop because EDIFF is reached ----------------------------------------
 
 
- 
 
 
- total charge     
- 
+
+ total charge
+
 # of ion     s       p       d       tot
 ----------------------------------------
   1        0.524   0.417   9.783  10.724
   2        1.436   2.406   0.027   3.869
 ------------------------------------------------
 tot        1.959   2.823   9.810  14.593
- 
+
     CHARGE:  cpu time    0.16: real time    0.16
     FORLOC:  cpu time    0.00: real time    0.00
     FORNL :  cpu time    1.09: real time    1.10
@@ -5080,8 +5080,8 @@ tot        1.959   2.823   9.810  14.593
    -.179E+01 0.137E+01 0.285E+01   0.435E-13 0.323E-13 -.283E-13   0.691E+00 -.479E+00 -.127E+01   0.565E+00 -.428E+00 -.836E+00
  -----------------------------------------------------------------------------------------------
    0.102E+01 -.760E+00 -.250E+01   0.346E-15 -.876E-15 -.560E-15   0.379E+00 -.373E+00 -.545E+00   -.146E+01 0.117E+01 0.313E+01
- 
- 
+
+
  POSITION                                       TOTAL-FORCE (eV/Angst)
  -----------------------------------------------------------------------------------
       0.00000      0.00000      0.00000         0.500454     -0.441309     -0.692356
@@ -5099,7 +5099,7 @@ tot        1.959   2.823   9.810  14.593
   free  energy   TOTEN  =        -6.186183 eV
 
   energy  without entropy=       -6.186183  energy(sigma->0) =       -6.186183
- 
+
 
 
 --------------------------------------------------------------------------------------------------------
@@ -5558,7 +5558,7 @@ tot        1.959   2.823   9.810  14.593
    39.427840    0.729925    0.724001    0.773193   -0.039502    0.013514   -0.005865
    39.626970    0.733076    0.727168    0.775935   -0.039133    0.013413   -0.005835
    39.826101    0.736167    0.730277    0.778623   -0.038769    0.013312   -0.005804
- 
+
  The outermost node in the dielectric function lies at epsilon=  25.6
 
 
@@ -5566,18 +5566,18 @@ tot        1.959   2.823   9.810  14.593
 
 
     4ORBIT:  cpu time    0.00: real time    0.00
- 
 
 
- total charge     
- 
+
+ total charge
+
 # of ion     s       p       d       tot
 ----------------------------------------
   1        0.524   0.417   9.783  10.724
   2        1.436   2.406   0.027   3.869
 ------------------------------------------------
 tot        1.959   2.823   9.810  14.593
- 
+
 
  total amount of memory used by VASP on root node    37216. kBytes
 ========================================================================
@@ -5588,20 +5588,20 @@ tot        1.959   2.823   9.810  14.593
    grid      :       1117. kBytes
    one-center:         15. kBytes
    wavefun   :       4593. kBytes
- 
-  
-  
+
+
+
  General timing and accounting informations for this job:
  ========================================================
-  
+
                   Total CPU time used (sec):       34.362
                             User time (sec):       27.790
                           System time (sec):        6.572
                          Elapsed time (sec):       35.973
-  
+
                    Maximum memory used (kb):       54580.
                    Average memory used (kb):           0.
-  
+
                           Minor page faults:      1202563
                           Major page faults:          122
                  Voluntary context switches:         1488

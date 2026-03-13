@@ -1,5 +1,5 @@
- vasp.5.3.5 31Mar14 (build Oct 24 2014 12:38:34) complex                        
-  
+ vasp.5.3.5 31Mar14 (build Oct 24 2014 12:38:34) complex
+
  executed on             LinuxIFC date 2016.10.20  19:30:32
  running on    8 total cores
  distrk:  each k-point on    8 cores,    1 groups
@@ -10,11 +10,11 @@
 
 
  INCAR:
- POTCAR:    PAW_PBE Ba_sv 06Sep2000               
- POTCAR:    PAW_PBE Ti_pv 07Sep2000               
- POTCAR:    PAW_PBE O 08Apr2002                   
+ POTCAR:    PAW_PBE Ba_sv 06Sep2000
+ POTCAR:    PAW_PBE Ti_pv 07Sep2000
+ POTCAR:    PAW_PBE O 08Apr2002
 
- ----------------------------------------------------------------------------- 
+ -----------------------------------------------------------------------------
 |                                                                             |
 |           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
 |           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
@@ -33,55 +33,55 @@
 |      Unfortunately you need to use the default for GW and RPA calculations. |
 |      (for HF NCORE is supported but not extensively tested yet)             |
 |                                                                             |
- ----------------------------------------------------------------------------- 
+ -----------------------------------------------------------------------------
 
- POTCAR:    PAW_PBE Ba_sv 06Sep2000               
-   VRHFIN =Ba: 5s5p6s                                                           
-   LEXCH  = PE                                                                  
-   EATOM  =   700.8560 eV,   51.5115 Ry                                         
-                                                                                
-   TITEL  = PAW_PBE Ba_sv 06Sep2000                                             
-   LULTRA =        F    use ultrasoft PP ?                                      
-   IUNSCR =        1    unscreen: 0-lin 1-nonlin 2-no                           
-   RPACOR =    2.400    partial core radius                                     
-   POMASS =  137.327; ZVAL   =   10.000    mass and valenz                      
-   RCORE  =    2.800    outmost cutoff radius                                   
-   RWIGS  =    3.740; RWIGS  =    1.979    wigner-seitz radius (au A)           
-   ENMAX  =  187.181; ENMIN  =  140.386 eV                                      
-   RCLOC  =    2.516    cutoff for local pot                                    
-   LCOR   =        T    correct aug charges                                     
-   LPAW   =        T    paw PP                                                  
-   EAUG   =  351.165                                                            
-   DEXC   =    0.000                                                            
-   RMAX   =    2.865    core radius for proj-oper                               
-   RAUG   =    1.300    factor for augmentation sphere                          
-   RDEP   =    2.976    radius for radial grids                                 
-   RDEPT  =    2.289    core radius for aug-charge                              
-                                                                                
-   Atomic configuration                                                         
-   13 entries                                                                   
-     n  l   j            E        occ.                                          
-     1  0  0.50    -37249.5946   2.0000                                         
-     2  0  0.50     -5887.1925   2.0000                                         
-     2  1  1.50     -5278.3977   6.0000                                         
-     3  0  0.50     -1242.7293   2.0000                                         
-     3  1  1.50     -1047.6609   6.0000                                         
-     3  2  2.50      -764.6158  10.0000                                         
-     4  0  0.50      -243.8228   2.0000                                         
-     4  1  1.50      -180.9218   6.0000                                         
-     4  2  2.50       -89.6477  10.0000                                         
-     5  0  0.50       -33.6549   2.0000                                         
-     6  0  0.50        -3.2247   1.9900                                         
-     5  1  1.50       -18.7193   6.0000                                         
-     5  2  2.50        -2.0115   0.0100                                         
-   Description                                                                  
-     l       E           TYP  RCUT    TYP  RCUT                                 
-     0    -33.6549039     23  2.800                                             
-     0     -3.2246942     23  2.800                                             
-     1    -18.7193050     23  2.700                                             
-     1     27.2116520     23  2.700                                             
-     2     -2.0115002     23  2.700                                             
-     2      0.3057420     23  2.700                                             
+ POTCAR:    PAW_PBE Ba_sv 06Sep2000
+   VRHFIN =Ba: 5s5p6s
+   LEXCH  = PE
+   EATOM  =   700.8560 eV,   51.5115 Ry
+
+   TITEL  = PAW_PBE Ba_sv 06Sep2000
+   LULTRA =        F    use ultrasoft PP ?
+   IUNSCR =        1    unscreen: 0-lin 1-nonlin 2-no
+   RPACOR =    2.400    partial core radius
+   POMASS =  137.327; ZVAL   =   10.000    mass and valenz
+   RCORE  =    2.800    outmost cutoff radius
+   RWIGS  =    3.740; RWIGS  =    1.979    wigner-seitz radius (au A)
+   ENMAX  =  187.181; ENMIN  =  140.386 eV
+   RCLOC  =    2.516    cutoff for local pot
+   LCOR   =        T    correct aug charges
+   LPAW   =        T    paw PP
+   EAUG   =  351.165
+   DEXC   =    0.000
+   RMAX   =    2.865    core radius for proj-oper
+   RAUG   =    1.300    factor for augmentation sphere
+   RDEP   =    2.976    radius for radial grids
+   RDEPT  =    2.289    core radius for aug-charge
+
+   Atomic configuration
+   13 entries
+     n  l   j            E        occ.
+     1  0  0.50    -37249.5946   2.0000
+     2  0  0.50     -5887.1925   2.0000
+     2  1  1.50     -5278.3977   6.0000
+     3  0  0.50     -1242.7293   2.0000
+     3  1  1.50     -1047.6609   6.0000
+     3  2  2.50      -764.6158  10.0000
+     4  0  0.50      -243.8228   2.0000
+     4  1  1.50      -180.9218   6.0000
+     4  2  2.50       -89.6477  10.0000
+     5  0  0.50       -33.6549   2.0000
+     6  0  0.50        -3.2247   1.9900
+     5  1  1.50       -18.7193   6.0000
+     5  2  2.50        -2.0115   0.0100
+   Description
+     l       E           TYP  RCUT    TYP  RCUT
+     0    -33.6549039     23  2.800
+     0     -3.2246942     23  2.800
+     1    -18.7193050     23  2.700
+     1     27.2116520     23  2.700
+     2     -2.0115002     23  2.700
+     2      0.3057420     23  2.700
   local pseudopotential read in
   partial core-charges read in
   partial kinetic energy density read in
@@ -99,52 +99,52 @@
   non local Contribution for L=           2  read in
     real space projection operators read in
     PAW grid and wavefunctions read in
- 
+
    number of l-projection  operators is LMAX  =           6
    number of lm-projection operators is LMMAX =          18
- 
- POTCAR:    PAW_PBE Ti_pv 07Sep2000               
-   VRHFIN =Ti: d3 s1                                                            
-   LEXCH  = PE                                                                  
-   EATOM  =  1042.5995 eV,   76.6289 Ry                                         
-                                                                                
-   TITEL  = PAW_PBE Ti_pv 07Sep2000                                             
-   LULTRA =        F    use ultrasoft PP ?                                      
-   IUNSCR =        1    unscreen: 0-lin 1-nonlin 2-no                           
-   RPACOR =    2.200    partial core radius                                     
-   POMASS =   47.880; ZVAL   =   10.000    mass and valenz                      
-   RCORE  =    2.500    outmost cutoff radius                                   
-   RWIGS  =    2.500; RWIGS  =    1.323    wigner-seitz radius (au A)           
-   ENMAX  =  222.335; ENMIN  =  166.751 eV                                      
-   RCLOC  =    1.701    cutoff for local pot                                    
-   LCOR   =        T    correct aug charges                                     
-   LPAW   =        T    paw PP                                                  
-   EAUG   =  482.848                                                            
-   DEXC   =    0.000                                                            
-   RMAX   =    2.564    core radius for proj-oper                               
-   RAUG   =    1.300    factor for augmentation sphere                          
-   RDEP   =    2.538    radius for radial grids                                 
-   RDEPT  =    1.952    core radius for aug-charge                              
-                                                                                
-   Atomic configuration                                                         
-    8 entries                                                                   
-     n  l   j            E        occ.                                          
-     1  0  0.50     -4865.3608   2.0000                                         
-     2  0  0.50      -533.1368   2.0000                                         
-     2  1  1.50      -440.5031   6.0000                                         
-     3  0  0.50       -59.3186   2.0000                                         
-     3  1  1.50       -35.7012   6.0000                                         
-     3  2  2.50        -1.9157   3.0000                                         
-     4  0  0.50        -3.7291   1.0000                                         
-     4  3  2.50        -1.3606   0.0000                                         
-   Description                                                                  
-     l       E           TYP  RCUT    TYP  RCUT                                 
-     1    -35.7012140     23  2.300                                             
-     1     -1.3605826     23  2.300                                             
-     2     -1.9156996     23  2.500                                             
-     2     -0.4063033     23  2.500                                             
-     0     -3.7290856     23  2.500                                             
-     0     20.4087390     23  2.500                                             
+
+ POTCAR:    PAW_PBE Ti_pv 07Sep2000
+   VRHFIN =Ti: d3 s1
+   LEXCH  = PE
+   EATOM  =  1042.5995 eV,   76.6289 Ry
+
+   TITEL  = PAW_PBE Ti_pv 07Sep2000
+   LULTRA =        F    use ultrasoft PP ?
+   IUNSCR =        1    unscreen: 0-lin 1-nonlin 2-no
+   RPACOR =    2.200    partial core radius
+   POMASS =   47.880; ZVAL   =   10.000    mass and valenz
+   RCORE  =    2.500    outmost cutoff radius
+   RWIGS  =    2.500; RWIGS  =    1.323    wigner-seitz radius (au A)
+   ENMAX  =  222.335; ENMIN  =  166.751 eV
+   RCLOC  =    1.701    cutoff for local pot
+   LCOR   =        T    correct aug charges
+   LPAW   =        T    paw PP
+   EAUG   =  482.848
+   DEXC   =    0.000
+   RMAX   =    2.564    core radius for proj-oper
+   RAUG   =    1.300    factor for augmentation sphere
+   RDEP   =    2.538    radius for radial grids
+   RDEPT  =    1.952    core radius for aug-charge
+
+   Atomic configuration
+    8 entries
+     n  l   j            E        occ.
+     1  0  0.50     -4865.3608   2.0000
+     2  0  0.50      -533.1368   2.0000
+     2  1  1.50      -440.5031   6.0000
+     3  0  0.50       -59.3186   2.0000
+     3  1  1.50       -35.7012   6.0000
+     3  2  2.50        -1.9157   3.0000
+     4  0  0.50        -3.7291   1.0000
+     4  3  2.50        -1.3606   0.0000
+   Description
+     l       E           TYP  RCUT    TYP  RCUT
+     1    -35.7012140     23  2.300
+     1     -1.3605826     23  2.300
+     2     -1.9156996     23  2.500
+     2     -0.4063033     23  2.500
+     0     -3.7290856     23  2.500
+     0     20.4087390     23  2.500
   local pseudopotential read in
   partial core-charges read in
   partial kinetic energy density read in
@@ -162,47 +162,47 @@
   non local Contribution for L=           0  read in
     real space projection operators read in
     PAW grid and wavefunctions read in
- 
+
    number of l-projection  operators is LMAX  =           6
    number of lm-projection operators is LMMAX =          18
- 
- POTCAR:    PAW_PBE O 08Apr2002                   
-   VRHFIN =O: s2p4                                                              
-   LEXCH  = PE                                                                  
-   EATOM  =   432.3788 eV,   31.7789 Ry                                         
-                                                                                
-   TITEL  = PAW_PBE O 08Apr2002                                                 
-   LULTRA =        F    use ultrasoft PP ?                                      
-   IUNSCR =        1    unscreen: 0-lin 1-nonlin 2-no                           
-   RPACOR =    1.200    partial core radius                                     
-   POMASS =   16.000; ZVAL   =    6.000    mass and valenz                      
-   RCORE  =    1.520    outmost cutoff radius                                   
-   RWIGS  =    1.550; RWIGS  =    0.820    wigner-seitz radius (au A)           
-   ENMAX  =  400.000; ENMIN  =  300.000 eV                                      
-   ICORE  =        2    local potential                                         
-   LCOR   =        T    correct aug charges                                     
-   LPAW   =        T    paw PP                                                  
-   EAUG   =  605.392                                                            
-   DEXC   =    0.000                                                            
-   RMAX   =    1.553    core radius for proj-oper                               
-   RAUG   =    1.300    factor for augmentation sphere                          
-   RDEP   =    1.550    radius for radial grids                                 
-   RDEPT  =    1.329    core radius for aug-charge                              
-                                                                                
-   Atomic configuration                                                         
-    4 entries                                                                   
-     n  l   j            E        occ.                                          
-     1  0  0.50      -514.6923   2.0000                                         
-     2  0  0.50       -23.9615   2.0000                                         
-     2  1  0.50        -9.0305   4.0000                                         
-     3  2  1.50        -9.5241   0.0000                                         
-   Description                                                                  
-     l       E           TYP  RCUT    TYP  RCUT                                 
-     0    -23.9615318     23  1.200                                             
-     0     -9.5240782     23  1.200                                             
-     1     -9.0304911     23  1.520                                             
-     1      8.1634956     23  1.520                                             
-     2     -9.5240782      7  1.500                                             
+
+ POTCAR:    PAW_PBE O 08Apr2002
+   VRHFIN =O: s2p4
+   LEXCH  = PE
+   EATOM  =   432.3788 eV,   31.7789 Ry
+
+   TITEL  = PAW_PBE O 08Apr2002
+   LULTRA =        F    use ultrasoft PP ?
+   IUNSCR =        1    unscreen: 0-lin 1-nonlin 2-no
+   RPACOR =    1.200    partial core radius
+   POMASS =   16.000; ZVAL   =    6.000    mass and valenz
+   RCORE  =    1.520    outmost cutoff radius
+   RWIGS  =    1.550; RWIGS  =    0.820    wigner-seitz radius (au A)
+   ENMAX  =  400.000; ENMIN  =  300.000 eV
+   ICORE  =        2    local potential
+   LCOR   =        T    correct aug charges
+   LPAW   =        T    paw PP
+   EAUG   =  605.392
+   DEXC   =    0.000
+   RMAX   =    1.553    core radius for proj-oper
+   RAUG   =    1.300    factor for augmentation sphere
+   RDEP   =    1.550    radius for radial grids
+   RDEPT  =    1.329    core radius for aug-charge
+
+   Atomic configuration
+    4 entries
+     n  l   j            E        occ.
+     1  0  0.50      -514.6923   2.0000
+     2  0  0.50       -23.9615   2.0000
+     2  1  0.50        -9.0305   4.0000
+     3  2  1.50        -9.5241   0.0000
+   Description
+     l       E           TYP  RCUT    TYP  RCUT
+     0    -23.9615318     23  1.200
+     0     -9.5240782     23  1.200
+     1     -9.0304911     23  1.520
+     1      8.1634956     23  1.520
+     2     -9.5240782      7  1.500
   local pseudopotential read in
   partial core-charges read in
   partial kinetic energy density read in
@@ -217,12 +217,12 @@
   non local Contribution for L=           1  read in
     real space projection operators read in
     PAW grid and wavefunctions read in
- 
+
    number of l-projection  operators is LMAX  =           4
    number of lm-projection operators is LMMAX =           8
- 
 
- ----------------------------------------------------------------------------- 
+
+ -----------------------------------------------------------------------------
 |                                                                             |
 |  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
 |                                                                             |
@@ -232,15 +232,15 @@
 |      is also less accurate ...                                              |
 |      Therefore set LREAL=.FALSE. in the  INCAR file                         |
 |                                                                             |
- ----------------------------------------------------------------------------- 
+ -----------------------------------------------------------------------------
 
  Optimization of the real space projectors (new method)
 
  maximal supplied QI-value         = 13.42
- optimisation between [QCUT,QGAM] = [ 11.67, 23.35] = [ 38.16,152.62] Ry 
+ optimisation between [QCUT,QGAM] = [ 11.67, 23.35] = [ 38.16,152.62] Ry
  Optimized for a Real-space Cutoff    1.68 Angstroem
 
-   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline) 
+   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline)
    0     12    11.673    13.244    0.27E-04    0.53E-05    0.55E-07
    0     12    11.673    14.240    0.39E-04    0.74E-05    0.11E-06
    1     11    11.673     4.828    0.65E-05    0.14E-04    0.51E-07
@@ -250,10 +250,10 @@
  Optimization of the real space projectors (new method)
 
  maximal supplied QI-value         = 15.12
- optimisation between [QCUT,QGAM] = [ 11.64, 23.28] = [ 37.95,151.78] Ry 
+ optimisation between [QCUT,QGAM] = [ 11.64, 23.28] = [ 37.95,151.78] Ry
  Optimized for a Real-space Cutoff    1.49 Angstroem
 
-   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline) 
+   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline)
    1     10    11.641     4.216    0.17E-04    0.40E-04    0.50E-07
    1     10    11.641     5.422    0.66E-04    0.10E-03    0.13E-06
    2      9    11.641    72.084    0.68E-04    0.13E-03    0.50E-06
@@ -263,10 +263,10 @@
  Optimization of the real space projectors (new method)
 
  maximal supplied QI-value         = 24.76
- optimisation between [QCUT,QGAM] = [ 11.64, 23.27] = [ 37.91,151.63] Ry 
+ optimisation between [QCUT,QGAM] = [ 11.64, 23.27] = [ 37.91,151.63] Ry
  Optimized for a Real-space Cutoff    1.14 Angstroem
 
-   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline) 
+   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline)
    0      8    11.635    20.381    0.10E-03    0.33E-03    0.24E-06
    0      8    11.635    15.268    0.11E-03    0.35E-03    0.26E-06
    1      7    11.635     5.964    0.24E-03    0.31E-03    0.30E-06
@@ -280,15 +280,15 @@
   PAW_PBE O 08Apr2002                   :
  energy of atom  3       EATOM= -432.3788
  kinetic energy error for atom=    0.0208 (will be added to EATOM!!)
- 
- 
- POSCAR: Ba1 Ti1 O3                              
+
+
+ POSCAR: Ba1 Ti1 O3
   positions in direct lattice
   No initial velocities read in
  exchange correlation table for  LEXCH =        8
    RHO(1)=    0.500       N(1)  =     2000
    RHO(2)=  100.500       N(2)  =     4000
- 
+
 
 
 --------------------------------------------------------------------------------------------------------
@@ -302,13 +302,13 @@
    3  0.000  0.500  0.499-   2 2.01   2 2.01   1 2.84   1 2.84   1 2.90   1 2.90
    4  0.500  0.000  0.499-   2 2.01   2 2.01   1 2.84   1 2.84   1 2.90   1 2.90
    5  0.500  0.500  0.992-   2 1.95   2 2.14   1 2.85   1 2.85   1 2.85   1 2.85
- 
+
   LATTYP: Found a simple tetragonal cell.
  ALAT       =     4.0224850000
  C/A-ratio  =     1.0177648891
-  
+
   Lattice vectors:
-  
+
  A1 = (   4.0224850000,   0.0000000000,   0.0000000000)
  A2 = (   0.0000000000,   4.0224850000,   0.0000000000)
  A3 = (   0.0000000000,   0.0000000000,   4.0939440000)
@@ -318,9 +318,9 @@ Analysis of symmetry for initial positions (statically):
 =====================================================================
  Subroutine PRICEL returns:
  Original cell was already a primitive cell.
- 
 
- Routine SETGRP: Setting up the symmetry group for a 
+
+ Routine SETGRP: Setting up the symmetry group for a
  simple tetragonal supercell.
 
 
@@ -336,9 +336,9 @@ Analysis of symmetry for dynamics (positions and initial velocities):
 =====================================================================
  Subroutine PRICEL returns:
  Original cell was already a primitive cell.
- 
 
- Routine SETGRP: Setting up the symmetry group for a 
+
+ Routine SETGRP: Setting up the symmetry group for a
  simple tetragonal supercell.
 
 
@@ -354,7 +354,7 @@ Analysis of magnetic symmetry:
 =====================================================================
  Subroutine PRICEL returns:
  Original cell was already a primitive cell.
- 
+
 
  Subroutine MAGSYM returns: Found  8 space group operations
  (whereof  8 operations were pure point group operations)
@@ -364,8 +364,8 @@ Analysis of magnetic symmetry:
 
 
 The magnetic configuration has the point symmetry C_4v.
- 
- 
+
+
  KPOINTS: pymatgen generated KPOINTS with grid den
 
 Automatic generation of k-mesh.
@@ -379,12 +379,12 @@ Space group operators:
     6    -1.000000   180.000000     0.707107     0.707107     0.000000     0.000000     0.000000     0.000000
     7    -1.000000   180.000000     1.000000     0.000000     0.000000     0.000000     0.000000     0.000000
     8    -1.000000   180.000000     0.707107    -0.707107     0.000000     0.000000     0.000000     0.000000
- 
+
  Subroutine IBZKPT returns following result:
  ===========================================
- 
+
  Found     40 irreducible k-points:
- 
+
  Following reciprocal coordinates:
             Coordinates               Weight
   0.062500  0.062500  0.062500      8.000000
@@ -427,7 +427,7 @@ Space group operators:
   0.312500  0.312500  0.437500      8.000000
   0.437500  0.312500  0.437500     16.000000
   0.437500  0.437500  0.437500      8.000000
- 
+
  Following cartesian coordinates:
             Coordinates               Weight
   0.015538  0.015538  0.015266      8.000000
@@ -470,12 +470,12 @@ Space group operators:
   0.077688  0.077688  0.106865      8.000000
   0.108764  0.077688  0.106865     16.000000
   0.108764  0.108764  0.106865      8.000000
- 
+
  TETIRR: Found    703 inequivalent tetrahedra from     3072
- 
+
  Subroutine IBZKPT_HF returns following result:
  ==============================================
- 
+
  Found    512 k-points in 1st BZ
  the following    512 k-points will be used (e.g. in the exchange kernel)
  Following reciprocal coordinates:   # in IRBZ
@@ -1014,8 +1014,8 @@ Space group operators:
 
  I would recommend the setting:
    dimension x,y,z NGX =    30 NGY =   30 NGZ =   30
- SYSTEM =  unknown system                          
- POSCAR =  Ba1 Ti1 O3                              
+ SYSTEM =  unknown system
+ POSCAR =  Ba1 Ti1 O3
 
  Startparameter for this run:
    NWRITE =      2    write-flag & timer
@@ -1033,7 +1033,7 @@ Space group operators:
    ENCUT  =  520.0 eV  38.22 Ry    6.18 a.u.   7.48  7.48  7.61*2*pi/ulx,y,z
    ENINI  =  520.0     initial cutoff
    ENAUG  =  605.4 eV  augmentation charge cutoff
-   NELM   =    100;   NELMIN=  2; NELMDL=  0     # of ELM steps 
+   NELM   =    100;   NELMIN=  2; NELMDL=  0     # of ELM steps
    EDIFF  = 0.3E-03   stopping-criterion for ELM
    LREAL  =      T    real-space projection
    NLSPLINE    = F    spline interpolate recip. space projectors
@@ -1046,7 +1046,7 @@ Space group operators:
  Ionic relaxation
    EDIFFG = 0.3E-02   stopping-criterion for IOM
    NSW    =      0    number of steps for IOM
-   NBLOCK =      1;   KBLOCK =      1    inner block; outer block 
+   NBLOCK =      1;   KBLOCK =      1    inner block; outer block
    IBRION =     -1    ionic relax: 0-MD 1-quasi-New 2-CG
    NFREE  =      0    steps in history (QN), initial steepest desc. (CG)
    ISIF   =      3    stress and relaxation
@@ -1069,7 +1069,7 @@ Space group operators:
    ZVAL   =  10.00 10.00  6.00
   Atomic Wigner-Seitz radii
    RWIGS  =  -1.00 -1.00 -1.00
-  virtual crystal weights 
+  virtual crystal weights
    VCA    =   1.00  1.00  1.00
    NELECT =      38.0000    total number of electrons
    NUPDOWN=      -1.0000    fix difference up-down
@@ -1097,14 +1097,14 @@ Space group operators:
  Intra band minimization:
    WEIMIN = 0.0000     energy-eigenvalue tresh-hold
    EBREAK =  0.26E-05  absolut break condition
-   DEPER  =   0.30     relativ break condition  
+   DEPER  =   0.30     relativ break condition
 
    TIME   =   0.40     timestep for ELM
 
   volume/ion in A,a.u.               =      13.25        89.40
   Fermi-wavevector in a.u.,A,eV,Ry     =   1.360272  2.570541 25.175405  1.850340
   Thomas-Fermi vector in A             =   2.486948
- 
+
  Write flags
    LWAVE  =      F    write WAVECAR
    LCHARG =      T    write CHGCAR
@@ -1117,7 +1117,7 @@ Space group operators:
  Dipole corrections
    LMONO  =      F    monopole corrections only (constant potential shift)
    LDIPOL =      F    correct potential (dipole corrections)
-   IDIPOL =      0    1-x, 2-y, 3-z, 4-all directions 
+   IDIPOL =      0    1-x, 2-y, 3-z, 4-all directions
    EPSILON=  1.0000000 bulk dielectric constant
 
  Exchange correlation treatment:
@@ -1172,9 +1172,9 @@ Space group operators:
  using additional bands            5
  real space projection scheme for non local part
  use partial core corrections
- calculate Harris-corrections to forces 
+ calculate Harris-corrections to forces
    (improved forces if not selfconsistent)
- use gradient corrections 
+ use gradient corrections
  use of overlap-Matrix (Vanderbilt PP)
  Fermi weights with tetrahedron method with Bloechl corrections
 
@@ -1193,7 +1193,7 @@ Space group operators:
      4.022485000  4.022485000  4.093944000     0.248602543  0.248602543  0.244263234
 
 
- 
+
  old parameters found on file WAVECAR:
   energy-cutoff  :      520.00
   volume of cell :       66.24
@@ -1204,7 +1204,7 @@ Space group operators:
 
   length of vectors
 
- 
+
  k-points in units of 2pi/SCALE and weight: pymatgen generated KPOINTS with grid den
    0.01553766  0.01553766  0.01526645       0.016
    0.04661298  0.01553766  0.01526645       0.031
@@ -1246,7 +1246,7 @@ Space group operators:
    0.07768829  0.07768829  0.10686516       0.016
    0.10876361  0.07768829  0.10686516       0.031
    0.10876361  0.10876361  0.10686516       0.016
- 
+
  k-points in reciprocal lattice and weights: pymatgen generated KPOINTS with grid den
    0.06250000  0.06250000  0.06250000       0.016
    0.18750000  0.06250000  0.06250000       0.031
@@ -1288,21 +1288,21 @@ Space group operators:
    0.31250000  0.31250000  0.43750000       0.016
    0.43750000  0.31250000  0.43750000       0.031
    0.43750000  0.43750000  0.43750000       0.016
- 
- position of ions in fractional coordinates (direct lattice) 
+
+ position of ions in fractional coordinates (direct lattice)
    0.00000000  0.00000000  0.00862400
    0.50000000  0.50000000  0.51481700
    0.00000000  0.50000000  0.49920700
    0.50000000  0.00000000  0.49920700
    0.50000000  0.50000000  0.99214300
- 
+
  position of ions in cartesian coordinates  (Angst):
    0.00000000  0.00000000  0.03530617
    2.01124250  2.01124250  2.10763197
    0.00000000  2.01124250  2.04372550
    2.01124250  0.00000000  2.04372550
    2.01124250  2.01124250  4.06177788
- 
+
 
 
 --------------------------------------------------------------------------------------------------------
@@ -1352,7 +1352,7 @@ Space group operators:
  maximum and minimum number of plane-waves per node :      1801     1765
 
  maximum number of plane-waves:      1801
- maximum index in each direction: 
+ maximum index in each direction:
    IXMAX=    7   IYMAX=    7   IZMAX=    7
    IXMIN=   -7   IYMIN=   -7   IZMIN=   -8
 
@@ -1376,7 +1376,7 @@ Space group operators:
    grid      :       4792. kBytes
    one-center:        155. kBytes
    wavefun   :       7188. kBytes
- 
+
      INWAV:  cpu time    0.25: real time    0.25
  Broyden mixing: mesh for mixing (old mesh)
    NGX = 15   NGY = 15   NGZ = 15
@@ -1494,16 +1494,16 @@ Space group operators:
   the test charge radii are     1.2192  1.0397  0.7215
   (the norm of the test charge is              1.0000)
        1 -33.8676       2 -54.2612       3 -70.5531       4 -70.5531       5 -70.5427
- 
- 
- 
+
+
+
  E-fermi :   2.9760     XC(G=0): -11.0602     alpha+bet :-13.4246
 
 
  spin component 1
 
  k-point     1 :       0.0625    0.0625    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0514      1.00000
       2     -30.0377      1.00000
       3     -30.0376      1.00000
@@ -1530,7 +1530,7 @@ Space group operators:
      24       6.8879      0.00000
 
  k-point     2 :       0.1875    0.0625    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0510      1.00000
       2     -30.0502      1.00000
       3     -30.0372      1.00000
@@ -1557,7 +1557,7 @@ Space group operators:
      24       7.5530      0.00000
 
  k-point     3 :       0.3125    0.0625    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0683      1.00000
       2     -30.0501      1.00000
       3     -30.0365      1.00000
@@ -1584,7 +1584,7 @@ Space group operators:
      24       8.2352      0.00000
 
  k-point     4 :       0.4375    0.0625    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0809      1.00000
       2     -30.0497      1.00000
       3     -30.0360      1.00000
@@ -1611,7 +1611,7 @@ Space group operators:
      24       8.6113      0.00000
 
  k-point     5 :       0.1875    0.1875    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0507      1.00000
       2     -30.0498      1.00000
       3     -30.0496      1.00000
@@ -1638,7 +1638,7 @@ Space group operators:
      24       7.9925      0.00000
 
  k-point     6 :       0.3125    0.1875    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0676      1.00000
       2     -30.0498      1.00000
       3     -30.0489      1.00000
@@ -1665,7 +1665,7 @@ Space group operators:
      24       8.6533      0.00000
 
  k-point     7 :       0.4375    0.1875    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0801      1.00000
       2     -30.0493      1.00000
       3     -30.0484      1.00000
@@ -1692,7 +1692,7 @@ Space group operators:
      24       9.0429      0.00000
 
  k-point     8 :       0.3125    0.3125    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0670      1.00000
       2     -30.0664      1.00000
       3     -30.0490      1.00000
@@ -1719,7 +1719,7 @@ Space group operators:
      24       9.3185      0.00000
 
  k-point     9 :       0.4375    0.3125    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0791      1.00000
       2     -30.0660      1.00000
       3     -30.0485      1.00000
@@ -1746,7 +1746,7 @@ Space group operators:
      24       9.7472      0.00000
 
  k-point    10 :       0.4375    0.4375    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0784      1.00000
       2     -30.0783      1.00000
       3     -30.0480      1.00000
@@ -1773,7 +1773,7 @@ Space group operators:
      24      10.2376      0.00000
 
  k-point    11 :       0.0625    0.0625    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0616      1.00000
       2     -30.0373      1.00000
       3     -30.0373      1.00000
@@ -1800,7 +1800,7 @@ Space group operators:
      24       7.4820      0.00000
 
  k-point    12 :       0.1875    0.0625    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0610      1.00000
       2     -30.0499      1.00000
       3     -30.0368      1.00000
@@ -1827,7 +1827,7 @@ Space group operators:
      24       7.8885      0.00000
 
  k-point    13 :       0.3125    0.0625    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0678      1.00000
       2     -30.0602      1.00000
       3     -30.0361      1.00000
@@ -1854,7 +1854,7 @@ Space group operators:
      24       8.5563      0.00000
 
  k-point    14 :       0.4375    0.0625    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0802      1.00000
       2     -30.0596      1.00000
       3     -30.0356      1.00000
@@ -1881,7 +1881,7 @@ Space group operators:
      24       8.9451      0.00000
 
  k-point    15 :       0.1875    0.1875    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0605      1.00000
       2     -30.0496      1.00000
       3     -30.0492      1.00000
@@ -1908,7 +1908,7 @@ Space group operators:
      24       7.9847      0.00000
 
  k-point    16 :       0.3125    0.1875    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0671      1.00000
       2     -30.0597      1.00000
       3     -30.0486      1.00000
@@ -1935,7 +1935,7 @@ Space group operators:
      24       8.7389      0.00000
 
  k-point    17 :       0.4375    0.1875    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0795      1.00000
       2     -30.0591      1.00000
       3     -30.0481      1.00000
@@ -1962,7 +1962,7 @@ Space group operators:
      24       9.1699      0.00000
 
  k-point    18 :       0.3125    0.3125    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0665      1.00000
       2     -30.0660      1.00000
       3     -30.0589      1.00000
@@ -1989,7 +1989,7 @@ Space group operators:
      24       9.3012      0.00000
 
  k-point    19 :       0.4375    0.3125    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0786      1.00000
       2     -30.0656      1.00000
       3     -30.0584      1.00000
@@ -2016,7 +2016,7 @@ Space group operators:
      24       9.7393      0.00000
 
  k-point    20 :       0.4375    0.4375    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0779      1.00000
       2     -30.0778      1.00000
       3     -30.0579      1.00000
@@ -2043,7 +2043,7 @@ Space group operators:
      24      10.2284      0.00000
 
  k-point    21 :       0.0625    0.0625    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0760      1.00000
       2     -30.0368      1.00000
       3     -30.0367      1.00000
@@ -2070,7 +2070,7 @@ Space group operators:
      24       8.1815      0.00000
 
  k-point    22 :       0.1875    0.0625    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0753      1.00000
       2     -30.0493      1.00000
       3     -30.0363      1.00000
@@ -2097,7 +2097,7 @@ Space group operators:
      24       8.5404      0.00000
 
  k-point    23 :       0.3125    0.0625    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0744      1.00000
       2     -30.0669      1.00000
       3     -30.0356      1.00000
@@ -2124,7 +2124,7 @@ Space group operators:
      24       9.1652      0.00000
 
  k-point    24 :       0.4375    0.0625    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0794      1.00000
       2     -30.0737      1.00000
       3     -30.0351      1.00000
@@ -2151,7 +2151,7 @@ Space group operators:
      24       9.5719      0.00000
 
  k-point    25 :       0.1875    0.1875    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0747      1.00000
       2     -30.0489      1.00000
       3     -30.0486      1.00000
@@ -2178,7 +2178,7 @@ Space group operators:
      24       8.6417      0.00000
 
  k-point    26 :       0.3125    0.1875    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0738      1.00000
       2     -30.0663      1.00000
       3     -30.0480      1.00000
@@ -2205,7 +2205,7 @@ Space group operators:
      24       9.1513      0.00000
 
  k-point    27 :       0.4375    0.1875    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0787      1.00000
       2     -30.0732      1.00000
       3     -30.0475      1.00000
@@ -2232,7 +2232,7 @@ Space group operators:
      24       9.5864      0.00000
 
  k-point    28 :       0.3125    0.3125    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0730      1.00000
       2     -30.0657      1.00000
       3     -30.0654      1.00000
@@ -2259,7 +2259,7 @@ Space group operators:
      24       9.2608      0.00000
 
  k-point    29 :       0.4375    0.3125    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0778      1.00000
       2     -30.0724      1.00000
       3     -30.0649      1.00000
@@ -2286,7 +2286,7 @@ Space group operators:
      24       9.7425      0.00000
 
  k-point    30 :       0.4375    0.4375    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0772      1.00000
       2     -30.0772      1.00000
       3     -30.0718      1.00000
@@ -2313,7 +2313,7 @@ Space group operators:
      24      10.1306      0.00000
 
  k-point    31 :       0.0625    0.0625    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0862      1.00000
       2     -30.0364      1.00000
       3     -30.0363      1.00000
@@ -2340,7 +2340,7 @@ Space group operators:
      24       8.5808      0.00000
 
  k-point    32 :       0.1875    0.0625    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0854      1.00000
       2     -30.0488      1.00000
       3     -30.0359      1.00000
@@ -2367,7 +2367,7 @@ Space group operators:
      24       8.9509      0.00000
 
  k-point    33 :       0.3125    0.0625    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0844      1.00000
       2     -30.0664      1.00000
       3     -30.0352      1.00000
@@ -2394,7 +2394,7 @@ Space group operators:
      24       9.5988      0.00000
 
  k-point    34 :       0.4375    0.0625    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0836      1.00000
       2     -30.0787      1.00000
       3     -30.0347      1.00000
@@ -2421,7 +2421,7 @@ Space group operators:
      24      10.0529      0.00000
 
  k-point    35 :       0.1875    0.1875    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0847      1.00000
       2     -30.0484      1.00000
       3     -30.0482      1.00000
@@ -2448,7 +2448,7 @@ Space group operators:
      24       9.1017      0.00000
 
  k-point    36 :       0.3125    0.1875    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0837      1.00000
       2     -30.0658      1.00000
       3     -30.0476      1.00000
@@ -2475,7 +2475,7 @@ Space group operators:
      24       9.5861      0.00000
 
  k-point    37 :       0.4375    0.1875    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0830      1.00000
       2     -30.0781      1.00000
       3     -30.0471      1.00000
@@ -2502,7 +2502,7 @@ Space group operators:
      24      10.0362      0.00000
 
  k-point    38 :       0.3125    0.3125    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0829      1.00000
       2     -30.0652      1.00000
       3     -30.0649      1.00000
@@ -2529,7 +2529,7 @@ Space group operators:
      24       9.6014      0.00000
 
  k-point    39 :       0.4375    0.3125    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0822      1.00000
       2     -30.0773      1.00000
       3     -30.0645      1.00000
@@ -2556,7 +2556,7 @@ Space group operators:
      24       9.9399      0.00000
 
  k-point    40 :       0.4375    0.4375    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0816      1.00000
       2     -30.0768      1.00000
       3     -30.0767      1.00000
@@ -2585,7 +2585,7 @@ Space group operators:
  spin component 2
 
  k-point     1 :       0.0625    0.0625    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0514      1.00000
       2     -30.0377      1.00000
       3     -30.0376      1.00000
@@ -2612,7 +2612,7 @@ Space group operators:
      24       6.8879      0.00000
 
  k-point     2 :       0.1875    0.0625    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0510      1.00000
       2     -30.0502      1.00000
       3     -30.0372      1.00000
@@ -2639,7 +2639,7 @@ Space group operators:
      24       7.5530      0.00000
 
  k-point     3 :       0.3125    0.0625    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0683      1.00000
       2     -30.0501      1.00000
       3     -30.0365      1.00000
@@ -2666,7 +2666,7 @@ Space group operators:
      24       8.2352      0.00000
 
  k-point     4 :       0.4375    0.0625    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0809      1.00000
       2     -30.0497      1.00000
       3     -30.0360      1.00000
@@ -2693,7 +2693,7 @@ Space group operators:
      24       8.6113      0.00000
 
  k-point     5 :       0.1875    0.1875    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0507      1.00000
       2     -30.0498      1.00000
       3     -30.0496      1.00000
@@ -2720,7 +2720,7 @@ Space group operators:
      24       7.9925      0.00000
 
  k-point     6 :       0.3125    0.1875    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0676      1.00000
       2     -30.0498      1.00000
       3     -30.0489      1.00000
@@ -2747,7 +2747,7 @@ Space group operators:
      24       8.6533      0.00000
 
  k-point     7 :       0.4375    0.1875    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0801      1.00000
       2     -30.0493      1.00000
       3     -30.0484      1.00000
@@ -2774,7 +2774,7 @@ Space group operators:
      24       9.0429      0.00000
 
  k-point     8 :       0.3125    0.3125    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0670      1.00000
       2     -30.0664      1.00000
       3     -30.0490      1.00000
@@ -2801,7 +2801,7 @@ Space group operators:
      24       9.3185      0.00000
 
  k-point     9 :       0.4375    0.3125    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0791      1.00000
       2     -30.0660      1.00000
       3     -30.0485      1.00000
@@ -2828,7 +2828,7 @@ Space group operators:
      24       9.7472      0.00000
 
  k-point    10 :       0.4375    0.4375    0.0625
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0784      1.00000
       2     -30.0783      1.00000
       3     -30.0480      1.00000
@@ -2855,7 +2855,7 @@ Space group operators:
      24      10.2376      0.00000
 
  k-point    11 :       0.0625    0.0625    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0616      1.00000
       2     -30.0373      1.00000
       3     -30.0372      1.00000
@@ -2882,7 +2882,7 @@ Space group operators:
      24       7.4820      0.00000
 
  k-point    12 :       0.1875    0.0625    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0610      1.00000
       2     -30.0499      1.00000
       3     -30.0368      1.00000
@@ -2909,7 +2909,7 @@ Space group operators:
      24       7.8885      0.00000
 
  k-point    13 :       0.3125    0.0625    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0677      1.00000
       2     -30.0602      1.00000
       3     -30.0361      1.00000
@@ -2936,7 +2936,7 @@ Space group operators:
      24       8.5563      0.00000
 
  k-point    14 :       0.4375    0.0625    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0802      1.00000
       2     -30.0596      1.00000
       3     -30.0356      1.00000
@@ -2963,7 +2963,7 @@ Space group operators:
      24       8.9451      0.00000
 
  k-point    15 :       0.1875    0.1875    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0605      1.00000
       2     -30.0496      1.00000
       3     -30.0492      1.00000
@@ -2990,7 +2990,7 @@ Space group operators:
      24       7.9847      0.00000
 
  k-point    16 :       0.3125    0.1875    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0671      1.00000
       2     -30.0597      1.00000
       3     -30.0486      1.00000
@@ -3017,7 +3017,7 @@ Space group operators:
      24       8.7389      0.00000
 
  k-point    17 :       0.4375    0.1875    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0795      1.00000
       2     -30.0591      1.00000
       3     -30.0481      1.00000
@@ -3044,7 +3044,7 @@ Space group operators:
      24       9.1699      0.00000
 
  k-point    18 :       0.3125    0.3125    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0665      1.00000
       2     -30.0660      1.00000
       3     -30.0589      1.00000
@@ -3071,7 +3071,7 @@ Space group operators:
      24       9.3012      0.00000
 
  k-point    19 :       0.4375    0.3125    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0786      1.00000
       2     -30.0656      1.00000
       3     -30.0584      1.00000
@@ -3098,7 +3098,7 @@ Space group operators:
      24       9.7393      0.00000
 
  k-point    20 :       0.4375    0.4375    0.1875
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0779      1.00000
       2     -30.0778      1.00000
       3     -30.0579      1.00000
@@ -3125,7 +3125,7 @@ Space group operators:
      24      10.2284      0.00000
 
  k-point    21 :       0.0625    0.0625    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0760      1.00000
       2     -30.0368      1.00000
       3     -30.0367      1.00000
@@ -3152,7 +3152,7 @@ Space group operators:
      24       8.1815      0.00000
 
  k-point    22 :       0.1875    0.0625    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0753      1.00000
       2     -30.0493      1.00000
       3     -30.0363      1.00000
@@ -3179,7 +3179,7 @@ Space group operators:
      24       8.5404      0.00000
 
  k-point    23 :       0.3125    0.0625    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0744      1.00000
       2     -30.0669      1.00000
       3     -30.0356      1.00000
@@ -3206,7 +3206,7 @@ Space group operators:
      24       9.1652      0.00000
 
  k-point    24 :       0.4375    0.0625    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0794      1.00000
       2     -30.0737      1.00000
       3     -30.0351      1.00000
@@ -3233,7 +3233,7 @@ Space group operators:
      24       9.5719      0.00000
 
  k-point    25 :       0.1875    0.1875    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0747      1.00000
       2     -30.0489      1.00000
       3     -30.0486      1.00000
@@ -3260,7 +3260,7 @@ Space group operators:
      24       8.6417      0.00000
 
  k-point    26 :       0.3125    0.1875    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0738      1.00000
       2     -30.0663      1.00000
       3     -30.0480      1.00000
@@ -3287,7 +3287,7 @@ Space group operators:
      24       9.1513      0.00000
 
  k-point    27 :       0.4375    0.1875    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0787      1.00000
       2     -30.0732      1.00000
       3     -30.0475      1.00000
@@ -3314,7 +3314,7 @@ Space group operators:
      24       9.5864      0.00000
 
  k-point    28 :       0.3125    0.3125    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0730      1.00000
       2     -30.0657      1.00000
       3     -30.0654      1.00000
@@ -3341,7 +3341,7 @@ Space group operators:
      24       9.2608      0.00000
 
  k-point    29 :       0.4375    0.3125    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0778      1.00000
       2     -30.0724      1.00000
       3     -30.0649      1.00000
@@ -3368,7 +3368,7 @@ Space group operators:
      24       9.7425      0.00000
 
  k-point    30 :       0.4375    0.4375    0.3125
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0772      1.00000
       2     -30.0772      1.00000
       3     -30.0718      1.00000
@@ -3395,7 +3395,7 @@ Space group operators:
      24      10.1306      0.00000
 
  k-point    31 :       0.0625    0.0625    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0862      1.00000
       2     -30.0364      1.00000
       3     -30.0363      1.00000
@@ -3422,7 +3422,7 @@ Space group operators:
      24       8.5808      0.00000
 
  k-point    32 :       0.1875    0.0625    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0854      1.00000
       2     -30.0488      1.00000
       3     -30.0359      1.00000
@@ -3449,7 +3449,7 @@ Space group operators:
      24       8.9509      0.00000
 
  k-point    33 :       0.3125    0.0625    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0844      1.00000
       2     -30.0664      1.00000
       3     -30.0352      1.00000
@@ -3476,7 +3476,7 @@ Space group operators:
      24       9.5988      0.00000
 
  k-point    34 :       0.4375    0.0625    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0836      1.00000
       2     -30.0787      1.00000
       3     -30.0347      1.00000
@@ -3503,7 +3503,7 @@ Space group operators:
      24      10.0529      0.00000
 
  k-point    35 :       0.1875    0.1875    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0847      1.00000
       2     -30.0484      1.00000
       3     -30.0482      1.00000
@@ -3530,7 +3530,7 @@ Space group operators:
      24       9.1017      0.00000
 
  k-point    36 :       0.3125    0.1875    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0837      1.00000
       2     -30.0658      1.00000
       3     -30.0476      1.00000
@@ -3557,7 +3557,7 @@ Space group operators:
      24       9.5861      0.00000
 
  k-point    37 :       0.4375    0.1875    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0830      1.00000
       2     -30.0781      1.00000
       3     -30.0471      1.00000
@@ -3584,7 +3584,7 @@ Space group operators:
      24      10.0362      0.00000
 
  k-point    38 :       0.3125    0.3125    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0829      1.00000
       2     -30.0652      1.00000
       3     -30.0649      1.00000
@@ -3611,7 +3611,7 @@ Space group operators:
      24       9.6014      0.00000
 
  k-point    39 :       0.4375    0.3125    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0822      1.00000
       2     -30.0773      1.00000
       3     -30.0645      1.00000
@@ -3638,7 +3638,7 @@ Space group operators:
      24       9.9399      0.00000
 
  k-point    40 :       0.4375    0.4375    0.4375
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1     -30.0816      1.00000
       2     -30.0768      1.00000
       3     -30.0767      1.00000
@@ -3671,11 +3671,11 @@ Space group operators:
  soft charge-density along one line, spin component           1
          0         1         2         3         4         5         6         7         8         9
  total charge-density along one line
- 
+
  soft charge-density along one line, spin component           2
          0         1         2         3         4         5         6         7         8         9
  total charge-density along one line
- 
+
  pseudopotential strength for first ion, spin component:           1
   1.192  -5.017   0.000  -0.002   0.000   0.000   0.000   0.000
  -5.017   0.670  -0.000   0.001  -0.000   0.000  -0.001   0.000
@@ -3758,20 +3758,20 @@ Space group operators:
 
 
      CALCP:  cpu time  147.88: real time  147.98
- 
+
             Ionic dipole moment: p[ion]=(     0.00000     0.00000    19.70306 ) electrons Angst
- 
+
     Spin resolved dipole moment: p[sp1]=(     2.01124     2.01124    -2.04426 ) electrons Angst
                                  p[sp2]=(     2.01139     2.01139    -2.04426 ) electrons Angst
- 
+
  Total electronic dipole moment: p[elc]=(     4.02264     4.02263    -4.08851 ) electrons Angst
- 
- 
- 
 
 
- total charge     
- 
+
+
+
+ total charge
+
 # of ion     s       p       d       tot
 ----------------------------------------
   1        2.006   5.647   0.309   7.962
@@ -3781,11 +3781,11 @@ Space group operators:
   5        1.563   3.446   0.000   5.009
 ------------------------------------------------
 tot        6.989  22.406   2.185  31.581
- 
+
 
 
  magnetization (x)
- 
+
 # of ion     s       p       d       tot
 ----------------------------------------
   1       -0.000  -0.000  -0.000  -0.000
@@ -3795,7 +3795,7 @@ tot        6.989  22.406   2.185  31.581
   5        0.000   0.000   0.000   0.000
 ------------------------------------------------
 tot       -0.000   0.000   0.000   0.000
- 
+
     CHARGE:  cpu time    0.44: real time    0.44
     FORLOC:  cpu time    0.00: real time    0.00
     FORNL :  cpu time    1.91: real time    1.91
@@ -3846,8 +3846,8 @@ tot       -0.000   0.000   0.000   0.000
    0.136E-12 0.138E-11 -.367E+02   -.599E-14 -.127E-14 0.401E+02   0.000E+00 0.000E+00 -.369E+01   -.206E-13 -.129E-13 0.151E-01
  -----------------------------------------------------------------------------------------------
    0.418E-12 0.322E-11 0.384E+01   0.103E-14 -.144E-14 0.000E+00   0.000E+00 -.104E-16 -.386E+01   -.728E-13 -.363E-13 0.577E-02
- 
- 
+
+
  POSITION                                       TOTAL-FORCE (eV/Angst)
  -----------------------------------------------------------------------------------
       0.00000      0.00000      0.03531         0.000000     -0.000000     -0.038158
@@ -3868,7 +3868,7 @@ tot       -0.000   0.000   0.000   0.000
   free  energy   TOTEN  =       -39.89662324 eV
 
   energy  without entropy=      -39.89662324  energy(sigma->0) =      -39.89662324
- 
+
 
 
 --------------------------------------------------------------------------------------------------------
@@ -3882,11 +3882,11 @@ tot       -0.000   0.000   0.000   0.000
 
      LOOP+:  cpu time  168.38: real time  168.50
     4ORBIT:  cpu time    0.00: real time    0.00
- 
 
 
- total charge     
- 
+
+ total charge
+
 # of ion     s       p       d       tot
 ----------------------------------------
   1        2.006   5.647   0.309   7.962
@@ -3896,11 +3896,11 @@ tot       -0.000   0.000   0.000   0.000
   5        1.563   3.446   0.000   5.009
 ------------------------------------------------
 tot        6.989  22.406   2.185  31.581
- 
+
 
 
  magnetization (x)
- 
+
 # of ion     s       p       d       tot
 ----------------------------------------
   1       -0.000  -0.000  -0.000  -0.000
@@ -3910,7 +3910,7 @@ tot        6.989  22.406   2.185  31.581
   5        0.000   0.000   0.000   0.000
 ------------------------------------------------
 tot       -0.000   0.000   0.000   0.000
- 
+
  BZINTS: Fermi energy:  2.975982; 38.000000 electrons
          Band energy:-330.553885;  BLOECHL correction:  0.000000
 
@@ -3923,20 +3923,20 @@ tot       -0.000   0.000   0.000   0.000
    grid      :       4792. kBytes
    one-center:        155. kBytes
    wavefun   :       7188. kBytes
- 
-  
-  
+
+
+
  General timing and accounting informations for this job:
  ========================================================
-  
+
                   Total CPU time used (sec):      177.575
                             User time (sec):      165.662
                           System time (sec):       11.913
                          Elapsed time (sec):      180.980
-  
+
                    Maximum memory used (kb):      110436.
                    Average memory used (kb):           0.
-  
+
                           Minor page faults:      3697283
                           Major page faults:            7
                  Voluntary context switches:          680

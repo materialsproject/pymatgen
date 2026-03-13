@@ -1,5 +1,5 @@
- vasp.6.2.1 16May21 (build Jul 28 2021 23:24:15) complex                        
-  
+ vasp.6.2.1 16May21 (build Jul 28 2021 23:24:15) complex
+
  executed on      IFC19_CrayMPICH date 2021.12.07  16:55:31
  running   16 mpi-ranks, with    8 threads/rank
  distrk:  each k-point on   16 cores,    1 groups
@@ -42,37 +42,37 @@
    PREC = Accurate
    SIGMA = 0.2
 
- POTCAR:   PAW_PBE Si 05Jan2001                   
- POTCAR:   PAW_PBE Si 05Jan2001                   
-   VRHFIN =Si: s2p2                                                                                 
-   LEXCH  = PE                                                                                      
-   EATOM  =   103.0669 eV,    7.5752 Ry                                                             
-                                                                                                    
-   TITEL  = PAW_PBE Si 05Jan2001                                                                    
-   LULTRA =        F    use ultrasoft PP ?                                                          
-   IUNSCR =        1    unscreen: 0-lin 1-nonlin 2-no                                               
-   RPACOR =    1.500    partial core radius                                                         
-   POMASS =   28.085; ZVAL   =    4.000    mass and valenz                                          
-   RCORE  =    1.900    outmost cutoff radius                                                       
-   RWIGS  =    2.480; RWIGS  =    1.312    wigner-seitz radius (au A)                               
-   ENMAX  =  245.345; ENMIN  =  184.009 eV                                                          
-   ICORE  =        2    local potential                                                             
-   LCOR   =        T    correct aug charges                                                         
-   LPAW   =        T    paw PP                                                                      
-   EAUG   =  322.069                                                                                
-   DEXC   =    -.007                                                                                
-   RMAX   =    2.944    core radius for proj-oper                                                   
-   RAUG   =    1.300    factor for augmentation sphere                                              
-   RDEP   =    1.993    radius for radial grids                                                     
-   QCUT   =   -4.246; QGAM   =    8.493    optimization parameters                                  
-                                                                                                    
-   Description                                                                                      
-     l     E      TYP  RCUT    TYP  RCUT                                                            
-     0   .000     23  1.900                                                                         
-     0   .000     23  1.900                                                                         
-     1   .000     23  1.900                                                                         
-     1   .000     23  1.900                                                                         
-     2   .000      7  1.900                                                                         
+ POTCAR:   PAW_PBE Si 05Jan2001
+ POTCAR:   PAW_PBE Si 05Jan2001
+   VRHFIN =Si: s2p2
+   LEXCH  = PE
+   EATOM  =   103.0669 eV,    7.5752 Ry
+
+   TITEL  = PAW_PBE Si 05Jan2001
+   LULTRA =        F    use ultrasoft PP ?
+   IUNSCR =        1    unscreen: 0-lin 1-nonlin 2-no
+   RPACOR =    1.500    partial core radius
+   POMASS =   28.085; ZVAL   =    4.000    mass and valenz
+   RCORE  =    1.900    outmost cutoff radius
+   RWIGS  =    2.480; RWIGS  =    1.312    wigner-seitz radius (au A)
+   ENMAX  =  245.345; ENMIN  =  184.009 eV
+   ICORE  =        2    local potential
+   LCOR   =        T    correct aug charges
+   LPAW   =        T    paw PP
+   EAUG   =  322.069
+   DEXC   =    -.007
+   RMAX   =    2.944    core radius for proj-oper
+   RAUG   =    1.300    factor for augmentation sphere
+   RDEP   =    1.993    radius for radial grids
+   QCUT   =   -4.246; QGAM   =    8.493    optimization parameters
+
+   Description
+     l     E      TYP  RCUT    TYP  RCUT
+     0   .000     23  1.900
+     0   .000     23  1.900
+     1   .000     23  1.900
+     1   .000     23  1.900
+     2   .000      7  1.900
   local pseudopotential read in
   partial core-charges read in
   atomic valenz-charges read in
@@ -85,10 +85,10 @@
   non local Contribution for L=           1  read in
     real space projection operators read in
     PAW grid and wavefunctions read in
- 
+
    number of l-projection  operators is LMAX  =           4
    number of lm-projection operators is LMMAX =           8
- 
+
  -----------------------------------------------------------------------------
 |                                                                             |
 |               ----> ADVICE to this user running VASP <----                  |
@@ -104,10 +104,10 @@
  Optimization of the real space projectors (new method)
 
  maximal supplied QI-value         = 19.84
- optimisation between [QCUT,QGAM] = [ 13.29, 26.59] = [ 49.49,197.96] Ry 
+ optimisation between [QCUT,QGAM] = [ 13.29, 26.59] = [ 49.49,197.96] Ry
  Optimized for a Real-space Cutoff    1.12 Angstroem
 
-   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline) 
+   l    n(q)    QCUT    max X(q) W(low)/X(q) W(high)/X(q)  e(spline)
    0      9    13.294     8.708    0.13E-04    0.27E-05    0.49E-08
    0      9    13.294   106.241    0.22E-03    0.87E-04    0.52E-07
    1      8    13.294     5.901    0.77E-05    0.26E-04    0.14E-07
@@ -125,15 +125,15 @@
  PAW_PBE Si 05Jan2001                   :
  energy of atom  1       EATOM= -103.0669
  kinetic energy error for atom=    0.0003 (will be added to EATOM!!)
- 
- 
+
+
  POSCAR: Si2
   positions in direct lattice
   No initial velocities read in
  exchange correlation table for  LEXCH =       14
    RHO(1)=    0.500       N(1)  =     2000
    RHO(2)=  100.500       N(2)  =     4000
- 
+
 
 
 --------------------------------------------------------------------------------------------------------
@@ -142,12 +142,12 @@
  ion  position               nearest neighbor table
    1  0.250  0.250  0.250-   2 2.35   2 2.35   2 2.35   2 2.35
    2  0.000  0.000  0.000-   1 2.35   1 2.35   1 2.35   1 2.35
- 
+
   LATTYP: Found a face centered cubic cell.
  ALAT       =     5.4358040000
-  
+
   Lattice vectors:
-  
+
  A1 = (   0.0000000000,   2.7179020000,   2.7179020000)
  A2 = (   2.7179020000,   0.0000000000,   2.7179020000)
  A3 = (   2.7179020000,   2.7179020000,   0.0000000000)
@@ -157,9 +157,9 @@ Analysis of symmetry for initial positions (statically):
 =====================================================================
  Subroutine PRICEL returns:
  Original cell was already a primitive cell.
- 
 
- Routine SETGRP: Setting up the symmetry group for a 
+
+ Routine SETGRP: Setting up the symmetry group for a
  face centered cubic supercell.
 
 
@@ -176,9 +176,9 @@ Analysis of symmetry for dynamics (positions and initial velocities):
 =====================================================================
  Subroutine PRICEL returns:
  Original cell was already a primitive cell.
- 
 
- Routine SETGRP: Setting up the symmetry group for a 
+
+ Routine SETGRP: Setting up the symmetry group for a
  face centered cubic supercell.
 
 
@@ -195,9 +195,9 @@ Analysis of structural, dynamic, and magnetic symmetry:
 =====================================================================
  Subroutine PRICEL returns:
  Original cell was already a primitive cell.
- 
 
- Routine SETGRP: Setting up the symmetry group for a 
+
+ Routine SETGRP: Setting up the symmetry group for a
  face centered cubic supercell.
 
 
@@ -217,7 +217,7 @@ The overall configuration has the point symmetry T_d .
 
 ----------------------------------------------------------------------------------------
 
-                                     Primitive cell                                     
+                                     Primitive cell
 
   volume of cell :      40.1542
 
@@ -240,8 +240,8 @@ The overall configuration has the point symmetry T_d .
 
 ----------------------------------------------------------------------------------------
 
- 
- 
+
+
  KPOINTS: pymatgen with grid density = 4942 / numb
 
 Automatic generation of k-mesh.
@@ -262,12 +262,12 @@ Automatic generation of k-mesh.
      0.000000000  0.000000000  0.000000000
 
  TETIRR: Found    322 inequivalent tetrahedra from    13182
- 
+
  Subroutine IBZKPT returns following result:
  ===========================================
- 
+
  Found     84 irreducible k-points:
- 
+
  Following reciprocal coordinates:
             Coordinates               Weight
   0.000000  0.000000  0.000000      1.000000
@@ -354,7 +354,7 @@ Automatic generation of k-mesh.
  -0.384615  0.461538  0.153846     24.000000
  -0.307692  0.461538  0.153846     24.000000
  -0.307692  0.461538  0.230769     24.000000
- 
+
  Following cartesian coordinates:
             Coordinates               Weight
   0.000000  0.000000  0.000000      1.000000
@@ -441,7 +441,7 @@ Automatic generation of k-mesh.
   0.183965 -0.127361 -0.014151     24.000000
   0.169814 -0.113209 -0.000000     24.000000
   0.183965 -0.099058 -0.014151     24.000000
- 
+
 
 
 --------------------------------------------------------------------------------------------------------
@@ -462,8 +462,8 @@ Automatic generation of k-mesh.
    NGX,Y,Z   is equivalent  to a cutoff of  15.57, 15.57, 15.57 a.u.
    NGXF,Y,Z  is equivalent  to a cutoff of  31.14, 31.14, 31.14 a.u.
 
- SYSTEM =  unknown system                          
- POSCAR =  Si2                                     
+ SYSTEM =  unknown system
+ POSCAR =  Si2
 
  Startparameter for this run:
    NWRITE =      2    write-flag & timer
@@ -479,7 +479,7 @@ Automatic generation of k-mesh.
    ENCUT  =  680.0 eV  49.98 Ry    7.07 a.u.   8.17  8.17  8.17*2*pi/ulx,y,z
    ENINI  =  680.0     initial cutoff
    ENAUG  = 1360.0 eV  augmentation charge cutoff
-   NELM   =    200;   NELMIN=  2; NELMDL=  0     # of ELM steps 
+   NELM   =    200;   NELMIN=  2; NELMDL=  0     # of ELM steps
    EDIFF  = 0.1E-04   stopping-criterion for ELM
    LREAL  =      T    real-space projection
    NLSPLINE    = F    spline interpolate recip. space projectors
@@ -492,7 +492,7 @@ Automatic generation of k-mesh.
  Ionic relaxation
    EDIFFG = -.5E-01   stopping-criterion for IOM
    NSW    =      0    number of steps for IOM
-   NBLOCK =      1;   KBLOCK =      1    inner block; outer block 
+   NBLOCK =      1;   KBLOCK =      1    inner block; outer block
    IBRION =     -1    ionic relax: 0-MD 1-quasi-New 2-CG
    NFREE  =      0    steps in history (QN), initial steepest desc. (CG)
    ISIF   =      3    stress and relaxation
@@ -515,7 +515,7 @@ Automatic generation of k-mesh.
    ZVAL   =   4.00
   Atomic Wigner-Seitz radii
    RWIGS  =  -1.00
-  virtual crystal weights 
+  virtual crystal weights
    VCA    =   1.00
    NELECT =       8.0000    total number of electrons
    NUPDOWN=      -1.0000    fix difference up-down
@@ -543,14 +543,14 @@ Automatic generation of k-mesh.
  Intra band minimization:
    WEIMIN = 0.0000     energy-eigenvalue tresh-hold
    EBREAK =  0.52E-07  absolut break condition
-   DEPER  =   0.30     relativ break condition  
+   DEPER  =   0.30     relativ break condition
 
    TIME   =   0.40     timestep for ELM
 
   volume/ion in A,a.u.               =      20.08       135.49
   Fermi-wavevector in a.u.,A,eV,Ry     =   0.956154  1.806868 12.438852  0.914230
   Thomas-Fermi vector in A             =   2.085056
- 
+
  Write flags
    LWAVE        =      T    write WAVECAR
    LDOWNSAMPLE  =      F    k-point downsampling of WAVECAR
@@ -564,7 +564,7 @@ Automatic generation of k-mesh.
  Dipole corrections
    LMONO  =      F    monopole corrections only (constant potential shift)
    LDIPOL =      F    correct potential (dipole corrections)
-   IDIPOL =      0    1-x, 2-y, 3-z, 4-all directions 
+   IDIPOL =      0    1-x, 2-y, 3-z, 4-all directions
    EPSILON=  1.0000000 bulk dielectric constant
 
  Exchange correlation treatment:
@@ -588,7 +588,7 @@ Automatic generation of k-mesh.
    RTIME   =   -0.100 relaxation time in fs
   (WPLASMAI=    0.000 imaginary part of plasma frequency in eV, 0.658/RTIME)
    DFIELD  = 0.0000000 0.0000000 0.0000000 field for delta impulse in time
- 
+
  Orbital magnetization related:
    ORBITALMAG=     F  switch on orbital magnetization
    LCHIMAG   =     F  perturbation theory with respect to B field
@@ -605,7 +605,7 @@ Automatic generation of k-mesh.
  spin polarized calculation
  Exact diagonalization
  preconditioned conjugated gradient (Jacobi prec)
-    charged. constant during bandupdate  
+    charged. constant during bandupdate
     band-by band algorithm
  perform sub-space diagonalisation
     after iterative eigenvector-optimisation
@@ -615,9 +615,9 @@ Automatic generation of k-mesh.
  using additional bands           44
  real space projection scheme for non local part
  use partial core corrections
- calculate Harris-corrections to forces 
+ calculate Harris-corrections to forces
    (improved forces if not selfconsistent)
- use gradient corrections 
+ use gradient corrections
  use of overlap-Matrix (Vanderbilt PP)
  Fermi weights with tetrahedron method with Bloechl corrections
 
@@ -636,7 +636,7 @@ Automatic generation of k-mesh.
      3.843693870  3.843693870  3.843693870     0.318637465  0.318637465  0.318637465
 
 
- 
+
  old parameters found on file WAVECAR:
   energy-cutoff  :      680.00
   volume of cell :       40.15
@@ -647,7 +647,7 @@ Automatic generation of k-mesh.
 
   length of vectors
 
- 
+
  k-points in units of 2pi/SCALE and weight: pymatgen with grid density = 4942 / numb
    0.00000000  0.00000000  0.00000000       0.000
   -0.01415119  0.01415119  0.01415119       0.004
@@ -733,7 +733,7 @@ Automatic generation of k-mesh.
    0.18396543 -0.12736068 -0.01415119       0.011
    0.16981424 -0.11320949 -0.00000000       0.011
    0.18396543 -0.09905831 -0.01415119       0.011
- 
+
  k-points in reciprocal lattice and weights: pymatgen with grid density = 4942 / numb
    0.00000000  0.00000000  0.00000000       0.000
    0.07692308  0.00000000 -0.00000000       0.004
@@ -819,15 +819,15 @@ Automatic generation of k-mesh.
   -0.38461538  0.46153846  0.15384615       0.011
   -0.30769231  0.46153846  0.15384615       0.011
   -0.30769231  0.46153846  0.23076923       0.011
- 
- position of ions in fractional coordinates (direct lattice) 
+
+ position of ions in fractional coordinates (direct lattice)
    0.25000000  0.25000000  0.25000000
    0.00000000  0.00000000  0.00000000
- 
+
  position of ions in cartesian coordinates  (Angst):
    1.35895100  1.35895100  1.35895100
    0.00000000  0.00000000  0.00000000
- 
+
 
 
 --------------------------------------------------------------------------------------------------------
@@ -921,7 +921,7 @@ Automatic generation of k-mesh.
  maximum and minimum number of plane-waves per node :      1639     1600
 
  maximum number of plane-waves:      1639
- maximum index in each direction: 
+ maximum index in each direction:
    IXMAX=    8   IYMAX=    8   IZMAX=    8
    IXMIN=   -8   IYMIN=   -8   IZMIN=   -8
 
@@ -940,7 +940,7 @@ Automatic generation of k-mesh.
    grid      :       5680. kBytes
    one-center:         12. kBytes
    wavefun   :      13418. kBytes
- 
+
      INWAV:  cpu time    3.9051: real time    2.8272
  Broyden mixing: mesh for mixing (old mesh)
    NGX = 17   NGY = 17   NGZ = 17
@@ -983,7 +983,7 @@ Automatic generation of k-mesh.
    grid      :       5680. kBytes
    one-center:         12. kBytes
    wavefun   :     474119. kBytes
- 
+
     EDDIAG:  cpu time 4376.1925: real time  687.3928
  BZINTS: Fermi energy:    5.390239;    8.000000 electrons
          Band energy: 0.311031E+01;  BLOECHL correction:   -0.000000
@@ -1041,7 +1041,7 @@ Automatic generation of k-mesh.
    grid      :       5680. kBytes
    one-center:         12. kBytes
    wavefun   :     474119. kBytes
- 
+
     EDDIAG:  cpu time 4368.1184: real time  683.8887
  BZINTS: Fermi energy:    5.556407;    8.000000 electrons
          Band energy: 0.415523E+01;  BLOECHL correction:    0.000000
@@ -1103,7 +1103,7 @@ Automatic generation of k-mesh.
    grid      :       5680. kBytes
    one-center:         12. kBytes
    wavefun   :     474119. kBytes
- 
+
     EDDIAG:  cpu time 4429.7041: real time  699.7117
  BZINTS: Fermi energy:    5.755991;    8.000000 electrons
          Band energy: 0.541954E+01;  BLOECHL correction:   -0.000000
@@ -1165,7 +1165,7 @@ Automatic generation of k-mesh.
    grid      :       5680. kBytes
    one-center:         12. kBytes
    wavefun   :     474119. kBytes
- 
+
     EDDIAG:  cpu time 4228.3675: real time  664.5037
  BZINTS: Fermi energy:    5.760986;    8.000000 electrons
          Band energy: 0.545768E+01;  BLOECHL correction:   -0.000000
@@ -1227,7 +1227,7 @@ Automatic generation of k-mesh.
    grid      :       5680. kBytes
    one-center:         12. kBytes
    wavefun   :     474119. kBytes
- 
+
     EDDIAG:  cpu time 4239.6115: real time  666.0932
  BZINTS: Fermi energy:    5.761232;    8.000000 electrons
          Band energy: 0.545728E+01;  BLOECHL correction:    0.000000
@@ -1267,9 +1267,9 @@ Automatic generation of k-mesh.
   the test charge radii are     0.9892
   (the norm of the test charge is              1.0000)
        1 -83.0704       2 -83.0704
- 
- 
- 
+
+
+
  E-fermi :   5.7612     XC(G=0):  -9.5432     alpha+bet :-11.9462
 
  Fermi energy:         5.7612315414
@@ -1277,7 +1277,7 @@ Automatic generation of k-mesh.
  spin component 1
 
  k-point     1 :       0.0000    0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -6.2100      1.00000
       2       5.7611      1.00000
       3       5.7611      1.00000
@@ -1328,7 +1328,7 @@ Automatic generation of k-mesh.
      48      52.0233      0.00000
 
  k-point     2 :       0.0769    0.0000   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -6.1323      1.00000
       2       4.9992      1.00000
       3       5.6354      1.00000
@@ -1379,7 +1379,7 @@ Automatic generation of k-mesh.
      48      53.6715      0.00000
 
  k-point     3 :       0.1538   -0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.9013      1.00000
       2       3.6070      1.00000
       3       5.3576      1.00000
@@ -1430,7 +1430,7 @@ Automatic generation of k-mesh.
      48      53.6173      0.00000
 
  k-point     4 :       0.2308    0.0000   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.5242      1.00000
       2       2.1634      1.00000
       3       5.0643      1.00000
@@ -1481,7 +1481,7 @@ Automatic generation of k-mesh.
      48      55.7948      0.00000
 
  k-point     5 :       0.3077   -0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.0195      1.00000
       2       0.8160      1.00000
       3       4.8220      1.00000
@@ -1532,7 +1532,7 @@ Automatic generation of k-mesh.
      48      57.5614      0.00000
 
  k-point     6 :       0.3846   -0.0000   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.4384      1.00000
       2      -0.3414      1.00000
       3       4.6550      1.00000
@@ -1583,7 +1583,7 @@ Automatic generation of k-mesh.
      48      58.6673      0.00000
 
  k-point     7 :       0.4615   -0.0000   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.9503      1.00000
       2      -1.1212      1.00000
       3       4.5707      1.00000
@@ -1634,7 +1634,7 @@ Automatic generation of k-mesh.
      48      58.3946      0.00000
 
  k-point     8 :       0.0769    0.0769   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -6.1063      1.00000
       2       5.1514      1.00000
       3       5.3795      1.00000
@@ -1685,7 +1685,7 @@ Automatic generation of k-mesh.
      48      52.5459      0.00000
 
  k-point     9 :       0.1538    0.0769   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.9260      1.00000
       2       4.0235      1.00000
       3       5.0444      1.00000
@@ -1736,7 +1736,7 @@ Automatic generation of k-mesh.
      48      53.8399      0.00000
 
  k-point    10 :       0.2308    0.0769   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.5967      1.00000
       2       2.6271      1.00000
       3       4.7414      1.00000
@@ -1787,7 +1787,7 @@ Automatic generation of k-mesh.
      48      54.7819      0.00000
 
  k-point    11 :       0.3077    0.0769   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.1316      1.00000
       2       1.2643      1.00000
       3       4.5197      1.00000
@@ -1838,7 +1838,7 @@ Automatic generation of k-mesh.
      48      56.5108      0.00000
 
  k-point    12 :       0.3846    0.0769    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.5663      1.00000
       2       0.0447      1.00000
       3       4.3347      1.00000
@@ -1889,7 +1889,7 @@ Automatic generation of k-mesh.
      48      58.6663      0.00000
 
  k-point    13 :       0.4615    0.0769   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.0129      1.00000
       2      -0.8899      1.00000
       3       4.1163      1.00000
@@ -1940,7 +1940,7 @@ Automatic generation of k-mesh.
      48      58.7086      0.00000
 
  k-point    14 :      -0.4615    0.0769   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.8082      1.00000
       2      -1.1902      1.00000
       3       3.9842      1.00000
@@ -1991,7 +1991,7 @@ Automatic generation of k-mesh.
      48      58.5762      0.00000
 
  k-point    15 :      -0.3846    0.0769    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.1827      1.00000
       2      -0.6232      1.00000
       3       3.9497      1.00000
@@ -2042,7 +2042,7 @@ Automatic generation of k-mesh.
      48      59.1452      0.00000
 
  k-point    16 :      -0.3077    0.0769    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.7627      1.00000
       2       0.4314      1.00000
       3       4.0212      1.00000
@@ -2093,7 +2093,7 @@ Automatic generation of k-mesh.
      48      58.4292      0.00000
 
  k-point    17 :      -0.2308    0.0769   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.3010      1.00000
       2       1.7076      1.00000
       3       4.2048      1.00000
@@ -2144,7 +2144,7 @@ Automatic generation of k-mesh.
      48      56.4575      0.00000
 
  k-point    18 :      -0.1538    0.0769   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.7230      1.00000
       2       3.0798      1.00000
       3       4.5085      1.00000
@@ -2195,7 +2195,7 @@ Automatic generation of k-mesh.
      48      54.0379      0.00000
 
  k-point    19 :      -0.0769    0.0769    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -6.0034      1.00000
       2       4.3309      1.00000
       3       4.9938      1.00000
@@ -2246,7 +2246,7 @@ Automatic generation of k-mesh.
      48      53.5360      0.00000
 
  k-point    20 :       0.1538    0.1538   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.7966      1.00000
       2       3.9383      1.00000
       3       4.6754      1.00000
@@ -2297,7 +2297,7 @@ Automatic generation of k-mesh.
      48      53.9759      0.00000
 
  k-point    21 :       0.2308    0.1538   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.5164      1.00000
       2       2.9190      1.00000
       3       4.3527      1.00000
@@ -2348,7 +2348,7 @@ Automatic generation of k-mesh.
      48      55.1525      0.00000
 
  k-point    22 :       0.3077    0.1538   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.0951      1.00000
       2       1.6724      1.00000
       3       3.9881      1.00000
@@ -2399,7 +2399,7 @@ Automatic generation of k-mesh.
      48      56.0217      0.00000
 
  k-point    23 :       0.3846    0.1538   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.5572      1.00000
       2       0.4665      1.00000
       3       3.5844      1.00000
@@ -2450,7 +2450,7 @@ Automatic generation of k-mesh.
      48      56.6140      0.00000
 
  k-point    24 :       0.4615    0.1538   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.9764      1.00000
       2      -0.5511      1.00000
       3       3.2445      1.00000
@@ -2501,7 +2501,7 @@ Automatic generation of k-mesh.
      48      57.5223      0.00000
 
  k-point    25 :      -0.4615    0.1538   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.6020      1.00000
       2      -1.1011      1.00000
       3       3.0013      1.00000
@@ -2552,7 +2552,7 @@ Automatic generation of k-mesh.
      48      58.8428      0.00000
 
  k-point    26 :      -0.3846    0.1538    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.8148      1.00000
       2      -0.7939      1.00000
       3       2.8751      1.00000
@@ -2603,7 +2603,7 @@ Automatic generation of k-mesh.
      48      58.4542      0.00000
 
  k-point    27 :      -0.3077    0.1538    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.3710      1.00000
       2       0.1177      1.00000
       3       2.8856      1.00000
@@ -2654,7 +2654,7 @@ Automatic generation of k-mesh.
      48      58.3843      0.00000
 
  k-point    28 :      -0.2308    0.1538   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.9343      1.00000
       2       1.2534      1.00000
       3       3.0704      1.00000
@@ -2705,7 +2705,7 @@ Automatic generation of k-mesh.
      48      56.5213      0.00000
 
  k-point    29 :      -0.1538    0.1538   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.3963      1.00000
       2       2.3423      1.00000
       3       3.5581      1.00000
@@ -2756,7 +2756,7 @@ Automatic generation of k-mesh.
      48      54.7924      0.00000
 
  k-point    30 :       0.2308    0.2308   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.2851      1.00000
       2       2.5855      1.00000
       3       4.0063      1.00000
@@ -2807,7 +2807,7 @@ Automatic generation of k-mesh.
      48      55.9083      0.00000
 
  k-point    31 :       0.3077    0.2308   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.9096      1.00000
       2       1.7205      1.00000
       3       3.5957      1.00000
@@ -2858,7 +2858,7 @@ Automatic generation of k-mesh.
      48      56.2739      0.00000
 
  k-point    32 :       0.3846    0.2308   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.4070      1.00000
       2       0.7083      1.00000
       3       3.0417      1.00000
@@ -2909,7 +2909,7 @@ Automatic generation of k-mesh.
      48      57.7305      0.00000
 
  k-point    33 :       0.4615    0.2308   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.8254      1.00000
       2      -0.2610      1.00000
       3       2.5325      1.00000
@@ -2960,7 +2960,7 @@ Automatic generation of k-mesh.
      48      57.7091      0.00000
 
  k-point    34 :      -0.4615    0.2308   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.3341      1.00000
       2      -0.9510      1.00000
       3       2.1493      1.00000
@@ -3011,7 +3011,7 @@ Automatic generation of k-mesh.
      48      58.1742      0.00000
 
  k-point    35 :      -0.3846    0.2308   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.3581      1.00000
       2      -0.9117      1.00000
       3       1.9268      1.00000
@@ -3062,7 +3062,7 @@ Automatic generation of k-mesh.
      48      58.6488      0.00000
 
  k-point    36 :      -0.3077    0.2308   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.8645      1.00000
       2      -0.2006      1.00000
       3       1.9121      1.00000
@@ -3113,7 +3113,7 @@ Automatic generation of k-mesh.
      48      58.2942      0.00000
 
  k-point    37 :      -0.2308    0.2308    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.4405      1.00000
       2       0.6393      1.00000
       3       2.2352      1.00000
@@ -3164,7 +3164,7 @@ Automatic generation of k-mesh.
      48      57.5367      0.00000
 
  k-point    38 :       0.3077    0.3077   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.5794      1.00000
       2       1.2059      1.00000
       3       3.4715      1.00000
@@ -3215,7 +3215,7 @@ Automatic generation of k-mesh.
      48      58.2405      0.00000
 
  k-point    39 :       0.3846    0.3077   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.1162      1.00000
       2       0.4521      1.00000
       3       3.0253      1.00000
@@ -3266,7 +3266,7 @@ Automatic generation of k-mesh.
      48      58.5096      0.00000
 
  k-point    40 :       0.4615    0.3077   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.5511      1.00000
       2      -0.3319      1.00000
       3       2.3549      1.00000
@@ -3317,7 +3317,7 @@ Automatic generation of k-mesh.
      48      58.4998      0.00000
 
  k-point    41 :      -0.4615    0.3077    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.9936      1.00000
       2      -0.9973      1.00000
       3       1.7658      1.00000
@@ -3368,7 +3368,7 @@ Automatic generation of k-mesh.
      48      57.9286      0.00000
 
  k-point    42 :      -0.3846    0.3077   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.8477      1.00000
       2      -1.1455      1.00000
       3       1.4049      1.00000
@@ -3419,7 +3419,7 @@ Automatic generation of k-mesh.
      48      58.7823      0.00000
 
  k-point    43 :      -0.3077    0.3077   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.2945      1.00000
       2      -0.6715      1.00000
       3       1.3983      1.00000
@@ -3470,7 +3470,7 @@ Automatic generation of k-mesh.
      48      58.2618      0.00000
 
  k-point    44 :       0.3846    0.3846   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.6916      1.00000
       2      -0.1532      1.00000
       3       3.1041      1.00000
@@ -3521,7 +3521,7 @@ Automatic generation of k-mesh.
      48      59.3648      0.00000
 
  k-point    45 :       0.4615    0.3846   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.1526      1.00000
       2      -0.8235      1.00000
       3       2.6860      1.00000
@@ -3572,7 +3572,7 @@ Automatic generation of k-mesh.
      48      59.9329      0.00000
 
  k-point    46 :      -0.4615    0.3846   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.5675      1.00000
       2      -1.4248      1.00000
       3       2.0128      1.00000
@@ -3623,7 +3623,7 @@ Automatic generation of k-mesh.
      48      59.5058      0.00000
 
  k-point    47 :      -0.3846    0.3846   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.3872      1.00000
       2      -1.5574      1.00000
       3       1.4892      1.00000
@@ -3674,7 +3674,7 @@ Automatic generation of k-mesh.
      48      57.8577      0.00000
 
  k-point    48 :       0.4615    0.4615   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.6395      1.00000
       2      -1.4486      1.00000
       3       2.9177      1.00000
@@ -3725,7 +3725,7 @@ Automatic generation of k-mesh.
      48      59.9616      0.00000
 
  k-point    49 :      -0.4615    0.4615   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.0816      1.00000
       2      -2.0035      1.00000
       3       2.5736      1.00000
@@ -3776,7 +3776,7 @@ Automatic generation of k-mesh.
      48      59.0861      0.00000
 
  k-point    50 :       0.2308    0.1538    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.6960      1.00000
       2       3.2794      1.00000
       3       4.2815      1.00000
@@ -3827,7 +3827,7 @@ Automatic generation of k-mesh.
      48      55.1714      0.00000
 
  k-point    51 :       0.3077    0.1538    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.3205      1.00000
       2       2.1119      1.00000
       3       3.7766      1.00000
@@ -3878,7 +3878,7 @@ Automatic generation of k-mesh.
      48      55.9747      0.00000
 
  k-point    52 :       0.3846    0.1538    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.8174      1.00000
       2       0.8621      1.00000
       3       3.5009      1.00000
@@ -3929,7 +3929,7 @@ Automatic generation of k-mesh.
      48      56.5256      0.00000
 
  k-point    53 :       0.4615    0.1538    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.2366      1.00000
       2      -0.2541      1.00000
       3       3.3527      1.00000
@@ -3980,7 +3980,7 @@ Automatic generation of k-mesh.
      48      58.2085      0.00000
 
  k-point    54 :      -0.4615    0.1538    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.7454      1.00000
       2      -1.0208      1.00000
       3       3.2917      1.00000
@@ -4031,7 +4031,7 @@ Automatic generation of k-mesh.
      48      59.0818      0.00000
 
  k-point    55 :       0.3077    0.2308    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.1890      1.00000
       2       2.1734      1.00000
       3       3.6101      1.00000
@@ -4082,7 +4082,7 @@ Automatic generation of k-mesh.
      48      55.7784      0.00000
 
  k-point    56 :       0.3846    0.2308    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.7267      1.00000
       2       1.1606      1.00000
       3       3.1025      1.00000
@@ -4133,7 +4133,7 @@ Automatic generation of k-mesh.
      48      55.7869      0.00000
 
  k-point    57 :       0.4615    0.2308    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.1630      1.00000
       2       0.1039      1.00000
       3       2.7693      1.00000
@@ -4184,7 +4184,7 @@ Automatic generation of k-mesh.
      48      57.2414      0.00000
 
  k-point    58 :      -0.4615    0.2308    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.6061      1.00000
       2      -0.7609      1.00000
       3       2.5282      1.00000
@@ -4235,7 +4235,7 @@ Automatic generation of k-mesh.
      48      58.0881      0.00000
 
  k-point    59 :      -0.3846    0.2308    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.4021      1.00000
       2      -1.0399      1.00000
       3       2.3702      1.00000
@@ -4286,7 +4286,7 @@ Automatic generation of k-mesh.
      48      58.9076      0.00000
 
  k-point    60 :      -0.3077    0.2308    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.7896      1.00000
       2      -0.4883      1.00000
       3       2.3270      1.00000
@@ -4337,7 +4337,7 @@ Automatic generation of k-mesh.
      48      58.4729      0.00000
 
  k-point    61 :      -0.2308    0.2308    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.3706      1.00000
       2       0.4581      1.00000
       3       2.4555      1.00000
@@ -4388,7 +4388,7 @@ Automatic generation of k-mesh.
      48      56.7633      0.00000
 
  k-point    62 :      -0.1538    0.2308    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.9040      1.00000
       2       1.4171      1.00000
       3       2.8882      1.00000
@@ -4439,7 +4439,7 @@ Automatic generation of k-mesh.
      48      57.1005      0.00000
 
  k-point    63 :       0.3846    0.3077    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.4911      1.00000
       2       1.0024      1.00000
       3       3.0849      1.00000
@@ -4490,7 +4490,7 @@ Automatic generation of k-mesh.
      48      55.9933      0.00000
 
  k-point    64 :       0.4615    0.3077    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.9561      1.00000
       2       0.1719      1.00000
       3       2.5406      1.00000
@@ -4541,7 +4541,7 @@ Automatic generation of k-mesh.
      48      57.3458      0.00000
 
  k-point    65 :      -0.4615    0.3077    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.3731      1.00000
       2      -0.6263      1.00000
       3       2.0520      1.00000
@@ -4592,7 +4592,7 @@ Automatic generation of k-mesh.
      48      57.5629      0.00000
 
  k-point    66 :      -0.3846    0.3077    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.0018      1.00000
       2      -1.0783      1.00000
       3       1.7078      1.00000
@@ -4643,7 +4643,7 @@ Automatic generation of k-mesh.
      48      58.6368      0.00000
 
  k-point    67 :      -0.3077    0.3077    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.2559      1.00000
       2      -0.7652      1.00000
       3       1.5767      1.00000
@@ -4694,7 +4694,7 @@ Automatic generation of k-mesh.
      48      58.6207      0.00000
 
  k-point    68 :      -0.2308    0.3077    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.8202      1.00000
       2      -0.0926      1.00000
       3       1.7756      1.00000
@@ -4745,7 +4745,7 @@ Automatic generation of k-mesh.
      48      57.7208      0.00000
 
  k-point    69 :       0.4615    0.3846    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.6166      1.00000
       2      -0.2208      1.00000
       3       2.7435      1.00000
@@ -4796,7 +4796,7 @@ Automatic generation of k-mesh.
      48      58.4787      0.00000
 
  k-point    70 :      -0.4615    0.3846    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.0344      1.00000
       2      -0.8879      1.00000
       3       2.1523      1.00000
@@ -4847,7 +4847,7 @@ Automatic generation of k-mesh.
      48      58.8076      0.00000
 
  k-point    71 :      -0.3846    0.3846    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.5525      1.00000
       2      -1.3710      1.00000
       3       1.5948      1.00000
@@ -4898,7 +4898,7 @@ Automatic generation of k-mesh.
      48      58.2628      0.00000
 
  k-point    72 :      -0.3077    0.3846    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.7184      1.00000
       2      -1.1919      1.00000
       3       1.3398      1.00000
@@ -4949,7 +4949,7 @@ Automatic generation of k-mesh.
      48      58.4791      0.00000
 
  k-point    73 :      -0.4615    0.4615    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.5878      1.00000
       2      -1.4391      1.00000
       3       2.6049      1.00000
@@ -5000,7 +5000,7 @@ Automatic generation of k-mesh.
      48      59.9235      0.00000
 
  k-point    74 :      -0.3846    0.4615    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.1156      1.00000
       2      -1.8584      1.00000
       3       2.0141      1.00000
@@ -5051,7 +5051,7 @@ Automatic generation of k-mesh.
      48      58.1684      0.00000
 
  k-point    75 :       0.4615    0.3077    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.2318      1.00000
       2       0.5053      1.00000
       3       2.3853      1.00000
@@ -5102,7 +5102,7 @@ Automatic generation of k-mesh.
      48      56.3687      0.00000
 
  k-point    76 :      -0.4615    0.3077    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.6544      1.00000
       2      -0.2872      1.00000
       3       2.0028      1.00000
@@ -5153,7 +5153,7 @@ Automatic generation of k-mesh.
      48      57.6770      0.00000
 
  k-point    77 :      -0.3846    0.3077    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.1496      1.00000
       2      -0.9431      1.00000
       3       1.8582      1.00000
@@ -5204,7 +5204,7 @@ Automatic generation of k-mesh.
      48      58.4915      0.00000
 
  k-point    78 :      -0.4615    0.3846    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.4020      1.00000
       2      -0.4395      1.00000
       3       2.0965      1.00000
@@ -5255,7 +5255,7 @@ Automatic generation of k-mesh.
      48      58.0485      0.00000
 
  k-point    79 :      -0.3846    0.3846    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.8354      1.00000
       2      -1.0416      1.00000
       3       1.7415      1.00000
@@ -5306,7 +5306,7 @@ Automatic generation of k-mesh.
      48      58.5729      0.00000
 
  k-point    80 :      -0.3077    0.3846    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.6406      1.00000
       2      -1.2376      1.00000
       3       1.5243      1.00000
@@ -5357,7 +5357,7 @@ Automatic generation of k-mesh.
      48      58.5465      0.00000
 
  k-point    81 :      -0.2308    0.3846    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.0816      1.00000
       2      -0.7922      1.00000
       3       1.5726      1.00000
@@ -5408,7 +5408,7 @@ Automatic generation of k-mesh.
      48      58.6698      0.00000
 
  k-point    82 :      -0.3846    0.4615    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.4517      1.00000
       2      -1.4398      1.00000
       3       2.0571      1.00000
@@ -5459,7 +5459,7 @@ Automatic generation of k-mesh.
      48      58.2088      0.00000
 
  k-point    83 :      -0.3077    0.4615    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.1673      1.00000
       2      -1.6720      1.00000
       3       1.6642      1.00000
@@ -5510,7 +5510,7 @@ Automatic generation of k-mesh.
      48      57.2669      0.00000
 
  k-point    84 :      -0.3077    0.4615    0.2308
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.2873      1.00000
       2      -1.5122      1.00000
       3       1.6852      1.00000
@@ -5564,7 +5564,7 @@ Automatic generation of k-mesh.
  spin component 2
 
  k-point     1 :       0.0000    0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -6.2100      1.00000
       2       5.7611      1.00000
       3       5.7611      1.00000
@@ -5615,7 +5615,7 @@ Automatic generation of k-mesh.
      48      52.0233      0.00000
 
  k-point     2 :       0.0769    0.0000   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -6.1323      1.00000
       2       4.9992      1.00000
       3       5.6354      1.00000
@@ -5666,7 +5666,7 @@ Automatic generation of k-mesh.
      48      53.6715      0.00000
 
  k-point     3 :       0.1538   -0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.9013      1.00000
       2       3.6070      1.00000
       3       5.3576      1.00000
@@ -5717,7 +5717,7 @@ Automatic generation of k-mesh.
      48      53.6173      0.00000
 
  k-point     4 :       0.2308    0.0000   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.5242      1.00000
       2       2.1634      1.00000
       3       5.0643      1.00000
@@ -5768,7 +5768,7 @@ Automatic generation of k-mesh.
      48      55.7948      0.00000
 
  k-point     5 :       0.3077   -0.0000    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.0195      1.00000
       2       0.8160      1.00000
       3       4.8220      1.00000
@@ -5819,7 +5819,7 @@ Automatic generation of k-mesh.
      48      57.5615      0.00000
 
  k-point     6 :       0.3846   -0.0000   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.4384      1.00000
       2      -0.3414      1.00000
       3       4.6550      1.00000
@@ -5870,7 +5870,7 @@ Automatic generation of k-mesh.
      48      58.6674      0.00000
 
  k-point     7 :       0.4615   -0.0000   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.9503      1.00000
       2      -1.1212      1.00000
       3       4.5706      1.00000
@@ -5921,7 +5921,7 @@ Automatic generation of k-mesh.
      48      58.3946      0.00000
 
  k-point     8 :       0.0769    0.0769   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -6.1063      1.00000
       2       5.1514      1.00000
       3       5.3794      1.00000
@@ -5972,7 +5972,7 @@ Automatic generation of k-mesh.
      48      52.5459      0.00000
 
  k-point     9 :       0.1538    0.0769   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.9260      1.00000
       2       4.0235      1.00000
       3       5.0444      1.00000
@@ -6023,7 +6023,7 @@ Automatic generation of k-mesh.
      48      53.8400      0.00000
 
  k-point    10 :       0.2308    0.0769   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.5967      1.00000
       2       2.6271      1.00000
       3       4.7414      1.00000
@@ -6074,7 +6074,7 @@ Automatic generation of k-mesh.
      48      54.7819      0.00000
 
  k-point    11 :       0.3077    0.0769   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.1316      1.00000
       2       1.2643      1.00000
       3       4.5197      1.00000
@@ -6125,7 +6125,7 @@ Automatic generation of k-mesh.
      48      56.5108      0.00000
 
  k-point    12 :       0.3846    0.0769    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.5663      1.00000
       2       0.0447      1.00000
       3       4.3347      1.00000
@@ -6176,7 +6176,7 @@ Automatic generation of k-mesh.
      48      58.6663      0.00000
 
  k-point    13 :       0.4615    0.0769   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.0129      1.00000
       2      -0.8899      1.00000
       3       4.1162      1.00000
@@ -6227,7 +6227,7 @@ Automatic generation of k-mesh.
      48      58.7087      0.00000
 
  k-point    14 :      -0.4615    0.0769   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.8082      1.00000
       2      -1.1902      1.00000
       3       3.9842      1.00000
@@ -6278,7 +6278,7 @@ Automatic generation of k-mesh.
      48      58.5762      0.00000
 
  k-point    15 :      -0.3846    0.0769    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.1827      1.00000
       2      -0.6232      1.00000
       3       3.9497      1.00000
@@ -6329,7 +6329,7 @@ Automatic generation of k-mesh.
      48      59.1453      0.00000
 
  k-point    16 :      -0.3077    0.0769    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.7627      1.00000
       2       0.4314      1.00000
       3       4.0212      1.00000
@@ -6380,7 +6380,7 @@ Automatic generation of k-mesh.
      48      58.4292      0.00000
 
  k-point    17 :      -0.2308    0.0769   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.3010      1.00000
       2       1.7076      1.00000
       3       4.2048      1.00000
@@ -6431,7 +6431,7 @@ Automatic generation of k-mesh.
      48      56.4575      0.00000
 
  k-point    18 :      -0.1538    0.0769   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.7230      1.00000
       2       3.0798      1.00000
       3       4.5085      1.00000
@@ -6482,7 +6482,7 @@ Automatic generation of k-mesh.
      48      54.0379      0.00000
 
  k-point    19 :      -0.0769    0.0769    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -6.0034      1.00000
       2       4.3309      1.00000
       3       4.9938      1.00000
@@ -6533,7 +6533,7 @@ Automatic generation of k-mesh.
      48      53.5360      0.00000
 
  k-point    20 :       0.1538    0.1538   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.7966      1.00000
       2       3.9383      1.00000
       3       4.6754      1.00000
@@ -6584,7 +6584,7 @@ Automatic generation of k-mesh.
      48      53.9759      0.00000
 
  k-point    21 :       0.2308    0.1538   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.5164      1.00000
       2       2.9190      1.00000
       3       4.3527      1.00000
@@ -6635,7 +6635,7 @@ Automatic generation of k-mesh.
      48      55.1525      0.00000
 
  k-point    22 :       0.3077    0.1538   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.0951      1.00000
       2       1.6724      1.00000
       3       3.9881      1.00000
@@ -6686,7 +6686,7 @@ Automatic generation of k-mesh.
      48      56.0217      0.00000
 
  k-point    23 :       0.3846    0.1538   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.5572      1.00000
       2       0.4665      1.00000
       3       3.5844      1.00000
@@ -6737,7 +6737,7 @@ Automatic generation of k-mesh.
      48      56.6140      0.00000
 
  k-point    24 :       0.4615    0.1538   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.9764      1.00000
       2      -0.5511      1.00000
       3       3.2445      1.00000
@@ -6788,7 +6788,7 @@ Automatic generation of k-mesh.
      48      57.5223      0.00000
 
  k-point    25 :      -0.4615    0.1538   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.6020      1.00000
       2      -1.1011      1.00000
       3       3.0013      1.00000
@@ -6839,7 +6839,7 @@ Automatic generation of k-mesh.
      48      58.8428      0.00000
 
  k-point    26 :      -0.3846    0.1538    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.8148      1.00000
       2      -0.7939      1.00000
       3       2.8751      1.00000
@@ -6890,7 +6890,7 @@ Automatic generation of k-mesh.
      48      58.4541      0.00000
 
  k-point    27 :      -0.3077    0.1538    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.3710      1.00000
       2       0.1177      1.00000
       3       2.8856      1.00000
@@ -6941,7 +6941,7 @@ Automatic generation of k-mesh.
      48      58.3843      0.00000
 
  k-point    28 :      -0.2308    0.1538   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.9343      1.00000
       2       1.2534      1.00000
       3       3.0704      1.00000
@@ -6992,7 +6992,7 @@ Automatic generation of k-mesh.
      48      56.5213      0.00000
 
  k-point    29 :      -0.1538    0.1538   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.3963      1.00000
       2       2.3423      1.00000
       3       3.5581      1.00000
@@ -7043,7 +7043,7 @@ Automatic generation of k-mesh.
      48      54.7924      0.00000
 
  k-point    30 :       0.2308    0.2308   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.2851      1.00000
       2       2.5855      1.00000
       3       4.0062      1.00000
@@ -7094,7 +7094,7 @@ Automatic generation of k-mesh.
      48      55.9083      0.00000
 
  k-point    31 :       0.3077    0.2308   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.9096      1.00000
       2       1.7205      1.00000
       3       3.5957      1.00000
@@ -7145,7 +7145,7 @@ Automatic generation of k-mesh.
      48      56.2739      0.00000
 
  k-point    32 :       0.3846    0.2308   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.4070      1.00000
       2       0.7083      1.00000
       3       3.0417      1.00000
@@ -7196,7 +7196,7 @@ Automatic generation of k-mesh.
      48      57.7305      0.00000
 
  k-point    33 :       0.4615    0.2308   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.8254      1.00000
       2      -0.2610      1.00000
       3       2.5325      1.00000
@@ -7247,7 +7247,7 @@ Automatic generation of k-mesh.
      48      57.7091      0.00000
 
  k-point    34 :      -0.4615    0.2308   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.3341      1.00000
       2      -0.9510      1.00000
       3       2.1493      1.00000
@@ -7298,7 +7298,7 @@ Automatic generation of k-mesh.
      48      58.1742      0.00000
 
  k-point    35 :      -0.3846    0.2308   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.3581      1.00000
       2      -0.9117      1.00000
       3       1.9268      1.00000
@@ -7349,7 +7349,7 @@ Automatic generation of k-mesh.
      48      58.6488      0.00000
 
  k-point    36 :      -0.3077    0.2308   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.8645      1.00000
       2      -0.2006      1.00000
       3       1.9121      1.00000
@@ -7400,7 +7400,7 @@ Automatic generation of k-mesh.
      48      58.2942      0.00000
 
  k-point    37 :      -0.2308    0.2308    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.4405      1.00000
       2       0.6393      1.00000
       3       2.2352      1.00000
@@ -7451,7 +7451,7 @@ Automatic generation of k-mesh.
      48      57.5367      0.00000
 
  k-point    38 :       0.3077    0.3077   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.5794      1.00000
       2       1.2058      1.00000
       3       3.4714      1.00000
@@ -7502,7 +7502,7 @@ Automatic generation of k-mesh.
      48      58.2405      0.00000
 
  k-point    39 :       0.3846    0.3077   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.1162      1.00000
       2       0.4521      1.00000
       3       3.0253      1.00000
@@ -7553,7 +7553,7 @@ Automatic generation of k-mesh.
      48      58.5096      0.00000
 
  k-point    40 :       0.4615    0.3077   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.5511      1.00000
       2      -0.3319      1.00000
       3       2.3549      1.00000
@@ -7604,7 +7604,7 @@ Automatic generation of k-mesh.
      48      58.4998      0.00000
 
  k-point    41 :      -0.4615    0.3077    0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.9936      1.00000
       2      -0.9973      1.00000
       3       1.7658      1.00000
@@ -7655,7 +7655,7 @@ Automatic generation of k-mesh.
      48      57.9286      0.00000
 
  k-point    42 :      -0.3846    0.3077   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.8477      1.00000
       2      -1.1455      1.00000
       3       1.4049      1.00000
@@ -7706,7 +7706,7 @@ Automatic generation of k-mesh.
      48      58.7823      0.00000
 
  k-point    43 :      -0.3077    0.3077   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.2945      1.00000
       2      -0.6715      1.00000
       3       1.3983      1.00000
@@ -7757,7 +7757,7 @@ Automatic generation of k-mesh.
      48      58.2619      0.00000
 
  k-point    44 :       0.3846    0.3846   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.6916      1.00000
       2      -0.1532      1.00000
       3       3.1041      1.00000
@@ -7808,7 +7808,7 @@ Automatic generation of k-mesh.
      48      59.3648      0.00000
 
  k-point    45 :       0.4615    0.3846   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.1526      1.00000
       2      -0.8235      1.00000
       3       2.6860      1.00000
@@ -7859,7 +7859,7 @@ Automatic generation of k-mesh.
      48      59.9329      0.00000
 
  k-point    46 :      -0.4615    0.3846   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.5675      1.00000
       2      -1.4248      1.00000
       3       2.0128      1.00000
@@ -7910,7 +7910,7 @@ Automatic generation of k-mesh.
      48      59.5058      0.00000
 
  k-point    47 :      -0.3846    0.3846   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.3872      1.00000
       2      -1.5574      1.00000
       3       1.4892      1.00000
@@ -7961,7 +7961,7 @@ Automatic generation of k-mesh.
      48      57.8578      0.00000
 
  k-point    48 :       0.4615    0.4615   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.6395      1.00000
       2      -1.4486      1.00000
       3       2.9177      1.00000
@@ -8012,7 +8012,7 @@ Automatic generation of k-mesh.
      48      59.9616      0.00000
 
  k-point    49 :      -0.4615    0.4615   -0.0000
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.0816      1.00000
       2      -2.0035      1.00000
       3       2.5736      1.00000
@@ -8063,7 +8063,7 @@ Automatic generation of k-mesh.
      48      59.0861      0.00000
 
  k-point    50 :       0.2308    0.1538    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.6960      1.00000
       2       3.2794      1.00000
       3       4.2815      1.00000
@@ -8114,7 +8114,7 @@ Automatic generation of k-mesh.
      48      55.1714      0.00000
 
  k-point    51 :       0.3077    0.1538    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.3205      1.00000
       2       2.1119      1.00000
       3       3.7766      1.00000
@@ -8165,7 +8165,7 @@ Automatic generation of k-mesh.
      48      55.9748      0.00000
 
  k-point    52 :       0.3846    0.1538    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.8174      1.00000
       2       0.8621      1.00000
       3       3.5009      1.00000
@@ -8216,7 +8216,7 @@ Automatic generation of k-mesh.
      48      56.5257      0.00000
 
  k-point    53 :       0.4615    0.1538    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.2366      1.00000
       2      -0.2541      1.00000
       3       3.3527      1.00000
@@ -8267,7 +8267,7 @@ Automatic generation of k-mesh.
      48      58.2085      0.00000
 
  k-point    54 :      -0.4615    0.1538    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.7454      1.00000
       2      -1.0208      1.00000
       3       3.2917      1.00000
@@ -8318,7 +8318,7 @@ Automatic generation of k-mesh.
      48      59.0818      0.00000
 
  k-point    55 :       0.3077    0.2308    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -5.1890      1.00000
       2       2.1734      1.00000
       3       3.6101      1.00000
@@ -8369,7 +8369,7 @@ Automatic generation of k-mesh.
      48      55.7785      0.00000
 
  k-point    56 :       0.3846    0.2308    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.7267      1.00000
       2       1.1606      1.00000
       3       3.1025      1.00000
@@ -8420,7 +8420,7 @@ Automatic generation of k-mesh.
      48      55.7869      0.00000
 
  k-point    57 :       0.4615    0.2308    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.1630      1.00000
       2       0.1039      1.00000
       3       2.7693      1.00000
@@ -8471,7 +8471,7 @@ Automatic generation of k-mesh.
      48      57.2414      0.00000
 
  k-point    58 :      -0.4615    0.2308    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.6061      1.00000
       2      -0.7609      1.00000
       3       2.5281      1.00000
@@ -8522,7 +8522,7 @@ Automatic generation of k-mesh.
      48      58.0881      0.00000
 
  k-point    59 :      -0.3846    0.2308    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.4021      1.00000
       2      -1.0399      1.00000
       3       2.3702      1.00000
@@ -8573,7 +8573,7 @@ Automatic generation of k-mesh.
      48      58.9075      0.00000
 
  k-point    60 :      -0.3077    0.2308    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.7896      1.00000
       2      -0.4883      1.00000
       3       2.3270      1.00000
@@ -8624,7 +8624,7 @@ Automatic generation of k-mesh.
      48      58.4729      0.00000
 
  k-point    61 :      -0.2308    0.2308    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.3706      1.00000
       2       0.4581      1.00000
       3       2.4555      1.00000
@@ -8675,7 +8675,7 @@ Automatic generation of k-mesh.
      48      56.7633      0.00000
 
  k-point    62 :      -0.1538    0.2308    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.9040      1.00000
       2       1.4171      1.00000
       3       2.8882      1.00000
@@ -8726,7 +8726,7 @@ Automatic generation of k-mesh.
      48      57.1005      0.00000
 
  k-point    63 :       0.3846    0.3077    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.4911      1.00000
       2       1.0024      1.00000
       3       3.0849      1.00000
@@ -8777,7 +8777,7 @@ Automatic generation of k-mesh.
      48      55.9933      0.00000
 
  k-point    64 :       0.4615    0.3077    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.9561      1.00000
       2       0.1719      1.00000
       3       2.5406      1.00000
@@ -8828,7 +8828,7 @@ Automatic generation of k-mesh.
      48      57.3458      0.00000
 
  k-point    65 :      -0.4615    0.3077    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.3731      1.00000
       2      -0.6263      1.00000
       3       2.0520      1.00000
@@ -8879,7 +8879,7 @@ Automatic generation of k-mesh.
      48      57.5629      0.00000
 
  k-point    66 :      -0.3846    0.3077    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.0018      1.00000
       2      -1.0783      1.00000
       3       1.7078      1.00000
@@ -8930,7 +8930,7 @@ Automatic generation of k-mesh.
      48      58.6369      0.00000
 
  k-point    67 :      -0.3077    0.3077    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.2559      1.00000
       2      -0.7652      1.00000
       3       1.5767      1.00000
@@ -8981,7 +8981,7 @@ Automatic generation of k-mesh.
      48      58.6208      0.00000
 
  k-point    68 :      -0.2308    0.3077    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.8202      1.00000
       2      -0.0926      1.00000
       3       1.7756      1.00000
@@ -9032,7 +9032,7 @@ Automatic generation of k-mesh.
      48      57.7208      0.00000
 
  k-point    69 :       0.4615    0.3846    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.6166      1.00000
       2      -0.2208      1.00000
       3       2.7435      1.00000
@@ -9083,7 +9083,7 @@ Automatic generation of k-mesh.
      48      58.4788      0.00000
 
  k-point    70 :      -0.4615    0.3846    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.0344      1.00000
       2      -0.8879      1.00000
       3       2.1523      1.00000
@@ -9134,7 +9134,7 @@ Automatic generation of k-mesh.
      48      58.8077      0.00000
 
  k-point    71 :      -0.3846    0.3846    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.5525      1.00000
       2      -1.3710      1.00000
       3       1.5948      1.00000
@@ -9185,7 +9185,7 @@ Automatic generation of k-mesh.
      48      58.2628      0.00000
 
  k-point    72 :      -0.3077    0.3846    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.7184      1.00000
       2      -1.1919      1.00000
       3       1.3398      1.00000
@@ -9236,7 +9236,7 @@ Automatic generation of k-mesh.
      48      58.4791      0.00000
 
  k-point    73 :      -0.4615    0.4615    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.5878      1.00000
       2      -1.4391      1.00000
       3       2.6049      1.00000
@@ -9287,7 +9287,7 @@ Automatic generation of k-mesh.
      48      59.9236      0.00000
 
  k-point    74 :      -0.3846    0.4615    0.0769
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.1156      1.00000
       2      -1.8584      1.00000
       3       2.0141      1.00000
@@ -9338,7 +9338,7 @@ Automatic generation of k-mesh.
      48      58.1684      0.00000
 
  k-point    75 :       0.4615    0.3077    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -4.2318      1.00000
       2       0.5053      1.00000
       3       2.3853      1.00000
@@ -9389,7 +9389,7 @@ Automatic generation of k-mesh.
      48      56.3688      0.00000
 
  k-point    76 :      -0.4615    0.3077    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.6544      1.00000
       2      -0.2872      1.00000
       3       2.0028      1.00000
@@ -9440,7 +9440,7 @@ Automatic generation of k-mesh.
      48      57.6770      0.00000
 
  k-point    77 :      -0.3846    0.3077    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.1496      1.00000
       2      -0.9431      1.00000
       3       1.8582      1.00000
@@ -9491,7 +9491,7 @@ Automatic generation of k-mesh.
      48      58.4915      0.00000
 
  k-point    78 :      -0.4615    0.3846    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.4020      1.00000
       2      -0.4395      1.00000
       3       2.0965      1.00000
@@ -9542,7 +9542,7 @@ Automatic generation of k-mesh.
      48      58.0485      0.00000
 
  k-point    79 :      -0.3846    0.3846    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.8354      1.00000
       2      -1.0416      1.00000
       3       1.7415      1.00000
@@ -9593,7 +9593,7 @@ Automatic generation of k-mesh.
      48      58.5729      0.00000
 
  k-point    80 :      -0.3077    0.3846    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.6406      1.00000
       2      -1.2376      1.00000
       3       1.5243      1.00000
@@ -9644,7 +9644,7 @@ Automatic generation of k-mesh.
      48      58.5464      0.00000
 
  k-point    81 :      -0.2308    0.3846    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -3.0816      1.00000
       2      -0.7922      1.00000
       3       1.5726      1.00000
@@ -9695,7 +9695,7 @@ Automatic generation of k-mesh.
      48      58.6698      0.00000
 
  k-point    82 :      -0.3846    0.4615    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.4517      1.00000
       2      -1.4398      1.00000
       3       2.0571      1.00000
@@ -9746,7 +9746,7 @@ Automatic generation of k-mesh.
      48      58.2089      0.00000
 
  k-point    83 :      -0.3077    0.4615    0.1538
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.1673      1.00000
       2      -1.6720      1.00000
       3       1.6642      1.00000
@@ -9797,7 +9797,7 @@ Automatic generation of k-mesh.
      48      57.2669      0.00000
 
  k-point    84 :      -0.3077    0.4615    0.2308
-  band No.  band energies     occupation 
+  band No.  band energies     occupation
       1      -2.2873      1.00000
       2      -1.5122      1.00000
       3       1.6852      1.00000
@@ -9854,11 +9854,11 @@ Automatic generation of k-mesh.
  soft charge-density along one line, spin component           1
          0         1         2         3         4         5         6         7         8         9
  total charge-density along one line
- 
+
  soft charge-density along one line, spin component           2
          0         1         2         3         4         5         6         7         8         9
  total charge-density along one line
- 
+
  pseudopotential strength for first ion, spin component:           1
  18.405  -0.002  -0.000  -0.000  -0.000   0.000   0.000   0.000
  -0.002   0.006   0.000   0.000   0.000  -0.000  -0.000  -0.000
@@ -9922,7 +9922,7 @@ tot          1.505   1.873   0.000   3.378
     2        0.000   0.000   0.000   0.000
 --------------------------------------------------
 tot          0.000   0.000   0.000   0.000
- 
+
     CHARGE:  cpu time    1.2935: real time    0.1699
     FORLOC:  cpu time    0.0083: real time    0.0010
     FORNL :  cpu time    8.7517: real time    1.0940
@@ -9970,8 +9970,8 @@ tot          0.000   0.000   0.000   0.000
    0.536E-08 0.536E-08 0.422E-08   -.279E-14 -.392E-14 0.982E-14   0.493E-16 0.285E-16 0.194E-16   0.224E-09 0.224E-09 0.224E-09
  -----------------------------------------------------------------------------------------------
    0.105E-12 0.203E-13 -.177E-13   0.121E-15 -.758E-15 -.423E-15   0.108E-16 0.385E-17 -.158E-17   -.114E-14 -.275E-14 -.163E-14
- 
- 
+
+
  POSITION                                       TOTAL-FORCE (eV/Angst)
  -----------------------------------------------------------------------------------
       1.35895      1.35895      1.35895        -0.000000     -0.000000     -0.000000
@@ -9989,7 +9989,7 @@ tot          0.000   0.000   0.000   0.000
   free  energy   TOTEN  =       -10.65052373 eV
 
   energy  without entropy=      -10.65052373  energy(sigma->0) =      -10.65052373
- 
+
 
 
 --------------------------------------------------------------------------------------------------------
@@ -10029,7 +10029,7 @@ tot          0.000   0.000   0.000   0.000
   --------------------------------------------------------------------------------------
  sumrule: sum of plasma frequencies squared should yield (valence only):     274.715
 
- Anomalous Hall contribution (eV) 2/pi Imag((f_n-f_m)<u_m| d/dk_a u_n> <u_m| d/dk_b u_n>^*) 
+ Anomalous Hall contribution (eV) 2/pi Imag((f_n-f_m)<u_m| d/dk_a u_n> <u_m| d/dk_b u_n>^*)
   --------------------------------------------------------------------------------------
        0.000       0.000       0.000
        0.000       0.000       0.000
@@ -18054,7 +18054,7 @@ tot          0.000   0.000   0.000   0.000
    79.326577    0.980124    0.980124    0.980124   -0.000000    0.000000    0.000000
    79.366280    0.980145    0.980145    0.980145   -0.000000    0.000000    0.000000
    79.405983    0.980165    0.980165    0.980165   -0.000000    0.000000    0.000000
- 
+
  The outermost node in the dielectric function lies at epsilon=  12.1
 
 
@@ -18085,7 +18085,7 @@ tot          1.505   1.873   0.000   3.378
     2        0.000   0.000   0.000   0.000
 --------------------------------------------------
 tot          0.000   0.000   0.000   0.000
- 
+
  BZINTS: Fermi energy:    5.761232;    8.000000 electrons
          Band energy: 0.545728E+01;  BLOECHL correction:    0.000000
 
@@ -18098,27 +18098,27 @@ tot          0.000   0.000   0.000   0.000
    grid      :       5680. kBytes
    one-center:         12. kBytes
    wavefun   :      13418. kBytes
- 
-  
-  
+
+
+
  General timing and accounting informations for this job:
  ========================================================
-  
+
                   Total CPU time used (sec):    21885.049
                             User time (sec):    20010.860
                           System time (sec):     1874.189
                          Elapsed time (sec):     3461.726
-  
+
                    Maximum memory used (kb):      730528.
                    Average memory used (kb):          N/A
-  
+
                           Minor page faults:       666749
                           Major page faults:           45
                  Voluntary context switches:         8497
- 
+
  PROFILE, used timers:     390
  =============================
- 
+
  index                 routine                    time                            calls level
 ----------------------------------------------------------------------------------------------
     1    total_time                         3461.726631                                1   1
@@ -18511,10 +18511,10 @@ tot          0.000   0.000   0.000   0.000
   388        fftwav                                0.647855                         1512   3
   389          fft3d                                 0.504273                       1512   4
   390      densta                                0.696546                              1   2
- 
+
  Flat profile
  ============
- 
+
              routine name                   CPU           calls
  ---------------------------------------------------------------
  bg_pdssyex_zheevx                    1479.444678         840
@@ -18619,11 +18619,11 @@ tot          0.000   0.000   0.000   0.000
  redis_pw_over_bands                     0.000020           6
  rotate_active_occupied_orbital          0.000012           1
  ---------------------------------------------------------------
-  summed up times    3461.72663092613     
- 
+  summed up times    3461.72663092613
+
  Accumulative profile
  ====================
- 
+
              routine name                   CPU           calls
  ---------------------------------------------------------------
  total_time                           3461.726631           1
@@ -18728,6 +18728,6 @@ tot          0.000   0.000   0.000   0.000
  redis_pw_over_bands                     0.000020           6
  rotate_active_occupied_orbital          0.000012           1
  ---------------------------------------------------------------
- 
+
 Profiling took   9.223462 12.821514  0.006538  0.004738 seconds
 Profiling took  10.969431 seconds

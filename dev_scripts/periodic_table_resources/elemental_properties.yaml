@@ -1492,7 +1492,7 @@ Bulk modulus:
     Yb: 31
     Zn: 70
 Coefficient of linear thermal expansion:
-  reference: "https://en.wikipedia.org/wiki/Thermal_expansivities_of_the_elements" # WEL
+  reference: "https://en.wikipedia.org/wiki/Thermal_expansivities_of_the_elements"
   unit: K^-1
   factor: 1e-6
   data:
@@ -1692,7 +1692,7 @@ Critical temperature:
     Se: 1766
     Xe: 289.77
 Density of solid:
-  reference: "https://en.wikipedia.org/wiki/Densities_of_the_elements_(data_page)" # WEL
+  reference: "https://en.wikipedia.org/wiki/Densities_of_the_elements_(data_page)"
   unit: kg m^-3
   data:
     Ac: 10070
@@ -2336,7 +2336,7 @@ Liquid range:
     Zn: 487.32
     Zr: 2554
 Melting point:
-  reference: "https://en.wikipedia.org/wiki/Melting_points_of_the_elements_(data_page)" # WEL
+  reference: "https://en.wikipedia.org/wiki/Melting_points_of_the_elements_(data_page)"
   unit: K
   data:
     Ac: 1323
@@ -3039,7 +3039,7 @@ Superconduction temperature:
     Zn: 0.85
     Zr: 0.61
 Thermal conductivity:
-  reference: "https://en.wikipedia.org/wiki/Thermal_conductivities_of_the_elements_(data_page)" # WEL
+  reference: "https://en.wikipedia.org/wiki/Thermal_conductivities_of_the_elements_(data_page)"
   unit: W m^-1 K^-1
   data:
     Ac: 12
@@ -3139,7 +3139,7 @@ Thermal conductivity:
     Zn: 120
     Zr: 23
 Velocity of sound:
-  reference: "https://en.wikipedia.org/wiki/Speeds_of_sound_of_the_elements" # WEL
+  reference: "https://en.wikipedia.org/wiki/Speeds_of_sound_of_the_elements"
   unit: m s^-1
   data:
     Ag: 2600

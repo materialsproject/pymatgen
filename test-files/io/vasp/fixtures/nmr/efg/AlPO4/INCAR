@@ -11,4 +11,4 @@ LCHARG = .False.
 LWAVE = .False.
 LEFG = .True.
 QUAD_EFG = 0.0 146.6 0.0 0.0 0.0
- 
+
