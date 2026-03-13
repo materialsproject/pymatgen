@@ -59,11 +59,11 @@ jobs:
       OPT_BIN_DIR: ${{ github.workspace }}/opt/bin # for optional Ubuntu dependencies
     steps:
       - name: Check out repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: true
       - name: Create mamba environment
-        uses: mamba-org/setup-micromamba@main
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-name: pmg
           cache-environment: true
@@ -78,7 +78,7 @@ jobs:
             # openff-toolkit # TODO: doesn't support Python 3.13 yet
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
 
       - name: Install pymatgen and dependencies via uv
         run: |
@@ -91,7 +91,7 @@ jobs:
       - name: Restore cache for optional Ubuntu/MacOS dependencies
         if: matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest'
         id: optbin-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.OPT_BIN_DIR }}
           key: opt-bin-${{ runner.os }}-${{ hashFiles('.github/workflows/_install_opt_unit_deps.sh') }}
