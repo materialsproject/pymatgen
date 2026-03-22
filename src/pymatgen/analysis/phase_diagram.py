@@ -1025,7 +1025,7 @@ class PhaseDiagram(MSONable):
 
         Args:
             entry (PDEntry): A PDEntry like object
-            **kwargs: Keyword args passed to `get_decomp_and_decomp_energy`
+            **kwargs: Keyword args passed to `get_decomp_and_phase_separation_energy`
                 space_limit (int): The maximum number of competing entries to consider.
                 stable_only (bool): Only use stable materials as competing entries
                 tol (float): The tolerance for convergence of the SLSQP optimization
