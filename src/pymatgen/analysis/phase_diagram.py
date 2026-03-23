@@ -978,8 +978,10 @@ class PhaseDiagram(MSONable):
 
         # take entries with negative e_form and different compositions as competing entries
         competing_entries: set[PDEntry] = {c for c in compare_entries if id(c) not in same_comp_mem_ids}
+        full_competing_entries = competing_entries
 
         # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries.
+        reduced = False
         if len(competing_entries) > space_limit and not stable_only:
             warnings.warn(
                 f"There are {len(competing_entries)} competing entries "
@@ -987,16 +989,21 @@ class PhaseDiagram(MSONable):
                 stacklevel=2,
             )
 
+            # Only include elemental references within the entry's element space to avoid
+            # zero-column entries in A_transpose (which cause NaN during SLSQP normalisation).
             reduced_space = competing_entries - {*self._get_stable_entries_in_space(entry_elems)} | {
-                *self.el_refs.values()
+                e for e in self.el_refs.values() if entry_elems.issuperset(e.elements)
             }
 
             # NOTE calling PhaseDiagram is only reasonable if the composition has fewer than 5 elements
             inner_hull = PhaseDiagram(reduced_space)
 
+            # Re-add outer stable entries but exclude same-composition entries so the SLSQP
+            # cannot trivially decompose the target into itself.
             competing_entries = inner_hull.stable_entries | {
                 c for c in self._get_stable_entries_in_space(entry_elems) if id(c) not in same_comp_mem_ids
             }
+            reduced = True
 
         if len(competing_entries) > space_limit:
             warnings.warn(
@@ -1005,7 +1012,14 @@ class PhaseDiagram(MSONable):
                 stacklevel=2,
             )
 
-        decomp = _get_slsqp_decomp(entry.composition, list(competing_entries), tols, maxiter)
+        try:
+            decomp = _get_slsqp_decomp(entry.composition, list(competing_entries), tols, maxiter)
+        except ValueError:
+            if not reduced:
+                raise
+            # Inner hull reduction produced an infeasible or poorly-conditioned system;
+            # fall back to the full competing set.
+            decomp = _get_slsqp_decomp(entry.composition, list(full_competing_entries), tols, maxiter)
 
         # find the minimum alternative formation energy for the decomposition
         decomp_enthalpy = np.sum([c.energy_per_atom * amt for c, amt in decomp.items()])
