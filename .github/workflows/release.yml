@@ -44,25 +44,26 @@ jobs:
 
   build_wheels:
     needs: test
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, macos-13, windows-latest, ubuntu-24.04-arm]
-        python-version: ["311", "312", "313", "314"]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - name: Check out repo
         uses: actions/checkout@v6
 
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v3.4.0
-        env:
-          CIBW_BUILD: cp${{ matrix.python-version }}-*
+      - name: Install Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Build pure Python wheel
+        run: |
+          pip install build
+          python -m build --wheel
 
       - name: Save artifact
         uses: actions/upload-artifact@v6
         with:
-          name: dist-${{ matrix.os }}-${{ matrix.python-version }}
-          path: ./wheelhouse/*.whl
+          name: dist-wheel
+          path: dist/*.whl
 
   release:
     needs: [build_wheels, build_sdist]
