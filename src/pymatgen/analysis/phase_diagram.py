@@ -994,8 +994,9 @@ class PhaseDiagram(MSONable):
             # NOTE calling PhaseDiagram is only reasonable if the composition has fewer than 5 elements
             inner_hull = PhaseDiagram(reduced_space)
 
-            competing_entries = inner_hull.stable_entries | {*self._get_stable_entries_in_space(entry_elems)}
-            competing_entries = {c for c in compare_entries if id(c) not in same_comp_mem_ids}
+            competing_entries = inner_hull.stable_entries | {
+                c for c in self._get_stable_entries_in_space(entry_elems) if id(c) not in same_comp_mem_ids
+            }
 
         if len(competing_entries) > space_limit:
             warnings.warn(
