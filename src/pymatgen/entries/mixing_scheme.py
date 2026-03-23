@@ -175,8 +175,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         # any corrections added by compat_1 or compat_2.
         if clean:
             for entry in entries:
-                for ea in entry.energy_adjustments:
-                    entry.energy_adjustments.remove(ea)
+                entry.energy_adjustments = []
 
         entries_type_1, entries_type_2 = self._filter_and_sort_entries(entries, verbose=verbose)
 
