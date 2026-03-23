@@ -35,7 +35,7 @@ numpy==2.0.0
     #   pandas
     #   scipy
     #   spglib
-orjson==3.10.18
+orjson==3.11.6
     # via pymatgen (pyproject.toml)
 packaging==24.2
     # via
