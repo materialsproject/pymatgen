@@ -6,6 +6,42 @@ nav_order: 4
 
 # Changelog
 
+## v2026.3.23
+
+- PR #4595 Major reorganization of pymatgen repo. Now core functionality is in a separate pymatgen-core repo and released as a separate pypi package. All changes should be backwards compatible, i.e., pip install pymatgen still provides all the same functionality as before. (by @shyuep)
+- PR #4592 Rewrite LOBSTER parsers with memory-efficient streaming architecture (by @tomdemeyere)
+- PR #4589 Pass `process_entries` arguments to `solid_compat` in `MaterialsProjectAqueousCompatibility` (by @lkkmpn)
+- PR #4584 Fix unstable sorting in phase diagram (by @DanielYang59)
+- PR #4581 Add yaml for smoothPES correction (by @CompRhys)
+- PR #4579 Allow for alchemical pseudoatoms in Abinit (by @GkAntonius)
+- PR #4567 Symmetry no longer necessary to have first in geometry directive for NwChem (by @francescalb)
+- PR #4565 Remove jupyter from dev dependency group (by @DanielYang59)
+- PR #4555 Update MatPESStaticSet docstring: PBE_54 to PBE_64 (by @ThomasWarford)
+- PR #4546 Speed/stability improvements to chemenv/coordination_environments (by @lutfia95)
+- PR #4545 Chargemol fixes for VASP POTCAR 64 (by @esoteric-ephemera)
+- PR #4542 Fix types for entry processing in phase diagram and compatibility (by @janosh)
+- PR #4541 PatchedPhaseDiagram mimic PhaseDiagram Serialization (by @CompRhys)
+- PR #4535 Minor fixes to typing for `io.vasp.outputs.Wavecar` and `io.wannier90.Unk` (by @mturiansky)
+- PR #4531 Deprecate `CifParser` init support of `filename` as `StringIO` (by @DanielYang59)
+- PR #4530 Fix icet kwargs (by @esoteric-ephemera)
+- PR #4527 Replace assert with proper exceptions (by @DanielYang59)
+- PR #4526 `VolumetricData.copy` preserve subclass type (by @DanielYang59)
+- PR #4525 Minor type cleanup of `io.common` (by @DanielYang59)
+- PR #4522 `Incar.proc_val` reuse `incar_parameters.json` to determine types (by @DanielYang59)
+- PR #4521 Add ISEARCH parameter to incar_parameters.json (by @kavanase)
+- PR #4520 Avoid dict mutation in VaspInputSet.structure setter (by @janosh)
+- PR #4518 Enhance INCAR parsing: handle multi-line string and line continuation with backslash, fix handling of `!` as comment marker (by @DanielYang59)
+- PR #4516 Python 3.14 support (by @DanielYang59)
+- PR #4515 Update periodic table data: common oxidation states, critical temperature and electrical resistivity (by @DanielYang59)
+- PR #4514 Fix `Ion.as_reduced_dict` doesn't reduce charge (by @DanielYang59)
+- PR #4511 Fix PD Plotter to only show lowest energy for unstable composition (by @DanielYang59)
+- PR #4507 Add references/source to periodic table data (by @DanielYang59)
+- PR #4498 Allow for setting termination_ftol for film and substrate slabs separately (by @jinlhr542)
+- PR #4482 Simplify and clean up LobsterNeighbors (by @naik-aakash)
+- PR #4481 Fix icohpcollection & add missing keyword in Lobsterin (by @naik-aakash)
+- PR #4414 Phase Diagram Serialization Improvement (by @felix-adams)
+- PR #4148 Fix consideration of translation symmetry for some (extremely rare) edge cases in LobsterEnv (by @JaGeo)
+
 ## v2025.10.7
 
 - PR #4503 Replace print statements with logging across library code and tests (by @DanielYang59)
