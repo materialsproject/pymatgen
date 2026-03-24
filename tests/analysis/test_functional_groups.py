@@ -5,8 +5,8 @@ import platform
 import pytest
 
 from pymatgen.analysis.functional_groups import FunctionalGroupExtractor
-from pymatgen.analysis.graphs import MoleculeGraph
-from pymatgen.analysis.local_env import OpenBabelNN
+from pymatgen.core.graphs import MoleculeGraph
+from pymatgen.core.local_env import OpenBabelNN
 from pymatgen.core.structure import Molecule
 from pymatgen.util.testing import TEST_FILES_DIR
 

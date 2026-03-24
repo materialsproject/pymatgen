@@ -62,7 +62,7 @@ principles calculations, Electrochem. commun., 2010, 12, 427–430,
 doi:10.1016/j.elecom.2010.01.010.
 ```
 
-## `pymatgen.entries.compatibility`
+## `pymatgen.analysis.compatibility`
 
 The compatibility processing, which allows mixing of GGA and GGA+U runs that have been calculated using the MaterialsProjectVaspInputSet or MITVaspInputSet, is based on the following work.
 

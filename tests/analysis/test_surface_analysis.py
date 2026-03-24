@@ -8,7 +8,7 @@ from pytest import approx
 from sympy import Number, Symbol
 
 from pymatgen.analysis.surface_analysis import NanoscaleStability, SlabEntry, SurfaceEnergyPlotter, WorkFunctionAnalyzer
-from pymatgen.entries.computed_entries import ComputedStructureEntry
+from pymatgen.core.entries import ComputedStructureEntry
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "Richard Tran"

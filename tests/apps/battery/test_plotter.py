@@ -8,7 +8,7 @@ from pymatgen.apps.battery.conversion_battery import ConversionElectrode
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode
 from pymatgen.apps.battery.plotter import VoltageProfilePlotter
 from pymatgen.core.composition import Composition
-from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.core.entries import ComputedEntry
 from pymatgen.util.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"

@@ -11,7 +11,7 @@
       <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
 
-  
+
     <link rel="canonical" href="https://pymatgen.orgpymatgen.alchemy.html"/>
       <script src="assets/jquery.js?v=5d32c60e"></script>
       <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
@@ -20,19 +20,19 @@
       <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
     <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
 
-          
-          
+
+
           <a href="index.html">
-            
+
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -157,7 +157,7 @@
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+
   <section id="module-pymatgen.alchemy">
 <span id="pymatgen-alchemy-package"></span><h1>pymatgen.alchemy package<a class="headerlink" href="#module-pymatgen.alchemy" title="Link to this heading"></a></h1>
 <p>This package provides the modules for performing large scale transformations on
@@ -257,7 +257,7 @@ object if false, compares atomic number</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.alchemy.filters.RemoveDuplicatesFilter">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RemoveDuplicatesFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_matcher</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.analysis.html#pymatgen.analysis.structure_matcher.StructureMatcher" title="pymatgen.analysis.structure_matcher.StructureMatcher"><span class="pre">StructureMatcher</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2025.6.14/src/pymatgen/core/../alchemy/filters.py#L166-L217"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.filters.RemoveDuplicatesFilter" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RemoveDuplicatesFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_matcher</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.analysis.html#pymatgen.core.structure_matcher.StructureMatcher" title="pymatgen.core.structure_matcher.StructureMatcher"><span class="pre">StructureMatcher</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2025.6.14/src/pymatgen/core/../alchemy/filters.py#L166-L217"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.filters.RemoveDuplicatesFilter" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.alchemy.filters.AbstractStructureFilter" title="pymatgen.alchemy.filters.AbstractStructureFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractStructureFilter</span></code></a></p>
 <p>This filter removes exact duplicate structures from the transmuter.</p>
 <p>Remove duplicate structures based on the structure matcher
@@ -265,7 +265,7 @@ and symmetry (if symprec is given).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>structure_matcher</strong> (<em>dict</em><em> | </em><a class="reference internal" href="pymatgen.analysis.html#pymatgen.analysis.structure_matcher.StructureMatcher" title="pymatgen.analysis.structure_matcher.StructureMatcher"><em>StructureMatcher</em></a><em>, </em><em>optional</em>) – Provides a structure matcher to be used for
+<li><p><strong>structure_matcher</strong> (<em>dict</em><em> | </em><a class="reference internal" href="pymatgen.analysis.html#pymatgen.core.structure_matcher.StructureMatcher" title="pymatgen.core.structure_matcher.StructureMatcher"><em>StructureMatcher</em></a><em>, </em><em>optional</em>) – Provides a structure matcher to be used for
 structure comparison.</p></li>
 <li><p><strong>symprec</strong> (<em>float</em><em>, </em><em>optional</em>) – The precision in the symmetry finder algorithm if None (
 default value), no symmetry check is performed and only the
@@ -293,7 +293,7 @@ structure matcher is used. A recommended value is 1e-5.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.alchemy.filters.RemoveExistingFilter">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RemoveExistingFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">existing_structures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure_matcher</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.analysis.html#pymatgen.analysis.structure_matcher.StructureMatcher" title="pymatgen.analysis.structure_matcher.StructureMatcher"><span class="pre">StructureMatcher</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2025.6.14/src/pymatgen/core/../alchemy/filters.py#L220-L275"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.filters.RemoveExistingFilter" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RemoveExistingFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">existing_structures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure_matcher</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.analysis.html#pymatgen.core.structure_matcher.StructureMatcher" title="pymatgen.core.structure_matcher.StructureMatcher"><span class="pre">StructureMatcher</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2025.6.14/src/pymatgen/core/../alchemy/filters.py#L220-L275"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.filters.RemoveExistingFilter" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.alchemy.filters.AbstractStructureFilter" title="pymatgen.alchemy.filters.AbstractStructureFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractStructureFilter</span></code></a></p>
 <p>This filter removes structures existing in a given list from the transmuter.</p>
 <p>Remove existing structures based on the structure matcher
@@ -302,7 +302,7 @@ and symmetry (if symprec is given).</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>existing_structures</strong> (<em>list</em><em>[</em><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em>]</em>) – Existing structures to compare with.</p></li>
-<li><p><strong>structure_matcher</strong> (<em>dict</em><em> | </em><a class="reference internal" href="pymatgen.analysis.html#pymatgen.analysis.structure_matcher.StructureMatcher" title="pymatgen.analysis.structure_matcher.StructureMatcher"><em>StructureMatcher</em></a><em>, </em><em>optional</em>) – Will be used for
+<li><p><strong>structure_matcher</strong> (<em>dict</em><em> | </em><a class="reference internal" href="pymatgen.analysis.html#pymatgen.core.structure_matcher.StructureMatcher" title="pymatgen.core.structure_matcher.StructureMatcher"><em>StructureMatcher</em></a><em>, </em><em>optional</em>) – Will be used for
 structure comparison.</p></li>
 <li><p><strong>symprec</strong> (<em>float</em><em> | </em><em>None</em>) – The precision in the symmetry finder algorithm.
 If None (default value), no symmetry check is performed and only the
@@ -961,7 +961,7 @@ better supported in visualization programs.</p></li>
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+
 
 </footer>
         </div>
@@ -972,7 +972,7 @@ better supported in visualization programs.</p></li>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
 
 </body>
 </html>

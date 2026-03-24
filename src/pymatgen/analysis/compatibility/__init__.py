@@ -20,7 +20,6 @@ from monty.serialization import loadfn
 from tqdm import tqdm
 from uncertainties import ufloat
 
-from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
 from pymatgen.core import SETTINGS, Composition, Element
 from pymatgen.core.entries import (
     CompositionEnergyAdjustment,
@@ -30,6 +29,7 @@ from pymatgen.core.entries import (
     EnergyAdjustment,
     TemperatureEnergyAdjustment,
 )
+from pymatgen.core.structure_analyzer import oxide_type, sulfide_type
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet, VaspInputSet
 from pymatgen.util.due import Doi, due
 from pymatgen.util.joblib import set_python_warnings, tqdm_joblib

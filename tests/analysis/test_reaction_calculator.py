@@ -9,7 +9,7 @@ from pytest import approx
 
 from pymatgen.analysis.reaction_calculator import BalancedReaction, ComputedReaction, Reaction, ReactionError
 from pymatgen.core.composition import Composition
-from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.core.entries import ComputedEntry
 
 
 class TestReaction:
@@ -394,20 +394,20 @@ class TestComputedReaction:
                 "composition": {"O": 2},
             },
             {
-                "@module": "pymatgen.entries.computed_entries",
+                "@module": "pymatgen.core.entries",
                 "@class": "ComputedEntry",
                 "energy": -38.76889738,
                 "composition": defaultdict(float, {"Li": 4, "O": 4}),
                 "energy_adjustments": [
                     {
-                        "@module": "pymatgen.entries.computed_entries",
+                        "@module": "pymatgen.core.entries",
                         "@class": "ConstantEnergyAdjustment",
                         "@version": "2020.6.8",
                         "value": -1.864,
                         "uncertainty": 0.0744,
                         "name": "MP2020 Composition Correction",
                         "cls": {
-                            "@module": "pymatgen.entries.compatibility",
+                            "@module": "pymatgen.analysis.compatibility",
                             "@class": "MaterialsProject2020Compatibility",
                             "@version": "2020.6.8",
                             "compat_type": "Advanced",
@@ -465,20 +465,20 @@ class TestComputedReaction:
                 "composition": {"O": 2},
             },
             {
-                "@module": "pymatgen.entries.computed_entries",
+                "@module": "pymatgen.core.entries",
                 "@class": "ComputedEntry",
                 "energy": -38.76889738,
                 "composition": defaultdict(float, {"Li": 4, "O": 4}),
                 "energy_adjustments": [
                     {
-                        "@module": "pymatgen.entries.computed_entries",
+                        "@module": "pymatgen.core.entries",
                         "@class": "ConstantEnergyAdjustment",
                         "@version": "2020.6.8",
                         "value": -1.864,
                         "uncertainty": np.nan,
                         "name": "MP2020 Composition Correction",
                         "cls": {
-                            "@module": "pymatgen.entries.compatibility",
+                            "@module": "pymatgen.analysis.compatibility",
                             "@class": "MaterialsProject2020Compatibility",
                             "@version": "2020.6.8",
                             "compat_type": "Advanced",

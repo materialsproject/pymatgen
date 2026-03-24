@@ -11,7 +11,7 @@
       <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
 
-  
+
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.html"/>
       <script src="assets/jquery.js?v=5d32c60e"></script>
       <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
@@ -20,19 +20,19 @@
       <script src="assets/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
 
-          
-          
+
+
           <a href="index.html">
-            
+
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -179,7 +179,7 @@
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-pymatgen.analysis.graphs">pymatgen.analysis.graphs module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.core.graphs">pymatgen.core.graphs module</a></li>
 <li><a class="reference internal" href="#module-pymatgen.analysis.hhi">pymatgen.analysis.hhi module</a></li>
 <li><a class="reference internal" href="#module-pymatgen.analysis.interface_reactions">pymatgen.analysis.interface_reactions module</a><ul>
 <li><a class="reference internal" href="#pymatgen.analysis.interface_reactions.GrandPotentialInterfacialReactivity"><code class="docutils literal notranslate"><span class="pre">GrandPotentialInterfacialReactivity</span></code></a><ul>
@@ -234,7 +234,7 @@
 <li><a class="reference internal" href="#pymatgen.analysis.lobster_env.check_ICOHPs"><code class="docutils literal notranslate"><span class="pre">check_ICOHPs()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-pymatgen.analysis.local_env">pymatgen.analysis.local_env module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.core.local_env">pymatgen.core.local_env module</a></li>
 <li><a class="reference internal" href="#module-pymatgen.analysis.molecule_matcher">pymatgen.analysis.molecule_matcher module</a></li>
 <li><a class="reference internal" href="#module-pymatgen.analysis.molecule_structure_comparator">pymatgen.analysis.molecule_structure_comparator module</a></li>
 <li><a class="reference internal" href="#module-pymatgen.analysis.nmr">pymatgen.analysis.nmr module</a><ul>
@@ -583,8 +583,8 @@
 <li><a class="reference internal" href="#pymatgen.analysis.reaction_calculator.ReactionError"><code class="docutils literal notranslate"><span class="pre">ReactionError</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-pymatgen.analysis.structure_analyzer">pymatgen.analysis.structure_analyzer module</a></li>
-<li><a class="reference internal" href="#module-pymatgen.analysis.structure_matcher">pymatgen.analysis.structure_matcher module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.core.structure_analyzer">pymatgen.core.structure_analyzer module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.core.structure_matcher">pymatgen.core.structure_matcher module</a></li>
 <li><a class="reference internal" href="#module-pymatgen.analysis.surface_analysis">pymatgen.analysis.surface_analysis module</a><ul>
 <li><a class="reference internal" href="#pymatgen.analysis.surface_analysis.NanoscaleStability"><code class="docutils literal notranslate"><span class="pre">NanoscaleStability</span></code></a><ul>
 <li><a class="reference internal" href="#pymatgen.analysis.surface_analysis.NanoscaleStability.se_analyzers"><code class="docutils literal notranslate"><span class="pre">NanoscaleStability.se_analyzers</span></code></a></li>
@@ -759,7 +759,7 @@
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+
   <section id="module-pymatgen.analysis">
 <span id="pymatgen-analysis-namespace"></span><h1>pymatgen.analysis namespace<a class="headerlink" href="#module-pymatgen.analysis" title="Link to this heading"></a></h1>
 <section id="subpackages">
@@ -3327,14 +3327,14 @@ to be returned.</p>
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FunctionalGroupExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2026.3.9/src/pymatgen/core/../../../../../../src/pymatgen/analysis/functional_groups.py#L27-L361"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class is used to algorithmically parse a molecule (represented by an
-instance of pymatgen.analysis.graphs.MoleculeGraph) and determine arbitrary
+instance of pymatgen.core.graphs.MoleculeGraph) and determine arbitrary
 functional groups.</p>
 <p>Instantiation method for FunctionalGroupExtractor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>molecule</strong> – Either a filename, a pymatgen.core.structure.Molecule
-object, or a pymatgen.analysis.graphs.MoleculeGraph object.</p></li>
+object, or a pymatgen.core.graphs.MoleculeGraph object.</p></li>
 <li><p><strong>optimize</strong> – Default False. If True, then the input molecule will be
 modified, adding Hydrogens, performing a simple conformer search, etc.</p></li>
 </ul>
@@ -3464,8 +3464,8 @@ using other functions in this class.</p>
 </dd></dl>
 
 </section>
-<section id="module-pymatgen.analysis.graphs">
-<span id="pymatgen-analysis-graphs-module"></span><h2>pymatgen.analysis.graphs module<a class="headerlink" href="#module-pymatgen.analysis.graphs" title="Link to this heading"></a></h2>
+<section id="module-pymatgen.core.graphs">
+<span id="pymatgen-analysis-graphs-module"></span><h2>pymatgen.core.graphs module<a class="headerlink" href="#module-pymatgen.core.graphs" title="Link to this heading"></a></h2>
 <p>Module for graph representations of crystals and molecules.</p>
 </section>
 <section id="module-pymatgen.analysis.hhi">
@@ -4068,8 +4068,8 @@ per number of bond (True), or the sum (False).</p></li>
 <dd></dd></dl>
 
 </section>
-<section id="module-pymatgen.analysis.local_env">
-<span id="pymatgen-analysis-local-env-module"></span><h2>pymatgen.analysis.local_env module<a class="headerlink" href="#module-pymatgen.analysis.local_env" title="Link to this heading"></a></h2>
+<section id="module-pymatgen.core.local_env">
+<span id="pymatgen-analysis-local-env-module"></span><h2>pymatgen.core.local_env module<a class="headerlink" href="#module-pymatgen.core.local_env" title="Link to this heading"></a></h2>
 <p>This module provides classes to perform analyses of
 the local environments (e.g., finding near neighbors)
 of single sites in molecules and structures.</p>
@@ -7876,12 +7876,12 @@ messages to cover situations not covered by standard exception classes.</p>
 </dd></dl>
 
 </section>
-<section id="module-pymatgen.analysis.structure_analyzer">
-<span id="pymatgen-analysis-structure-analyzer-module"></span><h2>pymatgen.analysis.structure_analyzer module<a class="headerlink" href="#module-pymatgen.analysis.structure_analyzer" title="Link to this heading"></a></h2>
+<section id="module-pymatgen.core.structure_analyzer">
+<span id="pymatgen-analysis-structure-analyzer-module"></span><h2>pymatgen.core.structure_analyzer module<a class="headerlink" href="#module-pymatgen.core.structure_analyzer" title="Link to this heading"></a></h2>
 <p>This module provides classes to perform topological analyses of structures.</p>
 </section>
-<section id="module-pymatgen.analysis.structure_matcher">
-<span id="pymatgen-analysis-structure-matcher-module"></span><h2>pymatgen.analysis.structure_matcher module<a class="headerlink" href="#module-pymatgen.analysis.structure_matcher" title="Link to this heading"></a></h2>
+<section id="module-pymatgen.core.structure_matcher">
+<span id="pymatgen-analysis-structure-matcher-module"></span><h2>pymatgen.core.structure_matcher module<a class="headerlink" href="#module-pymatgen.core.structure_matcher" title="Link to this heading"></a></h2>
 <p>This module provides classes to perform fitting of structures.</p>
 </section>
 <section id="module-pymatgen.analysis.surface_analysis">
@@ -9918,7 +9918,7 @@ etc. operators work properly.</p></li>
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+
 
 </footer>
         </div>
@@ -9929,7 +9929,7 @@ etc. operators work properly.</p></li>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
 
 </body>
 </html>

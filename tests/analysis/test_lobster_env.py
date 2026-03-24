@@ -6,9 +6,9 @@ import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
-from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.lobster_env import LobsterNeighbors
 from pymatgen.core import Element
+from pymatgen.core.graphs import StructureGraph
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import Cohp, CompleteCohp
 from pymatgen.electronic_structure.core import Spin

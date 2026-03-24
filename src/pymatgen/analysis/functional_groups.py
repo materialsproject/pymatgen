@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import copy
 
-from pymatgen.analysis.graphs import MoleculeGraph
-from pymatgen.analysis.local_env import OpenBabelNN
+from pymatgen.core.graphs import MoleculeGraph
+from pymatgen.core.local_env import OpenBabelNN
 from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor
 
@@ -27,7 +27,7 @@ __credit__ = "Peiyuan Yu"
 class FunctionalGroupExtractor:
     """
     This class is used to algorithmically parse a molecule (represented by an
-    instance of pymatgen.analysis.graphs.MoleculeGraph) and determine arbitrary
+    instance of pymatgen.core.graphs.MoleculeGraph) and determine arbitrary
     functional groups.
     """
 
@@ -37,7 +37,7 @@ class FunctionalGroupExtractor:
 
         Args:
             molecule: Either a filename, a pymatgen.core.structure.Molecule
-                object, or a pymatgen.analysis.graphs.MoleculeGraph object.
+                object, or a pymatgen.core.graphs.MoleculeGraph object.
             optimize: Default False. If True, then the input molecule will be
                 modified, adding Hydrogens, performing a simple conformer search, etc.
         """

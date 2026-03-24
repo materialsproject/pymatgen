@@ -11,8 +11,8 @@ from pymatgen.analysis.chempot_diagram import (
     get_centroid_2d,
     simple_pca,
 )
+from pymatgen.analysis.compatibility.entry_tools import EntrySet
 from pymatgen.core.composition import Element
-from pymatgen.entries.entry_tools import EntrySet
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis"

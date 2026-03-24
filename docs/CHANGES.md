@@ -110,7 +110,7 @@ nav_order: 4
     - Avoid `==` or `!=` for possible float comparison
     - Fix uncertainty as int for `EnergyAdjustment` cannot generate repr:
     ```python
-    from pymatgen.entries.computed_entries import EnergyAdjustment
+    from pymatgen.core.entries import EnergyAdjustment
     print(EnergyAdjustment(10, uncertainty=0))
     ```
     Gives:
@@ -4291,7 +4291,7 @@ package <https://pypi.python.org/pypi/monty>`\_, which is now a dependency
   algo using data-mined ICSD data.
 * Speed up and improvements to core classes.
 * Improved structure fitter (credits to Geoffroy Hautier).
-* Brand new entry_tools module (pymatgen.entries.entry_tools).
+* Brand new entry_tools module (pymatgen.analysis.compatibility.entry_tools).
 * Vastly improved Outcar parser based on reverse parsing that speeds up
   reading of OUTCAR files by orders of magnitude.
 * Miscellaneous bug fixes.

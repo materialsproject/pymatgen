@@ -9,8 +9,8 @@ import warnings
 from pymatgen.analysis.compatibility.correction_calculator import *  # noqa: F403
 
 warnings.warn(
-    "All entry_tools have been moved to the pymatgen.analysis.compatibility.entry_tools module. "
-    "This stub will be removed v2027.1.",
+    "All CorrectionCalculators have been moved to the "
+    "pymatgen.analysis.compatibility.correction_calculator module. This stub will be removed v2027.1.",
     DeprecationWarning,
     stacklevel=2,
 )

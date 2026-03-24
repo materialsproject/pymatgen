@@ -16,7 +16,7 @@
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
- 
+
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -36,14 +36,14 @@
         <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.command_line.critic2_caller</a></li> 
+        <li class="nav-item nav-item-this"><a href="">pymatgen.command_line.critic2_caller</a></li>
       </ul>
-    </div>  
+    </div>
 
     <div class="document">
       <div class="documentwrapper">
           <div class="body" role="main">
-            
+
   <h1>Source code for pymatgen.command_line.critic2_caller</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module implements an interface to the critic2 Bader analysis code.</span>
@@ -93,7 +93,7 @@
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">KDTree</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="kn">import</span> <span class="n">Chgcar</span><span class="p">,</span> <span class="n">VolumetricData</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="kn">import</span> <span class="n">Potcar</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="kn">import</span> <span class="n">StructureGraph</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.graphs</span> <span class="kn">import</span> <span class="n">StructureGraph</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">DummySpecie</span>
 <span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="kn">import</span> <span class="n">which</span>
 <span class="kn">from</span> <span class="nn">monty.dev</span> <span class="kn">import</span> <span class="n">requires</span>
@@ -1003,7 +1003,7 @@
         <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.command_line.critic2_caller</a></li> 
+        <li class="nav-item nav-item-this"><a href="">pymatgen.command_line.critic2_caller</a></li>
       </ul>
     </div>
 

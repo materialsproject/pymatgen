@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING
 
 from tabulate import tabulate
 
-from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
 from pymatgen.core.structure import Structure
+from pymatgen.core.structure_matcher import ElementComparator, StructureMatcher
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:

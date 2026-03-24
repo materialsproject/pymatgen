@@ -161,7 +161,7 @@ There is also support for more than 100 file types via the OpenBabel interface. 
 This section is a work in progress. But just to give an overview of the kind of analysis you can do:
 
 1. Modify Structures directly or even better, using the `pymatgen .transformations` and `pymatgen.alchemy` packages.
-2. Analyse Structures. E.g., compute the Ewald sum using the `pymatgen.analysis.ewald` package, compare two structures for similarity using `pymatgen.analysis.structure_matcher`.
+2. Analyse Structures. E.g., compute the Ewald sum using the `pymatgen.analysis.ewald` package, compare two structures for similarity using `pymatgen.core.structure_matcher`.
 
 It should be noted that `Structure` and `Molecule` are designed to be mutable. In fact, they are the most basic mutable units (everything below in the class hierarchy such as `Element`, `Species`, `Site`, `PeriodicSite`, `Lattice` are immutable).  If you need guarantees of immutability for `Structure/Molecule`, you should use the `IStructure` and `IMolecule` classes instead.
 
@@ -206,7 +206,7 @@ The above is just some examples of typical use cases. A lot more is possible and
 
 # Entries - Basic analysis unit
 
-Beyond the core `Element`, `Site` and `Structure` objects, most analyses within in pymatgen (e.g., creating a `PhaseDiagram`) are performed using `Entry` objects. An `Entry` in its most basic form contains a calculated energy and a composition, and may optionally contain other input or calculated data. In most instances, you will use the `ComputedEntry` or `ComputedStructureEntry` objects defined in `pymatgen.entries.computed_entries`. ComputedEntry objects can be created by either manually parsing calculated data calculations, or by using the `pymatgen.apps.borg` package.
+Beyond the core `Element`, `Site` and `Structure` objects, most analyses within in pymatgen (e.g., creating a `PhaseDiagram`) are performed using `Entry` objects. An `Entry` in its most basic form contains a calculated energy and a composition, and may optionally contain other input or calculated data. In most instances, you will use the `ComputedEntry` or `ComputedStructureEntry` objects defined in `pymatgen.core.entries`. ComputedEntry objects can be created by either manually parsing calculated data calculations, or by using the `pymatgen.apps.borg` package.
 
 ## Compatibility - Mixing GGA and GGA+U runs
 
@@ -215,7 +215,7 @@ The Ceder group has developed a scheme where by GGA and GGA+U calculations can b
 In the `pymatgen.io.vasp.sets` module, pre-defined parameter sets have been coded to allow users to generate VASP input files that are consistent with input parameters that are compatible with the Materials Project data. Users who wish to perform analysis using runs calculated using these parameters should post-process entries generated from these runs using the appropriate compatibility. For example, if a user wants to generate a phase diagram from a list of entries generated from Fe-P-O vasp runs, he should use the following procedure:
 
 ```python
-from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+from pymatgen.analysis.compatibility import MaterialsProjectCompatibility
 from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter
 
 # Get unprocessed_entries using pymatgen.borg or other means.
@@ -387,7 +387,7 @@ Finally, the `MPRester` provides methods to obtain all entries in a chemical sys
 from pymatgen.ext.matproj import MPRester
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
-from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+from pymatgen.analysis.compatibility import MaterialsProjectCompatibility
 from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter
 
 # Assimilate VASP calculations into ComputedEntry object. Let's assume that

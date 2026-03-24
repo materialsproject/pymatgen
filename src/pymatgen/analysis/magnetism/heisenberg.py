@@ -16,9 +16,9 @@ import pandas as pd
 from monty.json import MSONable, jsanitize
 from monty.serialization import dumpfn
 
-from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Ordering
+from pymatgen.core.graphs import StructureGraph
+from pymatgen.core.local_env import MinimumDistanceNN
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -39,7 +39,7 @@ class HeisenbergMapper:
     """Compute exchange parameters from low energy magnetic orderings.
 
     Attributes:
-        strategy (object): Class from pymatgen.analysis.local_env for constructing graphs.
+        strategy (object): Class from pymatgen.core.local_env for constructing graphs.
         sgraphs (list): StructureGraph objects.
         unique_site_ids (dict): Maps each site to its unique numerical identifier.
         wyckoff_ids (dict): Maps unique numerical identifier to wyckoff position.

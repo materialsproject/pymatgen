@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
-from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
-from pymatgen.analysis.local_env import OpenBabelNN, metal_edge_extender
+from pymatgen.core.graphs import MoleculeGraph, MolGraphSplitError
+from pymatgen.core.local_env import OpenBabelNN, metal_edge_extender
 from pymatgen.io.babel import BabelMolAdaptor
 
 if TYPE_CHECKING:
