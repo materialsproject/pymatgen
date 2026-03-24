@@ -10,6 +10,7 @@ from monty.json import MontyDecoder
 from pytest import approx
 
 from pymatgen.analysis.compatibility import MaterialsProject2020Compatibility
+from pymatgen.analysis.compatibility.computed_entries import GibbsComputedStructureEntry
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.core.entries import (
     CompositionEnergyAdjustment,
@@ -17,7 +18,6 @@ from pymatgen.core.entries import (
     ComputedStructureEntry,
     ConstantEnergyAdjustment,
     EnergyAdjustment,
-    GibbsComputedStructureEntry,
     ManualEnergyAdjustment,
     TemperatureEnergyAdjustment,
 )
