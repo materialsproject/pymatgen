@@ -20,7 +20,7 @@ from monty.serialization import loadfn
 from tqdm import tqdm
 from uncertainties import ufloat
 
-from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
+from pymatgen.core.structure_analyzer import oxide_type, sulfide_type
 from pymatgen.core import SETTINGS, Composition, Element
 from pymatgen.core.entries import (
     CompositionEnergyAdjustment,

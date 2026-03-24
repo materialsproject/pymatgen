@@ -32,7 +32,7 @@ from networkx.readwrite import json_graph
 
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import JmolNN
-from pymatgen.analysis.structure_analyzer import get_max_bond_lengths
+from pymatgen.core.structure_analyzer import get_max_bond_lengths
 from pymatgen.core import Molecule, Species, Structure
 from pymatgen.core.lattice import get_integer_index
 from pymatgen.core.surface import SlabGenerator

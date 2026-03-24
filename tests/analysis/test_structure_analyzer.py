@@ -4,7 +4,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 from pytest import approx
 
-from pymatgen.analysis.structure_analyzer import (
+from pymatgen.core.structure_analyzer import (
     RelaxationAnalyzer,
     VoronoiAnalyzer,
     VoronoiConnectivity,
