@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pymatgen.analysis.molecule_structure_comparator &#8212; pymatgen 2020.7.3 documentation</title>
+    <title>pymatgen.core.molecule_structure_comparator &#8212; pymatgen 2020.7.3 documentation</title>
     <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -16,7 +16,7 @@
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
- 
+
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -36,15 +36,15 @@
         <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.molecule_structure_comparator</a></li> 
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.molecule_structure_comparator</a></li>
       </ul>
-    </div>  
+    </div>
 
     <div class="document">
       <div class="documentwrapper">
           <div class="body" role="main">
-            
-  <h1>Source code for pymatgen.analysis.molecule_structure_comparator</h1><div class="highlight"><pre>
+
+  <h1>Source code for pymatgen.core.molecule_structure_comparator</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
@@ -73,7 +73,7 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Jan 22, 2014&quot;</span>
 
 
-<div class="viewcode-block" id="CovalentRadius"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_structure_comparator.html#pymatgen.analysis.molecule_structure_comparator.CovalentRadius">[docs]</a><span class="k">class</span> <span class="nc">CovalentRadius</span><span class="p">():</span>
+<div class="viewcode-block" id="CovalentRadius"><a class="viewcode-back" href="../../../pymatgen.core.molecule_structure_comparator.html#pymatgen.core.molecule_structure_comparator.CovalentRadius">[docs]</a><span class="k">class</span> <span class="nc">CovalentRadius</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Covalent Radius of the elements.</span>
 
@@ -106,7 +106,7 @@
               <span class="s1">&#39;Np&#39;</span><span class="p">:</span> <span class="mf">1.90</span><span class="p">,</span> <span class="s1">&#39;Pu&#39;</span><span class="p">:</span> <span class="mf">1.87</span><span class="p">,</span> <span class="s1">&#39;Am&#39;</span><span class="p">:</span> <span class="mf">1.80</span><span class="p">,</span> <span class="s1">&#39;Cm&#39;</span><span class="p">:</span> <span class="mf">1.69</span><span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="MoleculeStructureComparator"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_structure_comparator.html#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator">[docs]</a><span class="k">class</span> <span class="nc">MoleculeStructureComparator</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+<div class="viewcode-block" id="MoleculeStructureComparator"><a class="viewcode-back" href="../../../pymatgen.core.molecule_structure_comparator.html#pymatgen.core.molecule_structure_comparator.MoleculeStructureComparator">[docs]</a><span class="k">class</span> <span class="nc">MoleculeStructureComparator</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to check whether the connection tables of the two molecules are the</span>
 <span class="sd">    same. The atom in the two molecule must be paired accordingly.</span>
@@ -144,7 +144,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ignore_halogen_self_bond</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bond_13_cap</span> <span class="o">=</span> <span class="n">bond_13_cap</span>
 
-<div class="viewcode-block" id="MoleculeStructureComparator.are_equal"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_structure_comparator.html#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.are_equal">[docs]</a>    <span class="k">def</span> <span class="nf">are_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol1</span><span class="p">,</span> <span class="n">mol2</span><span class="p">):</span>
+<div class="viewcode-block" id="MoleculeStructureComparator.are_equal"><a class="viewcode-back" href="../../../pymatgen.core.molecule_structure_comparator.html#pymatgen.core.molecule_structure_comparator.MoleculeStructureComparator.are_equal">[docs]</a>    <span class="k">def</span> <span class="nf">are_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol1</span><span class="p">,</span> <span class="n">mol2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compare the bond table of the two molecules.</span>
 
@@ -156,7 +156,7 @@
         <span class="n">b2</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_bonds</span><span class="p">(</span><span class="n">mol2</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">b1</span> <span class="o">==</span> <span class="n">b2</span></div>
 
-<div class="viewcode-block" id="MoleculeStructureComparator.get_13_bonds"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_structure_comparator.html#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.get_13_bonds">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="MoleculeStructureComparator.get_13_bonds"><a class="viewcode-back" href="../../../pymatgen.core.molecule_structure_comparator.html#pymatgen.core.molecule_structure_comparator.MoleculeStructureComparator.get_13_bonds">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_13_bonds</span><span class="p">(</span><span class="n">priority_bonds</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -217,7 +217,7 @@
                  <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;=</span> <span class="n">cap</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">bonds</span>
 
-<div class="viewcode-block" id="MoleculeStructureComparator.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_structure_comparator.html#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MoleculeStructureComparator.as_dict"><a class="viewcode-back" href="../../../pymatgen.core.molecule_structure_comparator.html#pymatgen.core.molecule_structure_comparator.MoleculeStructureComparator.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns: MSONable dict</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -228,7 +228,7 @@
                 <span class="s2">&quot;priority_bonds&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">priority_bonds</span><span class="p">,</span>
                 <span class="s2">&quot;priority_cap&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">priority_cap</span><span class="p">}</span></div>
 
-<div class="viewcode-block" id="MoleculeStructureComparator.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_structure_comparator.html#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MoleculeStructureComparator.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.molecule_structure_comparator.html#pymatgen.core.molecule_structure_comparator.MoleculeStructureComparator.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -262,7 +262,7 @@
         <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.molecule_structure_comparator</a></li> 
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.molecule_structure_comparator</a></li>
       </ul>
     </div>
 

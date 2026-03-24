@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from pymatgen.analysis.molecule_structure_comparator import MoleculeStructureComparator
+from pymatgen.core.molecule_structure_comparator import MoleculeStructureComparator
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.util.testing import TEST_FILES_DIR
