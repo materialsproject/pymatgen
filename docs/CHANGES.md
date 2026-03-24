@@ -110,7 +110,7 @@ nav_order: 4
     - Avoid `==` or `!=` for possible float comparison
     - Fix uncertainty as int for `EnergyAdjustment` cannot generate repr:
     ```python
-    from pymatgen.entries.computed_entries import EnergyAdjustment
+    from pymatgen.core.entries import EnergyAdjustment
     print(EnergyAdjustment(10, uncertainty=0))
     ```
     Gives:

@@ -11,7 +11,7 @@ from pytest import approx
 
 from pymatgen.analysis.compatibility import MaterialsProject2020Compatibility
 from pymatgen.analysis.phase_diagram import PhaseDiagram
-from pymatgen.entries.computed_entries import (
+from pymatgen.core.entries import (
     CompositionEnergyAdjustment,
     ComputedEntry,
     ComputedStructureEntry,
@@ -201,7 +201,7 @@ class TestComputedEntry:
         """
         # same as entry6
         dct = {
-            "@module": "pymatgen.entries.computed_entries",
+            "@module": "pymatgen.core.entries",
             "@class": "ComputedEntry",
             "energy": 6.9,
             "composition": defaultdict(float, {"Fe": 6.0, "O": 9.0}),
@@ -300,7 +300,7 @@ class TestComputedStructureEntry:
         # ComputedStructureEntry for Oxygen, mp-12957, as of April 2020
         # with an arbitrary 1 eV correction added
         dct = {
-            "@module": "pymatgen.entries.computed_entries",
+            "@module": "pymatgen.core.entries",
             "@class": "ComputedStructureEntry",
             "energy": -39.42116819,
             "composition": defaultdict(float, {"O": 8.0}),

@@ -13,7 +13,7 @@ from pymatgen.analysis.compatibility.entry_tools import (
     group_entries_by_structure,
 )
 from pymatgen.core import Element
-from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.core.entries import ComputedEntry
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/entries"

@@ -1,6 +1,6 @@
 {
  "Cu_mp-30_slab_k40_s10v10_310_shift0.0833335": {
-  "@module": "pymatgen.entries.computed_entries",
+  "@module": "pymatgen.core.entries",
   "@class": "ComputedStructureEntry",
   "energy": -118.99154132,
   "composition": {
@@ -628,7 +628,7 @@
   }
  },
  "Cu_mp-30_slab_k50_s10v10_311_shift0.1666665": {
-  "@module": "pymatgen.entries.computed_entries",
+  "@module": "pymatgen.core.entries",
   "@class": "ComputedStructureEntry",
   "energy": -47.15335355,
   "composition": {
@@ -914,7 +914,7 @@
   }
  },
  "Cu_mp-30_slab_k50_s10v10_210_shift0": {
-  "@module": "pymatgen.entries.computed_entries",
+  "@module": "pymatgen.core.entries",
   "@class": "ComputedStructureEntry",
   "energy": -79.13680312,
   "composition": {
@@ -1352,7 +1352,7 @@
   }
  },
  "Cu_mp-30_slab_k50_s10v10_332_shift0.0104166666667": {
-  "@module": "pymatgen.entries.computed_entries",
+  "@module": "pymatgen.core.entries",
   "@class": "ComputedStructureEntry",
   "energy": -191.48306511,
   "composition": {
@@ -2322,7 +2322,7 @@
   }
  },
  "Cu_mp-30_slab_k50_s10v10_221_shift0": {
-  "@module": "pymatgen.entries.computed_entries",
+  "@module": "pymatgen.core.entries",
   "@class": "ComputedStructureEntry",
   "energy": -70.23731556,
   "composition": {
@@ -2722,7 +2722,7 @@
   }
  },
  "Cu_mp-30_slab_k50_s10v10_320_shift0.0166666666667": {
-  "@module": "pymatgen.entries.computed_entries",
+  "@module": "pymatgen.core.entries",
   "@class": "ComputedStructureEntry",
   "energy": -118.3478919,
   "composition": {
@@ -3350,7 +3350,7 @@
   }
  },
  "Cu_mp-30_slab_k50_s10v10_100_shift0": {
-  "@module": "pymatgen.entries.computed_entries",
+  "@module": "pymatgen.core.entries",
   "@class": "ComputedStructureEntry",
   "energy": -23.42659899,
   "composition": {
@@ -3522,7 +3522,7 @@
   }
  },
  "Cu_mp-30_slab_k50_s10v10_321_shift0.0833335": {
-  "@module": "pymatgen.entries.computed_entries",
+  "@module": "pymatgen.core.entries",
   "@class": "ComputedStructureEntry",
   "energy": -93.65733402,
   "composition": {
@@ -4036,7 +4036,7 @@
   }
  },
  "Cu_mp-30_slab_k50_s10v10_111_shift0": {
-  "@module": "pymatgen.entries.computed_entries",
+  "@module": "pymatgen.core.entries",
   "@class": "ComputedStructureEntry",
   "energy": -23.69026999,
   "composition": {
@@ -4208,7 +4208,7 @@
   }
  },
  "Cu_mp-30_slab_k50_s10v10_110_shift0": {
-  "@module": "pymatgen.entries.computed_entries",
+  "@module": "pymatgen.core.entries",
   "@class": "ComputedStructureEntry",
   "energy": -31.02338568,
   "composition": {
@@ -4418,7 +4418,7 @@
   }
  },
  "Cu_mp-30_slab_k50_s10v10_322_shift0.083332895": {
-  "@module": "pymatgen.entries.computed_entries",
+  "@module": "pymatgen.core.entries",
   "@class": "ComputedStructureEntry",
   "energy": -93.6030427,
   "composition": {
@@ -4932,7 +4932,7 @@
   }
  },
  "Cu_mp-30_slab_k50_s10v10_331_shift0.0833335": {
-  "@module": "pymatgen.entries.computed_entries",
+  "@module": "pymatgen.core.entries",
   "@class": "ComputedStructureEntry",
   "energy": -71.16568121,
   "composition": {
@@ -5332,7 +5332,7 @@
   }
  },
  "Cu_mp-30_slab_k50_s10v10_211_shift0": {
-  "@module": "pymatgen.entries.computed_entries",
+  "@module": "pymatgen.core.entries",
   "@class": "ComputedStructureEntry",
   "energy": -190.45092948,
   "composition": {

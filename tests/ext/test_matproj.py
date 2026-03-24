@@ -7,7 +7,7 @@ import pytest
 import requests
 
 from pymatgen.core import SETTINGS, Element
-from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.core.entries import ComputedEntry
 from pymatgen.ext.matproj import MPRester
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos

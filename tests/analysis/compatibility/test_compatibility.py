@@ -888,7 +888,7 @@ class TestMaterialsProjectCompatibility2020:
 
         entry1 = ComputedEntry.from_dict(
             {
-                "@module": "pymatgen.entries.computed_entries",
+                "@module": "pymatgen.core.entries",
                 "@class": "ComputedEntry",
                 "energy": -17.01015622,
                 "composition": defaultdict(float, {"Si": 2.0, "Ca": 2.0}),
@@ -913,7 +913,7 @@ class TestMaterialsProjectCompatibility2020:
 
         entry2 = ComputedEntry.from_dict(
             {
-                "@module": "pymatgen.entries.computed_entries",
+                "@module": "pymatgen.core.entries",
                 "@class": "ComputedEntry",
                 "energy": -47.49120119,
                 "composition": defaultdict(float, {"Si": 2.0, "O": 4.0}),
@@ -949,7 +949,7 @@ class TestMaterialsProjectCompatibility2020:
 
         entry1 = ComputedEntry.from_dict(
             {
-                "@module": "pymatgen.entries.computed_entries",
+                "@module": "pymatgen.core.entries",
                 "@class": "ComputedEntry",
                 "energy": -17.01015622,
                 "composition": defaultdict(float, {"Si": 2.0, "Ca": 2.0}),
@@ -977,7 +977,7 @@ class TestMaterialsProjectCompatibility2020:
 
         entry2 = ComputedEntry.from_dict(
             {
-                "@module": "pymatgen.entries.computed_entries",
+                "@module": "pymatgen.core.entries",
                 "@class": "ComputedEntry",
                 "energy": -47.49120119,
                 "composition": defaultdict(float, {"Si": 2.0, "O": 4.0}),
@@ -1171,7 +1171,7 @@ class TestMaterialsProjectCompatibility2020:
 
         # Fe 4 Co 2 O 8 (Fe2CoO4)
         entry = {
-            "@module": "pymatgen.entries.computed_entries",
+            "@module": "pymatgen.core.entries",
             "@class": "ComputedEntry",
             "energy": -91.94962744,
             "composition": defaultdict(float, {"Fe": 4.0, "Co": 2.0, "O": 8.0}),
@@ -1839,7 +1839,7 @@ class TestSulfideTypeCorrection2020:
         # Na2S2, entry mp-2400, with and without structure
 
         entry_struct_as_dict = {
-            "@module": "pymatgen.entries.computed_entries",
+            "@module": "pymatgen.core.entries",
             "@class": "ComputedStructureEntry",
             "energy": -28.42580746,
             "composition": defaultdict(float, {"Na": 4.0, "S": 4.0}),
@@ -1958,7 +1958,7 @@ class TestSulfideTypeCorrection2020:
         }
 
         entry_no_struct_as_dict = {
-            "@module": "pymatgen.entries.computed_entries",
+            "@module": "pymatgen.core.entries",
             "@class": "ComputedEntry",
             "energy": -28.42580746,
             "composition": defaultdict(float, {"Na": 4.0, "S": 4.0}),

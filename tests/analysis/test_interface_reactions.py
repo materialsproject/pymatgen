@@ -12,7 +12,7 @@ from pymatgen.analysis.interface_reactions import GrandPotentialInterfacialReact
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.core.composition import Composition, Element
-from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.core.entries import ComputedEntry
 
 
 class TestInterfaceReaction:

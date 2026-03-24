@@ -206,7 +206,7 @@ The above is just some examples of typical use cases. A lot more is possible and
 
 # Entries - Basic analysis unit
 
-Beyond the core `Element`, `Site` and `Structure` objects, most analyses within in pymatgen (e.g., creating a `PhaseDiagram`) are performed using `Entry` objects. An `Entry` in its most basic form contains a calculated energy and a composition, and may optionally contain other input or calculated data. In most instances, you will use the `ComputedEntry` or `ComputedStructureEntry` objects defined in `pymatgen.entries.computed_entries`. ComputedEntry objects can be created by either manually parsing calculated data calculations, or by using the `pymatgen.apps.borg` package.
+Beyond the core `Element`, `Site` and `Structure` objects, most analyses within in pymatgen (e.g., creating a `PhaseDiagram`) are performed using `Entry` objects. An `Entry` in its most basic form contains a calculated energy and a composition, and may optionally contain other input or calculated data. In most instances, you will use the `ComputedEntry` or `ComputedStructureEntry` objects defined in `pymatgen.core.entries`. ComputedEntry objects can be created by either manually parsing calculated data calculations, or by using the `pymatgen.apps.borg` package.
 
 ## Compatibility - Mixing GGA and GGA+U runs
 

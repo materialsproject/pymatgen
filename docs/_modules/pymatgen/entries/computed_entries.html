@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pymatgen.entries.computed_entries &#8212; pymatgen 2020.7.3 documentation</title>
+    <title>pymatgen.core.entries &#8212; pymatgen 2020.7.3 documentation</title>
     <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -16,7 +16,7 @@
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
- 
+
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -37,15 +37,15 @@
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="../entries.html" accesskey="U">pymatgen.entries</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.entries.computed_entries</a></li> 
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.entries</a></li>
       </ul>
-    </div>  
+    </div>
 
     <div class="document">
       <div class="documentwrapper">
           <div class="body" role="main">
-            
-  <h1>Source code for pymatgen.entries.computed_entries</h1><div class="highlight"><pre>
+
+  <h1>Source code for pymatgen.core.entries</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
@@ -76,7 +76,7 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;April 2020&quot;</span>
 
 
-<div class="viewcode-block" id="EnergyAdjustment"><a class="viewcode-back" href="../../../pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.EnergyAdjustment">[docs]</a><span class="k">class</span> <span class="nc">EnergyAdjustment</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+<div class="viewcode-block" id="EnergyAdjustment"><a class="viewcode-back" href="../../../pymatgen.core.entries.html#pymatgen.core.entries.EnergyAdjustment">[docs]</a><span class="k">class</span> <span class="nc">EnergyAdjustment</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Lightweight class to contain information about an energy adjustment or</span>
 <span class="sd">    energy correction.</span>
@@ -119,7 +119,7 @@
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
 
-<div class="viewcode-block" id="ConstantEnergyAdjustment"><a class="viewcode-back" href="../../../pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ConstantEnergyAdjustment">[docs]</a><span class="k">class</span> <span class="nc">ConstantEnergyAdjustment</span><span class="p">(</span><span class="n">EnergyAdjustment</span><span class="p">):</span>
+<div class="viewcode-block" id="ConstantEnergyAdjustment"><a class="viewcode-back" href="../../../pymatgen.core.entries.html#pymatgen.core.entries.ConstantEnergyAdjustment">[docs]</a><span class="k">class</span> <span class="nc">ConstantEnergyAdjustment</span><span class="p">(</span><span class="n">EnergyAdjustment</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A constant energy adjustment applied to a ComputedEntry. Useful in energy referencing</span>
 <span class="sd">    schemes such as the Aqueous energy referencing scheme.</span>
@@ -152,7 +152,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">/=</span> <span class="n">factor</span></div>
 
 
-<div class="viewcode-block" id="ManualEnergyAdjustment"><a class="viewcode-back" href="../../../pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ManualEnergyAdjustment">[docs]</a><span class="k">class</span> <span class="nc">ManualEnergyAdjustment</span><span class="p">(</span><span class="n">ConstantEnergyAdjustment</span><span class="p">):</span>
+<div class="viewcode-block" id="ManualEnergyAdjustment"><a class="viewcode-back" href="../../../pymatgen.core.entries.html#pymatgen.core.entries.ManualEnergyAdjustment">[docs]</a><span class="k">class</span> <span class="nc">ManualEnergyAdjustment</span><span class="p">(</span><span class="n">ConstantEnergyAdjustment</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A manual energy adjustment applied to a ComputedEntry.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -166,7 +166,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="CompositionEnergyAdjustment"><a class="viewcode-back" href="../../../pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.CompositionEnergyAdjustment">[docs]</a><span class="k">class</span> <span class="nc">CompositionEnergyAdjustment</span><span class="p">(</span><span class="n">EnergyAdjustment</span><span class="p">):</span>
+<div class="viewcode-block" id="CompositionEnergyAdjustment"><a class="viewcode-back" href="../../../pymatgen.core.entries.html#pymatgen.core.entries.CompositionEnergyAdjustment">[docs]</a><span class="k">class</span> <span class="nc">CompositionEnergyAdjustment</span><span class="p">(</span><span class="n">EnergyAdjustment</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An energy adjustment applied to a ComputedEntry based on the atomic composition.</span>
 <span class="sd">    Used in various DFT energy correction schemes.</span>
@@ -200,7 +200,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span> <span class="o">/=</span> <span class="n">factor</span></div>
 
 
-<div class="viewcode-block" id="TemperatureEnergyAdjustment"><a class="viewcode-back" href="../../../pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.TemperatureEnergyAdjustment">[docs]</a><span class="k">class</span> <span class="nc">TemperatureEnergyAdjustment</span><span class="p">(</span><span class="n">EnergyAdjustment</span><span class="p">):</span>
+<div class="viewcode-block" id="TemperatureEnergyAdjustment"><a class="viewcode-back" href="../../../pymatgen.core.entries.html#pymatgen.core.entries.TemperatureEnergyAdjustment">[docs]</a><span class="k">class</span> <span class="nc">TemperatureEnergyAdjustment</span><span class="p">(</span><span class="n">EnergyAdjustment</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An energy adjustment applied to a ComputedEntry based on the temperature.</span>
 <span class="sd">    Used, for example, to add entropy to DFT energies.</span>
@@ -238,7 +238,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span> <span class="o">/=</span> <span class="n">factor</span></div>
 
 
-<div class="viewcode-block" id="ComputedEntry"><a class="viewcode-back" href="../../../pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry">[docs]</a><span class="k">class</span> <span class="nc">ComputedEntry</span><span class="p">(</span><span class="n">Entry</span><span class="p">):</span>
+<div class="viewcode-block" id="ComputedEntry"><a class="viewcode-back" href="../../../pymatgen.core.entries.html#pymatgen.core.entries.ComputedEntry">[docs]</a><span class="k">class</span> <span class="nc">ComputedEntry</span><span class="p">(</span><span class="n">Entry</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Lightweight Entry object for computed data. Contains facilities</span>
 <span class="sd">    for applying corrections to the .energy attribute and for storing</span>
@@ -311,7 +311,7 @@
         <span class="n">corr</span> <span class="o">=</span> <span class="n">ManualEnergyAdjustment</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">energy_adjustments</span> <span class="o">=</span> <span class="p">[</span><span class="n">corr</span><span class="p">]</span>
 
-<div class="viewcode-block" id="ComputedEntry.normalize"><a class="viewcode-back" href="../../../pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry.normalize">[docs]</a>    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;formula_unit&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="ComputedEntry.normalize"><a class="viewcode-back" href="../../../pymatgen.core.entries.html#pymatgen.core.entries.ComputedEntry.normalize">[docs]</a>    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;formula_unit&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Normalize the entry&#39;s composition and energy.</span>
 
@@ -361,7 +361,7 @@
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
 
-<div class="viewcode-block" id="ComputedEntry.from_dict"><a class="viewcode-back" href="../../../pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ComputedEntry.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.entries.html#pymatgen.core.entries.ComputedEntry.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ComputedEntry&#39;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param d: Dict representation.</span>
@@ -390,7 +390,7 @@
                              <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
                        <span class="n">entry_id</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;entry_id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="ComputedEntry.as_dict"><a class="viewcode-back" href="../../../pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="ComputedEntry.as_dict"><a class="viewcode-back" href="../../../pymatgen.core.entries.html#pymatgen.core.entries.ComputedEntry.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :return: MSONable dict.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -403,7 +403,7 @@
         <span class="k">return</span> <span class="n">return_dict</span></div></div>
 
 
-<div class="viewcode-block" id="ComputedStructureEntry"><a class="viewcode-back" href="../../../pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry">[docs]</a><span class="k">class</span> <span class="nc">ComputedStructureEntry</span><span class="p">(</span><span class="n">ComputedEntry</span><span class="p">):</span>
+<div class="viewcode-block" id="ComputedStructureEntry"><a class="viewcode-back" href="../../../pymatgen.core.entries.html#pymatgen.core.entries.ComputedStructureEntry">[docs]</a><span class="k">class</span> <span class="nc">ComputedStructureEntry</span><span class="p">(</span><span class="n">ComputedEntry</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A heavier version of ComputedEntry which contains a structure as well. The</span>
 <span class="sd">    structure is needed for some analyses.</span>
@@ -438,7 +438,7 @@
             <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">entry_id</span><span class="o">=</span><span class="n">entry_id</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
 
-<div class="viewcode-block" id="ComputedStructureEntry.as_dict"><a class="viewcode-back" href="../../../pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="ComputedStructureEntry.as_dict"><a class="viewcode-back" href="../../../pymatgen.core.entries.html#pymatgen.core.entries.ComputedStructureEntry.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :return: MSONAble dict.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -448,7 +448,7 @@
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-<div class="viewcode-block" id="ComputedStructureEntry.from_dict"><a class="viewcode-back" href="../../../pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ComputedStructureEntry.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.entries.html#pymatgen.core.entries.ComputedStructureEntry.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ComputedStructureEntry&#39;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param d: Dict representation.</span>
@@ -496,7 +496,7 @@
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="../entries.html" >pymatgen.entries</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.entries.computed_entries</a></li> 
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.entries</a></li>
       </ul>
     </div>
 
