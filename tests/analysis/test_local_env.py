@@ -9,7 +9,7 @@ import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
-from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
+from pymatgen.core.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import (
     CN_OPT_PARAMS,
     DEFAULT_OP_PARAMS,

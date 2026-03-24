@@ -30,7 +30,7 @@ import networkx as nx
 import numpy as np
 from networkx.readwrite import json_graph
 
-from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
+from pymatgen.core.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import JmolNN
 from pymatgen.core.structure_analyzer import get_max_bond_lengths
 from pymatgen.core import Molecule, Species, Structure

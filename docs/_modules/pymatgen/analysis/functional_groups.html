@@ -16,7 +16,7 @@
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
- 
+
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -36,14 +36,14 @@
         <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.functional_groups</a></li> 
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.functional_groups</a></li>
       </ul>
-    </div>  
+    </div>
 
     <div class="document">
       <div class="documentwrapper">
           <div class="body" role="main">
-            
+
   <h1>Source code for pymatgen.analysis.functional_groups</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
@@ -58,7 +58,7 @@
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Molecule</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="kn">import</span> <span class="n">BabelMolAdaptor</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="kn">import</span> <span class="n">MoleculeGraph</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.graphs</span> <span class="kn">import</span> <span class="n">MoleculeGraph</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="kn">import</span> <span class="n">OpenBabelNN</span>
 
 <span class="k">try</span><span class="p">:</span>
@@ -80,7 +80,7 @@
 <div class="viewcode-block" id="FunctionalGroupExtractor"><a class="viewcode-back" href="../../../pymatgen.analysis.functional_groups.html#pymatgen.analysis.functional_groups.FunctionalGroupExtractor">[docs]</a><span class="k">class</span> <span class="nc">FunctionalGroupExtractor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class is used to algorithmically parse a molecule (represented by an</span>
-<span class="sd">    instance of pymatgen.analysis.graphs.MoleculeGraph) and determine arbitrary</span>
+<span class="sd">    instance of pymatgen.core.graphs.MoleculeGraph) and determine arbitrary</span>
 <span class="sd">    functional groups.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -89,7 +89,7 @@
 <span class="sd">        Instantiation method for FunctionalGroupExtractor.</span>
 
 <span class="sd">        :param molecule: Either a filename, a pymatgen.core.structure.Molecule</span>
-<span class="sd">            object, or a pymatgen.analysis.graphs.MoleculeGraph object.</span>
+<span class="sd">            object, or a pymatgen.core.graphs.MoleculeGraph object.</span>
 <span class="sd">        :param optimize: Default False. If True, then the input molecule will be</span>
 <span class="sd">            modified, adding Hydrogens, performing a simple conformer search,</span>
 <span class="sd">            etc.</span>
@@ -439,7 +439,7 @@
         <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.functional_groups</a></li> 
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.functional_groups</a></li>
       </ul>
     </div>
 

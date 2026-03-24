@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pymatgen.analysis.graphs &#8212; pymatgen 2020.7.3 documentation</title>
+    <title>pymatgen.core.graphs &#8212; pymatgen 2020.7.3 documentation</title>
     <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -16,7 +16,7 @@
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
- 
+
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -36,15 +36,15 @@
         <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.graphs</a></li> 
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.graphs</a></li>
       </ul>
-    </div>  
+    </div>
 
     <div class="document">
       <div class="documentwrapper">
           <div class="body" role="main">
-            
-  <h1>Source code for pymatgen.analysis.graphs</h1><div class="highlight"><pre>
+
+  <h1>Source code for pymatgen.core.graphs</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
@@ -152,7 +152,7 @@
         <span class="k">return</span> <span class="n">nx</span><span class="o">.</span><span class="n">is_isomorphic</span><span class="p">(</span><span class="n">frag1</span><span class="o">.</span><span class="n">to_undirected</span><span class="p">(),</span> <span class="n">frag2</span><span class="o">.</span><span class="n">to_undirected</span><span class="p">(),</span> <span class="n">node_match</span><span class="o">=</span><span class="n">nm</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="StructureGraph"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph">[docs]</a><span class="k">class</span> <span class="nc">StructureGraph</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureGraph"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph">[docs]</a><span class="k">class</span> <span class="nc">StructureGraph</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is a class for annotating a Structure with</span>
 <span class="sd">    bond information, stored in the form of a graph. A &quot;bond&quot; does</span>
@@ -210,7 +210,7 @@
             <span class="k">if</span> <span class="s1">&#39;from_jimage&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
                 <span class="n">d</span><span class="p">[</span><span class="s1">&#39;from_jimage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;from_jimage&#39;</span><span class="p">])</span>
 
-<div class="viewcode-block" id="StructureGraph.with_empty_graph"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.with_empty_graph">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="StructureGraph.with_empty_graph"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.with_empty_graph">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">with_empty_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bonds&quot;</span><span class="p">,</span>
                          <span class="n">edge_weight_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                          <span class="n">edge_weight_units</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -246,7 +246,7 @@
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">graph_data</span><span class="o">=</span><span class="n">graph_data</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="StructureGraph.with_edges"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.with_edges">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="StructureGraph.with_edges"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.with_edges">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">with_edges</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">edges</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for MoleculeGraph, using pre-existing or pre-defined edges</span>
@@ -301,7 +301,7 @@
         <span class="n">sg</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">sg</span></div>
 
-<div class="viewcode-block" id="StructureGraph.with_local_env_strategy"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.with_local_env_strategy">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="StructureGraph.with_local_env_strategy"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.with_local_env_strategy">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">with_local_env_strategy</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for StructureGraph, using a strategy</span>
@@ -357,7 +357,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s1">&#39;edge_weight_units&#39;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="StructureGraph.add_edge"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.add_edge">[docs]</a>    <span class="k">def</span> <span class="nf">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span>
+<div class="viewcode-block" id="StructureGraph.add_edge"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.add_edge">[docs]</a>    <span class="k">def</span> <span class="nf">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span>
                  <span class="n">from_jimage</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">to_jimage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">warn_duplicates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">edge_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -463,7 +463,7 @@
                                 <span class="n">to_jimage</span><span class="o">=</span><span class="n">to_jimage</span><span class="p">,</span>
                                 <span class="o">**</span><span class="n">edge_properties</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="StructureGraph.insert_node"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.insert_node">[docs]</a>    <span class="k">def</span> <span class="nf">insert_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="StructureGraph.insert_node"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.insert_node">[docs]</a>    <span class="k">def</span> <span class="nf">insert_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                     <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A wrapper around Molecule.insert(), which also incorporates the new</span>
@@ -514,7 +514,7 @@
                 <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Some edges are invalid.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="StructureGraph.set_node_attributes"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.set_node_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureGraph.set_node_attributes"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.set_node_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gives each node a &quot;specie&quot; and a &quot;coords&quot; attribute, updated with the</span>
 <span class="sd">        current species and coordinates.</span>
@@ -534,7 +534,7 @@
         <span class="n">nx</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">)</span>
         <span class="n">nx</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="s2">&quot;properties&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="StructureGraph.alter_edge"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.alter_edge">[docs]</a>    <span class="k">def</span> <span class="nf">alter_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span> <span class="n">to_jimage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="StructureGraph.alter_edge"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.alter_edge">[docs]</a>    <span class="k">def</span> <span class="nf">alter_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span> <span class="n">to_jimage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                    <span class="n">new_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_edge_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Alters either the weight or the edge_properties of</span>
@@ -577,7 +577,7 @@
             <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">new_edge_properties</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">from_index</span><span class="p">][</span><span class="n">to_index</span><span class="p">][</span><span class="n">edge_index</span><span class="p">][</span><span class="n">prop</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_edge_properties</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="StructureGraph.break_edge"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.break_edge">[docs]</a>    <span class="k">def</span> <span class="nf">break_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span> <span class="n">to_jimage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">allow_reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureGraph.break_edge"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.break_edge">[docs]</a>    <span class="k">def</span> <span class="nf">break_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span> <span class="n">to_jimage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">allow_reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove an edge from the StructureGraph. If no image is given, this method will fail.</span>
 
@@ -620,7 +620,7 @@
                     <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span>
                 <span class="p">))</span></div>
 
-<div class="viewcode-block" id="StructureGraph.remove_nodes"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.remove_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">remove_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureGraph.remove_nodes"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.remove_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">remove_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A wrapper for Molecule.remove_sites().</span>
 
@@ -639,7 +639,7 @@
         <span class="n">nx</span><span class="o">.</span><span class="n">relabel_nodes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="StructureGraph.substitute_group"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.substitute_group">[docs]</a>    <span class="k">def</span> <span class="nf">substitute_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">func_grp</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">bond_order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<div class="viewcode-block" id="StructureGraph.substitute_group"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.substitute_group">[docs]</a>    <span class="k">def</span> <span class="nf">substitute_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">func_grp</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">bond_order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                          <span class="n">graph_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strategy_params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Builds off of Structure.substitute to replace an atom in self.structure</span>
@@ -739,7 +739,7 @@
                                   <span class="n">weight</span><span class="o">=</span><span class="n">neighbor</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">],</span>
                                   <span class="n">warn_duplicates</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="StructureGraph.get_connected_sites"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.get_connected_sites">[docs]</a>    <span class="k">def</span> <span class="nf">get_connected_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">jimage</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+<div class="viewcode-block" id="StructureGraph.get_connected_sites"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.get_connected_sites">[docs]</a>    <span class="k">def</span> <span class="nf">get_connected_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">jimage</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a named tuple of neighbors of site n:</span>
 <span class="sd">        periodic_site, jimage, index, weight.</span>
@@ -793,7 +793,7 @@
 
         <span class="k">return</span> <span class="n">connected_sites</span></div>
 
-<div class="viewcode-block" id="StructureGraph.get_coordination_of_site"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.get_coordination_of_site">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordination_of_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureGraph.get_coordination_of_site"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.get_coordination_of_site">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordination_of_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the number of neighbors of site n.</span>
 <span class="sd">        In graph terms, simply returns degree</span>
@@ -804,7 +804,7 @@
         <span class="n">number_of_self_loops</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="n">v</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">degree</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">-</span> <span class="n">number_of_self_loops</span></div>
 
-<div class="viewcode-block" id="StructureGraph.draw_graph_to_file"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.draw_graph_to_file">[docs]</a>    <span class="k">def</span> <span class="nf">draw_graph_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;graph&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="StructureGraph.draw_graph_to_file"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.draw_graph_to_file">[docs]</a>    <span class="k">def</span> <span class="nf">draw_graph_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;graph&quot;</span><span class="p">,</span>
                            <span class="n">diff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                            <span class="n">hide_unconnected_nodes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                            <span class="n">hide_image_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1018,7 +1018,7 @@
             <span class="s1">&#39;variance&#39;</span><span class="p">:</span> <span class="n">stats</span><span class="o">.</span><span class="n">variance</span>
         <span class="p">}</span>
 
-<div class="viewcode-block" id="StructureGraph.types_of_coordination_environments"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.types_of_coordination_environments">[docs]</a>    <span class="k">def</span> <span class="nf">types_of_coordination_environments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">anonymous</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureGraph.types_of_coordination_environments"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.types_of_coordination_environments">[docs]</a>    <span class="k">def</span> <span class="nf">types_of_coordination_environments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">anonymous</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extract information on the different co-ordination environments</span>
 <span class="sd">        present in the graph.</span>
@@ -1061,7 +1061,7 @@
 
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">motifs</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="StructureGraph.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureGraph.as_dict"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        As in :Class: `pymatgen.core.Structure` except</span>
 <span class="sd">        with using `to_dict_of_dicts` from NetworkX</span>
@@ -1075,7 +1075,7 @@
 
         <span class="k">return</span> <span class="n">d</span></div>
 
-<div class="viewcode-block" id="StructureGraph.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="StructureGraph.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        As in :Class: `pymatgen.core.Structure` except</span>
@@ -1348,7 +1348,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
 
-<div class="viewcode-block" id="StructureGraph.sort"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.sort">[docs]</a>    <span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureGraph.sort"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.sort">[docs]</a>    <span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Same as Structure.sort(), also remaps nodes in graph.</span>
 <span class="sd">        :param key:</span>
@@ -1410,7 +1410,7 @@
         <span class="k">return</span> <span class="p">(</span><span class="n">edges</span> <span class="o">==</span> <span class="n">edges_other</span><span class="p">)</span> <span class="ow">and</span> \
                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">==</span> <span class="n">other_sorted</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
 
-<div class="viewcode-block" id="StructureGraph.diff"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.diff">[docs]</a>    <span class="k">def</span> <span class="nf">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureGraph.diff"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.diff">[docs]</a>    <span class="k">def</span> <span class="nf">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compares two StructureGraphs. Returns dict with</span>
 <span class="sd">        keys &#39;self&#39;, &#39;other&#39;, &#39;both&#39; with edges that are</span>
@@ -1479,7 +1479,7 @@
             <span class="s1">&#39;dist&#39;</span><span class="p">:</span> <span class="n">jaccard_dist</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="StructureGraph.get_subgraphs_as_molecules"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.get_subgraphs_as_molecules">[docs]</a>    <span class="k">def</span> <span class="nf">get_subgraphs_as_molecules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureGraph.get_subgraphs_as_molecules"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.StructureGraph.get_subgraphs_as_molecules">[docs]</a>    <span class="k">def</span> <span class="nf">get_subgraphs_as_molecules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve subgraphs as molecules, useful for extracting</span>
 <span class="sd">        molecules from periodic crystals.</span>
@@ -1565,7 +1565,7 @@
         <span class="k">return</span> <span class="n">molecules</span></div></div>
 
 
-<div class="viewcode-block" id="MolGraphSplitError"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MolGraphSplitError">[docs]</a><span class="k">class</span> <span class="nc">MolGraphSplitError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="MolGraphSplitError"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MolGraphSplitError">[docs]</a><span class="k">class</span> <span class="nc">MolGraphSplitError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Raised when a molecule graph is failed to split into two disconnected</span>
 <span class="sd">    subgraphs</span>
@@ -1573,7 +1573,7 @@
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="MoleculeGraph"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph">[docs]</a><span class="k">class</span> <span class="nc">MoleculeGraph</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+<div class="viewcode-block" id="MoleculeGraph"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph">[docs]</a><span class="k">class</span> <span class="nc">MoleculeGraph</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is a class for annotating a Molecule with</span>
 <span class="sd">    bond information, stored in the form of a graph. A &quot;bond&quot; does</span>
@@ -1629,7 +1629,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">()</span>
 
-<div class="viewcode-block" id="MoleculeGraph.with_empty_graph"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.with_empty_graph">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MoleculeGraph.with_empty_graph"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.with_empty_graph">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">with_empty_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bonds&quot;</span><span class="p">,</span>
                          <span class="n">edge_weight_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                          <span class="n">edge_weight_units</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1665,7 +1665,7 @@
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">graph_data</span><span class="o">=</span><span class="n">graph_data</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.with_edges"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.with_edges">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="MoleculeGraph.with_edges"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.with_edges">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">with_edges</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">edges</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for MoleculeGraph, using pre-existing or pre-defined edges</span>
@@ -1716,7 +1716,7 @@
         <span class="n">mg</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">mg</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.with_local_env_strategy"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.with_local_env_strategy">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="MoleculeGraph.with_local_env_strategy"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.with_local_env_strategy">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">with_local_env_strategy</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">strategy</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for MoleculeGraph, using a strategy</span>
@@ -1811,7 +1811,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s1">&#39;edge_weight_units&#39;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="MoleculeGraph.add_edge"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.add_edge">[docs]</a>    <span class="k">def</span> <span class="nf">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span>
+<div class="viewcode-block" id="MoleculeGraph.add_edge"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.add_edge">[docs]</a>    <span class="k">def</span> <span class="nf">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span>
                  <span class="n">weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">warn_duplicates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">edge_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1865,7 +1865,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span>
                                 <span class="o">**</span><span class="n">edge_properties</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.insert_node"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.insert_node">[docs]</a>    <span class="k">def</span> <span class="nf">insert_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="MoleculeGraph.insert_node"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.insert_node">[docs]</a>    <span class="k">def</span> <span class="nf">insert_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                     <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A wrapper around Molecule.insert(), which also incorporates the new</span>
@@ -1911,7 +1911,7 @@
                 <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Some edges are invalid.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.set_node_attributes"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.set_node_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MoleculeGraph.set_node_attributes"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.set_node_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Replicates molecule site properties (specie, coords, etc.) in the</span>
 <span class="sd">        MoleculeGraph.</span>
@@ -1931,7 +1931,7 @@
         <span class="n">nx</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">)</span>
         <span class="n">nx</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="s2">&quot;properties&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.alter_edge"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.alter_edge">[docs]</a>    <span class="k">def</span> <span class="nf">alter_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span>
+<div class="viewcode-block" id="MoleculeGraph.alter_edge"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.alter_edge">[docs]</a>    <span class="k">def</span> <span class="nf">alter_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span>
                    <span class="n">new_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_edge_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Alters either the weight or the edge_properties of</span>
@@ -1967,7 +1967,7 @@
             <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">new_edge_properties</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">from_index</span><span class="p">][</span><span class="n">to_index</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">prop</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_edge_properties</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.break_edge"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.break_edge">[docs]</a>    <span class="k">def</span> <span class="nf">break_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span> <span class="n">allow_reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="MoleculeGraph.break_edge"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.break_edge">[docs]</a>    <span class="k">def</span> <span class="nf">break_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span> <span class="n">allow_reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove an edge from the MoleculeGraph</span>
 
@@ -1999,7 +1999,7 @@
                     <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span>
                 <span class="p">))</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.remove_nodes"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.remove_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">remove_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+<div class="viewcode-block" id="MoleculeGraph.remove_nodes"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.remove_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">remove_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A wrapper for Molecule.remove_sites().</span>
 
@@ -2018,7 +2018,7 @@
         <span class="n">nx</span><span class="o">.</span><span class="n">relabel_nodes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.split_molecule_subgraphs"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.split_molecule_subgraphs">[docs]</a>    <span class="k">def</span> <span class="nf">split_molecule_subgraphs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bonds</span><span class="p">,</span> <span class="n">allow_reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="MoleculeGraph.split_molecule_subgraphs"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.split_molecule_subgraphs">[docs]</a>    <span class="k">def</span> <span class="nf">split_molecule_subgraphs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bonds</span><span class="p">,</span> <span class="n">allow_reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                  <span class="n">alterations</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Split MoleculeGraph into two or more MoleculeGraphs by</span>
@@ -2130,7 +2130,7 @@
 
             <span class="k">return</span> <span class="n">sub_mols</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.build_unique_fragments"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.build_unique_fragments">[docs]</a>    <span class="k">def</span> <span class="nf">build_unique_fragments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MoleculeGraph.build_unique_fragments"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.build_unique_fragments">[docs]</a>    <span class="k">def</span> <span class="nf">build_unique_fragments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find all possible fragment combinations of the MoleculeGraphs (in other</span>
 <span class="sd">        words, all connected induced subgraphs)</span>
@@ -2199,7 +2199,7 @@
             <span class="n">unique_mol_graph_dict</span><span class="p">[</span><span class="n">frag_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">unique_mol_graph_list</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">unique_mol_graph_dict</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.substitute_group"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.substitute_group">[docs]</a>    <span class="k">def</span> <span class="nf">substitute_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">func_grp</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">bond_order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<div class="viewcode-block" id="MoleculeGraph.substitute_group"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.substitute_group">[docs]</a>    <span class="k">def</span> <span class="nf">substitute_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">func_grp</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">bond_order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                          <span class="n">graph_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strategy_params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Builds off of Molecule.substitute to replace an atom in self.molecule</span>
@@ -2314,7 +2314,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">mapping</span><span class="p">[</span><span class="n">u</span><span class="p">],</span> <span class="n">mapping</span><span class="p">[</span><span class="n">v</span><span class="p">],</span>
                                   <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span> <span class="n">edge_properties</span><span class="o">=</span><span class="n">edge_props</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.replace_group"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.replace_group">[docs]</a>    <span class="k">def</span> <span class="nf">replace_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">func_grp</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">bond_order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<div class="viewcode-block" id="MoleculeGraph.replace_group"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.replace_group">[docs]</a>    <span class="k">def</span> <span class="nf">replace_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">func_grp</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">bond_order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                       <span class="n">graph_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strategy_params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Builds off of Molecule.substitute and MoleculeGraph.substitute_group</span>
@@ -2388,7 +2388,7 @@
                                                <span class="n">graph_dict</span><span class="o">=</span><span class="n">graph_dict</span><span class="p">,</span>
                                                <span class="n">strategy_params</span><span class="o">=</span><span class="n">strategy_params</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.find_rings"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.find_rings">[docs]</a>    <span class="k">def</span> <span class="nf">find_rings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">including</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="MoleculeGraph.find_rings"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.find_rings">[docs]</a>    <span class="k">def</span> <span class="nf">find_rings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">including</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find ring structures in the MoleculeGraph.</span>
 
@@ -2438,7 +2438,7 @@
 
         <span class="k">return</span> <span class="n">cycles_edges</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.get_connected_sites"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.get_connected_sites">[docs]</a>    <span class="k">def</span> <span class="nf">get_connected_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="MoleculeGraph.get_connected_sites"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.get_connected_sites">[docs]</a>    <span class="k">def</span> <span class="nf">get_connected_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a named tuple of neighbors of site n:</span>
 <span class="sd">        periodic_site, jimage, index, weight.</span>
@@ -2487,7 +2487,7 @@
 
         <span class="k">return</span> <span class="n">connected_sites</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.get_coordination_of_site"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.get_coordination_of_site">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordination_of_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="MoleculeGraph.get_coordination_of_site"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.get_coordination_of_site">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordination_of_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the number of neighbors of site n.</span>
 <span class="sd">        In graph terms, simply returns degree</span>
@@ -2498,7 +2498,7 @@
         <span class="n">number_of_self_loops</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="n">v</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">degree</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">-</span> <span class="n">number_of_self_loops</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.draw_graph_to_file"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.draw_graph_to_file">[docs]</a>    <span class="k">def</span> <span class="nf">draw_graph_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;graph&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="MoleculeGraph.draw_graph_to_file"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.draw_graph_to_file">[docs]</a>    <span class="k">def</span> <span class="nf">draw_graph_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;graph&quot;</span><span class="p">,</span>
                            <span class="n">diff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                            <span class="n">hide_unconnected_nodes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                            <span class="n">hide_image_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -2669,7 +2669,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_dot</span><span class="p">:</span>
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">basename</span> <span class="o">+</span> <span class="s2">&quot;.dot&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MoleculeGraph.as_dict"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        As in :Class: `pymatgen.core.Molecule` except</span>
 <span class="sd">        with using `to_dict_of_dicts` from NetworkX</span>
@@ -2683,7 +2683,7 @@
 
         <span class="k">return</span> <span class="n">d</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MoleculeGraph.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        As in :Class: `pymatgen.core.Molecule` except</span>
@@ -2747,7 +2747,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MoleculeGraph.sort"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.sort">[docs]</a>    <span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="MoleculeGraph.sort"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.sort">[docs]</a>    <span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Same as Molecule.sort(), also remaps nodes in graph.</span>
 <span class="sd">        :param key:</span>
@@ -2811,7 +2811,7 @@
         <span class="k">return</span> <span class="p">(</span><span class="n">edges</span> <span class="o">==</span> <span class="n">edges_other</span><span class="p">)</span> <span class="ow">and</span> \
                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span> <span class="o">==</span> <span class="n">other_sorted</span><span class="o">.</span><span class="n">molecule</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MoleculeGraph.isomorphic_to"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.isomorphic_to">[docs]</a>    <span class="k">def</span> <span class="nf">isomorphic_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<div class="viewcode-block" id="MoleculeGraph.isomorphic_to"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.isomorphic_to">[docs]</a>    <span class="k">def</span> <span class="nf">isomorphic_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if the graphs of two MoleculeGraphs are isomorphic to one</span>
 <span class="sd">        another. In order to prevent problems with misdirected edges, both</span>
@@ -2829,7 +2829,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">_isomorphic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MoleculeGraph.diff"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.diff">[docs]</a>    <span class="k">def</span> <span class="nf">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="MoleculeGraph.diff"><a class="viewcode-back" href="../../../pymatgen.core.graphs.html#pymatgen.core.graphs.MoleculeGraph.diff">[docs]</a>    <span class="k">def</span> <span class="nf">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compares two MoleculeGraphs. Returns dict with</span>
 <span class="sd">        keys &#39;self&#39;, &#39;other&#39;, &#39;both&#39; with edges that are</span>
@@ -2915,7 +2915,7 @@
         <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.graphs</a></li> 
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.graphs</a></li>
       </ul>
     </div>
 

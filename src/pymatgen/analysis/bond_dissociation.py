@@ -10,7 +10,7 @@ import networkx as nx
 from monty.json import MSONable
 
 from pymatgen.analysis.fragmenter import open_ring
-from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
+from pymatgen.core.graphs import MoleculeGraph, MolGraphSplitError
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor
