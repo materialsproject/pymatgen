@@ -68,7 +68,7 @@
 
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.magnetism</span> <span class="kn">import</span> <span class="n">CollinearMagneticStructureAnalyzer</span><span class="p">,</span> <span class="n">Ordering</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.graphs</span> <span class="kn">import</span> <span class="n">StructureGraph</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="kn">import</span> <span class="n">MinimumDistanceNN</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.local_env</span> <span class="kn">import</span> <span class="n">MinimumDistanceNN</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span>
 
@@ -108,7 +108,7 @@
 <span class="sd">                being equal.</span>
 
 <span class="sd">        Parameters:</span>
-<span class="sd">            strategy (object): Class from pymatgen.analysis.local_env for</span>
+<span class="sd">            strategy (object): Class from pymatgen.core.local_env for</span>
 <span class="sd">                constructing graphs.</span>
 <span class="sd">            sgraphs (list): StructureGraph objects.</span>
 <span class="sd">            unique_site_ids (dict): Maps each site to its unique numerical</span>

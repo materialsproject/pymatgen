@@ -305,11 +305,11 @@
     <span class="k">def</span> <span class="nf">with_local_env_strategy</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for StructureGraph, using a strategy</span>
-<span class="sd">        from :Class: `pymatgen.analysis.local_env`.</span>
+<span class="sd">        from :Class: `pymatgen.core.local_env`.</span>
 
 <span class="sd">        :param structure: Structure object</span>
 <span class="sd">        :param strategy: an instance of a</span>
-<span class="sd">            :Class: `pymatgen.analysis.local_env.NearNeighbors` object</span>
+<span class="sd">            :Class: `pymatgen.core.local_env.NearNeighbors` object</span>
 <span class="sd">        :param weights: if True, use weights from local_env class</span>
 <span class="sd">            (consult relevant class for their meaning)</span>
 <span class="sd">        :return:</span>
@@ -664,7 +664,7 @@
 <span class="sd">                directionality to connect the atoms.</span>
 <span class="sd">            2. A string name. The molecule will be obtained from the</span>
 <span class="sd">                relevant template in func_groups.json.</span>
-<span class="sd">        :param strategy: Class from pymatgen.analysis.local_env.</span>
+<span class="sd">        :param strategy: Class from pymatgen.core.local_env.</span>
 <span class="sd">        :param bond_order: A specified bond order to calculate the bond</span>
 <span class="sd">            length between the attached functional group and the nearest</span>
 <span class="sd">            neighbor site. Defaults to 1.</span>
@@ -672,7 +672,7 @@
 <span class="sd">            group (format: {(u, v): props}, where props is a dictionary of</span>
 <span class="sd">            properties, including weight. If None, then the algorithm</span>
 <span class="sd">            will attempt to automatically determine bonds using one of</span>
-<span class="sd">            a list of strategies defined in pymatgen.analysis.local_env.</span>
+<span class="sd">            a list of strategies defined in pymatgen.core.local_env.</span>
 <span class="sd">        :param strategy_params: dictionary of keyword arguments for strategy.</span>
 <span class="sd">            If None, default parameters will be used.</span>
 <span class="sd">        :return:</span>
@@ -1720,11 +1720,11 @@
     <span class="k">def</span> <span class="nf">with_local_env_strategy</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">strategy</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for MoleculeGraph, using a strategy</span>
-<span class="sd">        from :Class: `pymatgen.analysis.local_env`.</span>
+<span class="sd">        from :Class: `pymatgen.core.local_env`.</span>
 
 <span class="sd">        :param molecule: Molecule object</span>
 <span class="sd">        :param strategy: an instance of a</span>
-<span class="sd">            :Class: `pymatgen.analysis.local_env.NearNeighbors` object</span>
+<span class="sd">            :Class: `pymatgen.core.local_env.NearNeighbors` object</span>
 <span class="sd">        :return: mg, a MoleculeGraph</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -2224,7 +2224,7 @@
 <span class="sd">            2. A string name. The molecule will be obtained from the</span>
 <span class="sd">                relevant template in func_groups.json.</span>
 <span class="sd">            3. A MoleculeGraph object.</span>
-<span class="sd">        :param strategy: Class from pymatgen.analysis.local_env.</span>
+<span class="sd">        :param strategy: Class from pymatgen.core.local_env.</span>
 <span class="sd">        :param bond_order: A specified bond order to calculate the bond</span>
 <span class="sd">                length between the attached functional group and the nearest</span>
 <span class="sd">                neighbor site. Defaults to 1.</span>
@@ -2232,7 +2232,7 @@
 <span class="sd">                group (format: {(u, v): props}, where props is a dictionary of</span>
 <span class="sd">                properties, including weight. If None, then the algorithm</span>
 <span class="sd">                will attempt to automatically determine bonds using one of</span>
-<span class="sd">                a list of strategies defined in pymatgen.analysis.local_env.</span>
+<span class="sd">                a list of strategies defined in pymatgen.core.local_env.</span>
 <span class="sd">        :param strategy_params: dictionary of keyword arguments for strategy.</span>
 <span class="sd">                If None, default parameters will be used.</span>
 <span class="sd">        :return:</span>
@@ -2339,7 +2339,7 @@
 <span class="sd">            2. A string name. The molecule will be obtained from the</span>
 <span class="sd">               relevant template in func_groups.json.</span>
 <span class="sd">            3. A MoleculeGraph object.</span>
-<span class="sd">        :param strategy: Class from pymatgen.analysis.local_env.</span>
+<span class="sd">        :param strategy: Class from pymatgen.core.local_env.</span>
 <span class="sd">        :param bond_order: A specified bond order to calculate the bond</span>
 <span class="sd">            length between the attached functional group and the nearest</span>
 <span class="sd">            neighbor site. Defaults to 1.</span>
@@ -2347,7 +2347,7 @@
 <span class="sd">            group (format: {(u, v): props}, where props is a dictionary of</span>
 <span class="sd">            properties, including weight. If None, then the algorithm</span>
 <span class="sd">            will attempt to automatically determine bonds using one of</span>
-<span class="sd">            a list of strategies defined in pymatgen.analysis.local_env.</span>
+<span class="sd">            a list of strategies defined in pymatgen.core.local_env.</span>
 <span class="sd">        :param strategy_params: dictionary of keyword arguments for strategy.</span>
 <span class="sd">            If None, default parameters will be used.</span>
 <span class="sd">        :return:</span>

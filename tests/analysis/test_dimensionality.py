@@ -13,7 +13,7 @@ from pymatgen.analysis.dimensionality import (
     zero_d_graph_to_molecule_graph,
 )
 from pymatgen.core.graphs import StructureGraph
-from pymatgen.analysis.local_env import CrystalNN
+from pymatgen.core.local_env import CrystalNN
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 

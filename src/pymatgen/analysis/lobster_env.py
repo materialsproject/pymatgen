@@ -25,7 +25,7 @@ from monty.dev import deprecated
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
-from pymatgen.analysis.local_env import NearNeighbors
+from pymatgen.core.local_env import NearNeighbors
 from pymatgen.core import Structure
 from pymatgen.electronic_structure.cohp import CompleteCohp
 from pymatgen.electronic_structure.core import Spin

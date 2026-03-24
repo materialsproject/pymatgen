@@ -5,7 +5,7 @@ from __future__ import annotations
 import copy
 
 from pymatgen.core.graphs import MoleculeGraph
-from pymatgen.analysis.local_env import OpenBabelNN
+from pymatgen.core.local_env import OpenBabelNN
 from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor
 

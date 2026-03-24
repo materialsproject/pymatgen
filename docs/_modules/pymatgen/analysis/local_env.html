@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pymatgen.analysis.local_env &#8212; pymatgen 2020.7.3 documentation</title>
+    <title>pymatgen.core.local_env &#8212; pymatgen 2020.7.3 documentation</title>
     <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -36,7 +36,7 @@
         <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.local_env</a></li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.local_env</a></li>
       </ul>
     </div>
 
@@ -44,7 +44,7 @@
       <div class="documentwrapper">
           <div class="body" role="main">
 
-  <h1>Source code for pymatgen.analysis.local_env</h1><div class="highlight"><pre>
+  <h1>Source code for pymatgen.core.local_env</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
@@ -107,7 +107,7 @@
     <span class="n">_ion_radii</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="ValenceIonicRadiusEvaluator"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.ValenceIonicRadiusEvaluator">[docs]</a><span class="k">class</span> <span class="nc">ValenceIonicRadiusEvaluator</span><span class="p">:</span>
+<div class="viewcode-block" id="ValenceIonicRadiusEvaluator"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.ValenceIonicRadiusEvaluator">[docs]</a><span class="k">class</span> <span class="nc">ValenceIonicRadiusEvaluator</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes site valences and ionic radii for a structure using bond valence</span>
 <span class="sd">    analyzer</span>
@@ -263,7 +263,7 @@
         <span class="k">return</span> <span class="n">valences</span></div>
 
 
-<div class="viewcode-block" id="NearNeighbors"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors">[docs]</a><span class="k">class</span> <span class="nc">NearNeighbors</span><span class="p">:</span>
+<div class="viewcode-block" id="NearNeighbors"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.NearNeighbors">[docs]</a><span class="k">class</span> <span class="nc">NearNeighbors</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class to determine near neighbors that typically include nearest</span>
 <span class="sd">    neighbors and others that are within some tolerable distance.</span>
@@ -305,7 +305,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;extend_structures_molecule&quot;</span>
                                   <span class="s2">&quot; is not defined!&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="NearNeighbors.get_cn"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_cn">[docs]</a>    <span class="k">def</span> <span class="nf">get_cn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="NearNeighbors.get_cn"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.NearNeighbors.get_cn">[docs]</a>    <span class="k">def</span> <span class="nf">get_cn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get coordination number, CN, of site with index n in structure.</span>
 
@@ -323,7 +323,7 @@
         <span class="n">siw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">siw</span><span class="p">])</span> <span class="k">if</span> <span class="n">use_weights</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">siw</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="NearNeighbors.get_cn_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_cn_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_cn_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="NearNeighbors.get_cn_dict"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.NearNeighbors.get_cn_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_cn_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get coordination number, CN, of each element bonded to site with index n in structure</span>
 
@@ -356,7 +356,7 @@
                     <span class="n">cn_dict</span><span class="p">[</span><span class="n">site_element</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">cn_dict</span></div>
 
-<div class="viewcode-block" id="NearNeighbors.get_nn"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_nn">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="NearNeighbors.get_nn"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.NearNeighbors.get_nn">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get near neighbors of site with index n in structure.</span>
 
@@ -370,7 +370,7 @@
 
         <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)]</span></div>
 
-<div class="viewcode-block" id="NearNeighbors.get_weights_of_nn_sites"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_weights_of_nn_sites">[docs]</a>    <span class="k">def</span> <span class="nf">get_weights_of_nn_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="NearNeighbors.get_weights_of_nn_sites"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.NearNeighbors.get_weights_of_nn_sites">[docs]</a>    <span class="k">def</span> <span class="nf">get_weights_of_nn_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get weight associated with each near neighbor of site with</span>
 <span class="sd">        index n in structure.</span>
@@ -384,7 +384,7 @@
 
         <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)]</span></div>
 
-<div class="viewcode-block" id="NearNeighbors.get_nn_images"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_nn_images">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="NearNeighbors.get_nn_images"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.NearNeighbors.get_nn_images">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get image location of all near neighbors of site with index n in</span>
 <span class="sd">        structure.</span>
@@ -400,7 +400,7 @@
 
         <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)]</span></div>
 
-<div class="viewcode-block" id="NearNeighbors.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="NearNeighbors.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.NearNeighbors.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
 <span class="sd">        and weights of the site with index n.</span>
@@ -424,7 +424,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;get_nn_info(structure, n)&quot;</span>
                                   <span class="s2">&quot; is not defined!&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="NearNeighbors.get_all_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_all_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+<div class="viewcode-block" id="NearNeighbors.get_all_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.NearNeighbors.get_all_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get a listing of all neighbors for all sites in a structure</span>
 
 <span class="sd">        Args:</span>
@@ -436,7 +436,7 @@
 
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">))]</span></div>
 
-<div class="viewcode-block" id="NearNeighbors.get_nn_shell_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_nn_shell_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_shell_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">site_idx</span><span class="p">,</span> <span class="n">shell</span><span class="p">):</span>
+<div class="viewcode-block" id="NearNeighbors.get_nn_shell_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.NearNeighbors.get_nn_shell_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_shell_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">site_idx</span><span class="p">,</span> <span class="n">shell</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get a certain nearest neighbor shell for a certain site.</span>
 
 <span class="sd">        Determines all non-backtracking paths through the neighbor network</span>
@@ -588,7 +588,7 @@
                 <span class="k">return</span> <span class="n">i</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Site not found!&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="NearNeighbors.get_bonded_structure"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_bonded_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bonded_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">decorate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="NearNeighbors.get_bonded_structure"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.NearNeighbors.get_bonded_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bonded_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">decorate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Obtain a StructureGraph object using this NearNeighbor</span>
 <span class="sd">        class. Requires the optional dependency networkx</span>
@@ -621,7 +621,7 @@
 
         <span class="k">return</span> <span class="n">sg</span></div>
 
-<div class="viewcode-block" id="NearNeighbors.get_local_order_parameters"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_local_order_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_local_order_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="NearNeighbors.get_local_order_parameters"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.NearNeighbors.get_local_order_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_local_order_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate those local structure order parameters for</span>
 <span class="sd">        the given site whose ideal CN corresponds to the</span>
@@ -662,7 +662,7 @@
             <span class="k">return</span> <span class="kc">None</span></div></div>
 
 
-<div class="viewcode-block" id="VoronoiNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN">[docs]</a><span class="k">class</span> <span class="nc">VoronoiNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+<div class="viewcode-block" id="VoronoiNN"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.VoronoiNN">[docs]</a><span class="k">class</span> <span class="nc">VoronoiNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Uses a Voronoi algorithm to determine near neighbors for each site in a</span>
 <span class="sd">    structure.</span>
@@ -712,7 +712,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="VoronoiNN.get_voronoi_polyhedra"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN.get_voronoi_polyhedra">[docs]</a>    <span class="k">def</span> <span class="nf">get_voronoi_polyhedra</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="VoronoiNN.get_voronoi_polyhedra"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.VoronoiNN.get_voronoi_polyhedra">[docs]</a>    <span class="k">def</span> <span class="nf">get_voronoi_polyhedra</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gives a weighted polyhedra around a site.</span>
 
@@ -782,7 +782,7 @@
                 <span class="n">cutoff</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">cutoff</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">max_cutoff</span> <span class="o">+</span> <span class="mf">0.001</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cell_info</span></div>
 
-<div class="viewcode-block" id="VoronoiNN.get_all_voronoi_polyhedra"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN.get_all_voronoi_polyhedra">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_voronoi_polyhedra</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+<div class="viewcode-block" id="VoronoiNN.get_all_voronoi_polyhedra"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.VoronoiNN.get_all_voronoi_polyhedra">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_voronoi_polyhedra</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the Voronoi polyhedra for all site in a simulation cell</span>
 
 <span class="sd">        Args:</span>
@@ -1015,7 +1015,7 @@
 
         <span class="k">return</span> <span class="n">resultweighted</span>
 
-<div class="viewcode-block" id="VoronoiNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="VoronoiNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.VoronoiNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
 <span class="sd">        and weights of the site with index n in structure</span>
@@ -1038,7 +1038,7 @@
         <span class="c1"># Extract the NN info</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">nns</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="VoronoiNN.get_all_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN.get_all_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+<div class="viewcode-block" id="VoronoiNN.get_all_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.VoronoiNN.get_all_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            structure (Structure): input structure.</span>
@@ -1113,7 +1113,7 @@
                          <span class="n">extra_nn_info</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="JmolNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.JmolNN">[docs]</a><span class="k">class</span> <span class="nc">JmolNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+<div class="viewcode-block" id="JmolNN"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.JmolNN">[docs]</a><span class="k">class</span> <span class="nc">JmolNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine near-neighbor sites and coordination number using an emulation</span>
 <span class="sd">    of Jmol&#39;s default autoBond() algorithm. This version of the algorithm</span>
@@ -1167,7 +1167,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-<div class="viewcode-block" id="JmolNN.get_max_bond_distance"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.JmolNN.get_max_bond_distance">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_bond_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el1_sym</span><span class="p">,</span> <span class="n">el2_sym</span><span class="p">):</span>
+<div class="viewcode-block" id="JmolNN.get_max_bond_distance"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.JmolNN.get_max_bond_distance">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_bond_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el1_sym</span><span class="p">,</span> <span class="n">el2_sym</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Use Jmol algorithm to determine bond length from atomic parameters</span>
 <span class="sd">        Args:</span>
@@ -1180,7 +1180,7 @@
         <span class="k">return</span> <span class="n">sqrt</span><span class="p">(</span>
             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">el_radius</span><span class="p">[</span><span class="n">el1_sym</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">el_radius</span><span class="p">[</span><span class="n">el2_sym</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="JmolNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.JmolNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="JmolNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.JmolNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
 <span class="sd">        and weights of the site with index n using the bond identification</span>
@@ -1224,7 +1224,7 @@
         <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
-<div class="viewcode-block" id="MinimumDistanceNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.MinimumDistanceNN">[docs]</a><span class="k">class</span> <span class="nc">MinimumDistanceNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+<div class="viewcode-block" id="MinimumDistanceNN"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.MinimumDistanceNN">[docs]</a><span class="k">class</span> <span class="nc">MinimumDistanceNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine near-neighbor sites and coordination number using the</span>
 <span class="sd">    nearest neighbor(s) at distance, d_min, plus all neighbors</span>
@@ -1271,7 +1271,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-<div class="viewcode-block" id="MinimumDistanceNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.MinimumDistanceNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="MinimumDistanceNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.MinimumDistanceNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
 <span class="sd">        and weights of the site with index n using the closest neighbor</span>
@@ -1314,7 +1314,7 @@
         <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
-<div class="viewcode-block" id="OpenBabelNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.OpenBabelNN">[docs]</a><span class="k">class</span> <span class="nc">OpenBabelNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenBabelNN"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.OpenBabelNN">[docs]</a><span class="k">class</span> <span class="nc">OpenBabelNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine near-neighbor sites and bond orders using OpenBabel API.</span>
 
@@ -1359,7 +1359,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="OpenBabelNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.OpenBabelNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenBabelNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.OpenBabelNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor sites and weights (orders) of bonds for a given</span>
 <span class="sd">        atom.</span>
@@ -1401,7 +1401,7 @@
 
         <span class="k">return</span> <span class="n">siw</span></div>
 
-<div class="viewcode-block" id="OpenBabelNN.get_bonded_structure"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.OpenBabelNN.get_bonded_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bonded_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">decorate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenBabelNN.get_bonded_structure"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.OpenBabelNN.get_bonded_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bonded_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">decorate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Obtain a MoleculeGraph object using this NearNeighbor</span>
 <span class="sd">        class. Requires the optional dependency networkx</span>
@@ -1432,7 +1432,7 @@
 
         <span class="k">return</span> <span class="n">mg</span></div>
 
-<div class="viewcode-block" id="OpenBabelNN.get_nn_shell_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.OpenBabelNN.get_nn_shell_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_shell_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">site_idx</span><span class="p">,</span> <span class="n">shell</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenBabelNN.get_nn_shell_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.OpenBabelNN.get_nn_shell_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_shell_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">site_idx</span><span class="p">,</span> <span class="n">shell</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get a certain nearest neighbor shell for a certain site.</span>
 
 <span class="sd">        Determines all non-backtracking paths through the neighbor network</span>
@@ -1474,7 +1474,7 @@
         <span class="k">return</span> <span class="n">output</span></div></div>
 
 
-<div class="viewcode-block" id="CovalentBondNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CovalentBondNN">[docs]</a><span class="k">class</span> <span class="nc">CovalentBondNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+<div class="viewcode-block" id="CovalentBondNN"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.CovalentBondNN">[docs]</a><span class="k">class</span> <span class="nc">CovalentBondNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine near-neighbor sites and bond orders using built-in</span>
 <span class="sd">    pymatgen.Molecule CovalentBond functionality.</span>
@@ -1520,7 +1520,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="CovalentBondNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CovalentBondNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="CovalentBondNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.CovalentBondNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor sites and weights (orders) of bonds for a given</span>
 <span class="sd">        atom.</span>
@@ -1560,7 +1560,7 @@
 
         <span class="k">return</span> <span class="n">siw</span></div>
 
-<div class="viewcode-block" id="CovalentBondNN.get_bonded_structure"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CovalentBondNN.get_bonded_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bonded_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">decorate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="CovalentBondNN.get_bonded_structure"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.CovalentBondNN.get_bonded_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bonded_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">decorate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Obtain a MoleculeGraph object using this NearNeighbor</span>
 <span class="sd">        class.</span>
@@ -1590,7 +1590,7 @@
 
         <span class="k">return</span> <span class="n">mg</span></div>
 
-<div class="viewcode-block" id="CovalentBondNN.get_nn_shell_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CovalentBondNN.get_nn_shell_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_shell_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">site_idx</span><span class="p">,</span> <span class="n">shell</span><span class="p">):</span>
+<div class="viewcode-block" id="CovalentBondNN.get_nn_shell_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.CovalentBondNN.get_nn_shell_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_shell_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">site_idx</span><span class="p">,</span> <span class="n">shell</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get a certain nearest neighbor shell for a certain site.</span>
 
 <span class="sd">        Determines all non-backtracking paths through the neighbor network</span>
@@ -1632,7 +1632,7 @@
         <span class="k">return</span> <span class="n">output</span></div></div>
 
 
-<div class="viewcode-block" id="MinimumOKeeffeNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.MinimumOKeeffeNN">[docs]</a><span class="k">class</span> <span class="nc">MinimumOKeeffeNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+<div class="viewcode-block" id="MinimumOKeeffeNN"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.MinimumOKeeffeNN">[docs]</a><span class="k">class</span> <span class="nc">MinimumOKeeffeNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine near-neighbor sites and coordination number using the</span>
 <span class="sd">    neighbor(s) at closest relative distance, d_min_OKeffee, plus some</span>
@@ -1677,7 +1677,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-<div class="viewcode-block" id="MinimumOKeeffeNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.MinimumOKeeffeNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="MinimumOKeeffeNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.MinimumOKeeffeNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
 <span class="sd">        and weights of the site with index n using the closest relative</span>
@@ -1726,7 +1726,7 @@
         <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
-<div class="viewcode-block" id="MinimumVIRENN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.MinimumVIRENN">[docs]</a><span class="k">class</span> <span class="nc">MinimumVIRENN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+<div class="viewcode-block" id="MinimumVIRENN"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.MinimumVIRENN">[docs]</a><span class="k">class</span> <span class="nc">MinimumVIRENN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine near-neighbor sites and coordination number using the</span>
 <span class="sd">    neighbor(s) at closest relative distance, d_min_VIRE, plus some</span>
@@ -1762,7 +1762,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="MinimumVIRENN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.MinimumVIRENN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="MinimumVIRENN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.MinimumVIRENN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
 <span class="sd">        and weights of the site with index n using the closest relative</span>
@@ -1835,7 +1835,7 @@
     <span class="k">return</span> <span class="n">ValenceIonicRadiusEvaluator</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="solid_angle"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.solid_angle">[docs]</a><span class="k">def</span> <span class="nf">solid_angle</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">coords</span><span class="p">):</span>
+<div class="viewcode-block" id="solid_angle"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.solid_angle">[docs]</a><span class="k">def</span> <span class="nf">solid_angle</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">coords</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper method to calculate the solid angle of a set of coords from the</span>
 <span class="sd">    center.</span>
@@ -1873,7 +1873,7 @@
     <span class="k">return</span> <span class="n">angle</span></div>
 
 
-<div class="viewcode-block" id="vol_tetra"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.vol_tetra">[docs]</a><span class="k">def</span> <span class="nf">vol_tetra</span><span class="p">(</span><span class="n">vt1</span><span class="p">,</span> <span class="n">vt2</span><span class="p">,</span> <span class="n">vt3</span><span class="p">,</span> <span class="n">vt4</span><span class="p">):</span>
+<div class="viewcode-block" id="vol_tetra"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.vol_tetra">[docs]</a><span class="k">def</span> <span class="nf">vol_tetra</span><span class="p">(</span><span class="n">vt1</span><span class="p">,</span> <span class="n">vt2</span><span class="p">,</span> <span class="n">vt3</span><span class="p">,</span> <span class="n">vt4</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the volume of a tetrahedron, given the four vertices of vt1,</span>
 <span class="sd">    vt2, vt3 and vt4.</span>
@@ -1889,7 +1889,7 @@
     <span class="k">return</span> <span class="n">vol_tetra</span></div>
 
 
-<div class="viewcode-block" id="get_okeeffe_params"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.get_okeeffe_params">[docs]</a><span class="k">def</span> <span class="nf">get_okeeffe_params</span><span class="p">(</span><span class="n">el_symbol</span><span class="p">):</span>
+<div class="viewcode-block" id="get_okeeffe_params"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.get_okeeffe_params">[docs]</a><span class="k">def</span> <span class="nf">get_okeeffe_params</span><span class="p">(</span><span class="n">el_symbol</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the elemental parameters related to atom size and</span>
 <span class="sd">    electronegativity which are used for estimating bond-valence</span>
@@ -1913,7 +1913,7 @@
     <span class="k">return</span> <span class="n">BV_PARAMS</span><span class="p">[</span><span class="n">el</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="get_okeeffe_distance_prediction"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.get_okeeffe_distance_prediction">[docs]</a><span class="k">def</span> <span class="nf">get_okeeffe_distance_prediction</span><span class="p">(</span><span class="n">el1</span><span class="p">,</span> <span class="n">el2</span><span class="p">):</span>
+<div class="viewcode-block" id="get_okeeffe_distance_prediction"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.get_okeeffe_distance_prediction">[docs]</a><span class="k">def</span> <span class="nf">get_okeeffe_distance_prediction</span><span class="p">(</span><span class="n">el1</span><span class="p">,</span> <span class="n">el2</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns an estimate of the bond valence parameter (bond length) using</span>
 <span class="sd">    the derived parameters from &#39;Atoms Sizes and Bond Lengths in Molecules</span>
@@ -1939,7 +1939,7 @@
     <span class="k">return</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span> <span class="o">-</span> <span class="n">r1</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span> <span class="o">-</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">c2</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">c1</span> <span class="o">*</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_neighbors_of_site_with_index"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.get_neighbors_of_site_with_index">[docs]</a><span class="k">def</span> <span class="nf">get_neighbors_of_site_with_index</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">approach</span><span class="o">=</span><span class="s2">&quot;min_dist&quot;</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">10.0</span><span class="p">):</span>
+<div class="viewcode-block" id="get_neighbors_of_site_with_index"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.get_neighbors_of_site_with_index">[docs]</a><span class="k">def</span> <span class="nf">get_neighbors_of_site_with_index</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">approach</span><span class="o">=</span><span class="s2">&quot;min_dist&quot;</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">10.0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the neighbors of a given site using a specific neighbor-finding</span>
 <span class="sd">    method.</span>
@@ -1975,7 +1975,7 @@
             <span class="n">approach</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="site_is_of_motif_type"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.site_is_of_motif_type">[docs]</a><span class="k">def</span> <span class="nf">site_is_of_motif_type</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">approach</span><span class="o">=</span><span class="s2">&quot;min_dist&quot;</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="site_is_of_motif_type"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.site_is_of_motif_type">[docs]</a><span class="k">def</span> <span class="nf">site_is_of_motif_type</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">approach</span><span class="o">=</span><span class="s2">&quot;min_dist&quot;</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the motif type of the site with index n in structure struct;</span>
 <span class="sd">    currently featuring &quot;tetrahedral&quot;, &quot;octahedral&quot;, &quot;bcc&quot;, and &quot;cp&quot;</span>
@@ -2045,7 +2045,7 @@
     <span class="k">return</span> <span class="n">motif_type</span></div>
 
 
-<div class="viewcode-block" id="gramschmidt"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.gramschmidt">[docs]</a><span class="k">def</span> <span class="nf">gramschmidt</span><span class="p">(</span><span class="n">vin</span><span class="p">,</span> <span class="n">uin</span><span class="p">):</span>
+<div class="viewcode-block" id="gramschmidt"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.gramschmidt">[docs]</a><span class="k">def</span> <span class="nf">gramschmidt</span><span class="p">(</span><span class="n">vin</span><span class="p">,</span> <span class="n">uin</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns that part of the first input vector</span>
 <span class="sd">    that is orthogonal to the second input vector.</span>
@@ -2065,7 +2065,7 @@
     <span class="k">return</span> <span class="n">vin</span> <span class="o">-</span> <span class="p">(</span><span class="n">vin_uin</span> <span class="o">/</span> <span class="n">uin_uin</span><span class="p">)</span> <span class="o">*</span> <span class="n">uin</span></div>
 
 
-<div class="viewcode-block" id="LocalStructOrderParams"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParams">[docs]</a><span class="k">class</span> <span class="nc">LocalStructOrderParams</span><span class="p">:</span>
+<div class="viewcode-block" id="LocalStructOrderParams"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.LocalStructOrderParams">[docs]</a><span class="k">class</span> <span class="nc">LocalStructOrderParams</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class permits the calculation of various types of local</span>
 <span class="sd">    structure order parameters.</span>
@@ -2269,7 +2269,7 @@
 
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_nneigh</span><span class="p">)</span>
 
-<div class="viewcode-block" id="LocalStructOrderParams.compute_trigonometric_terms"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParams.compute_trigonometric_terms">[docs]</a>    <span class="k">def</span> <span class="nf">compute_trigonometric_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">phis</span><span class="p">):</span>
+<div class="viewcode-block" id="LocalStructOrderParams.compute_trigonometric_terms"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.LocalStructOrderParams.compute_trigonometric_terms">[docs]</a>    <span class="k">def</span> <span class="nf">compute_trigonometric_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">phis</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes trigonometric terms that are required to</span>
@@ -2313,7 +2313,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_sin_n_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">sin</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">phis</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cos_n_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">cos</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">phis</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="LocalStructOrderParams.get_q2"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParams.get_q2">[docs]</a>    <span class="k">def</span> <span class="nf">get_q2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thetas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="LocalStructOrderParams.get_q2"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.LocalStructOrderParams.get_q2">[docs]</a>    <span class="k">def</span> <span class="nf">get_q2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thetas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the value of the bond orientational order parameter of</span>
@@ -2382,7 +2382,7 @@
         <span class="n">q2</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">acc</span> <span class="o">/</span> <span class="p">(</span><span class="mf">5.0</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">nnn</span> <span class="o">*</span> <span class="n">nnn</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">q2</span></div>
 
-<div class="viewcode-block" id="LocalStructOrderParams.get_q4"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParams.get_q4">[docs]</a>    <span class="k">def</span> <span class="nf">get_q4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thetas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="LocalStructOrderParams.get_q4"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.LocalStructOrderParams.get_q4">[docs]</a>    <span class="k">def</span> <span class="nf">get_q4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thetas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the value of the bond orientational order parameter of</span>
@@ -2491,7 +2491,7 @@
         <span class="n">q4</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">acc</span> <span class="o">/</span> <span class="p">(</span><span class="mf">9.0</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">nnn</span> <span class="o">*</span> <span class="n">nnn</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">q4</span></div>
 
-<div class="viewcode-block" id="LocalStructOrderParams.get_q6"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParams.get_q6">[docs]</a>    <span class="k">def</span> <span class="nf">get_q6</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thetas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="LocalStructOrderParams.get_q6"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.LocalStructOrderParams.get_q6">[docs]</a>    <span class="k">def</span> <span class="nf">get_q6</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thetas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the value of the bond orientational order parameter of</span>
@@ -2656,7 +2656,7 @@
         <span class="n">q6</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">acc</span> <span class="o">/</span> <span class="p">(</span><span class="mf">13.0</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">nnn</span> <span class="o">*</span> <span class="n">nnn</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">q6</span></div>
 
-<div class="viewcode-block" id="LocalStructOrderParams.get_type"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParams.get_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+<div class="viewcode-block" id="LocalStructOrderParams.get_type"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.LocalStructOrderParams.get_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return type of order parameter at the index provided and</span>
@@ -2673,7 +2673,7 @@
                              <span class="s2">&quot; out-of-bounds!&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_types</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="LocalStructOrderParams.get_parameters"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParams.get_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+<div class="viewcode-block" id="LocalStructOrderParams.get_parameters"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.LocalStructOrderParams.get_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns list of floats that represents</span>
@@ -2695,7 +2695,7 @@
                              <span class="s2">&quot; order parameter calculation out-of-bounds!&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="LocalStructOrderParams.get_order_parameters"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParams.get_order_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_order_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">indices_neighs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">target_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="LocalStructOrderParams.get_order_parameters"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.LocalStructOrderParams.get_order_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_order_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">indices_neighs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">target_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute all order parameters of site n.</span>
 
@@ -3218,7 +3218,7 @@
         <span class="k">return</span> <span class="n">ops</span></div></div>
 
 
-<div class="viewcode-block" id="BrunnerNN_reciprocal"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN_reciprocal">[docs]</a><span class="k">class</span> <span class="nc">BrunnerNN_reciprocal</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+<div class="viewcode-block" id="BrunnerNN_reciprocal"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.BrunnerNN_reciprocal">[docs]</a><span class="k">class</span> <span class="nc">BrunnerNN_reciprocal</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine coordination number using Brunner&#39;s algorithm which counts the</span>
 <span class="sd">    atoms that are within the largest gap in differences in real space</span>
@@ -3253,7 +3253,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="BrunnerNN_reciprocal.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN_reciprocal.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="BrunnerNN_reciprocal.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.BrunnerNN_reciprocal.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
 <span class="sd">        and weights of the site with index n in structure.</span>
@@ -3289,7 +3289,7 @@
         <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
-<div class="viewcode-block" id="BrunnerNN_relative"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN_relative">[docs]</a><span class="k">class</span> <span class="nc">BrunnerNN_relative</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+<div class="viewcode-block" id="BrunnerNN_relative"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.BrunnerNN_relative">[docs]</a><span class="k">class</span> <span class="nc">BrunnerNN_relative</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine coordination number using Brunner&#39;s algorithm which counts the</span>
 <span class="sd">    atoms that are within the largest gap in differences in real space</span>
@@ -3324,7 +3324,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="BrunnerNN_relative.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN_relative.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="BrunnerNN_relative.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.BrunnerNN_relative.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
 <span class="sd">        and weights of the site with index n in structure.</span>
@@ -3360,7 +3360,7 @@
         <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
-<div class="viewcode-block" id="BrunnerNN_real"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN_real">[docs]</a><span class="k">class</span> <span class="nc">BrunnerNN_real</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+<div class="viewcode-block" id="BrunnerNN_real"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.BrunnerNN_real">[docs]</a><span class="k">class</span> <span class="nc">BrunnerNN_real</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine coordination number using Brunner&#39;s algorithm which counts the</span>
 <span class="sd">    atoms that are within the largest gap in differences in real space</span>
@@ -3395,7 +3395,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="BrunnerNN_real.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN_real.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="BrunnerNN_real.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.BrunnerNN_real.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
 <span class="sd">        and weights of the site with index n in structure.</span>
@@ -3431,7 +3431,7 @@
         <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
-<div class="viewcode-block" id="EconNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.EconNN">[docs]</a><span class="k">class</span> <span class="nc">EconNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+<div class="viewcode-block" id="EconNN"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.EconNN">[docs]</a><span class="k">class</span> <span class="nc">EconNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determines the average effective coordination number for each cation in a</span>
 <span class="sd">    given structure using Hoppe&#39;s algorithm.</span>
@@ -3490,7 +3490,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-<div class="viewcode-block" id="EconNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.EconNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="EconNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.EconNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
 <span class="sd">        and weights of the site with index n in structure.</span>
@@ -3609,7 +3609,7 @@
     <span class="k">return</span> <span class="n">weighted_sum</span> <span class="o">/</span> <span class="n">total_sum</span>
 
 
-<div class="viewcode-block" id="CrystalNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CrystalNN">[docs]</a><span class="k">class</span> <span class="nc">CrystalNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+<div class="viewcode-block" id="CrystalNN"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.CrystalNN">[docs]</a><span class="k">class</span> <span class="nc">CrystalNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is custom near neighbor method intended for use in all kinds of</span>
 <span class="sd">    periodic structures (metals, minerals, porous structures, etc). It is based</span>
@@ -3678,7 +3678,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="CrystalNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CrystalNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="CrystalNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.CrystalNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor information.</span>
 <span class="sd">        Args:</span>
@@ -3717,7 +3717,7 @@
 
             <span class="k">return</span> <span class="n">nndata</span><span class="o">.</span><span class="n">all_nninfo</span></div>
 
-<div class="viewcode-block" id="CrystalNN.get_nn_data"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CrystalNN.get_nn_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="CrystalNN.get_nn_data"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.CrystalNN.get_nn_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The main logic of the method to compute near neighbor.</span>
 
@@ -3856,7 +3856,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform_to_length</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NNData</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">cn_weights</span><span class="p">,</span> <span class="n">cn_nninfo</span><span class="p">),</span>
                                         <span class="n">length</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CrystalNN.get_cn"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CrystalNN.get_cn">[docs]</a>    <span class="k">def</span> <span class="nf">get_cn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="CrystalNN.get_cn"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.CrystalNN.get_cn">[docs]</a>    <span class="k">def</span> <span class="nf">get_cn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get coordination number, CN, of site with index n in structure.</span>
 
@@ -3876,7 +3876,7 @@
 
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_cn</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">use_weights</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CrystalNN.get_cn_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CrystalNN.get_cn_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_cn_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="CrystalNN.get_cn_dict"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.CrystalNN.get_cn_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_cn_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get coordination number, CN, of each element bonded to site with index n in structure</span>
 
@@ -3926,7 +3926,7 @@
 
         <span class="k">return</span> <span class="p">(</span><span class="n">area1</span> <span class="o">-</span> <span class="n">area2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.25</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">r</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
 
-<div class="viewcode-block" id="CrystalNN.transform_to_length"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CrystalNN.transform_to_length">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="CrystalNN.transform_to_length"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.CrystalNN.transform_to_length">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">transform_to_length</span><span class="p">(</span><span class="n">nndata</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given NNData, transforms data to the specified fingerprint length</span>
@@ -4006,7 +4006,7 @@
     <span class="k">return</span> <span class="mi">0</span>
 
 
-<div class="viewcode-block" id="CutOffDictNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CutOffDictNN">[docs]</a><span class="k">class</span> <span class="nc">CutOffDictNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+<div class="viewcode-block" id="CutOffDictNN"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.CutOffDictNN">[docs]</a><span class="k">class</span> <span class="nc">CutOffDictNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A very basic NN class using a dictionary of fixed</span>
 <span class="sd">    cut-off distances. Can also be used with no dictionary</span>
@@ -4062,7 +4062,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-<div class="viewcode-block" id="CutOffDictNN.from_preset"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CutOffDictNN.from_preset">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="CutOffDictNN.from_preset"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.CutOffDictNN.from_preset">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_preset</span><span class="p">(</span><span class="n">preset</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialise a CutOffDictNN according to a preset set of cut-offs.</span>
@@ -4082,7 +4082,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognised preset: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">preset</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="CutOffDictNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CutOffDictNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="CutOffDictNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.CutOffDictNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
 <span class="sd">        and weights of the site with index n in structure.</span>
@@ -4120,7 +4120,7 @@
         <span class="k">return</span> <span class="n">nn_info</span></div></div>
 
 
-<div class="viewcode-block" id="Critic2NN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.Critic2NN">[docs]</a><span class="k">class</span> <span class="nc">Critic2NN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+<div class="viewcode-block" id="Critic2NN"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.Critic2NN">[docs]</a><span class="k">class</span> <span class="nc">Critic2NN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Performs a topological analysis using critic2 to obtain</span>
 <span class="sd">    neighbor information, using a sum of atomic charge</span>
@@ -4165,7 +4165,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-<div class="viewcode-block" id="Critic2NN.get_bonded_structure"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.Critic2NN.get_bonded_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bonded_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">decorate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Critic2NN.get_bonded_structure"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.Critic2NN.get_bonded_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bonded_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">decorate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param structure: Input structure</span>
 <span class="sd">        :param decorate: Whether to decorate the structure</span>
@@ -4193,7 +4193,7 @@
 
         <span class="k">return</span> <span class="n">sg</span></div>
 
-<div class="viewcode-block" id="Critic2NN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.Critic2NN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="Critic2NN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.core.local_env.html#pymatgen.core.local_env.Critic2NN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
 <span class="sd">        and weights of the site with index n in structure.</span>
@@ -4237,7 +4237,7 @@
         <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.local_env</a></li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.local_env</a></li>
       </ul>
     </div>
 
