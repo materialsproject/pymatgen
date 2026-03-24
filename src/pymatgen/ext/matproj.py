@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from typing import Any, Self
 
     from pymatgen.core.structure import Structure
-    from pymatgen.entries.compatibility import AnyComputedEntry
+    from pymatgen.analysis.compatibility import AnyComputedEntry
 
 logger = logging.getLogger(__name__)
 
@@ -420,7 +420,7 @@ class MPRester:
                 entries.append(entry)
 
         if compatible_only:
-            from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
+            from pymatgen.analysis.compatibility import MaterialsProject2020Compatibility
 
             # suppress the warning about missing oxidation states
             with warnings.catch_warnings():
