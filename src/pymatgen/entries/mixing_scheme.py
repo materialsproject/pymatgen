@@ -22,7 +22,7 @@ from pymatgen.analysis.compatibility import (
     MaterialsProject2020Compatibility,
     TypeVarAnyEntry,
 )
-from pymatgen.entries.entry_tools import EntrySet
+from pymatgen.analysis.compatibility.entry_tools import EntrySet
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
