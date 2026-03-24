@@ -16,7 +16,7 @@ import pandas as pd
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.entries import ComputedStructureEntry, ConstantEnergyAdjustment
-from pymatgen.entries.compatibility import (
+from pymatgen.analysis.compatibility import (
     Compatibility,
     CompatibilityError,
     MaterialsProject2020Compatibility,
