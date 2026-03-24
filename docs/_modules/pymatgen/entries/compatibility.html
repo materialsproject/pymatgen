@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pymatgen.entries.compatibility &#8212; pymatgen 2020.7.3 documentation</title>
+    <title>pymatgen.analysis.compatibility &#8212; pymatgen 2020.7.3 documentation</title>
     <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -16,7 +16,7 @@
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
- 
+
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -37,15 +37,15 @@
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="../entries.html" accesskey="U">pymatgen.entries</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.entries.compatibility</a></li> 
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.compatibility</a></li>
       </ul>
-    </div>  
+    </div>
 
     <div class="document">
       <div class="documentwrapper">
           <div class="body" role="main">
-            
-  <h1>Source code for pymatgen.entries.compatibility</h1><div class="highlight"><pre>
+
+  <h1>Source code for pymatgen.analysis.compatibility</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
@@ -82,7 +82,7 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;April 2020&quot;</span>
 
 
-<div class="viewcode-block" id="CompatibilityError"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CompatibilityError">[docs]</a><span class="k">class</span> <span class="nc">CompatibilityError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="CompatibilityError"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.CompatibilityError">[docs]</a><span class="k">class</span> <span class="nc">CompatibilityError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception class for Compatibility. Raised by attempting correction</span>
 <span class="sd">    on incompatible calculation</span>
@@ -90,7 +90,7 @@
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="Correction"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Correction">[docs]</a><span class="k">class</span> <span class="nc">Correction</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+<div class="viewcode-block" id="Correction"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.Correction">[docs]</a><span class="k">class</span> <span class="nc">Correction</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Correction class is a pre-defined scheme for correction a computed</span>
 <span class="sd">    entry based on the type and chemistry of the structure and the</span>
@@ -98,7 +98,7 @@
 <span class="sd">    correct_entry method.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Correction.get_correction"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Correction.get_correction">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+<div class="viewcode-block" id="Correction.get_correction"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.Correction.get_correction">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns correction for a single entry.</span>
@@ -114,7 +114,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span></div>
 
-<div class="viewcode-block" id="Correction.correct_entry"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Correction.correct_entry">[docs]</a>    <span class="k">def</span> <span class="nf">correct_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+<div class="viewcode-block" id="Correction.correct_entry"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.Correction.correct_entry">[docs]</a>    <span class="k">def</span> <span class="nf">correct_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Corrects a single entry.</span>
 
@@ -131,7 +131,7 @@
         <span class="k">return</span> <span class="n">entry</span></div></div>
 
 
-<div class="viewcode-block" id="PotcarCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.PotcarCorrection">[docs]</a><span class="k">class</span> <span class="nc">PotcarCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
+<div class="viewcode-block" id="PotcarCorrection"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.PotcarCorrection">[docs]</a><span class="k">class</span> <span class="nc">PotcarCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Checks that POTCARs are valid within a pre-defined input set. This</span>
 <span class="sd">    ensures that calculations performed using different InputSets are not</span>
@@ -178,7 +178,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">input_set</span> <span class="o">=</span> <span class="n">input_set</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_hash</span> <span class="o">=</span> <span class="n">check_hash</span>
 
-<div class="viewcode-block" id="PotcarCorrection.get_correction"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.PotcarCorrection.get_correction">[docs]</a>    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<div class="viewcode-block" id="PotcarCorrection.get_correction"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.PotcarCorrection.get_correction">[docs]</a>    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param entry: A ComputedEntry/ComputedStructureEntry</span>
 <span class="sd">        :return: Correction.</span>
@@ -210,7 +210,7 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Potcar Correction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_set</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="GasCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.GasCorrection">[docs]</a><span class="nd">@cached_class</span>
+<div class="viewcode-block" id="GasCorrection"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.GasCorrection">[docs]</a><span class="nd">@cached_class</span>
 <span class="k">class</span> <span class="nc">GasCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Correct gas energies to obtain the right formation energies. Note that</span>
@@ -244,7 +244,7 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Gas Correction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="AnionCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.AnionCorrection">[docs]</a><span class="nd">@cached_class</span>
+<div class="viewcode-block" id="AnionCorrection"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.AnionCorrection">[docs]</a><span class="nd">@cached_class</span>
 <span class="k">class</span> <span class="nc">AnionCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Correct anion energies to obtain the right formation energies. Note that</span>
@@ -335,7 +335,7 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Anion Correction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="AqueousCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.AqueousCorrection">[docs]</a><span class="nd">@cached_class</span>
+<div class="viewcode-block" id="AqueousCorrection"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.AqueousCorrection">[docs]</a><span class="nd">@cached_class</span>
 <span class="k">class</span> <span class="nc">AqueousCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class implements aqueous phase compound corrections for elements</span>
@@ -374,7 +374,7 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Aqueous Correction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="UCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.UCorrection">[docs]</a><span class="nd">@cached_class</span>
+<div class="viewcode-block" id="UCorrection"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.UCorrection">[docs]</a><span class="nd">@cached_class</span>
 <span class="k">class</span> <span class="nc">UCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class implements the GGA/GGA+U mixing scheme, which allows mixing of</span>
@@ -460,13 +460,13 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> Correction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Compatibility"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility">[docs]</a><span class="k">class</span> <span class="nc">Compatibility</span><span class="p">(</span><span class="n">MSONable</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+<div class="viewcode-block" id="Compatibility"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.Compatibility">[docs]</a><span class="k">class</span> <span class="nc">Compatibility</span><span class="p">(</span><span class="n">MSONable</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract Compatibility class, not intended for direct use.</span>
 <span class="sd">    Compatibility classes are used to correct the energies of an entry or a set</span>
 <span class="sd">    of entries. All Compatibility classes must implement .get_adjustments method.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Compatibility.get_adjustments"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility.get_adjustments">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+<div class="viewcode-block" id="Compatibility.get_adjustments"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.Compatibility.get_adjustments">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">get_adjustments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">ComputedEntry</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the energy adjustments for a ComputedEntry.</span>
@@ -488,7 +488,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span></div>
 
-<div class="viewcode-block" id="Compatibility.process_entry"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility.process_entry">[docs]</a>    <span class="k">def</span> <span class="nf">process_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+<div class="viewcode-block" id="Compatibility.process_entry"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.Compatibility.process_entry">[docs]</a>    <span class="k">def</span> <span class="nf">process_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Process a single entry with the chosen Corrections.</span>
 
@@ -503,7 +503,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Compatibility.process_entries"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility.process_entries">[docs]</a>    <span class="k">def</span> <span class="nf">process_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ComputedEntry</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">clean</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Compatibility.process_entries"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.Compatibility.process_entries">[docs]</a>    <span class="k">def</span> <span class="nf">process_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ComputedEntry</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">clean</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Process a sequence of entries with the chosen Compatibility scheme.</span>
 
@@ -564,7 +564,7 @@
 
         <span class="k">return</span> <span class="n">processed_entry_list</span></div>
 
-<div class="viewcode-block" id="Compatibility.explain"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility.explain">[docs]</a>    <span class="k">def</span> <span class="nf">explain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+<div class="viewcode-block" id="Compatibility.explain"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.Compatibility.explain">[docs]</a>    <span class="k">def</span> <span class="nf">explain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prints an explanation of the energy adjustments applied by the</span>
 <span class="sd">        Compatibility class. Inspired by the &quot;explain&quot; methods in many database</span>
@@ -595,7 +595,7 @@
               <span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="CorrectionsList"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CorrectionsList">[docs]</a><span class="k">class</span> <span class="nc">CorrectionsList</span><span class="p">(</span><span class="n">Compatibility</span><span class="p">):</span>
+<div class="viewcode-block" id="CorrectionsList"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.CorrectionsList">[docs]</a><span class="k">class</span> <span class="nc">CorrectionsList</span><span class="p">(</span><span class="n">Compatibility</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The CorrectionsList class combines a list of corrections to be applied to</span>
 <span class="sd">    an entry or a set of entries. Note that some of the Corrections have</span>
@@ -614,7 +614,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">corrections</span> <span class="o">=</span> <span class="n">corrections</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-<div class="viewcode-block" id="CorrectionsList.get_adjustments"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CorrectionsList.get_adjustments">[docs]</a>    <span class="k">def</span> <span class="nf">get_adjustments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+<div class="viewcode-block" id="CorrectionsList.get_adjustments"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.CorrectionsList.get_adjustments">[docs]</a>    <span class="k">def</span> <span class="nf">get_adjustments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the list of energy adjustments to be applied to an entry.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -630,7 +630,7 @@
 
         <span class="k">return</span> <span class="n">adjustment_list</span></div>
 
-<div class="viewcode-block" id="CorrectionsList.get_corrections_dict"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CorrectionsList.get_corrections_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_corrections_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+<div class="viewcode-block" id="CorrectionsList.get_corrections_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.CorrectionsList.get_corrections_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_corrections_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the corrections applied to a particular entry.</span>
 
@@ -646,7 +646,7 @@
             <span class="n">corrections</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)]</span> <span class="o">=</span> <span class="n">val</span>
         <span class="k">return</span> <span class="n">corrections</span></div>
 
-<div class="viewcode-block" id="CorrectionsList.get_explanation_dict"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CorrectionsList.get_explanation_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_explanation_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+<div class="viewcode-block" id="CorrectionsList.get_explanation_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.CorrectionsList.get_explanation_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_explanation_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides an explanation dict of the corrections that are being applied</span>
 <span class="sd">        for a given compatibility scheme. Inspired by the &quot;explain&quot; methods</span>
@@ -683,7 +683,7 @@
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;corrections&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">corrections</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-<div class="viewcode-block" id="CorrectionsList.explain"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CorrectionsList.explain">[docs]</a>    <span class="k">def</span> <span class="nf">explain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+<div class="viewcode-block" id="CorrectionsList.explain"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.CorrectionsList.explain">[docs]</a>    <span class="k">def</span> <span class="nf">explain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prints an explanation of the corrections that are being applied for a</span>
 <span class="sd">        given compatibility scheme. Inspired by the &quot;explain&quot; methods in many</span>
@@ -708,7 +708,7 @@
             <span class="s2">&quot;corrected_energy&quot;</span><span class="p">])</span></div></div>
 
 
-<div class="viewcode-block" id="MaterialsProjectCompatibility"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MaterialsProjectCompatibility">[docs]</a><span class="k">class</span> <span class="nc">MaterialsProjectCompatibility</span><span class="p">(</span><span class="n">CorrectionsList</span><span class="p">):</span>
+<div class="viewcode-block" id="MaterialsProjectCompatibility"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.MaterialsProjectCompatibility">[docs]</a><span class="k">class</span> <span class="nc">MaterialsProjectCompatibility</span><span class="p">(</span><span class="n">CorrectionsList</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class implements the GGA/GGA+U mixing scheme, which allows mixing of</span>
 <span class="sd">    entries. Note that this should only be used for VASP calculations using the</span>
@@ -743,7 +743,7 @@
              <span class="n">UCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">MPRelaxSet</span><span class="p">,</span> <span class="n">compat_type</span><span class="p">)])</span></div>
 
 
-<div class="viewcode-block" id="MITCompatibility"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MITCompatibility">[docs]</a><span class="k">class</span> <span class="nc">MITCompatibility</span><span class="p">(</span><span class="n">CorrectionsList</span><span class="p">):</span>
+<div class="viewcode-block" id="MITCompatibility"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.MITCompatibility">[docs]</a><span class="k">class</span> <span class="nc">MITCompatibility</span><span class="p">(</span><span class="n">CorrectionsList</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class implements the GGA/GGA+U mixing scheme, which allows mixing of</span>
 <span class="sd">    entries. Note that this should only be used for VASP calculations using the</span>
@@ -777,7 +777,7 @@
              <span class="n">UCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">MITRelaxSet</span><span class="p">,</span> <span class="n">compat_type</span><span class="p">)])</span></div>
 
 
-<div class="viewcode-block" id="MITAqueousCompatibility"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MITAqueousCompatibility">[docs]</a><span class="k">class</span> <span class="nc">MITAqueousCompatibility</span><span class="p">(</span><span class="n">CorrectionsList</span><span class="p">):</span>
+<div class="viewcode-block" id="MITAqueousCompatibility"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.MITAqueousCompatibility">[docs]</a><span class="k">class</span> <span class="nc">MITAqueousCompatibility</span><span class="p">(</span><span class="n">CorrectionsList</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class implements the GGA/GGA+U mixing scheme, which allows mixing of</span>
 <span class="sd">    entries. Note that this should only be used for VASP calculations using the</span>
@@ -811,7 +811,7 @@
              <span class="n">UCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">MITRelaxSet</span><span class="p">,</span> <span class="n">compat_type</span><span class="p">),</span> <span class="n">AqueousCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">)])</span></div>
 
 
-<div class="viewcode-block" id="MaterialsProjectAqueousCompatibility"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MaterialsProjectAqueousCompatibility">[docs]</a><span class="k">class</span> <span class="nc">MaterialsProjectAqueousCompatibility</span><span class="p">(</span><span class="n">Compatibility</span><span class="p">):</span>
+<div class="viewcode-block" id="MaterialsProjectAqueousCompatibility"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.MaterialsProjectAqueousCompatibility">[docs]</a><span class="k">class</span> <span class="nc">MaterialsProjectAqueousCompatibility</span><span class="p">(</span><span class="n">Compatibility</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class implements the Aqueous energy referencing scheme for constructing</span>
 <span class="sd">    Pourbaix diagrams from DFT energies, as described in Persson et al.</span>
@@ -889,7 +889,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;MP Aqueous free energy adjustment&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-<div class="viewcode-block" id="MaterialsProjectAqueousCompatibility.get_adjustments"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MaterialsProjectAqueousCompatibility.get_adjustments">[docs]</a>    <span class="k">def</span> <span class="nf">get_adjustments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">ComputedEntry</span><span class="p">):</span>
+<div class="viewcode-block" id="MaterialsProjectAqueousCompatibility.get_adjustments"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.MaterialsProjectAqueousCompatibility.get_adjustments">[docs]</a>    <span class="k">def</span> <span class="nf">get_adjustments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">ComputedEntry</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the corrections applied to a particular entry.</span>
 
@@ -1010,7 +1010,7 @@
 
         <span class="k">return</span> <span class="n">adjustments</span></div>
 
-<div class="viewcode-block" id="MaterialsProjectAqueousCompatibility.process_entries"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MaterialsProjectAqueousCompatibility.process_entries">[docs]</a>    <span class="k">def</span> <span class="nf">process_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ComputedEntry</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">clean</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="MaterialsProjectAqueousCompatibility.process_entries"><a class="viewcode-back" href="../../../pymatgen.analysis.compatibility.html#pymatgen.analysis.compatibility.MaterialsProjectAqueousCompatibility.process_entries">[docs]</a>    <span class="k">def</span> <span class="nf">process_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ComputedEntry</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">clean</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Process a sequence of entries with the chosen Compatibility scheme.</span>
 
@@ -1066,7 +1066,7 @@
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="../entries.html" >pymatgen.entries</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.entries.compatibility</a></li> 
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.compatibility</a></li>
       </ul>
     </div>
 

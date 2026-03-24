@@ -407,7 +407,7 @@ class TestComputedReaction:
                         "uncertainty": 0.0744,
                         "name": "MP2020 Composition Correction",
                         "cls": {
-                            "@module": "pymatgen.entries.compatibility",
+                            "@module": "pymatgen.analysis.compatibility",
                             "@class": "MaterialsProject2020Compatibility",
                             "@version": "2020.6.8",
                             "compat_type": "Advanced",
@@ -478,7 +478,7 @@ class TestComputedReaction:
                         "uncertainty": np.nan,
                         "name": "MP2020 Composition Correction",
                         "cls": {
-                            "@module": "pymatgen.entries.compatibility",
+                            "@module": "pymatgen.analysis.compatibility",
                             "@class": "MaterialsProject2020Compatibility",
                             "@version": "2020.6.8",
                             "compat_type": "Advanced",

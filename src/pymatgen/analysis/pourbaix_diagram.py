@@ -24,7 +24,7 @@ from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.core import Composition, Element
 from pymatgen.core.entries import ComputedEntry
 from pymatgen.core.ion import Ion
-from pymatgen.entries.compatibility import MU_H2O
+from pymatgen.analysis.compatibility import MU_H2O
 from pymatgen.util.coord import Simplex
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
