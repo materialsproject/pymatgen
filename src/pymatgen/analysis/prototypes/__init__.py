@@ -44,7 +44,7 @@ import orjson
 from monty.fractions import gcd
 from monty.serialization import loadfn
 
-from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.structure_matcher import StructureMatcher
 from pymatgen.core import Composition, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due

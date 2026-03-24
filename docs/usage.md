@@ -161,7 +161,7 @@ There is also support for more than 100 file types via the OpenBabel interface. 
 This section is a work in progress. But just to give an overview of the kind of analysis you can do:
 
 1. Modify Structures directly or even better, using the `pymatgen .transformations` and `pymatgen.alchemy` packages.
-2. Analyse Structures. E.g., compute the Ewald sum using the `pymatgen.analysis.ewald` package, compare two structures for similarity using `pymatgen.analysis.structure_matcher`.
+2. Analyse Structures. E.g., compute the Ewald sum using the `pymatgen.analysis.ewald` package, compare two structures for similarity using `pymatgen.core.structure_matcher`.
 
 It should be noted that `Structure` and `Molecule` are designed to be mutable. In fact, they are the most basic mutable units (everything below in the class hierarchy such as `Element`, `Species`, `Site`, `PeriodicSite`, `Lattice` are immutable).  If you need guarantees of immutability for `Structure/Molecule`, you should use the `IStructure` and `IMolecule` classes instead.
 

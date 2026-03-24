@@ -9,7 +9,7 @@ from monty.json import MontyDecoder
 from numpy.testing import assert_allclose
 from pytest import approx
 
-from pymatgen.analysis.structure_matcher import (
+from pymatgen.core.structure_matcher import (
     ElementComparator,
     FrameworkComparator,
     OccupancyComparator,
