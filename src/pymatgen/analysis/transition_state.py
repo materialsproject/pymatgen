@@ -16,8 +16,8 @@ import numpy as np
 from monty.json import MSONable, jsanitize
 from scipy.interpolate import CubicSpline
 
-from pymatgen.core.structure_matcher import StructureMatcher
 from pymatgen.core import Structure
+from pymatgen.core.structure_matcher import StructureMatcher
 from pymatgen.io.vasp import Outcar
 from pymatgen.util.plotting import pretty_plot
 

@@ -12,6 +12,8 @@ import pytest
 from monty.serialization import loadfn
 from pytest import approx
 
+from pymatgen.command_line.critic2_caller import Critic2Analysis
+from pymatgen.core import Lattice, Molecule, Site, Structure
 from pymatgen.core.graphs import MoleculeGraph, MolGraphSplitError, PeriodicSite, StructureGraph
 from pymatgen.core.local_env import (
     CovalentBondNN,
@@ -21,8 +23,6 @@ from pymatgen.core.local_env import (
     OpenBabelNN,
     VoronoiNN,
 )
-from pymatgen.command_line.critic2_caller import Critic2Analysis
-from pymatgen.core import Lattice, Molecule, Site, Structure
 from pymatgen.core.structure import FunctionalGroups
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 

@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 from scipy.interpolate import interp1d
 
-from pymatgen.core.structure_matcher import StructureMatcher
 from pymatgen.core import Element
 from pymatgen.core.spectrum import Spectrum
+from pymatgen.core.structure_matcher import StructureMatcher
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:

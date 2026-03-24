@@ -21,8 +21,8 @@ from pymatgen.analysis.compatibility import (
 )
 from pymatgen.analysis.compatibility.entry_tools import EntrySet
 from pymatgen.analysis.phase_diagram import PhaseDiagram
-from pymatgen.core.structure_matcher import StructureMatcher
 from pymatgen.core.entries import ComputedStructureEntry, ConstantEnergyAdjustment
+from pymatgen.core.structure_matcher import StructureMatcher
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 

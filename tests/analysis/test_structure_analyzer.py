@@ -4,6 +4,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 from pytest import approx
 
+from pymatgen.core import Element, Lattice, Structure
 from pymatgen.core.structure_analyzer import (
     RelaxationAnalyzer,
     VoronoiAnalyzer,
@@ -14,7 +15,6 @@ from pymatgen.core.structure_analyzer import (
     solid_angle,
     sulfide_type,
 )
-from pymatgen.core import Element, Lattice, Structure
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.util.testing import VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 

@@ -9,6 +9,7 @@ import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
+from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.core.graphs import MoleculeGraph, StructureGraph
 from pymatgen.core.local_env import (
     CN_OPT_PARAMS,
@@ -40,7 +41,6 @@ from pymatgen.core.local_env import (
     site_is_of_motif_type,
     solid_angle,
 )
-from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/core/local_env/fragmenter_files"
