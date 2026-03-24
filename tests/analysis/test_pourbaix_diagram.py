@@ -16,8 +16,8 @@ from pymatgen.analysis.pourbaix_diagram import (
     ion_or_solid_comp_object,
 )
 from pymatgen.core.composition import Composition
-from pymatgen.core.ion import Ion
 from pymatgen.core.entries import ComputedEntry
+from pymatgen.core.ion import Ion
 from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/pourbaix_diagram"

@@ -113,9 +113,9 @@ from pymatgen.analysis.compatibility import Compatibility, CompatibilityError
 from pymatgen.analysis.compatibility.mixing_scheme import MaterialsProjectDFTMixingScheme
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.entries import CompositionEnergyAdjustment, ComputedEntry, ComputedStructureEntry
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.core.entries import CompositionEnergyAdjustment, ComputedEntry, ComputedStructureEntry
 from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "Ryan Kingsbury"

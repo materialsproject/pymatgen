@@ -36,8 +36,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from typing import Any, Self
 
-    from pymatgen.core.structure import Structure
     from pymatgen.analysis.compatibility import AnyComputedEntry
+    from pymatgen.core.structure import Structure
 
 logger = logging.getLogger(__name__)
 
