@@ -42,3 +42,4 @@ If you would like your own tool to be listed here, please submit a PR. For a mor
 * [ShakeNBreak](https://github.com/SMTG-Bham/ShakeNBreak): Defect structure-searching via chemically-guided bond distortions.
 * [DebyeCalculator](https://github.com/FrederikLizakJohansen/DebyeCalculator): A vectorised implementation of the Debye Scattering Equation on CPU and GPU.
 * [ramannoodle](https://github.com/wolearyc/ramannoodle): Efficiently compute off-resonance Raman spectra from first principles calculations (e.g. VASP) using polynomial and ML models.
+* [Elasticipy](https://github.com/DorianDepriester/Elasticipy): Manipulate and visualize stress, strain, and linear elasticity tensors (e.g., stiffness, compliance) with simplicity and numerical efficiency.
