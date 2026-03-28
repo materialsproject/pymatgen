@@ -293,7 +293,7 @@ starting on a Ba cuboctahedron (as shown above), the coordination sequence is th
 <span class="sig-name descname"><span class="pre">elastic_centered_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_node</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2026.3.9/src/pymatgen/core/../../../../../../src/pymatgen/analysis/chemenv/connectivity/connected_components.py#L644-L756"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.elastic_centered_graph" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>start_node</strong> (<em>Node</em><em>, </em><em>optional</em>) – Node to start the elastic centering from.
+<dd class="field-odd"><p><strong>start_node</strong> (<em>Node</em><em>, </em><a class="reference internal" href="pymatgen.io.jdftx.html#pymatgen.io.jdftx.generic_tags.AbstractTag.optional" title="pymatgen.io.jdftx.generic_tags.AbstractTag.optional"><em>optional</em></a>) – Node to start the elastic centering from.
 If not provided, the first node in the graph is used.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -412,8 +412,8 @@ between these nodes as edges with information about the image cell difference if
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>graph</strong> (<em>Graph</em><em>, </em><em>optional</em>) – The graph to display. If not provided, the current graph is used.</p></li>
-<li><p><strong>save_file</strong> (<em>str</em><em>, </em><em>optional</em>) – The file path to save the graph image to.
+<li><p><strong>graph</strong> (<em>Graph</em><em>, </em><a class="reference internal" href="pymatgen.io.jdftx.html#pymatgen.io.jdftx.generic_tags.AbstractTag.optional" title="pymatgen.io.jdftx.generic_tags.AbstractTag.optional"><em>optional</em></a>) – The graph to display. If not provided, the current graph is used.</p></li>
+<li><p><strong>save_file</strong> (<em>str</em><em>, </em><a class="reference internal" href="pymatgen.io.jdftx.html#pymatgen.io.jdftx.generic_tags.AbstractTag.optional" title="pymatgen.io.jdftx.generic_tags.AbstractTag.optional"><em>optional</em></a>) – The file path to save the graph image to.
 If not provided, the graph is not saved.</p></li>
 <li><p><strong>drawing_type</strong> (<em>str</em>) – The type of drawing to use. Can be “internal” or “external”.</p></li>
 </ul>
@@ -520,7 +520,7 @@ as an input.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>central_site</strong> (<em>Site</em><em> or </em><em>subclass</em><em> of </em><em>Site</em>) – central site as a pymatgen Site or
+<li><p><strong>central_site</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a><em> or </em><em>subclass</em><em> of </em><a class="reference internal" href="pymatgen.core.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – central site as a pymatgen Site or
 subclass of Site (e.g. PeriodicSite, …).</p></li>
 <li><p><strong>i_central_site</strong> (<em>int</em>) – Index of the central site in the structure.</p></li>
 </ul>
@@ -640,7 +640,7 @@ as well as the central site itself.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>central_site</strong> (<em>Site</em><em> or </em><em>subclass</em><em> of </em><em>Site</em>) – central site as a pymatgen Site or
+<li><p><strong>central_site</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a><em> or </em><em>subclass</em><em> of </em><a class="reference internal" href="pymatgen.core.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – central site as a pymatgen Site or
 subclass of Site (e.g. PeriodicSite, …).</p></li>
 <li><p><strong>i_central_site</strong> (<em>int</em>) – Index of the central site in the structure.</p></li>
 <li><p><strong>ce_symbol</strong> (<em>str</em>) – Symbol of the identified environment.</p></li>
@@ -676,7 +676,7 @@ subclass of Site (e.g. PeriodicSite, …).</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>central_site</strong> (<em>Site</em><em> or </em><em>subclass</em><em> of </em><em>Site</em>) – Central site of the environment.</p></li>
+<li><p><strong>central_site</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a><em> or </em><em>subclass</em><em> of </em><a class="reference internal" href="pymatgen.core.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – Central site of the environment.</p></li>
 <li><p><strong>i_central_site</strong> (<em>int</em>) – Index of the central site in the structure.</p></li>
 <li><p><strong>ce_symbol</strong> – Symbol of the environment.</p></li>
 </ul>

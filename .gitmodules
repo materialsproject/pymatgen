@@ -1,0 +1,3 @@
+[submodule "pymatgen-core"]
+	path = pymatgen-core
+	url = git@github.com:materialsproject/pymatgen-core.git
