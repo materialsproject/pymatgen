@@ -424,6 +424,44 @@ class TestPhaseDiagram(MatSciTest):
             stable_entry
         ), "Novel scaled duplicates of stable entries should have same decomposition energy!"
 
+    def test_inner_hull_reduction(self):
+        """Regression test for two related bugs in get_decomp_and_phase_separation_energy:
+
+        Bug 1: Line 997 passed _get_stable_entries_in_space(entry_elems) unfiltered into
+        competing_entries, which re-introduced the same-composition stable entry that was
+        explicitly excluded at line 980 via same_comp_mem_ids. The SLSQP would then
+        trivially decompose the target into itself, producing a wrong (too large) energy.
+
+        Bug 2: Line 999 overwrote the inner hull result with the original full set,
+        making PhaseDiagram(reduced_space) dead code and defeating the space_limit
+        optimization.
+
+        The fix: filter same_comp_mem_ids when adding stable entries back at line 997,
+        then remove the overwrite at line 999.
+        """
+        # Pick a stable non-elemental entry as the polymorph target.
+        # The gate at line 976 requires a stable same-composition entry to exist,
+        # which is satisfied since we're using a stable entry itself.
+        entry = next(e for e in self.pd.stable_entries if not e.is_element)
+
+        # space_limit=1 forces the inner hull branch for any non-trivial entry.
+        result_reduced = self.pd.get_decomp_and_phase_separation_energy(entry, space_limit=1)
+        result_full = self.pd.get_decomp_and_phase_separation_energy(entry, space_limit=10_000)
+
+        # Both paths must produce the same phase separation energy.
+        assert result_reduced[1] == approx(result_full[1], abs=1e-5), (
+            "Inner hull reduction produced a different phase separation energy. "
+            "Likely cause: same-composition stable entry leaked into competing_entries."
+        )
+
+        # The same-composition entry must NOT appear in the decomposition from either path.
+        entry_frac = entry.composition.fractional_composition
+        for decomp, _ in (result_reduced, result_full):
+            for competing in decomp:
+                assert competing.composition.fractional_composition != entry_frac, (
+                    "Same-composition entry appeared in decomposition — should have been excluded."
+                )
+
     def test_get_decomposition(self):
         for entry in self.pd.stable_entries:
             assert len(self.pd.get_decomposition(entry.composition)) == 1, (
