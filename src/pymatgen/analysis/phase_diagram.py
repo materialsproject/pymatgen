@@ -224,6 +224,7 @@ class TransformedPDEntry(PDEntry):
         Args:
             entry (PDEntry): Original entry to be transformed.
             sp_mapping ({Composition: DummySpecies}): dictionary mapping Terminal Compositions to Dummy Species.
+            name (str | None): Optional name for the entry. Defaults to the name of the original entry.
         """
         super().__init__(
             entry.composition,
