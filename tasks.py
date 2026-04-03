@@ -46,12 +46,8 @@ def make_doc(ctx: Context) -> None:
         ctx.run("rm pymatgen.*.rst", warn=True)
         # ctx.run("rm pymatgen.*.md", warn=True)
         core_path = "../pymatgen-core/src/pymatgen"
-        ctx.run(
-            f"sphinx-apidoc --implicit-namespaces -M -d 7 -o apidoc -f {core_path}"
-        )
-        ctx.run(
-            f"sphinx-apidoc --implicit-namespaces -M -d 7 -o apidoc -f ../src/pymatgen"
-        )
+        ctx.run(f"sphinx-apidoc --implicit-namespaces -M -d 7 -o apidoc -f {core_path}")
+        ctx.run("sphinx-apidoc --implicit-namespaces -M -d 7 -o apidoc -f ../src/pymatgen")
 
         # Note: we use HTML building for the API docs to preserve search functionality.
         ctx.run("sphinx-build -b html apidoc html")  # HTML building.

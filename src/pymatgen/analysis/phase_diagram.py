@@ -10,7 +10,7 @@ import re
 import warnings
 from collections import defaultdict
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, overload
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -38,7 +38,7 @@ from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Iterator, Sequence
+    from collections.abc import Collection, Iterable, Iterator, Sequence
     from io import StringIO
     from typing import Any, ClassVar, Literal, Self
 
@@ -1736,35 +1736,18 @@ class PatchedPhaseDiagram(PhaseDiagram):
         - get_phase_separation_energ
     """
 
-    def _compute(
-        self,
+    @staticmethod
+    def _dedup_entries(
         entries: Sequence[Entry] | set[Entry],
-        elements: Sequence[Element] | None = None,
-        keep_all_spaces: bool = False,
-        verbose: bool = False,
-    ) -> dict[str, Any]:
-        """
-        Compute the phase diagram data for PatchedPhaseDiagram.
-
-        Args:
-            entries: A list of Entry objects.
-            elements: Optional list of elements in the phase diagram.
-            keep_all_spaces: Whether to keep chemical spaces that are subspaces of other spaces.
-            verbose: Whether to show progress bar during convex hull construction.
-
-        Returns:
-            dict containing computed_data with proper indexing for serialization.
-        """
-        if elements is None:
-            elements = sorted({els for entry in entries for els in entry.elements})
-
-        dim = len(elements)
-
+    ) -> tuple[list[PDEntry], list[PDEntry], dict[Element, PDEntry]]:
+        """Sort *entries* by reduced composition, group duplicates, and return
+        ``(min_entries, all_entries, el_refs)`` where *min_entries* keeps only
+        the lowest ``energy_per_atom`` entry per reduced composition and
+        *el_refs* maps each element to its lowest-energy elemental entry."""
         entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
-
-        el_refs: dict[Element, Entry] = {}
-        min_entries: list[Entry] = []
-        all_entries: list[Entry] = []
+        el_refs: dict[Element, PDEntry] = {}
+        min_entries: list[PDEntry] = []
+        all_entries: list[PDEntry] = []
         for composition, group_iter in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
             group = list(group_iter)
             min_entry = min(group, key=lambda e: e.energy_per_atom)
@@ -1772,16 +1755,17 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 el_refs[composition.elements[0]] = min_entry
             min_entries.append(min_entry)
             all_entries.extend(group)
+        return min_entries, all_entries, el_refs
 
-        if len(el_refs) < dim:
-            missing = set(elements) - set(el_refs)
-            raise ValueError(f"Missing terminal entries for elements {sorted(map(str, missing))}")
-        if len(el_refs) > dim:
-            extra = set(el_refs) - set(elements)
-            raise ValueError(f"There are more terminal elements than dimensions: {extra}")
-
-        entry_to_index = {entry: idx for idx, entry in enumerate(all_entries)}
-
+    @staticmethod
+    def _filter_entries_for_qhull(
+        min_entries: Sequence[PDEntry],
+        el_refs: dict[Element, PDEntry],
+        elements: Sequence[Element],
+    ) -> tuple[tuple[PDEntry, ...], tuple[frozenset[Element], ...]]:
+        """Given deduplicated *min_entries*, return the subset relevant to the
+        convex hull (negative formation energy + elemental references) together
+        with the corresponding chemical spaces as frozensets."""
         data = np.array(
             [
                 [
@@ -1791,55 +1775,40 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 for entry in min_entries
             ]
         )
-
-        # Use only entries with negative formation energy
         vec = [el_refs[el].energy_per_atom for el in elements] + [-1]
         form_e = -np.dot(data, vec)
         inds = np.where(form_e < -PhaseDiagram.formation_energy_tol)[0].tolist()
-
-        # Add the elemental references
-        inds.extend([min_entries.index(el) for el in el_refs.values()])
-
+        inds.extend(idx for idx, e in enumerate(min_entries) if e.composition.is_element and e in el_refs.values())
+        inds = list(dict.fromkeys(inds))
         qhull_entries = tuple(min_entries[idx] for idx in inds)
         qhull_spaces = tuple(frozenset(entry.elements) for entry in qhull_entries)
+        return qhull_entries, qhull_spaces
 
-        spaces = {s for s in qhull_spaces if len(s) > 1}
-        spaces = PatchedPhaseDiagram.remove_redundant_spaces(spaces, keep_all_spaces)
-        spaces_list = sorted(spaces, key=len, reverse=True)  # Calculate pds for smaller dimension spaces last
+    @staticmethod
+    def _build_spaces_by_el(
+        spaces: Iterable[frozenset[Element]],
+    ) -> defaultdict[Element, set[frozenset[Element]]]:
+        """Build an inverted index mapping each element to the set of
+        chemical spaces that contain it.  Used to replace O(spaces)
+        ``issuperset`` scans with O(|entry_elements|) set intersections."""
+        index: defaultdict[Element, set[frozenset[Element]]] = defaultdict(set)
+        for space in spaces:
+            for el in space:
+                index[el].add(space)
+        return index
 
-        # Build PhaseDiagrams for each space and collect their computed_data
-        pds_computed_data = {}
-        for space in tqdm(spaces_list, disable=not verbose):
-            space_entries = [e for e, s in zip(qhull_entries, qhull_spaces, strict=True) if space.issuperset(s)]
-            pd = PhaseDiagram(space_entries)
-
-            # NOTE: We must preserve order to keep facets valid
-            try:
-                subspace_all_entry_indices = [entry_to_index[pd_entry] for pd_entry in pd.all_entries]
-            except KeyError as exc:
-                missing_entry = exc.args[0]
-                raise ValueError(f"pd.all_entries entry {missing_entry} not found in all_entries") from exc
-
-            pd_entry_to_index = {entry: idx for idx, entry in enumerate(pd.all_entries)}
-            subspace_qhull_entry_indices = [pd_entry_to_index[entry] for entry in pd.qhull_entries]
-            subspace_el_refs = [(el, pd_entry_to_index[entry]) for el, entry in pd.computed_data["el_refs"]]
-
-            pds_computed_data[space] = {
-                "all_entries": subspace_all_entry_indices,
-                "qhull_entries": subspace_qhull_entry_indices,
-                "facets": pd.computed_data["facets"],
-                "qhull_data": pd.qhull_data.tolist(),
-                "el_refs": subspace_el_refs,
-                "elements": tuple(pd.elements),
-            }
-
-        return {
-            "all_entries": all_entries,
-            "el_refs": [(el.symbol, entry_to_index[entry]) for el, entry in el_refs.items()],
-            "qhull_entries": [entry_to_index[entry] for entry in qhull_entries],
-            "spaces": spaces_list,
-            "pds": pds_computed_data,
-        }
+    @staticmethod
+    def _spaces_containing(
+        entry_space: frozenset[Element],
+        spaces_by_el: defaultdict[Element, set[frozenset[Element]]],
+    ) -> set[frozenset[Element]]:
+        """Return all spaces that are supersets of *entry_space* using the
+        inverted index built by :meth:`_build_spaces_by_el`."""
+        els = iter(entry_space)
+        result = set(spaces_by_el[next(els)])
+        for el in els:
+            result &= spaces_by_el[el]
+        return result
 
     def __init__(
         self,
@@ -1852,93 +1821,76 @@ class PatchedPhaseDiagram(PhaseDiagram):
     ) -> None:
         """
         Args:
-            entries (Sequence[Entry] | set[Entry]): A list of Entry objects having an
-                energy, energy_per_atom and composition.
-            elements (Sequence[Element], optional): Optional list of elements in the phase
-                diagram. If set to None, the elements are determined from
-                the entries themselves and are sorted alphabetically.
-                If specified, element ordering (e.g. for pd coordinates)
-                is preserved.
-            keep_all_spaces (bool): Pass True to keep chemical spaces that are subspaces
-                of other spaces.
-            verbose (bool): Whether to show progress bar during convex hull construction.
-            computed_data (dict): A dict containing pre-computed data. This allows
-                PatchedPhaseDiagram object to be reconstituted without performing the
-                expensive convex hull computation. The dict is the output from the
-                PatchedPhaseDiagram._compute() method.
+            entries: A list of Entry objects.
+            elements: Optional list of elements in the phase diagram.
+            keep_all_spaces: Whether to keep chemical spaces that are subspaces of other spaces.
+            verbose: Whether to show progress bar during convex hull construction.
+            computed_data: Pre-computed internal state. When provided the
+                expensive entry processing and convex hull calculations are
+                skipped and all attributes are hydrated from this dict.
+                Follows the same pattern as :class:`PhaseDiagram`.
         """
-        self.elements = list(elements) if elements else sorted({el for e in entries for el in e.elements})
-
+        if elements is None:
+            elements = sorted({els for entry in entries for els in entry.elements})
         if computed_data is None:
-            computed_data = self._compute(entries, elements, keep_all_spaces, verbose)
-        else:
-            computed_data = MontyDecoder().process_decoded(computed_data)
-            if not isinstance(computed_data, dict):
-                raise TypeError(f"computed_data should be dict, got {type(computed_data).__name__}")
-
-        self.computed_data = computed_data
-        self.all_entries = computed_data["all_entries"]
-
-        # Convert el_refs from [(el_symbol, index), ...] or [(el_symbol, Entry), ...] to {Element: Entry}
-        el_refs_data = computed_data["el_refs"]
-        if el_refs_data and not isinstance(el_refs_data[0][1], int):
-            raise TypeError("computed_data['el_refs'] must contain integer indices")
-
-        def _ensure_element(el: Element | str) -> Element:
-            return el if isinstance(el, Element) else Element(el)
-
-        self.el_refs = {_ensure_element(el_symbol): self.all_entries[idx] for el_symbol, idx in el_refs_data}
-
-        # Convert qhull_entries from indices to entry objects
-        # When from _compute(), qhull_entries are indices; when from from_dict(), they're already entries
-        qhull_entries_data = computed_data["qhull_entries"]
-        if qhull_entries_data and not isinstance(qhull_entries_data[0], int):
-            raise TypeError("computed_data['qhull_entries'] must be indices into all_entries")
-        self.qhull_entries = tuple(self.all_entries[idx] for idx in qhull_entries_data)
-
-        self._qhull_spaces = tuple(frozenset(e.elements) for e in self.qhull_entries)
-        # Convert spaces from tuples (serialized) or frozensets (in-memory) to frozensets
-        self.spaces = [
-            space if isinstance(space, frozenset) else frozenset(Element(el) for el in space)
-            for space in computed_data["spaces"]
-        ]
-
-        # Reconstruct PhaseDiagrams from computed_data
-        self.pds = {}
-        for space_key, pd_computed_data in computed_data["pds"].items():
-            # Handle both frozenset (in-memory) and tuple (serialized) keys
-            if not isinstance(space_key, frozenset):
-                space_key = frozenset(Element(el) for el in space_key)
-
-            subspace_elements = [
-                Element(el) if not isinstance(el, Element) else el for el in pd_computed_data["elements"]
-            ]
-            subspace_all_entries_data = pd_computed_data["all_entries"]
-            if subspace_all_entries_data and not isinstance(subspace_all_entries_data[0], int):
-                raise TypeError("subspace 'all_entries' must contain indices into PatchedPhaseDiagram.all_entries")
-            subspace_all_entries = [self.all_entries[idx] for idx in subspace_all_entries_data]
-            pd_computed_data_with_entries = pd_computed_data.copy()
-            pd_computed_data_with_entries["all_entries"] = subspace_all_entries
-            pd_computed_data_with_entries["elements"] = subspace_elements
-            pd_computed_data_with_entries["qhull_entries"] = [
-                subspace_all_entries[idx] for idx in pd_computed_data["qhull_entries"]
-            ]
-            pd_computed_data_with_entries["el_refs"] = [
-                (
-                    _ensure_element(el_symbol),
-                    subspace_all_entries[idx],
-                )
-                for el_symbol, idx in pd_computed_data["el_refs"]
-            ]
-            self.pds[space_key] = PhaseDiagram(
-                subspace_all_entries, elements=subspace_elements, computed_data=pd_computed_data_with_entries
+            computed_data = self._compute(
+                entries=entries,
+                elements=elements,
+                keep_all_spaces=keep_all_spaces,
+                verbose=verbose,
             )
+        self.elements = computed_data["elements"]
+        self.keep_all_spaces = computed_data["keep_all_spaces"]
+        self.spaces = computed_data["spaces"]
+        self._spaces_by_el = computed_data["_spaces_by_el"]
+        self.qhull_entries = computed_data["qhull_entries"]
+        self._qhull_spaces = computed_data["_qhull_spaces"]
+        self.pds = computed_data["pds"]
+        self.all_entries = computed_data["all_entries"]
+        self.el_refs = computed_data["el_refs"]
+        self._stable_entries = computed_data["_stable_entries"]
+        self._stable_spaces = computed_data["_stable_spaces"]
 
-        # NOTE add el_refs in case no multielement entries are present for el
-        self._stable_entries = tuple(
-            {se for pd in self.pds.values() for se in pd._stable_entries} | {*self.el_refs.values()}
+    def _compute(
+        self,
+        entries: Sequence[Entry] | set[Entry],
+        elements: Sequence[Element],
+        keep_all_spaces: bool,
+        verbose: bool,
+    ) -> dict[str, Any]:
+        dim = len(elements)
+        min_entries, all_entries, el_refs = self._dedup_entries(entries)
+        if len(el_refs) < dim:
+            missing = set(elements) - set(el_refs)
+            raise ValueError(f"Missing terminal entries for elements {sorted(map(str, missing))}")
+        if len(el_refs) > dim:
+            extra = set(el_refs) - set(elements)
+            raise ValueError(f"There are more terminal elements than dimensions: {extra}")
+        qhull_entries, qhull_spaces = self._filter_entries_for_qhull(min_entries, el_refs, elements)
+        spaces = sorted(
+            self.remove_redundant_spaces({s for s in qhull_spaces if len(s) > 1}, keep_all_spaces),
+            key=len,
+            reverse=True,
         )
-        self._stable_spaces = tuple(frozenset(entry.elements) for entry in self._stable_entries)
+        spaces_by_el = self._build_spaces_by_el(spaces)
+        self.qhull_entries = qhull_entries
+        self._qhull_spaces = qhull_spaces
+        pds = dict(self._get_pd_patch_for_space(s) for s in tqdm(spaces, disable=not verbose))
+        _stable = {se for pd in pds.values() for se in pd._stable_entries}
+        _stable |= set(el_refs.values())
+        return {
+            "elements": elements,
+            "keep_all_spaces": keep_all_spaces,
+            "spaces": spaces,
+            "_spaces_by_el": spaces_by_el,
+            "qhull_entries": qhull_entries,
+            "_qhull_spaces": qhull_spaces,
+            "pds": pds,
+            "all_entries": all_entries,
+            "el_refs": el_refs,
+            "_stable_entries": tuple(_stable),
+            "_stable_spaces": tuple(frozenset(e.elements) for e in _stable),
+        }
 
     def __repr__(self):
         return f"{type(self).__name__} covering {len(self.spaces)} sub-spaces"
@@ -2000,6 +1952,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "elements": [element.symbol for element in self.elements],
+            "keep_all_spaces": self.keep_all_spaces,
             "computed_data": computed_data,
         }
 
@@ -2013,39 +1966,50 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Returns:
             PatchedPhaseDiagram
         """
-        computed_data = dct["computed_data"]
+        raw = dct["computed_data"]
         elements = [Element(elem) for elem in dct["elements"]]
+        keep_all_spaces = dct.get("keep_all_spaces", False)
         decoder = MontyDecoder()
-        all_entries = [decoder.process_decoded(entry) for entry in computed_data["all_entries"]]
-
-        computed_data_reconstructed = computed_data.copy()
-        computed_data_reconstructed["all_entries"] = all_entries
-
-        # qhull_entries and el_refs are already indices into all_entries
-        pds_reconstructed = {}
-        for space_key, pd_data in computed_data["pds"].items():
-            space_key_frozen = frozenset(Element(el) for el in space_key.split("-"))
-
-            facets = [np.array(facet, dtype=int) for facet in pd_data["facets"]]
-            subspace_elements = [Element(el) if not isinstance(el, Element) else el for el in pd_data["elements"]]
-
-            # Create mapping from global index to subspace index
-            subspace_indices = pd_data["all_entries"]
-            global_to_sub_idx = {global_idx: sub_idx for sub_idx, global_idx in enumerate(subspace_indices)}
-
-            # simplexes reconstructed in PhaseDiagram.__init__ from qhull_data and facets
-            pds_reconstructed[space_key_frozen] = {
-                "all_entries": subspace_indices,
-                "qhull_entries": [global_to_sub_idx[idx] for idx in pd_data["qhull_entries"]],
-                "facets": facets,
+        all_entries = [decoder.process_decoded(entry) for entry in raw["all_entries"]]
+        qhull_entries = tuple(all_entries[i] for i in raw["qhull_entries"])
+        el_refs = {Element(el_sym): all_entries[idx] for el_sym, idx in raw["el_refs"]}
+        spaces = [frozenset(Element(s) for s in space_tuple) for space_tuple in raw["spaces"]]
+        pds: dict[frozenset[Element], PhaseDiagram] = {}
+        for space_key, pd_data in raw["pds"].items():
+            space_frozen = frozenset(Element(el) for el in space_key.split("-"))
+            sub_global_indices = pd_data["all_entries"]
+            global_to_local = {gi: li for li, gi in enumerate(sub_global_indices)}
+            sub_entries = [all_entries[i] for i in sub_global_indices]
+            sub_qhull = [sub_entries[global_to_local[gi]] for gi in pd_data["qhull_entries"]]
+            sub_el_refs = [(Element(el), sub_entries[global_to_local[idx]]) for el, idx in pd_data["el_refs"]]
+            sub_elements = [Element(el) if not isinstance(el, Element) else el for el in pd_data["elements"]]
+            pd_computed = {
+                "facets": [np.array(f, dtype=int) for f in pd_data["facets"]],
                 "qhull_data": np.array(pd_data["qhull_data"]),
-                "el_refs": [(Element(el), global_to_sub_idx[idx]) for el, idx in pd_data["el_refs"]],
-                "elements": subspace_elements,
+                "all_entries": sub_entries,
+                "qhull_entries": sub_qhull,
+                "el_refs": sub_el_refs,
             }
-
-        computed_data_reconstructed["pds"] = pds_reconstructed
-
-        return cls(entries=all_entries, elements=elements, computed_data=computed_data_reconstructed)
+            pds[space_frozen] = PhaseDiagram(sub_entries, sub_elements, computed_data=pd_computed)
+        _stable = {se for pd in pds.values() for se in pd._stable_entries}
+        _stable |= set(el_refs.values())
+        return cls(
+            entries=all_entries,
+            elements=elements,
+            computed_data={
+                "elements": elements,
+                "keep_all_spaces": keep_all_spaces,
+                "spaces": spaces,
+                "_spaces_by_el": cls._build_spaces_by_el(spaces),
+                "qhull_entries": qhull_entries,
+                "_qhull_spaces": tuple(frozenset(e.elements) for e in qhull_entries),
+                "pds": pds,
+                "all_entries": all_entries,
+                "el_refs": el_refs,
+                "_stable_entries": tuple(_stable),
+                "_stable_spaces": tuple(frozenset(e.elements) for e in _stable),
+            },
+        )
 
     @staticmethod
     def remove_redundant_spaces(
@@ -2138,6 +2102,238 @@ class PatchedPhaseDiagram(PhaseDiagram):
             check_stable=check_stable,
             on_error=on_error,
         )
+
+    def _get_pd_patch_for_space(self, space: frozenset[Element]) -> tuple[frozenset[Element], PhaseDiagram]:
+        """
+        Args:
+            space (frozenset[Element]): chemical space of the form A-B-X.
+
+        Returns:
+            space, PhaseDiagram for the given chemical space
+        """
+        space_entries = [e for e, s in zip(self.qhull_entries, self._qhull_spaces, strict=True) if space.issuperset(s)]
+
+        return space, PhaseDiagram(space_entries)
+
+    @overload
+    def update(
+        self,
+        new_entries: Sequence[Entry] | set[Entry],
+        verbose: bool = False,
+        *,
+        return_info: Literal[False] = False,
+        on_new_el_ref: Literal["raise", "ignore", "recalculate"] = "raise",
+    ) -> Self: ...
+    @overload
+    def update(
+        self,
+        new_entries: Sequence[Entry] | set[Entry],
+        verbose: bool = False,
+        *,
+        return_info: Literal[True] = ...,
+        on_new_el_ref: Literal["raise", "ignore", "recalculate"] = "raise",
+    ) -> tuple[Self, dict[str, Any]]: ...
+    def update(
+        self,
+        new_entries: Sequence[Entry] | set[Entry],
+        verbose: bool = False,
+        *,
+        return_info: bool = False,
+        on_new_el_ref: Literal["raise", "ignore", "recalculate"] = "raise",
+    ) -> Self | tuple[Self, dict[str, Any]]:
+        """Return a new PatchedPhaseDiagram incorporating *new_entries*,
+        rebuilding only the affected patches. For each affected patch the
+        rebuild uses the current stable entries in that space plus the new
+        entries, avoiding redundant recalculation of the full convex hull.
+
+        Entry objects are shared between the old and new instances so memory
+        usage stays flat until the caller drops the old reference.
+
+        Intended usage pattern::
+
+            ppd, info = ppd.update(new_entries, return_info=True)
+
+        Args:
+            new_entries: new PDEntry-like objects to incorporate.
+            verbose: whether to show a progress bar during patch rebuilds.
+            return_info: if True return a ``(ppd, info_dict)`` tuple instead
+                of just the new ``PatchedPhaseDiagram``.
+            on_new_el_ref: what to do when a new entry would displace an
+                existing elemental reference (lower energy for an element).
+                - ``"raise"`` (default): raise a ``ValueError``.
+                - ``"ignore"``: silently keep the old elemental reference and
+                  skip the new entry for el_ref purposes.
+                - ``"recalculate"``: accept the new reference and rebuild all
+                  affected spaces using the full qhull_entries.
+
+        Returns:
+            PatchedPhaseDiagram (or tuple of PatchedPhaseDiagram and info dict
+            when *return_info* is True). The info dict contains:
+                - "updated_spaces": list of frozenset[Element] spaces that were rebuilt
+                - "new_spaces": list of frozenset[Element] spaces that were newly created
+                - "new_stable_entries": set of entries that are stable after the update
+                    but were not stable before
+                - "removed_stable_entries": set of entries that were stable before
+                    the update but are no longer stable
+        """
+        if not new_entries:
+            return (self, _empty_update_info()) if return_info else self
+        old_stable = set(self._stable_entries)
+        new_min_entries, new_all_entries, new_el_refs = self._dedup_entries(new_entries)
+
+        for el in sorted({el for entry in new_min_entries for el in entry.elements}):
+            if el not in self.el_refs:
+                raise ValueError(
+                    f"update() does not support adding new elements (got {el}). "
+                    "Reconstruct the PatchedPhaseDiagram instead."
+                )
+        el_refs = dict(self.el_refs)
+
+        changed_el_refs: set[Element] = set()
+        for el, entry in new_el_refs.items():
+            if entry.energy_per_atom < el_refs[el].energy_per_atom:
+                if on_new_el_ref == "raise":
+                    raise ValueError(
+                        f"New entry for {el} ({entry.energy_per_atom:.4f} eV/atom) "
+                        f"is lower than current el_ref ({el_refs[el].energy_per_atom:.4f} eV/atom). "
+                        "Use on_new_el_ref='recalculate' to accept, or 'ignore' to skip."
+                    )
+                if on_new_el_ref == "recalculate":
+                    el_refs[el] = entry
+                    changed_el_refs.add(el)
+
+        new_qhull_entries, new_qhull_spaces = self._filter_entries_for_qhull(new_min_entries, el_refs, self.elements)
+
+        # Short-circuit: no hull-relevant new entries and no el_ref changes
+        # → copy the existing PPD with the new all_entries appended.
+        if not new_qhull_entries and not changed_el_refs:
+            merged_all_entries = [*self.all_entries, *new_all_entries]
+            _stable = set(self._stable_entries) | set(el_refs.values())
+            new_ppd = type(self)(
+                merged_all_entries,
+                self.elements,
+                computed_data={
+                    "elements": self.elements,
+                    "keep_all_spaces": self.keep_all_spaces,
+                    "spaces": list(self.spaces),
+                    "_spaces_by_el": self._build_spaces_by_el(self.spaces),
+                    "qhull_entries": self.qhull_entries,
+                    "_qhull_spaces": self._qhull_spaces,
+                    "pds": dict(self.pds),
+                    "all_entries": merged_all_entries,
+                    "el_refs": el_refs,
+                    "_stable_entries": tuple(_stable),
+                    "_stable_spaces": tuple(frozenset(e.elements) for e in _stable),
+                },
+            )
+            if not return_info:
+                return new_ppd
+            return new_ppd, _empty_update_info()
+
+        # Merge old + new qhull_entries, keeping only the lowest-energy entry
+        # per reduced composition to avoid duplicates across update batches.
+        best_by_comp: dict[Composition, PDEntry] = {}
+        for entry in self.qhull_entries:
+            rc = entry.composition.reduced_composition
+            if rc not in best_by_comp or entry.energy_per_atom < best_by_comp[rc].energy_per_atom:
+                best_by_comp[rc] = entry
+        for entry in new_qhull_entries:
+            rc = entry.composition.reduced_composition
+            if rc not in best_by_comp or entry.energy_per_atom < best_by_comp[rc].energy_per_atom:
+                best_by_comp[rc] = entry
+        deduped_qhull = tuple(best_by_comp.values())
+        deduped_qhull_spaces = tuple(frozenset(e.elements) for e in deduped_qhull)
+
+        # Determine which existing spaces are affected by new entries and which
+        # new entry spaces aren't covered by any existing space.
+        affected_spaces: set[frozenset[Element]] = set()
+        uncovered_spaces: set[frozenset[Element]] = set()
+        for entry_space in new_qhull_spaces:
+            matching = self._spaces_containing(entry_space, self._spaces_by_el)
+            if matching:
+                affected_spaces |= matching
+            elif len(entry_space) > 1:
+                uncovered_spaces.add(entry_space)
+        # Any space containing an element whose el_ref changed must also be
+        # rebuilt because formation energies shift with the new reference.
+        for el in changed_el_refs:
+            affected_spaces |= self._spaces_by_el.get(el, set())
+
+        # Register brand-new spaces for entry compositions not covered above.
+        created_spaces: list[frozenset[Element]] = []
+        all_spaces = list(self.spaces)
+        if uncovered_spaces:
+            combined = set(all_spaces) | uncovered_spaces
+            combined = self.remove_redundant_spaces(combined, self.keep_all_spaces)
+            new_space_set = set(combined) - set(all_spaces)
+            created_spaces = sorted(new_space_set, key=len, reverse=True)
+            all_spaces = sorted(combined, key=len, reverse=True)
+            affected_spaces |= new_space_set
+        merged_all_entries = [*self.all_entries, *new_all_entries]
+        pds = dict(self.pds)
+        spaces_to_rebuild = sorted(affected_spaces, key=len, reverse=True)
+
+        # Index entries by rebuild-space using the inverted element index.
+        rebuild_by_el = self._build_spaces_by_el(spaces_to_rebuild)
+        qhull_by_space: dict[frozenset[Element], list[PDEntry]] = {s: [] for s in spaces_to_rebuild}
+        for entry, entry_space in zip(deduped_qhull, deduped_qhull_spaces, strict=True):
+            for space in self._spaces_containing(entry_space, rebuild_by_el):
+                qhull_by_space[space].append(entry)
+        new_by_space: dict[frozenset[Element], list[PDEntry]] = {s: [] for s in spaces_to_rebuild}
+        for entry, entry_space in zip(new_qhull_entries, new_qhull_spaces, strict=True):
+            for space in self._spaces_containing(entry_space, rebuild_by_el):
+                new_by_space[space].append(entry)
+
+        for space in tqdm(spaces_to_rebuild, disable=not verbose, desc="Rebuilding patches"):
+            space_el_refs = [ref for ref in el_refs.values() if space.issuperset(frozenset(ref.elements))]
+            el_ref_shifted = bool(changed_el_refs & space)
+            has_new_entries = bool(new_by_space[space])
+            if el_ref_shifted:
+                # el_ref changed for this space: formation energies shifted so
+                # the old stable set can't be trusted. Rebuild from all
+                # qhull_entries in this subspace.
+                candidate_entries = qhull_by_space[space] + space_el_refs
+            elif has_new_entries:
+                # No el_ref shift: the old stable entries are still valid
+                # candidates so we only need to add the new entries that
+                # fall in this subspace and recompute the hull.
+                existing_stable = list(pds[space]._stable_entries) if space in pds else []
+                candidate_entries = existing_stable + new_by_space[space] + space_el_refs
+            else:
+                # Space was marked affected (e.g. via uncovered_spaces merge)
+                # but has no new entries or el_ref changes — rebuild from
+                # all qhull_entries in this subspace.
+                candidate_entries = qhull_by_space[space] + space_el_refs
+            pds[space] = PhaseDiagram(list(dict.fromkeys(candidate_entries)))
+
+        _stable = {se for pd in pds.values() for se in pd._stable_entries}
+        _stable |= set(el_refs.values())
+        new_ppd = type(self)(
+            merged_all_entries,
+            self.elements,
+            computed_data={
+                "elements": self.elements,
+                "keep_all_spaces": self.keep_all_spaces,
+                "spaces": all_spaces,
+                "_spaces_by_el": self._build_spaces_by_el(all_spaces),
+                "qhull_entries": deduped_qhull,
+                "_qhull_spaces": deduped_qhull_spaces,
+                "pds": pds,
+                "all_entries": merged_all_entries,
+                "el_refs": el_refs,
+                "_stable_entries": tuple(_stable),
+                "_stable_spaces": tuple(frozenset(e.elements) for e in _stable),
+            },
+        )
+        if not return_info:
+            return new_ppd
+        new_stable = set(new_ppd._stable_entries)
+        return new_ppd, {
+            "updated_spaces": [s for s in spaces_to_rebuild if s not in created_spaces],
+            "new_spaces": created_spaces,
+            "new_stable_entries": new_stable - old_stable,
+            "removed_stable_entries": old_stable - new_stable,
+        }
 
     # NOTE the following functions are not implemented for PatchedPhaseDiagram
 
@@ -2347,6 +2543,15 @@ class ReactionDiagram:
 
 class PhaseDiagramError(Exception):
     """An exception class for Phase Diagram generation."""
+
+
+def _empty_update_info() -> dict[str, Any]:
+    return {
+        "updated_spaces": [],
+        "new_spaces": [],
+        "new_stable_entries": set(),
+        "removed_stable_entries": set(),
+    }
 
 
 def get_facets(qhull_data: ArrayLike, joggle: bool = False) -> ConvexHull:

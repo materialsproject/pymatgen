@@ -972,6 +972,199 @@ class TestPatchedPhaseDiagram:
         test = [frozenset(t) for t in test]
         assert len(self.ppd.remove_redundant_spaces(test)) == 30
 
+    def test_update_returns_new_instance(self):
+        """update() must return a new PatchedPhaseDiagram, not mutate self."""
+        original_stable = self.ppd.stable_entries.copy()
+        ppd_new = self.ppd.update([PDEntry("V2O5", -500)])
+        assert ppd_new is not self.ppd
+        assert isinstance(ppd_new, PatchedPhaseDiagram)
+        assert self.ppd.stable_entries == original_stable
+
+    def test_update_with_empty_entries(self):
+        ppd_new = self.ppd.update([])
+        assert ppd_new is self.ppd
+
+    def test_update_entry_in_existing_space(self):
+        """Add a very low energy entry in an existing chemical space and verify
+        it becomes stable and the patched PD matches a full rebuild."""
+        new_entry = PDEntry("V2O5", -500)
+        ppd_new, info = self.ppd.update([new_entry], return_info=True)
+        assert new_entry in info["new_stable_entries"]
+        assert len(info["new_spaces"]) == 0
+        assert any(frozenset(new_entry.elements).issubset(s) for s in info["updated_spaces"])
+        assert new_entry in ppd_new.stable_entries
+        ppd_rebuilt = PatchedPhaseDiagram(entries=[*list(self.entries), new_entry])
+        assert ppd_new.stable_entries == ppd_rebuilt.stable_entries
+
+    def test_update_new_chemical_space(self):
+        """Add entries that span a chemical space not present in any existing patch."""
+        new_entries = [PDEntry("FeO", -10), PDEntry("Fe", -1), PDEntry("O", -2)]
+        existing_elements = {el for entry in self.entries for el in entry.elements}
+        fe_el = Element("Fe")
+        o_el = Element("O")
+        if fe_el in existing_elements and o_el in existing_elements:
+            ppd = PatchedPhaseDiagram(entries=self.entries)
+            fe_o_space = frozenset([fe_el, o_el])
+            if not any(s.issuperset(fe_o_space) for s in ppd.spaces):
+                ppd_new, info = ppd.update(new_entries, return_info=True)
+                assert len(info["new_spaces"]) > 0
+            else:
+                ppd_full = PatchedPhaseDiagram(entries=list(self.entries) + new_entries)
+                ppd_new = ppd.update(new_entries)
+                assert ppd_new.stable_entries == ppd_full.stable_entries
+
+    def test_update_matches_full_rebuild(self):
+        """The updated PPD should give the same stable entries, decompositions,
+        and hull energies as a PPD built from scratch with all entries."""
+        new_entries = [PDEntry("V2O3", -200), PDEntry("PH3", -50)]
+        ppd_updated = PatchedPhaseDiagram(entries=self.entries).update(new_entries)
+        all_entries = list(self.entries) + new_entries
+        ppd_full = PatchedPhaseDiagram(entries=all_entries)
+        assert ppd_updated.stable_entries == ppd_full.stable_entries
+        for comp in self.novel_comps:
+            e_hull_updated = ppd_updated.get_hull_energy(comp)
+            e_hull_full = ppd_full.get_hull_energy(comp)
+            assert np.isclose(e_hull_updated, e_hull_full)
+
+    def test_update_unstable_entry_no_change(self):
+        """Adding a high-energy entry should not change stable entries."""
+        stable_before = self.ppd.stable_entries.copy()
+        ppd_new, info = self.ppd.update([PDEntry("V2O5", 1000)], return_info=True)
+        assert info["new_stable_entries"] == set()
+        assert info["removed_stable_entries"] == set()
+        assert ppd_new.stable_entries == stable_before
+
+    def test_update_multiple_batches(self):
+        """Simulate a discovery campaign with multiple sequential updates."""
+        ppd = PatchedPhaseDiagram(entries=self.entries)
+        batch1 = [PDEntry("V2O5", -500)]
+        ppd = ppd.update(batch1)
+        batch2 = [PDEntry("PH3", -50)]
+        ppd = ppd.update(batch2)
+        all_entries = list(self.entries) + batch1 + batch2
+        ppd_full = PatchedPhaseDiagram(entries=all_entries)
+        assert ppd.stable_entries == ppd_full.stable_entries
+
+    def test_update_rejects_new_elements(self):
+        """Entries with elements not in the original PPD should raise."""
+        with pytest.raises(ValueError, match="does not support adding new elements"):
+            self.ppd.update([PDEntry("LiF", -10)])
+
+    def test_update_returns_removed_stable(self):
+        """When a new entry displaces an old stable entry, it should appear
+        in removed_stable_entries."""
+        stable_formulas = {e.reduced_formula for e in self.ppd.stable_entries}
+        if "V2O5" in stable_formulas:
+            target_comp = "V2O5"
+        else:
+            target_comp = next(e.reduced_formula for e in self.ppd.stable_entries if not e.composition.is_element)
+        old_entry = next(e for e in self.ppd.stable_entries if e.reduced_formula == target_comp)
+        crusher = PDEntry(target_comp, old_entry.energy * 10)
+        _, info = self.ppd.update([crusher], return_info=True)
+        assert crusher in info["new_stable_entries"]
+        assert old_entry in info["removed_stable_entries"]
+
+    def test_update_preserves_keep_all_spaces(self):
+        """The keep_all_spaces setting should be stored and respected on update."""
+        ppd_all = PatchedPhaseDiagram(entries=self.entries, keep_all_spaces=True)
+        assert ppd_all.keep_all_spaces is True
+        n_spaces_before = len(ppd_all.spaces)
+        ppd_new = ppd_all.update([PDEntry("V2O5", -500)])
+        assert ppd_new.keep_all_spaces is True
+        assert len(ppd_new.spaces) >= n_spaces_before
+
+    def test_update_shares_entry_objects(self):
+        """Entry objects should be shared (same id) between old and new PPD."""
+        original_entry_ids = {id(e) for e in self.ppd.all_entries}
+        ppd_new = self.ppd.update([PDEntry("V2O5", -500)])
+        carried_ids = {id(e) for e in ppd_new.all_entries} & original_entry_ids
+        assert carried_ids == original_entry_ids
+
+    def test_update_same_comp_lower_energy_replaces(self):
+        """A new entry with the same composition but lower energy should
+        replace the existing qhull entry and become stable."""
+        target = next(
+            e for e in self.ppd.stable_entries if not e.composition.is_element and len(e.composition.elements) >= 2
+        )
+        better = PDEntry(target.composition, target.energy * 10)
+        ppd_new, info = self.ppd.update([better], return_info=True)
+        assert better in ppd_new.stable_entries
+        assert better in info["new_stable_entries"]
+        assert target in info["removed_stable_entries"]
+        rc = target.composition.reduced_composition
+        qhull_for_comp = [e for e in ppd_new.qhull_entries if e.composition.reduced_composition == rc]
+        assert len(qhull_for_comp) == 1
+        assert qhull_for_comp[0] is better
+
+    def test_update_same_comp_higher_energy_noop(self):
+        """A new entry with the same composition but higher energy should
+        not replace the existing qhull entry or change stability."""
+        target = next(
+            e for e in self.ppd.stable_entries if not e.composition.is_element and len(e.composition.elements) >= 2
+        )
+        worse = PDEntry(target.composition, target.energy / 10)
+        ppd_new, info = self.ppd.update([worse], return_info=True)
+        assert target in ppd_new.stable_entries
+        assert worse not in ppd_new.stable_entries
+        assert info["new_stable_entries"] == set()
+        assert info["removed_stable_entries"] == set()
+        rc = target.composition.reduced_composition
+        qhull_for_comp = [e for e in ppd_new.qhull_entries if e.composition.reduced_composition == rc]
+        assert len(qhull_for_comp) == 1
+        assert qhull_for_comp[0] is target
+
+    def test_update_lower_elemental_ref_raises(self):
+        """By default, a new elemental entry with lower energy should raise."""
+        el = next(iter(self.ppd.el_refs))
+        old_ref = self.ppd.el_refs[el]
+        new_ref = PDEntry(str(el), old_ref.energy_per_atom * 2)
+        with pytest.raises(ValueError, match="lower than current el_ref"):
+            self.ppd.update([new_ref])
+
+    def test_update_lower_elemental_ref_ignore(self):
+        """With on_new_el_ref='ignore', el_refs should stay unchanged."""
+        el = next(iter(self.ppd.el_refs))
+        old_ref = self.ppd.el_refs[el]
+        new_ref = PDEntry(str(el), old_ref.energy_per_atom * 2)
+        ppd_new = self.ppd.update([new_ref], on_new_el_ref="ignore")
+        assert ppd_new.el_refs[el] is old_ref
+
+    def test_update_lower_elemental_ref_recalculate(self):
+        """With on_new_el_ref='recalculate', el_refs should update and
+        affected spaces should be rebuilt."""
+        el = next(iter(self.ppd.el_refs))
+        old_ref = self.ppd.el_refs[el]
+        new_ref = PDEntry(str(el), old_ref.energy_per_atom * 2)
+        ppd_new, info = self.ppd.update([new_ref], return_info=True, on_new_el_ref="recalculate")
+        assert ppd_new.el_refs[el] is new_ref
+        affected_els = {el}
+        for space in info["updated_spaces"]:
+            assert space & affected_els
+        ppd_full = PatchedPhaseDiagram(entries=[*list(self.entries), new_ref])
+        assert ppd_new.stable_entries == ppd_full.stable_entries
+
+    def test_update_qhull_dedup_across_batches(self):
+        """After multiple updates adding entries for the same composition,
+        qhull_entries should contain only one entry per reduced composition."""
+        comp = "V2O5"
+        ppd = PatchedPhaseDiagram(entries=self.entries)
+        ppd = ppd.update([PDEntry(comp, -100)])
+        ppd = ppd.update([PDEntry(comp, -500)])
+        rc = Composition(comp).reduced_composition
+        qhull_for_comp = [e for e in ppd.qhull_entries if e.composition.reduced_composition == rc]
+        assert len(qhull_for_comp) == 1
+        assert np.isclose(qhull_for_comp[0].energy, -500)
+
+    def test_update_all_positive_formation_energy(self):
+        """When all new entries have positive formation energy, the PPD
+        should still return a new instance with all_entries updated but
+        stable entries unchanged."""
+        stable_before = self.ppd.stable_entries.copy()
+        n_entries_before = len(self.ppd.all_entries)
+        ppd_new = self.ppd.update([PDEntry("V2O5", 9999)])
+        assert ppd_new.stable_entries == stable_before
+        assert len(ppd_new.all_entries) == n_entries_before + 1
+
 
 class TestReactionDiagram:
     def setup_method(self):
