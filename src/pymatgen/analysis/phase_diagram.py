@@ -875,10 +875,15 @@ class PhaseDiagram(MSONable):
             float | None: Equilibrium reaction energy of entry. Stable entries should have
                 equilibrium reaction energy <= 0. The energy is given per atom.
         """
-        elem_space = entry.elements
+        # Use entry.elements for stability validation so GrandPotPDEntry
+        # stability is checked in the original chemical space.
+        entry_space = entry.elements
+        # Use composition elements for sub-hull construction so
+        # GrandPotPDEntry uses projected elements without open components.
+        elem_space = entry.composition.elements
 
         # NOTE scaled duplicates of stable_entries will not be caught.
-        if entry not in self._get_stable_entries_in_space(frozenset(elem_space)):
+        if entry not in self._get_stable_entries_in_space(frozenset(entry_space)):
             raise ValueError(
                 f"{entry} is unstable, the equilibrium reaction energy is available only for stable entries."
             )

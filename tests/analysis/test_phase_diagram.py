@@ -767,6 +767,27 @@ class TestGrandPotentialPhaseDiagram:
             "Fe-Li GrandPotentialPhaseDiagram with chempots = 'mu_O = -5.0000'5 stable phases: "
         )
 
+def test_get_equilibrium_reaction_energy_open_element_in_original_composition():
+    entries = [
+        PDEntry(Composition("Li"), -2.0),
+        PDEntry(Composition("Fe"), -8.0),
+        PDEntry(Composition("O2"), -10.0),
+        PDEntry(Composition("LiFe3O"), -40.0),
+    ]
+    gpd = GrandPotentialPhaseDiagram(entries, {"Li": -2.0})
+
+    # Stable GP entry has projected composition Fe3O but original composition LiFe3O.
+    gp_entry = next(
+        entry
+        for entry in gpd.stable_entries
+        if entry.composition == Composition("Fe3O") and entry.original_comp == Composition("LiFe3O")
+    )
+    assert gp_entry in gpd.stable_entries
+
+    ere = gpd.get_equilibrium_reaction_energy(gp_entry)
+    assert isinstance(ere, float)
+    assert ere <= 0
+
 
 class TestCompoundPhaseDiagram:
     def setup_method(self):
