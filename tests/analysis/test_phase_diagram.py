@@ -767,6 +767,7 @@ class TestGrandPotentialPhaseDiagram:
             "Fe-Li GrandPotentialPhaseDiagram with chempots = 'mu_O = -5.0000'5 stable phases: "
         )
 
+
 def test_get_equilibrium_reaction_energy_open_element_in_original_composition():
     entries = [
         PDEntry(Composition("Li"), -2.0),
