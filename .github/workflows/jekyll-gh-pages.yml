@@ -56,15 +56,11 @@ jobs:
           rm apidoc/*.rst
           mv html/pymatgen*.html .
           mv html/modules.html .
+          cp -r html/_static _static
+          touch .nojekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
-
-      - name: Prepare docs for Jekyll
-        working-directory: docs
-        run: |
-          cp -r html/_static _static
-          touch .nojekyll
 
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
