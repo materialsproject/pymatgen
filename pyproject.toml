@@ -281,8 +281,7 @@ reportInvalidTypeForm = false
 exclude = ["**/tests"]
 
 [tool.uv]
-# TODO: remove `docs` once doc generation is automated
-default-groups = ["dev", "test", "lint", "docs"]
+default-groups = ["dev", "test", "lint"]
 
 [dependency-groups]
 dev = [
