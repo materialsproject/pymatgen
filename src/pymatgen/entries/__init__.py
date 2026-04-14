@@ -1,4 +1,6 @@
-"""Entries are containers for calculated information, which is used in
+"""Stub entries from pymatgen-core for backwards compatibility.
+
+Entries are containers for calculated information, which is used in
 many analyses. This module contains entry related tools and implements
 the base Entry class, which is the basic entity that can be used to
 store calculated information. Other Entry classes such as ComputedEntry
@@ -16,12 +18,3 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Mar 03, 2020"
-
-import warnings
-
-warnings.warn(
-    "Entry, ComputedEntry and ComputedStructureEntry have been moved to pymatgen.core.entries module. "
-    "This stub will be removed v2027.1.",
-    DeprecationWarning,
-    stacklevel=2,
-)

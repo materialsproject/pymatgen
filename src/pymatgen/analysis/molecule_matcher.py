@@ -1,4 +1,5 @@
-"""
+"""Stub for backwards compatibility.
+
 This module provides classes to perform fitting of molecule with arbitrary
 atom orders.
 This module is supposed to perform exact comparisons without the atom order
@@ -11,13 +12,4 @@ you can find at https://github.com/charnley/rmsd.
 
 from __future__ import annotations
 
-import warnings
-
-warnings.warn(
-    "This module has been moved to the pymatgen.core.molecule_matcher module. This stub will be removed v2027.1. ",
-    DeprecationWarning,
-    stacklevel=2,
-)
-
-
-from pymatgen.core.molecule_matcher import *  # noqa: E402, F403
+from pymatgen.core.molecule_matcher import *  # noqa: F403
