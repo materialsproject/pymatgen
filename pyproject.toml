@@ -290,7 +290,7 @@ dev = [
     "pre-commit>=4.2.0",
 ]
 test = [
-    "pytest>=8.3.5",
+    "pytest>=9.0.3",
     "pytest-cov>=6.0.0",
     "pytest-split>=0.10.0",
     "pytest-xdist>=3.0.0"
