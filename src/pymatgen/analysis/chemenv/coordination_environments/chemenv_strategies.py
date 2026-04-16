@@ -710,7 +710,8 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         if cn_map is None:
             return None
 
-        ce = se.ce_list[se.sites_map[isite]][cn_map[0]][cn_map[1]]
+        ce_sub = se.ce_list[se.sites_map[isite]].get(cn_map[0]) or []
+        ce = ce_sub[cn_map[1]] if len(ce_sub) > cn_map[1] else None
         if ce is None:
             return None
         coord_geoms = ce.coord_geoms
