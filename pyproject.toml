@@ -75,7 +75,7 @@ matcalc = [
 ]
 mlp = ["matgl>=2.0.4 ; python_version<'3.13'"]
 numba = ["numba>=0.55"]
-numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
+numpy-v1 = ["numpy>=1.25.0,<2; python_version<'3.13'"] # Test NP1 on Windows (quite buggy ATM)
 optional = [
     "pymatgen[abinit,ase,matcalc,mlp,tblite,zeopp]",
     "beautifulsoup4",
