@@ -8,10 +8,6 @@ from typing import TYPE_CHECKING
 
 from tabulate import tabulate
 
-from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
-from pymatgen.core.structure import Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
 if TYPE_CHECKING:
     from argparse import Namespace
 
@@ -29,6 +25,8 @@ def convert_fmt(args: Namespace) -> None:
     Args:
         args (Namespace): Args from argparse.
     """
+    from pymatgen.core.structure import Structure
+
     if len(args.filenames) != 2:
         print("File format conversion takes in only two filenames.")
     struct = Structure.from_file(args.filenames[0], primitive="prim" in args.filenames[1].lower())
@@ -41,6 +39,9 @@ def analyze_symmetry(args: Namespace) -> None:
     Args:
         args (Namespace): Args from argparse.
     """
+    from pymatgen.core.structure import Structure
+    from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
     tolerance = args.symmetry
     table_rows = []
     for filename in args.filenames:
@@ -57,6 +58,8 @@ def analyze_localenv(args: Namespace) -> None:
     Args:
         args (Namespace): Args for argparse.
     """
+    from pymatgen.core.structure import Structure
+
     bonds = {}
     for bond in args.localenv:
         tokens = bond.split("=")
@@ -85,6 +88,9 @@ def compare_structures(args: Namespace) -> None:
     Args:
         args (Namespace): Args from argparse.
     """
+    from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
+    from pymatgen.core.structure import Structure
+
     filenames = args.filenames
     if len(filenames) < 2:
         raise SystemExit("You need more than one structure to compare!")

@@ -7,8 +7,6 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
-from pymatgen.io.vasp import Potcar
-
 if TYPE_CHECKING:
     from argparse import Namespace
     from collections.abc import Callable
@@ -35,6 +33,8 @@ def gen_potcar(dirname: str, filename: str) -> None:
         dirname (str): Directory name.
         filename (str): Filename in directory.
     """
+    from pymatgen.io.vasp.inputs import Potcar
+
     if filename == "POTCAR.spec":
         fullpath = os.path.join(dirname, filename)
         with open(fullpath, encoding="utf-8") as file:
@@ -50,11 +50,19 @@ def generate_potcar(args: Namespace) -> None:
     Args:
         args (Namespace): Args from argparse.
     """
+    from pymatgen.core import SETTINGS
+    from pymatgen.io.vasp.inputs import Potcar
+
+    functional = args.functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
+
     if args.recursive:
         proc_dir(args.recursive, gen_potcar)
     elif args.symbols:
         try:
-            p = Potcar(args.symbols, functional=args.functional)
+            if functional not in Potcar.FUNCTIONAL_CHOICES:
+                raise ValueError(f"Invalid functional {functional!r}. Choose from: {sorted(Potcar.FUNCTIONAL_CHOICES)}")
+
+            p = Potcar(args.symbols, functional=functional)
             p.write_file("POTCAR")
         except Exception as exc:
             print(f"An error has occurred: {exc}")
