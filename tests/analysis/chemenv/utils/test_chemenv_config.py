@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from pymatgen.analysis.chemenv.utils.chemenv_config import ChemEnvConfig
 from pymatgen.core import SETTINGS
-from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
+from pymatgen.util.testing import MatSciTest
+from tests.testing import TEST_FILES_DIR
 
 __author__ = "waroquiers"
 

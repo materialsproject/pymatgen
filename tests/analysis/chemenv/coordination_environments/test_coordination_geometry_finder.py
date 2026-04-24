@@ -19,7 +19,8 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
     symmetry_measure,
 )
 from pymatgen.core.structure import Lattice, Structure
-from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
+from pymatgen.util.testing import MatSciTest
+from tests.testing import TEST_FILES_DIR
 
 __author__ = "waroquiers"
 

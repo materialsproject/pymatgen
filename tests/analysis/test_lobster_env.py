@@ -13,7 +13,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import Cohp, CompleteCohp
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lobster import Charge, Icohplist
-from pymatgen.util.testing import TEST_FILES_DIR
+from tests.testing import TEST_FILES_DIR
 
 __author__ = "Janine George"
 __copyright__ = "Copyright 2021, The Materials Project"

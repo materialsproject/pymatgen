@@ -9,7 +9,8 @@ from sympy import Number, Symbol
 
 from pymatgen.analysis.surface_analysis import NanoscaleStability, SlabEntry, SurfaceEnergyPlotter, WorkFunctionAnalyzer
 from pymatgen.entries.computed_entries import ComputedStructureEntry
-from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
+from pymatgen.util.testing import MatSciTest
+from tests.testing import TEST_FILES_DIR
 
 __author__ = "Richard Tran"
 __copyright__ = "Copyright 2012, The Materials Project"

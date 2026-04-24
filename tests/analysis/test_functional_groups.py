@@ -8,7 +8,7 @@ from pymatgen.analysis.functional_groups import FunctionalGroupExtractor
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core.structure import Molecule
-from pymatgen.util.testing import TEST_FILES_DIR
+from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/functional_groups"
 

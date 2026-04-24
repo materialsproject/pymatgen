@@ -14,7 +14,8 @@ from pymatgen.analysis.compatibility.entry_tools import (
 )
 from pymatgen.core import Element
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
+from pymatgen.util.testing import MatSciTest
+from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/entries"
 

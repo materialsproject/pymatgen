@@ -7,7 +7,7 @@ from pytest import approx
 
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode, InsertionVoltagePair
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.util.testing import TEST_FILES_DIR
+from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
 

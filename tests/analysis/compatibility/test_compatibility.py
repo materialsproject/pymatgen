@@ -33,7 +33,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.entries import ComputedEntry, ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import TEST_FILES_DIR
+from tests.testing import TEST_FILES_DIR
 
 if TYPE_CHECKING:
     from pymatgen.util.typing import CompositionLike

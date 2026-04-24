@@ -6,7 +6,7 @@ import pytest
 from monty.serialization import loadfn
 
 from pymatgen.analysis.bond_dissociation import BondDissociationEnergies
-from pymatgen.util.testing import TEST_FILES_DIR
+from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/bond_dissociation"
 

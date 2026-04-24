@@ -8,7 +8,7 @@ from monty.json import MontyDecoder
 from pytest import approx
 
 from pymatgen.analysis.compatibility.exp_entries import ExpEntry
-from pymatgen.util.testing import TEST_FILES_DIR
+from tests.testing import TEST_FILES_DIR
 
 pytestmark = pytest.mark.skipif(not os.path.exists(f"{TEST_FILES_DIR}/entries"), reason="Requires test files")
 

@@ -5,7 +5,7 @@ from pytest import approx
 
 from pymatgen.analysis.magnetism.jahnteller import JahnTellerAnalyzer, Species
 from pymatgen.core import Structure
-from pymatgen.util.testing import TEST_FILES_DIR
+from tests.testing import TEST_FILES_DIR
 
 
 class TestJahnTeller:

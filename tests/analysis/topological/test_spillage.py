@@ -3,7 +3,8 @@ from __future__ import annotations
 from pytest import approx
 
 from pymatgen.analysis.topological.spillage import SOCSpillage
-from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
+from pymatgen.util.testing import MatSciTest
+from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/topological"
 

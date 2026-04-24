@@ -7,7 +7,7 @@ from pytest import approx
 
 from pymatgen.apps.battery.conversion_battery import ConversionElectrode, ConversionVoltagePair
 from pymatgen.core.composition import Composition
-from pymatgen.util.testing import TEST_FILES_DIR
+from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
 

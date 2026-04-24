@@ -21,7 +21,8 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 )
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
+from pymatgen.util.testing import MatSciTest
+from tests.testing import TEST_FILES_DIR
 
 __author__ = "waroquiers"
 

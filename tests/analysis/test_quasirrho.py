@@ -6,7 +6,7 @@ from pytest import approx
 from pymatgen.analysis.quasirrho import QuasiRRHO, get_avg_mom_inertia
 from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.io.qchem.outputs import QCOutput
-from pymatgen.util.testing import TEST_FILES_DIR
+from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/quasirrho"
 
