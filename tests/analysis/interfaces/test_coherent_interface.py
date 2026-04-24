@@ -44,9 +44,8 @@ class TestInterfaceBuilder(MatSciTest):
         )
 
         assert len(builder.terminations) == 2
-        # SP: this test is super fragile and the result fluctuates between 6, 30 and 42 for
-        # no apparent reason. The author should fix this.
-        assert len(list(builder.get_interfaces(termination=("O2_Pmmm_1", "Si_R-3m_1")))) >= 6
+        for termination in builder.terminations:
+            assert len(list(builder.get_interfaces(termination=termination))) >= 6
 
 
 class TestCoherentInterfaceBuilder:

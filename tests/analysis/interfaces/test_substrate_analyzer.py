@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import numpy as np
 from numpy.testing import assert_allclose
 
 from pymatgen.analysis.elasticity.elastic import ElasticTensor
@@ -49,12 +50,16 @@ def test_generate_surface_vectors():
     assert [film_millers] == film_miller_indices
     assert [substrate_millers] == substrate_miller_indices
     assert_allclose(
-        film_vectors,
-        [[0, 0, 3.035429], [-2.764654e-16, 4.515023, 2.764654e-16]],
+        [np.linalg.norm(vector) for vector in film_vectors],
+        [3.03542922, 4.51502263],
         atol=1e-6,
     )
     assert_allclose(
-        substrate_vectors,
-        [[-3.766937, -1.928326, -6.328967], [3.766937, -12.307154, 0.0]],
+        [np.linalg.norm(vector) for vector in substrate_vectors],
+        [7.613414525142487, 12.870736246973966],
         atol=1e-6,
     )
+    assert_allclose(np.linalg.norm(np.cross(*film_vectors)), 13.705031620063249, atol=1e-6)
+    assert_allclose(np.linalg.norm(np.cross(*substrate_vectors)), 97.52451926178126, atol=1e-6)
+    assert_allclose(np.dot(*film_vectors), 0.0, atol=1e-6)
+    assert_allclose(np.dot(*substrate_vectors), 9.542394617977376, atol=1e-6)

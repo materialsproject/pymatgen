@@ -30,7 +30,8 @@ from pymatgen.analysis.prototypes import (
 )
 from pymatgen.core.structure import Composition, Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
+from pymatgen.util.testing import MatSciTest
+from tests.testing import TEST_FILES_DIR
 
 try:
     import pyxtal

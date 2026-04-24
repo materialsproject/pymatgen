@@ -11,7 +11,8 @@ from pytest import approx
 
 from pymatgen.analysis.xas.spectrum import XAS, site_weighted_spectrum
 from pymatgen.core import Element
-from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
+from pymatgen.util.testing import MatSciTest
+from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/spectrum_test"
 
