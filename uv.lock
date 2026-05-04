@@ -3749,7 +3749,7 @@ wheels = [
 
 [[package]]
 name = "pymatgen"
-version = "2026.3.23"
+version = "2026.5.4"
 source = { editable = "." }
 dependencies = [
     { name = "pymatgen-core" },

@@ -57,7 +57,7 @@ classifiers = [
 dependencies = [
     "pymatgen-core>=2026.4.16"
 ]
-version = "2026.3.23"
+version = "2026.5.4"
 
 [project.urls]
 Homepage = "https://pymatgen.org"
