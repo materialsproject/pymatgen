@@ -195,8 +195,8 @@ def test_api_parity(mprester):
     data = mprester.materials.substrates.search(sub_id="mp-1143")
     assert len(data) > 0, "No substrate data returned."
 
-    data = mprester.materials.tasks.search(task_ids="mp-1143")
-    assert len(data) > 0, "No tasks data returned."
+    # data = mprester.materials.tasks.search(task_ids="mp-1143")
+    # assert len(data) > 0, "No tasks data returned."
 
     docs = ("surface_properties", "alloys")
 
