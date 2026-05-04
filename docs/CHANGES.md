@@ -6,6 +6,16 @@ nav_order: 4
 
 # Changelog
 
+## v2026.5.5
+
+- PR #4614 Prevent same-composition entries from reappearing in inner hull reduction (by @irishmango)
+- PR #4615 Clear `energy_adjustments` correctly in clean mode to avoid skipped removals (by @irishmango)
+- PR #4649 Deprecate LobsterEnv constructors that mixed file paths and objects; prefer object-only initialization (by @naik-aakash)
+- PR #4625 Add partial update method to projected phase diagrams (by @CompRhys)
+- PR #4648 Speed up `pmg` CLI startup with lazy imports (by @hheei)
+- PR #4619 Add Elasticipy to addons documentation (by @DorianDepriester)
+- PR #4612 Fix incorrect method reference in `get_phase_separation_energy` docstring (by @irishmango)
+
 ## v2026.3.23
 
 - PR #4595 Major reorganization of pymatgen repo. Now core functionality is in a separate pymatgen-core repo and released as a separate pypi package. All changes should be backwards compatible, i.e., pip install pymatgen still provides all the same functionality as before. (by @shyuep)
