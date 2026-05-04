@@ -6,7 +6,7 @@ nav_order: 4
 
 # Changelog
 
-## v2026.5.5
+## v2026.5.4
 
 - PR #4614 Prevent same-composition entries from reappearing in inner hull reduction (by @irishmango)
 - PR #4615 Clear `energy_adjustments` correctly in clean mode to avoid skipped removals (by @irishmango)
