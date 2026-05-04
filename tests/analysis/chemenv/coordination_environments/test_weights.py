@@ -15,7 +15,8 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     SelfCSMNbSetWeight,
 )
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import StructureEnvironments
-from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
+from pymatgen.util.testing import MatSciTest
+from tests.testing import TEST_FILES_DIR
 
 __author__ = "waroquiers"
 

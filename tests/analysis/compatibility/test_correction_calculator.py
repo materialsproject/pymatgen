@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from pymatgen.analysis.compatibility.correction_calculator import CorrectionCalculator
-from pymatgen.util.testing import TEST_FILES_DIR
+from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/entries/correction_calculator"
 

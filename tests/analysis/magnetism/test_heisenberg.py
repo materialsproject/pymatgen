@@ -5,7 +5,7 @@ from pytest import approx
 
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import TEST_FILES_DIR
+from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
 

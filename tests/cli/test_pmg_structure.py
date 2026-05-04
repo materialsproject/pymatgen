@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 
 from pymatgen.cli import pmg
-from pymatgen.util.testing import TEST_FILES_DIR
+from tests.testing import TEST_FILES_DIR
 
 
 def test_pmg_structure():

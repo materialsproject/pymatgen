@@ -4,7 +4,7 @@ import pytest
 
 from pymatgen.analysis.optics import DielectricAnalysis
 from pymatgen.io.vasp import Vasprun
-from pymatgen.util.testing import TEST_FILES_DIR
+from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/vasp/outputs"
 

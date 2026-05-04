@@ -10,10 +10,6 @@ from typing import TYPE_CHECKING
 
 from tabulate import tabulate
 
-from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, VaspToComputedEntryDrone
-from pymatgen.apps.borg.queen import BorgQueen
-from pymatgen.io.vasp import Outcar
-
 if TYPE_CHECKING:
     from argparse import Namespace
 
@@ -51,6 +47,9 @@ def get_energies(
     if verbose:
         log_fmt = "%(relativeCreated)d msecs : %(message)s"
         logger.basicConfig(level=logging.INFO, format=log_fmt)
+
+    from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, VaspToComputedEntryDrone
+    from pymatgen.apps.borg.queen import BorgQueen
 
     if quick:
         drone: VaspToComputedEntryDrone = SimpleVaspToComputedEntryDrone(inc_structure=True)
@@ -114,6 +113,8 @@ def get_magnetizations(dirc: str, ion_list: list[int]) -> int:
     Returns:
         int: 0 if successful.
     """
+    from pymatgen.io.vasp.outputs import Outcar
+
     data = []
     max_row = 0
     for parent, _subdirs, files in os.walk(dirc):

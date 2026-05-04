@@ -8,7 +8,8 @@ from pymatgen.analysis.fragmenter import Fragmenter
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core.structure import Molecule
-from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
+from pymatgen.util.testing import MatSciTest
+from tests.testing import TEST_FILES_DIR
 
 __author__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"

@@ -6,23 +6,25 @@ from __future__ import annotations
 
 import argparse
 import itertools
+from importlib import import_module
 from typing import TYPE_CHECKING
 
 from tabulate import tabulate, tabulate_formats
-
-from pymatgen.cli.pmg_analyze import analyze
-from pymatgen.cli.pmg_config import configure_pmg
-from pymatgen.cli.pmg_plot import plot
-from pymatgen.cli.pmg_potcar import generate_potcar
-from pymatgen.cli.pmg_structure import analyze_structures
-from pymatgen.core import SETTINGS
-from pymatgen.core.structure import Structure
-from pymatgen.io.vasp import Incar, Potcar
 
 if TYPE_CHECKING:
     from argparse import Namespace
     from collections.abc import Sequence
     from typing import Any
+
+
+def _lazy_func(module_name: str, func_name: str):
+    """Lazily import a CLI handler the first time it is invoked."""
+
+    def _runner(args: Namespace):
+        func = getattr(import_module(module_name), func_name)
+        return func(args)
+
+    return _runner
 
 
 def parse_view(args: Namespace) -> int:
@@ -31,6 +33,7 @@ def parse_view(args: Namespace) -> int:
     Args:
         args: Args from command.
     """
+    from pymatgen.core.structure import Structure
     from pymatgen.vis.structure_vtk import StructureVis
 
     excluded_bonding_elements = args.exclude_bonding[0].split(",") if args.exclude_bonding else []
@@ -47,6 +50,8 @@ def diff_incar(args: Namespace) -> int:
     Args:
         args: Args from command.
     """
+    from pymatgen.io.vasp.inputs import Incar
+
     filepath1 = args.incars[0]
     filepath2 = args.incars[1]
     incar1 = Incar.from_file(filepath1)
@@ -156,7 +161,7 @@ def main(argv: Sequence[str] | None = None) -> Any:
         help="Suffix to append to a backup of .pmgrc.yaml when changing this file. "
         "Defaults to '.bak'. Set to '' to disable.",
     )
-    parser_config.set_defaults(func=configure_pmg)
+    parser_config.set_defaults(func=_lazy_func("pymatgen.cli.pmg_config", "configure_pmg"))
 
     # `pmg analyze`
     parser_analyze = subparsers.add_parser("analyze", help="VASP calculation analysis tools.")
@@ -223,7 +228,7 @@ def main(argv: Sequence[str] | None = None) -> Any:
         default="energy_per_atom",
         help="Sort criteria. Defaults to energy / atom.",
     )
-    parser_analyze.set_defaults(func=analyze)
+    parser_analyze.set_defaults(func=_lazy_func("pymatgen.cli.pmg_analyze", "analyze"))
 
     # `pmg query`
     parser_query = subparsers.add_parser("query", help="Search for structures and data from the Materials Project.")
@@ -337,7 +342,7 @@ def main(argv: Sequence[str] | None = None) -> Any:
         type=str,
         help="Save plot to file instead of displaying.",
     )
-    parser_plot.set_defaults(func=plot)
+    parser_plot.set_defaults(func=_lazy_func("pymatgen.cli.pmg_plot", "plot"))
 
     # `pmg structure`
     parser_structure = subparsers.add_parser("structure", help="Structure conversion and analysis tools.")
@@ -394,7 +399,7 @@ def main(argv: Sequence[str] | None = None) -> Any:
         "Center Species-Ligand Species=max_dist, e.g. H-O=0.5.",
     )
 
-    parser_structure.set_defaults(func=analyze_structures)
+    parser_structure.set_defaults(func=_lazy_func("pymatgen.cli.pmg_structure", "analyze_structures"))
 
     # `pmg view`
     parser_view = subparsers.add_parser("view", help="Visualize structures")
@@ -429,8 +434,7 @@ def main(argv: Sequence[str] | None = None) -> Any:
         "--functional",
         dest="functional",
         type=str,
-        choices=sorted(Potcar.FUNCTIONAL_CHOICES),
-        default=SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE"),
+        default=None,
         help="Functional to use. Unless otherwise stated (e.g., US), refers to PAW psuedopotential.",
     )
     group_potcar = parser_potcar.add_mutually_exclusive_group(required=True)
@@ -450,7 +454,7 @@ def main(argv: Sequence[str] | None = None) -> Any:
         type=str,
         help="Dirname to find and generate from POTCAR.spec.",
     )
-    parser_potcar.set_defaults(func=generate_potcar)
+    parser_potcar.set_defaults(func=_lazy_func("pymatgen.cli.pmg_potcar", "generate_potcar"))
 
     try:
         import argcomplete  # TODO: this is not declared anywhere

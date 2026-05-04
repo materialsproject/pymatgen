@@ -14,7 +14,7 @@ from pymatgen.analysis.magnetism import (
     magnetic_deformation,
 )
 from pymatgen.core import Element, Lattice, Species, Structure
-from pymatgen.util.testing import TEST_FILES_DIR
+from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
 

@@ -8,13 +8,6 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 
-from pymatgen.analysis.diffraction.xrd import XRDCalculator
-from pymatgen.core.structure import Structure
-from pymatgen.electronic_structure.plotter import DosPlotter
-from pymatgen.io.vasp import Chgcar, Vasprun
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.plotting import pretty_plot
-
 if TYPE_CHECKING:
     from argparse import Namespace
 
@@ -25,6 +18,9 @@ def get_dos_plot(args: Namespace) -> plt.Axes:
     Args:
         args (Namespace): Args from argparse.
     """
+    from pymatgen.electronic_structure.plotter import DosPlotter
+    from pymatgen.io.vasp.outputs import Vasprun
+
     vasp_run = Vasprun(args.dos_file)
     dos = vasp_run.complete_dos
 
@@ -61,6 +57,10 @@ def get_chgint_plot(args: Namespace, ax: plt.Axes | None = None) -> plt.Axes:
     Returns:
         plt.Axes: Matplotlib Axes object.
     """
+    from pymatgen.io.vasp.outputs import Chgcar
+    from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+    from pymatgen.util.plotting import pretty_plot
+
     chgcar = Chgcar.from_file(args.chgcar_file)
     struct = chgcar.structure
 
@@ -88,6 +88,9 @@ def get_xrd_plot(args: Namespace) -> plt.Axes:
     Args:
         args (Namespace): Args from argparse
     """
+    from pymatgen.analysis.diffraction.xrd import XRDCalculator
+    from pymatgen.core.structure import Structure
+
     struct = Structure.from_file(args.xrd_structure_file)
     calculator = XRDCalculator()
     return calculator.get_plot(struct)

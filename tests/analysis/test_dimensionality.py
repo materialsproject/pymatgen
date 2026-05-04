@@ -15,7 +15,8 @@ from pymatgen.analysis.dimensionality import (
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import CrystalNN
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
+from pymatgen.util.testing import MatSciTest
+from tests.testing import TEST_FILES_DIR
 
 
 class TestLarsenDimensionality(MatSciTest):

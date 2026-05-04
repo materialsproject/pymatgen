@@ -7,7 +7,8 @@ from pytest import approx
 
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, VaspToComputedEntryDrone
 from pymatgen.entries.computed_entries import ComputedStructureEntry
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR
+from pymatgen.util.testing import VASP_OUT_DIR
+from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/apps/borg"
 
