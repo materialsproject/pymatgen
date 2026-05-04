@@ -171,23 +171,42 @@ class MPRester:
 
         per_page: int = 1000
         page: int = 1
-        all_data = []
+        all_data: list = []
+        pagination_disabled = False
         while True:
-            actual_url = f"{url}&_per_page={per_page}&_page={page}"
+            actual_url = url if pagination_disabled else f"{url}&_per_page={per_page}&_page={page}"
             try:
                 if method == "POST":
                     response = self.session.post(actual_url, data=payload, verify=True, timeout=timeout)
                 else:
                     response = self.session.get(actual_url, params=payload, verify=True, timeout=timeout)
 
-                if response.status_code in {200, 400}:
-                    data = json.loads(response.text, cls=MontyDecoder) if mp_decode else orjson.loads(response.text)
-                else:
+                if response.status_code not in {200, 400}:
                     raise MPRestError(f"REST query returned with error status code {response.status_code}")
+                data = json.loads(response.text, cls=MontyDecoder) if mp_decode else orjson.loads(response.text)
+
+                # Some newer MP API routes reject legacy pagination query params; retry once without them.
+                if (
+                    not pagination_disabled
+                    and response.status_code == 400
+                    and isinstance(data.get("detail"), str)
+                    and "_per_page" in data["detail"]
+                    and "_page" in data["detail"]
+                ):
+                    pagination_disabled = True
+                    page = 1
+                    all_data = []
+                    continue
+
+                if "data" not in data:
+                    raise MPRestError(response.text)
+
                 all_data.extend(data["data"])
-                if len(data["data"]) < per_page:
+                if pagination_disabled or len(data["data"]) < per_page:
                     break
                 page += 1
+            except MPRestError:
+                raise
             except Exception as ex:
                 msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
                 raise MPRestError(msg)
