@@ -78,7 +78,7 @@ jobs:
             # openff-toolkit # TODO: doesn't support Python 3.13 yet
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v8.1.0
 
       - name: Install pymatgen and dependencies via uv
         run: |
