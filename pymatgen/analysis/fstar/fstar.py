@@ -80,7 +80,7 @@ class FStarDiagram:
 
     def set_plot_list(self, site_list: list[str]) -> None:
         """
-        set the list of sites to plot and the order to plot them in.
+        Set the list of sites to plot and the order to plot them in.
 
         Args:
             site_list(list): A list of site label strings. Index 0 goes on the top of the
