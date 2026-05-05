@@ -1,17 +1,15 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 from pytest import approx
 
 from pymatgen.analysis.magnetism.jahnteller import JahnTellerAnalyzer, Species
 from pymatgen.core import Structure
-from pymatgen.util.testing import TEST_FILES_DIR
+from tests.testing import TEST_FILES_DIR
 
 
-class TestJahnTeller(TestCase):
-    def setUp(self):
+class TestJahnTeller:
+    def setup_method(self):
         self.jt = JahnTellerAnalyzer()
 
     def test_jahn_teller_species_analysis(self):

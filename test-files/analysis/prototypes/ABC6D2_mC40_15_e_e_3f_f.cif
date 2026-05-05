@@ -1,0 +1,71 @@
+# CIF file
+
+data_findsym-output
+_audit_creation_method FINDSYM
+
+_chemical_name_mineral 'Esseneite'
+_chemical_formula_sum 'Ca Fe O6 Si2'
+
+loop_
+_publ_author_name
+ 'Michael A. Cosca'
+ 'Donald R. Peacor'
+_journal_name_full
+;
+American Mineralogist
+;
+_journal_volume 72
+_journal_year 1987
+_journal_page_first 148
+_journal_page_last 156
+_publ_Section_title
+;
+ Chemistry and structure of esseneite (CaFe$^{3+}$AlSiO$_6$), a new pyroxene produced by pyrometamorphism
+;
+
+# Found in  AMS Database
+
+_aflow_proto 'ABC6D2_mC40_15_e_e_3f_f'
+_aflow_params 'a,b/a,c/a,\beta,y1,y2,x3,y3,z3,x4,y4,z4,x5,y5,z5,x6,y6,z6'
+_aflow_params_values '9.79,0.901123595506,0.548518896834,105.81,0.3082,-0.0942,0.3888,0.4123,0.8659,0.1365,0.2411,0.6799,0.1468,0.4802,0.0124,0.2117,0.4057,0.7764'
+_aflow_Strukturbericht 'None'
+_aflow_Pearson 'mC40'
+
+_symmetry_space_group_name_Hall "-C 2yc"
+_symmetry_space_group_name_H-M "C 1 2/c 1"
+_symmetry_Int_Tables_number 15
+
+_cell_length_a    9.79000
+_cell_length_b    8.82200
+_cell_length_c    5.37000
+_cell_angle_alpha 90.00000
+_cell_angle_beta  105.81000
+_cell_angle_gamma 90.00000
+
+loop_
+_space_group_symop_id
+_space_group_symop_operation_xyz
+1 x,y,z
+2 -x,y,-z+1/2
+3 -x,-y,-z
+4 x,-y,z+1/2
+5 x+1/2,y+1/2,z
+6 -x+1/2,y+1/2,-z+1/2
+7 -x+1/2,-y+1/2,-z
+8 x+1/2,-y+1/2,z+1/2
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_label
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+Ca1 Ca   4 e 0.00000 0.30820  0.25000 1.00000
+Fe1 Fe   4 e 0.00000 -0.09420 0.25000 1.00000
+O1  O    8 f 0.38880 0.41230  0.86590 1.00000
+O2  O    8 f 0.13650 0.24110  0.67990 1.00000
+O3  O    8 f 0.14680 0.48020  0.01240 1.00000
+Si1 Si   8 f 0.21170 0.40570  0.77640 1.00000

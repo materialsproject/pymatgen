@@ -1,1 +1,0 @@
-"""IO for LAMMPS."""

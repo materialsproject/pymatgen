@@ -4,22 +4,23 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import matplotlib.pyplot as plt
 
-from pymatgen.analysis.diffraction.xrd import XRDCalculator
-from pymatgen.core.structure import Structure
-from pymatgen.electronic_structure.plotter import DosPlotter
-from pymatgen.io.vasp import Chgcar, Vasprun
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.plotting import pretty_plot
+if TYPE_CHECKING:
+    from argparse import Namespace
 
 
-def get_dos_plot(args) -> plt.Axes:
+def get_dos_plot(args: Namespace) -> plt.Axes:
     """Plot DOS from vasprun.xml file.
 
     Args:
-        args (dict): Args from argparse.
+        args (Namespace): Args from argparse.
     """
+    from pymatgen.electronic_structure.plotter import DosPlotter
+    from pymatgen.io.vasp.outputs import Vasprun
+
     vasp_run = Vasprun(args.dos_file)
     dos = vasp_run.complete_dos
 
@@ -30,32 +31,36 @@ def get_dos_plot(args) -> plt.Axes:
 
     if args.site:
         for idx, site in enumerate(structure):
-            all_dos[f"Site {idx} {site.specie.symbol}"] = dos.get_site_dos(site)
+            all_dos[f"Site {idx} {site.specie.symbol}"] = dos.get_site_dos(site)  # type:ignore[assignment]
 
     if args.element:
         syms = [tok.strip() for tok in args.element[0].split(",")]
         all_dos = {}
         for el, el_dos in dos.get_element_dos().items():
             if el.symbol in syms:
-                all_dos[el] = el_dos
+                all_dos[el] = el_dos  # type:ignore[assignment,index]
     if args.orbital:
-        all_dos = dos.get_spd_dos()
+        all_dos = dos.get_spd_dos()  # type:ignore[assignment]
 
     plotter = DosPlotter()
     plotter.add_dos_dict(all_dos)
     return plotter.get_plot()
 
 
-def get_chgint_plot(args, ax: plt.Axes | None = None) -> plt.Axes:
+def get_chgint_plot(args: Namespace, ax: plt.Axes | None = None) -> plt.Axes:
     """Plot integrated charge from CHGCAR file.
 
     Args:
-        args (dict): args from argparse.
+        args (Namespace): args from argparse.
         ax (plt.Axes): Matplotlib Axes object for plotting.
 
     Returns:
         plt.Axes: Matplotlib Axes object.
     """
+    from pymatgen.io.vasp.outputs import Chgcar
+    from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+    from pymatgen.util.plotting import pretty_plot
+
     chgcar = Chgcar.from_file(args.chgcar_file)
     struct = chgcar.structure
 
@@ -77,25 +82,28 @@ def get_chgint_plot(args, ax: plt.Axes | None = None) -> plt.Axes:
     return ax
 
 
-def get_xrd_plot(args) -> plt.Axes:
+def get_xrd_plot(args: Namespace) -> plt.Axes:
     """Plot XRD from structure.
 
     Args:
-        args (dict): Args from argparse
+        args (Namespace): Args from argparse
     """
+    from pymatgen.analysis.diffraction.xrd import XRDCalculator
+    from pymatgen.core.structure import Structure
+
     struct = Structure.from_file(args.xrd_structure_file)
     calculator = XRDCalculator()
     return calculator.get_plot(struct)
 
 
-def plot(args) -> None:
+def plot(args: Namespace) -> None:
     """Master control function calling other plot functions based on args.
 
     Args:
-        args (dict): Args from argparse.
+        args (Namespace): Args from argparse.
     """
     if args.chgcar_file:
-        fig: plt.Figure | None = get_chgint_plot(args).figure
+        fig: plt.Figure | plt.SubFigure | None = get_chgint_plot(args).figure
     elif args.xrd_structure_file:
         fig = get_xrd_plot(args).figure
     elif args.dos_file:

@@ -25,69 +25,70 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: "3.14"
 
       - name: Build source distribution
         run: |
           pip install build
           python -m build --sdist
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
+          name: dist-sdist
           path: dist/*.tar.gz
 
   build_wheels:
     needs: test
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-14, windows-latest]
-        python-version: ["310", "311", "312"]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - name: Check out repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.5
-        env:
-          CIBW_BUILD: cp${{ matrix.python-version }}-*
+      - name: Install Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Build pure Python wheel
+        run: |
+          pip install build
+          python -m build --wheel
 
       - name: Save artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
-          name: dist-${{ matrix.os }}-${{ matrix.python-version }}
-          path: ./wheelhouse/*.whl
+          name: dist-wheel
+          path: dist/*.whl
 
   release:
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pymatgen
     permissions:
       # For PyPI trusted publishing
       id-token: write
     steps:
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: "3.14"
 
       - name: Get build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: dist-*
           merge-multiple: true
           path: dist
 
       - name: Publish to PyPI or TestPyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@v1.14.0
         with:
           skip-existing: true
           verbose: true
-          repository-url: >
-            ${{ github.event_name == 'workflow_dispatch' &&
-            github.event.inputs.task == 'test-release' &&
-            'https://test.pypi.org/legacy/' || '' }}

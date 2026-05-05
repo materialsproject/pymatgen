@@ -3,26 +3,24 @@
 from __future__ import annotations
 
 import abc
-import json
 import logging
 import os
 import warnings
 from glob import glob
 from typing import TYPE_CHECKING
 
+import orjson
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+from pymatgen.core.entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar
 from pymatgen.io.vasp.outputs import Dynmat, Oszicar, Vasprun
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any, Literal
-
-    from typing_extensions import Self
+    from typing import Any, Self
 
     from pymatgen.util.typing import PathLike
 
@@ -89,7 +87,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         self,
         inc_structure: bool = False,
         parameters: list[str] | None = None,
-        data: list[str] | None = None,
+        data: list | None = None,
     ) -> None:
         """
         Args:
@@ -115,7 +113,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
             self._parameters.update(parameters)
         self._data = data or []
 
-    def __str__(self) -> Literal["VaspToComputedEntryDrone"]:
+    def __str__(self) -> str:
         return "VaspToComputedEntryDrone"
 
     def assimilate(self, path: PathLike) -> ComputedStructureEntry | ComputedEntry | None:
@@ -132,14 +130,13 @@ class VaspToComputedEntryDrone(AbstractDrone):
             filepath = glob(f"{path}/relax2/vasprun.xml*")[0]
         else:
             vasprun_files = glob(f"{path}/vasprun.xml*")
-            filepath = None
             if len(vasprun_files) == 1:
                 filepath = vasprun_files[0]
-            elif len(vasprun_files) > 1:
+            else:
                 # Since multiple files are ambiguous, we will always read
                 # the last one alphabetically.
                 filepath = max(vasprun_files)
-                warnings.warn(f"{len(vasprun_files)} vasprun.xml.* found. {filepath} is being parsed.")
+                warnings.warn(f"{len(vasprun_files)} vasprun.xml.* found. {filepath} is being parsed.", stacklevel=2)
 
         try:
             vasp_run = Vasprun(filepath)
@@ -147,7 +144,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
             logger.debug(f"error in {filepath}: {exc}")
             return None
 
-        return vasp_run.get_computed_entry(self._inc_structure, parameters=self._parameters, data=self._data)
+        return vasp_run.get_computed_entry(self._inc_structure, parameters=list(self._parameters), data=self._data)
 
         # entry.parameters["history"] = _get_transformation_history(path)
 
@@ -215,7 +212,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         self._inc_structure = inc_structure
         self._parameters = {"is_hubbard", "hubbards", "potcar_spec", "run_type"}
 
-    def __str__(self) -> Literal["SimpleVaspToComputedEntryDrone"]:
+    def __str__(self) -> str:
         return "SimpleVaspToComputedEntryDrone"
 
     def assimilate(self, path: PathLike) -> ComputedStructureEntry | ComputedEntry | None:
@@ -252,7 +249,9 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                         # alphabetically for CONTCAR and OSZICAR.
 
                         files_to_parse[filename] = files[0] if filename == "POSCAR" else files[-1]
-                        warnings.warn(f"{len(files)} files found. {files_to_parse[filename]} is being parsed.")
+                        warnings.warn(
+                            f"{len(files)} files found. {files_to_parse[filename]} is being parsed.", stacklevel=2
+                        )
 
             if not set(files_to_parse).issuperset({"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"}):
                 raise ValueError(
@@ -278,7 +277,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             initial_vol = poscar.structure.volume
             final_vol = contcar.structure.volume
             delta_volume = final_vol / initial_vol - 1
-            data = {"filename": path, "delta_volume": delta_volume}
+            data: dict[str, Any] = {"filename": path, "delta_volume": delta_volume}
             if "DYNMAT" in files_to_parse:
                 dynmat = Dynmat(files_to_parse["DYNMAT"])
                 data["phonon_frequencies"] = dynmat.get_phonon_frequencies()
@@ -366,7 +365,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
         self._file_extensions = file_extensions
 
-    def __str__(self) -> Literal["GaussianToComputedEntryDrone"]:
+    def __str__(self) -> str:
         return "GaussianToComputedEntryDrone"
 
     def assimilate(self, path: PathLike) -> ComputedStructureEntry | ComputedEntry | None:
@@ -443,8 +442,8 @@ def _get_transformation_history(path: PathLike):
     """Check for a transformations.json* file and return the history."""
     if trans_json := glob(f"{path!s}/transformations.json*"):
         try:
-            with zopen(trans_json[0]) as file:
-                return json.load(file)["history"]
+            with zopen(trans_json[0], "rb") as file:
+                return orjson.loads(file.read())["history"]
         except Exception:
             return None
     return None

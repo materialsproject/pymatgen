@@ -28,11 +28,10 @@ __date__ = "Feb 20, 2016"
 
 def _append_es2sequences(sequences, es):
     result = []
-    if not sequences:
-        for e in es:
+    for e in es:
+        if not sequences:
             result.append([e])
-    else:
-        for e in es:
+        else:
             result += [[*seq, e] for seq in sequences]
     return result
 
@@ -91,11 +90,10 @@ def divisors(n):
         List of divisors of n in ascending order.
     """
     factors = _factor_generator(n)
-    _divisors = []
+
     exponents = [[k**x for x in range(factors[k] + 1)] for k in list(factors)]
     factors = _cartesian_product(exponents)
-    for factor in factors:
-        _divisors.append(reduce(operator.mul, factor, 1))
+    _divisors = [reduce(operator.mul, factor, 1) for factor in factors]
     _divisors.sort()
     return _divisors
 

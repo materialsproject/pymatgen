@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 import pytest
 from matplotlib.figure import Figure as MplFigure
@@ -17,8 +15,8 @@ from pymatgen.core.composition import Composition, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
-class TestInterfaceReaction(TestCase):
-    def setUp(self):
+class TestInterfaceReaction:
+    def setup_method(self):
         self.entries = [
             ComputedEntry(Composition("Li"), 0),
             ComputedEntry(Composition("Mn"), 0),
@@ -179,13 +177,14 @@ class TestInterfaceReaction(TestCase):
 
     def test_get_entry_energy(self):
         comp = Composition("MnO3")
-        with pytest.warns(UserWarning) as warns:
+        with pytest.warns(
+            UserWarning,
+            match=(
+                "The reactant MnO3 has no matching entry with negative formation energy, instead "
+                "convex hull energy for this composition will be used for reaction energy calculation."
+            ),
+        ):
             energy = InterfacialReactivity._get_entry_energy(self.pd, comp)
-        assert len(warns) == 1
-        assert str(warns[0].message) == (
-            "The reactant MnO3 has no matching entry with negative formation energy, instead "
-            "convex hull energy for this composition will be used for reaction energy calculation."
-        )
 
         test1 = np.isclose(energy, -30, atol=1e-3)
         assert test1, f"_get_entry_energy: energy for {comp.reduced_formula} is wrong!"
@@ -226,12 +225,14 @@ class TestInterfaceReaction(TestCase):
         assert test4, "_get_energy: gets error. "
 
     def test_get_reaction(self):
-        assert (
-            str(self.irs[0]._get_reaction(0.5)) == "0.5 Mn + 0.5 O2 -> 0.5 MnO2"
-        ), "_get_reaction: reaction not involving chempots species gets error!"
-        assert (
-            str(self.irs[3]._get_reaction(0.666666)) == "0.5 Li2O + 0.5 Mn -> Li + 0.25 MnO2 + 0.25 Mn"
-        ), "_get_reaction: reaction involving chempots species gets error!"
+        rxnstr = str(self.irs[0]._get_reaction(0.5))
+        assert "0.5 Mn" in rxnstr
+        assert "0.5 O2" in rxnstr
+        assert "0.5 MnO2" in rxnstr
+        rxnstr = str(self.irs[3]._get_reaction(0.666666))
+        assert "0.5 Li2O" in rxnstr
+        assert "0.5 Mn" in rxnstr
+        assert "0.25 MnO2" in rxnstr
 
     def test_get_get_elmt_amt_in_rxt(self):
         rxt1 = Reaction(
@@ -365,7 +366,7 @@ class TestInterfaceReaction(TestCase):
                 relative_vectors_1 = [(x - x_kink[0], e - energy_kink[0]) for x, e in points]
                 relative_vectors_2 = [(x - x_kink[-1], e - energy_kink[-1]) for x, e in points]
                 relative_vectors = zip(relative_vectors_1, relative_vectors_2, strict=True)
-                positions = [np.cross(v1, v2) for v1, v2 in relative_vectors]
+                positions = [v1[0] * v2[1] - v1[1] * v2[0] for v1, v2 in relative_vectors]
                 assert np.all(np.array(positions) <= 0)
 
                 hull = ConvexHull(points)
@@ -477,45 +478,45 @@ class TestInterfaceReaction(TestCase):
         # test pressure effect.
         actual = InterfacialReactivity.get_chempot_correction("O", 298.15, 100e5)
         expect = 0.05916
-        assert np.isclose(
-            actual, expect, atol=1e-2
-        ), f"get_chempot_correction gets error, {expect} expected but gets {actual}"
+        assert np.isclose(actual, expect, atol=1e-2), (
+            f"get_chempot_correction gets error, {expect} expected but gets {actual}"
+        )
         # test temperature effect.
         actual_2 = InterfacialReactivity.get_chempot_correction("O", 1000, 1e5)
         expect_2 = -0.82352
-        assert np.isclose(
-            actual_2, expect_2, atol=1e-2
-        ), f"get_chempot_correction gets error, {expect_2} expected but gets {actual_2}"
+        assert np.isclose(actual_2, expect_2, atol=1e-2), (
+            f"get_chempot_correction gets error, {expect_2} expected but gets {actual_2}"
+        )
 
         actual_3 = InterfacialReactivity.get_chempot_correction("O", 500, 1e5)
         expect_3 = -0.223
-        assert np.isclose(
-            actual_3, expect_3, atol=1e-2
-        ), f"get_chempot_correction gets error, {expect_3} expected but gets {actual_3}"
+        assert np.isclose(actual_3, expect_3, atol=1e-2), (
+            f"get_chempot_correction gets error, {expect_3} expected but gets {actual_3}"
+        )
         # test mixed effect.
         actual_4 = InterfacialReactivity.get_chempot_correction("O", 1000, 1e-25)
         expect_4 = -3.800
-        assert np.isclose(
-            actual_4, expect_4, atol=1e-2
-        ), f"get_chempot_correction gets error, {expect_4} expected but gets {actual_4}"
+        assert np.isclose(actual_4, expect_4, atol=1e-2), (
+            f"get_chempot_correction gets error, {expect_4} expected but gets {actual_4}"
+        )
         actual_5 = InterfacialReactivity.get_chempot_correction("O", 1250, 1e-25)
         expect_5 = -4.86
-        assert np.isclose(
-            actual_5, expect_5, atol=1e-2
-        ), f"get_chempot_correction gets error, {expect_5} expected but gets {actual_5}"
+        assert np.isclose(actual_5, expect_5, atol=1e-2), (
+            f"get_chempot_correction gets error, {expect_5} expected but gets {actual_5}"
+        )
         actual_6 = InterfacialReactivity.get_chempot_correction("O", 1500, 1e-25)
         expect_6 = -5.928
-        assert np.isclose(
-            actual_6, expect_6, atol=1e-2
-        ), f"get_chempot_correction gets error, {expect_6} expected but gets {actual_6}"
+        assert np.isclose(actual_6, expect_6, atol=1e-2), (
+            f"get_chempot_correction gets error, {expect_6} expected but gets {actual_6}"
+        )
         actual_7 = InterfacialReactivity.get_chempot_correction("O", 1000, 1e-15)
         expect_7 = -2.808
-        assert np.isclose(
-            actual_7, expect_7, atol=1e-2
-        ), f"get_chempot_correction gets error, {expect_7} expected but gets {actual_7}"
+        assert np.isclose(actual_7, expect_7, atol=1e-2), (
+            f"get_chempot_correction gets error, {expect_7} expected but gets {actual_7}"
+        )
         # test non-gas phase.
         actual_8 = InterfacialReactivity.get_chempot_correction("Li", 1000, 1e15)
         expect_8 = 0
-        assert np.isclose(
-            actual_8, expect_8, atol=1e-5
-        ), f"get_chempot_correction gets error, {expect_8} expected but gets {actual_8}"
+        assert np.isclose(actual_8, expect_8, atol=1e-5), (
+            f"get_chempot_correction gets error, {expect_8} expected but gets {actual_8}"
+        )

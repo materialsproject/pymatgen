@@ -17,7 +17,8 @@ from pymatgen.analysis.piezo_sensitivity import (
     rand_piezo,
 )
 from pymatgen.io.phonopy import get_phonopy_structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import MatSciTest
+from tests.testing import TEST_FILES_DIR
 
 try:
     from phonopy import Phonopy
@@ -34,8 +35,8 @@ __date__ = "4/23/19"
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/piezo_sensitivity"
 
 
-class TestPiezoSensitivity(PymatgenTest):
-    def setUp(self):
+class TestPiezoSensitivity(MatSciTest):
+    def setup_method(self):
         self.piezo_struct = self.get_structure("Pb2TiZrO6")
         self.IST = np.load(f"{TEST_DIR}/pztist.npy", allow_pickle=True)
         self.BEC = np.load(f"{TEST_DIR}/pztborn.npy", allow_pickle=True)
@@ -44,9 +45,9 @@ class TestPiezoSensitivity(PymatgenTest):
         self.shared_ops = np.load(f"{TEST_DIR}/sharedops.npy", allow_pickle=True)
         self.IST_operations = np.load(f"{TEST_DIR}/istops.npy", allow_pickle=True)
         with open(f"{TEST_DIR}/becops.pkl", "rb") as file:
-            self.BEC_operations = pickle.load(file)  # noqa: S301
+            self.BEC_operations = pickle.load(file)
         with open(f"{TEST_DIR}/fcmops.pkl", "rb") as file:
-            self.FCM_operations = pickle.load(file)  # noqa: S301
+            self.FCM_operations = pickle.load(file)
         self.piezo = np.array(
             [
                 [
@@ -208,7 +209,7 @@ class TestPiezoSensitivity(PymatgenTest):
             assert_allclose(asum1, np.zeros([3, 3]), atol=1e-5)
             assert_allclose(asum2, np.zeros([3, 3]), atol=1e-5)
 
-    @pytest.mark.skipif(
+    @pytest.mark.xfail(
         platform.system() == "Windows" and int(np.__version__[0]) >= 2,
         reason="See https://github.com/conda-forge/phonopy-feedstock/pull/158#issuecomment-2227506701",
     )
@@ -262,7 +263,7 @@ class TestPiezoSensitivity(PymatgenTest):
         piezo = get_piezo(self.BEC, self.IST, self.FCM)
         assert_allclose(piezo, self.piezo, atol=1e-5)
 
-    @pytest.mark.skipif(
+    @pytest.mark.xfail(
         platform.system() == "Windows" and int(np.__version__[0]) >= 2,
         reason="See https://github.com/conda-forge/phonopy-feedstock/pull/158#issuecomment-2227506701",
     )

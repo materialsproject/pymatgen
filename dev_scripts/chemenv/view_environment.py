@@ -29,8 +29,7 @@ if __name__ == "__main__":
     vis = None
     while True:
         cg_symbol = input(
-            'Enter symbol of the geometry you want to see, "l" to see the list '
-            'of existing geometries or "q" to quit : '
+            'Enter symbol of the geometry you want to see, "l" to see the list of existing geometries or "q" to quit : '
         )
         if cg_symbol == "q":
             break

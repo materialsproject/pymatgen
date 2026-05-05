@@ -169,9 +169,7 @@ class FunctionalGroupExtractor:
 
             neighbor_spec = [str(self.species[n]) for n in neighbors]
 
-            ons = sum(n in ["O", "N", "S"] for n in neighbor_spec)
-
-            if len(neighbors) == 4 and ons >= 2:
+            if len(neighbors) == 4 and sum(n in ["O", "N", "S"] for n in neighbor_spec) >= 2:
                 specials.add(node)
 
         # Condition four: oxirane/aziridine/thiirane rings

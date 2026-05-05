@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
@@ -11,7 +13,7 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries
     ExplicitPermutationsAlgorithm,
     SeparationPlane,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 __author__ = "waroquiers"
 
@@ -23,7 +25,7 @@ class FakeSite:
         self.coords = coords
 
 
-class TestCoordinationGeometries(PymatgenTest):
+class TestCoordinationGeometries(MatSciTest):
     def test_algorithms(self):
         expl_algo = ExplicitPermutationsAlgorithm(permutations=[[0, 1, 2], [1, 2, 3]])
         expl_algo2 = ExplicitPermutationsAlgorithm.from_dict(expl_algo.as_dict())
@@ -89,7 +91,7 @@ class TestCoordinationGeometries(PymatgenTest):
         assert cg_oct.IUCr_symbol_str == "[6o]"
 
         cg_oct.permutations_safe_override = True
-        assert cg_oct.number_of_permutations == 720.0
+        assert cg_oct.number_of_permutations == 720
         assert cg_oct.ref_permutation([0, 3, 2, 4, 5, 1]) == (0, 3, 1, 5, 2, 4)
 
         sites = [FakeSite(coords=pp) for pp in cg_oct.points]
@@ -212,7 +214,7 @@ class TestCoordinationGeometries(PymatgenTest):
             "PB:7",
             "ST:7",
             "ET:7",
-            "FO:7",
+            "FO:7",  # codespell:ignore fo
             "C:8",
             "SA:8",
             "SBT:8",
@@ -298,23 +300,19 @@ class TestCoordinationGeometries(PymatgenTest):
         ]
 
         assert all_cg.get_geometry_from_name("Octahedron").mp_symbol == cg_oct.mp_symbol
-        with pytest.raises(LookupError) as exc:
+        with pytest.raises(LookupError, match=re.escape("No coordination geometry found with name 'Octahedran'")):
             all_cg.get_geometry_from_name("Octahedran")
-        assert str(exc.value) == "No coordination geometry found with name 'Octahedran'"
 
         assert all_cg.get_geometry_from_IUPAC_symbol("OC-6").mp_symbol == cg_oct.mp_symbol
-        with pytest.raises(LookupError) as exc:
+        with pytest.raises(LookupError, match=re.escape("No coordination geometry found with IUPAC symbol 'OC-7'")):
             all_cg.get_geometry_from_IUPAC_symbol("OC-7")
-        assert str(exc.value) == "No coordination geometry found with IUPAC symbol 'OC-7'"
 
         assert all_cg.get_geometry_from_IUCr_symbol("[6o]").mp_symbol == cg_oct.mp_symbol
-        with pytest.raises(LookupError) as exc:
+        with pytest.raises(LookupError, match=re.escape("No coordination geometry found with IUCr symbol '[6oct]'")):
             all_cg.get_geometry_from_IUCr_symbol("[6oct]")
-        assert str(exc.value) == "No coordination geometry found with IUCr symbol '[6oct]'"
 
-        with pytest.raises(LookupError) as exc:
+        with pytest.raises(LookupError, match=re.escape("No coordination geometry found with mp_symbol 'O:7'")):
             all_cg.get_geometry_from_mp_symbol("O:7")
-        assert str(exc.value) == "No coordination geometry found with mp_symbol 'O:7'"
 
         assert (
             all_cg.pretty_print(maxcn=4)
@@ -389,9 +387,9 @@ class TestCoordinationGeometries(PymatgenTest):
                 (0, 4, 2): ["T:6"],
             },
             7: {
-                (1, 3, 3): ["ET:7", "FO:7"],
+                (1, 3, 3): ["ET:7", "FO:7"],  # codespell:ignore fo
                 (2, 3, 2): ["PB:7", "ST:7", "ET:7"],
-                (1, 4, 2): ["ST:7", "FO:7"],
+                (1, 4, 2): ["ST:7", "FO:7"],  # codespell:ignore fo
                 (1, 5, 1): ["PB:7"],
             },
             8: {

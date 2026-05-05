@@ -13,6 +13,8 @@ from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.plotting import add_fig_kwargs, pretty_plot
 
 if TYPE_CHECKING:
+    from matplotlib.axes import Axes
+
     from pymatgen.core import Structure
 
 
@@ -77,10 +79,10 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         structure: Structure,
         two_theta_range: tuple[float, float] = (0, 90),
         annotate_peaks="compact",
-        ax: plt.Axes = None,
+        ax: Axes = None,
         with_labels=True,
         fontsize=16,
-    ) -> plt.Axes:
+    ) -> Axes:
         """Get the diffraction plot as a matplotlib Axes.
 
         Args:

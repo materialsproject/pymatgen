@@ -11,7 +11,7 @@ from pytest import approx
 from pymatgen.analysis.diffraction.tem import TEMCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 __author__ = "Frank Wan, Jason Liang"
 __copyright__ = "Copyright 2019, The Materials Project"
@@ -21,7 +21,7 @@ __email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
 __date__ = "2/20/20"
 
 
-class TestTEMCalculator(PymatgenTest):
+class TestTEMCalculator(MatSciTest):
     def test_wavelength_rel(self):
         # Test that the relativistic wavelength formula (for 200 kV electron beam) is correct
         tem_calc = TEMCalculator()
@@ -199,7 +199,7 @@ class TestTEMCalculator(PymatgenTest):
         points = tem_calc.generate_points(-2, 2)
         cubic = Structure(lattice, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         first_pt = tem_calc.get_first_point(cubic, points)
-        assert 4.209 in first_pt.values()
+        assert any(val == approx(4.209) for val in first_pt.values())
 
     def test_interplanar_angle(self):
         # test interplanar angles. Reference values from KW Andrews,

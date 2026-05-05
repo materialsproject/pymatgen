@@ -89,8 +89,7 @@ class COD:
         # TODO: remove timeout arg and use class level timeout after 2025-10-17
         if timeout is not None:
             warnings.warn(
-                "separate timeout arg is deprecated, please use class level timeout",
-                DeprecationWarning,
+                "separate timeout arg is deprecated, please use class level timeout", DeprecationWarning, stacklevel=2
             )
         timeout = timeout or self.timeout
 

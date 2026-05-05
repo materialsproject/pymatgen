@@ -8,15 +8,16 @@ import numpy as np
 from monty.json import MontyDecoder
 
 from pymatgen.analysis.xas.spectrum import XAS
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import MatSciTest
 from pymatgen.vis.plotters import SpectrumPlotter
+from tests.testing import TEST_FILES_DIR
 
-with open(f"{TEST_FILES_DIR}/analysis/spectrum_test/LiCoO2_k_xanes.json") as file:
+with open(f"{TEST_FILES_DIR}/analysis/spectrum_test/LiCoO2_k_xanes.json", encoding="utf-8") as file:
     spect_data_dict = json.load(file, cls=MontyDecoder)
 
 
-class TestSpectrumPlotter(PymatgenTest):
-    def setUp(self):
+class TestSpectrumPlotter(MatSciTest):
+    def setup_method(self):
         self.xanes = XAS.from_dict(spect_data_dict)
 
     def test_get_plot(self):

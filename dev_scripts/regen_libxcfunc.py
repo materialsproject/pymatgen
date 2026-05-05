@@ -10,9 +10,10 @@ The script must be executed inside pymatgen/dev_scripts.
 from __future__ import annotations
 
 import json
-import os
 import sys
 from copy import deepcopy
+
+from pymatgen.core import PKG_DIR
 
 
 def parse_libxc_docs(path):
@@ -27,7 +28,7 @@ def parse_libxc_docs(path):
         return int(dct["Number"]), dct
 
     dct = {}
-    with open(path) as file:
+    with open(path, encoding="utf-8") as file:
         section = []
         for line in file:
             if not line.startswith("-"):
@@ -62,7 +63,7 @@ def write_libxc_docs_json(xc_funcs, json_path):
             if desc is not None:
                 xc_funcs[num][opt] = desc
 
-    with open(json_path, "w") as fh:
+    with open(json_path, "w", encoding="utf-8") as fh:
         json.dump(xc_funcs, fh)
 
     return xc_funcs
@@ -85,8 +86,7 @@ def main():
     xc_funcs = parse_libxc_docs(path)
 
     # Generate new JSON file in pycore
-    pmg_core = os.path.abspath("../pymatgen/core/")
-    json_path = f"{pmg_core}/libxc_docs.json"
+    json_path = f"{PKG_DIR}/core/libxc_docs.json"
     write_libxc_docs_json(xc_funcs, json_path)
 
     # Build new enum list.
@@ -99,8 +99,8 @@ def main():
 
     # Re-generate enumerations.
     # [0] read py module.
-    xc_funcpy_path = f"{pmg_core}/libxcfunc.py"
-    with open(xc_funcpy_path) as file:
+    xc_funcpy_path = f"{PKG_DIR}/core/libxcfunc.py"
+    with open(xc_funcpy_path, encoding="utf-8") as file:
         lines = file.readlines()
 
     # [1] insert new enum values in list

@@ -15,9 +15,9 @@ from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from typing import Self
 
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -57,7 +57,7 @@ def get_lower_and_upper_f(surface_calculation_options):
             lower_points=lower_points, upper_points=upper_points, degree=degree
         )
     else:
-        raise ValueError(f"Surface calculation of type \"{surface_calculation_options['type']}\" is not implemented")
+        raise ValueError(f'Surface calculation of type "{surface_calculation_options["type"]}" is not implemented')
     return lower_and_upper_functions
 
 
@@ -477,10 +477,8 @@ def changebasis(uu, vv, nn, pps):
         MM[ii, 1] = vv[ii]
         MM[ii, 2] = nn[ii]
     PP = np.linalg.inv(MM)
-    new_pps = []
-    for pp in pps:
-        new_pps.append(matrixTimesVector(PP, pp))
-    return new_pps
+
+    return [matrixTimesVector(PP, pp) for pp in pps]
 
 
 def collinear(p1, p2, p3=None, tolerance=0.25):
@@ -525,8 +523,8 @@ def anticlockwise_sort(pps):
     for ipp, pp in enumerate(pps):
         angles[ipp] = np.arctan2(pp[1], pp[0])
     idx_sorted = np.argsort(angles)
-    for ii in range(len(pps)):
-        new_pps.append(pps[idx_sorted[ii]])
+
+    new_pps.extend(pps[idx_sorted[ii]] for ii in range(len(pps)))
     return new_pps
 
 
@@ -655,7 +653,7 @@ class Plane:
         self.normal_vector = np.array([coefficients[0], coefficients[1], coefficients[2]], float)
         norm_v = np.linalg.norm(self.normal_vector)
         self.normal_vector /= norm_v
-        non_zeros = np.argwhere(self.normal_vector != 0.0).flatten()
+        non_zeros = np.argwhere(~np.isclose(self.normal_vector, 0.0)).flatten()
         zeros = list(set(range(3)) - set(non_zeros))
         if len(non_zeros) == 0:
             raise ValueError("Normal vector is equal to 0.0")
@@ -1027,7 +1025,7 @@ class Plane:
         """
         nn = np.cross(p1 - p3, p2 - p3)
         normal_vector = nn / norm(nn)
-        non_zeros = np.argwhere(normal_vector != 0.0)
+        non_zeros = np.argwhere(~np.isclose(normal_vector, 0.0))
         if normal_vector[non_zeros[0, 0]] < 0.0:
             normal_vector = -normal_vector
         dd = -np.dot(normal_vector, p1)
@@ -1077,7 +1075,7 @@ class Plane:
         _UU, SS, Vt = np.linalg.svd(AA)
         imin = np.argmin(SS)
         normal_vector = Vt[imin]
-        non_zeros = np.argwhere(normal_vector != 0.0)
+        non_zeros = np.argwhere(~np.isclose(normal_vector, 0.0))
         if normal_vector[non_zeros[0, 0]] < 0.0:
             normal_vector = -normal_vector
         dd = -np.dot(normal_vector, mean_point)

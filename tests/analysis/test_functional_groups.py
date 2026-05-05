@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import platform
-from unittest import TestCase
 
 import pytest
 
@@ -9,7 +8,7 @@ from pymatgen.analysis.functional_groups import FunctionalGroupExtractor
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core.structure import Molecule
-from pymatgen.util.testing import TEST_FILES_DIR
+from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/functional_groups"
 
@@ -25,8 +24,8 @@ __date__ = "July 2018"
 __credit__ = "Peiyuan Yu"
 
 
-class TestFunctionalGroupExtractor(TestCase):
-    def setUp(self):
+class TestFunctionalGroupExtractor:
+    def setup_method(self):
         self.file = f"{TEST_DIR}/func_group_test.mol"
         self.mol = Molecule.from_file(self.file)
         self.strategy = OpenBabelNN()
@@ -111,7 +110,7 @@ class TestFunctionalGroupExtractor(TestCase):
         assert len(all_func) == (len(link) + len(basics))
         assert sorted(all_func) == sorted(link + basics)
 
-    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
+    @pytest.mark.xfail(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_categorize_functional_groups(self):
         all_func = self.extractor.get_all_functional_groups()
         categorized = self.extractor.categorize_functional_groups(all_func)

@@ -20,7 +20,7 @@ from pymatgen.core.units import kb as kb_ev
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
     from pymatgen.core import Molecule
     from pymatgen.io.gaussian import GaussianOutput

@@ -1,0 +1,427 @@
+{   "Mg": {
+  "@module": "pymatgen.entries.computed_entries",
+  "@class": "ComputedStructureEntry",
+  "energy": -3.18719007,
+  "composition": {
+   "Mg": 2.0
+  },
+  "correction": 0,
+  "parameters": {
+   "run_type": "GGA",
+   "is_hubbard": false,
+   "pseudo_potential": {
+    "labels": [
+     "Mg_pv"
+    ],
+    "pot_type": "paw",
+    "functional": "pbe"
+   },
+   "hubbards": {},
+   "potcar_symbols": [
+    "pbe Mg_pv"
+   ],
+   "oxide_type": "None"
+  },
+  "data": {
+   "oxide_type": "None"
+  },
+  "entry_id": "mp-153",
+  "attribute": null,
+  "structure": {
+   "@module": "pymatgen.core.structure",
+   "@class": "Structure",
+   "lattice": {
+    "matrix": [
+     [
+      3.1751,
+      0.0,
+      0.0
+     ],
+     [
+      -1.58755,
+      2.74971726,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      5.1504
+     ]
+    ],
+    "a": 3.1751,
+    "b": 3.1751000003845404,
+    "c": 5.1504,
+    "alpha": 90.0,
+    "beta": 90.0,
+    "gamma": 119.99999999599366,
+    "volume": 44.96622270287279
+   },
+   "sites": [
+    {
+     "species": [
+      {
+       "element": "Mg",
+       "occu": 1
+      }
+     ],
+     "abc": [
+      0.33333333,
+      0.66666667,
+      0.25
+     ],
+     "xyz": [
+      -1.587550002568605e-08,
+      1.8331448491657243,
+      1.2876
+     ],
+     "label": "Mg"
+    },
+    {
+     "species": [
+      {
+       "element": "Mg",
+       "occu": 1
+      }
+     ],
+     "abc": [
+      0.66666667,
+      0.33333333,
+      0.75
+     ],
+     "xyz": [
+      1.5875500158755003,
+      0.9165724108342758,
+      3.8628
+     ],
+     "label": "Mg"
+    }
+   ]
+  }
+ }
+,
+
+  "MgO": {
+  "@module": "pymatgen.entries.computed_entries",
+  "@class": "ComputedStructureEntry",
+  "energy": -11.96804153,
+  "composition": {
+   "O": 1.0,
+   "Mg": 1.0
+  },
+  "correction": -0.70229,
+  "parameters": {
+   "run_type": "GGA",
+   "is_hubbard": false,
+   "pseudo_potential": {
+    "labels": [
+     "O",
+     "Mg_pv"
+    ],
+    "pot_type": "paw",
+    "functional": "pbe"
+   },
+   "hubbards": {},
+   "potcar_symbols": [
+    "pbe O",
+    "pbe Mg_pv"
+   ],
+   "oxide_type": "oxide"
+  },
+  "data": {
+   "oxide_type": "oxide"
+  },
+  "entry_id": "mp-1265",
+  "attribute": null,
+  "structure": {
+   "@module": "pymatgen.core.structure",
+   "@class": "Structure",
+   "lattice": {
+    "matrix": [
+     [
+      2.59645913,
+      0.0,
+      1.49906638
+     ],
+     [
+      0.86548638,
+      2.44796514,
+      1.49906638
+     ],
+     [
+      0.0,
+      0.0,
+      2.99813275
+     ]
+    ],
+    "a": 2.9981327564680424,
+    "b": 2.9981327542767393,
+    "c": 2.99813275,
+    "alpha": 59.99999993685272,
+    "beta": 59.99999996103033,
+    "gamma": 59.999999886140984,
+    "volume": 19.056255994649685
+   },
+   "sites": [
+    {
+     "species": [
+      {
+       "element": "O",
+       "occu": 1
+      }
+     ],
+     "abc": [
+      0.5,
+      0.5,
+      0.5
+     ],
+     "xyz": [
+      1.730972755,
+      1.22398257,
+      2.998132755
+     ],
+     "label": "O"
+    },
+    {
+     "species": [
+      {
+       "element": "Mg",
+       "occu": 1
+      }
+     ],
+     "abc": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "xyz": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "label": "Mg"
+    }
+   ]
+  }
+ },
+
+ "La_hcp": {
+  "@module": "pymatgen.entries.computed_entries",
+  "@class": "ComputedStructureEntry",
+  "energy": -19.70308905,
+  "composition": {
+   "La": 4.0
+  },
+  "correction": 0,
+  "parameters": {
+   "run_type": "GGA",
+   "is_hubbard": false,
+   "pseudo_potential": {
+    "labels": [
+     "La"
+    ],
+    "pot_type": "paw",
+    "functional": "pbe"
+   },
+   "hubbards": {},
+   "potcar_symbols": [
+    "pbe La"
+   ],
+   "oxide_type": "None"
+  },
+  "data": {
+   "oxide_type": "None"
+  },
+  "entry_id": "mp-26",
+  "attribute": null,
+  "structure": {
+   "@module": "pymatgen.core.structure",
+   "@class": "Structure",
+   "lattice": {
+    "matrix": [
+     [
+      3.772,
+      0.0,
+      0.0
+     ],
+     [
+      -1.886,
+      3.26664782,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      12.144
+     ]
+    ],
+    "a": 3.772,
+    "b": 3.7719999973370566,
+    "c": 12.144,
+    "alpha": 90.0,
+    "beta": 90.0,
+    "gamma": 120.00000002335352,
+    "volume": 149.63588548757374
+   },
+   "sites": [
+    {
+     "species": [
+      {
+       "element": "La",
+       "occu": 1
+      }
+     ],
+     "abc": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "xyz": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "label": "La"
+    },
+    {
+     "species": [
+      {
+       "element": "La",
+       "occu": 1
+      }
+     ],
+     "abc": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "xyz": [
+      0.0,
+      0.0,
+      6.072
+     ],
+     "label": "La"
+    },
+    {
+     "species": [
+      {
+       "element": "La",
+       "occu": 1
+      }
+     ],
+     "abc": [
+      0.33333333,
+      0.66666667,
+      0.25
+     ],
+     "xyz": [
+      -1.8860000006171163e-08,
+      2.1777652242221595,
+      3.036
+     ],
+     "label": "La"
+    },
+    {
+     "species": [
+      {
+       "element": "La",
+       "occu": 1
+      }
+     ],
+     "abc": [
+      0.66666667,
+      0.33333333,
+      0.75
+     ],
+     "xyz": [
+      1.88600001886,
+      1.0888825957778405,
+      9.108
+     ],
+     "label": "La"
+    }
+   ]
+  }
+ },
+ "La_fcc": {
+  "@module": "pymatgen.entries.computed_entries",
+  "@class": "ComputedStructureEntry",
+  "energy": -4.92160843,
+  "composition": {
+   "La": 1.0
+  },
+  "correction": 0,
+  "parameters": {
+   "run_type": "GGA",
+   "is_hubbard": false,
+   "pseudo_potential": {
+    "labels": [
+     "La"
+    ],
+    "pot_type": "paw",
+    "functional": "pbe"
+   },
+   "hubbards": {},
+   "potcar_symbols": [
+    "pbe La"
+   ],
+   "oxide_type": "None"
+  },
+  "data": {
+   "oxide_type": "None"
+  },
+  "entry_id": "mp-156",
+  "attribute": null,
+  "structure": {
+   "@module": "pymatgen.core.structure",
+   "@class": "Structure",
+   "lattice": {
+    "matrix": [
+     [
+      3.25169763,
+      0.0,
+      1.8773685
+     ],
+     [
+      1.08389921,
+      3.06572993,
+      1.8773685
+     ],
+     [
+      0.0,
+      0.0,
+      3.75473701
+     ]
+    ],
+    "a": 3.754737003005652,
+    "b": 3.754737006226758,
+    "c": 3.75473701,
+    "alpha": 60.000000054858575,
+    "beta": 60.000000026480194,
+    "gamma": 60.00000004603184,
+    "volume": 37.43032273549565
+   },
+   "sites": [
+    {
+     "species": [
+      {
+       "element": "La",
+       "occu": 1
+      }
+     ],
+     "abc": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "xyz": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "label": "La"
+    }
+   ]
+  }
+ },
+
+"Ni": {"@module": "pymatgen.entries.computed_entries", "@class": "ComputedStructureEntry", "energy": -23.12053138, "composition": {"Ni": 4.0}, "correction": 0.0, "parameters": {"run_type": "GGA", "is_hubbard": false, "hubbards": {}, "potcar_symbols": ["pbe Ni_pv"], "is_lasph": false, "potcar_spec": [{"hash": "252a974c7f603c1f24e30fd36a0dba30", "titel": "PAW_PBE Ni_pv 06Sep2000"}], "xc_override": null}, "data": {}, "entry_id": 5, "attribute": null, "structure": {"@module": "pymatgen.core.structure", "@class": "Structure", "lattice": {"matrix": [[0.0, 3.50686368, -0.0], [0.0, 0.0, 3.50686368], [3.50686368, 0.0, -0.0]], "a": 3.50686368, "b": 3.50686368, "c": 3.50686368, "alpha": 90.0, "beta": 90.0, "gamma": 90.0, "volume": 43.12773521943166}, "sites": [{"species": [{"element": "Ni", "occu": 1}], "abc": [0.0, 0.0, 0.0], "xyz": [0.0, 0.0, 0.0], "label": "Ni"}, {"species": [{"element": "Ni", "occu": 1}], "abc": [0.5, 0.5, 0.0], "xyz": [0.0, 1.75343184, 1.75343184], "label": "Ni"}, {"species": [{"element": "Ni", "occu": 1}], "abc": [-0.0, 0.5, 0.5], "xyz": [1.75343184, 0.0, 1.75343184], "label": "Ni"}, {"species": [{"element": "Ni", "occu": 1}], "abc": [0.5, 0.0, 0.5], "xyz": [1.75343184, 1.75343184, 0.0], "label": "Ni"}]}}, "Rh": {"@module": "pymatgen.entries.computed_entries", "@class": "ComputedStructureEntry", "energy": -29.3771022, "composition": {"Rh": 4.0}, "correction": 0.0, "parameters": {"run_type": "GGA", "is_hubbard": false, "hubbards": {}, "potcar_symbols": ["pbe Rh_pv"], "is_lasph": false, "potcar_spec": [{"hash": "44bb965748be8297f7af299a360f149b", "titel": "PAW_PBE Rh_pv 06Sep2000"}], "xc_override": null}, "data": {}, "entry_id": 265, "attribute": null, "structure": {"@module": "pymatgen.core.structure", "@class": "Structure", "lattice": {"matrix": [[0.0, 3.84399435, 0.0], [0.0, 0.0, 3.84399435], [3.84399435, 0.0, 0.0]], "a": 3.84399435, "b": 3.84399435, "c": 3.84399435, "alpha": 90.0, "beta": 90.0, "gamma": 90.0, "volume": 56.79998512547293}, "sites": [{"species": [{"element": "Rh", "occu": 1}], "abc": [0.0, 0.0, 0.0], "xyz": [0.0, 0.0, 0.0], "label": "Rh"}, {"species": [{"element": "Rh", "occu": 1}], "abc": [0.5, 0.5, 0.0], "xyz": [0.0, 1.921997175, 1.921997175], "label": "Rh"}, {"species": [{"element": "Rh", "occu": 1}], "abc": [0.0, 0.5, 0.5], "xyz": [1.921997175, 0.0, 1.921997175], "label": "Rh"}, {"species": [{"element": "Rh", "occu": 1}], "abc": [0.5, 0.0, 0.5], "xyz": [1.921997175, 1.921997175, 0.0], "label": "Rh"}]}}, "Pt": {"@module": "pymatgen.entries.computed_entries", "@class": "ComputedStructureEntry", "energy": -24.21978242, "composition": {"Pt": 4.0}, "correction": 0.0, "parameters": {"run_type": "GGA", "is_hubbard": false, "hubbards": {}, "potcar_symbols": ["pbe Pt"], "is_lasph": false, "potcar_spec": [{"hash": "a604ea3c6a9cc23c739b762f625cf449", "titel": "PAW_PBE Pt 05Jan2001"}], "xc_override": null}, "data": {}, "entry_id": 215, "attribute": null, "structure": {"@module": "pymatgen.core.structure", "@class": "Structure", "lattice": {"matrix": [[0.0, 3.97613569, 0.0], [0.0, 0.0, 3.97613569], [3.97613569, 0.0, 0.0]], "a": 3.97613569, "b": 3.97613569, "c": 3.97613569, "alpha": 90.0, "beta": 90.0, "gamma": 90.0, "volume": 62.86133359265049}, "sites": [{"species": [{"element": "Pt", "occu": 1}], "abc": [0.0, 0.0, 0.0], "xyz": [0.0, 0.0, 0.0], "label": "Pt"}, {"species": [{"element": "Pt", "occu": 1}], "abc": [0.5, 0.5, 0.0], "xyz": [0.0, 1.988067845, 1.988067845], "label": "Pt"}, {"species": [{"element": "Pt", "occu": 1}], "abc": [0.0, 0.5, 0.5], "xyz": [1.988067845, 0.0, 1.988067845], "label": "Pt"}, {"species": [{"element": "Pt", "occu": 1}], "abc": [0.5, 0.0, 0.5], "xyz": [1.988067845, 1.988067845, 0.0], "label": "Pt"}]}}, "Cu": {"@module": "pymatgen.entries.computed_entries", "@class": "ComputedStructureEntry", "energy": -16.41614177, "composition": {"Cu": 4.0}, "correction": 0.0, "parameters": {"run_type": "GGA", "is_hubbard": false, "hubbards": {}, "potcar_symbols": ["pbe Cu_pv"], "is_lasph": false, "potcar_spec": [{"hash": "2d718b6be91068094207c9e861e11a89", "titel": "PAW_PBE Cu_pv 06Sep2000"}], "xc_override": null}, "data": {}, "entry_id": 399, "attribute": null, "structure": {"@module": "pymatgen.core.structure", "@class": "Structure", "lattice": {"matrix": [[0.0, 3.61574659, -0.0], [0.0, -0.0, 3.61574659], [3.61574659, -0.0, -0.0]], "a": 3.61574659, "b": 3.61574659, "c": 3.61574659, "alpha": 90.0, "beta": 90.0, "gamma": 90.0, "volume": 47.270909238690834}, "sites": [{"species": [{"element": "Cu", "occu": 1}], "abc": [0.0, -0.0, 0.0], "xyz": [0.0, 0.0, 0.0], "label": "Cu"}, {"species": [{"element": "Cu", "occu": 1}], "abc": [0.5, 0.5, -0.0], "xyz": [0.0, 1.807873295, 1.807873295], "label": "Cu"}, {"species": [{"element": "Cu", "occu": 1}], "abc": [0.0, 0.5, 0.5], "xyz": [1.807873295, 0.0, 1.807873295], "label": "Cu"}, {"species": [{"element": "Cu", "occu": 1}], "abc": [0.5, -0.0, 0.5], "xyz": [1.807873295, 1.807873295, 0.0], "label": "Cu"}]}}}

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 from argparse import ArgumentParser
 
 from pymatgen.analysis.chemenv.utils.chemenv_config import ChemEnvConfig
@@ -35,10 +34,6 @@ def main() -> int:
     print("Chemical Environment package (ChemEnv)")
     print(chemenv_config.package_options_description())
 
-    logging.basicConfig(
-        format="%(levelname)s:%(module)s:%(funcName)s:%(message)s",
-        level=args.message_level,
-    )
     compute_environments(chemenv_config)
 
     print("Thank you for using the ChemEnv package")

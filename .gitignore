@@ -1,6 +1,6 @@
 __pycache__/
 .DS_Store
-pymatgen.egg-info
+*.egg-info
 *.o
 *.so
 *.pyc
@@ -8,7 +8,6 @@ pymatgen.egg-info
 *.swo
 *.pyd
 *.c
-pymatgen/pymatgen.cfg
 dist
 _build
 _site
@@ -21,13 +20,12 @@ build
 setuptools*
 .ipynb_checkpoints
 .cache
-.tox
 .eggs/
 .coverage
 .*_cache
 # VS Code
 .vscode/*
-
+*.code-workspace
 # Environments
 .env
 .venv
@@ -37,3 +35,13 @@ ENV/
 env.bak/
 venv.bak/
 .pdm-python
+# Sphinx-generated API docs (built in CI, not committed)
+docs/pymatgen*.html
+docs/modules.html
+docs/_modules/
+docs/objects.inv
+docs/searchindex.js
+docs/html/
+docs/doctrees/
+docs/apidoc/*.rst
+docs/.apidoc_merge/
