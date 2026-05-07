@@ -50,7 +50,9 @@ def make_doc(ctx: Context) -> None:
         ctx.run(f"mkdir -p {merged}", warn=True)
         ctx.run(f"rsync -a ../pymatgen-core/src/pymatgen/ {merged}/")
         ctx.run(f"rsync -a ../src/pymatgen/ {merged}/")
-        ctx.run(f"sphinx-apidoc --implicit-namespaces -M -d 7 -o apidoc -f {merged}")
+        # -d 1 keeps toctree maxdepth at one level so the namespace landing page only lists
+        # first-level packages; each package page still renders its own modules inline.
+        ctx.run(f"sphinx-apidoc --implicit-namespaces -M -d 1 -o apidoc -f {merged}")
 
         # Note: we use HTML building for the API docs to preserve search functionality.
         ctx.run("sphinx-build -b html apidoc html")  # HTML building.
