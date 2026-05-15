@@ -10,18 +10,13 @@ https://doi.org/10.1016/j.commatsci.2017.01.017
 
 from __future__ import annotations
 
-import os
-from typing import Any
-
+import pandas as pd
 from monty.dev import deprecated
-from monty.serialization import loadfn
 
+from pymatgen.analysis.prototypes import AFLOW_PROTOTYPE_LIBRARY
 from pymatgen.core import Structure
 from pymatgen.core.structure_matcher import StructureMatcher
 from pymatgen.util.due import Doi, due
-
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-AFLOW_PROTOTYPE_LIBRARY = f"{MODULE_DIR}/aflow_prototypes.json.gz"
 
 
 class PrototypeDatabaseMatcher:
@@ -46,7 +41,7 @@ class PrototypeDatabaseMatcher:
         initial_ltol: float = 0.2,
         initial_stol: float = 0.3,
         initial_angle_tol: float = 5,
-        prototype_db: Any = None,
+        prototype_db: pd.DataFrame | None = None,
     ) -> None:
         """
         Tolerances as defined in StructureMatcher. Tolerances will be
@@ -56,56 +51,40 @@ class PrototypeDatabaseMatcher:
             initial_ltol (float): fractional length tolerance.
             initial_stol (float): site tolerance.
             initial_angle_tol (float): angle tolerance.
-            prototype_db: Path to a monty-loadable prototype database or an
-                iterable of prototype entries. Entries must contain either "snl"
-                or "structure".
+            prototype_db: DataFrame of prototype entries. Rows must contain
+                either "snl" or "structure".
         """
         self.initial_ltol = initial_ltol
         self.initial_stol = initial_stol
         self.initial_angle_tol = initial_angle_tol
         if prototype_db is None:
-            prototype_db = AFLOW_PROTOTYPE_LIBRARY
+            prototype_db = pd.DataFrame(AFLOW_PROTOTYPE_LIBRARY)
 
         self._prototype_db: list[tuple[Structure, dict]] = []
-        for dct in self._iter_db_entries(prototype_db):
-            structure = self._get_entry_structure(dct)
+        for _, row in prototype_db.iterrows():
+            structure = self._get_entry_structure(row)
             reduced_structure = self._preprocess_structure(structure)
-            self._prototype_db.append((reduced_structure, self._get_entry_data(dct)))
+            self._prototype_db.append((reduced_structure, self._get_entry_data(row)))
 
     @staticmethod
-    def _iter_db_entries(prototype_db: Any) -> Any:
-        if isinstance(prototype_db, (str, os.PathLike)):
-            prototype_db = loadfn(prototype_db)
-
-        if isinstance(prototype_db, dict) and {"columns", "data"} <= set(prototype_db):
-            columns = prototype_db["columns"]
-            yield from (dict(zip(columns, row, strict=True)) for row in prototype_db["data"])
-            return
-
-        if hasattr(prototype_db, "iterrows"):
-            yield from (row for _, row in prototype_db.iterrows())
-        else:
-            yield from prototype_db
-
-    @staticmethod
-    def _get_entry_structure(dct: dict) -> Structure:
-        if "snl" in dct:
-            return dct["snl"].structure
-        if "structure" in dct:
-            structure = dct["structure"]
+    def _get_entry_structure(row: pd.Series) -> Structure:
+        if "snl" in row:
+            return row["snl"].structure
+        if "structure" in row:
+            structure = row["structure"]
             return Structure.from_dict(structure) if isinstance(structure, dict) else structure
         raise KeyError("Prototype database entries must contain either 'snl' or 'structure'.")
 
     @staticmethod
-    def _get_entry_data(dct: dict) -> dict:
-        if "mineral" in dct and "structure" in dct:
-            structure = dct["structure"]
+    def _get_entry_data(row: pd.Series) -> dict:
+        if "mineral" in row and "structure" in row:
+            structure = row["structure"]
             return {
-                "type": dct["mineral"],
-                "distance": dct.get("distance", -1),
+                "type": row["mineral"],
+                "distance": row.get("distance", -1),
                 "structure": Structure.from_dict(structure) if isinstance(structure, dict) else structure,
             }
-        return dict(dct)
+        return dict(row)
 
     @staticmethod
     def _preprocess_structure(structure: Structure) -> Structure:
@@ -175,4 +154,4 @@ class AflowPrototypeMatcher(PrototypeDatabaseMatcher):
     def __init__(self, *args, **kwargs) -> None:
         if "prototype_db" in kwargs:
             raise TypeError("AflowPrototypeMatcher uses the built-in AFLOW prototype database.")
-        super().__init__(*args, prototype_db=AFLOW_PROTOTYPE_LIBRARY, **kwargs)
+        super().__init__(*args, prototype_db=pd.DataFrame(AFLOW_PROTOTYPE_LIBRARY), **kwargs)

@@ -36,7 +36,6 @@ import orjson
 from monty.fractions import gcd
 from monty.serialization import loadfn
 
-from pymatgen.analysis.prototypes.matcher import AflowPrototypeMatcher, PrototypeDatabaseMatcher
 from pymatgen.core import Composition, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
@@ -63,9 +62,12 @@ except ImportError:
     HAS_MOYOPY = False
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+AFLOW_PROTOTYPE_LIBRARY = loadfn(f"{MODULE_DIR}/aflow_prototypes.json.gz")
 WYCKOFF_MULTIPLICITY_DICT = loadfn(f"{MODULE_DIR}/wyckoff-position-multiplicities.json.gz")
 WYCKOFF_POSITION_PARAM_DICT = loadfn(f"{MODULE_DIR}/wyckoff-position-params.json.gz")
 WYCKOFF_POSITION_RELAB_DICT = loadfn(f"{MODULE_DIR}/wyckoff-position-relabelings.json.gz")
+
+from pymatgen.analysis.prototypes.matcher import AflowPrototypeMatcher, PrototypeDatabaseMatcher  # noqa: E402
 
 WYCKOFF_POSITION_RELAB_DICT = {
     spg_num: [{int(key): line for key, line in val.items()} for val in vals]

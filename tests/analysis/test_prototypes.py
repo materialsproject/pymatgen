@@ -6,6 +6,7 @@ import re
 from itertools import permutations, product
 from shutil import which
 
+import pandas as pd
 import pytest
 
 from pymatgen.analysis.prototypes import (
@@ -77,18 +78,14 @@ class TestPrototypeDatabaseMatcher(MatSciTest):
 
     def test_prototype_db_matching(self):
         struct = self.get_structure("Sn")
-        prototype_db = [{"mineral": "tin", "distance": 0.1, "structure": struct}]
+        prototype_db = pd.DataFrame([{"mineral": "tin", "distance": 0.1, "structure": struct}])
         prototype = PrototypeDatabaseMatcher(prototype_db=prototype_db).get_prototypes(struct)[0]
 
         assert prototype == {"type": "tin", "distance": 0.1, "structure": struct}
 
-    def test_split_orient_prototype_db_matching(self):
+    def test_prototype_db_matching_with_structure_dicts(self):
         struct = self.get_structure("Sn")
-        prototype_db = {
-            "columns": ["mineral", "distance", "structure"],
-            "index": [0],
-            "data": [["tin", 0.1, struct.as_dict()]],
-        }
+        prototype_db = pd.DataFrame([{"mineral": "tin", "distance": 0.1, "structure": struct.as_dict()}])
         prototype = PrototypeDatabaseMatcher(prototype_db=prototype_db).get_prototypes(struct)[0]
 
         assert prototype["type"] == "tin"
