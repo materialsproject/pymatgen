@@ -4,6 +4,7 @@ import multiprocessing
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pytest
 from monty.serialization import dumpfn, loadfn
 from pytest import approx
 
@@ -202,6 +203,24 @@ class TestPourbaixDiagram:
 
         multi_entry = PourbaixDiagram.process_multientry(entries, prod_comp=comp_dict)
         assert multi_entry is None
+
+    def test_comp_dict_with_h_or_o_is_stripped(self):
+        # Regression test: comp_dict containing H or O used to leave _elt_comp
+        # with those species, which then mismatched the non-H/O fractional
+        # composition checked inside get_decomposition_energy and raised
+        # ValueError for entries that should have been valid.
+        pbx = PourbaixDiagram(
+            self.test_data["Ag-Te"],
+            filter_solids=True,
+            comp_dict={"Ag": 0.5, "Te": 0.5, "O": 1, "H": 1},
+        )
+        assert pbx._elt_comp == {"Ag": 0.5, "Te": 0.5}
+        entry = pbx.find_stable_entry(8, 2)
+        # Must not raise.
+        pbx.get_decomposition_energy(entry, 8, 2)
+
+        with pytest.raises(ValueError, match="non-H/O element"):
+            PourbaixDiagram(self.test_data["Ag-Te"], comp_dict={"H": 1, "O": 1})
 
     def test_get_pourbaix_domains(self):
         domains = PourbaixDiagram.get_pourbaix_domains(self.test_data["Zn"])
