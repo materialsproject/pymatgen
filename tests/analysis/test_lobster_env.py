@@ -759,12 +759,17 @@ class TestLobsterNeighbors:
         assert lse.uniquely_determines_coordination_environments
 
     def test_get_info_icohps_neighbors(self):
+        # Bond labels in results[3] are a set of identifiers — their iteration order is
+        # not part of the API contract and shifts between platforms / dependency versions
+        # (e.g. ASE neighbor list ordering). Compare as a sorted list.
+        expected_bond_labels = sorted(["48", "27", "64", "73", "49", "30"])
+
         results = self.chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])
         assert results[0] == approx(-33.87452)
         for bond in results[1]:
             assert bond == approx(-5.64612, abs=1e-2)
         assert results[2] == 6
-        assert results[3] == ["48", "27", "64", "73", "49", "30"]
+        assert sorted(results[3]) == expected_bond_labels
 
         results2 = self.chem_env_lobster1.get_info_icohps_to_neighbors(isites=None)
         assert results2[0] == approx(-33.87452)
@@ -772,7 +777,7 @@ class TestLobsterNeighbors:
             assert bond == approx(-5.64455, abs=1e-2)
         assert results2[2] == 6
 
-        assert results2[3] == ["48", "27", "64", "73", "49", "30"]
+        assert sorted(results2[3]) == expected_bond_labels
         from collections import Counter
 
         assert Counter(map(tuple, results2[4])) == Counter(

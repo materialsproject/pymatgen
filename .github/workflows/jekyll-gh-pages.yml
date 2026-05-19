@@ -4,6 +4,11 @@ on:
   push:
     branches: ["master"]
   workflow_dispatch: # enable manual workflow execution
+  # Triggered by materialsproject/pymatgen-core's release workflow so the
+  # combined API docs pick up the latest pymatgen-core release without a
+  # commit to this repo. Payload carries `version` + `release_url`.
+  repository_dispatch:
+    types: [pymatgen-core-release]
 
 # Set permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -23,10 +28,18 @@ jobs:
     if: github.repository == 'materialsproject/pymatgen'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout pymatgen
+        uses: actions/checkout@v6
+
+      - name: Checkout pymatgen-core at latest master
+        # Always pull the tip of pymatgen-core master rather than the pinned submodule
+        # so a pymatgen-core release (via repository_dispatch) rebuilds against the
+        # newly tagged code without a submodule-bump commit here.
         uses: actions/checkout@v6
         with:
-          submodules: true
+          repository: materialsproject/pymatgen-core
+          ref: master
+          path: pymatgen-core
 
       - name: Set up Python
         uses: actions/setup-python@v6
