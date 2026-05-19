@@ -31,14 +31,14 @@ jobs:
       - name: Checkout pymatgen
         uses: actions/checkout@v6
 
-      - name: Checkout pymatgen-core at latest master
-        # Always pull the tip of pymatgen-core master rather than the pinned submodule
+      - name: Checkout pymatgen-core at latest main
+        # Always pull the tip of pymatgen-core main rather than the pinned submodule
         # so a pymatgen-core release (via repository_dispatch) rebuilds against the
         # newly tagged code without a submodule-bump commit here.
         uses: actions/checkout@v6
         with:
           repository: materialsproject/pymatgen-core
-          ref: master
+          ref: main
           path: pymatgen-core
 
       - name: Set up Python
