@@ -18,13 +18,34 @@ height="70">
 </h4>
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python
-library for materials analysis. These are some of the main features:
+library for materials analysis.
 
-1. Highly flexible classes for the representation of `Element`, `Site`, `Molecule` and `Structure` objects.
-2. Extensive input/output support, including support for [VASP](https://www.vasp.at/), [ABINIT](https://abinit.github.io/abinit_web/), [CIF](https://wikipedia.org/wiki/Crystallographic_Information_File), [Gaussian](https://gaussian.com), [XYZ](https://wikipedia.org/wiki/XYZ_file_format), and many other file formats.
-3. Powerful analysis tools, including generation of phase diagrams, Pourbaix diagrams, diffusion analyses, reactions, etc.
-4. Electronic structure analyses, such as density of states and band structure.
-5. Integration with the [Materials Project] REST API.
+> [!IMPORTANT]
+> The core data objects (`Element`, `Site`, `Molecule`, `Structure`, `Composition`, `Lattice`) and
+> file I/O for major electronic structure codes now live in the lean [`pymatgen-core`] package.
+> Installing `pymatgen` automatically pulls in `pymatgen-core` and adds the higher-level
+> analyses, applications and external integrations described below. If you only need the core
+> objects and I/O, depend on `pymatgen-core` directly for a much lighter install.
+
+[`pymatgen-core`]: https://github.com/materialsproject/pymatgen-core
+
+These are some of the main features provided by this package on top of `pymatgen-core`:
+
+1. The full set of core classes from [`pymatgen-core`] (`Element`, `Site`, `Molecule`, `Structure`,
+   `Composition`, `Lattice`) re-exported under the familiar `pymatgen.core` namespace, plus
+   extensive input/output for [VASP](https://www.vasp.at/),
+   [ABINIT](https://abinit.github.io/abinit_web/),
+   [CIF](https://wikipedia.org/wiki/Crystallographic_Information_File),
+   [Gaussian](https://gaussian.com),
+   [XYZ](https://wikipedia.org/wiki/XYZ_file_format) and many other file formats.
+2. Powerful analysis tools (`pymatgen.analysis`), including generation of phase diagrams,
+   Pourbaix diagrams, reaction analysis, local environments, surfaces, interfaces, defects,
+   magnetism, piezoelectricity, elasticity and much more.
+3. Electronic structure analyses, such as density of states and band structure.
+4. Entry/thermo data objects (`pymatgen.entries`) for thermodynamic and reaction calculations.
+5. External integrations (`pymatgen.ext`), including the [Materials Project] REST API and
+   other materials databases.
+6. End-user applications and a command-line interface (`pymatgen.apps`, `pymatgen.cli`).
 
 Pymatgen is free to use. However, we also welcome your help to improve this library by making your contributions. These contributions can be in the form of additional tools or modules you develop, or feature requests and bug reports. The following are resources for `pymatgen`:
 
@@ -69,10 +90,12 @@ The version at the Python Package Index [PyPI] is always the latest stable relea
 pip install pymatgen
 ```
 
-If you'd like to use the latest unreleased changes on the main branch, you can install directly from GitHub:
+This installs both `pymatgen` (analyses, applications and external integrations) and
+[`pymatgen-core`] (core data objects and file I/O). For a minimal install with just the core
+objects and I/O, depend on `pymatgen-core` instead:
 
 ```sh
-pip install -U git+https://github.com/materialsproject/pymatgen
+pip install pymatgen-core
 ```
 
 Some extra functionality (e.g., generation of POTCARs) does require additional setup (see the [`pymatgen` docs]).
@@ -124,7 +147,6 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 ## About the Pymatgen Development Team
 
 Shyue Ping Ong (@shyuep) of the [Materialyze] Lab started Pymatgen in 2011 and is still the project lead.
-Matthew Horton (@mkhorton) are co-maintainers.
 
 The [`pymatgen` development team] is the set of all contributors to the `pymatgen` project, including all subprojects.
 
