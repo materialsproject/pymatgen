@@ -195,7 +195,7 @@ html_css_files = [
 htmlhelp_basename = "pymatgendoc"
 
 html_theme_options = {
-    "canonical_url": "https://pymatgen.org",
+    "canonical_url": "https://pymatgen.org/",
     "logo_only": True,
     "display_version": True,
     "prev_next_buttons_location": None,

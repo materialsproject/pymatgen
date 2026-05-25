@@ -60,6 +60,13 @@ def make_doc(ctx: Context) -> None:
         ctx.run("rm apidoc/*.rst", warn=True)
         ctx.run("mv html/pymatgen*.html .")
         ctx.run("mv html/modules.html .")
+        # Preserve files needed by the in-page search box on the API docs.
+        ctx.run("mv html/search.html .")
+        ctx.run("mv html/searchindex.js .")
+        # Bring in any Sphinx-shipped static assets (e.g. jquery.js,
+        # _sphinx_javascript_frameworks_compat.js) that the regenerated pages
+        # reference. --ignore-existing keeps the curated files in assets/ intact.
+        ctx.run("rsync -a --ignore-existing html/_static/ assets/")
 
         # ctx.run("cp markdown/pymatgen*.md .")
         # ctx.run("rm pymatgen*tests*.md", warn=True)
@@ -85,7 +92,7 @@ def make_doc(ctx: Context) -> None:
         #         file.write("\n".join(preamble + lines))
         ctx.run("rm -r markdown", warn=True)
         ctx.run("rm -r html", warn=True)
-        ctx.run('sed -I "" "s/_static/assets/g" pymatgen*.html')
+        ctx.run('sed -I "" "s/_static/assets/g" pymatgen*.html search.html')
         ctx.run("rm -rf doctrees", warn=True)
 
 

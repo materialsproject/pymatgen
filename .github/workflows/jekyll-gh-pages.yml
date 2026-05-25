@@ -72,6 +72,11 @@ jobs:
           mv html/pymatgen*.html .
           mv html/modules.html .
           mv html/objects.inv .
+          # Sphinx's in-page search needs both the generated index and the
+          # matching search.html (overwrites the committed placeholder so it
+          # references the same _static/ assets as the API pages).
+          mv html/search.html .
+          mv html/searchindex.js .
           cp -r html/_static _static
           touch .nojekyll
 
