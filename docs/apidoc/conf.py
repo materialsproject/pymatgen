@@ -12,11 +12,11 @@ serve to show the default.
 
 from __future__ import annotations
 
+import importlib.metadata
 import inspect
-import os
 import sys
 
-from pymatgen.core import __author__, __file__, __version__
+from pymatgen.core import __author__, __version__
 
 project = "pymatgen"
 copyright = "2011, Materials Project"  # noqa: A001
@@ -334,32 +334,55 @@ epub_copyright = copyright
 # epub_tocdup = True
 
 
+def _dist_info(name):
+    """Return (version, set of relative file paths shipped) for a distribution."""
+    try:
+        dist = importlib.metadata.distribution(name)
+    except importlib.metadata.PackageNotFoundError:
+        return None, set()
+    files = {str(p) for p in (dist.files or [])}
+    return dist.version, files
+
+
+_PMG_VERSION, _ = _dist_info("pymatgen")
+_PMG_CORE_VERSION, _PMG_CORE_FILES = _dist_info("pymatgen-core")
+
+
 def linkcode_resolve(domain, info):
     """Resolve function for the linkcode extension.
+
+    Routes each object to the correct GitHub repo and version. The `pymatgen`
+    namespace is split across two distributions — `pymatgen-core` (containing
+    pymatgen.core and several other subpackages) and `pymatgen` itself — each
+    released independently with its own version tag.
+
     Thanks to https://github.com/Lasagne/Lasagne/blob/master/docs/conf.py.
     """
+    if domain != "py" or not info["module"]:
+        return None
 
-    def find_source():
-        # try to find the file and line number, based on code from numpy:
-        # https://github.com/numpy/numpy/blob/master/doc/source/conf.py#L286
+    try:
         obj = sys.modules[info["module"]]
         for part in info["fullname"].split("."):
             obj = getattr(obj, part)
 
         fn = inspect.getsourcefile(obj)
-        fn = os.path.relpath(fn, start=os.path.dirname(__file__))
         source, lineno = inspect.getsourcelines(obj)
-        return fn, lineno, lineno + len(source) - 1
+        line_range = f"#L{lineno}-L{lineno + len(source) - 1}"
 
-    if domain != "py" or not info["module"]:
-        return None
-
-    try:
-        rel_path, line_start, line_end = find_source()
-        # __file__ is imported from pymatgen.core
-        filename = f"pymatgen/core/{rel_path}#L{line_start}-L{line_end}"
+        # Extract the path starting at the top-level "pymatgen" package
+        # (e.g. ".../site-packages/pymatgen/core/structure.py"
+        #  -> "pymatgen/core/structure.py").
+        parts = fn.replace("\\", "/").split("/")
+        idx = max(i for i, p in enumerate(parts) if p == "pymatgen")
+        rel_path = "/".join(parts[idx:])
     except Exception:
-        # no need to be relative to core here as module includes full path.
-        filename = info["module"].replace(".", "/") + ".py"
+        rel_path = info["module"].replace(".", "/") + ".py"
+        line_range = ""
 
-    return f"https://github.com/materialsproject/pymatgen/blob/v{__version__}/src/{filename}"
+    if rel_path in _PMG_CORE_FILES and _PMG_CORE_VERSION is not None:
+        repo, version = "pymatgen-core", _PMG_CORE_VERSION
+    else:
+        repo, version = "pymatgen", _PMG_VERSION or __version__
+
+    return f"https://github.com/materialsproject/{repo}/blob/v{version}/src/{rel_path}{line_range}"
