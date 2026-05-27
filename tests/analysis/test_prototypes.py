@@ -89,14 +89,16 @@ class TestAflowPrototypeMatcher(MatSciTest):
     def test_deprecated_aflow_prototype_matcher_rejects_prototype_db(self):
         with (
             pytest.warns(DeprecationWarning, match="AflowPrototypeMatcher is deprecated"),
-            pytest.raises(TypeError, match="built-in AFLOW prototype database"),
+            pytest.raises(TypeError, match="unexpected keyword argument 'prototype_db'"),
         ):
             AflowPrototypeMatcher(prototype_db=[])
 
 
 class TestPrototypeDatabaseMatcher(MatSciTest):
     def test_prototype_matching(self):
-        assert_common_prototype_matches(self, PrototypeDatabaseMatcher())
+        from pymatgen.analysis.prototypes._data import AFLOW_PROTOTYPE_LIBRARY
+
+        assert_common_prototype_matches(self, PrototypeDatabaseMatcher(pd.DataFrame(AFLOW_PROTOTYPE_LIBRARY)))
 
 
 class TestCustomPrototypeDatabaseMatcher(MatSciTest):
@@ -118,14 +120,14 @@ class TestCustomPrototypeDatabaseMatcher(MatSciTest):
     def test_prototype_db_matching(self):
         struct = self.get_structure("Sn")
         prototype_db = pd.DataFrame([{"mineral": "tin", "distance": 0.1, "structure": struct}])
-        prototype = self.CustomPrototypeMatcher(prototype_db=prototype_db).get_prototypes(struct)[0]
+        prototype = self.CustomPrototypeMatcher(prototype_db).get_prototypes(struct)[0]
 
         assert prototype == {"type": "tin", "distance": 0.1, "structure": struct}
 
     def test_prototype_db_matching_with_structure_dicts(self):
         struct = self.get_structure("Sn")
         prototype_db = pd.DataFrame([{"mineral": "tin", "distance": 0.1, "structure": struct.as_dict()}])
-        prototype = self.CustomPrototypeMatcher(prototype_db=prototype_db).get_prototypes(struct)[0]
+        prototype = self.CustomPrototypeMatcher(prototype_db).get_prototypes(struct)[0]
 
         assert prototype == {"type": "tin", "distance": 0.1, "structure": struct}
 

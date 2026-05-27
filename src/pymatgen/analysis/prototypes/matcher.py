@@ -26,45 +26,35 @@ if TYPE_CHECKING:
 
 
 class PrototypeDatabaseMatcher:
-    """
-    This class will match structures to crystal prototypes from a database, and will
-    attempt to group species together to match structures derived from
-    prototypes (e.g. an A_xB_1-x_C from a binary prototype), and will
-    give these the names the "-like" suffix.
+    """Match structures against a database of crystal prototypes using anonymous structure matching.
 
-    By default, this class uses data from the AFLOW LIBRARY OF CRYSTALLOGRAPHIC
-    PROTOTYPES. If using the default library, please cite their publication
-    appropriately:
-
-    Mehl, M. J., Hicks, D., Toher, C., Levy, O., Hanson, R. M., Hart, G., & Curtarolo, S. (2017).
-    The AFLOW library of crystallographic prototypes: part 1.
-    Computational Materials Science, 136, S1-S828.
-    https://doi.org/10.1016/j.commatsci.2017.01.017
+    Each prototype structure is preprocessed into a Niggli-reduced primitive cell at construction
+    time. To match a query structure, it is reduced in the same way and then compared against all
+    prototypes via :meth:`StructureMatcher.fit_anonymous`, which matches without regard to species
+    identity. If multiple prototypes match, the tolerances are tightened iteratively (by 0.8x per
+    step) until a single match is found or the length tolerance falls below 0.01.
     """
 
     def __init__(
         self,
+        prototype_db: pd.DataFrame,
         initial_ltol: float = 0.2,
         initial_stol: float = 0.3,
         initial_angle_tol: float = 5,
-        prototype_db: pd.DataFrame | None = None,
     ) -> None:
         """
         Tolerances as defined in StructureMatcher. Tolerances will be
         gradually decreased until only a single match is found (if possible).
 
         Args:
+            prototype_db: DataFrame of prototype entries. Rows must contain "snl".
             initial_ltol (float): fractional length tolerance.
             initial_stol (float): site tolerance.
             initial_angle_tol (float): angle tolerance.
-            prototype_db: DataFrame of prototype entries in pymatgen's AFLOW
-                prototype format. Rows must contain "snl".
         """
         self.initial_ltol = initial_ltol
         self.initial_stol = initial_stol
         self.initial_angle_tol = initial_angle_tol
-        if prototype_db is None:
-            prototype_db = pd.DataFrame(AFLOW_PROTOTYPE_LIBRARY)
 
         self._prototype_db: list[tuple[Structure, dict[str, Any]]] = []
         for _, row in prototype_db.iterrows():
@@ -74,10 +64,12 @@ class PrototypeDatabaseMatcher:
 
     @staticmethod
     def _get_structure(row: pd.Series) -> Structure:
+        """Override this method to parse a pmg structure for a given row."""
         return row["snl"].structure
 
     @staticmethod
     def _get_entry_data(row: pd.Series) -> dict[str, Any]:
+        """Override this method to parse tags/metadata to return for a given row."""
         return dict(row)
 
     @staticmethod
@@ -144,9 +136,22 @@ class PrototypeDatabaseMatcher:
     description="The AFLOW library of crystallographic prototypes: part 1.",
 )
 class AflowPrototypeMatcher(PrototypeDatabaseMatcher):
-    """Deprecated alias for :class:`PrototypeDatabaseMatcher`."""
+    """Deprecated alias for :class:`PrototypeDatabaseMatcher`.
 
-    def __init__(self, *args, **kwargs) -> None:
-        if "prototype_db" in kwargs:
-            raise TypeError("AflowPrototypeMatcher uses the built-in AFLOW prototype database.")
-        super().__init__(*args, **kwargs)
+    This class uses data from the AFLOW LIBRARY OF CRYSTALLOGRAPHIC
+    PROTOTYPES. If using this class please cite their publication
+    appropriately:
+
+    Mehl, M. J., Hicks, D., Toher, C., Levy, O., Hanson, R. M., Hart, G., & Curtarolo, S. (2017).
+    The AFLOW library of crystallographic prototypes: part 1.
+    Computational Materials Science, 136, S1-S828.
+    https://doi.org/10.1016/j.commatsci.2017.01.017
+    """
+
+    def __init__(self, initial_ltol: float = 0.2, initial_stol: float = 0.3, initial_angle_tol: float = 5) -> None:
+        super().__init__(
+            pd.DataFrame(AFLOW_PROTOTYPE_LIBRARY),
+            initial_ltol=initial_ltol,
+            initial_stol=initial_stol,
+            initial_angle_tol=initial_angle_tol,
+        )
