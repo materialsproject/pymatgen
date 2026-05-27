@@ -445,8 +445,10 @@ class PourbaixDiagram(MSONable):
         Args:
             entries ([PourbaixEntry] or [MultiEntry]): Entries list
                 containing Solids and Ions or a list of MultiEntries
-            comp_dict (dict[str, float]): Dictionary of compositions,
-                defaults to equal parts of each elements
+            comp_dict (dict[str, float]): Dictionary of compositions for the
+                non-H/O elements. H and O are open species in the Pourbaix
+                formalism so any H or O entries are silently stripped before
+                use. Defaults to equal parts of each non-H/O element.
             conc_dict (dict[str, float]): Dictionary of ion concentrations,
                 defaults to 1e-6 for each element
             filter_solids (bool): applying this filter to a Pourbaix
@@ -490,7 +492,18 @@ class PourbaixDiagram(MSONable):
                 conc_dict = {elt.symbol: 1e-6 for elt in self.pbx_elts}
             self._conc_dict = conc_dict
 
-            self._elt_comp = comp_dict
+            # H and O are open species in the Pourbaix formalism and are not
+            # compositional degrees of freedom. Strip them from comp_dict so it
+            # stays consistent with self.pbx_elts and get_decomposition_energy,
+            # both of which already exclude H and O via self.elements_ho.
+            ho_symbols = {elt.symbol for elt in self.elements_ho}
+            filtered_comp_dict = {k: v for k, v in comp_dict.items() if k not in ho_symbols}
+            if not filtered_comp_dict:
+                raise ValueError(
+                    "comp_dict must contain at least one non-H/O element; "
+                    "H and O are treated as open species in the Pourbaix formalism."
+                )
+            self._elt_comp = filtered_comp_dict
             self.pourbaix_elements = self.pbx_elts
 
             solid_entries = [entry for entry in entries if entry.phase_type == "Solid"]
@@ -518,7 +531,7 @@ class PourbaixDiagram(MSONable):
                 solid_entries = list(set(solid_pd.stable_entries) - set(entries_HO))
 
             self._filtered_entries = solid_entries + ion_entries
-            if len(comp_dict) > 1:
+            if len(self._elt_comp) > 1:
                 self._multi_element = True
                 self._processed_entries = self._preprocess_pourbaix_entries(self._filtered_entries, nproc=nproc)
             else:
