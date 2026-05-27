@@ -10,13 +10,19 @@ https://doi.org/10.1016/j.commatsci.2017.01.017
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pandas as pd
 from monty.dev import deprecated
 
-from pymatgen.analysis.prototypes import AFLOW_PROTOTYPE_LIBRARY
-from pymatgen.core import Structure
+from pymatgen.analysis.prototypes._data import AFLOW_PROTOTYPE_LIBRARY
 from pymatgen.core.structure_matcher import StructureMatcher
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from pymatgen.core import Structure
 
 
 class PrototypeDatabaseMatcher:
@@ -51,8 +57,8 @@ class PrototypeDatabaseMatcher:
             initial_ltol (float): fractional length tolerance.
             initial_stol (float): site tolerance.
             initial_angle_tol (float): angle tolerance.
-            prototype_db: DataFrame of prototype entries. Rows must contain
-                either "snl" or "structure".
+            prototype_db: DataFrame of prototype entries in pymatgen's AFLOW
+                prototype format. Rows must contain "snl".
         """
         self.initial_ltol = initial_ltol
         self.initial_stol = initial_stol
@@ -60,30 +66,18 @@ class PrototypeDatabaseMatcher:
         if prototype_db is None:
             prototype_db = pd.DataFrame(AFLOW_PROTOTYPE_LIBRARY)
 
-        self._prototype_db: list[tuple[Structure, dict]] = []
+        self._prototype_db: list[tuple[Structure, dict[str, Any]]] = []
         for _, row in prototype_db.iterrows():
-            structure = self._get_entry_structure(row)
+            structure = self._get_structure(row)
             reduced_structure = self._preprocess_structure(structure)
             self._prototype_db.append((reduced_structure, self._get_entry_data(row)))
 
     @staticmethod
-    def _get_entry_structure(row: pd.Series) -> Structure:
-        if "snl" in row:
-            return row["snl"].structure
-        if "structure" in row:
-            structure = row["structure"]
-            return Structure.from_dict(structure) if isinstance(structure, dict) else structure
-        raise KeyError("Prototype database entries must contain either 'snl' or 'structure'.")
+    def _get_structure(row: pd.Series) -> Structure:
+        return row["snl"].structure
 
     @staticmethod
-    def _get_entry_data(row: pd.Series) -> dict:
-        if "mineral" in row and "structure" in row:
-            structure = row["structure"]
-            return {
-                "type": row["mineral"],
-                "distance": row.get("distance", -1),
-                "structure": Structure.from_dict(structure) if isinstance(structure, dict) else structure,
-            }
+    def _get_entry_data(row: pd.Series) -> dict[str, Any]:
         return dict(row)
 
     @staticmethod
@@ -94,7 +88,7 @@ class PrototypeDatabaseMatcher:
         self,
         structure_matcher: StructureMatcher,
         reduced_structure: Structure,
-    ) -> list[dict]:
+    ) -> list[dict[str, Any]]:
         tags = []
         for aflow_reduced_structure, dct in self._prototype_db:
             match = structure_matcher.fit_anonymous(
@@ -104,7 +98,7 @@ class PrototypeDatabaseMatcher:
                 tags.append(dct)
         return tags
 
-    def _match_single_prototype(self, structure: Structure) -> list[dict]:
+    def _match_single_prototype(self, structure: Structure) -> list[dict[str, Any]]:
         sm = StructureMatcher(
             ltol=self.initial_ltol,
             stol=self.initial_stol,
@@ -122,18 +116,19 @@ class PrototypeDatabaseMatcher:
                 break
         return tags
 
-    def get_prototypes(self, structure: Structure) -> list[dict] | None:
+    def get_prototypes(self, structure: Structure) -> list[dict[str, Any]] | None:
         """Get prototype(s) structures for a given input structure.
 
         Args:
             structure (Structure): structure to match
 
         Returns:
-            list[dict] | None: A list of dicts containing matched prototype data.
-                This should be a list containing just a single entry, but it is
-                possible a material can match multiple prototypes.
+            A list of dicts containing matched prototype data. This should be a
+            list containing just a single entry, but it is possible a material
+            can match multiple prototypes. The schema of each dict follows
+            :meth:`_get_entry_data`.
         """
-        tags: list[dict] = self._match_single_prototype(structure)
+        tags = self._match_single_prototype(structure)
 
         return tags or None
 
@@ -154,4 +149,4 @@ class AflowPrototypeMatcher(PrototypeDatabaseMatcher):
     def __init__(self, *args, **kwargs) -> None:
         if "prototype_db" in kwargs:
             raise TypeError("AflowPrototypeMatcher uses the built-in AFLOW prototype database.")
-        super().__init__(*args, prototype_db=pd.DataFrame(AFLOW_PROTOTYPE_LIBRARY), **kwargs)
+        super().__init__(*args, **kwargs)

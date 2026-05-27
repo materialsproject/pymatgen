@@ -32,7 +32,8 @@ from pymatgen.analysis.prototypes import (
 )
 from pymatgen.core.structure import Composition, Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
+from pymatgen.util.testing import MatSciTest
+from tests.testing import TEST_FILES_DIR
 
 try:
     import pyxtal
@@ -42,55 +43,44 @@ except ImportError:
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/prototypes"
 
 
-class TestPrototypeDatabaseMatcher(MatSciTest):
+def assert_common_prototype_matches(test, af):
+    struct = test.get_structure("Sn")
+    prototype = af.get_prototypes(struct)[0]
+
+    assert prototype["tags"] == {
+        "aflow": "A_cF8_227_a",
+        "mineral": "diamond",
+        "pearson": "cF8",
+        "strukturbericht": "A4",
+    }
+
+    struct = test.get_structure("CsCl")
+    prototype = af.get_prototypes(struct)[0]
+
+    assert prototype["tags"] == {
+        "aflow": "AB_cP2_221_b_a",
+        "mineral": "",
+        "pearson": "cP2",
+        "strukturbericht": "B2",
+    }
+
+    struct = test.get_structure("Li2O")
+    prototype = af.get_prototypes(struct)[0]
+
+    assert prototype["tags"] == {
+        "aflow": "AB2_cF12_225_a_c",
+        "mineral": "Fluorite",
+        "pearson": "cF12",
+        "strukturbericht": "C1",
+    }
+
+
+class TestAflowPrototypeMatcher(MatSciTest):
     def test_prototype_matching(self):
-        af = PrototypeDatabaseMatcher()
+        with pytest.warns(DeprecationWarning, match="AflowPrototypeMatcher is deprecated"):
+            af = AflowPrototypeMatcher()
 
-        struct = self.get_structure("Sn")
-        prototype = af.get_prototypes(struct)[0]
-
-        assert prototype["tags"] == {
-            "aflow": "A_cF8_227_a",
-            "mineral": "diamond",
-            "pearson": "cF8",
-            "strukturbericht": "A4",
-        }
-
-        struct = self.get_structure("CsCl")
-        prototype = af.get_prototypes(struct)[0]
-
-        assert prototype["tags"] == {
-            "aflow": "AB_cP2_221_b_a",
-            "mineral": "",
-            "pearson": "cP2",
-            "strukturbericht": "B2",
-        }
-
-        struct = self.get_structure("Li2O")
-        prototype = af.get_prototypes(struct)[0]
-
-        assert prototype["tags"] == {
-            "aflow": "AB2_cF12_225_a_c",
-            "mineral": "Fluorite",
-            "pearson": "cF12",
-            "strukturbericht": "C1",
-        }
-
-    def test_prototype_db_matching(self):
-        struct = self.get_structure("Sn")
-        prototype_db = pd.DataFrame([{"mineral": "tin", "distance": 0.1, "structure": struct}])
-        prototype = PrototypeDatabaseMatcher(prototype_db=prototype_db).get_prototypes(struct)[0]
-
-        assert prototype == {"type": "tin", "distance": 0.1, "structure": struct}
-
-    def test_prototype_db_matching_with_structure_dicts(self):
-        struct = self.get_structure("Sn")
-        prototype_db = pd.DataFrame([{"mineral": "tin", "distance": 0.1, "structure": struct.as_dict()}])
-        prototype = PrototypeDatabaseMatcher(prototype_db=prototype_db).get_prototypes(struct)[0]
-
-        assert prototype["type"] == "tin"
-        assert prototype["distance"] == 0.1
-        assert isinstance(prototype["structure"], Structure)
+        assert_common_prototype_matches(self, af)
 
     def test_deprecated_aflow_prototype_matcher(self):
         with pytest.warns(DeprecationWarning, match="AflowPrototypeMatcher is deprecated"):
@@ -102,6 +92,42 @@ class TestPrototypeDatabaseMatcher(MatSciTest):
             pytest.raises(TypeError, match="built-in AFLOW prototype database"),
         ):
             AflowPrototypeMatcher(prototype_db=[])
+
+
+class TestPrototypeDatabaseMatcher(MatSciTest):
+    def test_prototype_matching(self):
+        assert_common_prototype_matches(self, PrototypeDatabaseMatcher())
+
+
+class TestCustomPrototypeDatabaseMatcher(MatSciTest):
+    class CustomPrototypeMatcher(PrototypeDatabaseMatcher):
+        @staticmethod
+        def _get_structure(row):
+            structure = row["structure"]
+            return Structure.from_dict(structure) if isinstance(structure, dict) else structure
+
+        @staticmethod
+        def _get_entry_data(row):
+            structure = row["structure"]
+            return {
+                "type": row["mineral"],
+                "distance": row["distance"],
+                "structure": Structure.from_dict(structure) if isinstance(structure, dict) else structure,
+            }
+
+    def test_prototype_db_matching(self):
+        struct = self.get_structure("Sn")
+        prototype_db = pd.DataFrame([{"mineral": "tin", "distance": 0.1, "structure": struct}])
+        prototype = self.CustomPrototypeMatcher(prototype_db=prototype_db).get_prototypes(struct)[0]
+
+        assert prototype == {"type": "tin", "distance": 0.1, "structure": struct}
+
+    def test_prototype_db_matching_with_structure_dicts(self):
+        struct = self.get_structure("Sn")
+        prototype_db = pd.DataFrame([{"mineral": "tin", "distance": 0.1, "structure": struct.as_dict()}])
+        prototype = self.CustomPrototypeMatcher(prototype_db=prototype_db).get_prototypes(struct)[0]
+
+        assert prototype == {"type": "tin", "distance": 0.1, "structure": struct}
 
 
 PROTOSTRUCTURE_SET = [

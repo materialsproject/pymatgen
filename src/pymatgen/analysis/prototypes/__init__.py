@@ -22,7 +22,6 @@ Physical Review Materials, 8(10), 103801. https://doi.org/10.1103/PhysRevMateria
 
 from __future__ import annotations
 
-import os
 import re
 import subprocess
 from collections import Counter, defaultdict
@@ -34,8 +33,15 @@ from typing import TYPE_CHECKING
 
 import orjson
 from monty.fractions import gcd
-from monty.serialization import loadfn
 
+from pymatgen.analysis.prototypes._data import (
+    AFLOW_PROTOTYPE_LIBRARY,
+    MODULE_DIR,
+    WYCKOFF_MULTIPLICITY_DICT,
+    WYCKOFF_POSITION_PARAM_DICT,
+    WYCKOFF_POSITION_RELAB_DICT,
+)
+from pymatgen.analysis.prototypes.matcher import AflowPrototypeMatcher, PrototypeDatabaseMatcher
 from pymatgen.core import Composition, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
@@ -60,19 +66,6 @@ except ImportError:
     moyopy = None
     MoyoAdapter = None
     HAS_MOYOPY = False
-
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-AFLOW_PROTOTYPE_LIBRARY = loadfn(f"{MODULE_DIR}/aflow_prototypes.json.gz")
-WYCKOFF_MULTIPLICITY_DICT = loadfn(f"{MODULE_DIR}/wyckoff-position-multiplicities.json.gz")
-WYCKOFF_POSITION_PARAM_DICT = loadfn(f"{MODULE_DIR}/wyckoff-position-params.json.gz")
-WYCKOFF_POSITION_RELAB_DICT = loadfn(f"{MODULE_DIR}/wyckoff-position-relabelings.json.gz")
-
-from pymatgen.analysis.prototypes.matcher import AflowPrototypeMatcher, PrototypeDatabaseMatcher  # noqa: E402
-
-WYCKOFF_POSITION_RELAB_DICT = {
-    spg_num: [{int(key): line for key, line in val.items()} for val in vals]
-    for spg_num, vals in WYCKOFF_POSITION_RELAB_DICT.items()
-}
 
 CRYSTAL_FAMILY_SYMBOLS = {
     "triclinic": "a",
