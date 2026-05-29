@@ -94,7 +94,6 @@ class TestXRDCalculator(MatSciTest):
         from the known-good reference implementation and must not change.
         """
         xrd_calc = XRDCalculator()
-        xrd_calc.TWO_THETA_TOL = 5
 
         # --- LiFePO4 ---
         struct = self.get_structure("LiFePO4")
