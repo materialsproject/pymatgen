@@ -150,8 +150,8 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
             structure = finder.get_refined_structure()
 
         wavelength = self.wavelength
-        latt = structure.lattice
-        is_hex = latt.is_hexagonal()
+        lattice = structure.lattice
+        is_hex = lattice.is_hexagonal()
 
         min_r, max_r = (
             (0, 2 / wavelength)
@@ -159,13 +159,13 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
             else [2 * math.sin(math.radians(t / 2)) / wavelength for t in two_theta_range]
         )
 
-        recip_latt = latt.reciprocal_lattice_crystallographic
-        recip_pts = recip_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], max_r)
+        recip_lattice = lattice.reciprocal_lattice_crystallographic
+        recip_pts = recip_lattice.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], max_r)
         if min_r:
             recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
 
         # --- Build per-site arrays ---
-        _zs, _coeffs, _fcoords, _occus, _dwfactors = [], [], [], [], []
+        _zs, _coeffs, _frac_coords, _occus, _dw_factors = [], [], [], [], []
         for site in structure:
             for sp, occu in site.species.items():
                 _zs.append(sp.Z)
@@ -176,15 +176,15 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                         f"Unable to calculate XRD pattern as there is no scattering coefficients for {sp.symbol}."
                     )
                 _coeffs.append(c)
-                _dwfactors.append(self.debye_waller_factors.get(sp.symbol, 0))
-                _fcoords.append(site.frac_coords)
+                _dw_factors.append(self.debye_waller_factors.get(sp.symbol, 0))
+                _frac_coords.append(site.frac_coords)
                 _occus.append(occu)
 
         zs = np.array(_zs)  # (N,)
         coeffs = np.array(_coeffs)  # (N, 4, 2)
-        fcoords = np.array(_fcoords)  # (N, 3)
+        fcoords = np.array(_frac_coords)  # (N, 3)
         occus = np.array(_occus)  # (N,)
-        dwfactors = np.array(_dwfactors)  # (N,)
+        dwfactors = np.array(_dw_factors)  # (N,)
 
         # --- Unpack reciprocal points & filter g_hkl == 0 ---
         recip_pts_sorted = sorted(recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2]))
@@ -235,7 +235,8 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         intensities = i_hkl * lorentz  # (M,)
         two_thetas_arr = np.degrees(2 * theta)  # (M,)
 
-        # --- Merge peaks within TWO_THETA_TOL using rounding-based binning ---
+        # Merge peaks within TWO_THETA_TOL by binning: round each two_theta to the
+        # nearest multiple of TWO_THETA_TOL and sum intensities sharing the same key.
         tol = AbstractDiffractionPatternCalculator.TWO_THETA_TOL
         bin_keys = np.round(two_thetas_arr / tol).astype(int)
 
