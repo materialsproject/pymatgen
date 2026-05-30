@@ -87,3 +87,47 @@ class TestXRDCalculator(MatSciTest):
         assert xrd.x[0] == approx(40.294828554672264)
         assert xrd.y[0] == approx(2377745.2296686019)
         assert xrd.d_hkls[0] == approx(2.2382050944897789)
+
+    def test_get_pattern_merge_regression(self):
+        """
+        Regression test for peak-merging behaviour. Assertion values were generated
+        from the known-good reference implementation and must not change.
+        """
+        xrd_calc = XRDCalculator()
+
+        # --- LiFePO4 ---
+        struct = self.get_structure("LiFePO4")
+        xrd = xrd_calc.get_pattern(struct, two_theta_range=(0, 90))
+
+        assert len(xrd.hkls) == 434  # should have 434 peaks if no regression
+
+        assert xrd.hkls[0:10] == [
+            [{"hkl": (0, 1, 0), "multiplicity": 2}],
+            [{"hkl": (0, 0, 2), "multiplicity": 2}],
+            [{"hkl": (1, 0, -1), "multiplicity": 2}],
+            [{"hkl": (1, 0, 1), "multiplicity": 2}],
+            [{"hkl": (0, 1, -2), "multiplicity": 2}],
+            [{"hkl": (0, 1, 2), "multiplicity": 2}],
+            [{"hkl": (1, -1, 0), "multiplicity": 2}],
+            [{"hkl": (1, 1, 0), "multiplicity": 2}],
+            [{"hkl": (1, -1, 1), "multiplicity": 2}],
+            [{"hkl": (1, 1, -1), "multiplicity": 2}],
+        ]  # first 10 peaks are in this multiplicity.
+
+        # --- Li10GeP2S12 ---
+        struct = self.get_structure("Li10GeP2S12")
+        xrd = xrd_calc.get_pattern(struct, two_theta_range=(0, 90))
+
+        assert len(xrd.hkls) == 213
+        assert xrd.hkls[0:10] == [
+            [{"hkl": (1, 0, 1), "multiplicity": 8}],
+            [{"hkl": (0, 0, 2), "multiplicity": 2}],
+            [{"hkl": (1, 1, 0), "multiplicity": 4}],
+            [{"hkl": (1, 0, 2), "multiplicity": 8}],
+            [{"hkl": (1, 1, 2), "multiplicity": 8}],
+            [{"hkl": (2, 0, 0), "multiplicity": 4}],
+            [{"hkl": (2, 0, 1), "multiplicity": 8}],
+            [{"hkl": (1, 0, 3), "multiplicity": 8}],
+            [{"hkl": (2, 1, 1), "multiplicity": 16}],
+            [{"hkl": (2, 0, 2), "multiplicity": 8}],
+        ]
