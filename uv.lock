@@ -2304,7 +2304,7 @@ wheels = [
 
 [[package]]
 name = "matcalc"
-version = "0.4.8"
+version = "0.5.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ase", marker = "python_full_version < '3.13'" },
@@ -2315,11 +2315,11 @@ dependencies = [
     { name = "pymatgen", marker = "python_full_version < '3.13'" },
     { name = "scikit-learn", marker = "python_full_version < '3.13'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/31/71/7993f20a9b04f784b8aae0fd3c169dbddf511528cf8fcfee56a1f91afc9a/matcalc-0.4.8.tar.gz", hash = "sha256:503cc5ba09cd8140dd9aa1684354da08a68c606bd47650a81447ef89005c93c3", size = 566634, upload-time = "2026-04-27T11:38:17.705Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d0/96/716548aacbe155aac0a08687eede31cc661a39dfbced9e5be84a754fe91d/matcalc-0.5.1.tar.gz", hash = "sha256:9eef39d8f61384af4fa324e02f2e7384adb95eb0af8e3a985ab101f48fe436f0", size = 579921, upload-time = "2026-05-28T21:24:53.53Z" }
 
 [[package]]
 name = "matgl"
-version = "2.2.1"
+version = "4.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ase", marker = "python_full_version < '3.13'" },
@@ -2333,9 +2333,9 @@ dependencies = [
     { name = "torch-geometric", marker = "python_full_version < '3.13'" },
     { name = "torchdata", marker = "python_full_version < '3.13'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ea/bf/3ab4d1786a45526cf8ad41d432fe0044d35d8fdb5801d9a3172b2210d8fc/matgl-2.2.1.tar.gz", hash = "sha256:37e972d3a529e8a413e21b1c07d38aa3d320d6f926d457b3bda1219b899c587b", size = 274937, upload-time = "2026-04-27T10:37:55.625Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3f/35/967738ac32c16a12f36431448a27ea3cf8e7752f44c81a8bba4c9ca0574c/matgl-4.0.1.tar.gz", hash = "sha256:5f9401ff2fb152967c659438391fe118d36203519d2c0eb6384e590a08f4ce19", size = 341792, upload-time = "2026-05-26T11:13:39.388Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3d/02/7ae14114e39346daf5524fe9074ba239c102a16e25c66cf2284b7a052dd9/matgl-2.2.1-py3-none-any.whl", hash = "sha256:b0d36fd4f16a61cf4e5d6a4f6271b2770c26c0dc2e12a7b1bd86d7f248f098e5", size = 337947, upload-time = "2026-04-27T10:37:53.583Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/b1/7fe0b243fcc8d9e2c02a9fc830d09ac330f27002b4c63d6ee0d6cf45d449/matgl-4.0.1-py3-none-any.whl", hash = "sha256:6d97634879ffc7d4ee869c11bf4ac715a4cade98c2da92229ea6a53291ff8fa3", size = 366926, upload-time = "2026-05-26T11:13:36.95Z" },
 ]
 
 [[package]]
@@ -3985,9 +3985,9 @@ requires-dist = [
     { name = "h5py", marker = "extra == 'optional'", specifier = ">=3.11.0" },
     { name = "hiphive", marker = "extra == 'optional'", specifier = ">=1.3.1" },
     { name = "jarvis-tools", marker = "extra == 'optional'", specifier = ">=2020.7.14" },
-    { name = "matcalc", marker = "python_full_version < '3.13' and extra == 'matcalc'", specifier = ">=0.4.0" },
-    { name = "matgl", marker = "python_full_version < '3.13' and extra == 'matcalc'", specifier = ">=2.0.4" },
-    { name = "matgl", marker = "python_full_version < '3.13' and extra == 'mlp'", specifier = ">=2.0.4" },
+    { name = "matcalc", marker = "python_full_version < '3.13' and extra == 'matcalc'", specifier = ">=0.5.0" },
+    { name = "matgl", marker = "python_full_version < '3.13' and extra == 'matcalc'", specifier = ">=4.0.1" },
+    { name = "matgl", marker = "python_full_version < '3.13' and extra == 'mlp'", specifier = ">=4.0.1" },
     { name = "moyopy", extras = ["interface"], marker = "extra == 'symmetry'", specifier = ">=0.3" },
     { name = "netcdf4", marker = "extra == 'abinit'", specifier = ">=1.7.2" },
     { name = "numba", marker = "extra == 'numba'", specifier = ">=0.55" },

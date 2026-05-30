@@ -66,10 +66,10 @@ Pypi = "https://pypi.org/project/pymatgen"
 abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.27.0"]
 matcalc = [
-    "matcalc>=0.4.0; python_version<'3.13'",
-    "matgl>=2.0.4; python_version<'3.13'",
+    "matcalc>=0.5.0; python_version<'3.13'",
+    "matgl>=4.0.1; python_version<'3.13'",
 ]
-mlp = ["matgl>=2.0.4 ; python_version<'3.13'"]
+mlp = ["matgl>=4.0.1 ; python_version<'3.13'"]
 numba = ["numba>=0.55"]
 numpy-v1 = [
     # NumPy 1.x has no wheels for Python 3.13, so this extra is a no-op there
