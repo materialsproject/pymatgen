@@ -6,11 +6,13 @@ import re
 from itertools import permutations, product
 from shutil import which
 
+import pandas as pd
 import pytest
 
 from pymatgen.analysis.prototypes import (
     WYCKOFF_POSITION_RELAB_DICT,
     AflowPrototypeMatcher,
+    PrototypeDatabaseMatcher,
     _find_translations,
     count_crystal_dof,
     count_crystal_sites,
@@ -41,39 +43,93 @@ except ImportError:
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/prototypes"
 
 
+def assert_common_prototype_matches(test, af):
+    struct = test.get_structure("Sn")
+    prototype = af.get_prototypes(struct)[0]
+
+    assert prototype["tags"] == {
+        "aflow": "A_cF8_227_a",
+        "mineral": "diamond",
+        "pearson": "cF8",
+        "strukturbericht": "A4",
+    }
+
+    struct = test.get_structure("CsCl")
+    prototype = af.get_prototypes(struct)[0]
+
+    assert prototype["tags"] == {
+        "aflow": "AB_cP2_221_b_a",
+        "mineral": "",
+        "pearson": "cP2",
+        "strukturbericht": "B2",
+    }
+
+    struct = test.get_structure("Li2O")
+    prototype = af.get_prototypes(struct)[0]
+
+    assert prototype["tags"] == {
+        "aflow": "AB2_cF12_225_a_c",
+        "mineral": "Fluorite",
+        "pearson": "cF12",
+        "strukturbericht": "C1",
+    }
+
+
 class TestAflowPrototypeMatcher(MatSciTest):
     def test_prototype_matching(self):
-        af = AflowPrototypeMatcher()
+        with pytest.warns(DeprecationWarning, match="AflowPrototypeMatcher is deprecated"):
+            af = AflowPrototypeMatcher()
 
+        assert_common_prototype_matches(self, af)
+
+    def test_deprecated_aflow_prototype_matcher(self):
+        with pytest.warns(DeprecationWarning, match="AflowPrototypeMatcher is deprecated"):
+            AflowPrototypeMatcher()
+
+    def test_deprecated_aflow_prototype_matcher_rejects_prototype_db(self):
+        with (
+            pytest.warns(DeprecationWarning, match="AflowPrototypeMatcher is deprecated"),
+            pytest.raises(TypeError, match="unexpected keyword argument 'prototype_db'"),
+        ):
+            AflowPrototypeMatcher(prototype_db=[])
+
+
+class TestPrototypeDatabaseMatcher(MatSciTest):
+    def test_prototype_matching(self):
+        from pymatgen.analysis.prototypes._data import AFLOW_PROTOTYPE_LIBRARY
+
+        assert_common_prototype_matches(self, PrototypeDatabaseMatcher(pd.DataFrame(AFLOW_PROTOTYPE_LIBRARY)))
+
+
+class TestCustomPrototypeDatabaseMatcher(MatSciTest):
+    class CustomPrototypeMatcher(PrototypeDatabaseMatcher):
+        @staticmethod
+        def _get_structure(row):
+            structure = row["structure"]
+            return Structure.from_dict(structure) if isinstance(structure, dict) else structure
+
+        @staticmethod
+        def _get_entry_data(row):
+            structure = row["structure"]
+            return {
+                "type": row["mineral"],
+                "distance": row["distance"],
+                "structure": Structure.from_dict(structure) if isinstance(structure, dict) else structure,
+            }
+
+    def test_prototype_db_matching(self):
         struct = self.get_structure("Sn")
-        prototype = af.get_prototypes(struct)[0]
+        prototype_db = pd.DataFrame([{"mineral": "tin", "distance": 0.1, "structure": struct}])
+        prototype = self.CustomPrototypeMatcher(prototype_db).get_prototypes(struct)[0]
 
-        assert prototype["tags"] == {
-            "aflow": "A_cF8_227_a",
-            "mineral": "diamond",
-            "pearson": "cF8",
-            "strukturbericht": "A4",
-        }
+        assert prototype == {"type": "tin", "distance": 0.1, "structure": struct}
 
-        struct = self.get_structure("CsCl")
-        prototype = af.get_prototypes(struct)[0]
+    def test_prototype_db_matching_with_structure_dicts(self):
+        struct = self.get_structure("Sn")
+        prototype_db = pd.DataFrame([{"mineral": "tin", "distance": 0.1, "structure": struct.as_dict()}])
+        prototype = self.CustomPrototypeMatcher(prototype_db).get_prototypes(struct)[0]
 
-        assert prototype["tags"] == {
-            "aflow": "AB_cP2_221_b_a",
-            "mineral": "",
-            "pearson": "cP2",
-            "strukturbericht": "B2",
-        }
-
-        struct = self.get_structure("Li2O")
-        prototype = af.get_prototypes(struct)[0]
-
-        assert prototype["tags"] == {
-            "aflow": "AB2_cF12_225_a_c",
-            "mineral": "Fluorite",
-            "pearson": "cF12",
-            "strukturbericht": "C1",
-        }
+        assert prototype == {"type": "tin", "distance": 0.1, "structure": struct}
 
 
 PROTOSTRUCTURE_SET = [
