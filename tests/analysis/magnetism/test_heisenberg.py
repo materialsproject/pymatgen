@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 from pytest import approx
 
-from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
+from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper, HeisenbergModel
 from pymatgen.core.structure import Structure
 from tests.testing import TEST_FILES_DIR
 
@@ -73,3 +73,23 @@ class TestHeisenbergMapper:
         for hm in self.hms:
             hmodel = hm.get_heisenberg_model()
             assert hmodel.formula == "Mn3Al"
+
+    def test_as_from_dict_round_trip(self):
+        # HeisenbergModel must survive MSON round-trips. as_dict() serializes
+        # ex_mat with jsanitize (a DataFrame becomes a dict), so from_dict()
+        # must accept a dict and not only a string.
+        # https://github.com/materialsproject/pymatgen/issues/4664
+        for hm in self.hms:
+            model = hm.get_heisenberg_model()
+
+            # First round-trip: ex_mat starts as a JSON string, becomes a DataFrame.
+            model_rt = HeisenbergModel.from_dict(model.as_dict())
+            assert isinstance(model_rt.ex_mat, pd.DataFrame)
+            assert model_rt.formula == model.formula
+
+            # Second round-trip: ex_mat is now a DataFrame, which jsanitize
+            # serializes to a dict. This raised
+            # "ValueError: malformed node or string" before the fix.
+            model_rt2 = HeisenbergModel.from_dict(model_rt.as_dict())
+            assert isinstance(model_rt2.ex_mat, pd.DataFrame)
+            pd.testing.assert_frame_equal(model_rt.ex_mat, model_rt2.ex_mat)
