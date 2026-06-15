@@ -19,6 +19,7 @@ from monty.serialization import dumpfn
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Ordering
+from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -41,7 +42,8 @@ class HeisenbergMapper:
     Attributes:
         strategy (object): Class from pymatgen.analysis.local_env for constructing graphs.
         sgraphs (list): StructureGraph objects.
-        unique_site_ids (dict): Maps each site to its unique numerical identifier.
+        unique_site_ids (list[dict]): One unique_site_ids dict per ordering, with
+            identifiers shared across orderings via a common parent cell.
         wyckoff_ids (dict): Maps unique numerical identifier to wyckoff position.
         nn_interactions (dict): {i: j} pairs of NN interactions between unique sites.
         dists (dict): NN, NNN, and NNNN interaction distances
@@ -87,8 +89,9 @@ class HeisenbergMapper:
         # Get graph representations
         self.sgraphs = self._get_graphs(cutoff, ordered_structures)
 
-        # Get unique site ids and wyckoff symbols
-        self.unique_site_ids, self.wyckoff_ids = self._get_unique_sites(ordered_structures[0])
+        # Get unique site ids (one map per ordering, anchored to a common
+        # parent cell) and wyckoff symbols
+        self.unique_site_ids, self.wyckoff_ids = self._get_unique_sites(ordered_structures)
 
         # These attributes are set by internal methods
         self.nn_interactions = self.dists = self.ex_mat = self.ex_params = None
@@ -120,43 +123,117 @@ class HeisenbergMapper:
         return [StructureGraph.from_local_env_strategy(s, strategy=strategy) for s in ordered_structures]
 
     @staticmethod
-    def _get_unique_sites(structure):
-        """Get dict that maps site indices to unique identifiers.
+    def _get_unique_sites(
+        structures: list[Structure],
+        parent: Structure | None = None,
+        pre_relaxation: list[Structure] | None = None,
+    ):
+        """Map sites to unique identifiers that are consistent across orderings.
+
+        Site identifiers are anchored to a common *parent cell* so that the same
+        crystallographic orbit receives the same id in every ordering,
+        independent of supercell size. This keeps the J_ij interaction labels
+        consistent across orderings that live in different supercells.
+
+        The parent cell is, in order of preference:
+
+        1. ``parent`` if provided (the paramagnetic cell fed to the enumeration);
+        2. otherwise the first input structure's primitive cell.
+
+        Symmetry is analysed on a nonmagnetic copy (magnetic moments zeroed) that retains
+        whatever ions are present, so e.g. an anion sublattice still constrains
+        the orbits.
+
+        When ``pre_relaxation`` is supplied, its undistorted
+        geometries are used for the symmetry analysis and site matching
+        (relaxation can artificially lower the detected symmetry); the resulting
+        ids still apply to ``structures`` because relaxation preserves site
+        ordering.
 
         Args:
-            structure (Structure): ground state Structure object.
+            structures (list[Structure]): Magnetic orderings to label.
+            parent (Structure): Paramagnetic parent cell. If None, the first
+                input structure's primitive cell is used as the parent.
+            pre_relaxation (list[Structure]): Enumerated orderings before
+                relaxation, aligned index-for-index with ``structures``.
 
         Returns:
-            tuple[dict, dict]: unique_site_ids maps tuples of equivalent site indices to a
-                unique int identifier.
-                wyckoff_ids maps tuples of equivalent site indices to their wyckoff symbols
+            tuple[list[dict], dict]:
+                - list of unique_site_ids dicts, one per input structure; each
+                  maps a tuple of equivalent site indices to a global int id
+                  that is shared across all structures.
+                - wyckoff_ids maps each global int id to its wyckoff symbol.
+
+        Raises:
+            ValueError: If a structure is not a supercell of the parent cell.
         """
-        # Get a nonmagnetic representation of the supercell geometry
-        s0 = CollinearMagneticStructureAnalyzer(
-            structure, make_primitive=False, threshold=0.0
-        ).get_nonmagnetic_structure(make_primitive=False)
 
-        # Get unique sites and wyckoff positions
-        if "wyckoff" in s0.site_properties:
-            s0.remove_site_property("wyckoff")
+        def nonmagnetic(struct):
+            """Zero the moments but keep every ion, for symmetry analysis."""
+            s0 = CollinearMagneticStructureAnalyzer(
+                struct, make_primitive=False, threshold=0.0
+            ).get_nonmagnetic_structure(make_primitive=False)
+            if "wyckoff" in s0.site_properties:
+                s0.remove_site_property("wyckoff")
+            return s0
 
-        symm_s0 = SpacegroupAnalyzer(s0).get_symmetrized_structure()
-        wyckoff = ["n/a"] * len(symm_s0)
-        equivalent_indices = symm_s0.equivalent_indices
-        wyckoff_symbols = symm_s0.wyckoff_symbols
+        geometries = pre_relaxation if pre_relaxation is not None else structures
 
-        # Construct dictionaries that map sites to numerical and wyckoff
-        # identifiers
-        unique_site_ids = {}
-        wyckoff_ids = {}
+        if parent is not None:
+            parent_struct = nonmagnetic(parent)
+        else:
+            parent_struct = nonmagnetic(geometries[0].get_primitive_structure())
 
-        for idx, (indices, symbol) in enumerate(zip(equivalent_indices, wyckoff_symbols, strict=True)):
-            unique_site_ids[tuple(indices)] = idx
-            wyckoff_ids[idx] = symbol
+        # The parent's symmetry orbits define the global site identifiers.
+        symm_parent = SpacegroupAnalyzer(parent_struct).get_symmetrized_structure()
+        parent_orbit = {}  # parent site index -> global id
+        wyckoff_ids = {}  # global id -> wyckoff symbol
+        for goid, (indices, symbol) in enumerate(
+            zip(symm_parent.equivalent_indices, symm_parent.wyckoff_symbols, strict=True)
+        ):
+            wyckoff_ids[goid] = symbol
             for index in indices:
-                wyckoff[index] = symbol
+                parent_orbit[index] = goid
+
+        # Tag each parent site with its orbit id so the StructureMatcher can
+        # carry the labels across when it folds each ordering back onto the
+        # parent.
+        parent_struct.add_site_property("orbit_id", [parent_orbit[idx] for idx in range(len(parent_struct))])
+        matcher = StructureMatcher(primitive_cell=False, attempt_supercell=True)
+
+        unique_site_ids = []
+        for s_idx, geom in enumerate(geometries):
+            s0 = nonmagnetic(geom)
+
+            # get_s2_like_s1 returns the parent supercell reordered so that its
+            # i-th site coincides with the i-th ordering site, or None if the
+            # ordering is not a (super)cell of the parent.
+            matched_parent = matcher.get_s2_like_s1(s0, parent_struct)
+            if matched_parent is None:
+                raise ValueError(
+                    f"Structure {s_idx} is not a supercell of the parent cell; its "
+                    "orderings cannot be mapped onto a common set of sites."
+                )
+
+            # matched_parent[i] is the parent site that ordering site i maps
+            # onto, so its orbit id is the global id of ordering site i. Collect
+            # all ordering sites that share each orbit id.
+            sites_by_orbit = {}
+            for site_idx, parent_site in enumerate(matched_parent.sites):
+                orbit_id = parent_site.properties["orbit_id"]
+                sites_by_orbit.setdefault(orbit_id, []).append(site_idx)
+
+            unique_site_ids.append({tuple(sorted(idxs)): goid for goid, idxs in sites_by_orbit.items()})
 
         return unique_site_ids, wyckoff_ids
+
+    @staticmethod
+    def _global_orbit_id(site_ids: dict, site_idx: int) -> int | None:
+        """Global id of the orbit containing site_idx, or None."""
+        for indices, goid in site_ids.items():
+            if site_idx in indices:
+                return goid
+        return None
 
     def _get_nn_dict(self):
         """Set self.nn_interactions and self.dists instance variables describing unique
@@ -164,7 +241,8 @@ class HeisenbergMapper:
         """
         tol = self.tol  # tolerance on NN distances
         sgraph = self.sgraphs[0]
-        unique_site_ids = self.unique_site_ids
+        # Distances/labels are derived from the first ordering, so use its map.
+        unique_site_ids = self.unique_site_ids[0]
 
         nn_dict = {}
         nnn_dict = {}
@@ -175,7 +253,7 @@ class HeisenbergMapper:
         # Loop over unique sites and get neighbor distances up to NNNN
         for k in unique_site_ids:
             i = k[0]
-            i_key = unique_site_ids[k]
+            i_goid = unique_site_ids[k]
             connected_sites = sgraph.get_connected_sites(i)
             dists = [round(cs[-1], 2) for cs in connected_sites]  # i<->j distances
             dists = sorted(set(dists))  # NN, NNN, NNNN, etc.
@@ -202,7 +280,7 @@ class HeisenbergMapper:
         # Get dictionary keys for interactions
         for k in unique_site_ids:
             i = k[0]
-            i_key = unique_site_ids[k]
+            i_goid = unique_site_ids[k]
             connected_sites = sgraph.get_connected_sites(i)
 
             # Loop over sites and determine unique NN, NNN, etc. interactions
@@ -210,16 +288,13 @@ class HeisenbergMapper:
                 dist = round(cs[-1], 2)  # i_j distance
 
                 j = cs[2]  # j index
-                j_key = None
-                for key, value in unique_site_ids.items():
-                    if j in key:
-                        j_key = value
+                j_goid = self._global_orbit_id(unique_site_ids, j)
                 if abs(dist - dists["nn"]) <= tol:
-                    nn_dict[i_key] = j_key
+                    nn_dict[i_goid] = j_goid
                 elif abs(dist - dists["nnn"]) <= tol:
-                    nnn_dict[i_key] = j_key
+                    nnn_dict[i_goid] = j_goid
                 elif abs(dist - dists["nnnn"]) <= tol:
-                    nnnn_dict[i_key] = j_key
+                    nnnn_dict[i_goid] = j_goid
 
         nn_interactions = {"nn": nn_dict, "nnn": nnn_dict, "nnnn": nnnn_dict}
 
@@ -274,18 +349,22 @@ class HeisenbergMapper:
             # Loop over all sites in each graph and compute |S_i . S_j|
             # for n+1 unique graphs to compute n exchange params
             order = ""
-            for _graph in sgraphs:
+            for graph_idx, _graph in enumerate(sgraphs):
                 sgraph = sgraphs_copy.pop(0)
+                # Each ordering lives in its own supercell, so resolve site
+                # indices against that ordering's map; the global ids it returns
+                # are shared across orderings (and with nn_interactions).
+                site_ids = unique_site_ids[graph_idx]
+                # Invert {sites: goid} -> {site: goid} once so the per-connection
+                # lookups below are O(1) instead of scanning every orbit.
+                goid_by_site = {site: goid for sites, goid in site_ids.items() for site in sites}
                 ex_row = pd.DataFrame(np.zeros((1, n_nn_j + 1)), index=[sgraph_index], columns=columns)
 
                 for idx, _node in enumerate(sgraph.graph.nodes):
                     # s_i_sign = np.sign(sgraph.structure.site_properties['magmom'][i])
                     s_i = sgraph.structure.site_properties["magmom"][idx]
 
-                    i_index = None
-                    for k, v in unique_site_ids.items():
-                        if idx in k:
-                            i_index = v
+                    i_goid = goid_by_site.get(idx)
 
                     # Get all connections for ith site and compute |S_i . S_j|
                     connections = sgraph.get_connected_sites(idx)
@@ -299,10 +378,7 @@ class HeisenbergMapper:
                         # s_j_sign = np.sign(sgraph.structure.site_properties['magmom'][j_site])
                         s_j = sgraph.structure.site_properties["magmom"][j_site]
 
-                        j_index = None
-                        for k, v in unique_site_ids.items():
-                            if j_site in k:
-                                j_index = v
+                        j_goid = goid_by_site.get(j_site)
 
                         # Determine order of connection
                         if abs(dist - dists["nn"]) <= tol:
@@ -312,13 +388,23 @@ class HeisenbergMapper:
                         elif abs(dist - dists["nnnn"]) <= tol:
                             order = "-nnnn"
 
-                        j_ij = f"{i_index}-{j_index}{order}"
-                        j_ji = f"{j_index}-{i_index}{order}"
+                        j_ij = f"{i_goid}-{j_goid}{order}"
+                        j_ji = f"{j_goid}-{i_goid}{order}"
 
                         if j_ij in ex_mat.columns:
                             ex_row.loc[sgraph_index, j_ij] -= s_i * s_j
                         elif j_ji in ex_mat.columns:
                             ex_row.loc[sgraph_index, j_ji] -= s_i * s_j
+
+                # The interaction sums above are extensive (summed over the whole
+                # supercell), but the energies are per magnetic ion (see
+                # HeisenbergScreener._do_cleanup).
+                # Normalising each row by its site count puts every ordering on
+                # the same per-ion normalisation, so orderings living in
+                # different-sized supercells can share a single fit.
+                # This also means that the E0 contribution is per magnetic ion,
+                # which the nonmagnetic energy contribution should be.
+                ex_row[j_columns] /= len(sgraph.structure)
 
                 # Ignore the row if it is a duplicate to avoid singular matrix
                 # Create a temporary DataFrame with the new row
@@ -500,7 +586,9 @@ class HeisenbergMapper:
         Returns:
             float: Critical temperature mft_t (K)
         """
-        n_sub_lattices = len(self.unique_site_ids)
+        # Number of magnetic sublattices = number of distinct global site ids
+        # (one per parent orbit), not the number of orderings.
+        n_sub_lattices = len(self.wyckoff_ids)
         k_boltzmann = 0.0861733  # meV/K
 
         # Only 1 magnetic sublattice
@@ -533,18 +621,22 @@ class HeisenbergMapper:
 
         return mft_t
 
-    def get_interaction_graph(self, filename=None):
+    def get_interaction_graph(self, filename=None, ordering_index=0):
         """Get a StructureGraph with edges and weights that correspond to exchange
         interactions and J_ij values, respectively.
 
         Args:
             filename (str): if not None, save interaction graph to filename.
+            ordering_index (int): Which ordering (and its supercell) to build the
+                interaction graph for. Site indices and the J_ij lookup use this
+                ordering's map. Defaults to 0 (the lowest-energy ordering).
 
         Returns:
             StructureGraph: Exchange interaction graph.
         """
-        structure = self.ordered_structures[0]
-        sgraph = self.sgraphs[0]
+        structure = self.ordered_structures[ordering_index]
+        sgraph = self.sgraphs[ordering_index]
+        site_ids = self.unique_site_ids[ordering_index]
 
         igraph = StructureGraph.from_empty_graph(
             structure, edge_weight_name="exchange_constant", edge_weight_units="meV"
@@ -565,7 +657,7 @@ class HeisenbergMapper:
                 j = c[2]  # index of neighbor
                 dist = c[-1]  # i <-> j distance
 
-                j_exc = self._get_j_exc(idx, j, dist)
+                j_exc = self._get_j_exc(idx, j, dist, site_ids)
 
                 igraph.add_edge(idx, j, to_jimage=jimage, weight=j_exc, warn_duplicates=False)
 
@@ -578,7 +670,7 @@ class HeisenbergMapper:
 
         return igraph
 
-    def _get_j_exc(self, i, j, dist):
+    def _get_j_exc(self, i, j, dist, site_ids):
         """
         Convenience method for looking up exchange parameter between two sites.
 
@@ -587,17 +679,18 @@ class HeisenbergMapper:
             j (int): index of jth site
             dist (float): distance (Angstrom) between sites
                 (10E-2 precision)
+            site_ids (dict): The unique_site_ids map (``self.unique_site_ids[k]``)
+                for the ordering that i and j index into, so their site indices
+                resolve to the correct global orbit ids.
 
         Returns:
             float: Exchange parameter J_exc in meV
         """
-        # Get unique site identifiers
-        i_index = j_index = 0
-        for k, v in self.unique_site_ids.items():
-            if i in k:
-                i_index = v
-            if j in k:
-                j_index = v
+        # Resolve site indices to global orbit ids using the caller-supplied map
+        # for the ordering i and j belong to. A missing site yields None, which
+        # simply won't match any J_ij key below (rather than aliasing to orbit 0).
+        i_index = self._global_orbit_id(site_ids, i)
+        j_index = self._global_orbit_id(site_ids, j)
 
         # Determine order of interaction
         order = ""
@@ -833,8 +926,9 @@ class HeisenbergModel(MSONable):
             cutoff (float): Cutoff in Angstrom for nearest neighbor search.
             tol (float): Tolerance (in Angstrom) on nearest neighbor distances being equal.
             sgraphs (list): StructureGraph objects.
-            unique_site_ids (dict): Maps each site to its unique numerical
-                identifier.
+            unique_site_ids (list[dict]): One map per ordering; each maps a tuple
+                of equivalent site indices to a global orbit identifier shared across
+                orderings.
             wyckoff_ids (dict): Maps unique numerical identifier to wyckoff
                 position.
             nn_interactions (dict): {i: j} pairs of NN interactions
@@ -944,48 +1038,3 @@ class HeisenbergModel(MSONable):
             javg=dct["javg"],
             igraph=igraph,
         )
-
-    def _get_j_exc(self, i, j, dist):
-        """
-        Convenience method for looking up exchange parameter between two sites.
-
-        Args:
-            i (int): index of ith site
-            j (int): index of jth site
-            dist (float): distance (Angstrom) between sites +- tol
-
-        Returns:
-            float: Exchange parameter J_exc in meV
-        """
-        # Get unique site identifiers
-        i_index = j_index = 0
-        for k in self.unique_site_ids:
-            if i in k:
-                i_index = self.unique_site_ids[k]
-            if j in k:
-                j_index = self.unique_site_ids[k]
-
-        # Determine order of interaction
-        order = ""
-        if abs(dist - self.dists["nn"]) <= self.tol:
-            order = "-nn"
-        elif abs(dist - self.dists["nnn"]) <= self.tol:
-            order = "-nnn"
-        elif abs(dist - self.dists["nnnn"]) <= self.tol:
-            order = "-nnnn"
-
-        j_ij = f"{i_index}-{j_index}{order}"
-        j_ji = f"{j_index}-{i_index}{order}"
-
-        if j_ij in self.ex_params:
-            j_exc = self.ex_params[j_ij]
-        elif j_ji in self.ex_params:
-            j_exc = self.ex_params[j_ji]
-        else:
-            j_exc = 0
-
-        # Check if only averaged NN <J> values are available
-        if "<J>" in self.ex_params and order == "-nn":
-            j_exc = self.ex_params["<J>"]
-
-        return j_exc
