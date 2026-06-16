@@ -982,7 +982,7 @@ class HeisenbergModel(MSONable):
     def from_dict(cls, dct: dict) -> Self:
         """Create a HeisenbergModel from a dict."""
         # Reconstitute the site ids
-        unique_site_ids = {}
+        unique_site_ids = []
         wyckoff_ids = {}
         nn_interactions = {}
 
@@ -993,12 +993,14 @@ class HeisenbergModel(MSONable):
                 nn_dict[key] = v1
             nn_interactions[k] = nn_dict
 
-        for k, v in dct["unique_site_ids"].items():
-            key = literal_eval(k)
-            if isinstance(key, int):
-                unique_site_ids[key,] = v
-            elif isinstance(key, tuple):
-                unique_site_ids[key] = v
+        # unique_site_ids is one map per ordering (a list of dicts); rebuild the
+        # tuple keys that jsanitize stringified for each ordering's map.
+        for site_map in dct["unique_site_ids"]:
+            rebuilt = {}
+            for k, v in site_map.items():
+                key = literal_eval(k)
+                rebuilt[(key,) if isinstance(key, int) else tuple(key)] = v
+            unique_site_ids.append(rebuilt)
 
         for k, v in dct["wyckoff_ids"].items():
             wyckoff_ids[literal_eval(k)] = v
