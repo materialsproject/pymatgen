@@ -40,13 +40,17 @@ class TestHeisenbergMapper:
 
     def test_sites(self):
         for hm in self.hms:
+            # One sublattice label per site, one label list per ordering
+            assert len(hm.site_labels) == len(hm.sgraphs)
+            # Site 0 of the first ordering belongs to sublattice 0
+            assert hm.site_labels[0][0] == 0
+
+            # unique_site_ids groups each ordering's sites by sublattice id
             unique_site_ids = hm.unique_site_ids
-            # One site map per ordering
             assert len(unique_site_ids) == len(hm.sgraphs)
-            # Site 0 of the first ordering belongs to global sublattice 0
-            assert hm._global_orbit_id(unique_site_ids[0], 0) == 0
-            # Global ids are shared across orderings and match the wyckoff labels
-            used_ids = {gid for site_map in unique_site_ids for gid in site_map.values()}
+            assert unique_site_ids[0][0, 1] == 0
+            # Sublattice ids are shared across orderings and match the wyckoff labels
+            used_ids = {sub for site_map in unique_site_ids for sub in site_map.values()}
             assert used_ids == set(hm.wyckoff_ids)
 
     def test_nn_interactions(self):
@@ -81,22 +85,19 @@ class TestHeisenbergMapper:
             hmodel = hm.get_heisenberg_model()
             assert hmodel.formula == "Mn3Al"
 
-    def test_as_from_dict_round_trip(self): 
-        # HeisenbergModel must survive MSON round-trips. as_dict() serializes
-        # ex_mat with jsanitize (a DataFrame becomes a dict), so from_dict()
-        # must accept a dict and not only a string.
+    def test_as_from_dict_round_trip(self):
+        # HeisenbergModel must survive repeated MSON round-trips. as_dict()
+        # serializes ex_mat with jsanitize (a DataFrame becomes a nested dict),
+        # so from_dict() must reconstruct the DataFrame from that dict.
         # https://github.com/materialsproject/pymatgen/issues/4664
         for hm in self.hms:
             model = hm.get_heisenberg_model()
 
-            # First round-trip: ex_mat starts as a JSON string, becomes a DataFrame.
             model_rt = HeisenbergModel.from_dict(model.as_dict())
             assert isinstance(model_rt.ex_mat, pd.DataFrame)
             assert model_rt.formula == model.formula
 
-            # Second round-trip: ex_mat is now a DataFrame, which jsanitize
-            # serializes to a dict. This raised
-            # "ValueError: malformed node or string" before the fix.
+            # A second round-trip must be a no-op on the exchange matrix.
             model_rt2 = HeisenbergModel.from_dict(model_rt.as_dict())
             assert isinstance(model_rt2.ex_mat, pd.DataFrame)
             pd.testing.assert_frame_equal(model_rt.ex_mat, model_rt2.ex_mat)
@@ -177,3 +178,37 @@ class TestHeisenbergMapperMixedSupercells:
         energies = [self._energy(fm), self._energy(stripe), -5.0]
         with pytest.raises(ValueError, match="parent cell"):
             HeisenbergMapper(structures, energies, cutoff=1.5, tol=0.02)
+
+
+class TestHeisenbergMapperFullCellSymmetry:
+    """Site equivalence must be read from the full structure. Removing the
+    nonmagnetic ions first can raise the apparent site symmetry and wrongly
+    merge magnetic sublattices that are actually distinct.
+    """
+
+    lattice = Lattice.from_parameters(6, 4, 4, 90, 90, 90)
+
+    def _ordering(self, spins, with_x=True):
+        # Two Fe that look equivalent on their own; an off-center nonmagnetic Zn
+        # breaks the symmetry between them.
+        species, coords, magmoms = ["Fe", "Fe"], [[0.0, 0.0, 0.0], [0.5, 0.0, 0.0]], list(spins)
+        if with_x:
+            species, coords, magmoms = [*species, "Zn"], [*coords, [0.18, 0.0, 0.0]], [*magmoms, 0.0]
+        return Structure(self.lattice, species, coords, site_properties={"magmom": magmoms})
+
+    def test_nonmagnetic_ions_split_sublattices(self):
+        structures = [self._ordering([3, 3]), self._ordering([3, -3])]
+        hm = HeisenbergMapper(structures, [-10.0, -9.0], cutoff=3.5, tol=0.02)
+
+        # The two Fe are distinct sublattices because of the off-center Zn.
+        assert len(hm.wyckoff_ids) == 2
+        assert hm.site_labels == [[0, 1], [0, 1]]
+
+    def test_stripping_nonmagnetic_ions_would_merge_sublattices(self):
+        # Without the nonmagnetic Zn the two Fe look equivalent (one sublattice).
+        # This is the skewed result the full-cell symmetry analysis avoids.
+        structures = [self._ordering([3, 3], with_x=False), self._ordering([3, -3], with_x=False)]
+        hm = HeisenbergMapper(structures, [-10.0, -9.0], cutoff=3.5, tol=0.02)
+
+        assert len(hm.wyckoff_ids) == 1
+        assert hm.site_labels == [[0, 0], [0, 0]]
