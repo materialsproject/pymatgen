@@ -105,16 +105,8 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         if min_r:
             recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
 
-        # Create a flattened array of coeffs, frac_coords and occus. This is
-        # used to perform vectorized computation of atomic scattering factors
-        # later. Note that these are not necessarily the same size as the
-        # structure as each partially occupied specie occupies its own
-        # position in the flattened array.
-        _coeffs = []
-        _frac_coords = []
-        _occus = []
-        _dwfactors = []
-
+        # --- Build per-site arrays ---
+        _coeffs, _frac_coords, _occus, _dw_factors = [], [], [], []
         for site in structure:
             for sp, occu in site.species.items():
                 try:
@@ -124,77 +116,96 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
                         f"Unable to calculate ND pattern as there is no scattering coefficients for {sp.symbol}."
                     )
                 _coeffs.append(c)
-                _dwfactors.append(self.debye_waller_factors.get(sp.symbol, 0))
+                _dw_factors.append(self.debye_waller_factors.get(sp.symbol, 0))
                 _frac_coords.append(site.frac_coords)
                 _occus.append(occu)
 
-        coeffs = np.array(_coeffs)
-        frac_coords = np.array(_frac_coords)
-        occus = np.array(_occus)
-        dw_factors = np.array(_dwfactors)
-        peaks: dict[float, list[float | list[tuple[int, ...]]]] = {}
-        two_thetas: list[float] = []
+        coeffs = np.asarray(_coeffs)  # (N,)
+        fcoords = np.asarray(_frac_coords)  # (N,3)
+        occus = np.asarray(_occus)  # (N,)
+        dwfactors = np.asarray(_dw_factors)  # (N,)
 
-        for hkl, g_hkl, ind, _ in sorted(recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
-            # Force miller indices to be integers
-            hkl = [round(i) for i in hkl]
-            if g_hkl != 0:
-                d_hkl = 1 / g_hkl
+        # --- Unpack reciprocal points ---
+        recip_pts_sorted = sorted(
+            recip_pts,
+            key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2]),
+        )
 
-                # Bragg condition
-                theta = math.asin(wavelength * g_hkl / 2)
+        hkls_raw = np.array([pt[0] for pt in recip_pts_sorted])
+        g_hkls = np.array([pt[1] for pt in recip_pts_sorted])
 
-                # s = sin(theta) / wavelength = 1 / 2d = |ghkl| / 2 (d =
-                # 1/|ghkl|)
-                s = g_hkl / 2
+        nonzero = g_hkls != 0
+        hkls_raw = hkls_raw[nonzero]
+        g_hkls = g_hkls[nonzero]
 
-                # Calculate Debye-Waller factor
-                dw_correction = np.exp(-dw_factors * (s**2))
+        hkls_int = np.round(hkls_raw).astype(int)  # (M, 3)
 
-                # Vectorized computation of g.r for all fractional coords and
-                # hkl
-                g_dot_r = np.dot(frac_coords, np.transpose([hkl])).T[0]
+        # --- Vectorized diffraction calculation ---
+        theta = np.arcsin(np.clip(wavelength * g_hkls / 2, -1, 1))
+        s2 = (g_hkls / 2) ** 2
 
-                # Structure factor = sum of atomic scattering factors (with
-                # position factor exp(2j * pi * g.r and occupancies).
-                # Vectorized computation.
-                f_hkl = np.sum(coeffs * occus * np.exp(2j * np.pi * g_dot_r) * dw_correction)
+        dw = np.exp(-dwfactors[None, :] * s2[:, None])
 
-                # Lorentz polarization correction for hkl
-                lorentz_factor = 1 / (math.sin(theta) ** 2 * math.cos(theta))
+        g_dot_r = hkls_int.astype(float) @ fcoords.T
 
-                # Intensity for hkl is modulus square of structure factor
-                i_hkl = (f_hkl * f_hkl.conjugate()).real
+        f_hkl = np.sum(
+            coeffs[None, :] * occus[None, :] * np.exp(2j * np.pi * g_dot_r) * dw,
+            axis=1,
+        )
 
-                two_theta = math.degrees(2 * theta)
+        i_hkl = (f_hkl * f_hkl.conjugate()).real
 
-                if is_hex:
-                    # Use Miller-Bravais indices for hexagonal lattices
-                    hkl = (hkl[0], hkl[1], -hkl[0] - hkl[1], hkl[2])
-                # Deal with floating point precision issues
-                ind = np.where(np.abs(np.subtract(two_thetas, two_theta)) < self.TWO_THETA_TOL)
-                if len(ind[0]) > 0:
-                    peaks[two_thetas[ind[0][0]]][0] += i_hkl * lorentz_factor
-                    peaks[two_thetas[ind[0][0]]][1].append(tuple(hkl))  # type: ignore[union-attr]
-                else:
-                    peaks[two_theta] = [i_hkl * lorentz_factor, [tuple(hkl)], d_hkl]
-                    two_thetas.append(two_theta)
+        sint = np.sin(theta)
+        cost = np.cos(theta)
+        lorentz = 1.0 / (sint**2 * cost)
 
-        # Scale intensities so that the max intensity is 100
+        intensities = i_hkl * lorentz
+        two_thetas_arr = np.degrees(2 * theta)
+
+        # --- Merge peaks within tolerance ---
+        tol = AbstractDiffractionPatternCalculator.TWO_THETA_TOL
+        bin_keys = np.round(two_thetas_arr / tol).astype(int)
+
+        peaks: dict[int, list] = {}
+
+        for m in range(len(g_hkls)):
+            hkl = tuple(int(v) for v in hkls_int[m])
+
+            if is_hex:
+                hkl = (hkl[0], hkl[1], -hkl[0] - hkl[1], hkl[2])
+
+            key = bin_keys[m]
+            d_hkl = 1.0 / g_hkls[m]
+
+            if key in peaks:
+                peaks[key][0] += float(intensities[m])
+                peaks[key][1].append(hkl)
+            else:
+                peaks[key] = [
+                    float(intensities[m]),
+                    [hkl],
+                    float(two_thetas_arr[m]),
+                    float(d_hkl),
+                ]
+
         max_intensity = max(v[0] for v in peaks.values())
-        x = []
-        y = []
-        hkls = []
-        d_hkls = []
+
+        x, y, hkls_out, d_hkls_out = [], [], [], []
+        tol_scaled = AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL
+
         for key in sorted(peaks):
-            v = peaks[key]
-            fam = get_unique_families(v[1])
-            if v[0] / max_intensity * 100 > self.SCALED_INTENSITY_TOL:  # type: ignore[operator]
-                x.append(key)
-                y.append(v[0])
-                hkls.append([{"hkl": hkl, "multiplicity": mult} for hkl, mult in fam.items()])
-                d_hkls.append(v[2])
-        nd = DiffractionPattern(x, y, hkls, d_hkls)
+            intensity, hkls, two_theta, d_hkl = peaks[key]
+            fam = get_unique_families(hkls)
+
+            if intensity / max_intensity * 100 > tol_scaled:
+                x.append(two_theta)
+                y.append(intensity)
+                hkls_out.append([{"hkl": hkl, "multiplicity": mult} for hkl, mult in fam.items()])
+                d_hkls_out.append(d_hkl)
+
+        nd = DiffractionPattern(x, y, hkls_out, d_hkls_out)
+
         if scaled:
             nd.normalize(mode="max", value=100)
+
         return nd
