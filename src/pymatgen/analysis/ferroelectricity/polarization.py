@@ -99,8 +99,6 @@ def get_total_ionic_dipole(structure, zval_dict):
 
     structure: pymatgen Structure
     zval_dict: specie, zval dictionary pairs
-    center (np.array with shape [3,1]) : dipole center used by VASP
-    tiny (float) : tolerance for determining boundary of calculation.
     """
     tot_ionic = []
     for site in structure:
@@ -116,7 +114,7 @@ def get_nearest_site(
     r: float | None = None,
 ):
     """
-    Given coords and a site, find closet site to coords.
+    Given coords and a site, find closest site to coords.
 
     Args:
         coords (3x1 array): Cartesian coords of center of sphere
