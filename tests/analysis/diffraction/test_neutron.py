@@ -46,10 +46,40 @@ class TestNDCalculator(MatSciTest):
         # Test a hexagonal structure.
         struct = self.get_structure("Graphite")
         pattern = c.get_pattern(struct, two_theta_range=(0, 90))
-        assert pattern.x[0] == approx(26.21057350859598)
-        assert pattern.y[0] == approx(100)
-        assert pattern.x[2] == approx(44.39599754)
-        assert pattern.y[2] == approx(42.62382267)
+
+        ## REGRESSION TEST: The following values were verified
+        #  with previous behaviour and should not change.
+        assert pattern.x == approx(
+            [
+                26.21057350859598,
+                42.249215447463456,
+                44.39599754062177,
+                50.40147067300912,
+                53.934657179755774,
+                59.41105634757505,
+                70.7958623079758,
+                77.25090657312492,
+                83.23145147001156,
+                84.40000457381223,
+                85.72222578052532,
+            ]
+        )
+
+        assert pattern.y == approx(
+            [
+                100.0,
+                7.749071690702165,
+                42.62382267,
+                11.446571148133131,
+                27.319449618794437,
+                26.410629403328624,
+                6.865301041009988,
+                49.345768779989406,
+                91.10964083311468,
+                16.85276599985274,
+                14.763509937143507,
+            ]
+        )
         assert len(pattern.hkls[0][0]) == approx(2)
 
         # Test an exception in case of the input element is
