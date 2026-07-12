@@ -4,7 +4,7 @@ name: test
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       [
         "src/**/*.*",
@@ -13,7 +13,7 @@ on:
         "pyproject.toml",
       ]
   pull_request:
-    branches: [master]
+    branches: [main]
     paths:
       [
         "src/**/*.*",
