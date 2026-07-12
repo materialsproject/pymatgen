@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from shutil import which
 
 import pytest
@@ -306,6 +307,49 @@ class TestMagneticStructureEnumerator:
         enumerator = MagneticStructureEnumerator(structure, transformation_kwargs=None)
         assert enumerator.transformation_kwargs["timeout"] == 5
         assert enumerator.transformation_kwargs["check_ordered_symmetry"] is False
+
+
+class TestMagneticStructureEnumeratorTruncation:
+    # Not gated on ENUMLIB_PRESENT: these tests call _generate_ordered_structures
+    # directly on a manually-built MagneticStructureEnumerator, so they don't need
+    # enumlib to generate orderings.
+    def test_truncate_by_symmetry_respects_configured_count(self):
+        # Regression test: truncate_by_symmetry used to be ignored by the actual
+        # truncation step, which had a hardcoded cap of 5 regardless of what the
+        # user configured. Build a set of structures with 5 distinct symmetries
+        # and confirm that requesting truncate_by_symmetry=2 actually keeps 2,
+        # not 5. Bypasses __init__ (and enumlib) since only the truncation logic
+        # in _generate_ordered_structures is under test.
+        base = Structure.from_spacegroup(225, Lattice.cubic(4.2), ["Ni", "O"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        lattices = [
+            Lattice.from_parameters(4.2, 4.2, 4.6, 90, 90, 90),  # tetragonal
+            Lattice.from_parameters(4.2, 4.6, 5.0, 90, 90, 90),  # orthorhombic
+            Lattice.from_parameters(4.2, 4.6, 5.0, 80, 90, 90),  # monoclinic
+            Lattice.from_parameters(4.2, 4.6, 5.0, 80, 85, 95),  # triclinic
+            Lattice.from_parameters(4.2, 4.6, 5.0, 70, 75, 100),  # lower-symmetry triclinic
+        ]
+        structures = [base, *(Structure(lat, ["Ni", "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]) for lat in lattices)]
+        # 6 structures spanning 5 distinct symmetry-op counts (192, 16, 8, 4, 2)
+        origins = ["fm", "afm1", "afm2", "afm3", "afm4", "afm5"]
+
+        def kept_origins(truncate_by_symmetry):
+            enumerator = object.__new__(MagneticStructureEnumerator)
+            enumerator.logger = logging.getLogger("test")
+            enumerator.truncate_by_symmetry = truncate_by_symmetry
+            enumerator.transformations = {}
+            enumerator.sanitized_structure = structures[0]
+            enumerator.num_orderings = 64
+            enumerator.input_analyzer = CollinearMagneticStructureAnalyzer(structures[0], overwrite_magmom_mode="none")
+            enumerator.ordered_structures = list(structures)
+            enumerator.ordered_structure_origins = list(origins)
+            _, out_origins = MagneticStructureEnumerator._generate_ordered_structures(enumerator, structures[0], {})
+            return out_origins
+
+        assert len(kept_origins(2)) == 2
+        assert len(kept_origins(3)) == 3
+        # only 5 distinct symmetry levels exist among the 6 structures, so
+        # truncate_by_symmetry=5 (and above) keeps everything
+        assert len(kept_origins(5)) == len(structures)
 
 
 class TestMagneticDeformation:
