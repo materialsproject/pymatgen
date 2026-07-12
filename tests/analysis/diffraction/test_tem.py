@@ -217,6 +217,30 @@ class TestTEMCalculator(MatSciTest):
         phi = tem_calc.get_interplanar_angle(hexagonal, (0, 0, 1), (1, 0, 6))
         assert phi == approx(21.0517, rel=1e-4)
 
+    def test_interplanar_angle_triclinic(self):
+        # Regression test: get_interplanar_angle's reciprocal-lattice-vector
+        # norm and dot-product formulas had copy-paste errors (cos_gamma_star
+        # used instead of cos_alpha_star in the k*l cross term of each norm,
+        # and p1[1] used instead of p1[2] in the h*l cross term of the dot
+        # product). These only show up when alpha/beta/gamma are all
+        # different from 90 degrees and from each other, which none of the
+        # cubic/tetragonal/hexagonal cases above exercise (their cos_alpha_star
+        # / cos_beta_star terms are zero, hiding the bug). Compare against an
+        # independent calculation using the crystallographic reciprocal
+        # lattice directly.
+        tem_calc = TEMCalculator()
+        lattice = Lattice.from_parameters(4.0, 5.0, 6.0, 80, 95, 70)
+        struct = Structure(lattice, ["Si"], [[0, 0, 0]])
+        p1, p2 = (1, 1, 1), (1, 0, 2)
+
+        recip = lattice.reciprocal_lattice_crystallographic
+        v1, v2 = recip.get_cartesian_coords(p1), recip.get_cartesian_coords(p2)
+        cos_phi_expected = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
+        phi_expected = np.rad2deg(np.arccos(cos_phi_expected))
+
+        phi = tem_calc.get_interplanar_angle(struct, p1, p2)
+        assert phi == approx(phi_expected, rel=1e-6)
+
     def test_get_plot_coeffs(self):
         # Test if x * p1 + y * p2 yields p3.
         tem_calc = TEMCalculator()
