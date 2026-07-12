@@ -2,7 +2,7 @@ name: Deploy Jekyll with GitHub Pages dependencies preinstalled
 
 on:
   push:
-    branches: ["master"]
+    branches: ["main"]
   workflow_dispatch: # enable manual workflow execution
   # Triggered by materialsproject/pymatgen-core's release workflow so the
   # combined API docs pick up the latest pymatgen-core release without a
