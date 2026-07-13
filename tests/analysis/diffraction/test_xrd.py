@@ -114,6 +114,36 @@ class TestXRDCalculator(MatSciTest):
             [{"hkl": (3, 1, 1), "multiplicity": 24}],
         ]
 
+    def test_get_pattern_non_centrosymmetric(self):
+        """Wurtzite ZnO (P6_3mc, non-centrosymmetric): F(hkl) is genuinely
+        complex, so Friedel's law I(g) = I(-g) rests on F(-g) = F*(g) rather
+        than the centrosymmetric special case of real F. Reference values were
+        generated with the full-sphere (pre Friedel-halving) implementation
+        and must not change. Multiplicities count both +l and -l reflections.
+        """
+        struct = Structure(
+            Lattice.hexagonal(3.25, 5.207),
+            ["Zn", "Zn", "O", "O"],
+            [
+                [1 / 3, 2 / 3, 0.0],
+                [2 / 3, 1 / 3, 0.5],
+                [1 / 3, 2 / 3, 0.3817],
+                [2 / 3, 1 / 3, 0.8817],
+            ],
+        )
+        xrd = XRDCalculator().get_pattern(struct, scaled=False, two_theta_range=(0, 90))
+
+        assert len(xrd.x) == 13
+        assert xrd.x[:4] == approx([31.793191209385288, 34.4481096267274, 36.28192404106642, 47.577360078761224])
+        assert xrd.y[:4] == approx([138729.92514225902, 106194.79943567653, 270038.0917113368, 61581.215456583785])
+        assert xrd.d_hkls[:4] == approx([2.814582562299426, 2.6035, 2.4760090064581086, 1.9112241235795175])
+        assert xrd.hkls[:4] == [
+            [{"hkl": (1, 0, -1, 0), "multiplicity": 6}],
+            [{"hkl": (0, 0, 0, 2), "multiplicity": 2}],
+            [{"hkl": (1, 0, -1, 1), "multiplicity": 12}],
+            [{"hkl": (1, 0, -1, 2), "multiplicity": 12}],
+        ]
+
     def test_get_pattern_chunked_matches_unchunked(self, monkeypatch):
         """Structure factors are accumulated in memory-bounded chunks of hkl
         rows; the result must not depend on the chunk size. Force one hkl row

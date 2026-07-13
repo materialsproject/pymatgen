@@ -196,17 +196,26 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 grp["frac_coords"].append(site.frac_coords)
                 grp["occus"].append(occu)
 
-        # --- Unpack reciprocal points & filter g_hkl == 0 ---
-        recip_pts_sorted = sorted(recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2]))
+        # --- Unpack reciprocal points, keep one Friedel half-space ---
+        # The atomic scattering factors are real (anomalous dispersion is
+        # not modeled), so Friedel's law I(g) = I(-g) holds exactly:
+        # F(-g) = F*(g). Only the half-space with (h, k, l) lexicographically
+        # positive is computed; intensities are doubled and the -g Miller
+        # indices are restored when collecting hkl families. This also
+        # excludes the (000) point and halves the sort.
+        hkls_int = np.round([pt[0] for pt in recip_pts]).astype(int)  # (M, 3)
+        g_hkls = np.array([pt[1] for pt in recip_pts])  # (M,)
 
-        hkls_raw = np.array([pt[0] for pt in recip_pts_sorted])  # (M, 3)
-        g_hkls = np.array([pt[1] for pt in recip_pts_sorted])  # (M,)
+        h, k, ell = hkls_int.T
+        half = (h > 0) | ((h == 0) & (k > 0)) | ((h == 0) & (k == 0) & (ell > 0))
+        hkls_int = hkls_int[half]  # (M/2, 3)
+        g_hkls = g_hkls[half]
 
-        nonzero = g_hkls != 0
-        hkls_raw = hkls_raw[nonzero]
-        g_hkls = g_hkls[nonzero]
-
-        hkls_int = np.round(hkls_raw).astype(int)  # (M, 3)
+        # Same ordering as the previous sorted(key=(g, -h, -k, -l)):
+        # np.lexsort is stable and takes keys in reverse priority order.
+        order = np.lexsort((-hkls_int[:, 2], -hkls_int[:, 1], -hkls_int[:, 0], g_hkls))
+        hkls_int = hkls_int[order]
+        g_hkls = g_hkls[order]
 
         # --- Fully vectorized computation over all M hkl points ---
         # shapes: (M,)
@@ -246,7 +255,8 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         cost = np.cos(theta)
         lorentz = (1 + cos2t**2) / (sint**2 * cost)
 
-        intensities = i_hkl * lorentz  # (M,)
+        # Factor 2: the -g half-space contributes identically (Friedel).
+        intensities = 2 * i_hkl * lorentz  # (M,)
         two_thetas_arr = np.degrees(2 * theta)  # (M,)
 
         # Merge peaks within TWO_THETA_TOL by binning: round each two_theta to the
@@ -257,15 +267,19 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         peaks: dict[int, list] = {}
         for m in range(len(g_hkls)):
             hkl = tuple(int(v) for v in hkls_int[m])  # np.int64 -> int
+            # Restore the -g reflection dropped by the Friedel halving so
+            # hkl families and multiplicities are reported as before.
+            neg_hkl = tuple(-v for v in hkl)
             if is_hex:
                 hkl = (hkl[0], hkl[1], -hkl[0] - hkl[1], hkl[2])
+                neg_hkl = (neg_hkl[0], neg_hkl[1], -neg_hkl[0] - neg_hkl[1], neg_hkl[2])
             key = bin_keys[m]
             d_hkl = 1.0 / g_hkls[m]
             if key in peaks:
                 peaks[key][0] += float(intensities[m])  # np.float64 -> float
-                peaks[key][1].append(hkl)
+                peaks[key][1] += (hkl, neg_hkl)
             else:
-                peaks[key] = [float(intensities[m]), [hkl], float(two_thetas_arr[m]), float(d_hkl)]
+                peaks[key] = [float(intensities[m]), [hkl, neg_hkl], float(two_thetas_arr[m]), float(d_hkl)]
 
         # --- Build output ---
         max_intensity = max(v[0] for v in peaks.values())
