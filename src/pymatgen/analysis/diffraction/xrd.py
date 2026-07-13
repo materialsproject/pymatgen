@@ -164,27 +164,31 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         if min_r:
             recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
 
-        # --- Build per-site arrays ---
-        _zs, _coeffs, _frac_coords, _occus, _dw_factors = [], [], [], [], []
+        # --- Group sites by element ---
+        # The scattering coefficients, atomic number and Debye-Waller factor
+        # depend only on the element, so the form factor is computed once per
+        # element over all hkl instead of once per atom.
+        species_groups: dict[str, dict] = {}
         for site in structure:
             for sp, occu in site.species.items():
-                _zs.append(sp.Z)
                 try:
-                    c = ATOMIC_SCATTERING_PARAMS[sp.symbol]
+                    coeff = ATOMIC_SCATTERING_PARAMS[sp.symbol]
                 except KeyError:
                     raise ValueError(
                         f"Unable to calculate XRD pattern as there is no scattering coefficients for {sp.symbol}."
                     )
-                _coeffs.append(c)
-                _dw_factors.append(self.debye_waller_factors.get(sp.symbol, 0))
-                _frac_coords.append(site.frac_coords)
-                _occus.append(occu)
-
-        zs = np.array(_zs)  # (N,)
-        coeffs = np.array(_coeffs)  # (N, 4, 2)
-        fcoords = np.array(_frac_coords)  # (N, 3)
-        occus = np.array(_occus)  # (N,)
-        dwfactors = np.array(_dw_factors)  # (N,)
+                grp = species_groups.setdefault(
+                    sp.symbol,
+                    {
+                        "z": sp.Z,
+                        "coeff": np.asarray(coeff),  # (n_coeff, 2)
+                        "dw_factor": self.debye_waller_factors.get(sp.symbol, 0),
+                        "frac_coords": [],
+                        "occus": [],
+                    },
+                )
+                grp["frac_coords"].append(site.frac_coords)
+                grp["occus"].append(occu)
 
         # --- Unpack reciprocal points & filter g_hkl == 0 ---
         recip_pts_sorted = sorted(recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2]))
@@ -203,27 +207,23 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         theta = np.arcsin(np.clip(wavelength * g_hkls / 2, -1, 1))
         s2 = (g_hkls / 2) ** 2  # (M,)
 
-        # Atomic scattering factors: (M, N)
-        #   fs[m, n] = zs[n] - 41.78214 * s2[m] * sum_k(coeffs[n,k,0] * exp(-coeffs[n,k,1]*s2[m]))
-        # coeffs: (N, 4, 2)  →  broadcast s2: (M, 1, 1)
-        s2_mnk = s2[:, None, None]  # (M, 1, 1)
-        gauss = np.sum(
-            coeffs[None, :, :, 0] * np.exp(-coeffs[None, :, :, 1] * s2_mnk),
-            axis=2,
-        )  # (M, N)
-        fs = zs[None, :] - 41.78214 * s2[:, None] * gauss  # (M, N)
+        hkls_float = hkls_int.astype(float)  # (M, 3)
 
-        # Debye-Waller per atom, per hkl: (M, N)
-        dw = np.exp(-dwfactors[None, :] * s2[:, None])
+        # Structure factors accumulated element by element: (M,)
+        #   F(g) = sum_e f_e(g) DW_e(g) sum_{j in e} occu_j exp(2 pi i g.r_j)
+        f_hkl = np.zeros(len(g_hkls), dtype=np.complex128)
+        for grp in species_groups.values():
+            coeff = grp["coeff"]  # (n_coeff, 2)
+            # Atomic scattering factor for this element: (M,)
+            #   f(s) = Z - 41.78214 * s^2 * sum_k(a_k * exp(-b_k * s^2))
+            fs = grp["z"] - 41.78214 * s2 * np.sum(coeff[:, 0] * np.exp(-coeff[:, 1] * s2[:, None]), axis=1)
+            if grp["dw_factor"]:
+                fs = fs * np.exp(-grp["dw_factor"] * s2)
 
-        # g·r for all hkl and all atoms: (M, N)
-        g_dot_r = hkls_int.astype(float) @ fcoords.T  # (M, N)
+            # Occupancy-weighted phase sum over this element's sites: (M,)
+            g_dot_r = hkls_float @ np.asarray(grp["frac_coords"]).T  # (M, m)
+            f_hkl += fs * (np.exp(2j * math.pi * g_dot_r) @ np.asarray(grp["occus"]))
 
-        # Structure factors: (M,)
-        f_hkl = np.sum(
-            fs * occus[None, :] * np.exp(2j * math.pi * g_dot_r) * dw,
-            axis=1,
-        )
         i_hkl = (f_hkl * f_hkl.conjugate()).real  # (M,)
 
         # Lorentz-polarization factor: (M,)

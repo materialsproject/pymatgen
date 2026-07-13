@@ -5,6 +5,7 @@ from pytest import approx
 
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import MatSciTest
 
@@ -87,6 +88,31 @@ class TestXRDCalculator(MatSciTest):
         assert xrd.x[0] == approx(40.294828554672264)
         assert xrd.y[0] == approx(2377745.2296686019)
         assert xrd.d_hkls[0] == approx(2.2382050944897789)
+
+    def test_get_pattern_disordered_species_dw(self):
+        """Disordered fcc Cu-Au with oxidation-state species, partial occupancies
+        and Debye-Waller factors: exercises the occupancy-weighted sum over
+        site.species and the symbol-keyed scattering/DW lookups. Reference
+        values were generated with the per-atom (pre grouped-by-element)
+        implementation and must not change.
+        """
+        struct = Structure(
+            Lattice.cubic(3.677),
+            [{Species("Cu2+"): 0.5, Species("Au3+"): 0.5}] * 4,
+            [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5]],
+        )
+        xrd_calc = XRDCalculator(debye_waller_factors={"Cu": 0.62, "Au": 0.58})
+        xrd = xrd_calc.get_pattern(struct, scaled=False, two_theta_range=(0, 90))
+
+        assert xrd.x == approx([42.58654814199049, 49.583339742779344, 72.7415377864004, 88.11241551060378])
+        assert xrd.y == approx([2823918.0596514726, 1327811.2328217993, 770012.3450414365, 910580.4261507628])
+        assert xrd.d_hkls == approx([2.1229169398102536, 1.8385, 1.3000158172114675, 1.1086572140124369])
+        assert xrd.hkls == [
+            [{"hkl": (1, 1, 1), "multiplicity": 8}],
+            [{"hkl": (2, 0, 0), "multiplicity": 6}],
+            [{"hkl": (2, 2, 0), "multiplicity": 12}],
+            [{"hkl": (3, 1, 1), "multiplicity": 24}],
+        ]
 
     def test_get_pattern_merge_regression(self):
         """
