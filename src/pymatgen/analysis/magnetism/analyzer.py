@@ -619,7 +619,7 @@ class MagneticStructureEnumerator:
             "antiferromagnetic",
         ),
         automatic: bool = True,
-        truncate_by_symmetry: int = True,
+        truncate_by_symmetry: bool | int = True,
         max_orderings: int | None = 64,
         transformation_kwargs: dict | None = None,
     ) -> None:
