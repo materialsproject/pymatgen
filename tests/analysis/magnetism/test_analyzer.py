@@ -351,6 +351,48 @@ class TestMagneticStructureEnumeratorTruncation:
         # truncate_by_symmetry=5 (and above) keeps everything
         assert len(kept_origins(5)) == len(structures)
 
+    def test_truncate_by_symmetry_default_true_keeps_five(self, monkeypatch):
+        # Regression test for the default path, which goes THROUGH __init__.
+        # bool is a subclass of int in Python, so the default truncate_by_symmetry=True
+        # (== 1) used to survive the `isinstance(..., int)` guard and turn the
+        # keep-count into 1 (the slice [:True] == [:1]), keeping only 1 symmetry
+        # level instead of the intended 5. Build 6 structures spanning 5 distinct
+        # symmetry-op counts and confirm the default keeps all 5 levels, and that
+        # the attribute is coerced to the integer 5 (not left as True).
+        base = Structure.from_spacegroup(225, Lattice.cubic(4.2), ["Ni", "O"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        lattices = [
+            Lattice.from_parameters(4.2, 4.2, 4.6, 90, 90, 90),  # tetragonal
+            Lattice.from_parameters(4.2, 4.6, 5.0, 90, 90, 90),  # orthorhombic
+            Lattice.from_parameters(4.2, 4.6, 5.0, 80, 90, 90),  # monoclinic
+            Lattice.from_parameters(4.2, 4.6, 5.0, 80, 85, 95),  # triclinic
+            Lattice.from_parameters(4.2, 4.6, 5.0, 70, 75, 100),  # lower-symmetry triclinic
+        ]
+        structures = [base, *(Structure(lat, ["Ni", "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]) for lat in lattices)]
+        origins = ["fm", "afm1", "afm2", "afm3", "afm4", "afm5"]
+
+        # Avoid enumlib: skip transformation generation, and seed the ordered
+        # structures directly so the real truncation logic in
+        # _generate_ordered_structures runs on our controlled set.
+        monkeypatch.setattr(MagneticStructureEnumerator, "_generate_transformations", lambda self, struct: {})
+
+        real_generate = MagneticStructureEnumerator._generate_ordered_structures
+
+        def seeded_generate(self, sanitized_input_structure, transformations):
+            self.ordered_structures = list(structures)
+            self.ordered_structure_origins = list(origins)
+            return real_generate(self, sanitized_input_structure, transformations)
+
+        monkeypatch.setattr(MagneticStructureEnumerator, "_generate_ordered_structures", seeded_generate)
+
+        # default truncate_by_symmetry=True (do not pass it explicitly)
+        enumerator = MagneticStructureEnumerator(base)
+
+        # True must be coerced to the integer 5, not left as True (== 1)
+        assert enumerator.truncate_by_symmetry == 5
+        assert not isinstance(enumerator.truncate_by_symmetry, bool)
+        # all 5 distinct symmetry levels kept, not just 1
+        assert len(enumerator.ordered_structures) == len(structures)
+
 
 class TestMagneticDeformation:
     def test_magnetic_deformation(self):
