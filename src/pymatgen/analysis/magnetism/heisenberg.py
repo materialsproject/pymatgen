@@ -130,7 +130,7 @@ class HeisenbergMapper:
     def _nonmagnetic(structure):
         """Nonmagnetic copy of a structure (moments zeroed, all ions kept)."""
         s0 = CollinearMagneticStructureAnalyzer(
-            structure, make_primitive=False, threshold=0.0
+            structure, make_primitive=False, threshold=0.0, threshold_nonmag=100.0
         ).get_nonmagnetic_structure(make_primitive=False)
         if "wyckoff" in s0.site_properties:
             s0.remove_site_property("wyckoff")
@@ -399,7 +399,7 @@ class HeisenbergMapper:
         fm_e = afm_e = fm_e_min = afm_e_min = 0
 
         for s, e in zip(self.ordered_structures, self.energies, strict=True):
-            ordering = CollinearMagneticStructureAnalyzer(s, threshold=0, make_primitive=False).ordering
+            ordering = CollinearMagneticStructureAnalyzer(s, threshold=0.0, threshold_nonmag=100.0, make_primitive=False).ordering
             magmoms = s.site_properties["magmom"]
 
             # Try to find matching orderings first
@@ -438,11 +438,11 @@ class HeisenbergMapper:
 
         # Convert to magnetic structures with 'magmom' site property
         fm_struct = CollinearMagneticStructureAnalyzer(
-            fm_struct, make_primitive=False, threshold=0.0
+            fm_struct, make_primitive=False, threshold=0.0, threshold_nonmag=100.0,
         ).get_structure_with_only_magnetic_atoms(make_primitive=False)
 
         afm_struct = CollinearMagneticStructureAnalyzer(
-            afm_struct, make_primitive=False, threshold=0.0
+            afm_struct, make_primitive=False, threshold=0.0, threshold_nonmag=100.0,
         ).get_structure_with_only_magnetic_atoms(make_primitive=False)
 
         return fm_struct, afm_struct, fm_e, afm_e
@@ -672,7 +672,8 @@ class HeisenbergScreener:
         # Standardize moments (zero threshold so small moments are preserved).
         # Keep both a full copy (all ions, needed for correct site symmetry) and
         # a magnetic-only copy (used to build the interaction graphs).
-        analyzers = [CollinearMagneticStructureAnalyzer(s, make_primitive=False, threshold=0.0) for s in structures]
+        # Make sure no induced moments are present (threshold_nonmag=100).
+        analyzers = [CollinearMagneticStructureAnalyzer(s, make_primitive=False, threshold=0.0, threshold_nonmag=100.0) for s in structures]
         full_structures = [analyzer.structure for analyzer in analyzers]
         ordered_structures = [
             analyzer.get_structure_with_only_magnetic_atoms(make_primitive=False) for analyzer in analyzers
