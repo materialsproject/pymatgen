@@ -100,6 +100,12 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
     # Tuple of available radiation keywords.
     AVAILABLE_RADIATION = tuple(WAVELENGTHS)
 
+    # Upper bound on the number of entries of the per-element phase matrix
+    # exp(2 pi i g.r) held in memory at once when accumulating structure
+    # factors (2^22 complex128 entries = 64 MB). Bounds peak memory for
+    # large structures and wide two-theta ranges; has no effect on results.
+    PHASE_CHUNK_ENTRIES = 4_194_304
+
     def __init__(self, wavelength="CuKa", symprec: float = 0, debye_waller_factors=None):
         """Initialize the XRD calculator with a given radiation.
 
@@ -220,9 +226,17 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
             if grp["dw_factor"]:
                 fs = fs * np.exp(-grp["dw_factor"] * s2)
 
-            # Occupancy-weighted phase sum over this element's sites: (M,)
-            g_dot_r = hkls_float @ np.asarray(grp["frac_coords"]).T  # (M, m)
-            f_hkl += fs * (np.exp(2j * math.pi * g_dot_r) @ np.asarray(grp["occus"]))
+            # Occupancy-weighted phase sum over this element's sites,
+            # accumulated in chunks of hkl rows so the (chunk, m) phase
+            # matrix never exceeds PHASE_CHUNK_ENTRIES entries.
+            fcoords_t = np.asarray(grp["frac_coords"]).T  # (3, m)
+            occus = np.asarray(grp["occus"])  # (m,)
+            n_sites = fcoords_t.shape[1]
+            chunk_rows = max(1, self.PHASE_CHUNK_ENTRIES // n_sites)
+            for start in range(0, len(g_hkls), chunk_rows):
+                rows = slice(start, start + chunk_rows)
+                g_dot_r = hkls_float[rows] @ fcoords_t  # (chunk, m)
+                f_hkl[rows] += fs[rows] * (np.exp(2j * math.pi * g_dot_r) @ occus)
 
         i_hkl = (f_hkl * f_hkl.conjugate()).real  # (M,)
 

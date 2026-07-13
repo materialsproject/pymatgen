@@ -114,6 +114,23 @@ class TestXRDCalculator(MatSciTest):
             [{"hkl": (3, 1, 1), "multiplicity": 24}],
         ]
 
+    def test_get_pattern_chunked_matches_unchunked(self, monkeypatch):
+        """Structure factors are accumulated in memory-bounded chunks of hkl
+        rows; the result must not depend on the chunk size. Force one hkl row
+        per chunk and compare against the effectively unchunked default.
+        """
+        struct = self.get_structure("LiFePO4")
+        xrd_calc = XRDCalculator()
+        ref = xrd_calc.get_pattern(struct, scaled=False, two_theta_range=(0, 90))
+
+        monkeypatch.setattr(XRDCalculator, "PHASE_CHUNK_ENTRIES", 1)
+        chunked = xrd_calc.get_pattern(struct, scaled=False, two_theta_range=(0, 90))
+
+        assert chunked.x == approx(ref.x)
+        assert chunked.y == approx(ref.y, rel=1e-12)
+        assert chunked.d_hkls == approx(ref.d_hkls)
+        assert chunked.hkls == ref.hkls
+
     def test_get_pattern_merge_regression(self):
         """
         Regression test for peak-merging behaviour. Assertion values were generated
