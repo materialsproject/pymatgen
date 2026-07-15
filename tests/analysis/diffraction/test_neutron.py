@@ -104,6 +104,23 @@ class TestNDCalculator(MatSciTest):
         assert pattern.x[2] == approx(44.39599754)
         assert pattern.y[2] == approx(39.471514740)
 
+    def test_get_pattern_chunked_matches_unchunked(self, monkeypatch):
+        """Structure factors are accumulated in memory-bounded chunks of hkl
+        rows; the result must not depend on the chunk size. Force one hkl row
+        per chunk and compare against the effectively unchunked default.
+        """
+        struct = self.get_structure("LiFePO4")
+        calc = NDCalculator(wavelength=1.54184, debye_waller_factors={"Fe": 0.4})
+        ref = calc.get_pattern(struct, scaled=False, two_theta_range=(0, 90))
+
+        monkeypatch.setattr(NDCalculator, "PHASE_CHUNK_ENTRIES", 1)
+        chunked = calc.get_pattern(struct, scaled=False, two_theta_range=(0, 90))
+
+        assert chunked.x == approx(ref.x)
+        assert chunked.y == approx(ref.y, rel=1e-12)
+        assert chunked.d_hkls == approx(ref.d_hkls)
+        assert chunked.hkls == ref.hkls
+
     def test_get_plot(self):
         struct = self.get_structure("Graphite")
         c = NDCalculator(wavelength=1.54184, debye_waller_factors={"C": 1})

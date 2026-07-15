@@ -49,6 +49,12 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
     Chapter13, Cambridge University Press 2003.
     """
 
+    # Upper bound on the number of entries of the phase matrix
+    # exp(2 pi i g.r) held in memory at once when accumulating structure
+    # factors (2^22 complex128 entries = 64 MB). Bounds peak memory for
+    # large structures and wide two-theta ranges; has no effect on results.
+    PHASE_CHUNK_ENTRIES = 4_194_304
+
     def __init__(self, wavelength=1.54184, symprec: float = 0, debye_waller_factors=None):
         """Initialize the ND calculator with a given radiation.
 
@@ -144,14 +150,22 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         theta = np.arcsin(np.clip(wavelength * g_hkls / 2, -1, 1))
         s2 = (g_hkls / 2) ** 2
 
-        dw = np.exp(-dwfactors[None, :] * s2[:, None])
+        hkls_float = hkls_int.astype(float)  # (M, 3)
+        b_occus = coeffs * occus  # (N,) scattering length x occupancy
+        has_dw = np.any(dwfactors != 0)
 
-        g_dot_r = hkls_int.astype(float) @ fcoords.T
-
-        f_hkl = np.sum(
-            coeffs[None, :] * occus[None, :] * np.exp(2j * np.pi * g_dot_r) * dw,
-            axis=1,
-        )
+        # Structure factors F(g) = sum_j b_j occu_j DW_j(g) exp(2 pi i g.r_j),
+        # accumulated in chunks of hkl rows so the (chunk, N) phase matrix
+        # never exceeds PHASE_CHUNK_ENTRIES entries.
+        n_sites = len(b_occus)
+        chunk_rows = max(1, self.PHASE_CHUNK_ENTRIES // n_sites)
+        f_hkl = np.zeros(len(g_hkls), dtype=np.complex128)
+        for start in range(0, len(g_hkls), chunk_rows):
+            rows = slice(start, start + chunk_rows)
+            phase = np.exp(2j * np.pi * (hkls_float[rows] @ fcoords.T))  # (chunk, N)
+            if has_dw:
+                phase *= np.exp(-dwfactors[None, :] * s2[rows, None])
+            f_hkl[rows] = phase @ b_occus
 
         i_hkl = (f_hkl * f_hkl.conjugate()).real
 
