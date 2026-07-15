@@ -46,10 +46,40 @@ class TestNDCalculator(MatSciTest):
         # Test a hexagonal structure.
         struct = self.get_structure("Graphite")
         pattern = c.get_pattern(struct, two_theta_range=(0, 90))
-        assert pattern.x[0] == approx(26.21057350859598)
-        assert pattern.y[0] == approx(100)
-        assert pattern.x[2] == approx(44.39599754)
-        assert pattern.y[2] == approx(42.62382267)
+
+        ## REGRESSION TEST: The following values were verified
+        #  with previous behaviour and should not change.
+        assert pattern.x == approx(
+            [
+                26.21057350859598,
+                42.249215447463456,
+                44.39599754062177,
+                50.40147067300912,
+                53.934657179755774,
+                59.41105634757505,
+                70.7958623079758,
+                77.25090657312492,
+                83.23145147001156,
+                84.40000457381223,
+                85.72222578052532,
+            ]
+        )
+
+        assert pattern.y == approx(
+            [
+                100.0,
+                7.749071690702165,
+                42.62382267,
+                11.446571148133131,
+                27.319449618794437,
+                26.410629403328624,
+                6.865301041009988,
+                49.345768779989406,
+                91.10964083311468,
+                16.85276599985274,
+                14.763509937143507,
+            ]
+        )
         assert len(pattern.hkls[0][0]) == approx(2)
 
         # Test an exception in case of the input element is
@@ -73,6 +103,57 @@ class TestNDCalculator(MatSciTest):
         assert pattern.y[0] == approx(100)
         assert pattern.x[2] == approx(44.39599754)
         assert pattern.y[2] == approx(39.471514740)
+
+    def test_get_pattern_non_centrosymmetric(self):
+        """Tetragonal BaTiO3 (P4mm, non-centrosymmetric) with Ti, whose
+        neutron scattering length is negative (-3.438 fm): F(hkl) is genuinely
+        complex, so Friedel's law I(g) = I(-g) rests on F(-g) = F*(g) rather
+        than the centrosymmetric special case of real F. Reference values were
+        generated with the full-sphere (pre Friedel-halving) implementation
+        and must not change. Multiplicities count both +l and -l reflections,
+        e.g. (001) has multiplicity 2 although P4mm does not relate +l to -l.
+        """
+        struct = Structure(
+            Lattice.tetragonal(3.9945, 4.0334),
+            ["Ba", "Ti", "O", "O", "O"],
+            [
+                [0.0, 0.0, 0.0],
+                [0.5, 0.5, 0.4820],
+                [0.5, 0.5, 0.0160],
+                [0.5, 0.0, 0.5150],
+                [0.0, 0.5, 0.5150],
+            ],
+        )
+        calc = NDCalculator(wavelength=1.54184)
+        pattern = calc.get_pattern(struct, scaled=False, two_theta_range=(0, 90))
+
+        assert len(pattern.x) == 27
+        assert pattern.x[:4] == approx([22.037944670652465, 22.255284684116262, 31.52181770727521, 31.678181395101802])
+        assert pattern.y[:4] == approx([453.13576368164007, 800.8355861573295, 1916.4711408968653, 971.0175541753043])
+        assert pattern.d_hkls[:4] == approx([4.0334, 3.9945, 2.838191301738583, 2.824538037449664])
+        assert pattern.hkls[:4] == [
+            [{"hkl": (0, 0, 1), "multiplicity": 2}],
+            [{"hkl": (1, 0, 0), "multiplicity": 4}],
+            [{"hkl": (1, 0, 1), "multiplicity": 8}],
+            [{"hkl": (1, 1, 0), "multiplicity": 4}],
+        ]
+
+    def test_get_pattern_chunked_matches_unchunked(self, monkeypatch):
+        """Structure factors are accumulated in memory-bounded chunks of hkl
+        rows; the result must not depend on the chunk size. Force one hkl row
+        per chunk and compare against the effectively unchunked default.
+        """
+        struct = self.get_structure("LiFePO4")
+        calc = NDCalculator(wavelength=1.54184, debye_waller_factors={"Fe": 0.4})
+        ref = calc.get_pattern(struct, scaled=False, two_theta_range=(0, 90))
+
+        monkeypatch.setattr(NDCalculator, "PHASE_CHUNK_ENTRIES", 1)
+        chunked = calc.get_pattern(struct, scaled=False, two_theta_range=(0, 90))
+
+        assert chunked.x == approx(ref.x)
+        assert chunked.y == approx(ref.y, rel=1e-12)
+        assert chunked.d_hkls == approx(ref.d_hkls)
+        assert chunked.hkls == ref.hkls
 
     def test_get_plot(self):
         struct = self.get_structure("Graphite")

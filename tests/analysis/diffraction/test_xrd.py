@@ -5,6 +5,7 @@ from pytest import approx
 
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import MatSciTest
 
@@ -87,6 +88,78 @@ class TestXRDCalculator(MatSciTest):
         assert xrd.x[0] == approx(40.294828554672264)
         assert xrd.y[0] == approx(2377745.2296686019)
         assert xrd.d_hkls[0] == approx(2.2382050944897789)
+
+    def test_get_pattern_disordered_species_dw(self):
+        """Disordered fcc Cu-Au with oxidation-state species, partial occupancies
+        and Debye-Waller factors: exercises the occupancy-weighted sum over
+        site.species and the symbol-keyed scattering/DW lookups. Reference
+        values were generated with the per-atom (pre grouped-by-element)
+        implementation and must not change.
+        """
+        struct = Structure(
+            Lattice.cubic(3.677),
+            [{Species("Cu2+"): 0.5, Species("Au3+"): 0.5}] * 4,
+            [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5]],
+        )
+        xrd_calc = XRDCalculator(debye_waller_factors={"Cu": 0.62, "Au": 0.58})
+        xrd = xrd_calc.get_pattern(struct, scaled=False, two_theta_range=(0, 90))
+
+        assert xrd.x == approx([42.58654814199049, 49.583339742779344, 72.7415377864004, 88.11241551060378])
+        assert xrd.y == approx([2823918.0596514726, 1327811.2328217993, 770012.3450414365, 910580.4261507628])
+        assert xrd.d_hkls == approx([2.1229169398102536, 1.8385, 1.3000158172114675, 1.1086572140124369])
+        assert xrd.hkls == [
+            [{"hkl": (1, 1, 1), "multiplicity": 8}],
+            [{"hkl": (2, 0, 0), "multiplicity": 6}],
+            [{"hkl": (2, 2, 0), "multiplicity": 12}],
+            [{"hkl": (3, 1, 1), "multiplicity": 24}],
+        ]
+
+    def test_get_pattern_non_centrosymmetric(self):
+        """Wurtzite ZnO (P6_3mc, non-centrosymmetric): F(hkl) is genuinely
+        complex, so Friedel's law I(g) = I(-g) rests on F(-g) = F*(g) rather
+        than the centrosymmetric special case of real F. Reference values were
+        generated with the full-sphere (pre Friedel-halving) implementation
+        and must not change. Multiplicities count both +l and -l reflections.
+        """
+        struct = Structure(
+            Lattice.hexagonal(3.25, 5.207),
+            ["Zn", "Zn", "O", "O"],
+            [
+                [1 / 3, 2 / 3, 0.0],
+                [2 / 3, 1 / 3, 0.5],
+                [1 / 3, 2 / 3, 0.3817],
+                [2 / 3, 1 / 3, 0.8817],
+            ],
+        )
+        xrd = XRDCalculator().get_pattern(struct, scaled=False, two_theta_range=(0, 90))
+
+        assert len(xrd.x) == 13
+        assert xrd.x[:4] == approx([31.793191209385288, 34.4481096267274, 36.28192404106642, 47.577360078761224])
+        assert xrd.y[:4] == approx([138729.92514225902, 106194.79943567653, 270038.0917113368, 61581.215456583785])
+        assert xrd.d_hkls[:4] == approx([2.814582562299426, 2.6035, 2.4760090064581086, 1.9112241235795175])
+        assert xrd.hkls[:4] == [
+            [{"hkl": (1, 0, -1, 0), "multiplicity": 6}],
+            [{"hkl": (0, 0, 0, 2), "multiplicity": 2}],
+            [{"hkl": (1, 0, -1, 1), "multiplicity": 12}],
+            [{"hkl": (1, 0, -1, 2), "multiplicity": 12}],
+        ]
+
+    def test_get_pattern_chunked_matches_unchunked(self, monkeypatch):
+        """Structure factors are accumulated in memory-bounded chunks of hkl
+        rows; the result must not depend on the chunk size. Force one hkl row
+        per chunk and compare against the effectively unchunked default.
+        """
+        struct = self.get_structure("LiFePO4")
+        xrd_calc = XRDCalculator()
+        ref = xrd_calc.get_pattern(struct, scaled=False, two_theta_range=(0, 90))
+
+        monkeypatch.setattr(XRDCalculator, "PHASE_CHUNK_ENTRIES", 1)
+        chunked = xrd_calc.get_pattern(struct, scaled=False, two_theta_range=(0, 90))
+
+        assert chunked.x == approx(ref.x)
+        assert chunked.y == approx(ref.y, rel=1e-12)
+        assert chunked.d_hkls == approx(ref.d_hkls)
+        assert chunked.hkls == ref.hkls
 
     def test_get_pattern_merge_regression(self):
         """
