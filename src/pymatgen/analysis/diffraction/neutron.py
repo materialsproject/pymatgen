@@ -49,6 +49,12 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
     Chapter13, Cambridge University Press 2003.
     """
 
+    # Upper bound on the number of entries of the phase matrix
+    # exp(2 pi i g.r) held in memory at once when accumulating structure
+    # factors (2^22 complex128 entries = 64 MB). Bounds peak memory for
+    # large structures and wide two-theta ranges; has no effect on results.
+    PHASE_CHUNK_ENTRIES = 4_194_304
+
     def __init__(self, wavelength=1.54184, symprec: float = 0, debye_waller_factors=None):
         """Initialize the ND calculator with a given radiation.
 
@@ -125,33 +131,47 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         occus = np.asarray(_occus)  # (N,)
         dwfactors = np.asarray(_dw_factors)  # (N,)
 
-        # --- Unpack reciprocal points ---
-        recip_pts_sorted = sorted(
-            recip_pts,
-            key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2]),
-        )
+        # --- Unpack reciprocal points, keep one Friedel half-space ---
+        # The neutron scattering lengths are real (bound coherent values;
+        # absorption/incoherent terms are not modeled), so Friedel's law
+        # I(g) = I(-g) holds exactly: F(-g) = F*(g). Only the half-space
+        # with (h, k, l) lexicographically positive is computed; intensities
+        # are doubled and the -g Miller indices are restored when collecting
+        # hkl families. This also excludes the (000) point and halves the sort.
+        hkls_int = np.round([pt[0] for pt in recip_pts]).astype(int)  # (M, 3)
+        g_hkls = np.array([pt[1] for pt in recip_pts])  # (M,)
 
-        hkls_raw = np.array([pt[0] for pt in recip_pts_sorted])
-        g_hkls = np.array([pt[1] for pt in recip_pts_sorted])
+        h, k, ell = hkls_int.T
+        half = (h > 0) | ((h == 0) & (k > 0)) | ((h == 0) & (k == 0) & (ell > 0))
+        hkls_int = hkls_int[half]  # (M/2, 3)
+        g_hkls = g_hkls[half]
 
-        nonzero = g_hkls != 0
-        hkls_raw = hkls_raw[nonzero]
-        g_hkls = g_hkls[nonzero]
-
-        hkls_int = np.round(hkls_raw).astype(int)  # (M, 3)
+        # Same ordering as the previous sorted(key=(g, -h, -k, -l)):
+        # np.lexsort is stable and takes keys in reverse priority order.
+        order = np.lexsort((-hkls_int[:, 2], -hkls_int[:, 1], -hkls_int[:, 0], g_hkls))
+        hkls_int = hkls_int[order]
+        g_hkls = g_hkls[order]
 
         # --- Vectorized diffraction calculation ---
         theta = np.arcsin(np.clip(wavelength * g_hkls / 2, -1, 1))
         s2 = (g_hkls / 2) ** 2
 
-        dw = np.exp(-dwfactors[None, :] * s2[:, None])
+        hkls_float = hkls_int.astype(float)  # (M, 3)
+        b_occus = coeffs * occus  # (N,) scattering length x occupancy
+        has_dw = np.any(dwfactors != 0)
 
-        g_dot_r = hkls_int.astype(float) @ fcoords.T
-
-        f_hkl = np.sum(
-            coeffs[None, :] * occus[None, :] * np.exp(2j * np.pi * g_dot_r) * dw,
-            axis=1,
-        )
+        # Structure factors F(g) = sum_j b_j occu_j DW_j(g) exp(2 pi i g.r_j),
+        # accumulated in chunks of hkl rows so the (chunk, N) phase matrix
+        # never exceeds PHASE_CHUNK_ENTRIES entries.
+        n_sites = len(b_occus)
+        chunk_rows = max(1, self.PHASE_CHUNK_ENTRIES // n_sites)
+        f_hkl = np.zeros(len(g_hkls), dtype=np.complex128)
+        for start in range(0, len(g_hkls), chunk_rows):
+            rows = slice(start, start + chunk_rows)
+            phase = np.exp(2j * np.pi * (hkls_float[rows] @ fcoords.T))  # (chunk, N)
+            if has_dw:
+                phase *= np.exp(-dwfactors[None, :] * s2[rows, None])
+            f_hkl[rows] = phase @ b_occus
 
         i_hkl = (f_hkl * f_hkl.conjugate()).real
 
@@ -159,7 +179,8 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         cost = np.cos(theta)
         lorentz = 1.0 / (sint**2 * cost)
 
-        intensities = i_hkl * lorentz
+        # Factor 2: the -g half-space contributes identically (Friedel).
+        intensities = 2 * i_hkl * lorentz
         two_thetas_arr = np.degrees(2 * theta)
 
         # --- Merge peaks within tolerance ---
@@ -170,20 +191,24 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
 
         for m in range(len(g_hkls)):
             hkl = tuple(int(v) for v in hkls_int[m])
+            # Restore the -g reflection dropped by the Friedel halving so
+            # hkl families and multiplicities are reported as before.
+            neg_hkl = tuple(-v for v in hkl)
 
             if is_hex:
                 hkl = (hkl[0], hkl[1], -hkl[0] - hkl[1], hkl[2])
+                neg_hkl = (neg_hkl[0], neg_hkl[1], -neg_hkl[0] - neg_hkl[1], neg_hkl[2])
 
             key = bin_keys[m]
             d_hkl = 1.0 / g_hkls[m]
 
             if key in peaks:
                 peaks[key][0] += float(intensities[m])
-                peaks[key][1].append(hkl)
+                peaks[key][1] += (hkl, neg_hkl)
             else:
                 peaks[key] = [
                     float(intensities[m]),
-                    [hkl],
+                    [hkl, neg_hkl],
                     float(two_thetas_arr[m]),
                     float(d_hkl),
                 ]
