@@ -520,7 +520,10 @@ class HeisenbergMapper:
                 omega[j, i] += ex_params[k]
 
             omega = omega * 2 / 3 / k_boltzmann
-            eigen_vals, _eigen_vecs = np.linalg.eig(omega)
+            # omega is symmetric by construction, so use eigvalsh to guarantee
+            # real eigenvalues (np.linalg.eig can return complex128 with zero
+            # imaginary part depending on the LAPACK build).
+            eigen_vals = np.linalg.eigvalsh(omega)
             mft_t = max(eigen_vals)
 
         if mft_t > 1500:  # Not sensible!
