@@ -433,6 +433,14 @@ class MPRester:
         response = self.request(f"materials/thermo/?_fields={','.join(fields)}&{query}")
         for dct in response:
             for entry in dct["entries"].values():
+                # Newer MP API responses serialize entry_id as a dict, e.g.
+                # {"identifier": "mp-1234", "suffix": "GGA+U", "separator": "-"}. Normalize back to the
+                # canonical string form (e.g. "mp-1234-GGA+U") so entry_id stays hashable and comparable.
+                if isinstance(entry.entry_id, dict):
+                    eid = entry.entry_id
+                    suffix = eid.get("suffix") or ""
+                    sep = eid.get("separator", "-") if suffix else ""
+                    entry.entry_id = f"{eid.get('identifier', '')}{sep}{suffix}"
                 if property_data:
                     for prop in property_data:
                         entry.data[prop] = dct[prop]
