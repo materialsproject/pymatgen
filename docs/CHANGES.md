@@ -10,6 +10,22 @@ Releases tagged `(pymatgen-core)` originate from the
 [pymatgen-core](https://github.com/materialsproject/pymatgen-core) repo (PR numbers refer
 to that repo) and are pulled in automatically.
 
+## v2026.7.16
+
+**Diffraction performance.** The XRD/neutron pattern generators are now fully vectorized and element-grouped.
+- PR #4684 `XRDCalculator.get_pattern`: compute atomic form factors once per unique element instead of once per atom, replacing the `(M, N_atoms, n_coeff)` broadcast with per-element `(M, n_coeff)` work and occupancy-weighted phase sums; cuts both runtime and peak memory on large structures. (by @mkphuthi)
+- PR #4678 Vectorize the neutron `get_pattern` path and expand its test coverage. (by @Bud-Macaulay)
+- PR #4661 Vectorize `get_pattern` in the xrd module; fix a hang at high tolerance. (by @Bud-Macaulay)
+
+**Features**
+- PR #4655 Genericise `AflowPrototypeMatcher` so it is no longer tied to AFLOW-specific prototype data. (by @CompRhys)
+
+**Fixes**
+- PR #4682 `MagneticStructureEnumerator._generate_ordered_structures`: honor the configured `truncate_by_symmetry` count instead of the hardcoded `[:5]` slice. (by @steps-re)
+- PR #4666 Fix `HeisenbergModel` MSON round-trip: `from_dict` now accepts the `jsanitize`d dict form of `ex_mat` (previously `literal_eval` raised `ValueError`), tolerates the legacy string form, and falls back to an empty matrix. (by @vasa-develop)
+- PR #4658 Strip H/O from the `PourbaixDiagram` composition dict. (by @SAY-5)
+- PR #4672 Fix typo and docstring in `polarization.py`. (by @mminotaki)
+
 ## v2026.5.19 (pymatgen-core)
 
 **Volumetric I/O.** `VolumetricData.parse_file` for CHGCAR/LOCPOT/ELFCAR is now backed by a Cython fast-float parser (vendored single-header `fast_float` C port). Roughly 6× faster than the prior `_plain_loadtxt` path on real fixtures and ~11× with parallel scaling experiments on multi-GB inputs (sequential path is what ships).
