@@ -619,7 +619,7 @@ class MagneticStructureEnumerator:
             "antiferromagnetic",
         ),
         automatic: bool = True,
-        truncate_by_symmetry: bool = True,
+        truncate_by_symmetry: bool | int = True,
         max_orderings: int | None = 64,
         transformation_kwargs: dict | None = None,
     ) -> None:
@@ -642,8 +642,11 @@ class MagneticStructureEnumerator:
                 means to use a different ordering parameter for symmetry inequivalent
                 sites)
             automatic (bool): if True, will automatically choose sensible strategies
-            truncate_by_symmetry (bool): if True, will remove very unsymmetrical
-                orderings that are likely physically implausible
+            truncate_by_symmetry (int): if True (default), will remove very
+                unsymmetrical orderings that are likely physically implausible,
+                keeping structures with the 5 most symmetric space groups. May
+                also be given as an int to keep a different number of the most
+                symmetric space groups.
             max_orderings (int): the maximum number of structures to return
             transformation_kwargs: keyword arguments to pass to
                 MagOrderingTransformation, to change automatic cell size limits, etc.
@@ -1016,8 +1019,10 @@ class MagneticStructureEnumerator:
 
         # also remove low symmetry structures
         if self.truncate_by_symmetry:
-            # by default, keep structures with 5 most symmetric space groups
-            if not isinstance(self.truncate_by_symmetry, int):
+            # by default, keep structures with 5 most symmetric space groups.
+            # note bool is a subclass of int, so the default True must be
+            # coerced explicitly, otherwise slicing by True would keep only 1.
+            if self.truncate_by_symmetry is True or not isinstance(self.truncate_by_symmetry, int):
                 self.truncate_by_symmetry = 5
 
             self.logger.info("Pruning low symmetry structures.")
@@ -1033,7 +1038,7 @@ class MagneticStructureEnumerator:
 
             # ...and decide which ones to keep
             if len(max_symmetries) > self.truncate_by_symmetry:
-                max_symmetries = max_symmetries[:5]
+                max_symmetries = max_symmetries[: self.truncate_by_symmetry]
             structs_to_keep = [(idx, num) for idx, num in enumerate(num_sym_ops) if num in max_symmetries]
 
             # sort so that highest symmetry structs are first

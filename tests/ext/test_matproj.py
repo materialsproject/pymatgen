@@ -165,31 +165,33 @@ def test_get_entries(mprester):
 
 
 def test_api_parity(mprester):
-    docs = (
-        "summary",
-        "core",
-        "elasticity",
-        "phonon",
-        "eos",
-        "similarity",
-        "xas",
-        "electronic_structure",
-        "robocrys",
-        "synthesis",
-        "magnetism",
-        "oxidation_states",
-        "provenance",
-        "alloys",
-        "chemenv",
-        "bonds",
-        "dielectric",
-    )
+    # Maps each doc endpoint to the filter param it accepts. Most use material_ids, but some MP API
+    # endpoints expose the material id under a different query param name.
+    docs = {
+        "summary": "material_ids",
+        "core": "material_ids",
+        "elasticity": "material_ids",
+        "phonon": "identifiers",
+        "eos": "task_ids",
+        "similarity": "material_ids",
+        "xas": "task_ids",
+        "electronic_structure": "material_ids",
+        "robocrys": "material_ids",
+        "synthesis": "material_ids",
+        "magnetism": "material_ids",
+        "oxidation_states": "material_ids",
+        "provenance": "material_ids",
+        "alloys": "material_ids",
+        "chemenv": "material_ids",
+        "bonds": "material_ids",
+        "dielectric": "material_ids",
+    }
 
-    for doc in docs:
+    for doc, param in docs.items():
         # We should have Al2O3 data for these properties.
-        data = mprester.materials.__getattribute__(doc).search(material_ids="mp-1143")
+        data = mprester.materials.__getattribute__(doc).search(**{param: "mp-1143"})
         assert len(data) > 0, f"No Al2O3 data returned for {doc}"
-        data = mprester.__getattribute__(doc).search(material_ids="mp-1143")
+        data = mprester.__getattribute__(doc).search(**{param: "mp-1143"})
         assert len(data) > 0, f"No Al2O3 data returned for {doc}"
 
     data = mprester.materials.substrates.search(sub_id="mp-1143")
