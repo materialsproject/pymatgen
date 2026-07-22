@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import logging
+
 import numpy as np
 import pandas as pd
 import pytest
 from pytest import approx
 
+from pymatgen.analysis.graphs import StructureGraph
+from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper, HeisenbergModel
 from pymatgen.core import Lattice
 from pymatgen.core.structure import Structure
@@ -12,21 +16,29 @@ from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
 
+# Same Boltzmann constant HeisenbergMapper.get_mft_temperature uses (meV/K).
+K_BOLTZMANN = 0.0861733
+
 
 class TestHeisenbergMapper:
+    """End-to-end run on real Mn3Al DFT orderings.
+
+    Mn3Al has no independently-known exchange constants -- the mapper is the only
+    estimator -- so asserting specific J or Tc values here would be circular.
+    These tests assert physical *invariants* instead (geometry, sublattice
+    structure, finiteness, MSON round-trips), and that the mapper flags the fit
+    as ill-conditioned rather than silently returning unphysical numbers. Exact
+    numeric recovery is validated on synthetic known-Hamiltonian models below.
+    """
+
     @classmethod
     def setup_class(cls):
-        cls.df = pd.read_json(f"{TEST_DIR}/mag_orderings_test_cases.json")
-
-        # Good tests
         cls.Mn3Al = pd.read_json(f"{TEST_DIR}/Mn3Al.json")
-
         cls.compounds = [cls.Mn3Al]
 
         cls.hms = []
         for c in cls.compounds:
-            ordered_structures = list(c["structure"])
-            ordered_structures = [Structure.from_dict(d) for d in ordered_structures]
+            ordered_structures = [Structure.from_dict(d) for d in c["structure"]]
             epa = list(c["energy_per_atom"])
             energies = [e * len(s) for (e, s) in zip(epa, ordered_structures, strict=True)]
 
@@ -35,8 +47,7 @@ class TestHeisenbergMapper:
 
     def test_graphs(self):
         for hm in self.hms:
-            struct_graphs = hm.sgraphs
-            assert len(struct_graphs) == 7
+            assert len(hm.sgraphs) == 7
 
     def test_sites(self):
         for hm in self.hms:
@@ -55,25 +66,27 @@ class TestHeisenbergMapper:
 
     def test_nn_interactions(self):
         for hm in self.hms:
-            n_interacts = len(hm.nn_interactions)
-            assert n_interacts == 3
+            assert len(hm.nn_interactions) == 3
+            assert hm.dists["nn"] == approx(2.51)
 
-            dists = hm.dists
-            assert dists["nn"] == approx(2.51)
-
-    def test_exchange_params(self):
+    def test_exchange_params_are_physical_invariants(self):
+        # No ground-truth J for real DFT data: assert structure and finiteness.
         for hm in self.hms:
             ex_params = hm.get_exchange()
-            assert ex_params["0-1-nn"] == approx(30.813729, abs=1e-2)
+            assert set(hm.wyckoff_ids) == {0, 1}  # two Mn sublattices (1a, 2c)
+            assert "E0" in ex_params
+            assert all(np.isfinite(v) for v in ex_params.values())
 
-    def test_mean_field(self):
+    def test_ill_conditioned_fit_warns(self, caplog):
+        # The Mn3Al system is over-parameterized: several orderings are
+        # near-degenerate, so H is nearly singular (cond ~ 1e6) and the fitted
+        # exchange constants are unphysical. The mapper must warn, not hand back
+        # garbage silently.
         for hm in self.hms:
-            j_avg = hm.estimate_exchange()
-            value = round(52.54997149705518, 3)
-            assert round(j_avg, 3) == value
-
-            mft_t = hm.get_mft_temperature(j_avg)
-            assert mft_t == approx(21596.7, abs=1)
+            with caplog.at_level(logging.WARNING):
+                hm.get_exchange()
+            assert "ill-conditioned" in caplog.text
+            caplog.clear()
 
     def test_get_igraph(self):
         for hm in self.hms:
@@ -178,6 +191,163 @@ class TestHeisenbergMapperMixedSupercells:
         energies = [self._energy(fm), self._energy(stripe), -5.0]
         with pytest.raises(ValueError, match="parent cell"):
             HeisenbergMapper(structures, energies, cutoff=1.5, tol=0.02)
+
+
+class TestHeisenbergMeanFieldTemperature:
+    """Single magnetic sublattice (square lattice, nearest-neighbor coupling
+    only) so both the average exchange and the mean-field critical temperature
+    have closed forms to check against:
+
+        <J> = z * J           (z = 4 nearest neighbors)
+        Tc  = 2 |<J>| / (3 k_B)
+    """
+
+    E0 = -5.0  # eV per magnetic ion
+    Z = 4  # nearest neighbors on the square lattice
+    NN_VECS = ((1, 0), (-1, 0), (0, 1), (0, -1))
+
+    @staticmethod
+    def _structure(spins):
+        spins = np.atleast_2d(np.asarray(spins, dtype=float))
+        n_y, n_x = spins.shape
+        lattice = Lattice.from_parameters(n_x, n_y, 10, 90, 90, 90)
+        coords = [[x / n_x, y / n_y, 0.5] for y in range(n_y) for x in range(n_x)]
+        magmoms = [spins[y, x] for y in range(n_y) for x in range(n_x)]
+        return Structure(lattice, ["Fe"] * (n_x * n_y), coords, site_properties={"magmom": magmoms})
+
+    def _energy(self, spins, j_nn):
+        spins = np.atleast_2d(np.asarray(spins, dtype=float))
+        n_y, n_x = spins.shape
+        e_ex = 0.0
+        for y in range(n_y):
+            for x in range(n_x):
+                s_i = spins[y, x]
+                nn = sum(s_i * spins[(y + dy) % n_y, (x + dx) % n_x] for dx, dy in self.NN_VECS)
+                e_ex -= 0.5 * j_nn * nn
+        return n_x * n_y * self.E0 + e_ex
+
+    def _mapper(self, j_nn):
+        fm, afm = [[1, 1], [1, 1]], [[1, -1], [-1, 1]]
+        structures = [self._structure(fm), self._structure(afm)]
+        energies = [self._energy(fm, j_nn), self._energy(afm, j_nn)]
+        # cutoff between NN (1.0) and NNN (sqrt(2)) keeps a single interaction
+        return HeisenbergMapper(structures, energies, cutoff=1.2, tol=0.02)
+
+    def test_single_sublattice_mft_matches_analytic(self):
+        j_nn = 0.010  # eV
+        hm = self._mapper(j_nn)
+        assert len(hm.wyckoff_ids) == 1  # one magnetic sublattice
+
+        j_avg = hm.estimate_exchange()
+        assert j_avg == approx(self.Z * j_nn * 1000, abs=1e-6)  # <J> = z * J (meV)
+
+        mft_t = hm.get_mft_temperature(j_avg)
+        tc_expected = 2 * abs(self.Z * j_nn * 1000) / 3 / K_BOLTZMANN
+        assert mft_t == approx(tc_expected, abs=1e-3)  # ~309.5 K
+
+    @pytest.mark.parametrize(("j_nn", "fm_ground_state"), [(0.010, True), (-0.010, False)])
+    def test_exchange_sign_follows_ground_state(self, j_nn, fm_ground_state):
+        # J > 0 stabilizes FM (<J> > 0); J < 0 stabilizes AFM (<J> < 0).
+        hm = self._mapper(j_nn)
+        j_avg = hm.estimate_exchange()
+        assert bool(j_avg > 0) == fm_ground_state
+        assert j_avg == approx(self.Z * j_nn * 1000, abs=1e-6)
+
+
+class TestHeisenbergTwoSublatticeCoupling:
+    """Two inequivalent magnetic sublattices (Mn, Fe) arranged on a checkerboard
+    so the parent cell has two Wyckoff orbits. The mapper must resolve a separate
+    exchange constant for *each* sublattice pair (A-B nearest neighbor, A-A and
+    B-B next-nearest neighbor) rather than averaging them, and the coupled
+    mean-field temperature must follow from those constants.
+    """
+
+    E0 = -5.0  # eV per magnetic ion
+    J_AB, J_AA, J_BB = 0.011, 0.004, -0.006  # eV, all distinct
+    A, B = "Mn", "Fe"
+    NN, NNN = 1.0, np.sqrt(2)  # a = sqrt(2): A-B nn = 1, A-A / B-B nnn = sqrt(2)
+
+    # Orderings as (A-sublattice spins, B-sublattice spins) grids, in 1x1 and 2x2
+    # supercells of the parent, chosen to constrain all three couplings + E0.
+    ORDERINGS = (
+        ([[1]], [[1]]),  # FM
+        ([[1]], [[-1]]),  # A up, B down
+        ([[1, -1], [-1, 1]], [[1, 1], [1, 1]]),  # A Neel, B FM
+        ([[1, 1], [1, 1]], [[1, -1], [-1, 1]]),  # A FM, B Neel
+        ([[1, -1], [-1, 1]], [[1, -1], [-1, 1]]),  # both Neel
+    )
+
+    @classmethod
+    def _structure(cls, spins_a, spins_b):
+        spins_a = np.atleast_2d(np.asarray(spins_a, dtype=float))
+        spins_b = np.atleast_2d(np.asarray(spins_b, dtype=float))
+        n_y, n_x = spins_a.shape
+        a = np.sqrt(2)
+        lattice = Lattice.from_parameters(n_x * a, n_y * a, 10, 90, 90, 90)
+        species, coords, magmoms = [], [], []
+        for y in range(n_y):
+            for x in range(n_x):
+                species += [cls.A, cls.B]
+                coords += [[x / n_x, y / n_y, 0.5], [(x + 0.5) / n_x, (y + 0.5) / n_y, 0.5]]
+                magmoms += [spins_a[y, x], spins_b[y, x]]
+        return Structure(lattice, species, coords, site_properties={"magmom": magmoms})
+
+    def _energy(self, struct):
+        # Forward Heisenberg energy on the mapper's own neighbor graph: the
+        # neighbor topology is a geometric fact, while the coupling assigned to
+        # each (sublattice pair, shell) is the physics the mapper must invert.
+        graph = StructureGraph.from_local_env_strategy(struct, MinimumDistanceNN(cutoff=1.5, get_all_sites=True))
+        j_by_pair = {
+            (frozenset((self.A, self.B)), "nn"): self.J_AB,
+            (frozenset((self.A,)), "nnn"): self.J_AA,
+            (frozenset((self.B,)), "nnn"): self.J_BB,
+        }
+        mags = struct.site_properties["magmom"]
+        e_ex = 0.0
+        for i in range(len(struct)):
+            for cs in graph.get_connected_sites(i):
+                j, dist = cs[2], cs[-1]
+                if abs(dist - self.NN) < 0.05:
+                    shell = "nn"
+                elif abs(dist - self.NNN) < 0.05:
+                    shell = "nnn"
+                else:
+                    continue
+                pair = frozenset((struct[i].specie.symbol, struct[j].specie.symbol))
+                e_ex -= 0.5 * j_by_pair[pair, shell] * mags[i] * mags[j]
+        return len(struct) * self.E0 + e_ex
+
+    def _mapper(self):
+        structures = [self._structure(sa, sb) for sa, sb in self.ORDERINGS]
+        energies = [self._energy(s) for s in structures]
+        return HeisenbergMapper(structures, energies, cutoff=1.5, tol=0.02)
+
+    def test_distinct_sublattice_couplings_resolved(self):
+        hm = self._mapper()
+        assert len(hm.wyckoff_ids) == 2  # Mn and Fe are distinct sublattices
+
+        ex_params = hm.get_exchange()
+        # One constant per sublattice pair, each recovered independently. Compare
+        # the (order-independent) multiset of J values against the inputs.
+        j_values = sorted(v for k, v in ex_params.items() if k != "E0")
+        expected = sorted([self.J_AB * 1000, self.J_AA * 1000, self.J_BB * 1000])
+        assert len(j_values) == 3
+        assert j_values == approx(expected, abs=1e-6)
+        assert ex_params["E0"] == approx(self.E0, abs=1e-8)
+
+    def test_multi_sublattice_mft_matches_analytic(self):
+        hm = self._mapper()
+        hm.get_exchange()  # populates ex_params used by the multi-sublattice branch
+
+        mft_t = hm.get_mft_temperature(hm.estimate_exchange())
+
+        # get_mft_temperature builds omega = (2/3 k_B) * [[2 Jaa, Jab], [Jab, 2 Jbb]]
+        # and takes its largest eigenvalue. That eigenvalue is symmetric in
+        # (Jaa, Jbb), so it does not depend on which sublattice is labelled 0/1.
+        jab, jaa, jbb = self.J_AB * 1000, self.J_AA * 1000, self.J_BB * 1000
+        max_eig = (jaa + jbb) + np.sqrt((jaa - jbb) ** 2 + jab**2)
+        tc_expected = 2 / 3 / K_BOLTZMANN * max_eig
+        assert mft_t == approx(tc_expected, rel=1e-9)
 
 
 class TestHeisenbergMapperFullCellSymmetry:

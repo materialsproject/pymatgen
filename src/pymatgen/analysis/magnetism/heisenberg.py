@@ -55,7 +55,8 @@ class HeisenbergMapper:
         nn_interactions (dict): {i: j} pairs of NN interactions between sublattices.
         dists (dict): NN, NNN, and NNNN interaction distances.
         ex_mat (DataFrame): Heisenberg Hamiltonian (per magnetic ion) for each ordering.
-        ex_params (dict): Exchange parameter values (meV).
+        ex_params (dict): Exchange parameter values. The J_ij are in meV; the
+            included 'E0' offset stays in eV.
     """
 
     def __init__(self, ordered_structures, energies, parent=None, cutoff=0, tol: float = 0.02):
@@ -295,8 +296,8 @@ class HeisenbergMapper:
         return columns[: len(self.sgraphs) + 1]
 
     def _get_exchange_df(self):
-        """Build the Heisenberg Hamiltonian, one row per ordering, by counting
-        +-|S_i . S_j| over each graph. Sets self.ex_mat.
+        """Build the Heisenberg Hamiltonian, one row per ordering, by summing the
+        signed products S_i . S_j over each graph. Sets self.ex_mat.
 
         Each row is normalised per magnetic ion so that orderings living in
         different-sized supercells share a single linear system (the energies are
@@ -362,7 +363,8 @@ class HeisenbergMapper:
         solve for the exchange parameters.
 
         Returns:
-            dict[str, float]: Exchange parameters (meV).
+            dict[str, float]: Exchange parameters. The J_ij are in meV; the
+                included 'E0' offset stays in eV.
         """
         ex_mat = self.ex_mat
         E = ex_mat[["E"]]
@@ -376,6 +378,19 @@ class HeisenbergMapper:
 
         # Solve the linear system for E0 and the J_ij
         H = np.array(ex_mat.loc[:, ex_mat.columns != "E"].values).astype(float)
+
+        # Warn when the fit is ill-conditioned: near-degenerate orderings or an
+        # over-parameterized model make H nearly singular, so tiny energy
+        # differences blow up into unphysical exchange parameters.
+        cond = np.linalg.cond(H)
+        if cond > 1e5:
+            logger.warning(
+                f"Exchange matrix is ill-conditioned (cond={cond:.1e}); the fitted exchange "
+                "parameters are unreliable. The input orderings are near-degenerate or the "
+                "model has more parameters than the orderings can constrain. Supply more, "
+                "more-distinct orderings."
+            )
+
         j_ij = np.dot(np.linalg.inv(H), E)
 
         j_ij[1:] *= 1000  # J_ij in meV (E0 stays in eV)
@@ -453,8 +468,8 @@ class HeisenbergMapper:
         Args:
             fm_struct (Structure): fm structure with 'magmom' site property
             afm_struct (Structure): afm structure with 'magmom' site property
-            fm_e (float): fm energy/atom
-            afm_e (float): afm energy/atom
+            fm_e (float): fm energy per magnetic ion
+            afm_e (float): afm energy per magnetic ion
 
         Returns:
             float: Average J exchange parameter (meV)
@@ -486,7 +501,7 @@ class HeisenbergMapper:
         material.
 
         Args:
-            j_avg (float): Average exchange parameter (meV/atom)
+            j_avg (float): Average exchange parameter (meV)
 
         Returns:
             float: Critical temperature mft_t (K)
@@ -555,6 +570,14 @@ class HeisenbergMapper:
                 jimage = c[1]  # relative integer coordinates of atom j
                 j = c[2]  # index of neighbor
                 j_exc = self._get_j_exc(labels[i], labels[j], c[-1])
+                # Only add bonds the fit actually parameterized. Unparameterized
+                # bonds (no matching sublattice-pair/shell in ex_params, exactly
+                # the bonds _get_exchange_df also ignores) get j_exc == 0, which
+                # StructureGraph.add_edge silently drops via its falsy-weight
+                # guard, leaving an edge with weight=None that breaks downstream
+                # per-bond consumers.
+                if not j_exc:
+                    continue
                 igraph.add_edge(i, j, to_jimage=jimage, weight=j_exc, warn_duplicates=False)
 
         if filename:
@@ -626,7 +649,7 @@ class HeisenbergScreener:
 
         Args:
             structures (list): Structure objects with magnetic moments.
-            energies (list): Energies/atom of magnetic orderings.
+            energies (list): Total energies of magnetic orderings.
             screen (bool): Try to screen out high energy and low-spin configurations.
 
         Attributes:
@@ -789,7 +812,8 @@ class HeisenbergModel(MSONable):
             nn_interactions (dict): {i: j} pairs of NN interactions between sublattices.
             dists (dict): NN, NNN, and NNNN interaction distances.
             ex_mat (DataFrame): Heisenberg Hamiltonian (per magnetic ion) for each ordering.
-            ex_params (dict): Exchange parameter values (meV).
+            ex_params (dict): Exchange parameter values. The J_ij are in meV; the
+                included 'E0' offset stays in eV.
             javg (float): <J> exchange param (meV).
             igraph (StructureGraph): Exchange interaction graph.
         """
