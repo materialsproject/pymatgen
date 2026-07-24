@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 from ast import literal_eval
 from typing import TYPE_CHECKING
+from abc import ABC
 
 import numpy as np
 import pandas as pd
@@ -96,12 +97,13 @@ class HeisenbergMapper:
         self.tol = tol
 
         # Graph representation of each (magnetic-only) ordering
-        self.sgraphs = self._get_graphs(cutoff, self.ordered_structures)
+        self.sgraphs = [self._get_graph(cutoff, s) for s in self.ordered_structures]
 
         # The parent cell defines the sublattices; label every magnetic site in
         # every ordering with the parent sublattice it belongs to.
         self.parent = self._get_parent(parent, self.full_structures)
-        self.wyckoff_ids, self.site_labels = self._label_orderings(self.parent, self.full_structures)
+        self.parent_sgraph = self._get_graph(cutoff, self._magnetic_only(self.parent))
+        self.wyckoff_ids, self.site_labels, self.parent_site_labels = self._label_orderings(self.parent, self.full_structures)
 
         # These attributes are set by internal methods
         self.nn_interactions = self.dists = self.ex_mat = self.ex_params = None
@@ -113,19 +115,19 @@ class HeisenbergMapper:
         self._get_exchange_df()
 
     @staticmethod
-    def _get_graphs(cutoff, ordered_structures):
-        """Generate graph representations of magnetic structures with nearest
+    def _get_graph(cutoff, structure):
+        """Generate graph representations of a magnetic structure with nearest
         neighbor bonds. Right now this only works for MinimumDistanceNN.
 
         Args:
             cutoff (float): Cutoff in Angstrom for nearest neighbor search.
-            ordered_structures (list): Structure objects.
+            structure (Structure): A single magnetic structure.
 
         Returns:
-            list[StructureGraph]: One graph per ordering.
+            StructureGraph: The graph representation of the structure.
         """
         strategy = MinimumDistanceNN(cutoff=cutoff, get_all_sites=True) if cutoff else MinimumDistanceNN()  # only NN
-        return [StructureGraph.from_local_env_strategy(s, strategy=strategy) for s in ordered_structures]
+        return StructureGraph.from_local_env_strategy(structure, strategy=strategy)
 
     @staticmethod
     def _nonmagnetic(structure):
@@ -137,9 +139,29 @@ class HeisenbergMapper:
             s0.remove_site_property("wyckoff")
         return s0
 
+    @staticmethod
+    def _magnetic_only(structure):
+        """Magnetic-only copy of a structure (nonmagnetic ions removed).
+
+        Magnetic sites are taken from CollinearMagneticStructureAnalyzer's
+        default magmoms, so this also works on a moment-less cell such as the
+        nonmagnetic parent: species that carry a default moment are kept, the
+        rest are dropped. Real moments are respected when the structure has them
+        ("replace_all_if_undefined" only falls back to defaults when no magmoms
+        are defined).
+        """
+        return CollinearMagneticStructureAnalyzer(
+            structure,
+            make_primitive=False,
+            overwrite_magmom_mode="replace_all_if_undefined",
+            threshold=0.0,
+            threshold_nonmag=100.0,
+        ).get_structure_with_only_magnetic_atoms(make_primitive=False)
+
+
     @classmethod
     def _get_parent(cls, parent, full_structures):
-        """Return the nonmagnetic primitive parent cell that defines the sublattices.
+        """Return the full primitive parent cell that defines the sublattices.
 
         The nonmagnetic ions are kept: site equivalence is read from this parent's
         symmetry, and removing the nonmagnetic ions first can raise the apparent
@@ -173,10 +195,11 @@ class HeisenbergMapper:
                 a 'magmom' site property on every site.
 
         Returns:
-            tuple[dict, list[list[int]]]:
+            tuple[dict, list[list[int]], list[int]]:
                 - wyckoff_ids maps each magnetic sublattice id to its wyckoff symbol.
                 - site_labels[k][i] is the sublattice id of magnetic site i in
                   ordering k (aligned with the magnetic-only graphs).
+                - parent_site_labels is the sublattice id of each site in the parent structure.
 
         Raises:
             ValueError: If an ordering is not a supercell of the parent cell.
@@ -222,7 +245,9 @@ class HeisenbergMapper:
                 [int(matched[i].properties["sublattice_id"]) for i in range(len(full)) if abs(magmoms[i]) > 0]
             )
 
-        return wyckoff_ids, site_labels
+        parent_labels = [int(label) for label in parent_labels if label >= 0]  # drop nonmagnetic sites
+
+        return wyckoff_ids, site_labels, parent_labels
 
     @staticmethod
     def _site_ids_dict(labels):
@@ -248,12 +273,12 @@ class HeisenbergMapper:
         """Set self.dists and self.nn_interactions describing the unique NN, NNN and
         NNNN interactions between sublattices.
 
-        Distances and connectivity are read from the lowest-energy ordering, whose
-        per-site sublattice labels are already consistent with every other ordering.
+        Distances and connectivity are read from the parent ordering. See _get_parent() for how the parent is defined and how the sublattices are labelled. The connectivity is
+    read from the parent StructureGraph, which is built from the magnetic-only parent structure (nonmagnetic ions are ignored for the graph, but they are kept in the parent structure to preserve the true site symmetry).
         """
         tol = self.tol
-        sgraph = self.sgraphs[0]
-        labels = self.site_labels[0]
+        sgraph = self.parent_sgraph
+        labels = self.parent_site_labels
 
         # One representative site index per sublattice
         reps = {}
