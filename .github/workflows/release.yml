@@ -4,13 +4,8 @@ name: Release
 on:
   release:
     types: [published]
+  # Manual runs are always TestPyPI dry runs.
   workflow_dispatch:
-    inputs:
-      task:
-        type: choice
-        options: [release, test-release]
-        default: release
-        description: Release to PyPI or TestPyPI.
 
 permissions:
   contents: read
@@ -26,6 +21,11 @@ jobs:
     steps:
       - name: Check out repo
         uses: actions/checkout@v6
+        with:
+          # Build the published release from its tag so setuptools-scm can
+          # derive the distribution version from that tag.
+          ref: ${{ github.event.release.tag_name || github.sha }}
+          fetch-depth: 0
 
       - name: Install Python
         uses: actions/setup-python@v6
@@ -48,6 +48,10 @@ jobs:
     steps:
       - name: Check out repo
         uses: actions/checkout@v6
+        with:
+          # See build_sdist: a version derived from Git needs the release tag.
+          ref: ${{ github.event.release.tag_name || github.sha }}
+          fetch-depth: 0
 
       - name: Install Python
         uses: actions/setup-python@v6
@@ -69,8 +73,8 @@ jobs:
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     environment:
-      name: pypi
-      url: https://pypi.org/p/pymatgen
+      name: ${{ github.event_name == 'workflow_dispatch' && 'testpypi' || 'pypi' }}
+      url: ${{ github.event_name == 'workflow_dispatch' && 'https://test.pypi.org/p/pymatgen' || 'https://pypi.org/p/pymatgen' }}
     permissions:
       # For PyPI trusted publishing
       id-token: write
@@ -90,5 +94,6 @@ jobs:
       - name: Publish to PyPI or TestPyPI
         uses: pypa/gh-action-pypi-publish@v1.14.0
         with:
+          repository-url: ${{ github.event_name == 'workflow_dispatch' && 'https://test.pypi.org/legacy/' || 'https://upload.pypi.org/legacy/' }}
           skip-existing: true
           verbose: true
