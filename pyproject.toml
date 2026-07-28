@@ -4,7 +4,7 @@ requires = [
     # Building against NPY2 will support both NPY1 and NPY2
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#build-time-dependency
     "numpy>=2.1.0",
-    "setuptools>=65.0.0",
+    "setuptools>=77.0.0",
     "setuptools-scm>=8",
 ]
 build-backend = "setuptools.build_meta"
@@ -35,11 +35,11 @@ keywords = [
     "structure",
     "vasp",
 ]
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
