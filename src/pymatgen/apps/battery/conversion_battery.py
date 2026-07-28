@@ -224,12 +224,18 @@ class ConversionElectrode(AbstractElectrode):
             self.max_voltage,
         )
         output = [
-            f"{cls_name} with {formula=} and {n_steps=}, {avg_voltage=:.3f} V, "
-            f"{min_voltage=:.3f} V, {max_voltage=:.3f} V",
-            f"Capacity (grav.) {self.get_capacity_grav():.3f} mAh/g, capacity (vol.) "
-            f"{self.get_capacity_vol():.3f} Ah/l",
-            f"Specific energy {self.get_specific_energy():.3f} Wh/kg, energy density "
-            f"{self.get_energy_density():.3f} Wh/l",
+            (
+                f"{cls_name} with {formula=} and {n_steps=}, {avg_voltage=:.3f} V, "
+                f"{min_voltage=:.3f} V, {max_voltage=:.3f} V"
+            ),
+            (
+                f"Capacity (grav.) {self.get_capacity_grav():.3f} mAh/g, capacity (vol.) "
+                f"{self.get_capacity_vol():.3f} Ah/l"
+            ),
+            (
+                f"Specific energy {self.get_specific_energy():.3f} Wh/kg, energy density "
+                f"{self.get_energy_density():.3f} Wh/l"
+            ),
         ]
         return "\n".join(output)
 

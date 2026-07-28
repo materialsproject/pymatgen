@@ -219,6 +219,7 @@ to that repo) and are pulled in automatically.
     - Fix uncertainty as int for `EnergyAdjustment` cannot generate repr:
     ```python
     from pymatgen.entries.computed_entries import EnergyAdjustment
+
     print(EnergyAdjustment(10, uncertainty=0))
     ```
     Gives:
@@ -537,6 +538,7 @@ to that repo) and are pulled in automatically.
     Current the data for Electrical resistivity of Se is "high" (with `10<sup>-8</sup> &Omega; m` as the unit), and our parser would interpret it to:
     ```python
     from pymatgen.core import Element
+
     print(Element.Se.electrical_resistivity)  # 1e-08 m ohm
     ```
     This is the only data as "high" in `periodic_table.json` AFAIK.

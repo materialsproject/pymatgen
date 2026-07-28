@@ -217,7 +217,7 @@ def build_bader(fortran_command="gfortran") -> bool:
     cwd = os.getcwd()
     state = True
     try:
-        urlretrieve(bader_url, "bader.tar.gz")  # noqa: S310
+        urlretrieve(bader_url, "bader.tar.gz")
         subprocess.call(["/usr/bin/tar", "-zxf", "bader.tar.gz"])
         os.chdir("bader")
         subprocess.call(["cp", "makefile.osx_" + fortran_command, "makefile"])

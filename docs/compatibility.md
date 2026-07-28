@@ -44,7 +44,7 @@ try:
     new_symbol = SpaceGroup(old_symbol).symbol
 except ValueError:
     if old_symbol in ["P2_12_121", "I2_12_121"]:
-        new_symbol = SpaceGroup(old_symbol[:-1]+"_1").symbol
+        new_symbol = SpaceGroup(old_symbol[:-1] + "_1").symbol
     else:
         new_symbol = SpaceGroup(old_symbol[:-1]).symbol
 ```
