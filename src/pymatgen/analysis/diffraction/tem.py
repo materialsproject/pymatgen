@@ -354,7 +354,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             bool: True if the planes are parallel, False otherwise.
         """
         phi = self.get_interplanar_angle(structure, plane, other_plane)
-        return phi in (180, 0) or np.isnan(phi)
+        return bool(
+            np.isclose(phi, 0, rtol=0, atol=1e-5)
+            or np.isclose(phi, 180, rtol=0, atol=1e-5)
+            or np.isnan(phi)
+        )
 
     def get_first_point(self, structure: Structure, points: list) -> dict[tuple[int, int, int], float]:
         """Get the first point to be plotted in the 2D DP, corresponding to maximum d/minimum R.
