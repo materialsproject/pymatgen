@@ -7,9 +7,9 @@ model.
 from __future__ import annotations
 
 import logging
+from abc import ABC, abstractmethod
 from ast import literal_eval
 from typing import TYPE_CHECKING
-from abc import ABC
 
 import numpy as np
 import pandas as pd
@@ -26,14 +26,177 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 if TYPE_CHECKING:
     from typing import Self
 
-__author__ = "ncfrey"
-__version__ = "0.1"
-__maintainer__ = "Nathan C. Frey"
-__email__ = "ncfrey@lbl.gov"
+# __author__ = "ncfrey"
+# __version__ = "0.1"
+# __maintainer__ = "Nathan C. Frey"
+# __email__ = "ncfrey@lbl.gov"
+# __status__ = "Development"
+# __date__ = "June 2019"
+
+__author__ = "Luca Frey"
+__version__ = "0.2"
+__maintainer__ = "Luca Frey"
+__email__ = "luca.frey@student.kit.edu"
 __status__ = "Development"
-__date__ = "June 2019"
+__date__ = "July 2026"
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_TOL = 0.05  # Angstrom tolerance
+
+
+def _analyzer(structure: Structure, **kwargs) -> CollinearMagneticStructureAnalyzer:
+    """CollinearMagneticStructureAnalyzer factory with the settings used throughout this module.
+
+    ``make_primitive=False`` keeps the cell as given, ``threshold=0.0`` retains any nonzero
+    moment, and ``threshold_nonmag=100.0`` always zeroes out nonmagnetic ions, so induced
+    magnetic moments don't change the number of magnetic sites per unit cell between orderings.
+
+    Extra keyword arguments are passed through to the analyzer.
+    """
+    return CollinearMagneticStructureAnalyzer(
+        structure, **{"make_primitive": False, "threshold": 0.0, "threshold_nonmag": 100.0, **kwargs} # last value wins if there are multiple conflicting values for the same key -> defaults overridden by kwargs
+    )
+
+
+
+class MagneticOrdering(ABC):
+    """A single collinear magnetic configuration on a common parent lattice.
+
+    Base class holding one ordering's structure, its magnetic-only reduction,
+    its NN graph, and the parent-sublattice labels of its magnetic sites.
+    """
+
+    def __init__(self, structure: Structure, cutoff: float = 0, tol: float = DEFAULT_TOL):
+        self.structure = structure
+        self.analyzer = _analyzer(structure)
+        self.cutoff = cutoff
+        self.tol = tol
+        self.nn_graph = self._get_nn_graph()
+        self.magn_species: set[str] = {site.specie.symbol for site in self.magn_substructure}
+
+        self.sublattice_ids_dict: dict[tuple[int, ...], int] = {}
+        self.sublattice_labels: list[int] | None = None
+        self.sublattice_wyckoff_symbols: dict[int, str] = {}
+
+    @property
+    def magn_substructure(self) -> Structure:
+        return self._magnetic_only(self.structure)
+
+    @staticmethod
+    def _nonmagnetic(structure) -> Structure:
+        """Nonmagnetic copy of a structure (moments zeroed, all ions kept)."""
+        s0 = _analyzer(structure).get_nonmagnetic_structure(make_primitive=False)
+        if "wyckoff" in s0.site_properties:
+            s0.remove_site_property("wyckoff")
+        return s0
+
+    @staticmethod
+    def _magnetic_only(structure) -> Structure:
+        """Magnetic-only copy (nonmagnetic ions removed).
+
+        Whether a site is magnetic is decided by its *species*: only species listed in
+        CollinearMagneticStructureAnalyzer's default magmoms are treated as magnetic.
+
+        - Magnetic-species sites keep their existing magmom (any nonzero value is retained,
+          since ``threshold=0.0``). If the input has no magmom site property, the default magmoms are assigned (``replace_all_if_undefined``).
+        - Nonmagnetic-species sites always get a magmom of zero. Because ``threshold_nonmag=100.0``,
+          even induced moments on nonmagnetic ions are zeroed out, so the number of magnetic sites
+          per cell stays constant across orderings.
+
+        Finally, all sites with zero magmom are dropped (even if magnetic-species sites with magmom=0. or magmom=None) and only sites with nonzero magmom are kept.
+        """
+        # overwrite_magmom_mode: if the structure has no magmom site property, assign default magmoms to all magnetic species
+        return _analyzer(structure).get_structure_with_only_magnetic_atoms(make_primitive=False)
+
+    @staticmethod
+    def _sublattice_ids_dict(labels: list[int]) -> dict[tuple[int, ...], int]:
+        """Group site indices by sublattice id: {tuple(site indices): sublattice id}."""
+        groups: dict[int, list[int]] = {}
+        for idx, sub_id in enumerate(labels):
+            groups.setdefault(sub_id, []).append(idx)
+        return {tuple(indices): sub_id for sub_id, indices in groups.items()}
+    
+    def _get_nn_graph(self) -> StructureGraph:
+        """
+        NN StructureGraph of the magnetic-only structure.
+        
+        If self.cutoff is set, the graph includes all neighbors within that distance. 
+        Otherwise, only the nearest neighbors of each site are included.
+        """
+
+        strategy = MinimumDistanceNN(cutoff=self.cutoff, get_all_sites=True) if self.cutoff else MinimumDistanceNN()  # only NN
+        return StructureGraph.from_local_env_strategy(self.magn_substructure, strategy=strategy)
+    
+    @abstractmethod
+    def set_sublattice_ids(self) -> dict[tuple[int, ...], int]:
+        """
+        Sets the following properties for this ordering:
+            - `self.sublattice_ids_dict` = {tuple(site indices): sublattice id}
+            - `self.sublattice_wyckoff_symbols` = {sublattice id: wyckoff symbol}
+            - `self.sublattice_ids` = [sublattice id for each magnetic site in the ordering or None for nonmagnetic sites]
+
+        All nonmagnetic (`CollinearMagneticStructureAnalyzer` default_magmom=0) sites are grouped into one sublattice with label `None`.
+        
+        For `ParentOrdering`, this defines the sublattice ids by grouping symmetrically equivalent sites of ions into sublattices (nonmagnetic ions present for symmetry analysis). 
+        
+        For `RelaxedOrdering`, this is a mapping from the ordering's site indices to the sublattice ids via the finding the corresponding site in the parent for each site in the relaxed ordering.
+        
+        Finally, the sublattice ids are stored as a site property in the ordering's structure for easy access.
+        """
+
+
+class ParentOrdering(MagneticOrdering):
+    """The nonmagnetic parent cell that defines the sublattices.
+
+    Sublattices are its symmetry orbits (computed with nonmagnetic ions present),
+    restricted to the magnetic species.
+
+    """
+
+    def __init__(self, structure: Structure, cutoff: float = 0, tol: float = DEFAULT_TOL):
+        super().__init__(structure, cutoff, tol)
+        self.structure = self._nonmagnetic(structure)  # parent is always nonmagnetic
+        self.set_sublattice_ids()
+
+    def set_sublattice_ids(self):
+        symmetrized_parent = SpacegroupAnalyzer(self.structure).get_symmetrized_structure()
+        self.sublattice_ids = [None] * len(self.structure)
+        for indices, wyckoff_symbol in zip(symmetrized_parent.equivalent_indices, symmetrized_parent.wyckoff_symbols, strict=True):
+            assert all(symmetrized_parent[i].specie == symmetrized_parent[indices[0]].specie for i in indices)
+            if symmetrized_parent[indices[0]].specie.symbol not in self.magn_species:
+                continue
+            sub_id = len(self.sublattice_wyckoff_symbols)
+            self.sublattice_wyckoff_symbols[sub_id] = wyckoff_symbol # one sublattice always has one wyckoff symbol, but multiple sublattices can share the same wyckoff symbol (e.g. two species on the same wyckoff position)
+            for index in indices:
+                self.sublattice_ids[index] = sub_id
+
+        self.structure.add_site_property("sublattice_id", self.sublattice_ids)
+
+        self.sublattice_ids_dict = self._sublattice_ids_dict(self.sublattice_ids)
+
+
+class RelaxedOrdering(MagneticOrdering):
+    """One DFT-relaxed magnetic ordering with its energy and parent back-reference."""
+
+    def __init__(self, structure: Structure, energy: float, parent_ordering: ParentOrdering, cutoff: float = 0, tol: float = DEFAULT_TOL):
+        super().__init__(structure, cutoff, tol)
+        self.parent_ordering = parent_ordering
+        self.energy = energy
+        self.set_sublattice_ids()
+
+    def set_sublattice_ids(self):
+        matcher = StructureMatcher(primitive_cell=False, attempt_supercell=True)
+
+        matched_parent = matcher.get_s2_like_s1(self._nonmagnetic(self.structure), self.parent_ordering.structure)
+        if matched_parent is None:
+            raise ValueError(
+                "The RelaxedOrdering is not a supercell of the ParentOrdering cell; it "
+                "cannot be mapped onto the parent sublattices."
+            )
+        self.sublattice_ids = [int(matched_parent[i].properties["sublattice_id"]) for i in range(len(self.structure))]
+
+
 
 
 class HeisenbergMapper:
@@ -52,7 +215,7 @@ class HeisenbergMapper:
         parent (Structure): Nonmagnetic parent cell that defines the sublattices.
         site_labels (list[list[int]]): site_labels[k][i] is the parent
             sublattice id of site i in ordering k.
-        wyckoff_ids (dict): Maps each sublattice id to its wyckoff symbol.
+        sublattice_wyckoff_symbols (dict): Maps each sublattice id to its wyckoff symbol.
         nn_interactions (dict): {i: j} pairs of NN interactions between sublattices.
         dists (dict): NN, NNN, and NNNN interaction distances.
         ex_mat (DataFrame): Heisenberg Hamiltonian (per magnetic ion) for each ordering.
@@ -60,7 +223,7 @@ class HeisenbergMapper:
             included 'E0' offset stays in eV.
     """
 
-    def __init__(self, ordered_structures, energies, parent=None, cutoff=0, tol: float = 0.02):
+    def __init__(self, ordered_structures, energies, parent, cutoff=0, tol: float = DEFAULT_TOL):
         """Exchange parameters are computed by mapping to a classical Heisenberg
         model. n+1 unique orderings are required to compute n exchange parameters.
 
@@ -74,16 +237,16 @@ class HeisenbergMapper:
             ordered_structures (list): Structure objects with magmoms.
             energies (list): Total energies of each relaxed magnetic structure.
             parent (Structure): Paramagnetic parent cell whose symmetry defines the
-                magnetic sublattices. If None, it is inferred as the primitive cell
-                of the lowest-energy ordering. Defaults to None.
+                magnetic sublattices. 
             cutoff (float): Cutoff in Angstrom for nearest neighbor search.
                 Defaults to 0 (only NN, no NNN, etc.).
             tol (float): Tolerance (in Angstrom) on nearest neighbor distances
-                being equal.
+                being equal and structure matching.
         """
         # Save original copies of inputs
         self.ordered_structures_ = ordered_structures
         self.energies_ = energies
+        self.parent_ = parent
 
         # Sanitize inputs: standardize moments, convert energies to per magnetic
         # ion, drop duplicates and sort by energy. The screener keeps both a
@@ -103,7 +266,7 @@ class HeisenbergMapper:
         # every ordering with the parent sublattice it belongs to.
         self.parent = self._get_parent(parent, self.full_structures)
         self.parent_sgraph = self._get_graph(cutoff, self._magnetic_only(self.parent))
-        self.wyckoff_ids, self.site_labels, self.parent_site_labels = self._label_orderings(self.parent, self.full_structures)
+        self.sublattice_wyckoff_symbols, self.site_labels, self.parent_site_labels = self._label_orderings(self.parent, self.full_structures)
 
         # These attributes are set by internal methods
         self.nn_interactions = self.dists = self.ex_mat = self.ex_params = None
@@ -112,7 +275,7 @@ class HeisenbergMapper:
             raise SystemExit("We need at least 2 unique orderings.")
 
         self._get_nn_dict()
-        self._get_exchange_df()
+        self._build_exchange_matmat()
 
     @staticmethod
     def _get_graph(cutoff, structure):
@@ -129,138 +292,97 @@ class HeisenbergMapper:
         strategy = MinimumDistanceNN(cutoff=cutoff, get_all_sites=True) if cutoff else MinimumDistanceNN()  # only NN
         return StructureGraph.from_local_env_strategy(structure, strategy=strategy)
 
-    @staticmethod
-    def _nonmagnetic(structure):
-        """Nonmagnetic copy of a structure (moments zeroed, all ions kept)."""
-        s0 = CollinearMagneticStructureAnalyzer(
-            structure, make_primitive=False, threshold=0.0, threshold_nonmag=100.0
-        ).get_nonmagnetic_structure(make_primitive=False)
-        if "wyckoff" in s0.site_properties:
-            s0.remove_site_property("wyckoff")
-        return s0
 
-    @staticmethod
-    def _magnetic_only(structure):
-        """Magnetic-only copy of a structure (nonmagnetic ions removed).
+    # @classmethod
+    # def _get_parent(cls, parent, full_structures):
+    #     """Return the full primitive parent cell that defines the sublattices.
 
-        Magnetic sites are taken from CollinearMagneticStructureAnalyzer's
-        default magmoms, so this also works on a moment-less cell such as the
-        nonmagnetic parent: species that carry a default moment are kept, the
-        rest are dropped. Real moments are respected when the structure has them
-        ("replace_all_if_undefined" only falls back to defaults when no magmoms
-        are defined).
-        """
-        return CollinearMagneticStructureAnalyzer(
-            structure,
-            make_primitive=False,
-            overwrite_magmom_mode="replace_all_if_undefined",
-            threshold=0.0,
-            threshold_nonmag=100.0,
-        ).get_structure_with_only_magnetic_atoms(make_primitive=False)
+    #     The nonmagnetic ions are kept: site equivalence is read from this parent's
+    #     symmetry, and removing the nonmagnetic ions first can raise the apparent
+    #     site symmetry and merge sublattices that are actually distinct.
 
+    #     Args:
+    #         parent (Structure | None): Explicit paramagnetic parent (all ions). If
+    #             None, the primitive cell of the lowest-energy ordering is used.
+    #         full_structures (list[Structure]): Orderings with all ions retained.
 
-    @classmethod
-    def _get_parent(cls, parent, full_structures):
-        """Return the full primitive parent cell that defines the sublattices.
+    #     Returns:
+    #         Structure: Nonmagnetic primitive parent cell, nonmagnetic ions included.
+    #     """
+    #     ref = parent if parent is not None else full_structures[0]
+    #     return cls._nonmagnetic(ref).get_primitive_structure()
 
-        The nonmagnetic ions are kept: site equivalence is read from this parent's
-        symmetry, and removing the nonmagnetic ions first can raise the apparent
-        site symmetry and merge sublattices that are actually distinct.
+    # @classmethod
+    # def _label_orderings(cls, parent, full_structures):
+    #     """Label every magnetic site in every ordering with its parent sublattice.
 
-        Args:
-            parent (Structure | None): Explicit paramagnetic parent (all ions). If
-                None, the primitive cell of the lowest-energy ordering is used.
-            full_structures (list[Structure]): Orderings with all ions retained.
+    #     The magnetic sublattices are the parent's symmetry orbits, computed on the
+    #     *full* cell (nonmagnetic ions present) and then restricted to the magnetic
+    #     species. Each ordering is folded back onto the full parent so its sites
+    #     inherit the parent labels; the labels of the nonmagnetic sites are
+    #     discarded. This keeps the labels consistent across orderings that live in
+    #     different supercells, while preserving the true site symmetry.
 
-        Returns:
-            Structure: Nonmagnetic primitive parent cell, nonmagnetic ions included.
-        """
-        ref = parent if parent is not None else full_structures[0]
-        return cls._nonmagnetic(ref).get_primitive_structure()
+    #     Args:
+    #         parent (Structure): Nonmagnetic parent cell (all ions).
+    #         full_structures (list[Structure]): Orderings with all ions retained and
+    #             a 'magmom' site property on every site.
 
-    @classmethod
-    def _label_orderings(cls, parent, full_structures):
-        """Label every magnetic site in every ordering with its parent sublattice.
+    #     Returns:
+    #         tuple[dict, list[list[int]], list[int]]:
+    #             - sublattice_wyckoff_symbols maps each magnetic sublattice id to its wyckoff symbol.
+    #             - site_labels[k][i] is the sublattice id of magnetic site i in
+    #               ordering k (aligned with the magnetic-only graphs).
+    #             - parent_site_labels is the sublattice id of each site in the parent structure.
 
-        The magnetic sublattices are the parent's symmetry orbits, computed on the
-        *full* cell (nonmagnetic ions present) and then restricted to the magnetic
-        species. Each ordering is folded back onto the full parent so its sites
-        inherit the parent labels; the labels of the nonmagnetic sites are
-        discarded. This keeps the labels consistent across orderings that live in
-        different supercells, while preserving the true site symmetry.
+    #     Raises:
+    #         ValueError: If an ordering is not a supercell of the parent cell.
+    #     """
+    #     # Species that carry a moment in any ordering are the magnetic species.
+    #     mag_species = {site.specie.symbol for s in full_structures for site in s if abs(site.properties["magmom"]) > 0}
 
-        Args:
-            parent (Structure): Nonmagnetic parent cell (all ions).
-            full_structures (list[Structure]): Orderings with all ions retained and
-                a 'magmom' site property on every site.
+    #     # Sublattices = the parent's symmetry orbits restricted to magnetic
+    #     # species. Nonmagnetic sites get the sentinel -1 (never used).
+    #     symm_parent = SpacegroupAnalyzer(parent).get_symmetrized_structure()
+    #     parent_labels = [-1] * len(parent)
+    #     sublattice_wyckoff_symbols = {}
+    #     for indices, symbol in zip(symm_parent.equivalent_indices, symm_parent.wyckoff_symbols, strict=True):
+    #         if symm_parent[indices[0]].specie.symbol not in mag_species:
+    #             continue
+    #         sub_id = len(sublattice_wyckoff_symbols)
+    #         sublattice_wyckoff_symbols[sub_id] = symbol
+    #         for index in indices:
+    #             parent_labels[index] = sub_id
 
-        Returns:
-            tuple[dict, list[list[int]], list[int]]:
-                - wyckoff_ids maps each magnetic sublattice id to its wyckoff symbol.
-                - site_labels[k][i] is the sublattice id of magnetic site i in
-                  ordering k (aligned with the magnetic-only graphs).
-                - parent_site_labels is the sublattice id of each site in the parent structure.
+    #     # Carry the parent labels across to each ordering by folding the ordering's
+    #     # full geometry onto the tagged parent cell (the nonmagnetic ions help pin
+    #     # down a unique mapping). This also validates that every ordering is a
+    #     # genuine supercell of the parent.
+    #     tagged_parent = parent.copy()
+    #     tagged_parent.add_site_property("sublattice_id", parent_labels)
+    #     matcher = StructureMatcher(primitive_cell=False, attempt_supercell=True)
 
-        Raises:
-            ValueError: If an ordering is not a supercell of the parent cell.
-        """
-        # Species that carry a moment in any ordering are the magnetic species.
-        mag_species = {site.specie.symbol for s in full_structures for site in s if abs(site.properties["magmom"]) > 0}
+    #     site_labels = []
+    #     for idx, full in enumerate(full_structures):
+    #         matched = matcher.get_s2_like_s1(cls._nonmagnetic(full), tagged_parent)
+    #         if matched is None:
+    #             raise ValueError(
+    #                 f"Ordering {idx} is not a supercell of the parent cell; it "
+    #                 "cannot be mapped onto the parent sublattices. Pass an explicit "
+    #                 "`parent` cell that all orderings share."
+    #             )
+    #         # matched[i] is the parent site that ordering site i folds onto. Keep
+    #         # only the magnetic sites, in order, so the labels align with the
+    #         # magnetic-only structure used to build the graphs.
+    #         magmoms = full.site_properties["magmom"]
+    #         site_labels.append(
+    #             [int(matched[i].properties["sublattice_id"]) for i in range(len(full)) if abs(magmoms[i]) > 0]
+    #         )
 
-        # Sublattices = the parent's symmetry orbits restricted to magnetic
-        # species. Nonmagnetic sites get the sentinel -1 (never used).
-        symm_parent = SpacegroupAnalyzer(parent).get_symmetrized_structure()
-        parent_labels = [-1] * len(parent)
-        wyckoff_ids = {}
-        for indices, symbol in zip(symm_parent.equivalent_indices, symm_parent.wyckoff_symbols, strict=True):
-            if symm_parent[indices[0]].specie.symbol not in mag_species:
-                continue
-            sub_id = len(wyckoff_ids)
-            wyckoff_ids[sub_id] = symbol
-            for index in indices:
-                parent_labels[index] = sub_id
+    #     parent_labels = [int(label) for label in parent_labels if label >= 0]  # drop nonmagnetic sites
 
-        # Carry the parent labels across to each ordering by folding the ordering's
-        # full geometry onto the tagged parent cell (the nonmagnetic ions help pin
-        # down a unique mapping). This also validates that every ordering is a
-        # genuine supercell of the parent.
-        tagged_parent = parent.copy()
-        tagged_parent.add_site_property("sublattice_id", parent_labels)
-        matcher = StructureMatcher(primitive_cell=False, attempt_supercell=True)
+    #     return wyckoff_ids, site_labels, parent_labels
 
-        site_labels = []
-        for idx, full in enumerate(full_structures):
-            matched = matcher.get_s2_like_s1(cls._nonmagnetic(full), tagged_parent)
-            if matched is None:
-                raise ValueError(
-                    f"Ordering {idx} is not a supercell of the parent cell; it "
-                    "cannot be mapped onto the parent sublattices. Pass an explicit "
-                    "`parent` cell that all orderings share."
-                )
-            # matched[i] is the parent site that ordering site i folds onto. Keep
-            # only the magnetic sites, in order, so the labels align with the
-            # magnetic-only structure used to build the graphs.
-            magmoms = full.site_properties["magmom"]
-            site_labels.append(
-                [int(matched[i].properties["sublattice_id"]) for i in range(len(full)) if abs(magmoms[i]) > 0]
-            )
-
-        parent_labels = [int(label) for label in parent_labels if label >= 0]  # drop nonmagnetic sites
-
-        return wyckoff_ids, site_labels, parent_labels
-
-    @staticmethod
-    def _site_ids_dict(labels):
-        """Group site indices by sublattice id: {tuple(site indices): sublattice id}."""
-        groups: dict[int, list[int]] = {}
-        for idx, sub_id in enumerate(labels):
-            groups.setdefault(sub_id, []).append(idx)
-        return {tuple(indices): sub_id for sub_id, indices in groups.items()}
-
-    @property
-    def unique_site_ids(self):
-        """list[dict]: One {tuple(site indices): sublattice id} map per ordering."""
-        return [self._site_ids_dict(labels) for labels in self.site_labels]
 
     def _shell_of(self, dist):
         """Return 'nn'/'nnn'/'nnnn' for a distance, or None if it matches no shell."""
@@ -320,7 +442,7 @@ class HeisenbergMapper:
         # Keep at most n interactions for n+1 orderings
         return columns[: len(self.sgraphs) + 1]
 
-    def _get_exchange_df(self):
+    def _build_exchange_matmat(self):
         """Build the Heisenberg Hamiltonian, one row per ordering, by summing the
         signed products S_i . S_j over each graph. Sets self.ex_mat.
 
@@ -439,7 +561,7 @@ class HeisenbergMapper:
         fm_e = afm_e = fm_e_min = afm_e_min = 0
 
         for s, e in zip(self.ordered_structures, self.energies, strict=True):
-            ordering = CollinearMagneticStructureAnalyzer(s, threshold=0.0, threshold_nonmag=100.0, make_primitive=False).ordering
+            ordering = _analyzer(s).ordering
             magmoms = s.site_properties["magmom"]
 
             # Try to find matching orderings first
@@ -477,13 +599,9 @@ class HeisenbergMapper:
                     afm_e_min = e
 
         # Convert to magnetic structures with 'magmom' site property
-        fm_struct = CollinearMagneticStructureAnalyzer(
-            fm_struct, make_primitive=False, threshold=0.0, threshold_nonmag=100.0,
-        ).get_structure_with_only_magnetic_atoms(make_primitive=False)
+        fm_struct = _analyzer(fm_struct).get_structure_with_only_magnetic_atoms(make_primitive=False)
 
-        afm_struct = CollinearMagneticStructureAnalyzer(
-            afm_struct, make_primitive=False, threshold=0.0, threshold_nonmag=100.0,
-        ).get_structure_with_only_magnetic_atoms(make_primitive=False)
+        afm_struct = _analyzer(afm_struct).get_structure_with_only_magnetic_atoms(make_primitive=False)
 
         return fm_struct, afm_struct, fm_e, afm_e
 
@@ -597,7 +715,7 @@ class HeisenbergMapper:
                 j_exc = self._get_j_exc(labels[i], labels[j], c[-1])
                 # Only add bonds the fit actually parameterized. Unparameterized
                 # bonds (no matching sublattice-pair/shell in ex_params, exactly
-                # the bonds _get_exchange_df also ignores) get j_exc == 0, which
+                # the bonds _build_exchange_mat also ignores) get j_exc == 0, which
                 # StructureGraph.add_edge silently drops via its falsy-weight
                 # guard, leaving an edge with weight=None that breaks downstream
                 # per-bond consumers.
@@ -721,7 +839,7 @@ class HeisenbergScreener:
         # Keep both a full copy (all ions, needed for correct site symmetry) and
         # a magnetic-only copy (used to build the interaction graphs).
         # Make sure no induced moments are present (threshold_nonmag=100).
-        analyzers = [CollinearMagneticStructureAnalyzer(s, make_primitive=False, threshold=0.0, threshold_nonmag=100.0) for s in structures]
+        analyzers = [_analyzer(s) for s in structures]
         full_structures = [analyzer.structure for analyzer in analyzers]
         ordered_structures = [
             analyzer.get_structure_with_only_magnetic_atoms(make_primitive=False) for analyzer in analyzers
