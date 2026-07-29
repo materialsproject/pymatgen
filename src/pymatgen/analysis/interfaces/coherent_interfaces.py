@@ -23,6 +23,11 @@ class CoherentInterfaceBuilder:
     """
     This class constructs the coherent interfaces between two crystalline slabs
     Coherency is defined by matching lattices not sub-planes.
+
+    Note:
+        By default, terminations sharing the same space-group symmetry are merged.
+        Set ``label_index=True`` to retain all physically inequivalent terminations
+        (see the ``label_index`` argument for details).
     """
 
     def __init__(
