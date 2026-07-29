@@ -61,6 +61,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v6
         with:
+          fetch-depth: 0
           submodules: true
 
       # setup-micromamba is broken on Windows runners since ~2026-05-14

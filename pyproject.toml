@@ -4,7 +4,8 @@ requires = [
     # Building against NPY2 will support both NPY1 and NPY2
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#build-time-dependency
     "numpy>=2.1.0",
-    "setuptools>=65.0.0",
+    "setuptools>=77.0.0",
+    "setuptools-scm>=8",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -34,11 +35,11 @@ keywords = [
     "structure",
     "vasp",
 ]
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
@@ -53,7 +54,7 @@ classifiers = [
 dependencies = [
     "pymatgen-core>=2026.7.16"
 ]
-version = "2026.7.16"
+dynamic = ["version"]
 
 [project.urls]
 Homepage = "https://pymatgen.org"
@@ -109,6 +110,10 @@ get_environment = "pymatgen.cli.get_environment:main"
 
 [tool.setuptools]
 include-package-data = false
+
+[tool.setuptools_scm]
+tag_regex = '^v(?P<version>\d{4}\.\d{1,2}\.\d{1,2})$'
+version_scheme = "no-guess-dev"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -180,6 +185,7 @@ ignore = [
     "PLR0912", # Too many branches
     "PLR0913", # Too many arguments
     "PLR0915", # Too many statements
+    "PLR0917", # Too many positional arguments (>5)
     "PLR1702", # Too many nested blocks
     "PLR2004", # Magic-value-comparison TODO: fix this
     "PLW1641", # eq-without-hash TODO: fix this

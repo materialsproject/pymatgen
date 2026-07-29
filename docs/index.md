@@ -151,9 +151,7 @@ structure = Structure(lattice, ["Cs", "Cl"], ...[[0, 0, 0], [0.5, 0.5, 0.5]])
 # PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
 
 # You can create a Structure using spacegroup symmetry as well.
-li2o = Structure.from_spacegroup(
-    "Fm-3m", Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]]
-)
+li2o = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]])
 
 finder = SpacegroupAnalyzer(structure)
 finder.get_space_group_symbol()

@@ -82,16 +82,17 @@ This is generally the most painful method. Though sometimes necessary, it is sel
 ```python
 from pymatgen.core import Lattice, Structure, Molecule
 
-coords = [[0, 0, 0], [0.75,0.5,0.75]]
-lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120,
-                                  beta=90, gamma=60)
+coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
+lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
 struct = Structure(lattice, ["Si", "Si"], coords)
 
-coords = [[0.000000, 0.000000, 0.000000],
-          [0.000000, 0.000000, 1.089000],
-          [1.026719, 0.000000, -0.363000],
-          [-0.513360, -0.889165, -0.363000],
-          [-0.513360, 0.889165, -0.363000]]
+coords = [
+    [0.000000, 0.000000, 0.000000],
+    [0.000000, 0.000000, 1.089000],
+    [1.026719, 0.000000, -0.363000],
+    [-0.513360, -0.889165, -0.363000],
+    [-0.513360, 0.889165, -0.363000],
+]
 methane = Molecule(["C", "H", "H", "H", "H"], coords)
 ```
 
@@ -119,6 +120,7 @@ For more fine-grained control over which parsed to use, you can specify specific
 
 ```python
 from pymatgen.io.cif import CifParser
+
 parser = CifParser("mycif.cif")
 structure = parser.get_structures()[0]
 ```
@@ -127,6 +129,7 @@ Another example, creating a `Structure` from a VASP POSCAR/CONTCAR file:
 
 ```python
 from pymatgen.io.vasp import Poscar
+
 poscar = Poscar.from_file("POSCAR")
 structure = poscar.structure
 ```
@@ -137,9 +140,9 @@ Many of these io packages also provide the means to write a `Structure` to vario
 from pymatgen.io.vasp import Poscar
 from pymatgen.io.cif import CifWriter
 
-poscar = Poscar.from_file('POSCAR')
+poscar = Poscar.from_file("POSCAR")
 w = CifWriter(poscar.structure)
-w.write_file('mystructure.cif')
+w.write_file("mystructure.cif")
 ```
 
 For molecules, pymatgen has in-built support for XYZ and Gaussian input and output files via the `pymatgen.io.xyz` and `pymatgen.io.gaussian` respectively:
@@ -148,10 +151,9 @@ For molecules, pymatgen has in-built support for XYZ and Gaussian input and outp
 from pymatgen.io.xyz import XYZ
 from pymatgen.io.gaussian import GaussianInput
 
-xyz = XYZ.from_file('methane.xyz')
-gau = GaussianInput(xyz.molecule,
-                    route_parameters={'SP': "", "SCF": "Tight"})
-gau.write_file('methane.inp')
+xyz = XYZ.from_file("methane.xyz")
+gau = GaussianInput(xyz.molecule, route_parameters={"SP": "", "SCF": "Tight"})
+gau.write_file("methane.inp")
 ```
 
 There is also support for more than 100 file types via the OpenBabel interface. But that requires you to install openbabel with Python bindings. Please see the :doc:`installation guide </installation>`.
@@ -242,11 +244,8 @@ Custom settings can be provided to `InputGenerator` on instantiation. For exampl
 from pymatgen.io.packmol import PackmolBoxGen
 
 input_gen = PackmolBoxGen(tolerance=3.0)
-packmol_set = input_gen.get_input_set({"name": "water",
-                                       "number": 500,
-                                       "coords": "/path/to/input/file.xyz"})
-packmol_set.write_input('/path/to/calc/directory')
-
+packmol_set = input_gen.get_input_set({"name": "water", "number": 500, "coords": "/path/to/input/file.xyz"})
+packmol_set.write_input("/path/to/calc/directory")
 ```
 
 You can also use `InputSet.from_directory()` to construct a pymatgen `InputSet` from a directory containing calculation inputs.
@@ -322,7 +321,7 @@ from pymatgen.io.cif import CifParser
 from pymatgen.transformations.standard_transformations import RemoveSpecieTransformations
 
 # Read in a LiFePO4 structure from a cif.
-parser = CifParser('LiFePO4.cif')
+parser = CifParser("LiFePO4.cif")
 struct = parser.get_structures()[0]
 
 t = RemoveSpeciesTransformation(["Li"])
@@ -342,7 +341,7 @@ The `pymatgen.alchemy` package is a framework for performing high-throughput (HT
 from pymatgen.alchemy.transmuters import CifTransmuter
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation, RemoveSpeciesTransformation
 
-trafos = [SubstitutionTransformation({"Fe":"Mn"}), RemoveSpecieTransformation(["Lu"])]
+trafos = [SubstitutionTransformation({"Fe": "Mn"}), RemoveSpecieTransformation(["Lu"])]
 transmuter = CifTransmuter.from_filenames(["MultiStructure.cif"], trafos)
 structures = transmuter.transformed_structures
 ```
@@ -359,8 +358,8 @@ To obtain information on a material with Materials Project Id "mp-1234", one can
 
 ```python
 from pymatgen.ext.matproj import MPRester
-with MPRester("USER_API_KEY") as m:
 
+with MPRester("USER_API_KEY") as m:
     # Structure for material id
     structure = m.get_structure_by_material_id("mp-1234")
 
@@ -399,7 +398,7 @@ entries = queen.get_data()
 
 # Obtain all existing Li-Fe-O phases using the Materials Project REST API
 with MPRester("USER_API_KEY") as m:
-   mp_entries = m.get_entries_in_chemsys(["Li", "Fe", "O"])
+    mp_entries = m.get_entries_in_chemsys(["Li", "Fe", "O"])
 
 # Combined entry from calculated run with Materials Project entries
 entries.extend(mp_entries)
