@@ -23,6 +23,11 @@ class CoherentInterfaceBuilder:
     """
     This class constructs the coherent interfaces between two crystalline slabs
     Coherency is defined by matching lattices not sub-planes.
+
+    Note:
+        By default, terminations sharing the same space-group symmetry are merged.
+        Set ``label_index=True`` to retain all physically inequivalent terminations
+        (see the ``label_index`` argument for details).
     """
 
     def __init__(
@@ -45,7 +50,11 @@ class CoherentInterfaceBuilder:
             zslgen (ZSLGenerator | None): BiDirectionalZSL if you want custom lattice matching tolerances for coherency.
             termination_ftol (float | tuple[float, float]): tolerances (film, substrate) to distinguish
                 different terminating atomic planes.
-            label_index (bool): If True add an extra index at the beginning of the termination label.
+            label_index (bool): If True, prepend an index to each termination label. This controls
+                deduplication of terminations: when False, terminations sharing the same space-group
+                symmetry are treated as identical and merged, which can silently drop physically
+                inequivalent terminations from the enumeration. Set True to retain all inequivalent
+                terminations.
             filter_out_sym_slabs (bool): If True filter out identical slabs with different terminations.
                 This might need to be set as False to find more non-identical terminations because slab
                 identity separately does not mean combinational identity.
