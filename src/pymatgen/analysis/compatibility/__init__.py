@@ -1109,7 +1109,22 @@ class MaterialsProject2020Compatibility(Compatibility):
         if len(comp) == 1:
             return adjustments
 
-        # Check for sulfide corrections
+        # Anion corrections should only be applied if the element is an anion. The
+        # oxidation_states key is expected to comprise a dict corresponding to the first
+        # element output by Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0,
+        # 'O': -2.0} for 'Al2SO4'.
+        if "oxidation_states" not in entry.data:
+            # try to guess the oxidation states from composition
+            # for performance reasons, fail if the composition is too large
+            try:
+                oxi_states = entry.composition.oxi_state_guesses(max_sites=-20)
+            except ValueError:
+                oxi_states = ({},)
+            entry.data["oxidation_states"] = (oxi_states or ({},))[0]
+
+        # Check for sulfide corrections. The S correction is only applied when S is an
+        # anion (oxidation state < 0). This prevents the correction from being applied
+        # to S cations, e.g. S6+ in sulfates (see #4538).
         if Element("S") in comp:
             sf_type = "sulfide"
             if entry.data.get("sulfide_type"):
@@ -1122,15 +1137,19 @@ class MaterialsProject2020Compatibility(Compatibility):
                 sf_type = "sulfide"
 
             if sf_type == "sulfide":
-                adjustments.append(
-                    CompositionEnergyAdjustment(
-                        self.comp_correction["S"],
-                        comp["S"],
-                        uncertainty_per_atom=self.comp_errors["S"],
-                        name=f"{self.name} anion correction (S)",
-                        cls=self.as_dict(),
+                # if the oxidation_states key is not populated, only apply the correction
+                # if S is the most electronegative element
+                oxidation_state = entry.data["oxidation_states"].get("S", 0)
+                if oxidation_state < 0 or sorted_elements[-1].symbol == "S":
+                    adjustments.append(
+                        CompositionEnergyAdjustment(
+                            self.comp_correction["S"],
+                            comp["S"],
+                            uncertainty_per_atom=self.comp_errors["S"],
+                            name=f"{self.name} anion correction (S)",
+                            cls=self.as_dict(),
+                        )
                     )
-                )
 
         # Check for oxide, peroxide, superoxide, and ozonide corrections.
         if Element("O") in comp:
@@ -1177,19 +1196,6 @@ class MaterialsProject2020Compatibility(Compatibility):
 
         # Check for anion corrections
         # only apply anion corrections if the element is an anion
-        # first check for a pre-populated oxidation states key
-        # the key is expected to comprise a dict corresponding to the first element output by
-        # Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0, 'O': -2.0} for 'Al2SO4'
-        if "oxidation_states" not in entry.data:
-            # try to guess the oxidation states from composition
-            # for performance reasons, fail if the composition is too large
-            try:
-                oxi_states = entry.composition.oxi_state_guesses(max_sites=-20)
-            except ValueError:
-                oxi_states = ({},)
-
-            entry.data["oxidation_states"] = (oxi_states or ({},))[0]
-
         if entry.data["oxidation_states"] == {}:
             warnings.warn(
                 f"Failed to guess oxidation states for Entry {entry.entry_id} "

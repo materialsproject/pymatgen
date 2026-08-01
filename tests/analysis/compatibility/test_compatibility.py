@@ -1009,6 +1009,49 @@ class TestMaterialsProjectCompatibility2020:
         # SiO2; only corrections should be oxide
         assert self.compat.process_entry(entry2).correction == approx(-0.687 * 4)
 
+    def test_sulfide_correction_not_applied_to_s_cation(self):
+        # Regression test for https://github.com/materialsproject/pymatgen/issues/4538.
+        # The S anion correction must not be applied to S with a positive oxidation
+        # state, e.g. S6+ in the sulfate Li4Cs4S4O16 (mp-6597). Only the oxide
+        # correction should be applied.
+        comp = Composition.from_dict({"Li1+": 4, "Cs1+": 4, "S6+": 4, "O2-": 16})
+        entry = ComputedEntry(composition=comp, energy=-160.3371)
+        entry.parameters = {"run_type": "GGA"}
+
+        compat = MaterialsProject2020Compatibility(check_potcar=False, correct_peroxide=True)
+        processed = compat.process_entry(entry, on_error="raise")
+        assert processed is not None
+        adjustment_names = [adj.name for adj in processed.energy_adjustments]
+        assert adjustment_names == ["MP2020 anion correction (oxide)"]
+        assert processed.correction == approx(-0.687 * 16)
+        assert processed.energy == approx(-160.3371 + -0.687 * 16)
+
+    def test_sulfide_correction_applied_to_s_anion(self):
+        # The S anion correction is still applied when S has a negative oxidation
+        # state, e.g. S2- in FeS.
+        entry = ComputedEntry(
+            "FeS",
+            -1,
+            correction=0.0,
+            parameters={
+                "is_hubbard": False,
+                "run_type": "GGA",
+                "potcar_spec": [
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE S 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
+                ],
+            },
+        )
+        processed = self.compat.process_entry(entry)
+        adjustment_names = [adj.name for adj in processed.energy_adjustments]
+        assert "MP2020 anion correction (S)" in adjustment_names
+
     def test_u_values(self):
         # Wrong U value
         entry = ComputedEntry(
