@@ -103,12 +103,13 @@ def get_energies(
     return 0
 
 
-def get_magnetizations(dirc: str, ion_list: list[int]) -> int:
+def get_magnetizations(dirc: str, ion_list: list[int] | None) -> int:
     """Get magnetization info from OUTCARs.
 
     Args:
         dirc (str): Directory name
-        ion_list (list[int]): List of ions to obtain magnetization information for.
+        ion_list (list[int] | None): List of ions to obtain magnetization information for,
+            or None to obtain magnetization information for all ions.
 
     Returns:
         int: 0 if successful.
@@ -164,8 +165,6 @@ def analyze(args: Namespace) -> int:
             start, end = (int(i) for i in re.split(r"-", args.ion_list[0]))
             ion_list = list(range(start, end + 1))
         for folder in args.directories:
-            if ion_list is None:
-                raise ValueError("ion_list is None")
             return get_magnetizations(folder, ion_list)
 
     return -1
