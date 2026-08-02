@@ -1052,6 +1052,79 @@ class TestMaterialsProjectCompatibility2020:
         adjustment_names = [adj.name for adj in processed.energy_adjustments]
         assert "MP2020 anion correction (S)" in adjustment_names
 
+    def test_sulfide_correction_not_applied_to_explicit_nonnegative_s(self):
+        # Regression test for https://github.com/materialsproject/pymatgen/issues/4538.
+        # An explicit non-negative S oxidation state must be respected even when S is
+        # the most electronegative element, i.e. the electronegativity fallback must
+        # not override the data. S (2.58) is more electronegative than C (2.55).
+        comp = Composition("CS")
+        entry = ComputedEntry(composition=comp, energy=-10)
+        entry.parameters = {"run_type": "GGA"}
+        entry.data["oxidation_states"] = {"C": -2.0, "S": 2.0}
+
+        compat = MaterialsProject2020Compatibility(check_potcar=False)
+        processed = compat.process_entry(entry, on_error="raise")
+        adjustment_names = [adj.name for adj in processed.energy_adjustments]
+        assert "MP2020 anion correction (S)" not in adjustment_names
+        assert processed.correction == approx(0)
+
+    def test_sulfide_correction_applied_when_s_oxidation_state_missing(self):
+        # When S has no explicit oxidation state (missing key or None value), the
+        # electronegativity fallback applies: the correction is applied when S is the
+        # most electronegative element.
+        comp = Composition("CS")
+        entry = ComputedEntry(composition=comp, energy=-10)
+        entry.parameters = {"run_type": "GGA"}
+        entry.data["oxidation_states"] = {"C": 2.0, "S": None}
+
+        compat = MaterialsProject2020Compatibility(check_potcar=False)
+        processed = compat.process_entry(entry, on_error="raise")
+        adjustment_names = [adj.name for adj in processed.energy_adjustments]
+        assert "MP2020 anion correction (S)" in adjustment_names
+        assert processed.correction == approx(-0.503)
+
+    def test_sulfide_correction_applied_with_empty_oxidation_states(self):
+        # An empty oxidation_states dict means the oxidation state guess failed; the
+        # correction falls back to the most electronegative element, which is S here.
+        comp = Composition("CS")
+        entry = ComputedEntry(composition=comp, energy=-10)
+        entry.parameters = {"run_type": "GGA"}
+        entry.data["oxidation_states"] = {}
+
+        compat = MaterialsProject2020Compatibility(check_potcar=False)
+        with pytest.warns(UserWarning, match="Failed to guess oxidation state"):
+            processed = compat.process_entry(entry, on_error="raise")
+        adjustment_names = [adj.name for adj in processed.energy_adjustments]
+        assert "MP2020 anion correction (S)" in adjustment_names
+        assert processed.correction == approx(-0.503)
+
+    def test_sulfide_correction_respects_strict_anions(self):
+        # The S correction should honor the strict_anions setting just like the other
+        # anion corrections. A fractional S oxidation state in (-1, 0) is not an anion
+        # under "require_bound" (the default) but is corrected under "no_check".
+        comp = Composition("CS")
+
+        def processed_entry(strict_anions: str):
+            entry = ComputedEntry(composition=comp, energy=-10)
+            entry.parameters = {"run_type": "GGA"}
+            entry.data["oxidation_states"] = {"C": 0.5, "S": -0.5}
+            compat = MaterialsProject2020Compatibility(check_potcar=False, strict_anions=strict_anions)
+            return compat.process_entry(entry, on_error="raise")
+
+        require_bound = processed_entry("require_bound")
+        assert "MP2020 anion correction (S)" not in [adj.name for adj in require_bound.energy_adjustments]
+        assert require_bound.correction == approx(0)
+
+        no_check = processed_entry("no_check")
+        assert "MP2020 anion correction (S)" in [adj.name for adj in no_check.energy_adjustments]
+        assert no_check.correction == approx(-0.503)
+
+        # S has no exact oxidation-state range in the experimental fitting data, so
+        # under "require_exact" the correction is never applied.
+        require_exact = processed_entry("require_exact")
+        assert "MP2020 anion correction (S)" not in [adj.name for adj in require_exact.energy_adjustments]
+        assert require_exact.correction == approx(0)
+
     def test_u_values(self):
         # Wrong U value
         entry = ComputedEntry(

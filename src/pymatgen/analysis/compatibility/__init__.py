@@ -1137,10 +1137,32 @@ class MaterialsProject2020Compatibility(Compatibility):
                 sf_type = "sulfide"
 
             if sf_type == "sulfide":
-                # if the oxidation_states key is not populated, only apply the correction
-                # if S is the most electronegative element
-                oxidation_state = entry.data["oxidation_states"].get("S", 0)
-                if oxidation_state < 0 or sorted_elements[-1].symbol == "S":
+                # Apply the S correction with the same anion semantics as the other
+                # anion corrections: only when S is an anion (oxidation state < 0),
+                # respecting the strict_anions setting. If S has no explicit oxidation
+                # state (None or missing key), fall back to applying the correction
+                # only when S is the most electronegative element.
+                apply_correction = False
+                oxidation_state = entry.data["oxidation_states"].get("S")
+                if oxidation_state is None:
+                    if sorted_elements[-1].symbol == "S":
+                        apply_correction = True
+                elif oxidation_state < 0:
+                    apply_correction = True
+                    if self.strict_anions == "require_bound" and oxidation_state > -1:
+                        # fractional oxidation states in (-1, 0) are not anions
+                        apply_correction = False
+
+                if self.strict_anions == "require_exact":
+                    apply_correction = False
+                    if (
+                        oxidation_state is not None
+                        and (oxi_range := MP2020_ANION_OXIDATION_STATE_RANGES.get("S"))
+                        and oxi_range[0] <= oxidation_state <= oxi_range[1]
+                    ):
+                        apply_correction = True
+
+                if apply_correction:
                     adjustments.append(
                         CompositionEnergyAdjustment(
                             self.comp_correction["S"],
