@@ -11,6 +11,7 @@ from abc import ABC, abstractmethod
 from ast import literal_eval
 from functools import cached_property
 from typing import TYPE_CHECKING
+from warnings import deprecated
 
 import numpy as np
 import pandas as pd
@@ -45,6 +46,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_TOL = 0.05  # Angstrom tolerance
 DISTANCE_ROUND_DECIMALS = 2  # Round distances to this many decimals when matching interactions
+
 
 def _analyzer(structure: Structure, **kwargs) -> CollinearMagneticStructureAnalyzer:
     """CollinearMagneticStructureAnalyzer factory with the settings used throughout this module.
@@ -284,8 +286,9 @@ class HeisenbergMapper:
             each sublattice pair, ordered from the nearest shell outwards.
         dists (dict): {J label: interaction distance in Angstrom}.
         ex_mat (DataFrame): Heisenberg Hamiltonian (per magnetic ion) for each ordering.
-        ex_params (dict): Exchange parameter values. The J_ij are in meV; the
-            included 'E0' offset stays in eV.
+        ex_params (dict): Exchange parameter values. The J_ij are in meV/muB^2 (they
+            multiply the raw moments, see get_exchange); the included 'E0' offset is in
+            eV per magnetic ion. get_interaction_graph carries the per-bond J_ij in meV.
     """
 
     def __init__(self, ordered_structures, energies, parent=None, cutoff=0, tol: float = DEFAULT_TOL):
@@ -300,10 +303,10 @@ class HeisenbergMapper:
 
         ***IMPORTANT NOTE***
 
-        If the parent is not supplied, it is inferred as the primitive cell of the lowest-energy ordering. 
-        Not supplying a parent cell is only safe if the lowest-energy ordering still preserves the symmetry of the paramagnetic parent. 
+        If the parent is not supplied, it is inferred as the primitive cell of the lowest-energy ordering.
+        Not supplying a parent cell is only safe if the lowest-energy ordering still preserves the symmetry of the paramagnetic parent.
         In most cases, relaxation will lower the symmetry and the parent cell must be supplied explicitly.
-        
+
         Args:
             ordered_structures (list): Structure objects with magmoms.
             energies (list): Total energies of each relaxed magnetic structure.
@@ -452,7 +455,9 @@ class HeisenbergMapper:
         for label in self.nn_interactions.get(self._order_sublattice_ids(i_id, j_id), ()):
             if abs(dist - self.dists[label]) <= self.tol:
                 return label
-        logger.warning(f"Interaction between sublattices {i_id} and {j_id} at {dist:.2f} Angstrom does not match any interaction in nn_interactions built from the parent:\n{self.nn_interactions}\n")
+        logger.warning(
+            f"Interaction between sublattices {i_id} and {j_id} at {dist:.2f} Angstrom does not match any interaction in nn_interactions built from the parent:\n{self.nn_interactions}\n"
+        )
         return None
 
     def _set_interactions(self):
@@ -524,7 +529,7 @@ class HeisenbergMapper:
             return
 
         rows = []
-        seen = set()  # de-duplicate identical interaction rows to avoid singularity
+        seen = set()  # de-duplicate identical interaction rows so no ordering is weighted twice
         for ordering in self.orderings:
             nn_graph = ordering.nn_graph
             sub_ids = ordering.sublattice_ids
@@ -546,9 +551,7 @@ class HeisenbergMapper:
                     if col in row:
                         row[col] -= s_i * magmoms[cs[2]]
 
-            # Extensive sums -> per magnetic ion, with the 1/2 Heisenberg factor.
-            # Each interaction is visited from both ends, so 2 * n_sites also removes the
-            # double counting.
+            # Extensive sums -> per magnetic ion, with the 1/2 Heisenberg factor for double counting.
             for c in j_columns:
                 row[c] /= 2 * n_sites
 
@@ -562,22 +565,36 @@ class HeisenbergMapper:
 
         ex_mat = pd.DataFrame(rows, columns=columns)
 
-        # Drop interaction columns that never appear (all zero) to keep H invertible
+        # Drop interaction columns that never appear (all zero) to keep H full rank
         j_columns = [c for c in j_columns if not (ex_mat[c] == 0).all()]
-        ex_mat = ex_mat[["E", "E0", *j_columns]]
 
-        # Square system: one row per parameter (E0 + the J_ij)
-        n_params = ex_mat.shape[1] - 1
-        self.ex_mat = ex_mat.iloc[:n_params].reset_index(drop=True)
+        # Every ordering is kept: get_exchange fits the parameters by least squares, so
+        # surplus orderings average out the noise on the energies instead of being
+        # discarded to square the system.
+        self.ex_mat = ex_mat[["E", "E0", *j_columns]].reset_index(drop=True)
 
     def get_exchange(self):
         """
         Take Heisenberg Hamiltonian and corresponding energy for each row and
-        solve for the exchange parameters.
+        solve for the exchange parameters in the least-squares sense.
+
+        With exactly as many orderings as parameters this reproduces the solution of the
+        square linear system of equations; with more it is a fit over all of them compensating
+        for the noise in the DFT-energies.
+
+        The rows of ex_mat multiply the raw magnetic moments in muB rather than normalized
+        spins, so the fitted J_ij come out in meV/muB^2: it takes J_ij * m_i * m_j to get
+        the energy of a bond. This follows Frey et al., Sci. Adv. 6, eabd1076 (2020), where
+        "S is the magnitude of the average magnetic moment". Codes and papers working with
+        normalized spins (VAMPIRE, UppASD, TB2J) instead report J in meV for
+        E = -sum_<ij> J_ij e_i.e_j with |e| = 1; get_interaction_graph does that conversion.
 
         Returns:
-            dict[str, float]: Exchange parameters. The J_ij are in meV; the
-                included 'E0' offset stays in eV.
+            ex_params (dict[str, float]): Exchange parameters. The J_ij are in meV/muB^2;
+                the included 'E0' offset is in eV per magnetic ion (its column in ex_mat
+                is 1.0 and the fitted energies are per magnetic ion, so it comes out
+                intensive, which is what lets orderings of different size share one fit).
+            residual (float): Residual of the least-squares fit.
         """
         ex_mat = self.ex_mat
         E = ex_mat[["E"]]
@@ -589,7 +606,7 @@ class HeisenbergMapper:
             self.ex_params = ex_params
             return ex_params
 
-        # Solve the linear system for E0 and the J_ij
+        # Fit E0 and the J_ij to the energies of every ordering
         H = np.array(ex_mat.loc[:, ex_mat.columns != "E"].values).astype(float)
 
         # Warn when the fit is ill-conditioned: near-degenerate orderings or an
@@ -604,13 +621,24 @@ class HeisenbergMapper:
                 "more-distinct orderings."
             )
 
-        j_ij = np.dot(np.linalg.inv(H), E)
+        j_ij, residuals, rank, _singular = np.linalg.lstsq(H, E, rcond=None)
 
-        j_ij[1:] *= 1000  # J_ij in meV (E0 stays in eV)
+        # A least-squares fit does not fail on a system it cannot determine,
+        # it silently returns the minimum-norm solution. cond above cannot see this case:
+        # with fewer rows than parameters it stays finite.
+        if rank < H.shape[1]:
+            logger.warning(
+                f"Exchange matrix is rank deficient (rank {rank} for {H.shape[1]} parameters); "
+                "the orderings do not constrain every exchange parameter, and the values "
+                "returned are one of infinitely many fits. Supply more distinct orderings."
+            )
+
+        j_ij[1:] *= 1000  # J_ij in meV/muB^2 (E0 stays in eV per magnetic ion)
         ex_params = {j_name: j[0] for j_name, j in zip(j_names, j_ij.tolist(), strict=True)}
 
         self.ex_params = ex_params
-        return ex_params
+        self.residual = residuals[0]
+        return self.ex_params, self.residual
 
     def get_low_energy_orderings(self):
         """Find lowest energy FM and AFM orderings to compute E_AFM - E_FM.
@@ -670,6 +698,7 @@ class HeisenbergMapper:
 
         return fm_struct, afm_struct, fm_e, afm_e
 
+    @deprecated("<J> is in units of meV/magnetic ion.")
     def estimate_exchange(self, fm_struct=None, afm_struct=None, fm_e=None, afm_e=None):
         """Estimate <J> for a structure based on low energy FM and AFM orderings.
 
@@ -680,7 +709,7 @@ class HeisenbergMapper:
             afm_e (float): afm energy per magnetic ion
 
         Returns:
-            float: Average J exchange parameter (meV)
+            float: Average J exchange parameter (meV / magnetic ion)
         """
         # Get low energy orderings if not supplied
         if any(arg is None for arg in [fm_struct, afm_struct, fm_e, afm_e]):
@@ -702,6 +731,9 @@ class HeisenbergMapper:
 
         return j_avg
 
+    @deprecated(
+        "<J> is in units of meV/magnetic ion, double counts diagonal entries, and is only a crude estimate of the true exchange parameters."
+    )
     def get_mft_temperature(self, j_avg):
         """
         Crude mean field estimate of critical temperature based on <J> for
@@ -709,7 +741,7 @@ class HeisenbergMapper:
         material.
 
         Args:
-            j_avg (float): Average exchange parameter (meV)
+            j_avg (float): Average exchange parameter (meV / magnetic ion)
 
         Returns:
             float: Critical temperature mft_t (K)
@@ -749,6 +781,11 @@ class HeisenbergMapper:
         """Get a StructureGraph with edges and weights that correspond to exchange
         interactions and J_ij values, respectively.
 
+        Edge weights are in meV, for the normalized-spin Hamiltonian
+        E = -sum_<ij> J_ij e_i.e_j, i.e. this ordering's moments are folded into the
+        fitted meV/muB^2 parameters (see get_exchange). That is the convention VAMPIRE,
+        UppASD and TB2J use, so the weights can go straight into a ucf file.
+
         Args:
             filename (str): if not None, save interaction graph to filename.
             ordering_index (int): Which ordering (and its supercell) to build the
@@ -764,13 +801,15 @@ class HeisenbergMapper:
         ordering = self.orderings[ordering_index]
         structure = ordering.magnetic_structure
         nn_graph = ordering.nn_graph
+        magmoms = structure.site_properties["magmom"]
         sub_ids = ordering.sublattice_ids
 
         igraph = StructureGraph.from_empty_graph(
             structure, edge_weight_name="exchange_constant", edge_weight_units="meV"
         )
 
-        if "<J>" in self.ex_params:  # Only <J> is available
+        javg_only = "<J>" in self.ex_params
+        if javg_only:
             logger.warning("Only <J> is available. The interaction graph will not tell you much.")
 
         # J_ij exchange interaction matrix
@@ -779,6 +818,13 @@ class HeisenbergMapper:
                 jimage = c[1]  # relative integer coordinates of atom j
                 j = c[2]  # index of neighbor
                 j_exc = self._get_j_exc(sub_ids[i], sub_ids[j], c[-1])
+                # Weights are in meV, so fold this ordering's moments into the fitted
+                # meV/muB^2 parameters. Only the magnitudes enter: the relative orientation
+                # of the two sites belongs to the spin vectors, not to J_ij. The <J>
+                # fallback is already an energy (meV per magnetic ion, see
+                # estimate_exchange), so there is nothing to fold in there.
+                if not javg_only:
+                    j_exc *= abs(magmoms[i] * magmoms[j])
                 # Only add interactions the fit actually parameterized. Unparameterized
                 # interactions (no matching sublattice-pair/shell in ex_params, exactly
                 # the interactions _build_exchange_mat also ignores) get j_exc == 0, which
@@ -805,7 +851,8 @@ class HeisenbergMapper:
             dist (float): distance (Angstrom) between sites (10E-2 precision)
 
         Returns:
-            float: Exchange parameter J_exc in meV (0 if no matching interaction).
+            float: Exchange parameter J_exc in meV/muB^2 (0 if no matching interaction).
+                Multiply by the two moments to get meV, as get_interaction_graph does.
         """
         label = self._interaction_label(i_id, j_id, round(dist, DISTANCE_ROUND_DECIMALS))
 
@@ -843,7 +890,7 @@ class HeisenbergMapper:
 class HeisenbergScreener:
     """Clean and screen magnetic orderings."""
 
-    def __init__(self, orderings:list[RelaxedOrdering], screen=False):
+    def __init__(self, orderings: list[RelaxedOrdering], screen=False):
         """Pre-processes magnetic orderings for HeisenbergMapper.
         It prioritizes low-energy orderings with large and localized magnetic moments.
 
@@ -866,7 +913,7 @@ class HeisenbergScreener:
         self.screened_orderings = orderings
 
     @staticmethod
-    def _do_cleanup(orderings:list[RelaxedOrdering]):
+    def _do_cleanup(orderings: list[RelaxedOrdering]):
         """Drop duplicate/degenerate orderings and sort by energy per magnetic ion.
 
         Sometimes different initial configs relax to the same state; those show up as
@@ -894,7 +941,7 @@ class HeisenbergScreener:
         return [orderings[idx] for idx in keep]
 
     @staticmethod
-    def _do_screen(orderings:list[RelaxedOrdering]):
+    def _do_screen(orderings: list[RelaxedOrdering]):
         """Screen and sort magnetic orderings based on some criteria.
 
         Prioritize low energy orderings and large, localized magmoms. _do_cleanup should be
@@ -958,10 +1005,11 @@ class HeisenbergModel(MSONable):
                 of each sublattice pair, ordered from the nearest shell outwards.
             dists (dict): {J label: interaction distance in Angstrom}.
             ex_mat (DataFrame): Heisenberg Hamiltonian (per magnetic ion) for each ordering.
-            ex_params (dict): Exchange parameter values. The J_ij are in meV; the
-                included 'E0' offset stays in eV.
-            javg (float): <J> exchange param (meV).
-            igraph (StructureGraph): Exchange interaction graph.
+            ex_params (dict): Exchange parameter values. The J_ij are in meV/muB^2 (they
+                multiply the raw moments, see HeisenbergMapper.get_exchange); the included
+                'E0' offset is in eV per magnetic ion.
+            javg (float): <J> exchange param (meV / magnetic ion).
+            igraph (StructureGraph): Exchange interaction graph, edge weights in meV.
         """
         self.formula = formula
         self.structures = structures
