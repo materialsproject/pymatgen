@@ -11,10 +11,10 @@ from abc import ABC, abstractmethod
 from ast import literal_eval
 from functools import cached_property
 from typing import TYPE_CHECKING
-from warnings import deprecated
 
 import numpy as np
 import pandas as pd
+from monty.dev import deprecated
 from monty.json import MSONable, jsanitize
 from monty.serialization import dumpfn
 
@@ -524,7 +524,7 @@ class HeisenbergMapper:
         columns = self._exchange_columns()
         j_columns = [c for c in columns if c not in ("E", "E0")]
 
-        if len(j_columns) < 2:  # Only <J> can be calculated
+        if len(j_columns) < 2:  # too few interactions to fit; get_exchange raises on this
             self.ex_mat = pd.DataFrame(columns=columns)
             return
 
@@ -584,8 +584,11 @@ class HeisenbergMapper:
 
         The rows of ex_mat multiply the raw magnetic moments in muB rather than normalized
         spins, so the fitted J_ij come out in meV/muB^2: it takes J_ij * m_i * m_j to get
-        the energy of a bond. This follows Frey et al., Sci. Adv. 6, eabd1076 (2020), where
-        "S is the magnitude of the average magnetic moment". Codes and papers working with
+        the energy of a bond. Leaving the moments unnormalized is deliberate: orderings
+        relax to different moment magnitudes, and it is the bond energy that should follow
+        the product m_i * m_j, while the interaction strength itself stays the same.
+        Normalizing every moment to 1 would fold that ordering-to-ordering variation into
+        the fitted J_ij as noise. Codes and papers working with
         normalized spins (VAMPIRE, UppASD, TB2J) instead report J in meV for
         E = -sum_<ij> J_ij e_i.e_j with |e| = 1; get_interaction_graph does that conversion.
 
@@ -594,17 +597,26 @@ class HeisenbergMapper:
                 the included 'E0' offset is in eV per magnetic ion (its column in ex_mat
                 is 1.0 and the fitted energies are per magnetic ion, so it comes out
                 intensive, which is what lets orderings of different size share one fit).
-            residual (float): Residual of the least-squares fit.
+            residual (float): Sum of squared residuals of the least-squares fit, in
+                (meV per magnetic ion)^2. It is a residual on the fitted energies, so
+                unlike the J_ij it keeps the per-magnetic-ion normalisation.
+
+        Raises:
+            ValueError: If the orderings constrain fewer than two exchange interactions,
+                leaving nothing for the fit to solve.
         """
         ex_mat = self.ex_mat
         E = ex_mat[["E"]]
-        j_names = [j for j in ex_mat.columns if j != "E"]
+        col_names = [c for c in ex_mat.columns if c != "E"]
 
-        # Only 1 NN interaction -> estimate <J> from E_AFM - E_FM
-        if len(j_names) < 3:
-            ex_params = {"<J>": self.estimate_exchange()}
-            self.ex_params = ex_params
-            return ex_params
+        # E0 and a single J cannot be fitted from the energies alone, so there is nothing
+        # to solve here.
+        if len(col_names) < 3:
+            raise ValueError(
+                f"Exchange matrix holds {len(col_names) - 1} interaction(s) besides E0; a least-squares "
+                "fit needs at least 2. Supply orderings whose nearest-neighbor shell holds more than "
+                "one sublattice pair, or set a cutoff so that further shells are included."
+            )
 
         # Fit E0 and the J_ij to the energies of every ordering
         H = np.array(ex_mat.loc[:, ex_mat.columns != "E"].values).astype(float)
@@ -623,6 +635,12 @@ class HeisenbergMapper:
 
         j_ij, residuals, rank, _singular = np.linalg.lstsq(H, E, rcond=None)
 
+        # lstsq only fills residuals for an overdetermined full-rank fit; for a square,
+        # underdetermined or rank-deficient one it returns an empty array, so compute the
+        # sum of squared residuals here. It sits on the energy side of the system, not the
+        # J_ij side, so it is a squared energy in (eV per magnetic ion)^2.
+        residual = float(residuals[0]) if residuals.size else float(np.sum((H @ j_ij - np.asarray(E)) ** 2))
+
         # A least-squares fit does not fail on a system it cannot determine,
         # it silently returns the minimum-norm solution. cond above cannot see this case:
         # with fewer rows than parameters it stays finite.
@@ -634,10 +652,11 @@ class HeisenbergMapper:
             )
 
         j_ij[1:] *= 1000  # J_ij in meV/muB^2 (E0 stays in eV per magnetic ion)
-        ex_params = {j_name: j[0] for j_name, j in zip(j_names, j_ij.tolist(), strict=True)}
+        residual *= 1e6  # convert to (meV per magnetic ion)^2
+        ex_params = {j_name: j[0] for j_name, j in zip(col_names, j_ij.tolist(), strict=True)}
 
         self.ex_params = ex_params
-        self.residual = residuals[0]
+        self.residual = residual
         return self.ex_params, self.residual
 
     def get_low_energy_orderings(self):
@@ -698,9 +717,21 @@ class HeisenbergMapper:
 
         return fm_struct, afm_struct, fm_e, afm_e
 
-    @deprecated("<J> is in units of meV/magnetic ion.")
+    @deprecated(
+        get_exchange,
+        message=(
+            "<J> is a single average in meV/magnetic ion rather than a set of shell-resolved "
+            "J_ij, and it is only defined for a pair of FM/AFM orderings."
+        ),
+        category=DeprecationWarning,
+        deadline=(2027, 8, 1),
+    )
     def estimate_exchange(self, fm_struct=None, afm_struct=None, fm_e=None, afm_e=None):
         """Estimate <J> for a structure based on low energy FM and AFM orderings.
+
+        .. deprecated::
+            Use :meth:`get_exchange` instead, which fits shell-resolved J_ij over all
+            supplied orderings.
 
         Args:
             fm_struct (Structure): fm structure with 'magmom' site property
@@ -732,13 +763,23 @@ class HeisenbergMapper:
         return j_avg
 
     @deprecated(
-        "<J> is in units of meV/magnetic ion, double counts diagonal entries, and is only a crude estimate of the true exchange parameters."
+        message=(
+            "<J> is in units of meV/magnetic ion, the multi-sublattice branch double counts the "
+            "diagonal entries of omega, and the result is only a crude estimate of the true "
+            "critical temperature."
+        ),
+        category=DeprecationWarning,
+        deadline=(2027, 8, 1),
     )
     def get_mft_temperature(self, j_avg):
         """
         Crude mean field estimate of critical temperature based on <J> for
         one sublattice, or solving the coupled equations for a multi-sublattice
         material.
+
+        .. deprecated::
+            No direct replacement; use a Monte Carlo solver (e.g. VAMPIRE) on the
+            exchange parameters from :meth:`get_exchange` for a reliable T_c.
 
         Args:
             j_avg (float): Average exchange parameter (meV / magnetic ion)
@@ -808,10 +849,6 @@ class HeisenbergMapper:
             structure, edge_weight_name="exchange_constant", edge_weight_units="meV"
         )
 
-        javg_only = "<J>" in self.ex_params
-        if javg_only:
-            logger.warning("Only <J> is available. The interaction graph will not tell you much.")
-
         # J_ij exchange interaction matrix
         for i in range(len(nn_graph.graph.nodes)):
             for c in nn_graph.get_connected_sites(i):
@@ -820,11 +857,8 @@ class HeisenbergMapper:
                 j_exc = self._get_j_exc(sub_ids[i], sub_ids[j], c[-1])
                 # Weights are in meV, so fold this ordering's moments into the fitted
                 # meV/muB^2 parameters. Only the magnitudes enter: the relative orientation
-                # of the two sites belongs to the spin vectors, not to J_ij. The <J>
-                # fallback is already an energy (meV per magnetic ion, see
-                # estimate_exchange), so there is nothing to fold in there.
-                if not javg_only:
-                    j_exc *= abs(magmoms[i] * magmoms[j])
+                # of the two sites belongs to the spin vectors, not to J_ij.
+                j_exc *= abs(magmoms[i] * magmoms[j])
                 # Only add interactions the fit actually parameterized. Unparameterized
                 # interactions (no matching sublattice-pair/shell in ex_params, exactly
                 # the interactions _build_exchange_mat also ignores) get j_exc == 0, which
@@ -856,10 +890,6 @@ class HeisenbergMapper:
         """
         label = self._interaction_label(i_id, j_id, round(dist, DISTANCE_ROUND_DECIMALS))
 
-        # Check if only averaged NN <J> values are available
-        if "<J>" in self.ex_params:
-            return self.ex_params["<J>"] if label and label.endswith("-nn") else 0
-
         return self.ex_params.get(label, 0)
 
     def get_heisenberg_model(self):
@@ -868,6 +898,7 @@ class HeisenbergMapper:
         Returns:
             HeisenbergModel: MSONable object.
         """
+        ex_params, residual = self.get_exchange()
         return HeisenbergModel(
             formula=str(self.ordered_structures_[0].reduced_formula),
             structures=self.structures,
@@ -881,8 +912,8 @@ class HeisenbergMapper:
             nn_interactions=self.nn_interactions,
             dists=self.dists,
             ex_mat=self.ex_mat,
-            ex_params=self.get_exchange(),
-            javg=self.estimate_exchange(),
+            ex_params=ex_params,
+            residual=residual,
             igraph=self.get_interaction_graph(),
         )
 
@@ -985,7 +1016,7 @@ class HeisenbergModel(MSONable):
         dists=None,
         ex_mat=None,
         ex_params=None,
-        javg=None,
+        residual=None,
         igraph=None,
     ):
         """
@@ -1008,7 +1039,8 @@ class HeisenbergModel(MSONable):
             ex_params (dict): Exchange parameter values. The J_ij are in meV/muB^2 (they
                 multiply the raw moments, see HeisenbergMapper.get_exchange); the included
                 'E0' offset is in eV per magnetic ion.
-            javg (float): <J> exchange param (meV / magnetic ion).
+            residual (float): Sum of squared residuals of the fit that produced ex_params,
+                in (meV per magnetic ion)^2.
             igraph (StructureGraph): Exchange interaction graph, edge weights in meV.
         """
         self.formula = formula
@@ -1024,7 +1056,7 @@ class HeisenbergModel(MSONable):
         self.dists = dists
         self.ex_mat = ex_mat
         self.ex_params = ex_params
-        self.javg = javg
+        self.residual = residual
         self.igraph = igraph
 
     def as_dict(self):
@@ -1043,7 +1075,7 @@ class HeisenbergModel(MSONable):
             "sublattice_ids": self.sublattice_ids,
             "dists": self.dists,
             "ex_params": self.ex_params,
-            "javg": self.javg,
+            "residual": self.residual,
             "igraph": self.igraph.as_dict(),
             # Sanitize int keys / DataFrame
             "ex_mat": jsanitize(self.ex_mat.to_dict()),
@@ -1080,6 +1112,6 @@ class HeisenbergModel(MSONable):
             dists=dct["dists"],
             ex_mat=ex_mat,
             ex_params=dct["ex_params"],
-            javg=dct["javg"],
+            residual=dct["residual"],
             igraph=igraph,
         )

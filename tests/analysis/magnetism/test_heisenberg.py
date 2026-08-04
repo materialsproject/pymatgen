@@ -12,9 +12,6 @@ from scipy.constants import physical_constants
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper, HeisenbergModel
 from pymatgen.core import Lattice
 from pymatgen.core.structure import Structure
-from tests.testing import TEST_FILES_DIR
-
-TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
 
 # Taken from scipy rather than copied out of HeisenbergMapper.get_mft_temperature, so a
 # wrong constant in the implementation shows up here instead of cancelling out.
@@ -24,118 +21,6 @@ K_BOLTZMANN = physical_constants["Boltzmann constant in eV/K"][0] * 1000  # meV/
 def _wyckoff_multiplicity(symbol: str) -> int:
     """Leading integer of a wyckoff symbol, e.g. '2c' -> 2."""
     return int("".join(char for char in symbol if char.isdigit()))
-
-
-class TestHeisenbergMapper:
-    """End-to-end run on real Mn3Al DFT orderings.
-
-    Mn3Al has no independently-known exchange constants -- the mapper is the only
-    estimator -- so asserting specific J or Tc values here would be circular. These
-    tests assert physical invariants instead (sublattice structure, geometry, the
-    <J> fallback, MSON round-trips). Exact numeric recovery is validated against a
-    known Hamiltonian in TestHeisenbergMapperKnownHamiltonian below.
-
-    No cutoff is passed, so each site keeps only its nearest-neighbor shell. In
-    Mn3Al that shell holds a single sublattice pair, which leaves the mapper with
-    too few interactions to invert and sends it down the <J> path.
-    """
-
-    @classmethod
-    def setup_class(cls):
-        cls.Mn3Al = pd.read_json(f"{TEST_DIR}/Mn3Al.json")
-        cls.structures = [Structure.from_dict(dct) for dct in cls.Mn3Al["structure"]]
-        cls.energies = [
-            epa * len(struct) for epa, struct in zip(cls.Mn3Al["energy_per_atom"], cls.structures, strict=True)
-        ]
-        cls.hm = HeisenbergMapper(cls.structures, cls.energies, tol=0.02)
-
-    def test_degenerate_orderings_are_dropped(self):
-        # Different initial configs relax to the same state and show up as orderings
-        # sharing an energy per magnetic ion; only one of each survives screening.
-        n_magnetic = [sum(site.specie.symbol == "Mn" for site in struct) for struct in self.structures]
-        energies_per_ion = [energy / n for energy, n in zip(self.energies, n_magnetic, strict=True)]
-
-        assert len(self.hm.orderings) < len(self.structures)  # something was dropped
-        assert len(self.hm.orderings) == len({round(energy, 6) for energy in energies_per_ion})
-        assert self.hm.energies == sorted(self.hm.energies)  # sorted, ground state first
-
-    def test_sublattices_follow_parent_wyckoff_orbits(self):
-        hm = self.hm
-        # Mn occupies two inequivalent orbits of the parent cell.
-        assert sorted(hm.sublattice_wyckoff_symbols.values()) == ["1a", "2c"]
-
-        # Every ordering draws its labels from those orbits, and every orbit is used.
-        assert {sub_id for sub_ids in hm.sublattice_ids for sub_id in sub_ids} == set(hm.sublattice_wyckoff_symbols)
-
-        for ordering in hm.orderings:
-            # Labels are indexed against the magnetic-only cell the graph is built from,
-            # so no None placeholders survive from the parent's full-cell labelling.
-            assert len(ordering.sublattice_ids) == len(ordering.magnetic_structure)
-            assert all(isinstance(sub_id, int) for sub_id in ordering.sublattice_ids)
-
-            # Each sublattice is filled in proportion to its wyckoff multiplicity, i.e.
-            # every ordering is a whole number of parent cells. Independent of which
-            # orbit happens to be labelled 0.
-            counts = Counter(ordering.sublattice_ids)
-            n_cells = {
-                counts[sub_id] / _wyckoff_multiplicity(symbol)
-                for sub_id, symbol in hm.sublattice_wyckoff_symbols.items()
-            }
-            assert len(n_cells) == 1
-
-    def test_single_interaction_falls_back_to_javg(self):
-        hm = self.hm
-        # The nearest-neighbor shell of Mn3Al holds exactly one sublattice pair.
-        [(pair, labels)] = hm.nn_interactions.items()
-        assert set(pair) == set(hm.sublattice_wyckoff_symbols)  # the two orbits are coupled
-        assert labels == [f"{pair[0]}-{pair[1]}-nn"]
-        assert hm.dists[labels[0]] == approx(2.51, abs=0.01)
-
-        # One interaction cannot constrain E0 and a J at once, so the mapper reports the
-        # average exchange from E_AFM - E_FM rather than inverting a degenerate system.
-        ex_params = hm.get_exchange()
-        assert set(ex_params) == {"<J>"}
-        assert np.isfinite(ex_params["<J>"])
-
-    def test_interaction_graph_carries_javg_on_every_bond(self):
-        hm = self.hm
-        igraph = hm.get_interaction_graph()
-
-        # In the <J> fallback every nearest-neighbor bond carries the same constant, and
-        # none are dropped: the interaction graph covers the whole neighbor graph.
-        assert igraph.graph.number_of_edges() == hm.nn_graphs[0].graph.number_of_edges()
-        weights = {round(data["weight"], 6) for *_, data in igraph.graph.edges(data=True)}
-        assert weights == {round(hm.get_exchange()["<J>"], 6)}
-
-    def test_heisenberg_model(self):
-        hmodel = self.hm.get_heisenberg_model()
-        assert hmodel.formula == "Mn3Al"
-
-        # structures keep every ion; magnetic_structures keep only the magnetic species,
-        # and those are what the graphs and sublattice labels are indexed against.
-        assert {sp.symbol for struct in hmodel.magnetic_structures for sp in struct.composition} == {"Mn"}
-        assert all(
-            len(mag_struct) < len(struct)
-            for struct, mag_struct in zip(hmodel.structures, hmodel.magnetic_structures, strict=True)
-        )
-
-    def test_as_from_dict_round_trip(self):
-        # HeisenbergModel must survive repeated MSON round-trips. as_dict()
-        # serializes ex_mat with jsanitize (a DataFrame becomes a nested dict),
-        # so from_dict() must reconstruct the DataFrame from that dict.
-        # https://github.com/materialsproject/pymatgen/issues/4664
-        model = self.hm.get_heisenberg_model()
-
-        model_rt = HeisenbergModel.from_dict(model.as_dict())
-        assert isinstance(model_rt.ex_mat, pd.DataFrame)
-        assert model_rt.formula == model.formula
-        assert model_rt.structures == model.structures
-        assert model_rt.magnetic_structures == model.magnetic_structures
-
-        # A second round-trip must be a no-op on the exchange matrix.
-        model_rt2 = HeisenbergModel.from_dict(model_rt.as_dict())
-        assert isinstance(model_rt2.ex_mat, pd.DataFrame)
-        pd.testing.assert_frame_equal(model_rt.ex_mat, model_rt2.ex_mat)
 
 
 class TestHeisenbergMapperKnownHamiltonian:
@@ -234,7 +119,7 @@ class TestHeisenbergMapperKnownHamiltonian:
         assert sorted(len(struct) for struct in hm.magnetic_structures) == [2, 2, 4, 8]
 
         aa, bb, ab = self._labels(hm)
-        ex_params = hm.get_exchange()
+        ex_params, residual = hm.get_exchange()
 
         # One constant per sublattice pair, each recovered independently rather than
         # averaged together, and independent of the supercell each ordering lives in.
@@ -243,6 +128,74 @@ class TestHeisenbergMapperKnownHamiltonian:
         assert ex_params[aa] == approx(self.J_AA * 1000, abs=1e-6)
         assert ex_params[bb] == approx(self.J_BB * 1000, abs=1e-6)
         assert ex_params["E0"] == approx(self.E0, abs=1e-8)
+
+        # The energies are exactly Heisenberg here, so the fit reproduces them.
+        assert residual == approx(0, abs=1e-12)
+
+    def test_degenerate_orderings_are_dropped(self):
+        # The same state in a 1x1 and in a 2x2 cell has the same energy per magnetic ion,
+        # so screening keeps only one of the two. Per-ion normalization is what makes
+        # cells of different size comparable, and hence what makes them degenerate here.
+        orderings = [*self.ORDERINGS, ([[1, 1], [1, 1]], [[1, 1], [1, 1]])]  # the FM ordering again, 2x2
+        structures = [self._structure(*spins) for spins in orderings]
+        energies = [self._energy(*spins) for spins in orderings]
+        hm = HeisenbergMapper(structures, energies, tol=0.02)
+
+        assert len(hm.orderings) == len(self.ORDERINGS)  # the duplicate was dropped
+        assert hm.energies == sorted(hm.energies)  # sorted, ground state first
+
+    def test_sublattices_follow_parent_wyckoff_orbits(self):
+        hm = self._mapper()
+        # A and B occupy two inequivalent orbits of the parent cell, and every ordering
+        # draws its labels from those orbits.
+        assert len(hm.sublattice_wyckoff_symbols) == 2
+        assert {sub_id for sub_ids in hm.sublattice_ids for sub_id in sub_ids} == set(hm.sublattice_wyckoff_symbols)
+
+        for ordering in hm.orderings:
+            # Labels are indexed against the magnetic-only cell the graph is built from,
+            # so no None placeholders survive from the parent's full-cell labelling.
+            assert len(ordering.sublattice_ids) == len(ordering.magnetic_structure)
+            assert all(isinstance(sub_id, int) for sub_id in ordering.sublattice_ids)
+
+            # Each sublattice is filled in proportion to its wyckoff multiplicity, i.e.
+            # every ordering is a whole number of parent cells. Independent of which
+            # orbit happens to be labelled 0.
+            counts = Counter(ordering.sublattice_ids)
+            n_cells = {
+                counts[sub_id] / _wyckoff_multiplicity(symbol)
+                for sub_id, symbol in hm.sublattice_wyckoff_symbols.items()
+            }
+            assert len(n_cells) == 1
+
+    def test_heisenberg_model(self):
+        hm = self._mapper()
+        hmodel = hm.get_heisenberg_model()
+
+        assert hmodel.formula == "MnFe"
+        assert {sp.symbol for struct in hmodel.magnetic_structures for sp in struct.composition} == {self.A, self.B}
+
+        # The fit travels with the model, residual included.
+        assert set(hmodel.ex_params) == {"E0", *self._labels(hm)}
+        assert hmodel.residual == approx(0, abs=1e-12)
+
+    def test_as_from_dict_round_trip(self):
+        # HeisenbergModel must survive repeated MSON round-trips. as_dict()
+        # serializes ex_mat with jsanitize (a DataFrame becomes a nested dict),
+        # so from_dict() must reconstruct the DataFrame from that dict.
+        # https://github.com/materialsproject/pymatgen/issues/4664
+        model = self._mapper().get_heisenberg_model()
+
+        model_rt = HeisenbergModel.from_dict(model.as_dict())
+        assert isinstance(model_rt.ex_mat, pd.DataFrame)
+        assert model_rt.formula == model.formula
+        assert model_rt.structures == model.structures
+        assert model_rt.magnetic_structures == model.magnetic_structures
+        assert model_rt.residual == model.residual
+
+        # A second round-trip must be a no-op on the exchange matrix.
+        model_rt2 = HeisenbergModel.from_dict(model_rt.as_dict())
+        assert isinstance(model_rt2.ex_mat, pd.DataFrame)
+        pd.testing.assert_frame_equal(model_rt.ex_mat, model_rt2.ex_mat)
 
     def test_shells_are_counted_within_a_sublattice_pair(self):
         hm = self._mapper()
@@ -371,6 +324,15 @@ class TestHeisenbergMeanFieldTemperature:
         mft_t = hm.get_mft_temperature(j_avg)
         tc_expected = 2 * abs(self.Z * j_nn * 1000) / 3 / K_BOLTZMANN
         assert mft_t == approx(tc_expected, abs=1e-3)  # ~309.5 K
+
+    def test_single_interaction_cannot_be_fitted(self):
+        # One interaction cannot constrain E0 and a J at once, so there is nothing for
+        # the least-squares fit to solve and the mapper must say so rather than guess.
+        hm = self._mapper(0.010)
+        assert len(hm.nn_interactions) == 1
+
+        with pytest.raises(ValueError, match="needs at least 2"):
+            hm.get_exchange()
 
     @pytest.mark.parametrize(("j_nn", "fm_ground_state"), [(0.010, True), (-0.010, False)])
     def test_exchange_sign_follows_ground_state(self, j_nn, fm_ground_state):
