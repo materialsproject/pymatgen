@@ -132,6 +132,29 @@ class TestHeisenbergMapperKnownHamiltonian:
         # The energies are exactly Heisenberg here, so the fit reproduces them.
         assert residual == approx(0, abs=1e-12)
 
+    def test_residual_is_rms_energy_error_per_ion(self):
+        # Four parameters, so the four orderings above make a square system the fit solves
+        # exactly whatever the energies are. A fifth ordering plus an energy pushed off the
+        # Heisenberg surface is what leaves a residual to look at.
+        orderings = [*self.ORDERINGS, ([[1, 1], [1, -1]], [[1, 1], [1, 1]])]  # A stripe/B FM, 2x2
+        structures = [self._structure(*spins) for spins in orderings]
+        energies = [self._energy(*spins) for spins in orderings]
+        energies[0] += 0.05  # eV, on the 2-ion FM cell
+        hm = HeisenbergMapper(structures, energies, tol=0.02)
+
+        ex_params, residual = hm.get_exchange()
+        assert residual > 0
+
+        # The residual is a root mean square over the orderings, in meV per magnetic ion:
+        # averaging rather than summing is what keeps it from growing with the number of
+        # orderings, and makes it comparable between materials.
+        j_columns = [col for col in hm.ex_mat.columns if col != "E"]
+        H = hm.ex_mat[j_columns].to_numpy(dtype=float)
+        E = hm.ex_mat["E"].to_numpy(dtype=float)
+        # ex_params reports E0 in eV and the J_ij in meV; ex_mat is all eV per ion.
+        params = np.array([ex_params["E0"], *(ex_params[col] / 1000 for col in j_columns[1:])])
+        assert residual == approx(np.sqrt(np.mean((H @ params - E) ** 2)) * 1000, rel=1e-9)
+
     def test_degenerate_orderings_are_dropped(self):
         # The same state in a 1x1 and in a 2x2 cell has the same energy per magnetic ion,
         # so screening keeps only one of the two. Per-ion normalization is what makes

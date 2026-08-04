@@ -597,9 +597,13 @@ class HeisenbergMapper:
                 the included 'E0' offset is in eV per magnetic ion (its column in ex_mat
                 is 1.0 and the fitted energies are per magnetic ion, so it comes out
                 intensive, which is what lets orderings of different size share one fit).
-            residual (float): Sum of squared residuals of the least-squares fit, in
-                (meV per magnetic ion)^2. It is a residual on the fitted energies, so
-                unlike the J_ij it keeps the per-magnetic-ion normalisation.
+            residual (float): Root-mean-square residual of the least-squares fit, in meV
+                per magnetic ion. It is a residual on the fitted energies, so unlike the
+                J_ij it keeps the per-magnetic-ion normalisation, and averaging over the
+                orderings instead of summing makes it independent of how many orderings
+                went into the fit. Both normalisations together make it an intensive
+                measure of how well the Heisenberg model describes the energies, i.e.
+                one that is comparable between materials.
 
         Raises:
             ValueError: If the orderings constrain fewer than two exchange interactions,
@@ -639,7 +643,14 @@ class HeisenbergMapper:
         # underdetermined or rank-deficient one it returns an empty array, so compute the
         # sum of squared residuals here. It sits on the energy side of the system, not the
         # J_ij side, so it is a squared energy in (eV per magnetic ion)^2.
-        residual = float(residuals[0]) if residuals.size else float(np.sum((H @ j_ij - np.asarray(E)) ** 2))
+        ssr = float(residuals[0]) if residuals.size else float(np.sum((H @ j_ij - np.asarray(E)) ** 2))
+
+        # Take the root mean square over the orderings rather than the raw sum: the sum
+        # grows with the number of orderings, while the RMS stays a typical per-ordering
+        # energy error and can be compared between materials fitted from different numbers
+        # of orderings. Divided by the row count, not by the degrees of freedom, so that a
+        # square system (as many orderings as parameters) does not divide by zero.
+        residual = float(np.sqrt(ssr / H.shape[0]))
 
         # A least-squares fit does not fail on a system it cannot determine,
         # it silently returns the minimum-norm solution. cond above cannot see this case:
@@ -652,7 +663,7 @@ class HeisenbergMapper:
             )
 
         j_ij[1:] *= 1000  # J_ij in meV/muB^2 (E0 stays in eV per magnetic ion)
-        residual *= 1e6  # convert to (meV per magnetic ion)^2
+        residual *= 1000  # convert to meV per magnetic ion
         ex_params = {j_name: j[0] for j_name, j in zip(col_names, j_ij.tolist(), strict=True)}
 
         self.ex_params = ex_params
@@ -1039,8 +1050,9 @@ class HeisenbergModel(MSONable):
             ex_params (dict): Exchange parameter values. The J_ij are in meV/muB^2 (they
                 multiply the raw moments, see HeisenbergMapper.get_exchange); the included
                 'E0' offset is in eV per magnetic ion.
-            residual (float): Sum of squared residuals of the fit that produced ex_params,
-                in (meV per magnetic ion)^2.
+            residual (float): Root-mean-square residual of the fit that produced ex_params,
+                in meV per magnetic ion. Intensive in both the cell size and the number of
+                orderings, so it is comparable between materials.
             igraph (StructureGraph): Exchange interaction graph, edge weights in meV.
         """
         self.formula = formula
