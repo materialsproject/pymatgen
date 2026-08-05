@@ -32,11 +32,13 @@ class TestHeisenbergMapperKnownHamiltonian:
         |  |  |  |      chains run along y, spaced D_AA
         A  B  A  B
 
-    so a site's nearest-neighbor shell holds both its own-species chain neighbors
-    and its cross-species column neighbors. That gives three distinct interactions
-    (A-A, B-B, A-B) without ever passing a cutoff, and the orderings below live in
-    1x1, 1x2 and 2x2 supercells of the parent, so the fit must recover the same
-    constants from cells of 2, 4 and 8 sites.
+    giving three distinct interactions (A-A, B-B, A-B) without ever passing a cutoff.
+    The chains are deliberately spaced much wider than the columns, so the two
+    intra-sublattice interactions are nowhere near a site's overall shortest bond:
+    they only survive because the neighbor search takes the nearest shell of each
+    sublattice pair separately. The orderings below live in 1x1, 1x2 and 2x2
+    supercells of the parent, so the fit must recover the same constants from cells
+    of 2, 4 and 8 sites.
 
     Total energies are assigned from E = N * e0 - sum_<ij> J_ab s_i s_j, evaluated
     over explicit lattice vectors rather than over the mapper's own neighbor graph,
@@ -48,11 +50,11 @@ class TestHeisenbergMapperKnownHamiltonian:
     J_AB, J_AA, J_BB = 0.011, 0.004, -0.006  # eV, all distinct
     A, B = "Mn", "Fe"
 
-    # D_AA must stay inside the default nearest-neighbor search's 10% window around
-    # D_AB, or the chain bonds drop out of the graph; and the two must differ by more
-    # than the mapper's tol, or they collapse into one shell.
+    # The chain spacing is 60% wider than the column spacing, far outside the 10% window
+    # a single global nearest-neighbor distance would allow. It must stay below 2 * D_AB,
+    # though, or the chain bond stops being the shortest A-A one.
     D_AB = 1.0  # A-B spacing along x
-    D_AA = 1.05  # A-A and B-B spacing along y
+    D_AA = 1.6  # A-A and B-B spacing along y
 
     # (A spins, B spins) per ordering, indexed [y][x] in units of the parent cell.
     ORDERINGS = (

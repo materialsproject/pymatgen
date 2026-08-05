@@ -63,6 +63,66 @@ def _analyzer(structure: Structure, **kwargs) -> CollinearMagneticStructureAnaly
     )
 
 
+class SublatticeMinimumDistanceNN(MinimumDistanceNN):
+    """Nearest-neighbor strategy taking the nearest shell of every sublattice pair.
+
+    ``MinimumDistanceNN`` is sublattice-blind: it keeps only the neighbors closer than
+    (1 + tol) times a site's *overall* nearest-neighbor distance. A sublattice pair whose
+    bond is longer than that then never enters the graph, so a structure whose sublattices
+    sit close together but are internally widely spaced yields only the inter-sublattice
+    bonds and no intra-sublattice ones.
+
+    Here the trial neighbors of a site are grouped by the sublattice they belong to and the
+    same window is applied within each group, so every sublattice pair the lattice realizes
+    within ``cutoff`` contributes its nearest shell, whatever the other pairs do.
+    """
+
+    def __init__(self, sublattice_ids: list[int], tol: float = 0.1, cutoff: float = 10) -> None:
+        """
+        Args:
+            sublattice_ids (list[int]): Sublattice id of each site, indexed against the
+                structure this strategy will be applied to.
+            tol (float): Relative tolerance on neighbor distances being in the same shell,
+                applied within a sublattice pair. Defaults to 0.1.
+            cutoff (float): Cutoff radius in Angstrom to look for trial neighbors in.
+                Defaults to 10.
+        """
+        super().__init__(tol=tol, cutoff=cutoff, get_all_sites=False)
+        self.sublattice_ids = sublattice_ids
+
+    def get_nn_info(self, structure: Structure, n: int) -> list[dict]:
+        """Nearest neighbors of site n, one shell per sublattice the neighbors belong to.
+
+        Args:
+            structure (Structure): input structure.
+            n (int): index of the site to find neighbors of.
+
+        Returns:
+            list[dict]: dicts with the neighbor site, its image, weight and site index.
+        """
+        by_sublattice: dict[int, list] = {}
+        for nn in structure.get_neighbors(structure[n], self.cutoff):
+            site_index = self._get_original_site(structure, nn)
+            by_sublattice.setdefault(self.sublattice_ids[site_index], []).append((nn, site_index))
+
+        siw = []
+        # The site's own sublattice is just another group here, so intra-sublattice bonds
+        # survive even when they are much longer than the shortest inter-sublattice one.
+        for neighbors in by_sublattice.values():
+            min_dist = min(nn.nn_distance for nn, _ in neighbors)
+            for nn, site_index in neighbors:
+                if nn.nn_distance < (1 + self.tol) * min_dist:
+                    siw.append(
+                        {
+                            "site": nn,
+                            "image": self._get_image(structure, nn),
+                            "weight": min_dist / nn.nn_distance,
+                            "site_index": site_index,
+                        }
+                    )
+        return siw
+
+
 class MagneticOrdering(ABC):
     """A single collinear magnetic configuration on a common parent lattice.
 
@@ -131,9 +191,17 @@ class MagneticOrdering(ABC):
         """NN StructureGraph of the magnetic-only structure.
 
         If self.cutoff is set, the graph includes all neighbors within that distance.
-        Otherwise, only the nearest neighbors of each site are included.
+        Otherwise each site keeps the nearest shell of every sublattice pair it takes part
+        in, so no pair drops out of the graph for being longer-ranged than another
+        (see SublatticeMinimumDistanceNN).
         """
-        strategy = MinimumDistanceNN(cutoff=self.cutoff, get_all_sites=True) if self.cutoff else MinimumDistanceNN()
+        if self.cutoff:
+            strategy = MinimumDistanceNN(cutoff=self.cutoff, get_all_sites=True)
+        else:
+            # Cached, so a graph built before the labels exist would be silently wrong.
+            if not self.sublattice_ids:
+                raise ValueError("Sublattice ids must be set before the nearest-neighbor graph is built.")
+            strategy = SublatticeMinimumDistanceNN(self.sublattice_ids)
         return StructureGraph.from_local_env_strategy(self.magnetic_structure, strategy=strategy)
 
     @abstractmethod
@@ -469,9 +537,10 @@ class HeisenbergMapper:
         nearest 0-0 and 0-1 interaction respectively, even when one of them is the longer interaction.
 
         Every distinct interaction the parent graph contains is kept, so which interactions are
-        parameterized follows entirely from how that graph is built: with cutoff=0 each
-        site keeps only its nearest neighbors (one nn-shell per sublattice pair, but every
-        pair the lattice realizes), with cutoff > 0 it keeps every interaction up to the cutoff.
+        parameterized follows entirely from how that graph is built: with cutoff=0 each site
+        keeps the nearest shell of every sublattice pair it takes part in, giving exactly one
+        'nn' interaction per pair the lattice realizes; with cutoff > 0 it keeps every
+        interaction up to the cutoff.
 
         Distances and connectivity are read from the parent ordering; see
         _initialize_orderings() for how the parent is defined and how the sublattices are
