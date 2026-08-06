@@ -510,7 +510,31 @@ class HeisenbergMapper:
         return tuple(sorted((i_id, j_id)))
 
     def _interaction_label(self, i_id, j_id, dist):
-        """Return the J label of an interaction, or None if it matches no interaction.
+        """Return the J label of an interaction, or None if the pair does not interact.
+
+        The bond is assigned to the *closest* shell of its sublattice pair, so the shell
+        boundaries sit at the midpoints between consecutive parent distances and every bond
+        gets a label:
+
+                      nn               nnn               nnnn
+                ------o--------:---------o--------:--------o------->  dist
+                               :                  :
+                            midpoint           midpoint
+
+        Matching against a fixed +-tol window around each parent distance instead would leave
+        dead zones between the windows. Relaxation moves a bond off the parent distance it was
+        measured at, and one that drifts into a gap gets no label at all - dropping it silently
+        from both the fit and the interaction graph:
+
+                   [-- nn --]      x      [-- nnn --]     [-- nnnn --]
+                -------o---------------------o---------------o------->  dist
+                                   ^
+                             bond lands in the gap
+
+        _set_interactions separates consecutive shells by more than tol, so a midpoint is never
+        closer than tol/2 to either shell it divides. With cutoff=0 the assignment is exact: 
+        SublatticeMinimumDistanceNN gives each pair exactly one
+        shell, leaving nothing to choose between.
 
         Args:
             i_id (int): sublattice id of the ith site
@@ -520,13 +544,14 @@ class HeisenbergMapper:
         Returns:
             str | None: '<i>-<j>-<shell>' label, e.g. '0-1-nn'.
         """
-        for label in self.nn_interactions.get(self._order_sublattice_ids(i_id, j_id), ()):
-            if abs(dist - self.dists[label]) <= self.tol:
-                return label
-        logger.warning(
-            f"Interaction between sublattices {i_id} and {j_id} at {dist:.2f} Angstrom does not match any interaction in nn_interactions built from the parent:\n{self.nn_interactions}\n"
-        )
-        return None
+        labels = self.nn_interactions.get(self._order_sublattice_ids(i_id, j_id), ())
+        if not labels:
+            logger.warning(
+                f"Sublattices {i_id} and {j_id} interact at {dist:.2f} Angstrom but the pair does not appear in nn_interactions built from the parent:\n{self.nn_interactions}\n"
+            )
+            return None
+
+        return min(labels, key=lambda label: abs(dist - self.dists[label]))
 
     def _set_interactions(self):
         """Set self.dists and self.nn_interactions describing the distinct interactions.
