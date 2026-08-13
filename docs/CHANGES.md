@@ -10,6 +10,39 @@ Releases tagged `(pymatgen-core)` originate from the
 [pymatgen-core](https://github.com/materialsproject/pymatgen-core) repo (PR numbers refer
 to that repo) and are pulled in automatically.
 
+## v2026.8.13 (pymatgen-core)
+
+- PR #123 The `enumlib_caller` module docstring notes [Enumlib.jl](https://github.com/glwhart/Enumlib.jl), a from-scratch Julia reimplementation of enumlib that is a drop-in replacement for `enum.x` (unchanged `struct_enum.in`/`out` contract, `makeStr.py` reused; this module's own test suite passes against it). `EnumlibAdaptor` emits an advisory `UserWarning` recommending it when the resolved `enum.x` is not Enumlib.jl; detection probes `enum.x --version` at most once per command path and never raises, so enumeration behavior is unchanged. (by @glwhart)
+- PR #99 `Locpot` and `Elfcar` store collinear spin-polarized data under `spin_up`/`spin_down` keys, matching what VASP actually writes for these files (two direct spin channels) instead of mislabeling them with CHGCAR's `total`/`diff` (total/magnetization) convention. Legacy `total`/`diff` access keeps working through warning-backed deprecated aliases. `VolumetricData` gains a `data_key` argument selecting the primary grid, `is_soc` is now detected from the `diff_x`/`diff_y`/`diff_z` keys instead of `len(data) >= 4`, and `linear_add`/`scale` invalidate cached spin data. Fixes materialsproject/pymatgen#4307. (by @DanielYang59)
+- PR #121 Accelerate `FermiDos.get_e_h_concs` (and thus `get_doping` and `get_fermi`) by 3–10×: trapezoid weights are precomputed once in `__init__` (turning each integration into a dot product) and the Fermi-Dirac integrand is truncated beyond ~40 k_BT from the Fermi level where its contribution is negligible. Results identical to within ~1e-12 relative error. (by @kavanase)
+- PR #114 Fix `hkl_transformation` computing matrix-element denominators via `int(1 / i)`, which is wrong for fractions other than `1/n` (e.g. the `2/3` in R-decentering). The sign convention changes from "at most one negative index" to "first nonzero index positive" (as in #101), so the returned hkl may differ between equivalent representations, e.g. now `(1, -1, -2)` where `(-1, 1, 2)` was returned before. New `uvw_transformation` transforms direct-lattice `[uvw]` vectors using the same machinery with the transposed inverse matrix. (by @Sanftperlig)
+- PR #117 Fix `Vasprun` parsing of vasprun.xml from MD simulations using MLFF (`ML_LMLFF`), which store steps as top-level tags rather than `<calculation>` blocks: `ionic_step_skip`/`ionic_step_offset` now parse the full file and subsample `md_data`, `nionic_steps` is taken from `md_data` when present, and `converged_electronic` returns `True` for MLFF runs (no electronic steps exist). Fixes materialsproject/pymatgen#4200. (by @DanielYang59)
+- PR #111 `SlabGenerator.gen_possible_terminations` is now a public method (previously an inner function of `get_slabs`). Termination positions are computed with a PBC-aware circular mean over each cluster instead of relying on atom order, and the siteless case is handled. (by @Sanftperlig)
+- PR #113 `generate_all_slabs` forwards the `cell` parameter (added to `get_symmetrically_distinct_miller_indices` in #101) so it can actually be used. (by @Sanftperlig)
+
+## v2026.7.31 (pymatgen-core)
+
+- New `MatPESRelaxSet` in `pymatgen.io.vasp.sets`: same settings as `MatPESStaticSet` but performs a full relaxation of ionic positions and cell (`ISIF=3`, `IBRION=2`, `NSW=99`) with a force-based convergence criterion (`EDIFFG=-0.02`), so DFT calculations can be performed to match MatPES MLIPs. (by @shyuep)
+- PR #110 Improve R-centering in `SpacegroupAnalyzer`. `get_conventional_to_primitive_transformation_matrix` now returns a positive-determinant (spglib-style, no reflection component) matrix for R-centered groups; `get_primitive_standard_structure` reorients rhombohedral lattices to the Setyawan/Curtarolo convention while keeping fractional coordinates instead of rebuilding sites and rechecking periodic equivalence; the unused `international_monoclinic` argument is deprecated (passing it emits a `DeprecationWarning`). **Behavior change:** the R-centering transformation matrix differs from the previous negative-determinant one, so primitive rhombohedral cells may come out with a different (equivalent) orientation. (by @Sanftperlig)
+- PR #97 Setters for `Structure.frac_coords` and `Structure.cart_coords` with length validation, enabling e.g. whole-structure translation via `struct.frac_coords += vector`. (by @Sanftperlig)
+- PR #105 `SlabGenerator` and `generate_all_slabs` gain `allow_smaller_than_ouc` (default `False`): with `primitive=True`, primitivization may reduce the slab below the oriented unit cell and its lattice may diverge from the OUC's. `Slab.scale_factor` is now corrected for LLL reduction, primitivization, and c-axis changes (solved from the parent lattice → slab lattice relation instead of the base-OUC scaling), and `Slab.oriented_unit_cell` preserves the input class (`Structure` vs `IStructure`). (by @Sanftperlig)
+- PR #109 Remove `ENAUG` from `MP24RelaxSet`, `MPSCANRelaxSet`, and `MatPESStaticSet` YAML configs and from `MVLSlabSet`, since VASP ignores/deprecates `ENAUG` when `PREC=Accurate`. (by @DanielYang59)
+- PR #112 Fix `latexify_spacegroup`/`unicodeify_spacegroup` subscripting only the single digit after `_`, so screw-axis symbols like `P2_12_12_1` render as `P2₁2₁2₁` instead of absorbing multi-digit runs. (by @minhsueh)
+- PR #102 Fix `BSPlotterProjected` crash when orbital summation is not enabled (`sum_morbs=None`). (by @ShengLin1001)
+- PR #106 Correct the `get_symmetrically_distinct_miller_indices` overload signatures and docstring default introduced in #101. (by @Sanftperlig)
+
+## v2026.7.27 (pymatgen-core)
+
+- PR #101 Overhaul `get_symmetrically_distinct_miller_indices`. A new `cell` argument (`input`, `conventional`, `primitive`, `conv_np`, `prim_2conv`) makes the treatment of centered cells explicit instead of implicit; sorting is now fully deterministic (smaller max `|h|,|k|,|l|` first, then smaller sum of `|h|,|k|,|l|`, then larger `h`, `k`, `l`); indices with `gcd > 1` are skipped up front and fewer `SpacegroupAnalyzer` instances are built; a crystal-family helper was added to `SpacegroupAnalyzer` and the return type is now inferred from whether `hkil` or `hkl` is requested. **Behavior change:** trigonal cells are no longer implicitly primitivized (the default `cell="input"` uses the lattice as given), and the representative index chosen for a symmetry-equivalent set may differ. (by @Sanftperlig)
+- PR #103 Remove deprecated functions/classes/methods whose deadlines fell in 2025: `StructureGraph`/`MoleculeGraph` `with_empty_graph`, `with_edges`, `with_local_env_strategy` (use the `from_*` constructors); `BrunnerNN_reciprocal`, `BrunnerNN_relative`, `BrunnerNN_real`; `IStructure.ntypesp` (use `n_elems`); the CP2K aliases `V_Hartree_Cube`, `MO_Cubes`, `E_Density_Cube`, `Xc_Functional`, `Kpoint_Set`, `Band_Structure`; JDFTx `to_dict()` (use `as_dict()`); and `DictSet` (use `VaspInputSet`). `BaderAnalysis`'s `parse_atomic_densities` argument is now a no-op that emits a `DeprecationWarning` and will be removed on 2026-12-31. (by @DanielYang59)
+- PR #100 `Oszicar` ionic-step parsing now goes through `_vasprun_float`, so VASP overflow markers such as `T= ******` yield `nan` with a warning instead of raising `ValueError` (fixes materialsproject/pymatgen#4537). (by @DanielYang59)
+
+## v2026.7.24 (pymatgen-core)
+
+- PR #95 `Outcar` table parsing now detects a truncated table (header present but no matching footer, e.g. an OUTCAR cut off mid-write) and emits a warning while returning the partial data, instead of hanging. (by @DanielYang59)
+- PR #92 Coordinate helpers handle empty/siteless inputs: `IStructure`/`Structure` coordinate accessors always return a 2D array even with no sites, and `get_all_distances` returns an empty array when either coordinate set is empty (previously errored on siteless/empty structures). (by @Sanftperlig)
+- PR #93 Replace hand-computed degree/radian conversions (`180.0 / pi`, `pi / 180.0`) with `math.radians`/`math.degrees` (and `np.deg2rad`/`np.rad2deg` for arrays) across `lattice`, `interface`, and `operations`. (by @Sanftperlig)
+
 ## v2026.7.16
 
 **Diffraction performance.** The XRD/neutron pattern generators are now fully vectorized and element-grouped.
@@ -25,6 +58,30 @@ to that repo) and are pulled in automatically.
 - PR #4666 Fix `HeisenbergModel` MSON round-trip: `from_dict` now accepts the `jsanitize`d dict form of `ex_mat` (previously `literal_eval` raised `ValueError`), tolerates the legacy string form, and falls back to an empty matrix. (by @vasa-develop)
 - PR #4658 Strip H/O from the `PourbaixDiagram` composition dict. (by @SAY-5)
 - PR #4672 Fix typo and docstring in `polarization.py`. (by @mminotaki)
+
+## v2026.7.16 (pymatgen-core)
+
+This core release also shipped the volumetric I/O fast-parser work already listed under v2026.5.19 below.
+
+- PR #68 Refactor `IStructure`/`IMolecule` `{from_file,from_str,to}` onto a new `pymatgen.io.registry` module. Each `pymatgen.io.<format>` self-registers a `StructureFormat`/`MoleculeFormat` handler; built-in formats stay lazily imported (no added `from pymatgen.core import Structure` import cost) and third parties can plug in via the `pymatgen.io.structure_formats`/`pymatgen.io.molecule_formats` entry-point groups. User-facing behavior (aliases, filename-inference priority, error wording, kwarg warnings, default-to-JSON) is preserved; `aims`/`fleur` get fallback shims. (by @shyuep)
+- PR #62 Add static XCrySDen XSF support (`MOLECULE`/`POLYMER`/`SLAB`/`CRYSTAL`, plus DATAGRID/BANDGRID blocks) with round-trip writing; XSF extras are stored as flat structure properties (`grids/…`, `bands/…`). `CONVCOORD` and animated XSF remain unsupported. (by @hheei)
+- PR #81 `Vaspwave.get_chgcar()` now reads HDF5 charge-augmentation occupancies (`/charge/aug_occupancies_*`) into `Chgcar.data_aug`, so legacy CHGCAR augmentation sections round-trip through `Chgcar.write_file()`. (by @hheei)
+- PR #69 Extend `INCAR` list tokenization to accept scientific notation (e.g. `ROPT = 1e-3 1e-3 1e-3`), which previously parsed as `1 -3 1 -3 1 -3`. (by @kavanase)
+- PR #82 Further vectorize the Ewald summation (`_calc_recip`, `_calc_real_and_point`); ~10× speedup on 100+-atom systems. (by @Bud-Macaulay)
+- PR #72 Preserve `pbc` through structure transformations. `IStructure.__mul__`/`make_supercell` and other ops that build a new `Lattice` no longer silently reset `pbc` to `(True, True, True)`. (by @deepanshuaggarwal51)
+- PR #88 Overhaul standard-cell handling in `SpacegroupAnalyzer`: `get_primitive_standard_structure` now correctly detects rhombohedral lattices and handles disordered structures, builds the standard cell once, returns float64, and adds an angle check to `get_conventional_standard_structure` (fixes materialsproject/pymatgen#4679). (by @Sanftperlig)
+- PR #76 Rescale magmoms when `CifParser` expands symmetry-equivalent sites from `.mcif` files whose magnetic cell has unequal-length crystal axes (moment components are converted to Cartesian before applying the operation). (by @lan496)
+- PR #87 `VolumetricData.from_cube` now honors the grid origin on line 3 instead of discarding it, fixing incorrectly positioned structures for cube files with a nonzero origin (fixes #4607). (by @mminotaki)
+- PR #77 Re-allow generation of `Slab`s from disordered structures (regressed by #24 using `.species` instead of `.species_and_occu`). (by @Sanftperlig)
+- PR #78 Forward the `reduce` kwarg to recursive `IStructure.get_primitive_structure` calls so `SlabGenerator` finds smaller slabs when `primitive=True` (regressed by #24). (by @ThomasWarford)
+- PR #67 Do not require `projections` in `HighSymmKPath.get_continuous_path` (they are not a required field of `BandStructureSymmLine`). (by @esoteric-ephemera)
+- PR #85 Classify a run as HSE06 for `HFSCREEN` in [0.2, 0.21] rather than exactly 0.2, matching common 0.207/0.208 usage. (by @kavanase)
+- PR #64 Use trapezoidal integration for `FermiDos` DOS integration (more accurate carrier concentrations) and add `get_e_h_concs()` to expose individual electron/hole concentrations. (by @kavanase)
+- PR #90 Use `math.tau` for full-precision 2π and prefer `math.*` over `np.*` for scalar ops (fixes #89). (by @Sanftperlig)
+- PR #91 Raise an explicit `ValueError("xyz only supports ordered sites.")` when exporting disordered sites to `.xyz`, instead of a cryptic `AttributeError`. (by @Sanftperlig)
+- PR #73 Fix `get_projected_plots_dots` returning a non-`Axes` `ax` for single-row/column subplot layouts and a repeated-condition typo. (by @mias0356)
+- PR #74 Fix `_get_projections_by_branches_patom_pmorb` plotting `Spin.up` projections in place of `Spin.down`. (by @mias0356)
+- PR #52 Fix `get_projected_plots_dots_patom_pmorb` empty-subplot layout and integer-division of row count for `num_columns != 2`. (by @mias0356)
 
 ## v2026.5.19 (pymatgen-core)
 
