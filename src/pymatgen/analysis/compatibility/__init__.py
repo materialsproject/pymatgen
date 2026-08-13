@@ -1154,13 +1154,10 @@ class MaterialsProject2020Compatibility(Compatibility):
                         apply_correction = False
 
                 if self.strict_anions == "require_exact":
+                    # S has no entry in MP2020_ANION_OXIDATION_STATE_RANGES (O and S are
+                    # treated separately), so under "require_exact" the S correction is
+                    # never applied -- not even via the electronegativity fallback.
                     apply_correction = False
-                    if (
-                        oxidation_state is not None
-                        and (oxi_range := MP2020_ANION_OXIDATION_STATE_RANGES.get("S"))
-                        and oxi_range[0] <= oxidation_state <= oxi_range[1]
-                    ):
-                        apply_correction = True
 
                 if apply_correction:
                     adjustments.append(

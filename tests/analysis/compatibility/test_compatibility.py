@@ -1125,6 +1125,21 @@ class TestMaterialsProjectCompatibility2020:
         assert "MP2020 anion correction (S)" not in [adj.name for adj in require_exact.energy_adjustments]
         assert require_exact.correction == approx(0)
 
+    def test_sulfide_correction_require_exact_with_missing_oxidation_state(self):
+        # Under "require_exact", a missing S oxidation state must not fall back to the
+        # electronegativity heuristic: S has no exact oxidation-state range in the
+        # experimental fitting data, so the correction is never applied.
+        comp = Composition("CS")
+        entry = ComputedEntry(composition=comp, energy=-10)
+        entry.parameters = {"run_type": "GGA"}
+        entry.data["oxidation_states"] = {"C": 2.0}
+
+        compat = MaterialsProject2020Compatibility(check_potcar=False, strict_anions="require_exact")
+        processed = compat.process_entry(entry, on_error="raise")
+        adjustment_names = [adj.name for adj in processed.energy_adjustments]
+        assert "MP2020 anion correction (S)" not in adjustment_names
+        assert processed.correction == approx(0)
+
     def test_u_values(self):
         # Wrong U value
         entry = ComputedEntry(
