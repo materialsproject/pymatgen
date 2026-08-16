@@ -1006,12 +1006,17 @@ class MaterialsProject2020Compatibility(Compatibility):
             strict_anions: only apply the anion corrections to anions. The option
                 "require_exact" will only apply anion corrections in cases where the
                 anion oxidation state is between the oxidation states used
-                in the experimental fitting data. The option "require_bound" will
-                define an anion as any species with an oxidation state value of <= -1.
-                This prevents the anion correction from being applied to unrealistic
-                hypothetical structures containing large proportions of very electronegative
-                elements, thus artificially over-stabilizing the compound. Set to "no_check"
-                to restore the original behavior described in the associated publication. Default: True
+                in the experimental fitting data. O and S are exceptions: they are
+                treated separately via oxide/sulfide classification rather than the
+                MP2020_ANION_OXIDATION_STATE_RANGES table, so for them "require_exact"
+                behaves like "require_bound" (an oxidation state <= -1, i.e. a genuine
+                oxide/sulfide anion, is corrected and S cations such as S6+ are not).
+                The option "require_bound" will define an anion as any species with an
+                oxidation state value of <= -1. This prevents the anion correction from
+                being applied to unrealistic hypothetical structures containing large
+                proportions of very electronegative elements, thus artificially
+                over-stabilizing the compound. Set to "no_check" to restore the original
+                behavior described in the associated publication. Default: True
             check_potcar (bool): Check that the POTCARs used in the calculation are consistent
                 with the Materials Project parameters. False bypasses this check altogether. Default: True
                 Can also be disabled globally by running `pmg config --add PMG_POTCAR_CHECKS false`.
@@ -1142,22 +1147,25 @@ class MaterialsProject2020Compatibility(Compatibility):
                 # respecting the strict_anions setting. If S has no explicit oxidation
                 # state (None or missing key), fall back to applying the correction
                 # only when S is the most electronegative element.
+                #
+                # Note: S (like O) has no entry in MP2020_ANION_OXIDATION_STATE_RANGES
+                # because it is treated separately via sulfide_type. For S the exact
+                # anion definition *is* an oxidation state < 0, so "require_exact"
+                # behaves like "require_bound" here: a genuine sulfide anion (S2-) is
+                # always corrected, while S cations (e.g. S6+) are never corrected and
+                # the electronegativity fallback is not used. This keeps sulfides
+                # correct for "require_exact" users instead of silently dropping the S
+                # correction for all sulfide entries.
                 apply_correction = False
                 oxidation_state = entry.data["oxidation_states"].get("S")
                 if oxidation_state is None:
-                    if sorted_elements[-1].symbol == "S":
+                    if self.strict_anions != "require_exact" and sorted_elements[-1].symbol == "S":
                         apply_correction = True
                 elif oxidation_state < 0:
                     apply_correction = True
-                    if self.strict_anions == "require_bound" and oxidation_state > -1:
+                    if self.strict_anions != "no_check" and oxidation_state > -1:
                         # fractional oxidation states in (-1, 0) are not anions
                         apply_correction = False
-
-                if self.strict_anions == "require_exact":
-                    # S has no entry in MP2020_ANION_OXIDATION_STATE_RANGES (O and S are
-                    # treated separately), so under "require_exact" the S correction is
-                    # never applied -- not even via the electronegativity fallback.
-                    apply_correction = False
 
                 if apply_correction:
                     adjustments.append(

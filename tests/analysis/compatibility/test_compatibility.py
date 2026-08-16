@@ -1101,7 +1101,8 @@ class TestMaterialsProjectCompatibility2020:
     def test_sulfide_correction_respects_strict_anions(self):
         # The S correction should honor the strict_anions setting just like the other
         # anion corrections. A fractional S oxidation state in (-1, 0) is not an anion
-        # under "require_bound" (the default) but is corrected under "no_check".
+        # under "require_bound" (the default) or "require_exact", but is corrected
+        # under "no_check".
         comp = Composition("CS")
 
         def processed_entry(strict_anions: str):
@@ -1119,16 +1120,33 @@ class TestMaterialsProjectCompatibility2020:
         assert "MP2020 anion correction (S)" in [adj.name for adj in no_check.energy_adjustments]
         assert no_check.correction == approx(-0.503)
 
-        # S has no exact oxidation-state range in the experimental fitting data, so
-        # under "require_exact" the correction is never applied.
+        # A fractional oxidation state in (-1, 0) is also not a genuine sulfide anion
+        # under "require_exact".
         require_exact = processed_entry("require_exact")
         assert "MP2020 anion correction (S)" not in [adj.name for adj in require_exact.energy_adjustments]
         assert require_exact.correction == approx(0)
 
+    def test_sulfide_correction_still_applied_under_require_exact(self):
+        # Regression test for the review follow-up: S (like O) is treated separately
+        # via sulfide_type and has no entry in MP2020_ANION_OXIDATION_STATE_RANGES.
+        # Under "require_exact", a genuine sulfide anion (oxidation state < 0) must
+        # still receive the S correction -- the table lookup must not silently disable
+        # it. Only S cations (e.g. S6+) are excluded.
+        comp = Composition.from_dict({"Fe2+": 1, "S2-": 1})
+        entry = ComputedEntry(composition=comp, energy=-1)
+        entry.parameters = {"run_type": "GGA", "is_hubbard": False}
+        entry.data["oxidation_states"] = {"Fe": 2.0, "S": -2.0}
+
+        compat = MaterialsProject2020Compatibility(check_potcar=False, strict_anions="require_exact")
+        processed = compat.process_entry(entry, on_error="raise")
+        adjustment_names = [adj.name for adj in processed.energy_adjustments]
+        assert "MP2020 anion correction (S)" in adjustment_names
+        assert processed.correction == approx(-0.503)
+
     def test_sulfide_correction_require_exact_with_missing_oxidation_state(self):
         # Under "require_exact", a missing S oxidation state must not fall back to the
-        # electronegativity heuristic: S has no exact oxidation-state range in the
-        # experimental fitting data, so the correction is never applied.
+        # electronegativity heuristic. The composition itself has no explicit sulfide
+        # classification here, so the S correction is not applied.
         comp = Composition("CS")
         entry = ComputedEntry(composition=comp, energy=-10)
         entry.parameters = {"run_type": "GGA"}

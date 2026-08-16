@@ -21,6 +21,7 @@ to that repo) and are pulled in automatically.
 - PR #4655 Genericise `AflowPrototypeMatcher` so it is no longer tied to AFLOW-specific prototype data. (by @CompRhys)
 
 **Fixes**
+- PR #4694 `MaterialsProject2020Compatibility` no longer applies the S anion correction to S cations (e.g. S6+ in sulfates such as mp-6597): the S correction is now gated on a negative oxidation state, with the same `strict_anions` semantics as the other anion corrections. Fixes #4538. (by @hoangngochuong24947-gif)
 - PR #4682 `MagneticStructureEnumerator._generate_ordered_structures`: honor the configured `truncate_by_symmetry` count instead of the hardcoded `[:5]` slice. (by @steps-re)
 - PR #4666 Fix `HeisenbergModel` MSON round-trip: `from_dict` now accepts the `jsanitize`d dict form of `ex_mat` (previously `literal_eval` raised `ValueError`), tolerates the legacy string form, and falls back to an empty matrix. (by @vasa-develop)
 - PR #4658 Strip H/O from the `PourbaixDiagram` composition dict. (by @SAY-5)
