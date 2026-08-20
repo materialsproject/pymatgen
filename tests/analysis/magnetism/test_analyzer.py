@@ -431,9 +431,7 @@ class TestMagneticStructureEnumeratorTruncation:
         enumerator.transformations = {}
         enumerator.sanitized_structure = structures[0]
         enumerator.num_orderings = 64
-        enumerator.input_analyzer = CollinearMagneticStructureAnalyzer(
-            structures[0], overwrite_magmom_mode="none"
-        )
+        enumerator.input_analyzer = CollinearMagneticStructureAnalyzer(structures[0], overwrite_magmom_mode="none")
         enumerator.ordered_structures = list(structures)
         enumerator.ordered_structure_origins = list(origins)
 
