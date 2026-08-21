@@ -2,11 +2,50 @@
 This module implements a simple algorithm for extracting nearest neighbor
 exchange parameters by mapping low energy magnetic orderings to a Heisenberg
 model.
+
+Migrating from HeisenbergMapper 0.1
+-----------------------------------
+Sublattices used to be derived from the orderings themselves, which restricted
+all orderings to a single common supercell. They are now defined once on a
+paramagnetic *parent cell* and every ordering is mapped onto it, so orderings in
+different supercells can be fitted together. This changed the public surface:
+
+* ``HeisenbergMapper(ordered_structures, energies, cutoff, tol)`` gained a
+  ``parent`` argument in third position, so positional ``cutoff``/``tol`` move
+  along: ``HeisenbergMapper(ordered_structures, energies, parent, cutoff, tol)``.
+  Supply the paramagnetic parent cell whenever you have it; leaving it as None
+  infers it from the lowest-energy ordering and warns.
+* ``sgraphs`` is gone. Each ordering is now a :class:`RelaxedOrdering` in
+  ``mapper.orderings``, carrying its own ``structure``, ``magnetic_structure``,
+  ``energy`` and ``nn_graph``; ``mapper.nn_graphs`` gives the list of graphs.
+  Note these are built on the magnetic-only structure, not the full one.
+* ``unique_site_ids`` and ``wyckoff_ids`` are gone. Sublattices are now the
+  symmetry orbits of the parent: ``mapper.sublattice_ids`` labels the magnetic
+  sites of each ordering and ``mapper.sublattice_wyckoff_symbols`` maps a
+  sublattice id to its Wyckoff symbol.
+* ``ordered_structures`` (the screened, energy-sorted list) is now
+  ``mapper.structures``; ``mapper.energies`` keeps its name but now holds energy
+  *per magnetic ion* rather than total energy. The unmodified constructor
+  inputs are still ``ordered_structures_``/``energies_``.
+* ``get_exchange`` now returns ``(ex_params, residual)`` rather than
+  ``ex_params`` alone, and is a least-squares fit over all orderings instead of
+  an exactly-determined solve - so supplying more orderings than parameters is
+  now useful, and the ``{"<J>": ...}`` fallback for under-determined systems is
+  gone. ``residual`` is the RMS fit residual in meV per magnetic ion and is also
+  stored on ``mapper.residual`` and on :class:`HeisenbergModel`.
+* ``estimate_exchange`` and ``get_mft_temperature`` are deprecated. Use
+  ``get_exchange`` for shell-resolved ``J_ij``, and a Monte Carlo solver (e.g.
+  VAMPIRE, via :class:`HeisenbergModel`) rather than the mean field estimate for
+  a critical temperature.
+* ``HeisenbergScreener(ordered_structures, energies)`` now takes the list of
+  :class:`RelaxedOrdering` objects and exposes ``screened_orderings`` in place
+  of ``screened_structures``/``screened_energies``.
 """
 
 from __future__ import annotations
 
 import logging
+import warnings
 from abc import ABC, abstractmethod
 from ast import literal_eval
 from functools import cached_property
@@ -28,14 +67,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 if TYPE_CHECKING:
     from typing import Self
 
-# __author__ = "ncfrey"
-# __version__ = "0.1"
-# __maintainer__ = "Nathan C. Frey"
-# __email__ = "ncfrey@lbl.gov"
-# __status__ = "Development"
-# __date__ = "June 2019"
-
-__author__ = "Luca Frey"
+__author__ = " Luca Frey"
 __version__ = "0.2"
 __maintainer__ = "Luca Frey"
 __email__ = "luca.frey@student.kit.edu"
@@ -372,7 +404,8 @@ class HeisenbergMapper:
         ***IMPORTANT NOTE***
 
         If the parent is not supplied, it is inferred as the primitive cell of the lowest-energy ordering.
-        Not supplying a parent cell is only safe if the lowest-energy ordering still preserves the symmetry of the paramagnetic parent.
+        Not supplying a parent cell is only safe if the lowest-energy ordering still
+        preserves the symmetry of the paramagnetic parent.
         In most cases, relaxation will lower the symmetry and the parent cell must be supplied explicitly.
 
         Args:
@@ -418,9 +451,12 @@ class HeisenbergMapper:
 
         This function does:
          - Build a set of magnetic species pooled over all orderings.
-         - Build a RelaxedOrdering for each ordering, with its magnetic-only structure and NN graph. Since the parent is not yet known, the sublattice ids are not set yet.
-         - Drop duplicate/degenerate orderings and sort by energy per magnetic ion using HeisenbergScreener.
-         - Build the ParentOrdering from the lowest-energy ordering (or the explicit parent if supplied), and set its sublattice ids.
+         - Build a RelaxedOrdering for each ordering, with its magnetic-only structure and
+           NN graph. Since the parent is not yet known, the sublattice ids are not set yet.
+         - Drop duplicate/degenerate orderings and sort by energy per magnetic ion using
+           HeisenbergScreener.
+         - Build the ParentOrdering from the lowest-energy ordering (or the explicit parent
+           if supplied), and set its sublattice ids.
 
         Args:
             ordered_structures (list): Structure objects with magmoms.
@@ -429,10 +465,12 @@ class HeisenbergMapper:
                 it from the lowest-energy ordering.
 
         Raises:
-            SystemExit: If fewer than 2 unique orderings remain after screening.
+            ValueError: If fewer than 2 unique orderings remain after screening.
         """
-        # Pool the magnetic species over all orderings, to make sure a species that relaxes to zero moment in one ordering still counts as magnetic there.
-        # Since the magmom of this species is zero, it contributes a zero term to the Heisenberg Hamiltonian, but it stays on the lattice and keeps the site count and graph topology consistent with the other orderings.
+        # Pool the magnetic species over all orderings, to make sure a species that relaxes to
+        # zero moment in one ordering still counts as magnetic there. Since the magmom of this
+        # species is zero, it contributes a zero term to the Heisenberg Hamiltonian, but it stays
+        # on the lattice and keeps the site count and graph topology consistent with the others.
         magn_species = set().union(*(MagneticOrdering._magnetic_species(struct) for struct in ordered_structures))
 
         orderings = [
@@ -444,11 +482,22 @@ class HeisenbergMapper:
         self.orderings = HeisenbergScreener(orderings, screen=False).screened_orderings
 
         if len(self.orderings) < 2:
-            raise SystemExit("HeisenbergMapper needs at least 2 unique orderings.")
+            raise ValueError("HeisenbergMapper needs at least 2 unique orderings.")
 
         # The nonmagnetic ions are kept in the parent: site equivalence is read from its
         # symmetry, and removing them first can raise the apparent site symmetry and merge
         # sublattices that are actually distinct.
+        if parent is None:
+            warnings.warn(
+                "No `parent` cell supplied; the magnetic sublattices are inferred from the "
+                "primitive cell of the lowest-energy ordering. This is only correct if that "
+                "ordering still has the symmetry of the paramagnetic parent - relaxation "
+                "usually lowers it, which silently splits or merges sublattices. Pass an "
+                "explicit `parent` unless you have checked that it does not.",
+                UserWarning,
+                # _initialize_orderings <- __init__ <- caller
+                stacklevel=3,
+            )
         reference = parent if parent is not None else self.orderings[0].structure
         self.parent = ParentOrdering(
             MagneticOrdering._nonmagnetic(reference).get_primitive_structure(),
@@ -506,7 +555,10 @@ class HeisenbergMapper:
 
     @staticmethod
     def _order_sublattice_ids(i_id, j_id):
-        """Returns the sublattice_ids in the order (i, j) with i <= j. This is the key used to look up the interactions of a sublattice pair."""
+        """Returns the sublattice_ids in the order (i, j) with i <= j.
+
+        This is the key used to look up the interactions of a sublattice pair.
+        """
         return tuple(sorted((i_id, j_id)))
 
     def _interaction_label(self, i_id, j_id, dist):
@@ -532,7 +584,7 @@ class HeisenbergMapper:
                              bond lands in the gap
 
         _set_interactions separates consecutive shells by more than tol, so a midpoint is never
-        closer than tol/2 to either shell it divides. With cutoff=0 the assignment is exact: 
+        closer than tol/2 to either shell it divides. With cutoff=0 the assignment is exact:
         SublatticeMinimumDistanceNN gives each pair exactly one
         shell, leaving nothing to choose between.
 
@@ -547,7 +599,8 @@ class HeisenbergMapper:
         labels = self.nn_interactions.get(self._order_sublattice_ids(i_id, j_id), ())
         if not labels:
             logger.warning(
-                f"Sublattices {i_id} and {j_id} interact at {dist:.2f} Angstrom but the pair does not appear in nn_interactions built from the parent:\n{self.nn_interactions}\n"
+                f"Sublattices {i_id} and {j_id} interact at {dist:.2f} Angstrom but the pair "
+                f"does not appear in nn_interactions built from the parent:\n{self.nn_interactions}\n"
             )
             return None
 

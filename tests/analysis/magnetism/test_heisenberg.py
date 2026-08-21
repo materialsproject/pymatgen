@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from collections import Counter
 
 import numpy as np
@@ -255,6 +256,26 @@ class TestHeisenbergMapperKnownHamiltonian:
         energies = [self._energy(*self.ORDERINGS[0]), self._energy(*self.ORDERINGS[1]), -5.0]
         with pytest.raises(ValueError, match="parent cell"):
             HeisenbergMapper(structures, energies, tol=0.02)
+
+    def test_too_few_orderings_raises_value_error(self):
+        # ValueError, not SystemExit: an unusable input must not tear down the
+        # interpreter session the mapper is being called from.
+        structures = [self._structure(*self.ORDERINGS[0])]
+        with pytest.raises(ValueError, match="at least 2 unique orderings"):
+            HeisenbergMapper(structures, [self._energy(*self.ORDERINGS[0])], tol=0.02)
+
+    def test_inferred_parent_warns(self):
+        structures = [self._structure(*spins) for spins in self.ORDERINGS]
+        energies = [self._energy(*spins) for spins in self.ORDERINGS]
+
+        with pytest.warns(UserWarning, match="No `parent` cell supplied"):
+            HeisenbergMapper(structures, energies, tol=0.02)
+
+        # An explicit parent is the documented way out, and must stay silent.
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            HeisenbergMapper(structures, energies, parent=self._structure(*self.ORDERINGS[0]), tol=0.02)
+        assert not [warning for warning in caught if "No `parent` cell supplied" in str(warning.message)]
 
     def test_ill_conditioned_fit_warns(self, caplog):
         # Near-degenerate orderings make H nearly singular, so tiny energy differences
