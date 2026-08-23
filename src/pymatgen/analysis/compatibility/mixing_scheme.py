@@ -35,6 +35,18 @@ __date__ = "October 2021"
 logger = logging.getLogger(__name__)
 
 
+def _entry_sort_key(entry) -> tuple[float, str]:
+    """Canonical entry ordering, so that the greedy structure matching in get_mixing_state_data
+    is reproducible.
+
+    The key has to be a total order or the sort silently degrades back to the arrival order:
+    hence str() on entry_id and the NaN check, since every comparison against a NaN energy is
+    False.
+    """
+    energy = entry.energy_per_atom
+    return (np.inf if np.isnan(energy) else energy), str(entry.entry_id)
+
+
 class MaterialsProjectDFTMixingScheme(Compatibility):
     """This class implements the Materials Project mixing scheme, which allows mixing of
     energies from different DFT functionals. Note that this should only be used for
@@ -63,7 +75,9 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         Args:
             structure_matcher (StructureMatcher): StructureMatcher object used to determine
-                whether calculations from different functionals describe the same material.
+                whether calculations from different functionals describe the same material. Its
+                group_structures method must accept symmetric=True, which this scheme relies on
+                to keep the grouping independent of the order the structures arrive in.
             run_type_1: The first DFT run_type. Typically this is the majority or run type or
                 the "base case" onto which the other calculations are referenced. Valid choices
                 are any run_type recognized by Vasprun.run_type, such as "LDA", "GGA", "GGA+U",
@@ -495,9 +509,13 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
             filtered_entries.append(entry)
 
-        # separate by run_type
-        entries_type_1 = [e for e in filtered_entries if e.parameters["run_type"] in self.valid_rtypes_1]
-        entries_type_2 = [e for e in filtered_entries if e.parameters["run_type"] in self.valid_rtypes_2]
+        # separate by run_type, sorting so that everything downstream is reproducible:
+        entries_type_1 = sorted(
+            (e for e in filtered_entries if e.parameters["run_type"] in self.valid_rtypes_1), key=_entry_sort_key
+        )
+        entries_type_2 = sorted(
+            (e for e in filtered_entries if e.parameters["run_type"] in self.valid_rtypes_2), key=_entry_sort_key
+        )
 
         # construct PhaseDiagram for each run_type, if possible
         pd_type_1, pd_type_2 = None, None
@@ -543,7 +561,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         # this logic follows emmet.builders.vasp.materials.MaterialsBuilder.filter_and_group_tasks
         structures = []
         for entry in all_entries:
-            struct = entry.structure
+            struct = entry.structure.copy()  # don't mutate caller's Structure
             struct.entry_id = entry.entry_id
             structures.append(struct)
 
@@ -568,8 +586,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                                 all_entries,
                             )
                         )
-                else:
-                    for group in self.structure_matcher.group_structures(l_pre_group):
+                else:  # symmetric grouping for input-order-independence:
+                    for group in self.structure_matcher.group_structures(l_pre_group, symmetric=True):
                         group = list(group)
                         idx = len(group[0])
                         # StructureMatcher.group_structures returns a list of lists,
@@ -671,7 +689,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         if verbose:
             logger.info(f"Entries belong to the {chemsys} chemical system")
 
-        return list(entries_type_1), list(entries_type_2)
+        # sort so that process_entries returns entries in a reproducible order (see _entry_sort_key)
+        return sorted(entries_type_1, key=_entry_sort_key), sorted(entries_type_2, key=_entry_sort_key)
 
     def _populate_df_row(self, struct_group, comp, sg, n, pd_type_1, pd_type_2, all_entries):
         """Helper function to populate a row of the mixing state DataFrame, given
