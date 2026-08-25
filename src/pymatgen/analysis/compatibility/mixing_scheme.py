@@ -566,8 +566,10 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             structures.append(struct)
 
         # First group by (reduced) composition, then by spacegroup number, then by structure matching:
-        for comp, comp_group in groupby(sorted(structures, key=lambda s: s.composition.reduced_composition),
-                                        key=lambda s: s.composition.reduced_composition):
+        for comp, comp_group in groupby(
+            sorted(structures, key=lambda s: s.composition.reduced_composition),
+            key=lambda s: s.composition.reduced_composition,
+        ):
             l_comp_group = list(comp_group)
             # group by spacegroup, then by number of sites (for diatmics) or by structure matching
             for sg, pre_group in groupby(sorted(l_comp_group, key=_get_sg), key=_get_sg):
