@@ -1948,6 +1948,30 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         assert compat.valid_rtypes_1 == ["LDA"]
         assert compat.valid_rtypes_2 == ["GGA", "GGA+U"]
 
+    def test_get_mixing_state_data_does_not_mutate_structures(self, mixing_scheme_no_compat, ms_complete):
+        """`get_mixing_state_data` stamps `entry_id` onto each structure (copy) to carry it through
+        `StructureMatcher.group_structures`. `ComputedStructureEntry.structure` is the live object,
+        so without a copy that would mutate the caller's `Structure`; test that it does not.
+        """
+        entries = ms_complete.all_entries
+        mixing_scheme_no_compat.get_mixing_state_data(entries)
+        assert not any(hasattr(entry.structure, "entry_id") for entry in entries)
+
+    def test_get_mixing_state_data_matches_different_cell_sizes(self, mixing_scheme_no_compat):
+        """A primitive cell and a supercell of the same material must land in one row of the mixing
+        state, so the r2SCAN energy can replace the GGA one if suitable. Grouping keys on the
+        reduced composition, allowing this.
+        """
+        prim = Structure(Lattice.cubic(2.87), ["Fe"], [[0, 0, 0]])
+        entries = [
+            ComputedStructureEntry(prim, -8.0, parameters={"run_type": "GGA"}, entry_id="Fe-GGA"),
+            ComputedStructureEntry(prim * (1, 1, 2), -18.0, parameters={"run_type": "R2SCAN"}, entry_id="Fe-r2SCAN"),
+        ]
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(entries)
+        assert len(state_data) == 1
+        assert state_data.loc[0, "entry_id_1"] == "Fe-GGA"
+        assert state_data.loc[0, "entry_id_2"] == "Fe-r2SCAN"
+
     def test_mixing_state_data_sorts_entries(self, ms_complete_duplicate_structs):
         """`get_mixing_state_data` must impose a canonical order on the structures it groups.
 
