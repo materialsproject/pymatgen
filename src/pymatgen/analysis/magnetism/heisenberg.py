@@ -67,10 +67,10 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 if TYPE_CHECKING:
     from typing import Self
 
-__author__ = " Luca Frey"
+__author__ = "Luguza, ncfrey"
 __version__ = "0.2"
-__maintainer__ = "Luca Frey"
-__email__ = "luca.frey@student.kit.edu"
+__maintainer__ = "Luca Frey, Nathan C. Frey"
+__email__ = "luca.frey@student.kit.edu, ncfrey@lbl.gov"
 __status__ = "Development"
 __date__ = "July 2026"
 
