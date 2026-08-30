@@ -313,13 +313,21 @@ class TestMagneticStructureEnumeratorTruncation:
     # Not gated on ENUMLIB_PRESENT: these tests call _generate_ordered_structures
     # directly on a manually-built MagneticStructureEnumerator, so they don't need
     # enumlib to generate orderings.
-    def test_truncate_by_symmetry_respects_configured_count(self):
+    def test_truncate_by_symmetry_respects_configured_count(self, monkeypatch):
         # Regression test: truncate_by_symmetry used to be ignored by the actual
         # truncation step, which had a hardcoded cap of 5 regardless of what the
         # user configured. Build a set of structures with 5 distinct symmetries
         # and confirm that requesting truncate_by_symmetry=2 actually keeps 2,
         # not 5. Bypasses __init__ (and enumlib) since only the truncation logic
         # in _generate_ordered_structures is under test.
+        #
+        # These structures carry no magmoms and differ only in lattice, so
+        # StructureMatcher (scale=True, primitive_cell=True) considers some of
+        # them equivalent orderings. Stub out matches_ordering so the duplicate
+        # pruning earlier in _generate_ordered_structures cannot interfere with
+        # the truncation behavior actually under test here.
+        monkeypatch.setattr(CollinearMagneticStructureAnalyzer, "matches_ordering", lambda self, other: False)
+
         base = Structure.from_spacegroup(225, Lattice.cubic(4.2), ["Ni", "O"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         lattices = [
             Lattice.from_parameters(4.2, 4.2, 4.6, 90, 90, 90),  # tetragonal
@@ -374,6 +382,8 @@ class TestMagneticStructureEnumeratorTruncation:
         # structures directly so the real truncation logic in
         # _generate_ordered_structures runs on our controlled set.
         monkeypatch.setattr(MagneticStructureEnumerator, "_generate_transformations", lambda self, struct: {})
+        # As above, isolate truncation from the duplicate-ordering pruning.
+        monkeypatch.setattr(CollinearMagneticStructureAnalyzer, "matches_ordering", lambda self, other: False)
 
         real_generate = MagneticStructureEnumerator._generate_ordered_structures
 
@@ -392,6 +402,52 @@ class TestMagneticStructureEnumeratorTruncation:
         assert not isinstance(enumerator.truncate_by_symmetry, bool)
         # all 5 distinct symmetry levels kept, not just 1
         assert len(enumerator.ordered_structures) == len(structures)
+
+    def test_duplicate_orderings_are_pruned(self):
+        # Regression test: the duplicate-pruning block was gated on
+        # `len(structures_to_remove) == 0`, so it only ran when there was
+        # nothing to remove. Detected duplicates were logged but kept. Feed in
+        # a set containing an exact duplicate ordering and confirm it is gone.
+        lattice = Lattice.cubic(4.2)
+        up_down = Structure(
+            lattice,
+            ["Ni", "Ni"],
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
+            site_properties={"magmom": [4, -4]},
+        )
+        down_up = Structure(
+            lattice,
+            ["Ni", "Ni"],
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
+            site_properties={"magmom": [-4, 4]},
+        )
+        # up_down repeated: an exact duplicate that must be pruned
+        structures = [up_down, up_down.copy(), down_up]
+        origins = ["afm1", "afm1_dup", "afm2"]
+
+        enumerator = object.__new__(MagneticStructureEnumerator)
+        enumerator.logger = logging.getLogger("test")
+        enumerator.truncate_by_symmetry = False
+        enumerator.transformations = {}
+        enumerator.sanitized_structure = structures[0]
+        enumerator.num_orderings = 64
+        enumerator.input_analyzer = CollinearMagneticStructureAnalyzer(structures[0], overwrite_magmom_mode="none")
+        enumerator.ordered_structures = list(structures)
+        enumerator.ordered_structure_origins = list(origins)
+
+        out_structures, out_origins = MagneticStructureEnumerator._generate_ordered_structures(
+            enumerator, structures[0], {}
+        )
+
+        assert len(out_structures) < len(structures)
+        assert len(out_structures) == len(out_origins)
+        assert "afm1_dup" not in out_origins
+        # no two surviving structures share an ordering
+        for idx, struct in enumerate(out_structures):
+            analyzer = CollinearMagneticStructureAnalyzer(struct, overwrite_magmom_mode="none")
+            for other_idx, other in enumerate(out_structures):
+                if idx != other_idx:
+                    assert not analyzer.matches_ordering(other)
 
 
 class TestMagneticDeformation:
