@@ -52,7 +52,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "pymatgen-core>=2026.8.24"  # `symmetric` kwarg required for `StructureMatcher.group_structures`
+    "pymatgen-core>=2026.8.30"  # `symmetric` kwarg required for `StructureMatcher.group_structures`
 ]
 dynamic = ["version"]
 
