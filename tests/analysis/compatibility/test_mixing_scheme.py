@@ -110,7 +110,7 @@ from monty.json import MontyDecoder
 from numpy.testing import assert_allclose
 
 from pymatgen.analysis.compatibility import Compatibility, CompatibilityError
-from pymatgen.analysis.compatibility.mixing_scheme import MaterialsProjectDFTMixingScheme
+from pymatgen.analysis.compatibility.mixing_scheme import MaterialsProjectDFTMixingScheme, _entry_sort_key
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
@@ -134,6 +134,18 @@ class DummyCompatibility(Compatibility):
 
     def get_adjustments(self, entry):
         return [CompositionEnergyAdjustment(-10, entry.composition.num_atoms, name="Dummy adjustment")]
+
+
+class RecordingStructureMatcher(StructureMatcher):
+    """Records the structure lists it is asked to group, so a test can assert their order."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.grouped: list[list] = []
+
+    def group_structures(self, s_list, anonymous=False, symmetric=False):
+        self.grouped.append(list(s_list))
+        return super().group_structures(s_list, anonymous=anonymous, symmetric=symmetric)
 
 
 class MixingState:
@@ -1935,6 +1947,63 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         compat = MaterialsProjectDFTMixingScheme(run_type_1="LDA", run_type_2="GGA(+U)")
         assert compat.valid_rtypes_1 == ["LDA"]
         assert compat.valid_rtypes_2 == ["GGA", "GGA+U"]
+
+    def test_get_mixing_state_data_does_not_mutate_structures(self, mixing_scheme_no_compat, ms_complete):
+        """`get_mixing_state_data` stamps `entry_id` onto each structure (copy) to carry it through
+        `StructureMatcher.group_structures`. `ComputedStructureEntry.structure` is the live object,
+        so without a copy that would mutate the caller's `Structure`; test that it does not.
+        """
+        entries = ms_complete.all_entries
+        mixing_scheme_no_compat.get_mixing_state_data(entries)
+        assert not any(hasattr(entry.structure, "entry_id") for entry in entries)
+
+    def test_get_mixing_state_data_matches_different_cell_sizes(self, mixing_scheme_no_compat):
+        """A primitive cell and a supercell of the same material must land in one row of the mixing
+        state, so the r2SCAN energy can replace the GGA one if suitable. Grouping keys on the
+        reduced composition, allowing this.
+        """
+        prim = Structure(Lattice.cubic(2.87), ["Fe"], [[0, 0, 0]])
+        entries = [
+            ComputedStructureEntry(prim, -8.0, parameters={"run_type": "GGA"}, entry_id="Fe-GGA"),
+            ComputedStructureEntry(prim * (1, 1, 2), -18.0, parameters={"run_type": "R2SCAN"}, entry_id="Fe-r2SCAN"),
+        ]
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(entries)
+        assert len(state_data) == 1
+        assert state_data.loc[0, "entry_id_1"] == "Fe-GGA"
+        assert state_data.loc[0, "entry_id_2"] == "Fe-r2SCAN"
+
+    def test_mixing_state_data_sorts_entries(self, ms_complete_duplicate_structs):
+        """`get_mixing_state_data` must impose a canonical order on the structures it groups.
+
+        `StructureMatcher.group_structures` is greedy, so it is sensitive to that order, thus
+        sorting is applied (along with the use of
+        `StructureMatcher.group_structures(..., symmetric=True)` to ensure reproducible results.
+        """
+        # hand them over in exactly the wrong order, so the assertion below fails unless get_mixing_state_data re-sorts
+        # rather than trusting its caller:
+        entries = sorted(ms_complete_duplicate_structs.all_entries, key=_entry_sort_key, reverse=True)
+        matcher = RecordingStructureMatcher()
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None, structure_matcher=matcher)
+
+        compat.get_mixing_state_data(entries)
+
+        sort_key = {str(entry.entry_id): _entry_sort_key(entry) for entry in entries}
+        run_type = {str(entry.entry_id): entry.parameters["run_type"] for entry in entries}
+        n_checked = 0
+        for group in matcher.grouped:
+            for run_types in (compat.valid_rtypes_1, compat.valid_rtypes_2):
+                keys = [sort_key[str(s.entry_id)] for s in group if run_type[str(s.entry_id)] in run_types]
+                assert keys == sorted(keys)
+                n_checked += len(keys) > 1
+        assert n_checked, "no group held two entries of one run_type, so the assertion was vacuous"
+
+    def test_filter_and_sort_entries_is_ordered(self, mixing_scheme_no_compat, ms_complete):
+        """
+        Test the sorting of entries by `_filter_and_sort_entries`.
+        """
+        for entries in mixing_scheme_no_compat._filter_and_sort_entries(ms_complete.all_entries):
+            keys = [_entry_sort_key(entry) for entry in entries]
+            assert keys == sorted(keys)
 
     def test_compat_args(self, ms_complete):
         """
