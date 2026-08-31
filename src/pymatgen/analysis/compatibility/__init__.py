@@ -1006,12 +1006,17 @@ class MaterialsProject2020Compatibility(Compatibility):
             strict_anions: only apply the anion corrections to anions. The option
                 "require_exact" will only apply anion corrections in cases where the
                 anion oxidation state is between the oxidation states used
-                in the experimental fitting data. The option "require_bound" will
-                define an anion as any species with an oxidation state value of <= -1.
-                This prevents the anion correction from being applied to unrealistic
-                hypothetical structures containing large proportions of very electronegative
-                elements, thus artificially over-stabilizing the compound. Set to "no_check"
-                to restore the original behavior described in the associated publication. Default: True
+                in the experimental fitting data. O and S are exceptions: they are
+                treated separately via oxide/sulfide classification rather than the
+                MP2020_ANION_OXIDATION_STATE_RANGES table, so for them "require_exact"
+                behaves like "require_bound" (an oxidation state <= -1, i.e. a genuine
+                oxide/sulfide anion, is corrected and S cations such as S6+ are not).
+                The option "require_bound" will define an anion as any species with an
+                oxidation state value of <= -1. This prevents the anion correction from
+                being applied to unrealistic hypothetical structures containing large
+                proportions of very electronegative elements, thus artificially
+                over-stabilizing the compound. Set to "no_check" to restore the original
+                behavior described in the associated publication. Default: True
             check_potcar (bool): Check that the POTCARs used in the calculation are consistent
                 with the Materials Project parameters. False bypasses this check altogether. Default: True
                 Can also be disabled globally by running `pmg config --add PMG_POTCAR_CHECKS false`.
@@ -1109,7 +1114,22 @@ class MaterialsProject2020Compatibility(Compatibility):
         if len(comp) == 1:
             return adjustments
 
-        # Check for sulfide corrections
+        # Anion corrections should only be applied if the element is an anion. The
+        # oxidation_states key is expected to comprise a dict corresponding to the first
+        # element output by Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0,
+        # 'O': -2.0} for 'Al2SO4'.
+        if "oxidation_states" not in entry.data:
+            # try to guess the oxidation states from composition
+            # for performance reasons, fail if the composition is too large
+            try:
+                oxi_states = entry.composition.oxi_state_guesses(max_sites=-20)
+            except ValueError:
+                oxi_states = ({},)
+            entry.data["oxidation_states"] = (oxi_states or ({},))[0]
+
+        # Check for sulfide corrections. The S correction is only applied when S is an
+        # anion (oxidation state < 0). This prevents the correction from being applied
+        # to S cations, e.g. S6+ in sulfates (see #4538).
         if Element("S") in comp:
             sf_type = "sulfide"
             if entry.data.get("sulfide_type"):
@@ -1122,15 +1142,41 @@ class MaterialsProject2020Compatibility(Compatibility):
                 sf_type = "sulfide"
 
             if sf_type == "sulfide":
-                adjustments.append(
-                    CompositionEnergyAdjustment(
-                        self.comp_correction["S"],
-                        comp["S"],
-                        uncertainty_per_atom=self.comp_errors["S"],
-                        name=f"{self.name} anion correction (S)",
-                        cls=self.as_dict(),
+                # Apply the S correction with the same anion semantics as the other
+                # anion corrections: only when S is an anion (oxidation state < 0),
+                # respecting the strict_anions setting. If S has no explicit oxidation
+                # state (None or missing key), fall back to applying the correction
+                # only when S is the most electronegative element.
+                #
+                # Note: S (like O) has no entry in MP2020_ANION_OXIDATION_STATE_RANGES
+                # because it is treated separately via sulfide_type. For S the exact
+                # anion definition *is* an oxidation state < 0, so "require_exact"
+                # behaves like "require_bound" here: a genuine sulfide anion (S2-) is
+                # always corrected, while S cations (e.g. S6+) are never corrected and
+                # the electronegativity fallback is not used. This keeps sulfides
+                # correct for "require_exact" users instead of silently dropping the S
+                # correction for all sulfide entries.
+                apply_correction = False
+                oxidation_state = entry.data["oxidation_states"].get("S")
+                if oxidation_state is None:
+                    if self.strict_anions != "require_exact" and sorted_elements[-1].symbol == "S":
+                        apply_correction = True
+                elif oxidation_state < 0:
+                    apply_correction = True
+                    if self.strict_anions != "no_check" and oxidation_state > -1:
+                        # fractional oxidation states in (-1, 0) are not anions
+                        apply_correction = False
+
+                if apply_correction:
+                    adjustments.append(
+                        CompositionEnergyAdjustment(
+                            self.comp_correction["S"],
+                            comp["S"],
+                            uncertainty_per_atom=self.comp_errors["S"],
+                            name=f"{self.name} anion correction (S)",
+                            cls=self.as_dict(),
+                        )
                     )
-                )
 
         # Check for oxide, peroxide, superoxide, and ozonide corrections.
         if Element("O") in comp:
@@ -1177,19 +1223,6 @@ class MaterialsProject2020Compatibility(Compatibility):
 
         # Check for anion corrections
         # only apply anion corrections if the element is an anion
-        # first check for a pre-populated oxidation states key
-        # the key is expected to comprise a dict corresponding to the first element output by
-        # Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0, 'O': -2.0} for 'Al2SO4'
-        if "oxidation_states" not in entry.data:
-            # try to guess the oxidation states from composition
-            # for performance reasons, fail if the composition is too large
-            try:
-                oxi_states = entry.composition.oxi_state_guesses(max_sites=-20)
-            except ValueError:
-                oxi_states = ({},)
-
-            entry.data["oxidation_states"] = (oxi_states or ({},))[0]
-
         if entry.data["oxidation_states"] == {}:
             warnings.warn(
                 f"Failed to guess oxidation states for Entry {entry.entry_id} "
