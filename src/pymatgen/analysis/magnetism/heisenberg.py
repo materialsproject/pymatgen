@@ -1254,8 +1254,17 @@ class HeisenbergModel(MSONable):
         nn_graphs = [StructureGraph.from_dict(v) for v in dct["nn_graphs"]]
         igraph = StructureGraph.from_dict(dct["igraph"])
 
-        # Reconstitute the exchange matrix DataFrame
-        ex_mat = pd.DataFrame.from_dict(dct["ex_mat"]) if dct["ex_mat"] else pd.DataFrame(columns=["E", "E0"])
+        # Reconstitute the exchange matrix DataFrame. as_dict() calls .to_dict() on it,
+        # but serializations written before that did (and by #4664, which jsanitized the
+        # DataFrame directly) may store a (JSON/repr) string instead. Accept both forms
+        # and fall back to an empty matrix when ex_mat is empty.
+        ex_mat = dct["ex_mat"]
+        if isinstance(ex_mat, str):
+            try:
+                ex_mat = literal_eval(ex_mat)
+            except (SyntaxError, ValueError):  # empty or unparsable string
+                ex_mat = None
+        ex_mat = pd.DataFrame.from_dict(ex_mat) if ex_mat else pd.DataFrame(columns=["E", "E0"])
 
         return cls(
             formula=dct["formula"],
