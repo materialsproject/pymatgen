@@ -907,8 +907,9 @@ class MagneticStructureEnumerator:
             for symbol in wyckoff_symbols:
                 num_motif_sites = wyckoff.count(symbol)
                 # a motif that is exactly half the magnetic sites gives an order
-                # parameter of 0.5, i.e. the global AFM constraint added above
-                if num_motif_sites * 2 == num_mag_sites:
+                # parameter of 0.5, i.e. the global AFM constraint added above --
+                # but only skip it when that constraint is actually present
+                if num_motif_sites * 2 == num_mag_sites and "antiferromagnetic" in self.strategies:
                     continue
                 all_constraints[f"ferri_by_motif_{symbol}_flip"] = num_motif_sites / num_mag_sites
 

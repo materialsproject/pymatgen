@@ -553,6 +553,26 @@ class TestMagneticStructureEnumeratorMotifFlip:
         assert {"afm", "ferri_by_motif_2a", "ferri_by_motif_2b"} <= set(transformations)
         assert [name for name in transformations if name.endswith("_flip")] == []
 
+    def test_half_multiplicity_flip_kept_without_antiferromagnetic_strategy(self):
+        # same structure as above, but without "antiferromagnetic" in strategies: the
+        # 0.5-order-parameter flip is no longer a duplicate of a global "afm"
+        # constraint that was never added, so it must be emitted.
+        structure = Structure.from_file(f"{TEST_DIR}/Ca3Co2O6.json")
+        enumerator = object.__new__(MagneticStructureEnumerator)
+        enumerator.logger = logging.getLogger("test")
+        enumerator.default_magmoms = None
+        enumerator.strategies = ["ferrimagnetic_by_motif"]
+        enumerator.automatic = False
+        enumerator.transformation_kwargs = {"check_ordered_symmetry": False, "timeout": 5}
+        enumerator.max_unique_sites = 8
+        enumerator.ordered_structures = []
+        enumerator.ordered_structure_origins = []
+        sanitized = enumerator._sanitize_input_structure(structure)
+        transformations = enumerator._generate_transformations(sanitized)
+
+        assert "afm" not in transformations
+        assert {"ferri_by_motif_2a_flip", "ferri_by_motif_2b_flip"} <= set(transformations)
+
 
 class TestMagneticDeformation:
     def test_magnetic_deformation(self):
