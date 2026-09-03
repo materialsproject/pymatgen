@@ -898,6 +898,21 @@ class MagneticStructureEnumerator:
 
                 all_constraints[f"ferri_by_motif_{symbol}"] = constraints
 
+            # ...and one whole motif flipped antiparallel to the rest, e.g. the Neel
+            # ground state of a spinel ferrimagnet. The constraints above cannot reach
+            # this: they make a motif internally AFM instead of flipping it as a block.
+            # Given as a global order parameter (fraction of up spins) like
+            # ferrimagnetic_by_species, since the per-motif form (1 on this motif, 0 on
+            # the rest) trips MagOrderingTransformation._remove_dummy_species.
+            for symbol in wyckoff_symbols:
+                num_motif_sites = wyckoff.count(symbol)
+                # a motif that is exactly half the magnetic sites gives an order
+                # parameter of 0.5, i.e. the global AFM constraint added above --
+                # but only skip it when that constraint is actually present
+                if num_motif_sites * 2 == num_mag_sites and "antiferromagnetic" in self.strategies:
+                    continue
+                all_constraints[f"ferri_by_motif_{symbol}_flip"] = num_motif_sites / num_mag_sites
+
         # and also try ferrimagnetic when there are multiple magnetic species
         if "ferrimagnetic_by_species" in self.strategies:
             sp_list = [str(site.specie) for site in structure]
