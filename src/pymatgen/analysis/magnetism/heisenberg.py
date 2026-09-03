@@ -40,6 +40,9 @@ different supercells can be fitted together. This changed the public surface:
 * ``HeisenbergScreener(ordered_structures, energies)`` now takes the list of
   :class:`RelaxedOrdering` objects and exposes ``screened_orderings`` in place
   of ``screened_structures``/``screened_energies``.
+* The default ``tol`` changed from 0.02 to 0.05 Angstrom. This changes which
+  nearest-neighbor distances are merged into the same shell; pass ``tol=0.02``
+  explicitly to keep the old behavior.
 """
 
 from __future__ import annotations
@@ -412,14 +415,23 @@ class HeisenbergMapper:
             ordered_structures (list): Structure objects with magmoms.
             energies (list): Total energies of each relaxed magnetic structure.
             parent (Structure): Paramagnetic parent cell whose symmetry defines the
-                magnetic sublattices. If None, it is inferred as the primitive cell of
-                the lowest-energy ordering. Defaults to None.
+                magnetic sublattices. Reduced to its primitive cell either way, so a
+                deliberately-supplied supercell parent is analyzed on its primitive
+                cell too, not as given. If None, it is inferred as the primitive cell
+                of the lowest-energy ordering. Defaults to None.
             cutoff (float): Cutoff in Angstrom for nearest neighbor search. Defaults to 0,
                 which keeps only each site's nearest neighbors, i.e. one shell per
                 sublattice pair; with a cutoff, every interaction up to it is kept.
             tol (float): Tolerance (in Angstrom) on nearest neighbor distances
                 being equal.
         """
+        if parent is not None and not isinstance(parent, Structure):
+            raise TypeError(
+                f"parent must be a Structure or None, got {type(parent).__name__}. "
+                "Note the constructor signature changed: parent now comes third, "
+                "before cutoff/tol - see the module docstring's migration guide."
+            )
+
         # Save original copies of inputs
         self.ordered_structures_ = ordered_structures
         self.energies_ = energies
@@ -431,7 +443,7 @@ class HeisenbergMapper:
         # These attributes are set by internal methods, listed here for clarity.
         self.orderings = self.parent = None  # set by _initialize_orderings
         self.nn_interactions = self.dists = None  # set by _set_interactions
-        self.ex_mat = self.ex_params = None  # set by _build_exchange_mat and get_exchange
+        self.ex_mat = self.ex_params = self.residual = None  # set by _build_exchange_mat and get_exchange
 
         self._initialize_orderings(ordered_structures, energies, parent)
         self._set_interactions()
@@ -1245,6 +1257,16 @@ class HeisenbergModel(MSONable):
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
         """Create a HeisenbergModel from a dict."""
+        if "sublattice_ids" not in dct or "magnetic_structures" not in dct:
+            raise ValueError(
+                f"This dict was serialized with HeisenbergModel {dct.get('@version', '<0.2')}, which "
+                "predates the parent-cell sublattice refactor (see this module's migration guide) and "
+                "cannot be loaded by this version - it is missing `sublattice_ids`/`magnetic_structures` "
+                "(pre-0.2 dicts have `unique_site_ids`/`wyckoff_ids`/`sgraphs` instead, which don't map "
+                "onto the new parent-cell sublattices). Recompute the HeisenbergModel from the original "
+                "orderings with the current HeisenbergMapper."
+            )
+
         # Reconstitute the tuple/int-keyed dicts that jsanitize stringified
         nn_interactions = {literal_eval(pair): labels for pair, labels in dct["nn_interactions"].items()}
         sublattice_wyckoff_symbols = {literal_eval(k): v for k, v in dct["sublattice_wyckoff_symbols"].items()}

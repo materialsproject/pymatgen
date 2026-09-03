@@ -204,6 +204,13 @@ class TestHeisenbergMapperKnownHamiltonian:
         assert set(hmodel.ex_params) == {"E0", *self._labels(hm)}
         assert hmodel.residual == approx(0, abs=1e-12)
 
+    def test_residual_is_none_before_fit(self):
+        # residual is set alongside ex_params by get_exchange(); before that runs it
+        # must read back as None rather than raise AttributeError.
+        hm = self._mapper()
+        assert hm.residual is None
+        assert hm.ex_params is None
+
     def test_as_from_dict_round_trip(self):
         # HeisenbergModel must survive repeated MSON round-trips. as_dict()
         # serializes ex_mat with jsanitize (a DataFrame becomes a nested dict),
@@ -222,6 +229,17 @@ class TestHeisenbergMapperKnownHamiltonian:
         model_rt2 = HeisenbergModel.from_dict(model_rt.as_dict())
         assert isinstance(model_rt2.ex_mat, pd.DataFrame)
         pd.testing.assert_frame_equal(model_rt.ex_mat, model_rt2.ex_mat)
+
+    def test_from_dict_rejects_legacy_serialization(self):
+        # A dict serialized with HeisenbergModel <0.2 (pre parent-cell-sublattice
+        # refactor) has `unique_site_ids`/`wyckoff_ids`/`sgraphs` instead of
+        # `sublattice_ids`/`magnetic_structures`, which don't map onto the new
+        # parent-cell sublattices. Loading it must fail with a clear explanation,
+        # not a bare KeyError.
+        dct = self._mapper().get_heisenberg_model().as_dict()
+        del dct["sublattice_ids"]
+        with pytest.raises(ValueError, match="HeisenbergModel"):
+            HeisenbergModel.from_dict(dct)
 
     def test_shells_are_counted_within_a_sublattice_pair(self):
         hm = self._mapper()
@@ -263,6 +281,16 @@ class TestHeisenbergMapperKnownHamiltonian:
         structures = [self._structure(*self.ORDERINGS[0])]
         with pytest.raises(ValueError, match="at least 2 unique orderings"):
             HeisenbergMapper(structures, [self._energy(*self.ORDERINGS[0])], tol=0.02)
+
+    def test_non_structure_parent_raises_clear_error(self):
+        # parent moved to third position when this class was refactored (was
+        # HeisenbergMapper(ordered_structures, energies, cutoff, tol)); a caller still
+        # passing cutoff positionally now hands a number to `parent`. That must fail
+        # with a pointed error, not deep inside unrelated Structure/symmetry code.
+        structures = [self._structure(*spins) for spins in self.ORDERINGS]
+        energies = [self._energy(*spins) for spins in self.ORDERINGS]
+        with pytest.raises(TypeError, match="parent must be a Structure"):
+            HeisenbergMapper(structures, energies, 5.0)
 
     def test_inferred_parent_warns(self):
         structures = [self._structure(*spins) for spins in self.ORDERINGS]
