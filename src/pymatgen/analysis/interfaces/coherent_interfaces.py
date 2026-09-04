@@ -68,7 +68,7 @@ class CoherentInterfaceBuilder:
         self.termination_ftol = termination_ftol
         self.label_index = label_index
         self.filter_out_sym_slabs = filter_out_sym_slabs
-        self._find_matches(self._find_terminations())
+        self._find_matches(*self._find_terminations())
 
     def _find_matches(self, film_slab: Slab, sub_slab: Slab) -> None:
         """Find and stores the ZSL matches.
