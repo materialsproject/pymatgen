@@ -9,6 +9,7 @@ import logging
 import os
 import warnings
 from enum import Enum, unique
+from itertools import combinations
 from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
@@ -825,7 +826,11 @@ class MagneticStructureEnumerator:
             for symbol, is_magnetic_site in zip(wyckoff, is_magnetic_sites, strict=True)
         ]
         structure.add_site_property("wyckoff", wyckoff)
-        wyckoff_symbols = set(wyckoff) - {"n/a"}
+        # sorted by descending multiplicity, then symbol, so the strategies below are
+        # built in a reproducible order: iterating a set would otherwise vary with
+        # PYTHONHASHSEED, and with it which of several equivalent orderings survives
+        # duplicate pruning -- and therefore which origin gets recorded
+        wyckoff_symbols = sorted(set(wyckoff) - {"n/a"}, key=lambda symbol: (-wyckoff.count(symbol), symbol))
 
         # if user doesn't specifically request ferrimagnetic orderings,
         # we apply a heuristic as to whether to attempt them or not
@@ -892,26 +897,17 @@ class MagneticStructureEnumerator:
                     MagOrderParameterConstraint(
                         1,
                         site_constraint_name="wyckoff",
-                        site_constraints=list(wyckoff_symbols - {symbol}),
+                        site_constraints=[other for other in wyckoff_symbols if other != symbol],
                     ),
                 ]
 
                 all_constraints[f"ferri_by_motif_{symbol}"] = constraints
 
-            # ...and one whole motif flipped antiparallel to the rest, e.g. the Neel
-            # ground state of a spinel ferrimagnet. The constraints above cannot reach
-            # this: they make a motif internally AFM instead of flipping it as a block.
-            # Given as a global order parameter (fraction of up spins) like
-            # ferrimagnetic_by_species, since the per-motif form (1 on this motif, 0 on
-            # the rest) trips MagOrderingTransformation._remove_dummy_species.
-            for symbol in wyckoff_symbols:
-                num_motif_sites = wyckoff.count(symbol)
-                # a motif that is exactly half the magnetic sites gives an order
-                # parameter of 0.5, i.e. the global AFM constraint added above --
-                # but only skip it when that constraint is actually present
-                if num_motif_sites * 2 == num_mag_sites and "antiferromagnetic" in self.strategies:
-                    continue
-                all_constraints[f"ferri_by_motif_{symbol}_flip"] = num_motif_sites / num_mag_sites
+            # ...and orderings with one or more whole motifs flipped antiparallel to
+            # the rest, e.g. the Neel ground state of a spinel ferrimagnet. The
+            # constraints above cannot reach these: they make a motif internally AFM
+            # instead of flipping it as a block.
+            self._add_whole_motif_flips(structure, wyckoff_symbols, analyzer.magmoms)
 
         # and also try ferrimagnetic when there are multiple magnetic species
         if "ferrimagnetic_by_species" in self.strategies:
@@ -958,6 +954,44 @@ class MagneticStructureEnumerator:
             transformations[name] = trans
 
         return transformations
+
+    def _add_whole_motif_flips(
+        self,
+        structure: Structure,
+        wyckoff_symbols: list[str],
+        magmoms: Sequence[float],
+    ) -> None:
+        """Add orderings with one or more whole magnetic motifs flipped antiparallel.
+
+        Every motif stays internally ferromagnetic and is flipped as a rigid block,
+        e.g. the Neel ground state of a spinel ferrimagnet. No enumeration is involved:
+        with each motif internally FM the magnetic cell is the crystallographic
+        primitive cell, so the choice of which motifs to flip fixes the ordering
+        outright. A global order parameter would not do, since it constrains only how
+        many spins point up and so also admits orderings that break a motif internally.
+
+        The first motif is held pointing up: flipping a set of motifs and flipping its
+        complement differ only by a global spin inversion, which
+        CollinearMagneticStructureAnalyzer.matches_ordering treats as the same ordering.
+
+        Args:
+            structure: sanitized structure carrying a "wyckoff" site property
+            wyckoff_symbols: magnetic Wyckoff symbols, in the order flips are built
+            magmoms: magnetic moment of each site of structure
+        """
+        wyckoff = structure.site_properties["wyckoff"]
+        for num_flipped in range(1, len(wyckoff_symbols)):
+            for flipped in combinations(wyckoff_symbols[1:], num_flipped):
+                flipped_structure = structure.copy()
+                flipped_structure.add_spin_by_site(
+                    [
+                        -abs(magmom) if symbol in flipped else abs(magmom)
+                        for magmom, symbol in zip(magmoms, wyckoff, strict=True)
+                    ]
+                )
+
+                self.ordered_structures.append(flipped_structure)
+                self.ordered_structure_origins.append(f"ferri_by_motif_{'_'.join(flipped)}_flip")
 
     def _generate_ordered_structures(
         self,

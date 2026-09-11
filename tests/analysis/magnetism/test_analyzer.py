@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import logging
+from itertools import combinations
 from shutil import which
+from string import ascii_lowercase
 
 import pytest
 from monty.serialization import loadfn
@@ -300,8 +302,8 @@ class TestMagneticStructureEnumerator:
         # Neel ordering of a ferrimagnet: every magnetic Wyckoff motif is internally
         # FM, but the motifs are antiparallel to one another. Fe3O4 has 6 magnetic
         # sites split 4 (4f) + 2 (2c), so this is 4 up / 2 down. Only the
-        # ferri_by_motif_{symbol}_flip constraint can reach it: afm is 3 up / 3 down,
-        # and ferri_by_motif_{symbol} makes one motif internally AFM rather than
+        # whole-motif-flip order parameter can reach it: afm is 3 up / 3 down, and
+        # ferri_by_motif_{symbol} makes one motif internally AFM rather than
         # flipping it as a block.
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif", primitive=True)
         symmetrized = SpacegroupAnalyzer(structure).get_symmetrized_structure()
@@ -320,16 +322,14 @@ class TestMagneticStructureEnumerator:
             strategies=("ferromagnetic", "antiferromagnetic", "ferrimagnetic_by_motif"),
             automatic=False,
         )
-        # with only two motifs the flipped and unflipped block are each other's
-        # spin inversion, so either flip constraint can be the one credited
-        assert enumerator.input_origin in {"ferri_by_motif_4f_flip", "ferri_by_motif_2c_flip"}
+        # the larger motif (4f) is held up and 2c is flipped against it
+        assert enumerator.input_origin == "ferri_by_motif_2c_flip"
 
-    def test_complementary_motif_flips_are_pruned(self):
-        # Fe3O4 has two magnetic motifs, so flipping 4f (order parameter 4/6) and
-        # flipping 2c (2/6) generate the same orderings up to a global spin
-        # inversion, which matches_ordering deliberately treats as equal. The
-        # duplicate pruning in _generate_ordered_structures must therefore collapse
-        # the two flip strategies down to one surviving set.
+    def test_motif_flip_inversion_is_handled_upfront(self):
+        # Fe3O4 has two magnetic motifs, and flipping 4f is the global spin inversion
+        # of flipping 2c -- the same ordering as far as matches_ordering is concerned.
+        # Only one of the two is generated in the first place, so the flip does not
+        # have to be rescued from duplicate pruning.
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif", primitive=True)
         enumerator = MagneticStructureEnumerator(
             structure,
@@ -339,9 +339,7 @@ class TestMagneticStructureEnumerator:
         )
         origins = enumerator.ordered_structure_origins
 
-        # both flip strategies do enumerate structures, but only one label survives
-        flip_origins = {origin for origin in origins if origin.endswith("_flip")}
-        assert flip_origins in ({"ferri_by_motif_4f_flip"}, {"ferri_by_motif_2c_flip"})
+        assert [origin for origin in origins if origin.endswith("_flip")] == ["ferri_by_motif_2c_flip"]
 
         # and more generally, no two surviving orderings are duplicates
         assert len(origins) == len(enumerator.ordered_structures)
@@ -507,71 +505,116 @@ class TestMagneticStructureEnumeratorTruncation:
 
 
 class TestMagneticStructureEnumeratorMotifFlip:
-    # Not gated on ENUMLIB_PRESENT: _generate_transformations only builds
-    # MagOrderingTransformation instances, it never shells out to enum.x.
+    # Not gated on ENUMLIB_PRESENT: _generate_transformations builds
+    # MagOrderingTransformation instances and constructs the whole-motif-flip
+    # orderings directly, it never shells out to enum.x.
     @staticmethod
-    def generate_transformations(structure):
+    def run_generate_transformations(
+        structure, strategies=("ferromagnetic", "antiferromagnetic", "ferrimagnetic_by_motif")
+    ):
         """Run _generate_transformations on a manually-built enumerator, bypassing
-        __init__ (and enumlib) since only the constraints it builds are under test.
+        __init__ (and enumlib) since only what it generates is under test. Returns the
+        enumerator, whose ordered_structures now hold the directly-built orderings.
         """
         enumerator = object.__new__(MagneticStructureEnumerator)
         enumerator.logger = logging.getLogger("test")
         enumerator.default_magmoms = None
-        enumerator.strategies = ["ferromagnetic", "antiferromagnetic", "ferrimagnetic_by_motif"]
+        enumerator.strategies = list(strategies)
         enumerator.automatic = False
         enumerator.transformation_kwargs = {"check_ordered_symmetry": False, "timeout": 5}
         enumerator.max_unique_sites = 8
         enumerator.ordered_structures = []
         enumerator.ordered_structure_origins = []
         sanitized = enumerator._sanitize_input_structure(structure)
-        return enumerator._generate_transformations(sanitized)
+        enumerator.transformations = enumerator._generate_transformations(sanitized)
+        return enumerator
 
-    def test_whole_motif_flip_constraints(self):
+    def test_each_motif_stays_internally_ferromagnetic(self):
         # Fe3O4's 6 magnetic Fe sites split over two Wyckoff motifs, 4f (4 sites)
-        # and 2c (2 sites)
+        # and 2c (2 sites). The point of the flip is that no motif is ever broken
+        # up internally -- every site of a motif carries the same spin, and the
+        # motifs oppose one another.
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif", primitive=True)
-        transformations = self.generate_transformations(structure)
+        enumerator = self.run_generate_transformations(structure)
 
         # the pre-existing internally-AFM-on-one-motif orderings are unaffected...
-        assert {"ferri_by_motif_4f", "ferri_by_motif_2c"} <= set(transformations)
-        # ...and each motif also gets a whole-motif flip, expressed as a single
-        # global order parameter (the fraction of magnetic sites left pointing up)
-        # (MagOrderingTransformation stores its constraints as serialized dicts)
-        for symbol, num_motif_sites in (("4f", 4), ("2c", 2)):
-            (constraint,) = transformations[f"ferri_by_motif_{symbol}_flip"].order_parameter
-            assert constraint["order_parameter"] == approx(num_motif_sites / 6)
-            assert constraint["species_constraints"] == ["Fe"]
-            assert constraint["site_constraint_name"] is None
+        assert {"ferri_by_motif_4f", "ferri_by_motif_2c"} <= set(enumerator.transformations)
+        # ...and the flip is built directly, so it is an ordering, not a transformation
+        assert enumerator.ordered_structure_origins == ["fm", "ferri_by_motif_2c_flip"]
 
-    def test_no_flip_constraint_when_motif_is_half_the_magnetic_sites(self):
+        flipped = enumerator.ordered_structures[-1]
+        spins_by_motif = {}
+        for site, symbol in zip(flipped, flipped.site_properties["wyckoff"], strict=True):
+            if symbol != "n/a":
+                spins_by_motif.setdefault(symbol, set()).add(site.specie.spin)
+        assert spins_by_motif == {"4f": {5}, "2c": {-5}}
+
+    def test_equal_multiplicity_motifs_give_a_single_flip(self):
         # Ca3Co2O6 puts its 4 magnetic Co sites on two motifs of equal multiplicity
-        # (2a and 2b), so flipping either whole motif is an order parameter of 0.5,
-        # i.e. exactly the global AFM constraint. It must not be emitted twice.
+        # (2a and 2b). Flipping 2a is the spin inversion of flipping 2b, so holding
+        # the first motif up must leave exactly one flip, not one per motif.
         structure = Structure.from_file(f"{TEST_DIR}/Ca3Co2O6.json")
-        transformations = self.generate_transformations(structure)
+        enumerator = self.run_generate_transformations(structure)
 
-        assert {"afm", "ferri_by_motif_2a", "ferri_by_motif_2b"} <= set(transformations)
-        assert [name for name in transformations if name.endswith("_flip")] == []
+        assert {"afm", "ferri_by_motif_2a", "ferri_by_motif_2b"} <= set(enumerator.transformations)
+        flips = [origin for origin in enumerator.ordered_structure_origins if origin.endswith("_flip")]
+        assert flips == ["ferri_by_motif_2b_flip"]
 
-    def test_half_multiplicity_flip_kept_without_antiferromagnetic_strategy(self):
-        # same structure as above, but without "antiferromagnetic" in strategies: the
-        # 0.5-order-parameter flip is no longer a duplicate of a global "afm"
-        # constraint that was never added, so it must be emitted.
-        structure = Structure.from_file(f"{TEST_DIR}/Ca3Co2O6.json")
+    @staticmethod
+    def flip_spins(num_motifs):
+        """Spin pattern of every whole-motif flip built for num_motifs motifs, one
+        site per motif. Lattice is strongly anisotropic and the positions are
+        general, so that the motifs read as genuinely inequivalent orbits.
+        """
         enumerator = object.__new__(MagneticStructureEnumerator)
-        enumerator.logger = logging.getLogger("test")
-        enumerator.default_magmoms = None
-        enumerator.strategies = ["ferrimagnetic_by_motif"]
-        enumerator.automatic = False
-        enumerator.transformation_kwargs = {"check_ordered_symmetry": False, "timeout": 5}
-        enumerator.max_unique_sites = 8
         enumerator.ordered_structures = []
         enumerator.ordered_structure_origins = []
-        sanitized = enumerator._sanitize_input_structure(structure)
-        transformations = enumerator._generate_transformations(sanitized)
+        symbols = [ascii_lowercase[idx] for idx in range(num_motifs)]
+        coords = [[0.0, 0.11 * idx, 0.37 * idx] for idx in range(num_motifs)]
+        structure = Structure(Lattice.orthorhombic(6.0, 11.0, 17.0), ["Fe"] * num_motifs, coords)
+        structure.add_site_property("wyckoff", symbols)
 
-        assert "afm" not in transformations
-        assert {"ferri_by_motif_2a_flip", "ferri_by_motif_2b_flip"} <= set(transformations)
+        enumerator._add_whole_motif_flips(structure, symbols, [5] * num_motifs)
+
+        return enumerator.ordered_structure_origins, [
+            [site.specie.spin for site in struct] for struct in enumerator.ordered_structures
+        ]
+
+    def test_flips_cover_every_combination_of_motifs(self):
+        # three motifs give every non-empty subset of the last two, the first being
+        # held up: 2**(3-1) - 1 = 3 orderings rather than all 7 subsets
+        origins, spins = self.flip_spins(3)
+
+        assert origins == [
+            "ferri_by_motif_b_flip",
+            "ferri_by_motif_c_flip",
+            "ferri_by_motif_b_c_flip",
+        ]
+        assert spins == [[5, -5, 5], [5, 5, -5], [5, -5, -5]]
+
+    @pytest.mark.parametrize("num_motifs", range(2, 7))
+    def test_no_flip_is_the_spin_inversion_of_another(self, num_motifs):
+        # holding the first motif up is what keeps a flip and its global spin
+        # inversion from both being emitted, so that the pair never has to be
+        # caught by the duplicate pruning downstream. Asserted on the spin patterns
+        # directly: matches_ordering is a StructureMatcher comparison and will also
+        # collapse orderings for unrelated reasons, which is not what is under test.
+        origins, spins = self.flip_spins(num_motifs)
+
+        assert len(spins) == 2 ** (num_motifs - 1) - 1 == len(set(origins))
+        for one, other in combinations(spins, 2):
+            assert [-spin for spin in one] != other
+
+    def test_flip_emitted_without_antiferromagnetic_strategy(self):
+        # a motif that is exactly half the magnetic sites used to be skipped as a
+        # duplicate of the global "afm" constraint, which silently dropped the
+        # ordering when "antiferromagnetic" was not among the strategies. Building
+        # the flip directly costs no enumeration, so it is always emitted.
+        structure = Structure.from_file(f"{TEST_DIR}/Ca3Co2O6.json")
+        enumerator = self.run_generate_transformations(structure, strategies=["ferrimagnetic_by_motif"])
+
+        assert "afm" not in enumerator.transformations
+        assert enumerator.ordered_structure_origins == ["ferri_by_motif_2b_flip"]
 
 
 class TestMagneticDeformation:
