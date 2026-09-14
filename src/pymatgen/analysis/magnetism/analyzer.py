@@ -758,6 +758,9 @@ class MagneticStructureEnumerator:
         strategies. This approach is not ideal, but has been found to be
         relatively robust over a wide range of magnetic structures.
 
+        Orderings that need no enumeration (ferromagnetic, whole-motif flips) are
+        not returned as transformations but appended to self.ordered_structures.
+
         Args:
             structure: A sanitized input structure (_sanitize_input_structure)
 
@@ -973,6 +976,9 @@ class MagneticStructureEnumerator:
         The first motif is held pointing up: flipping a set of motifs and flipping its
         complement differ only by a global spin inversion, which
         CollinearMagneticStructureAnalyzer.matches_ordering treats as the same ordering.
+        n motifs thus give 2**(n-1) - 1 orderings, at most 127 for the max_unique_sites
+        limit of 8. All keep the full crystal symmetry, so none are removed by
+        truncate_by_symmetry.
 
         Args:
             structure: sanitized structure carrying a "wyckoff" site property
