@@ -32,7 +32,10 @@ different supercells can be fitted together. This changed the public surface:
   an exactly-determined solve - so supplying more orderings than parameters is
   now useful, and the ``{"<J>": ...}`` fallback for under-determined systems is
   gone. ``residual`` is the RMS fit residual in meV per magnetic ion and is also
-  stored on ``mapper.residual`` and on :class:`HeisenbergModel`.
+  stored on ``mapper.residual`` and on :class:`HeisenbergModel`. It reports an
+  ill-conditioned or rank-deficient fit as a ``UserWarning`` rather than through
+  the module logger, so the two signals that the returned parameters are
+  untrustworthy can be filtered or turned into errors with ``warnings``.
 * ``estimate_exchange`` and ``get_mft_temperature`` are deprecated. Use
   ``get_exchange`` for shell-resolved ``J_ij``, and a Monte Carlo solver (e.g.
   VAMPIRE, via :class:`HeisenbergModel`) rather than the mean field estimate for
@@ -356,6 +359,23 @@ class RelaxedOrdering(MagneticOrdering):
                 "This ordering is not a supercell of the parent cell; it cannot be mapped "
                 "onto the parent sublattices. Pass an explicit `parent` cell that all "
                 "orderings share."
+            )
+
+        # get_s2_like_s1 returns the parent's sites in this ordering's site order, but only
+        # those it could match, and it matches on geometry within StructureMatcher's
+        # tolerances. On relaxed cells a partial or wrong match would shift every label -
+        # and every J_ij derived from it - without erroring, so require the two to line up
+        # species by species.
+        aligned = len(matched_parent) == len(self.structure) and all(
+            parent_site.specie.symbol == site.specie.symbol
+            for parent_site, site in zip(matched_parent, self.structure, strict=False)
+        )
+        if not aligned:
+            raise ValueError(
+                "The parent cell was matched onto this ordering, but the matched sites do "
+                "not line up with the ordering's species site by site, so the sublattice "
+                "labels would land on the wrong sites. Pass an explicit `parent` cell that "
+                "all orderings share."
             )
 
         # Keep only the magnetic sites, in order, so the ids line up with magnetic_structure
@@ -688,7 +708,6 @@ class HeisenbergMapper:
             return
 
         rows = []
-        seen = set()  # de-duplicate identical interaction rows so no ordering is weighted twice
         for ordering in self.orderings:
             nn_graph = ordering.nn_graph
             sub_ids = ordering.sublattice_ids
@@ -714,10 +733,6 @@ class HeisenbergMapper:
             for c in j_columns:
                 row[c] /= 2 * n_sites
 
-            key = tuple(round(row[c], 10) for c in j_columns)
-            if key in seen:
-                continue
-            seen.add(key)
             row["E0"] = 1.0  # nonmagnetic contribution (per ion)
             row["E"] = ordering.energy_per_magnetic_ion
             rows.append(row)
@@ -729,7 +744,10 @@ class HeisenbergMapper:
 
         # Every ordering is kept: get_exchange fits the parameters by least squares, so
         # surplus orderings average out the noise on the energies instead of being
-        # discarded to square the system.
+        # discarded to square the system. That includes orderings whose rows coincide while
+        # their energies do not - HeisenbergScreener has already dropped the ones that
+        # agree on both, so what is left is the Heisenberg model failing to tell two
+        # orderings apart, which is precisely what the residual is there to report.
         self.ex_mat = ex_mat[["E", "E0", *j_columns]].reset_index(drop=True)
 
     def get_exchange(self):
@@ -786,14 +804,20 @@ class HeisenbergMapper:
 
         # Warn when the fit is ill-conditioned: near-degenerate orderings or an
         # over-parameterized model make H nearly singular, so tiny energy
-        # differences blow up into unphysical exchange parameters.
-        cond = np.linalg.cond(H)
+        # differences blow up into unphysical exchange parameters. Judge that on
+        # column-normalized H - the E0 column is exactly 1 while the J columns are sums of
+        # m_i * m_j, so the condition number of H itself tracks the moment magnitudes as
+        # much as the degeneracy of the orderings, and a fixed threshold on it would fire
+        # or not depending on the species involved.
+        cond = np.linalg.cond(H / np.linalg.norm(H, axis=0))
         if cond > 1e5:
-            logger.warning(
+            warnings.warn(
                 f"Exchange matrix is ill-conditioned (cond={cond:.1e}); the fitted exchange "
                 "parameters are unreliable. The input orderings are near-degenerate or the "
                 "model has more parameters than the orderings can constrain. Supply more, "
-                "more-distinct orderings."
+                "more-distinct orderings.",
+                UserWarning,
+                stacklevel=2,
             )
 
         j_ij, residuals, rank, _singular = np.linalg.lstsq(H, E, rcond=None)
@@ -815,15 +839,21 @@ class HeisenbergMapper:
         # it silently returns the minimum-norm solution. cond above cannot see this case:
         # with fewer rows than parameters it stays finite.
         if rank < H.shape[1]:
-            logger.warning(
+            warnings.warn(
                 f"Exchange matrix is rank deficient (rank {rank} for {H.shape[1]} parameters); "
                 "the orderings do not constrain every exchange parameter, and the values "
-                "returned are one of infinitely many fits. Supply more distinct orderings."
+                "returned are one of infinitely many fits. Supply more distinct orderings.",
+                UserWarning,
+                stacklevel=2,
             )
 
-        j_ij[1:] *= 1000  # J_ij in meV/muB^2 (E0 stays in eV per magnetic ion)
         residual *= 1000  # convert to meV per magnetic ion
-        ex_params = {j_name: j[0] for j_name, j in zip(col_names, j_ij.tolist(), strict=True)}
+        # Keyed by column name rather than by position, so that reordering ex_mat's columns
+        # cannot silently convert the offset and leave a J_ij in eV.
+        ex_params = {
+            name: value[0] if name == "E0" else value[0] * 1000  # J_ij in meV/muB^2, E0 in eV per ion
+            for name, value in zip(col_names, j_ij.tolist(), strict=True)
+        }if matched_parent[i].specie.symbol != self.structure[i].specie.symbol: raise ValueError(...
 
         self.ex_params = ex_params
         self.residual = residual

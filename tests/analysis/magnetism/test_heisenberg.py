@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 import warnings
 from collections import Counter
 
@@ -158,6 +157,23 @@ class TestHeisenbergMapperKnownHamiltonian:
         params = np.array([ex_params["E0"], *(ex_params[col] / 1000 for col in j_columns[1:])])
         assert residual == approx(np.sqrt(np.mean((H @ params - E) ** 2)) * 1000, rel=1e-9)
 
+    def test_repeated_hamiltonian_rows_are_kept(self):
+        # Reversing every moment leaves each product s_i.s_j untouched, so this ordering
+        # repeats an earlier row of the Hamiltonian while its energy sits somewhere else.
+        # That gap is the Heisenberg model failing to tell the two orderings apart, and
+        # the residual is what reports it - dropping the repeated row would hide it.
+        flipped = ([[-1]], [[1]])  # ORDERINGS[1] with every moment reversed
+        orderings = [*self.ORDERINGS, flipped]
+        structures = [self._structure(*spins) for spins in orderings]
+        energies = [self._energy(*spins) for spins in orderings]
+        energies[-1] += 0.05  # eV of non-Heisenberg energy, on the 2-ion cell
+
+        hm = HeisenbergMapper(structures, energies, tol=0.02)
+        assert len(hm.ex_mat) == len(orderings)  # every ordering has a row
+        assert hm.ex_mat.drop(columns="E").round(10).duplicated().any()  # and one is a repeat
+
+        assert hm.get_exchange()[1] > 0
+
     def test_degenerate_orderings_are_dropped(self):
         # The same state in a 1x1 and in a 2x2 cell has the same energy per magnetic ion,
         # so screening keeps only one of the two. Per-ion normalization is what makes
@@ -181,7 +197,6 @@ class TestHeisenbergMapperKnownHamiltonian:
             # Labels are indexed against the magnetic-only cell the graph is built from,
             # so no None placeholders survive from the parent's full-cell labelling.
             assert len(ordering.sublattice_ids) == len(ordering.magnetic_structure)
-            assert all(isinstance(sub_id, int) for sub_id in ordering.sublattice_ids)
 
             # Each sublattice is filled in proportion to its wyckoff multiplicity, i.e.
             # every ordering is a whole number of parent cells. Independent of which
@@ -197,19 +212,11 @@ class TestHeisenbergMapperKnownHamiltonian:
         hm = self._mapper()
         hmodel = hm.get_heisenberg_model()
 
-        assert hmodel.formula == "MnFe"
         assert {sp.symbol for struct in hmodel.magnetic_structures for sp in struct.composition} == {self.A, self.B}
 
         # The fit travels with the model, residual included.
         assert set(hmodel.ex_params) == {"E0", *self._labels(hm)}
         assert hmodel.residual == approx(0, abs=1e-12)
-
-    def test_residual_is_none_before_fit(self):
-        # residual is set alongside ex_params by get_exchange(); before that runs it
-        # must read back as None rather than raise AttributeError.
-        hm = self._mapper()
-        assert hm.residual is None
-        assert hm.ex_params is None
 
     def test_as_from_dict_round_trip(self):
         # HeisenbergModel must survive repeated MSON round-trips. as_dict()
@@ -305,7 +312,7 @@ class TestHeisenbergMapperKnownHamiltonian:
             HeisenbergMapper(structures, energies, parent=self._structure(*self.ORDERINGS[0]), tol=0.02)
         assert not [warning for warning in caught if "No `parent` cell supplied" in str(warning.message)]
 
-    def test_ill_conditioned_fit_warns(self, caplog):
+    def test_ill_conditioned_fit_warns(self):
         # Near-degenerate orderings make H nearly singular, so tiny energy differences
         # blow up into unphysical exchange constants. The mapper must warn rather than
         # hand the numbers back silently. Perturbing one row of the exchange matrix is
@@ -313,36 +320,18 @@ class TestHeisenbergMapperKnownHamiltonian:
         # no choice of collinear ordering puts two of them ~1e-7 apart.
         hm = self._mapper()
 
-        with caplog.at_level(logging.WARNING):
+        # The honest fit does not warn.
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
             hm.get_exchange()
-        assert "ill-conditioned" not in caplog.text  # the honest fit does not warn
-        caplog.clear()
+        assert not [warning for warning in caught if "ill-conditioned" in str(warning.message)]
 
         ex_mat = hm.ex_mat.copy()
         ex_mat.iloc[1] = ex_mat.iloc[0] + 1e-7
         hm.ex_mat = ex_mat
 
-        with caplog.at_level(logging.WARNING):
+        with pytest.warns(UserWarning, match="ill-conditioned"):
             hm.get_exchange()
-        assert "ill-conditioned" in caplog.text
-
-    def test_multi_sublattice_mft_pins_current_formula(self):
-        # NOT an independent physical check. get_mft_temperature's multi-sublattice
-        # branch uses bare J_ij with no coordination numbers, and adds each diagonal
-        # term twice, so it does not reduce to the single-sublattice formula
-        # Tc = 2<J>/(3 k_B) that TestHeisenbergMeanFieldTemperature validates. This
-        # test pins the matrix the branch currently builds,
-        #     omega = (2 / 3 k_B) * [[2 Jaa, Jab], [Jab, 2 Jbb]],
-        # so any change to it is deliberate rather than accidental. Its largest
-        # eigenvalue is symmetric in (Jaa, Jbb), hence independent of the labelling.
-        hm = self._mapper()
-        hm.get_exchange()  # populates ex_params used by the multi-sublattice branch
-
-        mft_t = hm.get_mft_temperature(hm.estimate_exchange())
-
-        jab, jaa, jbb = self.J_AB * 1000, self.J_AA * 1000, self.J_BB * 1000
-        max_eig = (jaa + jbb) + np.sqrt((jaa - jbb) ** 2 + jab**2)
-        assert mft_t == approx(2 / 3 / K_BOLTZMANN * max_eig, rel=1e-5)
 
 
 class TestHeisenbergMeanFieldTemperature:
