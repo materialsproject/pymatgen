@@ -1158,6 +1158,42 @@ class TestMaterialsProjectCompatibility2020:
         assert "MP2020 anion correction (S)" not in adjustment_names
         assert processed.correction == approx(0)
 
+    def test_sulfide_correction_explicit_sulfide_type_takes_precedence(self):
+        # Regression test for reviewer feedback on #4694:
+        # An explicit sulfide_type="sulfide" metadata must take precedence over
+        # oxidation-state guessing or conflicting positive oxidation states,
+        # ensuring that upstream MP database build classifications are not vetoed.
+        comp = Composition.from_dict({"Li1+": 4, "Cs1+": 4, "S6+": 4, "O2-": 16})
+        entry = ComputedEntry(composition=comp, energy=-160.3371)
+        entry.parameters = {"run_type": "GGA"}
+        entry.data["sulfide_type"] = "sulfide"
+        entry.data["oxidation_states"] = {"Li": 1.0, "Cs": 1.0, "S": 6.0, "O": -2.0}
+
+        compat = MaterialsProject2020Compatibility(check_potcar=False)
+        processed = compat.process_entry(entry, on_error="raise")
+        adjustment_names = [adj.name for adj in processed.energy_adjustments]
+        assert "MP2020 anion correction (S)" in adjustment_names
+        assert "MP2020 anion correction (oxide)" in adjustment_names
+        assert processed.correction == approx(-0.503 * 4 + -0.687 * 16)
+
+    def test_sulfide_correction_structure_derived_takes_precedence(self):
+        # Regression test for reviewer feedback on #4694:
+        # A ComputedStructureEntry uses structure-derived sulfide_type() directly,
+        # ensuring that a genuine sulfide structure receives the correction without
+        # relying on or being vetoed by composition oxidation-state guessing.
+        fe_s_struct = Structure(
+            Lattice.cubic(3.0),
+            ["Fe", "S"],
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
+        )
+        entry = ComputedStructureEntry(fe_s_struct, energy=-10)
+        entry.parameters = {"run_type": "GGA", "is_hubbard": False}
+
+        compat = MaterialsProject2020Compatibility(check_potcar=False)
+        processed = compat.process_entry(entry, on_error="raise")
+        assert "MP2020 anion correction (S)" in [adj.name for adj in processed.energy_adjustments]
+        assert processed.correction == approx(-0.503)
+
     def test_u_values(self):
         # Wrong U value
         entry = ComputedEntry(
