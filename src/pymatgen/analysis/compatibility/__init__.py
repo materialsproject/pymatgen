@@ -1117,6 +1117,8 @@ class MaterialsProject2020Compatibility(Compatibility):
         warned_empty_oxi = False
 
         def _get_oxidation_states() -> dict:
+            # Note: entries without S or listed anions will not invoke this helper, so
+            # an unguessable oxidation state is only warned when an anion correction needs it.
             nonlocal warned_empty_oxi
             if "oxidation_states" not in entry.data:
                 try:
@@ -1136,23 +1138,26 @@ class MaterialsProject2020Compatibility(Compatibility):
 
         # Check for sulfide corrections
         if Element("S") in comp:
+            classified = False
             sf_type = None
             if entry.data.get("sulfide_type"):
+                classified = True
                 sf_type = entry.data["sulfide_type"]
             elif hasattr(entry, "structure"):
+                classified = True
                 sf_type = sulfide_type(entry.structure)
 
             # use the same correction for polysulfides and sulfides
             if sf_type == "polysulfide":
                 sf_type = "sulfide"
 
-            apply_correction = False
-            if sf_type == "sulfide":
+            if classified:
                 # Explicit or structure-derived sulfide classification takes precedence.
-                # It is not overridden by oxidation-state guessing, avoiding both false
-                # vetoes and unnecessary calls to oxi_state_guesses during MP database builds.
-                apply_correction = True
-            elif sf_type is None:
+                # A structured entry (e.g. sulfate where sf_type is None) is considered
+                # classified and short-circuits here without falling back to oxidation states,
+                # avoiding unnecessary calls to oxi_state_guesses and preventing misclassification.
+                apply_correction = sf_type == "sulfide"
+            else:
                 # Fallback path for composition-only entries without structure or explicit
                 # sulfide_type. Gate the correction on oxidation state < 0 to prevent
                 # spurious corrections on S cations (e.g. S6+ in sulfates, see #4538).
@@ -1163,6 +1168,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 # behaves like "require_bound" here: genuine sulfide anions (S2-) are
                 # corrected, while S cations (e.g. S6+) are never corrected and
                 # the electronegativity fallback is not used.
+                apply_correction = False
                 oxi_states = _get_oxidation_states()
                 oxidation_state = oxi_states.get("S")
                 if oxidation_state is None:

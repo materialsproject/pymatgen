@@ -1194,6 +1194,39 @@ class TestMaterialsProjectCompatibility2020:
         assert "MP2020 anion correction (S)" in [adj.name for adj in processed.energy_adjustments]
         assert processed.correction == approx(-0.503)
 
+    def test_sulfide_correction_structure_sulfate_no_fallback(self):
+        # Regression test for reviewer feedback on #4694:
+        # A ComputedStructureEntry with a sulfate structure (where sulfide_type() returns None)
+        # must be treated as classified and short-circuit. It must not fall back to
+        # composition oxidation-state guessing (_get_oxidation_states()), ensuring complete
+        # laziness (no "oxidation_states" key injected into entry.data) and preventing spurious
+        # S anion corrections on structurally verified sulfates.
+        lattice = Lattice.cubic(6.0)
+        coords = [
+            [0.0, 0.0, 0.0],
+            [0.5, 0.5, 0.0],
+            [0.5, 0.5, 0.5],  # S
+            [0.5 + 1.5 / 6.0, 0.5, 0.5],  # O
+            [0.5 - 1.5 / 6.0, 0.5, 0.5],  # O
+            [0.5, 0.5 + 1.5 / 6.0, 0.5],  # O
+            [0.5, 0.5 - 1.5 / 6.0, 0.5],  # O
+        ]
+        species = ["Na", "Na", "S", "O", "O", "O", "O"]
+        sulfate_struct = Structure(lattice, species, coords)
+
+        entry = ComputedStructureEntry(sulfate_struct, energy=-20)
+        entry.parameters = {"run_type": "GGA", "is_hubbard": False}
+        assert "oxidation_states" not in entry.data
+
+        compat = MaterialsProject2020Compatibility(check_potcar=False)
+        processed = compat.process_entry(entry, on_error="raise")
+
+        adjustment_names = [adj.name for adj in processed.energy_adjustments]
+        assert "MP2020 anion correction (S)" not in adjustment_names
+        assert "MP2020 anion correction (oxide)" in adjustment_names
+        # Ensure _get_oxidation_states() was zero-call (entry.data["oxidation_states"] remains absent)
+        assert "oxidation_states" not in entry.data
+
     def test_u_values(self):
         # Wrong U value
         entry = ComputedEntry(
