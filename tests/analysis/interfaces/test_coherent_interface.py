@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import numpy as np
 from numpy.testing import assert_allclose
 
 from pymatgen.analysis.interfaces.coherent_interfaces import (
@@ -89,3 +90,17 @@ class TestCoherentInterfaceBuilder:
             ("1_Ge_C2/m_2", "1_Si_P4/mmm_1"),
             ("1_Ge_C2/m_2", "2_Si_P4/mmm_1"),
         ], "cib2 termination results wrong"
+
+    def test_shiftdependent_primitive(self):
+        """Test that a crystal structure which primitivizes correctly at nonzero shift works."""
+        # This is technically unwanted behaviour (ideally shift 0 would also work)
+        # thus we do not check that shift 0 fails, instead only nonzero shift is tested
+        # Approximately calcite (spacegroup R-3c)
+        struct = Structure.from_spacegroup(
+            167, Lattice.hexagonal(5, 17), ("Ca", "C", "O"), ((0, 0, 0), (0, 0, 0.25), (0.25, 0, 0.25))
+        )
+        cib = CoherentInterfaceBuilder(struct, struct, (0, 0, 1), (0, 0, 1))
+        # The lattice should be small (5 and ~8.09 instead of 5 and ~24.27)
+        inter = next(cib.get_interfaces(("CaCO_Pmma_6", "CaCO_Pmma_6")))
+        assert np.isclose(inter.lattice[0, 0], 5, atol=1e-4)
+        assert np.isclose(inter.lattice[1, 1], 8.089774, atol=1e-4)

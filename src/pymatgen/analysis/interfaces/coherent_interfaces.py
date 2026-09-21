@@ -68,7 +68,8 @@ class CoherentInterfaceBuilder:
         self.termination_ftol = termination_ftol
         self.label_index = label_index
         self.filter_out_sym_slabs = filter_out_sym_slabs
-        self._find_matches(*self._find_terminations())
+        film_slab, substrate_slab = self._find_terminations()
+        self._find_matches(film_slab, substrate_slab)
 
     def _find_matches(self, film_slab: Slab, sub_slab: Slab) -> None:
         """Find and stores the ZSL matches.
@@ -100,8 +101,9 @@ class CoherentInterfaceBuilder:
 
     def _find_terminations(self) -> tuple[Slab, Slab]:
         """Find all terminations.
+
         Returns:
-            first_pair (tuple[Slab, Slab]): The slab pair of the first termination, useful to check the primitivization.
+            tuple[Slab, Slab]: The slab pair of the first termination, useful to check the primitivization.
         """
         film_sg = SlabGenerator(
             self.film_structure,
