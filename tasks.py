@@ -162,6 +162,9 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
                 timeout=60,
             )
             resp = response.json()
+            if "title" not in resp:  # e.g. 404 when the number is not a PR in this repo
+                ignored_commits += [f"{line} (GitHub API: {resp.get('message', response.status_code)})"]
+                continue
             lines += [f"- PR #{pr_number} {resp['title'].strip()} by @{resp['user']['login']}"]
             if body := resp["body"]:
                 for ll in map(str.strip, body.split("\n")):
