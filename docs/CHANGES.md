@@ -10,6 +10,10 @@ Releases tagged `(pymatgen-core)` originate from the
 [pymatgen-core](https://github.com/materialsproject/pymatgen-core) repo (PR numbers refer
 to that repo) and are pulled in automatically.
 
+## v2026.9.24
+
+Re-release of v2026.9.23 (no code changes). The v2026.9.23 sdist exceeded PyPI's size limit because `setuptools-scm` pulled every tracked file (test files, docs) into it, so v2026.9.23 is available on PyPI as a wheel only. A `MANIFEST.in` now restricts the sdist to `src/` and metadata.
+
 ## v2026.9.23
 
 Requires `pymatgen-core>=2026.9.23`. See the `(pymatgen-core)` entries below for changes to the core data structures and IO.
