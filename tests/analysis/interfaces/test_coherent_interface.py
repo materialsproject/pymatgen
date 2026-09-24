@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import numpy as np
 from numpy.testing import assert_allclose
 
 from pymatgen.analysis.interfaces.coherent_interfaces import (
@@ -100,7 +99,9 @@ class TestCoherentInterfaceBuilder:
             167, Lattice.hexagonal(5, 17), ("Ca", "C", "O"), ((0, 0, 0), (0, 0, 0.25), (0.25, 0, 0.25))
         )
         cib = CoherentInterfaceBuilder(struct, struct, (0, 0, 1), (0, 0, 1))
+        # The names are allowed to change, but if they do, verify that the slabs are the same as before
+        assert cib.terminations[0] == ("CaCO_Pmma_6", "CaCO_Pmma_6")
         # The lattice should be small (5 and ~8.09 instead of 5 and ~24.27)
-        inter = next(cib.get_interfaces(("CaCO_Pmma_6", "CaCO_Pmma_6")))
-        assert np.isclose(inter.lattice[0, 0], 5, atol=1e-4)
-        assert np.isclose(inter.lattice[1, 1], 8.089774, atol=1e-4)
+        inter = next(cib.get_interfaces(cib.terminations[0]))
+        assert_allclose(inter.lattice.matrix[0, 0], 5, atol=1e-4)
+        assert_allclose(inter.lattice.matrix[1, 1], 8.089774, atol=1e-4)
