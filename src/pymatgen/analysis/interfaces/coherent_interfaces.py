@@ -11,7 +11,7 @@ from scipy.linalg import polar
 from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.analysis.interfaces.zsl import ZSLGenerator, fast_norm
 from pymatgen.core.interface import Interface, label_termination
-from pymatgen.core.surface import SlabGenerator
+from pymatgen.core.surface import Slab, SlabGenerator
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -68,37 +68,17 @@ class CoherentInterfaceBuilder:
         self.termination_ftol = termination_ftol
         self.label_index = label_index
         self.filter_out_sym_slabs = filter_out_sym_slabs
-        self._find_matches()
-        self._find_terminations()
+        film_slab, substrate_slab = self._find_terminations()
+        self._find_matches(film_slab, substrate_slab)
 
-    def _find_matches(self) -> None:
-        """Find and stores the ZSL matches."""
+    def _find_matches(self, film_slab: Slab, sub_slab: Slab) -> None:
+        """Find and stores the ZSL matches.
+
+        Args:
+            film_slab (Slab): A slab of the film structure, transformed as used in the other functions.
+            sub_slab (Slab): Associated slab of the substrate structure.
+        """
         self.zsl_matches = []
-
-        film_sg = SlabGenerator(
-            self.film_structure,
-            self.film_miller,
-            min_slab_size=1,
-            min_vacuum_size=3,
-            in_unit_planes=True,
-            center_slab=True,
-            primitive=True,
-            reorient_lattice=False,  # This is necessary to not screw up the lattice
-        )
-
-        sub_sg = SlabGenerator(
-            self.substrate_structure,
-            self.substrate_miller,
-            min_slab_size=1,
-            min_vacuum_size=3,
-            in_unit_planes=True,
-            center_slab=True,
-            primitive=True,
-            reorient_lattice=False,  # This is necessary to not screw up the lattice
-        )
-
-        film_slab = film_sg.get_slab(shift=0)
-        sub_slab = sub_sg.get_slab(shift=0)
 
         film_vectors = film_slab.lattice.matrix
         substrate_vectors = sub_slab.lattice.matrix
@@ -119,8 +99,12 @@ class CoherentInterfaceBuilder:
                     "Substrate lattice vectors changed during ZSL match, check your ZSL Generator parameters"
                 )
 
-    def _find_terminations(self):
-        """Find all terminations."""
+    def _find_terminations(self) -> tuple[Slab, Slab]:
+        """Find all terminations.
+
+        Returns:
+            tuple[Slab, Slab]: The slab pair of the first termination, useful to check the primitivization.
+        """
         film_sg = SlabGenerator(
             self.film_structure,
             self.film_miller,
@@ -179,6 +163,33 @@ class CoherentInterfaceBuilder:
             )
         }
         self.terminations = list(self._terminations)
+
+        # Verify slabs: All slabs should have the same lattice (primitivization should be shift-independent)
+        # (If they don't, the assumption of _find_matches is false)
+        if not film_slabs:
+            raise ValueError(
+                f"Could not generate Slabs for index {self.film_miller} of {self.film_structure.composition}."
+            )
+        for slab in film_slabs[1:]:
+            if not np.allclose(slab.lattice.matrix[:2], film_slabs[0].lattice.matrix[:2]):
+                raise ValueError(
+                    f"Not all slabs for index {self.film_miller} of {self.film_structure.composition} have the same "
+                    f"lattice. First slab: {film_slabs[0].lattice.params_dict}, found: {slab.lattice.params_dict}."
+                )
+
+        if not sub_slabs:
+            raise ValueError(
+                f"Could not generate Slabs for index {self.substrate_miller} of {self.substrate_structure.composition}."
+            )
+        for slab in sub_slabs[1:]:
+            if not np.allclose(slab.lattice.matrix[:2], sub_slabs[0].lattice.matrix[:2]):
+                raise ValueError(
+                    f"Not all slabs for index {self.substrate_miller} of {self.substrate_structure.composition} "
+                    "have the same lattice. "
+                    f"First slab: {sub_slabs[0].lattice.params_dict}, found: {slab.lattice.params_dict}."
+                )
+
+        return film_slabs[0], sub_slabs[0]
 
     def get_interfaces(
         self,
