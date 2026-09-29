@@ -184,7 +184,9 @@ class TestHeisenbergMapperKnownHamiltonian:
         hm = HeisenbergMapper(structures, energies, tol=0.02)
 
         assert len(hm.orderings) == len(self.ORDERINGS)  # the duplicate was dropped
-        assert hm.energies == sorted(hm.energies)  # sorted, ground state first
+        # sorted by energy per magnetic ion, ground state first; the total energies of cells
+        # of different size need not follow that order
+        assert hm.energies_per_magnetic_ion == sorted(hm.energies_per_magnetic_ion)
 
     def test_sublattices_follow_parent_wyckoff_orbits(self):
         hm = self._mapper()
@@ -218,6 +220,12 @@ class TestHeisenbergMapperKnownHamiltonian:
         assert set(hmodel.ex_params) == {"E0", *self._labels(hm)}
         assert hmodel.residual == approx(0, abs=1e-12)
 
+        # Total energies and the per-magnetic-ion energies the fit used both travel with it.
+        assert hmodel.energies == hm.energies
+        assert hmodel.energies_per_magnetic_ion == approx(
+            [e / len(struct) for e, struct in zip(hm.energies, hm.magnetic_structures, strict=True)]
+        )
+
     def test_as_from_dict_round_trip(self):
         # HeisenbergModel must survive repeated MSON round-trips. as_dict()
         # serializes ex_mat with jsanitize (a DataFrame becomes a nested dict),
@@ -231,6 +239,8 @@ class TestHeisenbergMapperKnownHamiltonian:
         assert model_rt.structures == model.structures
         assert model_rt.magnetic_structures == model.magnetic_structures
         assert model_rt.residual == model.residual
+        assert model_rt.energies == model.energies
+        assert model_rt.energies_per_magnetic_ion == model.energies_per_magnetic_ion
 
         # A second round-trip must be a no-op on the exchange matrix.
         model_rt2 = HeisenbergModel.from_dict(model_rt.as_dict())
@@ -298,6 +308,25 @@ class TestHeisenbergMapperKnownHamiltonian:
         energies = [self._energy(*spins) for spins in self.ORDERINGS]
         with pytest.raises(TypeError, match="parent must be a Structure"):
             HeisenbergMapper(structures, energies, 5.0)
+
+    def test_tol_below_rounding_resolution_raises(self):
+        # Distances are rounded to 0.01 Angstrom before shells are compared, so a finer
+        # tol would silently have no effect.
+        structures = [self._structure(*spins) for spins in self.ORDERINGS]
+        energies = [self._energy(*spins) for spins in self.ORDERINGS]
+        with pytest.raises(ValueError, match="resolution"):
+            HeisenbergMapper(structures, energies, tol=0.001)
+
+    def test_bond_between_unknown_sublattice_pair_warns(self):
+        # A bond between a sublattice pair the parent graph does not contain has no
+        # column to go into. It is dropped from the fit, so that must surface as a
+        # catchable UserWarning rather than a log line.
+        hm = self._mapper()
+        _aa, _bb, ab = self._labels(hm)
+        del hm.nn_interactions[(0, 1)]
+
+        with pytest.warns(UserWarning, match="does not appear in nn_interactions"):
+            assert hm._interaction_label(0, 1, hm.dists[ab]) is None
 
     def test_inferred_parent_warns(self):
         structures = [self._structure(*spins) for spins in self.ORDERINGS]
@@ -474,4 +503,5 @@ class TestHeisenbergMapperZeroMomentIon:
         # four and its energy per magnetic ion would be off by a factor of two.
         assert [len(struct) for struct in hm.magnetic_structures] == [4, 4]
         assert [len(sub_ids) for sub_ids in hm.sublattice_ids] == [4, 4]
-        assert hm.energies == [-5.0, -4.75]
+        assert hm.energies == [-20.0, -19.0]
+        assert hm.energies_per_magnetic_ion == [-5.0, -4.75]

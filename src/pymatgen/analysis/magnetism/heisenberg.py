@@ -24,8 +24,10 @@ different supercells can be fitted together. This changed the public surface:
   sites of each ordering and ``mapper.sublattice_wyckoff_symbols`` maps a
   sublattice id to its Wyckoff symbol.
 * ``ordered_structures`` (the screened, energy-sorted list) is now
-  ``mapper.structures``; ``mapper.energies`` keeps its name but now holds energy
-  *per magnetic ion* rather than total energy. The unmodified constructor
+  ``mapper.structures``. ``mapper.energies`` now holds the *total* energies of
+  the screened orderings, as passed to the constructor, rather than energies
+  per magnetic ion; those moved to ``mapper.energies_per_magnetic_ion``. The
+  same split applies to :class:`HeisenbergModel`. The unmodified constructor
   inputs are still ``ordered_structures_``/``energies_``.
 * ``get_exchange`` now returns ``(ex_params, residual)`` rather than
   ``ex_params`` alone, and is a least-squares fit over all orderings instead of
@@ -82,8 +84,19 @@ __date__ = "July 2026"
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_TOL = 0.05  # Angstrom tolerance
-DISTANCE_ROUND_DECIMALS = 2  # Round distances to this many decimals when matching interactions
+# Tolerance (Angstrom) within which two bond lengths count as the same shell. Relaxing the
+# orderings breaks the parent symmetry, so bonds that are equivalent in the parent spread out
+# by a few hundredths of an Angstrom. At the former 0.02 that spread split one physical shell
+# into several J columns, each fitted from the same few orderings. 0.05 absorbs the spread
+# and stays well below the separation of distinct shells in typical magnetic lattices.
+DEFAULT_TOL = 0.05
+
+# Distances are rounded to this many decimals before shells are compared, which merges bonds
+# that differ by less than half a step (0.005 Angstrom) whatever tol is. tol therefore only
+# has an effect above one rounding step, 10**-DISTANCE_ROUND_DECIMALS, and HeisenbergMapper
+# rejects a smaller one. Rounding also shifts a shell comparison by up to one step, so the
+# effective tol is tol +- 0.01 Angstrom.
+DISTANCE_ROUND_DECIMALS = 2
 
 
 def _analyzer(structure: Structure, **kwargs) -> CollinearMagneticStructureAnalyzer:
@@ -443,13 +456,19 @@ class HeisenbergMapper:
                 which keeps only each site's nearest neighbors, i.e. one shell per
                 sublattice pair; with a cutoff, every interaction up to it is kept.
             tol (float): Tolerance (in Angstrom) on nearest neighbor distances
-                being equal.
+                being equal. Must be at least 10**-DISTANCE_ROUND_DECIMALS (0.01), the
+                resolution distances are rounded to before they are compared.
         """
         if parent is not None and not isinstance(parent, Structure):
             raise TypeError(
                 f"parent must be a Structure or None, got {type(parent).__name__}. "
                 "Note the constructor signature changed: parent now comes third, "
                 "before cutoff/tol - see the module docstring's migration guide."
+            )
+        if tol < 10**-DISTANCE_ROUND_DECIMALS:
+            raise ValueError(
+                f"tol={tol} Angstrom is below the {10**-DISTANCE_ROUND_DECIMALS} Angstrom resolution "
+                "that interaction distances are rounded to, so it would have no effect."
             )
 
         # Save original copies of inputs
@@ -555,7 +574,16 @@ class HeisenbergMapper:
 
     @property
     def energies(self):
-        """list[float]: Energy per magnetic ion (eV) of each ordering."""
+        """list[float]: Total energy (eV) of each ordering, as supplied to the constructor."""
+        return [ordering.energy for ordering in self.orderings]
+
+    @property
+    def energies_per_magnetic_ion(self):
+        """list[float]: Energy per magnetic ion (eV) of each ordering - the energies the fit uses.
+
+        The magnetic ions are counted over the magnetic species pooled across all orderings,
+        so an ion that relaxed to zero moment in one ordering still counts there.
+        """
         return [ordering.energy_per_magnetic_ion for ordering in self.orderings]
 
     @property
@@ -630,9 +658,14 @@ class HeisenbergMapper:
         """
         labels = self.nn_interactions.get(self._order_sublattice_ids(i_id, j_id), ())
         if not labels:
-            logger.warning(
+            # A UserWarning like the fit's other warnings: the bond is dropped from the fit and
+            # the interaction graph, so callers must be able to catch or escalate it.
+            warnings.warn(
                 f"Sublattices {i_id} and {j_id} interact at {dist:.2f} Angstrom but the pair "
                 f"does not appear in nn_interactions built from the parent:\n{self.nn_interactions}\n"
+                "The bond is left out of the fit; the ordering has likely drifted off the parent lattice.",
+                UserWarning,
+                stacklevel=2,
             )
             return None
 
@@ -853,7 +886,7 @@ class HeisenbergMapper:
         ex_params = {
             name: value[0] if name == "E0" else value[0] * 1000  # J_ij in meV/muB^2, E0 in eV per ion
             for name, value in zip(col_names, j_ij.tolist(), strict=True)
-        }if matched_parent[i].specie.symbol != self.structure[i].specie.symbol: raise ValueError(...
+        }
 
         self.ex_params = ex_params
         self.residual = residual
@@ -1104,6 +1137,7 @@ class HeisenbergMapper:
             structures=self.structures,
             magnetic_structures=self.magnetic_structures,
             energies=self.energies,
+            energies_per_magnetic_ion=self.energies_per_magnetic_ion,
             cutoff=self.cutoff,
             tol=self.tol,
             nn_graphs=self.nn_graphs,
@@ -1207,6 +1241,7 @@ class HeisenbergModel(MSONable):
         structures=None,
         magnetic_structures=None,
         energies=None,
+        energies_per_magnetic_ion=None,
         cutoff=None,
         tol=None,
         nn_graphs=None,
@@ -1225,7 +1260,9 @@ class HeisenbergModel(MSONable):
             structures (list): Each ordering with all ions retained, with magmoms.
             magnetic_structures (list): Magnetic-only cell of each ordering. nn_graphs and
                 sublattice_ids are indexed against these, not against structures.
-            energies (list): Energies of each relaxed magnetic structure.
+            energies (list): Total energy (eV) of each relaxed magnetic structure.
+            energies_per_magnetic_ion (list): Energy per magnetic ion (eV) of each relaxed
+                magnetic structure, the energies the exchange parameters were fitted to.
             cutoff (float): Cutoff in Angstrom for nearest neighbor search.
             tol (float): Tolerance (in Angstrom) on nearest neighbor distances being equal.
             nn_graphs (list): StructureGraph objects.
@@ -1248,6 +1285,7 @@ class HeisenbergModel(MSONable):
         self.structures = structures
         self.magnetic_structures = magnetic_structures
         self.energies = energies
+        self.energies_per_magnetic_ion = energies_per_magnetic_ion
         self.cutoff = cutoff
         self.tol = tol
         self.nn_graphs = nn_graphs
@@ -1270,6 +1308,7 @@ class HeisenbergModel(MSONable):
             "structures": [struct.as_dict() for struct in self.structures],
             "magnetic_structures": [struct.as_dict() for struct in self.magnetic_structures],
             "energies": self.energies,
+            "energies_per_magnetic_ion": self.energies_per_magnetic_ion,
             "cutoff": self.cutoff,
             "tol": self.tol,
             "nn_graphs": [nn_graph.as_dict() for nn_graph in self.nn_graphs],
@@ -1323,6 +1362,7 @@ class HeisenbergModel(MSONable):
             structures=structures,
             magnetic_structures=magnetic_structures,
             energies=dct["energies"],
+            energies_per_magnetic_ion=dct["energies_per_magnetic_ion"],
             cutoff=dct["cutoff"],
             tol=dct["tol"],
             nn_graphs=nn_graphs,
