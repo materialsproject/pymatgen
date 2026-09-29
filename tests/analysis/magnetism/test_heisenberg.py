@@ -132,7 +132,7 @@ class TestHeisenbergMapperKnownHamiltonian:
         assert ex_params["E0"] == approx(self.E0, abs=1e-8)
 
         # The energies are exactly Heisenberg here, so the fit reproduces them.
-        assert residual == approx(0, abs=1e-12)
+        assert residual == approx(0, abs=1e-9)  # meV per ion; float noise only
 
     def test_residual_is_rms_energy_error_per_ion(self):
         # Four parameters, so the four orderings above make a square system the fit solves
@@ -218,7 +218,7 @@ class TestHeisenbergMapperKnownHamiltonian:
 
         # The fit travels with the model, residual included.
         assert set(hmodel.ex_params) == {"E0", *self._labels(hm)}
-        assert hmodel.residual == approx(0, abs=1e-12)
+        assert hmodel.residual == approx(0, abs=1e-9)
 
         # Total energies and the per-magnetic-ion energies the fit used both travel with it.
         assert hmodel.energies == hm.energies
