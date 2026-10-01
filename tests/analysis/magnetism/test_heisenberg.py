@@ -174,6 +174,22 @@ class TestHeisenbergMapperKnownHamiltonian:
 
         assert hm.get_exchange()[1] > 0
 
+    def test_unconstrained_interactions_are_dropped_with_warning(self):
+        # Three orderings constrain E0 and two J_ij, one short of the three sublattice pairs
+        # the parent has. Even without a cutoff, the nearest-neighbor coupling of one whole
+        # pair has to go, and the caller must hear of it.
+        orderings = self.ORDERINGS[:3]
+        structures = [self._structure(*spins) for spins in orderings]
+        energies = [self._energy(*spins) for spins in orderings]
+        with pytest.warns(UserWarning, match="orderings constrain only"):
+            hm = HeisenbergMapper(structures, energies)
+
+        aa, bb, ab = self._labels(hm)
+        j_columns = [col for col in hm.ex_mat.columns if col not in ("E", "E0")]
+        assert len(j_columns) == 2
+        assert ab in j_columns  # the short A-B bond survives; one of the 1.6 A chains is cut
+        assert len({aa, bb} & set(j_columns)) == 1
+
     def test_degenerate_orderings_are_dropped(self):
         # The same state in a 1x1 and in a 2x2 cell has the same energy per magnetic ion,
         # so screening keeps only one of the two. Per-ion normalization is what makes

@@ -719,16 +719,6 @@ class HeisenbergMapper:
                 labels.append(label)
             self.interactions[pair] = labels
 
-    def _exchange_columns(self):
-        """Column labels for the exchange matrix: 'E', 'E0' then one per J_ij.
-
-        The J columns are ordered by increasing interaction length, so when the system has more
-        interactions than the orderings can constrain, the longest-ranged ones are dropped.
-        """
-        j_columns = sorted(self.dists, key=self.dists.get)
-        # Keep at most n interactions for n+1 orderings
-        return ["E", "E0", *j_columns][: len(self.orderings) + 1]
-
     def _build_exchange_mat(self):
         """Build the Heisenberg Hamiltonian, one row per ordering, by summing the
         signed products S_i . S_j over each graph. Sets self.ex_mat.
@@ -736,13 +726,13 @@ class HeisenbergMapper:
         Each row is normalised per magnetic ion so that orderings living in
         different-sized supercells share a single linear system (the energies are
         per magnetic ion too, see RelaxedOrdering.energy_per_magnetic_ion).
-        """
-        columns = self._exchange_columns()
-        j_columns = [c for c in columns if c not in ("E", "E0")]
 
-        if len(j_columns) < 2:  # too few interactions to fit; get_exchange raises on this
-            self.ex_mat = pd.DataFrame(columns=columns)
-            return
+        n orderings constrain at most E0 and n - 1 J_ij; any longer-ranged interactions are
+        left out of the fit with a UserWarning.
+        """
+        # J columns ordered by increasing interaction length, so truncation drops the longest.
+        j_columns = sorted(self.dists, key=self.dists.get)
+        columns = ["E", "E0", *j_columns]
 
         rows = []
         for ordering in self.orderings:
@@ -756,17 +746,12 @@ class HeisenbergMapper:
                 s_i = magmoms[i]
                 for cs in coupling_graph.get_connected_sites(i):
                     col = self._interaction_label(sub_ids[i], sub_ids[cs[2]], round(cs[-1], DISTANCE_ROUND_DECIMALS))
-                    # Two ways an interaction has no column in row:
-                    # 1. col is None, meaning this
-                    # ordering's geometry has drifted off the parent lattice (a real
-                    # problem, warned about in _interaction_label), or
-                    # 2. col is just not in row, but is a genuine
-                    # interaction that _exchange_columns truncated away because the
-                    # orderings cannot constrain that many parameters (by design).
-                    if col in row:
+                    # col is None if this ordering's geometry has drifted off the parent
+                    # lattice (warned about in _interaction_label).
+                    if col is not None:
                         row[col] -= s_i * magmoms[cs[2]]
 
-            # Extensive sums -> per magnetic ion, with the 1/2 Heisenberg factor for double counting.
+            # Extensive sums -> normalised per magnetic ion, with the 1/2 Heisenberg factor for double counting.
             for c in j_columns:
                 row[c] /= 2 * n_sites
 
@@ -776,8 +761,23 @@ class HeisenbergMapper:
 
         ex_mat = pd.DataFrame(rows, columns=columns)
 
-        # Drop interaction columns that never appear (all zero) to keep H full rank
+        # Drop interaction columns that never appear (all zero) to keep H full rank, before
+        # truncating so they do not use up a slot.
         j_columns = [c for c in j_columns if not (ex_mat[c] == 0).all()]
+
+        # Keep at most n - 1 J_ij for n orderings (E0 is the nth parameter).
+        n_j_max = len(self.orderings) - 1
+        if len(j_columns) > n_j_max:
+            dropped = j_columns[n_j_max:]
+            j_columns = j_columns[:n_j_max]
+            remedy = "Supply more orderings or lower the cutoff." if self.cutoff else "Supply more orderings."
+            warnings.warn(
+                f"{len(self.orderings)} orderings constrain only {n_j_max} exchange interactions; "
+                f"left out of the fit and the interaction graph: {dropped}. {remedy}",
+                UserWarning,
+                # _build_exchange_mat <- __init__ <- caller
+                stacklevel=3,
+            )
 
         # Every ordering is kept: get_exchange fits the parameters by least squares, so
         # surplus orderings average out the noise on the energies instead of being
@@ -832,8 +832,8 @@ class HeisenbergMapper:
         if len(col_names) < 3:
             raise ValueError(
                 f"Exchange matrix holds {len(col_names) - 1} interaction(s) besides E0; a least-squares "
-                "fit needs at least 2. Supply orderings whose nearest-neighbor shell holds more than "
-                "one sublattice pair, or set a cutoff so that further shells are included."
+                "fit needs at least 2. Supply more orderings if interactions were left out of the "
+                "fit, otherwise set a cutoff so that further shells are included."
             )
 
         # Fit E0 and the J_ij to the energies of every ordering
