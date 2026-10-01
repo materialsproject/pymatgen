@@ -296,19 +296,27 @@ class TestHeisenbergMapperKnownHamiltonian:
         assert hm.dists[ab] == approx(0.96, abs=1e-6)
         assert hm.dists[ab.replace("-nn", "-nnn")] == approx(1.04, abs=1e-6)
 
-    def test_bond_is_labelled_with_the_shell_it_was_grouped_into(self):
-        # B at x=0.45 gives A-B bonds of 0.90, 1.10, 1.84 and 1.94 Angstrom. tol=0.95 groups
-        # the first three into one shell and starts the next at 1.94, so 1.84 is nn although
-        # it lies closer to the nnn distance.
+    def test_shells_split_at_gaps_wider_than_tol(self):
+        # B at x=0.45 gives A-B bonds of 0.90, 1.10, 1.84, 1.94, 2.90, 3.10, then 3.312,
+        # 3.324 and 3.384 Angstrom. The last three are 0.012 and 0.060 apart, both within
+        # tol=0.065, so they form one shell although it spans 0.072 > tol. Grouping by
+        # distance to the shell's shortest bond would split 3.384 off on its own.
         parent = self._structure([[1]], [[1]], b_x=0.45)
         structures = [self._structure(*spins, b_x=0.45) for spins in self.ORDERINGS]
         energies = [self._energy(*spins) for spins in self.ORDERINGS]
-        hm = HeisenbergMapper(structures, energies, parent=parent, cutoff=1.95, tol=0.95)
+        with pytest.warns(UserWarning, match="orderings constrain only"):
+            hm = HeisenbergMapper(structures, energies, parent=parent, cutoff=3.45, tol=0.065)
 
         _aa, _bb, ab = self._labels(hm)
-        assert hm.dists[ab.replace("-nn", "-nnn")] == approx(np.hypot(1.1, self.D_AA), abs=1e-6)
         i_id, j_id = map(int, ab.split("-")[:2])
-        assert hm._interaction_label(i_id, j_id, np.hypot(0.9, self.D_AA)) == ab
+        labels = hm.interactions[i_id, j_id]
+        assert len(labels) == 7
+        first, middle, last = np.hypot(2.9, self.D_AA), np.hypot(0.9, 2 * self.D_AA), np.hypot(1.1, 2 * self.D_AA)
+        assert hm.dists[labels[-1]] == approx(first, abs=1e-6)
+        # Every bond is labelled with the shell it was grouped into.
+        for dist in (first, middle, last):
+            assert hm._interaction_label(i_id, j_id, dist) == labels[-1]
+        assert hm._interaction_label(i_id, j_id, np.hypot(1.1, self.D_AA)) == labels[3]
 
     def test_relaxation_does_not_change_the_couplings(self):
         # Every ordering relaxes B off-center, splitting the A-B coupling into 0.9 and
@@ -545,6 +553,26 @@ class TestHeisenbergMapperFullCellSymmetry:
 
         assert len(hm.sublattice_wyckoff_symbols) == 1
         assert all(set(sub_ids) == {0} for sub_ids in hm.sublattice_ids)
+
+    def test_symprec_absorbs_a_distorted_parent(self):
+        # Two Fe mirror images of each other across the O planes at x=0 and x=0.5, as in
+        # a paramagnetic parent. Moving one Fe by 0.03 Angstrom, as relaxation in an
+        # antiferromagnetic state can, breaks the mirror at the default symprec=0.01 and
+        # splits the Fe into two sublattices; symprec=0.1 recovers the parent's one.
+        def ordering(spins):
+            coords = [[0.2, 0.0, 0.0], [0.805, 0.0, 0.0], [0.0, 0.0, 0.0], [0.5, 0.0, 0.0]]
+            magmoms = [*spins, 0.0, 0.0]
+            return Structure(self.lattice, ["Fe", "Fe", "O", "O"], coords, site_properties={"magmom": magmoms})
+
+        structures = [ordering([3, 3]), ordering([3, -3])]
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")  # the inferred parent; not what is tested here
+            split = HeisenbergMapper(structures, [-10.0, -9.0])
+            merged = HeisenbergMapper(structures, [-10.0, -9.0], symprec=0.1)
+
+        assert len(split.sublattice_wyckoff_symbols) == 2
+        assert len(merged.sublattice_wyckoff_symbols) == 1
+        assert merged.parent.symprec == 0.1
 
 
 class TestHeisenbergMapperZeroMomentIon:

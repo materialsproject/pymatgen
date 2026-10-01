@@ -89,10 +89,15 @@ __date__ = "July 2026"
 
 logger = logging.getLogger(__name__)
 
-# Tolerance (Angstrom) within which two coupling distances count as the same shell. Shells
-# are read off the parent, where symmetry-equivalent couplings have identical lengths, so
-# tol only has to separate genuinely distinct distances.
+# Gap (Angstrom) between consecutive coupling lengths of a sublattice pair above which they
+# are different shells. Shells are read off the parent, so only its own spread matters: none
+# for an ideal parent, and little for one relaxed with its symmetry kept (e.g. ferromagnetic).
 DEFAULT_TOL = 0.02
+
+# Symmetry tolerance (Angstrom) for finding the parent's sublattices, as in SpacegroupAnalyzer.
+# A parent relaxed in an antiferromagnetic state can be distorted beyond it, which splits
+# sublattices that are equivalent in the paramagnetic phase.
+DEFAULT_SYMPREC = 0.01
 
 
 def _analyzer(structure: Structure, **kwargs) -> CollinearMagneticStructureAnalyzer:
@@ -296,14 +301,16 @@ class ParentOrdering(MagneticOrdering):
         magn_species: set[str],
         cutoff: float = 0,
         tol: float = DEFAULT_TOL,
+        symprec: float = DEFAULT_SYMPREC,
     ):
         # Strip the moments *before* super().__init__, so the structure this ordering keeps
         # is the one its substructure and graph get derived from.
         super().__init__(self._nonmagnetic(structure), magn_species, cutoff, tol)
+        self.symprec = symprec
         self.set_sublattice_ids()
 
     def set_sublattice_ids(self):
-        symmetrized_parent = SpacegroupAnalyzer(self.structure).get_symmetrized_structure()
+        symmetrized_parent = SpacegroupAnalyzer(self.structure, symprec=self.symprec).get_symmetrized_structure()
 
         # Full-cell ids, None on the nonmagnetic sites. These exist to be stamped as a site
         # property, which is how the labels reach each RelaxedOrdering via structure matching.
@@ -433,7 +440,15 @@ class HeisenbergMapper:
             eV per magnetic ion. get_interaction_graph carries the per-bond J_ij in meV.
     """
 
-    def __init__(self, ordered_structures, energies, parent=None, cutoff=0, tol: float = DEFAULT_TOL):
+    def __init__(
+        self,
+        ordered_structures,
+        energies,
+        parent=None,
+        cutoff=0,
+        tol: float = DEFAULT_TOL,
+        symprec: float = DEFAULT_SYMPREC,
+    ):
         """Exchange parameters are computed by mapping to a classical Heisenberg
         model. n+1 unique orderings are required to compute n exchange parameters.
 
@@ -461,8 +476,15 @@ class HeisenbergMapper:
             cutoff (float): Cutoff in Angstrom for the bond search. Defaults to 0,
                 which keeps the nearest shell of every sublattice pair; with a cutoff,
                 every bond up to it is kept.
-            tol (float): Bond lengths of a sublattice pair within tol (Angstrom) of a
-                shell's shortest bond belong to that shell.
+            tol (float): Bond lengths of a sublattice pair are split into shells
+                wherever two consecutive lengths are more than tol (Angstrom) apart.
+                Defaults to 0.02.
+            symprec (float): Symmetry tolerance (Angstrom) used to find the parent's
+                sublattices. Defaults to 0.01, as in SpacegroupAnalyzer. A parent
+                relaxed in an antiferromagnetic state (as some Materials Project
+                ground states are) can be distorted by more than that, which splits
+                sublattices that are equivalent above the ordering temperature. Raise
+                symprec, or pass a symmetrized parent, if the sublattices come out split.
         """
         if parent is not None and not isinstance(parent, Structure):
             raise TypeError(
@@ -478,6 +500,7 @@ class HeisenbergMapper:
 
         self.cutoff = cutoff
         self.tol = tol
+        self.symprec = symprec
 
         # These attributes are set by internal methods, listed here for clarity.
         self.orderings = self.parent = None  # set by _initialize_orderings
@@ -555,6 +578,7 @@ class HeisenbergMapper:
             magn_species,
             cutoff=self.cutoff,
             tol=self.tol,
+            symprec=self.symprec,
         )
 
         # The parent cell defines the sublattices; label every magnetic site in every
@@ -625,8 +649,9 @@ class HeisenbergMapper:
         """Return the J label of a coupling: the shell of its sublattice pair that dist falls in.
 
         Every coupling graph is built on the parent geometry (see ideal_magnetic_structure),
-        so dist is one of the parent's own distances up to float noise. It belongs to the last
-        shell starting at or below it, the rule _set_interactions grouped it by.
+        so dist is one of the parent's own distances up to float noise. _set_interactions
+        splits those distances into consecutive ranges, so dist belongs to the last shell
+        starting at or below it.
 
         Args:
             i_id (int): sublattice id of the ith site
@@ -660,8 +685,9 @@ class HeisenbergMapper:
 
         With cutoff=0 the parent graph holds the nearest shell of every sublattice pair (see
         SublatticeMinimumDistanceNN); with cutoff > 0 every bond up to the cutoff. Either way a
-        pair's bond lengths are grouped into shells: a bond within tol of the current shell's
-        shortest bond joins it, a longer one starts the next shell.
+        pair's sorted bond lengths are split into shells wherever two consecutive lengths are
+        more than tol apart. The grouping is thus symmetric and does not depend on which bond
+        a shell starts from; a shell can span more than tol if its bonds are spaced by less.
 
         Distances and connectivity are read from the parent ordering; see
         _initialize_orderings() for how the parent is defined and how the sublattices are
@@ -684,13 +710,14 @@ class HeisenbergMapper:
         self.interactions = {}
         for pair, dists in sorted(pair_dists.items()):
             labels = []
+            previous = None
             for dist in sorted(dists):
-                # The shortest bond names the shell.
-                if labels and dist - self.dists[labels[-1]] <= self.tol:
-                    continue
-                label = f"{pair[0]}-{pair[1]}-{'n' * (len(labels) + 2)}"
-                self.dists[label] = dist
-                labels.append(label)
+                # A gap of more than tol to the previous bond starts a shell, named by its shortest bond.
+                if previous is None or dist - previous > self.tol:
+                    label = f"{pair[0]}-{pair[1]}-{'n' * (len(labels) + 2)}"
+                    self.dists[label] = dist
+                    labels.append(label)
+                previous = dist
             self.interactions[pair] = labels
 
     def _build_exchange_mat(self):
@@ -1118,6 +1145,7 @@ class HeisenbergMapper:
             energies_per_magnetic_ion=self.energies_per_magnetic_ion,
             cutoff=self.cutoff,
             tol=self.tol,
+            symprec=self.symprec,
             coupling_graphs=self.coupling_graphs,
             sublattice_ids=self.sublattice_ids,
             sublattice_wyckoff_symbols=self.sublattice_wyckoff_symbols,
@@ -1222,6 +1250,7 @@ class HeisenbergModel(MSONable):
         energies_per_magnetic_ion=None,
         cutoff=None,
         tol=None,
+        symprec=None,
         coupling_graphs=None,
         sublattice_ids=None,
         sublattice_wyckoff_symbols=None,
@@ -1243,7 +1272,8 @@ class HeisenbergModel(MSONable):
             energies_per_magnetic_ion (list): Energy per magnetic ion (eV) of each relaxed
                 magnetic structure, the energies the exchange parameters were fitted to.
             cutoff (float): Cutoff in Angstrom for nearest neighbor search.
-            tol (float): Tolerance (in Angstrom) on bond lengths being in the same shell.
+            tol (float): Gap (Angstrom) between consecutive bond lengths that separates shells.
+            symprec (float): Symmetry tolerance (Angstrom) the parent's sublattices were found with.
             coupling_graphs (list): Coupling graph of each ordering, built on its magnetic
                 sites at the parent's positions.
             sublattice_ids (list[list[int]]): sublattice_ids[k][i] is the sublattice id of
@@ -1268,6 +1298,7 @@ class HeisenbergModel(MSONable):
         self.energies_per_magnetic_ion = energies_per_magnetic_ion
         self.cutoff = cutoff
         self.tol = tol
+        self.symprec = symprec
         self.coupling_graphs = coupling_graphs
         self.sublattice_ids = sublattice_ids
         self.sublattice_wyckoff_symbols = sublattice_wyckoff_symbols
@@ -1291,6 +1322,7 @@ class HeisenbergModel(MSONable):
             "energies_per_magnetic_ion": self.energies_per_magnetic_ion,
             "cutoff": self.cutoff,
             "tol": self.tol,
+            "symprec": self.symprec,
             "coupling_graphs": [coupling_graph.as_dict() for coupling_graph in self.coupling_graphs],
             "sublattice_ids": self.sublattice_ids,
             "dists": self.dists,
@@ -1345,6 +1377,7 @@ class HeisenbergModel(MSONable):
             energies_per_magnetic_ion=dct["energies_per_magnetic_ion"],
             cutoff=dct["cutoff"],
             tol=dct["tol"],
+            symprec=dct["symprec"],
             coupling_graphs=coupling_graphs,
             sublattice_ids=dct["sublattice_ids"],
             sublattice_wyckoff_symbols=sublattice_wyckoff_symbols,
