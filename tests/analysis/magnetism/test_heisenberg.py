@@ -41,7 +41,7 @@ class TestHeisenbergMapperKnownHamiltonian:
     of 2, 4 and 8 sites.
 
     Total energies are assigned from E = N * e0 - sum_<ij> J_ab s_i s_j, evaluated
-    over explicit lattice vectors rather than over the mapper's own neighbor graph,
+    over explicit lattice vectors rather than over the mapper's own coupling graph,
     so the topology is ground truth here and not something the test borrows back
     from the code under test.
     """
@@ -323,9 +323,9 @@ class TestHeisenbergMapperKnownHamiltonian:
         # catchable UserWarning rather than a log line.
         hm = self._mapper()
         _aa, _bb, ab = self._labels(hm)
-        del hm.nn_interactions[(0, 1)]
+        del hm.interactions[(0, 1)]
 
-        with pytest.warns(UserWarning, match="does not appear in nn_interactions"):
+        with pytest.warns(UserWarning, match="does not appear in interactions"):
             assert hm._interaction_label(0, 1, hm.dists[ab]) is None
 
     def test_inferred_parent_warns(self):
@@ -421,7 +421,7 @@ class TestHeisenbergMeanFieldTemperature:
         # One interaction cannot constrain E0 and a J at once, so there is nothing for
         # the least-squares fit to solve and the mapper must say so rather than guess.
         hm = self._mapper(0.010)
-        assert len(hm.nn_interactions) == 1
+        assert len(hm.interactions) == 1
 
         with pytest.raises(ValueError, match="needs at least 2"):
             hm.get_exchange()

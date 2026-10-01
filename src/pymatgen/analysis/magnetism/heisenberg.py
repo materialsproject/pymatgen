@@ -17,8 +17,11 @@ different supercells can be fitted together. This changed the public surface:
   infers it from the lowest-energy ordering and warns.
 * ``sgraphs`` is gone. Each ordering is now a :class:`RelaxedOrdering` in
   ``mapper.orderings``, carrying its own ``structure``, ``magnetic_structure``,
-  ``energy`` and ``nn_graph``; ``mapper.nn_graphs`` gives the list of graphs.
+  ``energy`` and ``coupling_graph``; ``mapper.coupling_graphs`` gives the list of graphs.
   Note these are built on the magnetic-only structure, not the full one.
+* ``nn_interactions`` is now ``interactions`` and maps each sublattice pair
+  ``(i, j)`` to its J labels (``'<i>-<j>-nn'``, ``'<i>-<j>-nnn'``, ...), instead
+  of mapping ``'nn'``/``'nnn'``/``'nnnn'`` to site pairs.
 * ``unique_site_ids`` and ``wyckoff_ids`` are gone. Sublattices are now the
   symmetry orbits of the parent: ``mapper.sublattice_ids`` labels the magnetic
   sites of each ordering and ``mapper.sublattice_wyckoff_symbols`` maps a
@@ -178,7 +181,7 @@ class MagneticOrdering(ABC):
     """A single collinear magnetic configuration on a common parent lattice.
 
     Base class holding one ordering's structure, its magnetic-only reduction,
-    its NN graph, and the parent-sublattice labels of its magnetic sites.
+    its coupling graph, and the parent-sublattice labels of its magnetic sites.
     """
 
     def __init__(
@@ -203,7 +206,7 @@ class MagneticOrdering(ABC):
 
     @cached_property
     def magnetic_structure(self) -> Structure:
-        """Magnetic-only cell. nn_graph and sublattice_ids are both indexed against this.
+        """Magnetic-only cell. coupling_graph and sublattice_ids are both indexed against this.
 
         Membership is decided by *species*, not by moment, using the magnetic species
         pooled over every ordering (see ``HeisenbergMapper._initialize_orderings``). A
@@ -238,8 +241,9 @@ class MagneticOrdering(ABC):
         return {site.specie.symbol for site in magnetic}
 
     @cached_property
-    def nn_graph(self) -> StructureGraph:
-        """NN StructureGraph of the magnetic-only structure.
+    def coupling_graph(self) -> StructureGraph:
+        """Coupling graph of the magnetic-only structure: an edge for every pair of sites
+        whose exchange coupling enters the Heisenberg model.
 
         If self.cutoff is set, the graph includes all neighbors within that distance.
         Otherwise each site keeps the nearest shell of every sublattice pair it takes part
@@ -251,7 +255,7 @@ class MagneticOrdering(ABC):
         else:
             # Cached, so a graph built before the labels exist would be silently wrong.
             if not self.sublattice_ids:
-                raise ValueError("Sublattice ids must be set before the nearest-neighbor graph is built.")
+                raise ValueError("Sublattice ids must be set before the coupling graph is built.")
             strategy = SublatticeMinimumDistanceNN(self.sublattice_ids)
         return StructureGraph.from_local_env_strategy(self.magnetic_structure, strategy=strategy)
 
@@ -260,7 +264,7 @@ class MagneticOrdering(ABC):
         """
         Sets the following attributes for this ordering:
             - `self.sublattice_ids` = [sublattice id for each *magnetic* site], aligned with
-              `self.magnetic_structure` and hence with `self.nn_graph`. Nonmagnetic sites are
+              `self.magnetic_structure` and hence with `self.coupling_graph`. Nonmagnetic sites are
               not represented at all, so these are always plain ints - never None.
             - `self.sublattice_wyckoff_symbols` = {sublattice id: wyckoff symbol}
 
@@ -415,10 +419,10 @@ class HeisenbergMapper:
 
     Attributes:
         orderings (list[RelaxedOrdering]): The screened orderings, sorted by energy per
-            magnetic ion. Each owns its magnetic-only structure, its NN graph and its
+            magnetic ion. Each owns its magnetic-only structure, its coupling graph and its
             parent-sublattice labels.
         parent (ParentOrdering): Nonmagnetic parent cell that defines the sublattices.
-        nn_interactions (dict): {(i, j): [J label, ...]} - the distinct interactions of
+        interactions (dict): {(i, j): [J label, ...]} - the distinct interactions of
             each sublattice pair, ordered from the nearest shell outwards.
         dists (dict): {J label: interaction distance in Angstrom}.
         ex_mat (DataFrame): Heisenberg Hamiltonian (per magnetic ion) for each ordering.
@@ -481,7 +485,7 @@ class HeisenbergMapper:
 
         # These attributes are set by internal methods, listed here for clarity.
         self.orderings = self.parent = None  # set by _initialize_orderings
-        self.nn_interactions = self.dists = None  # set by _set_interactions
+        self.interactions = self.dists = None  # set by _set_interactions
         self.ex_mat = self.ex_params = self.residual = None  # set by _build_exchange_mat and get_exchange
 
         self._initialize_orderings(ordered_structures, energies, parent)
@@ -503,7 +507,7 @@ class HeisenbergMapper:
         This function does:
          - Build a set of magnetic species pooled over all orderings.
          - Build a RelaxedOrdering for each ordering, with its magnetic-only structure and
-           NN graph. Since the parent is not yet known, the sublattice ids are not set yet.
+           coupling graph. Since the parent is not yet known, the sublattice ids are not set yet.
          - Drop duplicate/degenerate orderings and sort by energy per magnetic ion using
            HeisenbergScreener.
          - Build the ParentOrdering from the lowest-energy ordering (or the explicit parent
@@ -587,9 +591,9 @@ class HeisenbergMapper:
         return [ordering.energy_per_magnetic_ion for ordering in self.orderings]
 
     @property
-    def nn_graphs(self):
-        """list[StructureGraph]: NN graph of each ordering's magnetic-only structure."""
-        return [ordering.nn_graph for ordering in self.orderings]
+    def coupling_graphs(self):
+        """list[StructureGraph]: Coupling graph of each ordering's magnetic-only structure."""
+        return [ordering.coupling_graph for ordering in self.orderings]
 
     @property
     def sublattice_ids(self):
@@ -599,9 +603,9 @@ class HeisenbergMapper:
         return [ordering.sublattice_ids for ordering in self.orderings]
 
     @property
-    def parent_nn_graph(self):
-        """StructureGraph: NN graph of the magnetic-only parent structure."""
-        return self.parent.nn_graph
+    def parent_coupling_graph(self):
+        """StructureGraph: Coupling graph of the magnetic-only parent structure."""
+        return self.parent.coupling_graph
 
     @property
     def parent_sublattice_ids(self):
@@ -656,13 +660,13 @@ class HeisenbergMapper:
         Returns:
             str | None: '<i>-<j>-<shell>' label, e.g. '0-1-nn'.
         """
-        labels = self.nn_interactions.get(self._order_sublattice_ids(i_id, j_id), ())
+        labels = self.interactions.get(self._order_sublattice_ids(i_id, j_id), ())
         if not labels:
             # A UserWarning like the fit's other warnings: the bond is dropped from the fit and
             # the interaction graph, so callers must be able to catch or escalate it.
             warnings.warn(
                 f"Sublattices {i_id} and {j_id} interact at {dist:.2f} Angstrom but the pair "
-                f"does not appear in nn_interactions built from the parent:\n{self.nn_interactions}\n"
+                f"does not appear in interactions built from the parent:\n{self.interactions}\n"
                 "The bond is left out of the fit; the ordering has likely drifted off the parent lattice.",
                 UserWarning,
                 stacklevel=2,
@@ -672,7 +676,7 @@ class HeisenbergMapper:
         return min(labels, key=lambda label: abs(dist - self.dists[label]))
 
     def _set_interactions(self):
-        """Set self.dists and self.nn_interactions describing the distinct interactions.
+        """Set self.dists and self.interactions describing the distinct interactions.
 
         An interaction is a (sublattice pair, neighbor shell) combination, labelled
         '<i>-<j>-<shell>' with i <= j and shell one of 'nn', 'nnn', 'nnnn', ... Shells are
@@ -691,19 +695,19 @@ class HeisenbergMapper:
         from the magnetic-only parent structure - the nonmagnetic ions are ignored for the
         graph, but kept in the parent structure to preserve the true site symmetry.
         """
-        nn_graph = self.parent.nn_graph
+        coupling_graph = self.parent.coupling_graph
         sub_ids = self.parent.sublattice_ids
 
         # Distinct interaction distances of each sublattice pair. Every site is visited, since
         # with cutoff=0 the two ends of an interaction need not both count it as a nearest neighbor.
         pair_dists: dict[tuple[int, int], set[float]] = {}
-        for i in range(len(nn_graph)):
-            for cs in nn_graph.get_connected_sites(i):
+        for i in range(len(coupling_graph)):
+            for cs in coupling_graph.get_connected_sites(i):
                 pair = self._order_sublattice_ids(sub_ids[i], sub_ids[cs[2]])
                 pair_dists.setdefault(pair, set()).add(round(cs[-1], DISTANCE_ROUND_DECIMALS))
 
         self.dists = {}
-        self.nn_interactions = {}
+        self.interactions = {}
         for pair, dists in sorted(pair_dists.items()):
             labels = []
             for dist in sorted(dists):
@@ -713,7 +717,7 @@ class HeisenbergMapper:
                 label = f"{pair[0]}-{pair[1]}-{'n' * (len(labels) + 2)}"
                 self.dists[label] = dist
                 labels.append(label)
-            self.nn_interactions[pair] = labels
+            self.interactions[pair] = labels
 
     def _exchange_columns(self):
         """Column labels for the exchange matrix: 'E', 'E0' then one per J_ij.
@@ -742,15 +746,15 @@ class HeisenbergMapper:
 
         rows = []
         for ordering in self.orderings:
-            nn_graph = ordering.nn_graph
+            coupling_graph = ordering.coupling_graph
             sub_ids = ordering.sublattice_ids
-            magmoms = nn_graph.structure.site_properties["magmom"]
-            n_sites = len(nn_graph.structure)
+            magmoms = coupling_graph.structure.site_properties["magmom"]
+            n_sites = len(coupling_graph.structure)
 
             row = dict.fromkeys(columns, 0.0)
-            for i in range(len(nn_graph.graph.nodes)):
+            for i in range(len(coupling_graph.graph.nodes)):
                 s_i = magmoms[i]
-                for cs in nn_graph.get_connected_sites(i):
+                for cs in coupling_graph.get_connected_sites(i):
                     col = self._interaction_label(sub_ids[i], sub_ids[cs[2]], round(cs[-1], DISTANCE_ROUND_DECIMALS))
                     # Two ways an interaction has no column in row:
                     # 1. col is None, meaning this
@@ -1074,7 +1078,7 @@ class HeisenbergMapper:
 
         ordering = self.orderings[ordering_index]
         structure = ordering.magnetic_structure
-        nn_graph = ordering.nn_graph
+        coupling_graph = ordering.coupling_graph
         magmoms = structure.site_properties["magmom"]
         sub_ids = ordering.sublattice_ids
 
@@ -1083,8 +1087,8 @@ class HeisenbergMapper:
         )
 
         # J_ij exchange interaction matrix
-        for i in range(len(nn_graph.graph.nodes)):
-            for c in nn_graph.get_connected_sites(i):
+        for i in range(len(coupling_graph.graph.nodes)):
+            for c in coupling_graph.get_connected_sites(i):
                 jimage = c[1]  # relative integer coordinates of atom j
                 j = c[2]  # index of neighbor
                 j_exc = self._get_j_exc(sub_ids[i], sub_ids[j], c[-1])
@@ -1140,10 +1144,10 @@ class HeisenbergMapper:
             energies_per_magnetic_ion=self.energies_per_magnetic_ion,
             cutoff=self.cutoff,
             tol=self.tol,
-            nn_graphs=self.nn_graphs,
+            coupling_graphs=self.coupling_graphs,
             sublattice_ids=self.sublattice_ids,
             sublattice_wyckoff_symbols=self.sublattice_wyckoff_symbols,
-            nn_interactions=self.nn_interactions,
+            interactions=self.interactions,
             dists=self.dists,
             ex_mat=self.ex_mat,
             ex_params=ex_params,
@@ -1244,10 +1248,10 @@ class HeisenbergModel(MSONable):
         energies_per_magnetic_ion=None,
         cutoff=None,
         tol=None,
-        nn_graphs=None,
+        coupling_graphs=None,
         sublattice_ids=None,
         sublattice_wyckoff_symbols=None,
-        nn_interactions=None,
+        interactions=None,
         dists=None,
         ex_mat=None,
         ex_params=None,
@@ -1258,18 +1262,18 @@ class HeisenbergModel(MSONable):
         Args:
             formula (str): Reduced formula of compound.
             structures (list): Each ordering with all ions retained, with magmoms.
-            magnetic_structures (list): Magnetic-only cell of each ordering. nn_graphs and
+            magnetic_structures (list): Magnetic-only cell of each ordering. coupling_graphs and
                 sublattice_ids are indexed against these, not against structures.
             energies (list): Total energy (eV) of each relaxed magnetic structure.
             energies_per_magnetic_ion (list): Energy per magnetic ion (eV) of each relaxed
                 magnetic structure, the energies the exchange parameters were fitted to.
             cutoff (float): Cutoff in Angstrom for nearest neighbor search.
             tol (float): Tolerance (in Angstrom) on nearest neighbor distances being equal.
-            nn_graphs (list): StructureGraph objects.
+            coupling_graphs (list): StructureGraph objects.
             sublattice_ids (list[list[int]]): sublattice_ids[k][i] is the sublattice id of
                 site i in ordering k.
             sublattice_wyckoff_symbols (dict): Maps each sublattice id to its wyckoff symbol.
-            nn_interactions (dict): {(i, j): [J label, ...]} - the distinct interactions
+            interactions (dict): {(i, j): [J label, ...]} - the distinct interactions
                 of each sublattice pair, ordered from the nearest shell outwards.
             dists (dict): {J label: interaction distance in Angstrom}.
             ex_mat (DataFrame): Heisenberg Hamiltonian (per magnetic ion) for each ordering.
@@ -1288,10 +1292,10 @@ class HeisenbergModel(MSONable):
         self.energies_per_magnetic_ion = energies_per_magnetic_ion
         self.cutoff = cutoff
         self.tol = tol
-        self.nn_graphs = nn_graphs
+        self.coupling_graphs = coupling_graphs
         self.sublattice_ids = sublattice_ids
         self.sublattice_wyckoff_symbols = sublattice_wyckoff_symbols
-        self.nn_interactions = nn_interactions
+        self.interactions = interactions
         self.dists = dists
         self.ex_mat = ex_mat
         self.ex_params = ex_params
@@ -1311,7 +1315,7 @@ class HeisenbergModel(MSONable):
             "energies_per_magnetic_ion": self.energies_per_magnetic_ion,
             "cutoff": self.cutoff,
             "tol": self.tol,
-            "nn_graphs": [nn_graph.as_dict() for nn_graph in self.nn_graphs],
+            "coupling_graphs": [coupling_graph.as_dict() for coupling_graph in self.coupling_graphs],
             "sublattice_ids": self.sublattice_ids,
             "dists": self.dists,
             "ex_params": self.ex_params,
@@ -1319,7 +1323,7 @@ class HeisenbergModel(MSONable):
             "igraph": self.igraph.as_dict(),
             # Sanitize int keys / DataFrame
             "ex_mat": jsanitize(self.ex_mat.to_dict()),
-            "nn_interactions": jsanitize(self.nn_interactions),
+            "interactions": jsanitize(self.interactions),
             "sublattice_wyckoff_symbols": jsanitize(self.sublattice_wyckoff_symbols),
         }
 
@@ -1337,12 +1341,12 @@ class HeisenbergModel(MSONable):
             )
 
         # Reconstitute the tuple/int-keyed dicts that jsanitize stringified
-        nn_interactions = {literal_eval(pair): labels for pair, labels in dct["nn_interactions"].items()}
+        interactions = {literal_eval(pair): labels for pair, labels in dct["interactions"].items()}
         sublattice_wyckoff_symbols = {literal_eval(k): v for k, v in dct["sublattice_wyckoff_symbols"].items()}
 
         structures = [Structure.from_dict(v) for v in dct["structures"]]
         magnetic_structures = [Structure.from_dict(v) for v in dct["magnetic_structures"]]
-        nn_graphs = [StructureGraph.from_dict(v) for v in dct["nn_graphs"]]
+        coupling_graphs = [StructureGraph.from_dict(v) for v in dct["coupling_graphs"]]
         igraph = StructureGraph.from_dict(dct["igraph"])
 
         # Reconstitute the exchange matrix DataFrame. as_dict() calls .to_dict() on it,
@@ -1365,10 +1369,10 @@ class HeisenbergModel(MSONable):
             energies_per_magnetic_ion=dct["energies_per_magnetic_ion"],
             cutoff=dct["cutoff"],
             tol=dct["tol"],
-            nn_graphs=nn_graphs,
+            coupling_graphs=coupling_graphs,
             sublattice_ids=dct["sublattice_ids"],
             sublattice_wyckoff_symbols=sublattice_wyckoff_symbols,
-            nn_interactions=nn_interactions,
+            interactions=interactions,
             dists=dct["dists"],
             ex_mat=ex_mat,
             ex_params=dct["ex_params"],
