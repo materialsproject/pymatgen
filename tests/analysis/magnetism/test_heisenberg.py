@@ -65,7 +65,8 @@ class TestHeisenbergMapperKnownHamiltonian:
     )
 
     @classmethod
-    def _structure(cls, spins_a, spins_b):
+    def _structure(cls, spins_a, spins_b, b_x=0.5):
+        # b_x: fractional x of B within each column pair; off 0.5 it splits the A-B bond.
         spins_a = np.atleast_2d(np.asarray(spins_a, dtype=float))
         spins_b = np.atleast_2d(np.asarray(spins_b, dtype=float))
         n_y, n_x = spins_a.shape
@@ -74,7 +75,7 @@ class TestHeisenbergMapperKnownHamiltonian:
         for y in range(n_y):
             for x in range(n_x):
                 species += [cls.A, cls.B]
-                coords += [[x / n_x, y / n_y, 0.5], [(x + 0.5) / n_x, y / n_y, 0.5]]
+                coords += [[x / n_x, y / n_y, 0.5], [(x + b_x) / n_x, y / n_y, 0.5]]
                 magmoms += [spins_a[y, x], spins_b[y, x]]
         return Structure(lattice, species, coords, site_properties={"magmom": magmoms})
 
@@ -98,7 +99,7 @@ class TestHeisenbergMapperKnownHamiltonian:
     def _mapper(self):
         structures = [self._structure(*spins) for spins in self.ORDERINGS]
         energies = [self._energy(*spins) for spins in self.ORDERINGS]
-        return HeisenbergMapper(structures, energies, tol=0.02)
+        return HeisenbergMapper(structures, energies)
 
     @staticmethod
     def _labels(hm):
@@ -142,7 +143,7 @@ class TestHeisenbergMapperKnownHamiltonian:
         structures = [self._structure(*spins) for spins in orderings]
         energies = [self._energy(*spins) for spins in orderings]
         energies[0] += 0.05  # eV, on the 2-ion FM cell
-        hm = HeisenbergMapper(structures, energies, tol=0.02)
+        hm = HeisenbergMapper(structures, energies)
 
         ex_params, residual = hm.get_exchange()
         assert residual > 0
@@ -168,7 +169,7 @@ class TestHeisenbergMapperKnownHamiltonian:
         energies = [self._energy(*spins) for spins in orderings]
         energies[-1] += 0.05  # eV of non-Heisenberg energy, on the 2-ion cell
 
-        hm = HeisenbergMapper(structures, energies, tol=0.02)
+        hm = HeisenbergMapper(structures, energies)
         assert len(hm.ex_mat) == len(orderings)  # every ordering has a row
         assert hm.ex_mat.drop(columns="E").round(10).duplicated().any()  # and one is a repeat
 
@@ -197,7 +198,7 @@ class TestHeisenbergMapperKnownHamiltonian:
         orderings = [*self.ORDERINGS, ([[1, 1], [1, 1]], [[1, 1], [1, 1]])]  # the FM ordering again, 2x2
         structures = [self._structure(*spins) for spins in orderings]
         energies = [self._energy(*spins) for spins in orderings]
-        hm = HeisenbergMapper(structures, energies, tol=0.02)
+        hm = HeisenbergMapper(structures, energies)
 
         assert len(hm.orderings) == len(self.ORDERINGS)  # the duplicate was dropped
         # sorted by energy per magnetic ion, ground state first; the total energies of cells
@@ -283,6 +284,68 @@ class TestHeisenbergMapperKnownHamiltonian:
         assert hm.dists[ab] == approx(self.D_AB, abs=0.01)
         assert hm.dists[aa] == hm.dists[bb] == approx(self.D_AA, abs=0.01)
 
+    def test_without_cutoff_tol_still_splits_shells(self):
+        # Moving B off-center splits the A-B bond into 0.96 and 1.04 Angstrom. Both lie in
+        # the nearest shell of the pair, but they differ by more than tol, so they are two
+        # interactions even without a cutoff.
+        structures = [self._structure(*spins, b_x=0.48) for spins in self.ORDERINGS]
+        energies = [self._energy(*spins) for spins in self.ORDERINGS]
+        hm = HeisenbergMapper(structures, energies, tol=0.05)
+
+        _aa, _bb, ab = self._labels(hm)
+        assert hm.dists[ab] == approx(0.96, abs=1e-6)
+        assert hm.dists[ab.replace("-nn", "-nnn")] == approx(1.04, abs=1e-6)
+
+    def test_bond_is_labelled_with_the_shell_it_was_grouped_into(self):
+        # B at x=0.45 gives A-B bonds of 0.90, 1.10, 1.84 and 1.94 Angstrom. tol=0.95 groups
+        # the first three into one shell and starts the next at 1.94, so 1.84 is nn although
+        # it lies closer to the nnn distance.
+        parent = self._structure([[1]], [[1]], b_x=0.45)
+        structures = [self._structure(*spins, b_x=0.45) for spins in self.ORDERINGS]
+        energies = [self._energy(*spins) for spins in self.ORDERINGS]
+        hm = HeisenbergMapper(structures, energies, parent=parent, cutoff=1.95, tol=0.95)
+
+        _aa, _bb, ab = self._labels(hm)
+        assert hm.dists[ab.replace("-nn", "-nnn")] == approx(np.hypot(1.1, self.D_AA), abs=1e-6)
+        i_id, j_id = map(int, ab.split("-")[:2])
+        assert hm._interaction_label(i_id, j_id, np.hypot(0.9, self.D_AA)) == ab
+
+    def test_relaxation_does_not_change_the_couplings(self):
+        # Every ordering relaxes B off-center, splitting the A-B coupling into 0.9 and
+        # 1.1 Angstrom. On the relaxed cells 1.1 falls outside the 10% nearest-shell
+        # window and half the A-B couplings would drop out of every row. Built on the
+        # parent geometry, the couplings stay those of the parent and the fit is exact.
+        parent = self._structure([[1]], [[1]])
+        structures = [self._structure(*spins, b_x=0.45) for spins in self.ORDERINGS]
+        energies = [self._energy(*spins) for spins in self.ORDERINGS]
+        hm = HeisenbergMapper(structures, energies, parent=parent)
+
+        aa, bb, ab = self._labels(hm)
+        assert hm.dists[ab] == approx(self.D_AB, abs=1e-6)
+        ex_params, residual = hm.get_exchange()
+        assert ex_params[ab] == approx(self.J_AB * 1000, abs=1e-6)
+        assert ex_params[aa] == approx(self.J_AA * 1000, abs=1e-6)
+        assert ex_params[bb] == approx(self.J_BB * 1000, abs=1e-6)
+        assert residual == approx(0, abs=1e-9)
+
+    def test_cutoff_groups_bonds_into_shells_by_tol(self):
+        # Up to 2.1 Angstrom each pair has two bond lengths: A-B at 1.0 and 1.89, A-A and
+        # B-B at 1.6 (chains) and 2.0 (along x). tol decides whether those are two shells.
+        structures = [self._structure(*spins) for spins in self.ORDERINGS]
+        energies = [self._energy(*spins) for spins in self.ORDERINGS]
+
+        hm = HeisenbergMapper(structures, energies, cutoff=2.1, tol=0.05)
+        aa, _bb, ab = self._labels(hm)
+        aa_nnn, ab_nnn = aa.replace("-nn", "-nnn"), ab.replace("-nn", "-nnn")
+        assert hm.dists[ab_nnn] == approx(np.hypot(self.D_AB, self.D_AA), abs=1e-6)
+        assert hm.dists[aa_nnn] == approx(2 * self.D_AB, abs=1e-6)
+
+        # 2.0 - 1.6 = 0.4 is within tol=0.5, so the A-A bonds merge into one shell; the
+        # A-B bonds are 0.89 apart and stay separate.
+        hm = HeisenbergMapper(structures, energies, cutoff=2.1, tol=0.5)
+        assert aa_nnn not in hm.dists
+        assert ab_nnn in hm.dists
+
     def test_interaction_graph_consistent_across_orderings(self):
         # The fitted J_ij must be recoverable from the interaction graph of any
         # ordering, not just the first, even though the orderings live in
@@ -306,14 +369,14 @@ class TestHeisenbergMapperKnownHamiltonian:
         structures = [self._structure(*self.ORDERINGS[0]), self._structure(*self.ORDERINGS[1]), triangular]
         energies = [self._energy(*self.ORDERINGS[0]), self._energy(*self.ORDERINGS[1]), -5.0]
         with pytest.raises(ValueError, match="parent cell"):
-            HeisenbergMapper(structures, energies, tol=0.02)
+            HeisenbergMapper(structures, energies)
 
     def test_too_few_orderings_raises_value_error(self):
         # ValueError, not SystemExit: an unusable input must not tear down the
         # interpreter session the mapper is being called from.
         structures = [self._structure(*self.ORDERINGS[0])]
         with pytest.raises(ValueError, match="at least 2 unique orderings"):
-            HeisenbergMapper(structures, [self._energy(*self.ORDERINGS[0])], tol=0.02)
+            HeisenbergMapper(structures, [self._energy(*self.ORDERINGS[0])])
 
     def test_non_structure_parent_raises_clear_error(self):
         # parent moved to third position when this class was refactored (was
@@ -325,36 +388,32 @@ class TestHeisenbergMapperKnownHamiltonian:
         with pytest.raises(TypeError, match="parent must be a Structure"):
             HeisenbergMapper(structures, energies, 5.0)
 
-    def test_tol_below_rounding_resolution_raises(self):
-        # Distances are rounded to 0.01 Angstrom before shells are compared, so a finer
-        # tol would silently have no effect.
-        structures = [self._structure(*spins) for spins in self.ORDERINGS]
-        energies = [self._energy(*spins) for spins in self.ORDERINGS]
-        with pytest.raises(ValueError, match="resolution"):
-            HeisenbergMapper(structures, energies, tol=0.001)
-
-    def test_bond_between_unknown_sublattice_pair_warns(self):
-        # A bond between a sublattice pair the parent graph does not contain has no
-        # column to go into. It is dropped from the fit, so that must surface as a
-        # catchable UserWarning rather than a log line.
+    def test_coupling_off_the_parent_geometry_raises(self):
+        # A coupling shorter than any parent shell of its pair, or of a pair the parent does
+        # not have, cannot be labelled; that must say so rather than leak a StopIteration.
         hm = self._mapper()
         _aa, _bb, ab = self._labels(hm)
-        del hm.interactions[(0, 1)]
+        i_id, j_id = map(int, ab.split("-")[:2])
+        with pytest.raises(ValueError, match="No interaction of sublattices"):
+            hm._interaction_label(i_id, j_id, hm.dists[ab] / 2)
+        with pytest.raises(ValueError, match="No interaction of sublattices"):
+            hm._interaction_label(i_id, 99, hm.dists[ab])
 
-        with pytest.warns(UserWarning, match="does not appear in interactions"):
-            assert hm._interaction_label(0, 1, hm.dists[ab]) is None
+        # The coupling graphs carry each ordering's own moments.
+        for ordering, graph in zip(hm.orderings, hm.coupling_graphs, strict=True):
+            assert graph.structure.site_properties["magmom"] == ordering.magnetic_structure.site_properties["magmom"]
 
     def test_inferred_parent_warns(self):
         structures = [self._structure(*spins) for spins in self.ORDERINGS]
         energies = [self._energy(*spins) for spins in self.ORDERINGS]
 
         with pytest.warns(UserWarning, match="No `parent` cell supplied"):
-            HeisenbergMapper(structures, energies, tol=0.02)
+            HeisenbergMapper(structures, energies)
 
         # An explicit parent is the documented way out, and must stay silent.
         with warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter("always")
-            HeisenbergMapper(structures, energies, parent=self._structure(*self.ORDERINGS[0]), tol=0.02)
+            HeisenbergMapper(structures, energies, parent=self._structure(*self.ORDERINGS[0]))
         assert not [warning for warning in caught if "No `parent` cell supplied" in str(warning.message)]
 
     def test_ill_conditioned_fit_warns(self):
@@ -419,7 +478,7 @@ class TestHeisenbergMeanFieldTemperature:
         fm, afm = [[1, 1], [1, 1]], [[1, -1], [-1, 1]]
         structures = [self._structure(fm), self._structure(afm)]
         energies = [self._energy(fm, j_nn), self._energy(afm, j_nn)]
-        return HeisenbergMapper(structures, energies, tol=0.02)
+        return HeisenbergMapper(structures, energies)
 
     def test_single_sublattice_mft_matches_analytic(self):
         j_nn = 0.010  # eV
@@ -469,7 +528,7 @@ class TestHeisenbergMapperFullCellSymmetry:
 
     def test_nonmagnetic_ions_split_sublattices(self):
         structures = [self._ordering([3, 3]), self._ordering([3, -3])]
-        hm = HeisenbergMapper(structures, [-10.0, -9.0], tol=0.02)
+        hm = HeisenbergMapper(structures, [-10.0, -9.0])
 
         # The two Fe are distinct sublattices because of the off-center Zn. They share a
         # wyckoff symbol, so the sublattice ids -- not the symbols -- are what separate
@@ -482,7 +541,7 @@ class TestHeisenbergMapperFullCellSymmetry:
         # equivalent and belong to one sublattice. Stripping the nonmagnetic ions
         # before the symmetry analysis would make the case above look like this one.
         structures = [self._ordering([3, 3], with_zn=False), self._ordering([3, -3], with_zn=False)]
-        hm = HeisenbergMapper(structures, [-10.0, -9.0], tol=0.02)
+        hm = HeisenbergMapper(structures, [-10.0, -9.0])
 
         assert len(hm.sublattice_wyckoff_symbols) == 1
         assert all(set(sub_ids) == {0} for sub_ids in hm.sublattice_ids)
@@ -512,7 +571,7 @@ class TestHeisenbergMapperZeroMomentIon:
         # Both Mn relaxed to zero moment in the second ordering, so on its own that
         # ordering looks like an Fe-only compound.
         structures = [self._ordering([3, 2, 3, 2]), self._ordering([3, 0, -3, 0])]
-        hm = HeisenbergMapper(structures, [-20.0, -19.0], tol=0.02)
+        hm = HeisenbergMapper(structures, [-20.0, -19.0])
 
         assert hm.parent.magn_species == {"Fe", "Mn"}
         # Without pooling, the second cell would carry two magnetic sites instead of
