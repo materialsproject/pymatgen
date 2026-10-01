@@ -19,6 +19,27 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
+def _check_equal_slab_lattices(slabs: Sequence[Slab], miller: tuple[int, int, int], structure: Structure):
+    """Verifies that the lattices of a group of slabs are equivalent.
+
+    Args:
+        slabs (Sequence[Slab]): Sequence of Slabs to check. Intended: From the same SlabGenerator.
+        miller (tuple[int, int, int]): Miller index of the slabs (for error messages).
+        structure (Structure): Source Structure of the slabs (for error messages).
+
+    Raises:
+        ValueError: If no slabs are present or the slabs have diverging lattices.
+    """
+    if not slabs:
+        raise ValueError(f"Could not generate Slabs for miller index {miller} of {structure.composition}.")
+    for slab in slabs[1:]:
+        if not np.allclose(slab.lattice.matrix[:2], slabs[0].lattice.matrix[:2]):
+            raise ValueError(
+                f"Not all slabs for miller index {miller} of {structure.composition} have the same lattice. "
+                f"First slab: {slabs[0].lattice.params_dict}, found: {slab.lattice.params_dict}."
+            )
+
+
 class CoherentInterfaceBuilder:
     """
     This class constructs the coherent interfaces between two crystalline slabs
@@ -165,30 +186,9 @@ class CoherentInterfaceBuilder:
         self.terminations = list(self._terminations)
 
         # Verify slabs: All slabs should have the same lattice (primitivization should be shift-independent)
-        # (If they don't, the assumption of _find_matches is false)
-        if not film_slabs:
-            raise ValueError(
-                f"Could not generate Slabs for index {self.film_miller} of {self.film_structure.composition}."
-            )
-        for slab in film_slabs[1:]:
-            if not np.allclose(slab.lattice.matrix[:2], film_slabs[0].lattice.matrix[:2]):
-                raise ValueError(
-                    f"Not all slabs for index {self.film_miller} of {self.film_structure.composition} have the same "
-                    f"lattice. First slab: {film_slabs[0].lattice.params_dict}, found: {slab.lattice.params_dict}."
-                )
-
-        if not sub_slabs:
-            raise ValueError(
-                f"Could not generate Slabs for index {self.substrate_miller} of {self.substrate_structure.composition}."
-            )
-        for slab in sub_slabs[1:]:
-            if not np.allclose(slab.lattice.matrix[:2], sub_slabs[0].lattice.matrix[:2]):
-                raise ValueError(
-                    f"Not all slabs for index {self.substrate_miller} of {self.substrate_structure.composition} "
-                    "have the same lattice. "
-                    f"First slab: {sub_slabs[0].lattice.params_dict}, found: {slab.lattice.params_dict}."
-                )
-
+        # (If they don't, the assumption of _find_matches [all lattices are slab 0's lattice] is false)
+        _check_equal_slab_lattices(film_slabs, self.film_miller, self.film_structure)
+        _check_equal_slab_lattices(sub_slabs, self.substrate_miller, self.substrate_structure)
         return film_slabs[0], sub_slabs[0]
 
     def get_interfaces(
