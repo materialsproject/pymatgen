@@ -237,11 +237,11 @@ filterwarnings = [
 [tool.coverage.run]
 parallel = true
 omit = [
-    "pymatgen/cli/feff_*.py",
-    "pymatgen/cli/pmg_config.py",
-    "pymatgen/cli/pmg_plot.py",
-    "pymatgen/cli/pmg_potcar.py",
-    "pymatgen/dao.py",
+    "*/pymatgen/cli/feff_*.py",
+    "*/pymatgen/cli/pmg_config.py",
+    "*/pymatgen/cli/pmg_plot.py",
+    "*/pymatgen/cli/pmg_potcar.py",
+    "*/pymatgen/dao.py",
 ]
 
 [tool.coverage.report]
