@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
-def _check_equal_slab_lattices(slabs: Sequence[Slab], miller: tuple[int, int, int], structure: Structure):
+def _check_equal_slab_lattices(slabs: Sequence[Slab], miller: tuple[int, int, int], structure: Structure) -> None:
     """Verifies that the lattices of a group of slabs are equivalent.
 
     Args:
