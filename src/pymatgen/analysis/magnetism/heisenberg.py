@@ -246,7 +246,7 @@ class MagneticOrdering(ABC):
         return s0
 
     @abstractmethod
-    def set_sublattice_ids(self) -> None:
+    def _set_sublattice_ids(self) -> None:
         """Set sublattice_ids (one per site of magnetic_structure), sublattice_wyckoff_symbols
         and ideal_magnetic_structure.
         """
@@ -274,9 +274,9 @@ class ParentOrdering(MagneticOrdering):
     ):
         super().__init__(self._nonmagnetic(structure), magn_species, cutoff, tol)
         self.symprec = symprec
-        self.set_sublattice_ids()
+        self._set_sublattice_ids()
 
-    def set_sublattice_ids(self):
+    def _set_sublattice_ids(self):
         symmetrized_parent = SpacegroupAnalyzer(self.structure, symprec=self.symprec).get_symmetrized_structure()
 
         # Full-cell ids, None on nonmagnetic sites; RelaxedOrdering reads them via structure matching.
@@ -311,14 +311,14 @@ class RelaxedOrdering(MagneticOrdering):
         super().__init__(structure, parent_ordering.magn_species, cutoff, tol)
         self.energy = energy  # total energy, as supplied by the caller
         self.parent_ordering = parent_ordering
-        self.set_sublattice_ids()
+        self._set_sublattice_ids()
 
     @property
     def energy_per_magnetic_ion(self) -> float:
         """Total energy divided by the number of magnetic ions (eV)."""
         return self.energy / len(self.magnetic_structure)
 
-    def set_sublattice_ids(self):
+    def _set_sublattice_ids(self):
         matcher = StructureMatcher(primitive_cell=False, attempt_supercell=True)
 
         # matched_parent[i] is the parent site, with its 'sublattice_id', that site i sits on.
