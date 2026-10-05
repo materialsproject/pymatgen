@@ -284,17 +284,17 @@ class TestHeisenbergMapperKnownHamiltonian:
         assert hm.dists[ab] == approx(self.D_AB, abs=0.01)
         assert hm.dists[aa] == hm.dists[bb] == approx(self.D_AA, abs=0.01)
 
-    def test_without_cutoff_tol_still_splits_shells(self):
+    def test_without_cutoff_nearest_shell_is_one_interaction(self):
         # Moving B off-center splits the A-B bond into 0.96 and 1.04 Angstrom. Both lie in
-        # the nearest shell of the pair, but they differ by more than tol, so they are two
-        # interactions even without a cutoff.
+        # the nearest shell of the pair and differ by more than tol, but without a cutoff
+        # the nearest shell is a single interaction.
         structures = [self._structure(*spins, b_x=0.48) for spins in self.ORDERINGS]
         energies = [self._energy(*spins) for spins in self.ORDERINGS]
         hm = HeisenbergMapper(structures, energies, tol=0.05)
 
         _aa, _bb, ab = self._labels(hm)
+        assert hm.interactions[tuple(int(i) for i in ab.split("-")[:2])] == [ab]
         assert hm.dists[ab] == approx(0.96, abs=1e-6)
-        assert hm.dists[ab.replace("-nn", "-nnn")] == approx(1.04, abs=1e-6)
 
     def test_shells_split_at_gaps_wider_than_tol(self):
         # B at x=0.45 gives A-B bonds of 0.90, 1.10, 1.84, 1.94, 2.90, 3.10, then 3.312,

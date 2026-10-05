@@ -34,14 +34,17 @@ different supercells can be fitted together. This changed the public surface:
   same split applies to :class:`HeisenbergModel`. The unmodified constructor
   inputs are still ``ordered_structures_``/``energies_``.
 * ``get_exchange`` now returns ``(ex_params, residual)`` rather than
-  ``ex_params`` alone, and is a least-squares fit over all orderings instead of
-  an exactly-determined solve - so supplying more orderings than parameters is
-  now useful, and the ``{"<J>": ...}`` fallback for under-determined systems is
-  gone. ``residual`` is the RMS fit residual in meV per magnetic ion and is also
-  stored on ``mapper.residual`` and on :class:`HeisenbergModel`. It reports an
-  ill-conditioned or rank-deficient fit as a ``UserWarning`` rather than through
-  the module logger, so the two signals that the returned parameters are
-  untrustworthy can be filtered or turned into errors with ``warnings``.
+  ``ex_params`` alone. It is a least-squares fit over all orderings instead of
+  an exactly-determined solve, and the ``{"<J>": ...}`` fallback for
+  under-determined systems is gone. ``residual`` is the RMS fit residual in meV
+  per magnetic ion and is also stored on ``mapper.residual`` and on
+  :class:`HeisenbergModel`. It is only meaningful with substantially more
+  orderings than fitted parameters; otherwise the extra parameters overfit,
+  lowering the residual without improving the fit.
+  ``get_exchange`` reports an ill-conditioned or rank-deficient fit as a
+  ``UserWarning`` rather than through the module logger, so the two signals that
+  the returned parameters are untrustworthy can be filtered or turned into errors
+  with ``warnings``.
 * ``estimate_exchange``, ``get_low_energy_orderings`` and ``get_mft_temperature`` are deprecated. Use
   ``get_exchange`` for shell-resolved ``J_ij``, and a Monte Carlo solver (e.g.
   VAMPIRE, via :class:`HeisenbergModel`) rather than the mean field estimate for
@@ -361,9 +364,10 @@ class HeisenbergMapper:
                 lowest-energy ordering is used, which is only correct if relaxation kept
                 the parent's symmetry. Defaults to None.
             cutoff (float): Cutoff in Angstrom for the bond search. Defaults to 0,
-                which keeps the nearest shell of every sublattice pair.
+                which keeps only the nearest shell of every sublattice pair (bonds within
+                10% of the pair's shortest bond) as a single interaction.
             tol (float): Gap (Angstrom) between consecutive bond lengths of a sublattice
-                pair that starts a new shell. Defaults to 0.02.
+                pair that starts a new shell. Only used with a cutoff. Defaults to 0.02.
             symprec (float): Symmetry tolerance (Angstrom) for finding the parent's
                 sublattices. Raise it, or pass a symmetrized parent, if sublattices that
                 should be equivalent come out split. Defaults to 0.01.
@@ -514,7 +518,8 @@ class HeisenbergMapper:
             previous = None
             for dist in sorted(dists):
                 # A gap of more than tol to the previous bond starts a shell, named by its shortest bond.
-                if previous is None or dist - previous > self.tol:
+                # Without a cutoff, the graph holds only the nearest neighbor shell of each pair.
+                if previous is None or (self.cutoff and dist - previous > self.tol):
                     label = f"{sub_id_pair[0]}-{sub_id_pair[1]}-{'n' * (len(labels) + 2)}"
                     self.dists[label] = dist
                     labels.append(label)
@@ -616,6 +621,10 @@ class HeisenbergMapper:
         The J_ij multiply the raw moments, so they are in meV/muB^2 (bond energy
         J_ij * m_i * m_j); this keeps moment magnitudes that differ between orderings out
         of the fitted J_ij. get_interaction_graph converts to meV for normalized spins.
+
+        The residual is only meaningful with substantially more orderings than fitted
+        parameters; otherwise the extra parameters overfit, lowering the residual without
+        improving the fit.
 
         Returns:
             ex_params (dict[str, float]): J_ij in meV/muB^2 and 'E0' in eV per magnetic ion.
