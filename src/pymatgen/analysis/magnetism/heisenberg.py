@@ -255,9 +255,6 @@ class MagneticOrdering(ABC):
         in, so no pair drops out of the graph for being longer-ranged than another
         (see SublatticeMinimumDistanceNN).
         """
-        # Cached, so a graph built before the labels exist would be silently wrong.
-        if self.ideal_magnetic_structure is None:
-            raise ValueError("Call set_sublattice_ids() before the coupling graph is built.")
         if self.cutoff:
             strategy = MinimumDistanceNN(cutoff=self.cutoff, get_all_sites=True)
         else:
@@ -336,27 +333,20 @@ class ParentOrdering(MagneticOrdering):
 
 
 class RelaxedOrdering(MagneticOrdering):
-    """One DFT-relaxed magnetic ordering with its energy and parent back-reference.
-
-    The parent is optional at construction: the orderings have to exist, and be screened
-    and sorted, before a parent can be inferred from them, so ``HeisenbergMapper`` attaches
-    it afterwards via ``set_parent``.
-    """
+    """One DFT-relaxed magnetic ordering with its energy, labelled by the parent's sublattices."""
 
     def __init__(
         self,
         structure: Structure,
         energy: float,
-        magn_species: set[str],
-        parent_ordering: ParentOrdering | None = None,
+        parent_ordering: ParentOrdering,
         cutoff: float = 0,
         tol: float = DEFAULT_TOL,
     ):
-        super().__init__(structure, magn_species, cutoff, tol)
+        super().__init__(structure, parent_ordering.magn_species, cutoff, tol)
         self.energy = energy  # total energy, as supplied by the caller
         self.parent_ordering = parent_ordering
-        if parent_ordering is not None:
-            self.set_sublattice_ids()
+        self.set_sublattice_ids()
 
     @property
     def energy_per_magnetic_ion(self) -> float:
@@ -365,11 +355,6 @@ class RelaxedOrdering(MagneticOrdering):
         This is what makes orderings living in different-sized supercells comparable.
         """
         return self.energy / len(self.magnetic_structure)
-
-    def set_parent(self, parent_ordering: ParentOrdering) -> None:
-        """Attach the parent that defines the sublattices, and label this ordering."""
-        self.parent_ordering = parent_ordering
-        self.set_sublattice_ids()
 
     def set_sublattice_ids(self):
         matcher = StructureMatcher(primitive_cell=False, attempt_supercell=True)
@@ -525,12 +510,11 @@ class HeisenbergMapper:
 
         This function does:
          - Build a set of magnetic species pooled over all orderings.
-         - Build a RelaxedOrdering for each ordering, with its magnetic-only structure and
-           coupling graph. Since the parent is not yet known, the sublattice ids are not set yet.
+         - Build the ParentOrdering from the explicit parent, or else from the ordering
+           lowest in energy per magnetic ion, and set its sublattice ids.
+         - Build a RelaxedOrdering for each ordering, labelled with the parent's sublattices.
          - Drop duplicate/degenerate orderings and sort by energy per magnetic ion using
            HeisenbergScreener.
-         - Build the ParentOrdering from the lowest-energy ordering (or the explicit parent
-           if supplied), and set its sublattice ids.
 
         Args:
             ordered_structures (list): Structure objects with magmoms.
@@ -547,17 +531,6 @@ class HeisenbergMapper:
         # on the lattice and keeps the site count and graph topology consistent with the others.
         magn_species = set().union(*(MagneticOrdering._magnetic_species(struct) for struct in ordered_structures))
 
-        orderings = [
-            RelaxedOrdering(struct, energy, magn_species, cutoff=self.cutoff, tol=self.tol)
-            for struct, energy in zip(ordered_structures, energies, strict=True)
-        ]
-
-        # Drop duplicate/degenerate orderings and sort by energy per magnetic ion.
-        self.orderings = HeisenbergScreener(orderings, screen=False).screened_orderings
-
-        if len(self.orderings) < 2:
-            raise ValueError("HeisenbergMapper needs at least 2 unique orderings.")
-
         # The nonmagnetic ions are kept in the parent: site equivalence is read from its
         # symmetry, and removing them first can raise the apparent site symmetry and merge
         # sublattices that are actually distinct.
@@ -572,19 +545,32 @@ class HeisenbergMapper:
                 # _initialize_orderings <- __init__ <- caller
                 stacklevel=3,
             )
-        reference = parent if parent is not None else self.orderings[0].structure
+
+            # Lowest energy per magnetic ion, rounded and tie-broken like HeisenbergScreener.
+            def energy_per_magnetic_ion(idx):
+                n_magnetic = sum(site.specie.symbol in magn_species for site in ordered_structures[idx])
+                return round(energies[idx] / n_magnetic, 6)
+
+            parent = ordered_structures[min(range(len(ordered_structures)), key=energy_per_magnetic_ion)]
+
         self.parent = ParentOrdering(
-            MagneticOrdering._nonmagnetic(reference).get_primitive_structure(),
+            MagneticOrdering._nonmagnetic(parent).get_primitive_structure(),
             magn_species,
             cutoff=self.cutoff,
             tol=self.tol,
             symprec=self.symprec,
         )
 
-        # The parent cell defines the sublattices; label every magnetic site in every
-        # ordering with the parent sublattice it belongs to.
-        for ordering in self.orderings:
-            ordering.set_parent(self.parent)
+        orderings = [
+            RelaxedOrdering(struct, energy, self.parent, cutoff=self.cutoff, tol=self.tol)
+            for struct, energy in zip(ordered_structures, energies, strict=True)
+        ]
+
+        # Drop duplicate/degenerate orderings and sort by energy per magnetic ion.
+        self.orderings = HeisenbergScreener(orderings, screen=False).screened_orderings
+
+        if len(self.orderings) < 2:
+            raise ValueError("HeisenbergMapper needs at least 2 unique orderings.")
 
     @property
     def structures(self):
