@@ -160,7 +160,7 @@ class SublatticeMinimumDistanceNN(MinimumDistanceNN):
                             "site_index": site_index,
                         }
                     )
-        return siw 
+        return siw
 
 
 class MagneticOrdering(ABC):
