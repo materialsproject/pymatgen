@@ -9,7 +9,7 @@ import pytest
 from pytest import approx
 from scipy.constants import physical_constants
 
-from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper, HeisenbergModel
+from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper, HeisenbergModel, SublatticeMinimumDistanceNN
 from pymatgen.core import Lattice
 from pymatgen.core.structure import Structure
 
@@ -50,9 +50,9 @@ class TestHeisenbergMapperKnownHamiltonian:
     J_AB, J_AA, J_BB = 0.011, 0.004, -0.006  # eV, all distinct
     A, B = "Mn", "Fe"
 
-    # The chain spacing is 60% wider than the column spacing, far outside the 10% window
-    # a single global nearest-neighbor distance would allow. It must stay below 2 * D_AB,
-    # though, or the chain bond stops being the shortest A-A one.
+    # The chain spacing is 60% wider than the column spacing, far outside a shell around a
+    # single global nearest-neighbor distance. It must stay below 2 * D_AB, though, or the
+    # chain bond stops being the shortest A-A one.
     D_AB = 1.0  # A-B spacing along x
     D_AA = 1.6  # A-A and B-B spacing along y
 
@@ -285,9 +285,8 @@ class TestHeisenbergMapperKnownHamiltonian:
         assert hm.dists[aa] == hm.dists[bb] == approx(self.D_AA, abs=0.01)
 
     def test_without_cutoff_nearest_shell_is_one_interaction(self):
-        # Moving B off-center splits the A-B bond into 0.96 and 1.04 Angstrom. Both lie in
-        # the nearest shell of the pair and differ by more than tol, but without a cutoff
-        # the nearest shell is a single interaction.
+        # Moving B off-center splits the A-B bond into 0.96 and 1.04 Angstrom. They differ
+        # by more than tol, so without a cutoff only the 0.96 bond is the nearest shell.
         structures = [self._structure(*spins, b_x=0.48) for spins in self.ORDERINGS]
         energies = [self._energy(*spins) for spins in self.ORDERINGS]
         hm = HeisenbergMapper(structures, energies, tol=0.05)
@@ -295,6 +294,46 @@ class TestHeisenbergMapperKnownHamiltonian:
         _aa, _bb, ab = self._labels(hm)
         assert hm.interactions[tuple(int(i) for i in ab.split("-")[:2])] == [ab]
         assert hm.dists[ab] == approx(0.96, abs=1e-6)
+        a_b_dists = {
+            round(bond.dist, 6)
+            for bond in hm.parent.coupling_graph.get_connected_sites(0)
+            if bond.site.specie.symbol != hm.parent.magnetic_structure[0].specie.symbol
+        }
+        assert a_b_dists == {0.96}
+
+    def test_cutoff_keeps_nearest_shell_of_pairs_beyond_it(self):
+        # A cutoff of 1.2 Angstrom covers the A-B bond (1.0) but not the A-A and B-B chain
+        # bonds (1.6). Those pairs still couple through their nearest shell, so the fit
+        # recovers all three constants as without a cutoff.
+        structures = [self._structure(*spins) for spins in self.ORDERINGS]
+        energies = [self._energy(*spins) for spins in self.ORDERINGS]
+        hm = HeisenbergMapper(structures, energies, cutoff=1.2)
+
+        aa, bb, ab = self._labels(hm)
+        assert hm.dists[aa] == hm.dists[bb] == approx(self.D_AA, abs=1e-6)
+        ex_params, _residual = hm.get_exchange()
+        assert set(ex_params) == {"E0", aa, bb, ab}
+        assert ex_params[ab] == approx(self.J_AB * 1000, abs=1e-6)
+        assert ex_params[aa] == approx(self.J_AA * 1000, abs=1e-6)
+        assert ex_params[bb] == approx(self.J_BB * 1000, abs=1e-6)
+
+    def test_sublattice_strategy_keeps_cutoff_or_nearest_shell(self):
+        # Site 0 is A; its B neighbors sit at 0.96 and 1.04, its A neighbors at 1.6.
+        struct = self._structure([[1]], [[1]], b_x=0.48)
+        sublattice_ids = [0, 1]
+
+        def neighbor_dists(**kwargs):
+            strategy = SublatticeMinimumDistanceNN(sublattice_ids, **kwargs)
+            by_sub: dict[int, list[float]] = {}
+            for info in strategy.get_nn_info(struct, 0):
+                by_sub.setdefault(sublattice_ids[info["site_index"]], []).append(round(info["site"].nn_distance, 6))
+            return {sub: sorted(dists) for sub, dists in by_sub.items()}
+
+        # Without a cutoff, the nearest shell ends at the first gap larger than tol.
+        assert neighbor_dists(tol=0.05) == {0: [1.6, 1.6], 1: [0.96]}
+        assert neighbor_dists(tol=0.1) == {0: [1.6, 1.6], 1: [0.96, 1.04]}
+        # With a cutoff, B keeps everything within it and A, with nothing within it, its nearest shell.
+        assert neighbor_dists(cutoff=1.1, tol=0.05) == {0: [1.6, 1.6], 1: [0.96, 1.04]}
 
     def test_shells_split_at_gaps_wider_than_tol(self):
         # B at x=0.45 gives A-B bonds of 0.90, 1.10, 1.84, 1.94, 2.90, 3.10, then 3.312,
@@ -320,9 +359,9 @@ class TestHeisenbergMapperKnownHamiltonian:
 
     def test_relaxation_does_not_change_the_couplings(self):
         # Every ordering relaxes B off-center, splitting the A-B coupling into 0.9 and
-        # 1.1 Angstrom. On the relaxed cells 1.1 falls outside the 10% nearest-shell
-        # window and half the A-B couplings would drop out of every row. Built on the
-        # parent geometry, the couplings stay those of the parent and the fit is exact.
+        # 1.1 Angstrom. On the relaxed cells 1.1 falls outside the nearest shell and half
+        # the A-B couplings would drop out of every row. Built on the parent geometry, the
+        # couplings stay those of the parent and the fit is exact.
         parent = self._structure([[1]], [[1]])
         structures = [self._structure(*spins, b_x=0.45) for spins in self.ORDERINGS]
         energies = [self._energy(*spins) for spins in self.ORDERINGS]

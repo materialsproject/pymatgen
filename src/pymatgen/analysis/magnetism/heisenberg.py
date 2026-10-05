@@ -56,6 +56,10 @@ different supercells can be fitted together. This changed the public surface:
   supercell, not on the relaxed orderings: relaxation of the orderings no longer
   decides which pairs couple or which shell they fall in. An inferred parent is
   itself a relaxed cell, so pass the unrelaxed one to get the full benefit.
+* Every sublattice pair couples through at least its nearest shell, also with a
+  ``cutoff`` (see :class:`SublatticeMinimumDistanceNN`). Without a cutoff, that
+  nearest shell is taken per pair rather than once per site, and ends at the
+  first gap larger than ``tol`` instead of 10% beyond the nearest bond.
 """
 
 from __future__ import annotations
@@ -64,7 +68,9 @@ import logging
 import warnings
 from abc import ABC, abstractmethod
 from ast import literal_eval
+from collections import defaultdict
 from functools import cached_property
+from itertools import pairwise
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -74,10 +80,10 @@ from monty.json import MSONable, jsanitize
 from monty.serialization import dumpfn
 
 from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.analysis.local_env import MinimumDistanceNN
+from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Ordering
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import PeriodicNeighbor, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
@@ -94,6 +100,12 @@ logger = logging.getLogger(__name__)
 
 # Gap (Angstrom) between consecutive coupling lengths that starts a new shell in the same sublattice pair.
 DEFAULT_TOL = 0.02
+
+# Distance (Angstrom) up to which SublatticeMinimumDistanceNN looks for a sublattice's nearest shell.
+MAX_SEARCH_DIST = 10
+
+# Float noise (Angstrom) absorbed when comparing bond lengths, so the parent and every ordering agree.
+DIST_EPSILON = 1e-6
 
 # Symmetry tolerance (Angstrom) for finding the parent's sublattices, as in SpacegroupAnalyzer.
 DEFAULT_SYMPREC = 0.01
@@ -114,56 +126,77 @@ def _analyzer(structure: Structure, **kwargs) -> CollinearMagneticStructureAnaly
     )
 
 
-class SublatticeMinimumDistanceNN(MinimumDistanceNN):
-    """Nearest-neighbor strategy taking the nearest shell of every sublattice pair.
+class SublatticeMinimumDistanceNN(NearNeighbors):
+    """Neighbor strategy guaranteeing every sublattice pair at least its nearest shell.
 
-    Like ``MinimumDistanceNN``, but the (1 + tol) window is applied per neighbor sublattice
-    instead of to the site's overall nearest-neighbor distance, so a long intra-sublattice
-    bond is not lost to a shorter inter-sublattice one.
+    For each site and each neighbor sublattice, keeps every neighbor within the cutoff, or,
+    if there is none, the nearest shell: the nearest neighbor and each next one less than tol
+    farther than the previous. Neighbors are searched up to the cutoff, but at least up to
+    MAX_SEARCH_DIST (10 Angstrom), so a sublattice with no neighbor that close stays uncoupled.
     """
 
-    def __init__(self, sublattice_ids: list[int], tol: float = 0.1, cutoff: float = 10) -> None:
+    def __init__(self, sublattice_ids: list[int], cutoff: float = 0, tol: float = DEFAULT_TOL) -> None:
         """
         Args:
             sublattice_ids (list[int]): Sublattice id of each site, indexed against the
                 structure this strategy will be applied to.
-            tol (float): Relative tolerance on neighbor distances being in the same shell,
-                applied within a sublattice pair. Defaults to 0.1.
-            cutoff (float): Cutoff radius in Angstrom to look for trial neighbors in.
-                Defaults to 10.
+            cutoff (float): Every neighbor within this distance (Angstrom) is kept.
+                Defaults to 0, which keeps only the nearest shell of each sublattice.
+            tol (float): Gap (Angstrom) between consecutive neighbor distances that ends
+                the nearest shell. Defaults to 0.02.
         """
-        super().__init__(tol=tol, cutoff=cutoff, get_all_sites=False)
         self.sublattice_ids = sublattice_ids
+        self.cutoff = cutoff
+        self.tol = tol
+
+    @property
+    def structures_allowed(self) -> bool:
+        """Boolean property: can this NearNeighbors class be used with Structure objects?"""
+        return True
+
+    @property
+    def molecules_allowed(self) -> bool:
+        """Boolean property: can this NearNeighbors class be used with Molecule objects?"""
+        return False
+
+    def _nearest_shell(self, neighbors: list[PeriodicNeighbor]) -> list[PeriodicNeighbor]:
+        """Neighbors up to the first gap larger than tol, of neighbors sorted by distance."""
+        for i, (nn, next_nn) in enumerate(pairwise(neighbors), start=1):
+            if next_nn.nn_distance - nn.nn_distance > self.tol:
+                return neighbors[:i]
+        return neighbors
 
     def get_nn_info(self, structure: Structure, n: int) -> list[dict]:
-        """Nearest neighbors of site n, one shell per sublattice the neighbors belong to.
+        """Neighbors of site n within the cutoff, or the nearest shell of each sublattice without any.
 
         Args:
             structure (Structure): input structure.
             n (int): index of the site to find neighbors of.
 
         Returns:
-            list[dict]: dicts with the neighbor site, its image, weight and site index.
+            list[dict]: dicts with the neighbor site, its image, weight (always 1) and site index.
         """
-        by_sublattice: dict[int, list] = {}
-        for nn in structure.get_neighbors(structure[n], self.cutoff):
-            site_index = self._get_original_site(structure, nn)
-            by_sublattice.setdefault(self.sublattice_ids[site_index], []).append((nn, site_index))
+        search_dist = max(self.cutoff, MAX_SEARCH_DIST)
+        neighbors = sorted(structure.get_neighbors(structure[n], search_dist), key=lambda nn: nn.nn_distance)
 
-        siw = []
-        for neighbors in by_sublattice.values():
-            min_dist = min(nn.nn_distance for nn, _ in neighbors)
-            for nn, site_index in neighbors:
-                if nn.nn_distance < (1 + self.tol) * min_dist:
-                    siw.append(
-                        {
-                            "site": nn,
-                            "image": self._get_image(structure, nn),
-                            "weight": min_dist / nn.nn_distance,
-                            "site_index": site_index,
-                        }
-                    )
-        return siw
+        kept = [nn for nn in neighbors if nn.nn_distance <= self.cutoff + DIST_EPSILON]
+
+        # Site n's own sublattice is fixed, so each neighbor sublattice stands for one sublattice
+        # pair: a pair with no bond within the cutoff gets its nearest shell instead.
+        sublattices_within_cutoff = {self.sublattice_ids[nn.index] for nn in kept}
+
+        # Collect, per sublattice with no neighbor within the cutoff, its neighbors sorted by distance.
+        neighbors_by_uncovered_sublattice = defaultdict(list)
+        for nn in neighbors:
+            sub_id = self.sublattice_ids[nn.index]
+            if sub_id not in sublattices_within_cutoff:
+                neighbors_by_uncovered_sublattice[sub_id].append(nn)
+        for sublattice_neighbors in neighbors_by_uncovered_sublattice.values():
+            kept += self._nearest_shell(sublattice_neighbors)
+
+        return [
+            {"site": nn, "image": self._get_image(structure, nn), "weight": 1.0, "site_index": nn.index} for nn in kept
+        ]
 
 
 class MagneticOrdering(ABC):
@@ -222,12 +255,9 @@ class MagneticOrdering(ABC):
     def coupling_graph(self) -> StructureGraph:
         """Graph of the coupled site pairs, built on ideal_magnetic_structure.
 
-        With a cutoff, every pair within it; otherwise SublatticeMinimumDistanceNN.
+        Every pair within the cutoff, plus the nearest shell of each sublattice pair with none.
         """
-        if self.cutoff:
-            strategy = MinimumDistanceNN(cutoff=self.cutoff, get_all_sites=True)
-        else:
-            strategy = SublatticeMinimumDistanceNN(self.sublattice_ids)
+        strategy = SublatticeMinimumDistanceNN(self.sublattice_ids, cutoff=self.cutoff, tol=self.tol)
         return StructureGraph.from_local_env_strategy(self.ideal_magnetic_structure, strategy=strategy)
 
 
@@ -363,11 +393,11 @@ class HeisenbergMapper:
                 magnetic sublattices; it is reduced to its primitive cell. If None, the
                 lowest-energy ordering is used, which is only correct if relaxation kept
                 the parent's symmetry. Defaults to None.
-            cutoff (float): Cutoff in Angstrom for the bond search. Defaults to 0,
-                which keeps only the nearest shell of every sublattice pair (bonds within
-                10% of the pair's shortest bond) as a single interaction.
+            cutoff (float): Every bond within this distance (Angstrom) couples. A sublattice
+                pair without such a bond still couples through its nearest shell, so the
+                default of 0 keeps one interaction per pair, its nearest shell.
             tol (float): Gap (Angstrom) between consecutive bond lengths of a sublattice
-                pair that starts a new shell. Only used with a cutoff. Defaults to 0.02.
+                pair that starts a new shell. Defaults to 0.02.
             symprec (float): Symmetry tolerance (Angstrom) for finding the parent's
                 sublattices. Raise it, or pass a symmetrized parent, if sublattices that
                 should be equivalent come out split. Defaults to 0.01.
@@ -518,8 +548,7 @@ class HeisenbergMapper:
             previous = None
             for dist in sorted(dists):
                 # A gap of more than tol to the previous bond starts a shell, named by its shortest bond.
-                # Without a cutoff, the graph holds only the nearest neighbor shell of each pair.
-                if previous is None or (self.cutoff and dist - previous > self.tol):
+                if previous is None or dist - previous > self.tol:
                     label = f"{sub_id_pair[0]}-{sub_id_pair[1]}-{'n' * (len(labels) + 2)}"
                     self.dists[label] = dist
                     labels.append(label)
@@ -551,7 +580,7 @@ class HeisenbergMapper:
         pair = tuple(sorted((i_id, j_id)))
         label = None
         for shell in self.interactions.get(pair, []):  # nearest shell first
-            if self.dists[shell] <= dist + 1e-6:  # 1e-6 absorbs float noise
+            if self.dists[shell] <= dist + DIST_EPSILON:
                 label = shell
         if label is None:
             raise ValueError(
