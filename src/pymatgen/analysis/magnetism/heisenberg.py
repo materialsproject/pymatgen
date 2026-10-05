@@ -42,7 +42,7 @@ different supercells can be fitted together. This changed the public surface:
   ill-conditioned or rank-deficient fit as a ``UserWarning`` rather than through
   the module logger, so the two signals that the returned parameters are
   untrustworthy can be filtered or turned into errors with ``warnings``.
-* ``estimate_exchange`` and ``get_mft_temperature`` are deprecated. Use
+* ``estimate_exchange``, ``get_low_energy_orderings`` and ``get_mft_temperature`` are deprecated. Use
   ``get_exchange`` for shell-resolved ``J_ij``, and a Monte Carlo solver (e.g.
   VAMPIRE, via :class:`HeisenbergModel`) rather than the mean field estimate for
   a critical temperature.
@@ -89,14 +89,10 @@ __date__ = "July 2026"
 
 logger = logging.getLogger(__name__)
 
-# Gap (Angstrom) between consecutive coupling lengths of a sublattice pair above which they
-# are different shells. Shells are read off the parent, so only its own spread matters: none
-# for an ideal parent, and little for one relaxed with its symmetry kept (e.g. ferromagnetic).
+# Gap (Angstrom) between consecutive coupling lengths that starts a new shell in the same sublattice pair.
 DEFAULT_TOL = 0.02
 
 # Symmetry tolerance (Angstrom) for finding the parent's sublattices, as in SpacegroupAnalyzer.
-# A parent relaxed in an antiferromagnetic state can be distorted beyond it, which splits
-# sublattices that are equivalent in the paramagnetic phase.
 DEFAULT_SYMPREC = 0.01
 
 
@@ -118,15 +114,9 @@ def _analyzer(structure: Structure, **kwargs) -> CollinearMagneticStructureAnaly
 class SublatticeMinimumDistanceNN(MinimumDistanceNN):
     """Nearest-neighbor strategy taking the nearest shell of every sublattice pair.
 
-    ``MinimumDistanceNN`` is sublattice-blind: it keeps only the neighbors closer than
-    (1 + tol) times a site's *overall* nearest-neighbor distance. A sublattice pair whose
-    bond is longer than that then never enters the graph, so a structure whose sublattices
-    sit close together but are internally widely spaced yields only the inter-sublattice
-    bonds and no intra-sublattice ones.
-
-    Here the trial neighbors of a site are grouped by the sublattice they belong to and the
-    same window is applied within each group, so every sublattice pair the lattice realizes
-    within ``cutoff`` contributes its nearest shell, whatever the other pairs do.
+    Like ``MinimumDistanceNN``, but the (1 + tol) window is applied per neighbor sublattice
+    instead of to the site's overall nearest-neighbor distance, so a long intra-sublattice
+    bond is not lost to a shorter inter-sublattice one.
     """
 
     def __init__(self, sublattice_ids: list[int], tol: float = 0.1, cutoff: float = 10) -> None:
@@ -158,8 +148,6 @@ class SublatticeMinimumDistanceNN(MinimumDistanceNN):
             by_sublattice.setdefault(self.sublattice_ids[site_index], []).append((nn, site_index))
 
         siw = []
-        # The site's own sublattice is just another group here, so intra-sublattice bonds
-        # survive even when they are much longer than the shortest inter-sublattice one.
         for neighbors in by_sublattice.values():
             min_dist = min(nn.nn_distance for nn, _ in neighbors)
             for nn, site_index in neighbors:
@@ -172,7 +160,7 @@ class SublatticeMinimumDistanceNN(MinimumDistanceNN):
                             "site_index": site_index,
                         }
                     )
-        return siw
+        return siw 
 
 
 class MagneticOrdering(ABC):
@@ -207,19 +195,11 @@ class MagneticOrdering(ABC):
 
     @cached_property
     def magnetic_structure(self) -> Structure:
-        """Magnetic-only cell. coupling_graph and sublattice_ids are both indexed against this.
+        """Magnetic-only cell with sites of the magnetic species, including any whose moment relaxed to zero.
 
-        Membership is decided by *species*, not by moment, using the magnetic species
-        pooled over every ordering (see ``HeisenbergMapper._initialize_orderings``). A
-        magnetic ion whose moment happens to relax to zero therefore stays on the lattice
-        and contributes a zero term, rather than dropping out and changing this ordering's
-        site count, graph topology and per-ion energy relative to its siblings.
+        coupling_graph and sublattice_ids are indexed against this.
         """
-        return self._magnetic_only(self.structure)
-
-    def _magnetic_only(self, structure: Structure) -> Structure:
-        """Copy of structure keeping only the sites of the pooled magnetic species."""
-        return Structure.from_sites([site for site in structure if site.specie.symbol in self.magn_species])
+        return Structure.from_sites([site for site in self.structure if site.specie.symbol in self.magn_species])
 
     @staticmethod
     def _nonmagnetic(structure) -> Structure:
@@ -229,31 +209,17 @@ class MagneticOrdering(ABC):
             s0.remove_site_property("wyckoff")
         return s0
 
-    @staticmethod
-    def _magnetic_species(structure) -> set[str]:
-        """Symbols of the species carrying a moment in this structure.
-
-        Used to pool the magnetic species across all orderings; the pooled set then
-        defines the magnetic sublattice for every ordering and for the parent.
-
-        A site counts as magnetic if it ends up with a nonzero moment after ``_analyzer``
-        has processed it, i.e. it is of a species listed in the analyzer's default magmoms
-        *and* was given a nonzero moment (``threshold=0.0`` retains any nonzero value).
-        Induced moments on nonmagnetic ions are zeroed out first (``threshold_nonmag=100.0``)
-        and so never contribute a spurious species here.
+    @abstractmethod
+    def set_sublattice_ids(self) -> None:
+        """Set sublattice_ids (one per site of magnetic_structure), sublattice_wyckoff_symbols
+        and ideal_magnetic_structure.
         """
-        magnetic = _analyzer(structure).get_structure_with_only_magnetic_atoms(make_primitive=False)
-        return {site.specie.symbol for site in magnetic}
 
     @cached_property
     def coupling_graph(self) -> StructureGraph:
-        """Coupling graph of the magnetic-only structure: an edge for every pair of sites
-        whose exchange coupling enters the Heisenberg model.
+        """Graph of the coupled site pairs, built on ideal_magnetic_structure.
 
-        If self.cutoff is set, the graph includes all neighbors within that distance.
-        Otherwise each site keeps the nearest shell of every sublattice pair it takes part
-        in, so no pair drops out of the graph for being longer-ranged than another
-        (see SublatticeMinimumDistanceNN).
+        With a cutoff, every pair within it; otherwise SublatticeMinimumDistanceNN.
         """
         if self.cutoff:
             strategy = MinimumDistanceNN(cutoff=self.cutoff, get_all_sites=True)
@@ -261,36 +227,9 @@ class MagneticOrdering(ABC):
             strategy = SublatticeMinimumDistanceNN(self.sublattice_ids)
         return StructureGraph.from_local_env_strategy(self.ideal_magnetic_structure, strategy=strategy)
 
-    @abstractmethod
-    def set_sublattice_ids(self) -> None:
-        """
-        Sets the following attributes for this ordering:
-            - `self.sublattice_ids` = [sublattice id for each *magnetic* site], aligned with
-              `self.magnetic_structure` and hence with `self.coupling_graph`. Nonmagnetic sites are
-              not represented at all, so these are always plain ints - never None.
-            - `self.sublattice_wyckoff_symbols` = {sublattice id: wyckoff symbol}
-
-        For `ParentOrdering`, this defines the sublattice ids by grouping symmetrically
-        equivalent sites into sublattices (nonmagnetic ions present for symmetry analysis)
-        and keeping only the orbits of the magnetic species.
-
-        For `RelaxedOrdering`, this maps the ordering's sites onto the parent's to find
-        which sublattice each one belongs to.
-
-        `ParentOrdering` additionally stores the *full-cell* ids (None on nonmagnetic sites)
-        as a `sublattice_id` site property, which is what carries the labels across to each
-        `RelaxedOrdering` during structure matching.
-        """
-
 
 class ParentOrdering(MagneticOrdering):
-    """The nonmagnetic parent cell that defines the sublattices.
-
-    Sublattices are its symmetry orbits (computed with nonmagnetic ions present),
-    restricted to the magnetic species. Because the parent carries no moments it cannot
-    tell which of its species are magnetic; that is pooled from the orderings and passed
-    in as ``magn_species``.
-    """
+    """The nonmagnetic parent cell; its symmetry orbits of the magnetic species are the sublattices."""
 
     def __init__(
         self,
@@ -300,8 +239,6 @@ class ParentOrdering(MagneticOrdering):
         tol: float = DEFAULT_TOL,
         symprec: float = DEFAULT_SYMPREC,
     ):
-        # Strip the moments *before* super().__init__, so the structure this ordering keeps
-        # is the one its substructure and graph get derived from.
         super().__init__(self._nonmagnetic(structure), magn_species, cutoff, tol)
         self.symprec = symprec
         self.set_sublattice_ids()
@@ -309,8 +246,7 @@ class ParentOrdering(MagneticOrdering):
     def set_sublattice_ids(self):
         symmetrized_parent = SpacegroupAnalyzer(self.structure, symprec=self.symprec).get_symmetrized_structure()
 
-        # Full-cell ids, None on the nonmagnetic sites. These exist to be stamped as a site
-        # property, which is how the labels reach each RelaxedOrdering via structure matching.
+        # Full-cell ids, None on nonmagnetic sites; RelaxedOrdering reads them via structure matching.
         full_ids: list[int | None] = [None] * len(self.structure)
         for indices, wyckoff_symbol in zip(
             symmetrized_parent.equivalent_indices, symmetrized_parent.wyckoff_symbols, strict=True
@@ -318,16 +254,12 @@ class ParentOrdering(MagneticOrdering):
             if symmetrized_parent[indices[0]].specie.symbol not in self.magn_species:
                 continue
             sub_id = len(self.sublattice_wyckoff_symbols)
-            # A sublattice always has one wyckoff symbol, but several sublattices can share
-            # one (e.g. two species sitting on the same wyckoff position).
             self.sublattice_wyckoff_symbols[sub_id] = wyckoff_symbol
             for index in indices:
                 full_ids[index] = sub_id
 
         self.structure.add_site_property("sublattice_id", full_ids)
 
-        # Drop the nonmagnetic sites to line the ids up with magnetic_structure. Both select
-        # on species, so the surviving ids are exactly the non-None ones, in order.
         self.sublattice_ids = [sub_id for sub_id in full_ids if sub_id is not None]
         self.ideal_magnetic_structure = self.magnetic_structure  # the parent is its own ideal cell
 
@@ -350,19 +282,13 @@ class RelaxedOrdering(MagneticOrdering):
 
     @property
     def energy_per_magnetic_ion(self) -> float:
-        """Total energy divided by the number of magnetic ions (eV).
-
-        This is what makes orderings living in different-sized supercells comparable.
-        """
+        """Total energy divided by the number of magnetic ions (eV)."""
         return self.energy / len(self.magnetic_structure)
 
     def set_sublattice_ids(self):
         matcher = StructureMatcher(primitive_cell=False, attempt_supercell=True)
 
-        # Fold this ordering's full geometry onto the tagged parent cell (the nonmagnetic
-        # ions help pin down a unique mapping). get_s2_like_s1 returns the parent's sites,
-        # carrying their 'sublattice_id', in this ordering's site order - so matched_parent[i]
-        # is the parent site that site i of this ordering sits on.
+        # matched_parent[i] is the parent site, with its 'sublattice_id', that site i sits on.
         matched_parent = matcher.get_s2_like_s1(self._nonmagnetic(self.structure), self.parent_ordering.structure)
         if matched_parent is None:
             raise ValueError(
@@ -371,11 +297,7 @@ class RelaxedOrdering(MagneticOrdering):
                 "orderings share."
             )
 
-        # get_s2_like_s1 returns the parent's sites in this ordering's site order, but only
-        # those it could match, and it matches on geometry within StructureMatcher's
-        # tolerances. On relaxed cells a partial or wrong match would shift every label -
-        # and every J_ij derived from it - without erroring, so require the two to line up
-        # species by species.
+        # A partial or wrong match would silently shift every label.
         aligned = len(matched_parent) == len(self.structure) and all(
             parent_site.specie.symbol == site.specie.symbol
             for parent_site, site in zip(matched_parent, self.structure, strict=True)
@@ -388,12 +310,7 @@ class RelaxedOrdering(MagneticOrdering):
                 "all orderings share."
             )
 
-        # matched_parent is the parent supercell in this ordering's site order, each site in
-        # the periodic image of the ordering site it matches. Its magnetic sites are thus this
-        # ordering's magnetic sites at their parent positions, with their sublattice ids.
-        ideal = self._magnetic_only(matched_parent)
-        # Replace the parent's zero moments with this ordering's, so the graph built on it
-        # carries the spins it describes.
+        ideal = Structure.from_sites([site for site in matched_parent if site.specie.symbol in self.magn_species])
         ideal.add_site_property("magmom", self.magnetic_structure.site_properties["magmom"])
         self.ideal_magnetic_structure = ideal
         self.sublattice_ids = [int(sub_id) for sub_id in ideal.site_properties["sublattice_id"]]
@@ -416,9 +333,8 @@ class HeisenbergMapper:
             magnetic ion. Each owns its magnetic-only structure, its coupling graph and its
             parent-sublattice labels.
         parent (ParentOrdering): Nonmagnetic parent cell that defines the sublattices.
-        interactions (dict): {(i, j): [J label, ...]} - the distinct interactions of
-            each sublattice pair, ordered from the nearest shell outwards.
-        dists (dict): {J label: interaction distance in Angstrom}.
+        interactions (dict): {(i, j): [J label, ...]}, nearest shell first.
+        dists (dict): {J label: length (Angstrom) at which its shell starts}.
         ex_mat (DataFrame): Heisenberg Hamiltonian (per magnetic ion) for each ordering.
         ex_params (dict): Exchange parameter values. The J_ij are in meV/muB^2 (they
             multiply the raw moments, see get_exchange); the included 'E0' offset is in
@@ -434,42 +350,23 @@ class HeisenbergMapper:
         tol: float = DEFAULT_TOL,
         symprec: float = DEFAULT_SYMPREC,
     ):
-        """Exchange parameters are computed by mapping to a classical Heisenberg
-        model. n+1 unique orderings are required to compute n exchange parameters.
-
-        First run a MagneticOrderings Flow to obtain low energy collinear magnetic
-        orderings and find the magnetic ground state, enumerate magnetic
-        states with the ground state as the input structure and do static
-        calculations for these orderings. The orderings may live in different
-        supercells - they only need to be commensurate with a common parent cell.
-
-        ***IMPORTANT NOTE***
-
-        If the parent is not supplied, it is inferred as the primitive cell of the lowest-energy ordering.
-        Not supplying a parent cell is only safe if the lowest-energy ordering still
-        preserves the symmetry of the paramagnetic parent.
-        In most cases, relaxation will lower the symmetry and the parent cell must be supplied explicitly.
+        """Map collinear orderings, possibly in different supercells of a common parent
+        cell, onto a classical Heisenberg model.
 
         Args:
             ordered_structures (list): Structure objects with magmoms.
             energies (list): Total energies of each relaxed magnetic structure.
             parent (Structure): Paramagnetic parent cell whose symmetry defines the
-                magnetic sublattices. Reduced to its primitive cell either way, so a
-                deliberately-supplied supercell parent is analyzed on its primitive
-                cell too, not as given. If None, it is inferred as the primitive cell
-                of the lowest-energy ordering. Defaults to None.
+                magnetic sublattices; it is reduced to its primitive cell. If None, the
+                lowest-energy ordering is used, which is only correct if relaxation kept
+                the parent's symmetry. Defaults to None.
             cutoff (float): Cutoff in Angstrom for the bond search. Defaults to 0,
-                which keeps the nearest shell of every sublattice pair; with a cutoff,
-                every bond up to it is kept.
-            tol (float): Bond lengths of a sublattice pair are split into shells
-                wherever two consecutive lengths are more than tol (Angstrom) apart.
-                Defaults to 0.02.
-            symprec (float): Symmetry tolerance (Angstrom) used to find the parent's
-                sublattices. Defaults to 0.01, as in SpacegroupAnalyzer. A parent
-                relaxed in an antiferromagnetic state (as some Materials Project
-                ground states are) can be distorted by more than that, which splits
-                sublattices that are equivalent above the ordering temperature. Raise
-                symprec, or pass a symmetrized parent, if the sublattices come out split.
+                which keeps the nearest shell of every sublattice pair.
+            tol (float): Gap (Angstrom) between consecutive bond lengths of a sublattice
+                pair that starts a new shell. Defaults to 0.02.
+            symprec (float): Symmetry tolerance (Angstrom) for finding the parent's
+                sublattices. Raise it, or pass a symmetrized parent, if sublattices that
+                should be equivalent come out split. Defaults to 0.01.
         """
         if parent is not None and not isinstance(parent, Structure):
             raise TypeError(
@@ -488,52 +385,75 @@ class HeisenbergMapper:
         self.symprec = symprec
 
         # These attributes are set by internal methods, listed here for clarity.
-        self.orderings = self.parent = None  # set by _initialize_orderings
-        self.interactions = self.dists = None  # set by _set_interactions
-        self.ex_mat = self.ex_params = self.residual = None  # set by _build_exchange_mat and get_exchange
+        # Set by _initialize_orderings.
+        self.orderings = None
+        self.parent = None
+        # Set by _set_interactions.
+        self.interactions: dict[tuple[int, int], list[str]] | None = None
+        """J labels of each sublattice pair (i, j), i <= j, nearest shell first.
+        E.g. {(0, 1): ['0-1-nn', '0-1-nnn']}."""
+        self.dists: dict[str, float] | None = None
+        """Length (Angstrom) at which each J label's shell starts. E.g. {'0-1-nn': 3.0, '0-1-nnn': 4.2}."""
+        # Set by _build_exchange_mat.
+        self.ex_mat = None
+        # Set by get_exchange.
+        self.ex_params = None
+        self.residual = None
 
         self._initialize_orderings(ordered_structures, energies, parent)
         self._set_interactions()
         self._build_exchange_mat()
 
+    @property
+    def structures(self):
+        """list[Structure]: Each ordering with all ions retained."""
+        return [ordering.structure for ordering in self.orderings]
+
+    @property
+    def magnetic_structures(self):
+        """list[Structure]: Magnetic-only structure of each ordering."""
+        return [ordering.magnetic_structure for ordering in self.orderings]
+
+    @property
+    def energies(self):
+        """list[float]: Total energy (eV) of each ordering, as supplied to the constructor."""
+        return [ordering.energy for ordering in self.orderings]
+
+    @property
+    def energies_per_magnetic_ion(self):
+        """list[float]: Energy per magnetic ion (eV) of each ordering - the energies the fit uses."""
+        return [ordering.energy_per_magnetic_ion for ordering in self.orderings]
+
+    @property
+    def coupling_graphs(self):
+        """list[StructureGraph]: Coupling graph of each ordering, on its ideal magnetic-only cell."""
+        return [ordering.coupling_graph for ordering in self.orderings]
+
+    @property
+    def sublattice_ids(self):
+        """list[list[int]]: sublattice_ids[k][i] is the sublattice id of magnetic site i
+        in ordering k, aligned with that ordering's graph.
+        """
+        return [ordering.sublattice_ids for ordering in self.orderings]
+
+    @property
+    def sublattice_wyckoff_symbols(self):
+        """dict[int, str]: Maps each sublattice id to its wyckoff symbol."""
+        return self.parent.sublattice_wyckoff_symbols
+
     def _initialize_orderings(self, ordered_structures, energies, parent):
-        """Build the RelaxedOrdering objects and the ParentOrdering that labels them.
-
-        Sets self.orderings and self.parent.
-
-        The magnetic species are pooled over *all* orderings and then used to define the
-        magnetic sublattice of every ordering and of the parent. Pooling matters: if an ion
-        happens to relax to a zero moment in one ordering, it must stay on the magnetic
-        lattice there (contributing a zero term) rather than vanishing and leaving that
-        ordering with a different site count, graph topology and per-ion energy than its
-        siblings.
-
-        This function does:
-         - Build a set of magnetic species pooled over all orderings.
-         - Build the ParentOrdering from the explicit parent, or else from the ordering
-           lowest in energy per magnetic ion, and set its sublattice ids.
-         - Build a RelaxedOrdering for each ordering, labelled with the parent's sublattices.
-         - Drop duplicate/degenerate orderings and sort by energy per magnetic ion using
-           HeisenbergScreener.
-
-        Args:
-            ordered_structures (list): Structure objects with magmoms.
-            energies (list): Total energies of each relaxed magnetic structure.
-            parent (Structure | None): Explicit paramagnetic parent cell, or None to infer
-                it from the lowest-energy ordering.
+        """Set self.parent and self.orderings (screened and sorted by energy per magnetic ion).
 
         Raises:
             ValueError: If fewer than 2 unique orderings remain after screening.
         """
-        # Pool the magnetic species over all orderings, to make sure a species that relaxes to
-        # zero moment in one ordering still counts as magnetic there. Since the magmom of this
-        # species is zero, it contributes a zero term to the Heisenberg Hamiltonian, but it stays
-        # on the lattice and keeps the site count and graph topology consistent with the others.
-        magn_species = set().union(*(MagneticOrdering._magnetic_species(struct) for struct in ordered_structures))
+        # Pooled, so an ion whose moment relaxed to zero in one ordering stays on its lattice.
+        magn_species = set()
+        for struct in ordered_structures:
+            for site in _analyzer(struct).structure:
+                if site.properties["magmom"] != 0:
+                    magn_species.add(site.specie.symbol)
 
-        # The nonmagnetic ions are kept in the parent: site equivalence is read from its
-        # symmetry, and removing them first can raise the apparent site symmetry and merge
-        # sublattices that are actually distinct.
         if parent is None:
             warnings.warn(
                 "No `parent` cell supplied; the magnetic sublattices are inferred from the "
@@ -572,72 +492,45 @@ class HeisenbergMapper:
         if len(self.orderings) < 2:
             raise ValueError("HeisenbergMapper needs at least 2 unique orderings.")
 
-    @property
-    def structures(self):
-        """list[Structure]: Each ordering with all ions retained."""
-        return [ordering.structure for ordering in self.orderings]
+    def _set_interactions(self):
+        """Set self.dists and self.interactions from the parent's coupling graph.
 
-    @property
-    def magnetic_structures(self):
-        """list[Structure]: Magnetic-only structure of each ordering."""
-        return [ordering.magnetic_structure for ordering in self.orderings]
-
-    @property
-    def energies(self):
-        """list[float]: Total energy (eV) of each ordering, as supplied to the constructor."""
-        return [ordering.energy for ordering in self.orderings]
-
-    @property
-    def energies_per_magnetic_ion(self):
-        """list[float]: Energy per magnetic ion (eV) of each ordering - the energies the fit uses.
-
-        The magnetic ions are counted over the magnetic species pooled across all orderings,
-        so an ion that relaxed to zero moment in one ordering still counts there.
+        An interaction is a shell of a sublattice pair, labelled '<i>-<j>-<shell>' with
+        i <= j and shell 'nn', 'nnn', ... counted within that pair.
         """
-        return [ordering.energy_per_magnetic_ion for ordering in self.orderings]
+        coupling_graph = self.parent.coupling_graph
+        sub_ids = self.parent.sublattice_ids
 
-    @property
-    def coupling_graphs(self):
-        """list[StructureGraph]: Coupling graph of each ordering, on its ideal magnetic-only cell."""
-        return [ordering.coupling_graph for ordering in self.orderings]
+        pair_dists: dict[tuple[int, int], list[float]] = {}
+        for i in range(len(coupling_graph)):
+            for neighbor in coupling_graph.get_connected_sites(i):
+                sub_id_pair = tuple(sorted((sub_ids[i], sub_ids[neighbor.index])))
+                pair_dists.setdefault(sub_id_pair, []).append(neighbor.dist)
 
-    @property
-    def sublattice_ids(self):
-        """list[list[int]]: sublattice_ids[k][i] is the sublattice id of magnetic site i
-        in ordering k, aligned with that ordering's graph.
-        """
-        return [ordering.sublattice_ids for ordering in self.orderings]
-
-    @property
-    def parent_coupling_graph(self):
-        """StructureGraph: Coupling graph of the magnetic-only parent structure."""
-        return self.parent.coupling_graph
-
-    @property
-    def parent_sublattice_ids(self):
-        """list[int]: Sublattice id of each magnetic site in the parent."""
-        return self.parent.sublattice_ids
-
-    @property
-    def sublattice_wyckoff_symbols(self):
-        """dict[int, str]: Maps each sublattice id to its wyckoff symbol."""
-        return self.parent.sublattice_wyckoff_symbols
-
-    @staticmethod
-    def _order_sublattice_ids(i_id, j_id):
-        """Returns the sublattice_ids in the order (i, j) with i <= j.
-
-        This is the key used to look up the interactions of a sublattice pair.
-        """
-        return tuple(sorted((i_id, j_id)))
+        self.dists = {}
+        self.interactions = {}
+        for sub_id_pair, dists in sorted(pair_dists.items()):
+            labels = []
+            previous = None
+            for dist in sorted(dists):
+                # A gap of more than tol to the previous bond starts a shell, named by its shortest bond.
+                if previous is None or dist - previous > self.tol:
+                    label = f"{sub_id_pair[0]}-{sub_id_pair[1]}-{'n' * (len(labels) + 2)}"
+                    self.dists[label] = dist
+                    labels.append(label)
+                previous = dist
+            self.interactions[sub_id_pair] = labels
 
     def _interaction_label(self, i_id, j_id, dist):
-        """Return the J label of a coupling: the shell of its sublattice pair that dist falls in.
+        """Look up the J label of a bond from the sublattices at its ends and its length.
 
-        Every coupling graph is built on the parent geometry (see ideal_magnetic_structure),
-        so dist is one of the parent's own distances up to float noise. _set_interactions
-        splits those distances into consecutive ranges, so dist belongs to the last shell
-        starting at or below it.
+        Each shell starts at its length in self.dists, and the bond gets the last shell
+        starting at or below its length.
+
+        Example, with self.dists = {'0-1-nn': 3.0, '0-1-nnn': 4.2}:
+            _interaction_label(0, 1, 3.05) -> '0-1-nn'
+            _interaction_label(1, 0, 4.2)  -> '0-1-nnn'
+            _interaction_label(0, 1, 2.5)  -> ValueError, no shell that short
 
         Args:
             i_id (int): sublattice id of the ith site
@@ -648,11 +541,13 @@ class HeisenbergMapper:
             str: '<i>-<j>-<shell>' label, e.g. '0-1-nn'.
 
         Raises:
-            ValueError: If the parent has no coupling of this sublattice pair at or below
-                dist, i.e. the coupling did not come from the parent geometry.
+            ValueError: If the pair has no shell at or below dist.
         """
-        labels = self.interactions.get(self._order_sublattice_ids(i_id, j_id), [])
-        label = next((label for label in reversed(labels) if self.dists[label] <= dist + 1e-6), None)
+        pair = tuple(sorted((i_id, j_id)))
+        label = None
+        for shell in self.interactions.get(pair, []):  # nearest shell first
+            if self.dists[shell] <= dist + 1e-6:  # 1e-6 absorbs float noise
+                label = shell
         if label is None:
             raise ValueError(
                 f"No interaction of sublattices {i_id} and {j_id} at {dist:.4f} Angstrom in the parent; "
@@ -661,61 +556,11 @@ class HeisenbergMapper:
             )
         return label
 
-    def _set_interactions(self):
-        """Set self.dists and self.interactions describing the distinct interactions.
-
-        An interaction is a (sublattice pair, neighbor shell) combination, labelled
-        '<i>-<j>-<shell>' with i <= j and shell one of 'nn', 'nnn', 'nnnn', ... Shells are
-        counted *within* a sublattice pair, not globally: '0-0-nn' and '0-1-nn' are the
-        nearest 0-0 and 0-1 interaction respectively, even when one of them is the longer interaction.
-
-        With cutoff=0 the parent graph holds the nearest shell of every sublattice pair (see
-        SublatticeMinimumDistanceNN); with cutoff > 0 every bond up to the cutoff. Either way a
-        pair's sorted bond lengths are split into shells wherever two consecutive lengths are
-        more than tol apart. The grouping is thus symmetric and does not depend on which bond
-        a shell starts from; a shell can span more than tol if its bonds are spaced by less.
-
-        Distances and connectivity are read from the parent ordering; see
-        _initialize_orderings() for how the parent is defined and how the sublattices are
-        labelled. The connectivity comes from the parent's StructureGraph, which is built
-        from the magnetic-only parent structure - the nonmagnetic ions are ignored for the
-        graph, but kept in the parent structure to preserve the true site symmetry.
-        """
-        coupling_graph = self.parent.coupling_graph
-        sub_ids = self.parent.sublattice_ids
-
-        # Bond lengths of each sublattice pair. Every site is visited, since with cutoff=0 the
-        # two ends of an interaction need not both count it as a nearest neighbor.
-        pair_dists: dict[tuple[int, int], list[float]] = {}
-        for i in range(len(coupling_graph)):
-            for conn_site in coupling_graph.get_connected_sites(i):
-                pair = self._order_sublattice_ids(sub_ids[i], sub_ids[conn_site[2]])
-                pair_dists.setdefault(pair, []).append(conn_site[-1])
-
-        self.dists = {}
-        self.interactions = {}
-        for pair, dists in sorted(pair_dists.items()):
-            labels = []
-            previous = None
-            for dist in sorted(dists):
-                # A gap of more than tol to the previous bond starts a shell, named by its shortest bond.
-                if previous is None or dist - previous > self.tol:
-                    label = f"{pair[0]}-{pair[1]}-{'n' * (len(labels) + 2)}"
-                    self.dists[label] = dist
-                    labels.append(label)
-                previous = dist
-            self.interactions[pair] = labels
-
     def _build_exchange_mat(self):
-        """Build the Heisenberg Hamiltonian, one row per ordering, by summing the
-        signed products S_i . S_j over each graph. Sets self.ex_mat.
+        """Set self.ex_mat: one row per ordering, -sum m_i m_j per J label, normalised to number of magnetic ions.
 
-        Each row is normalised per magnetic ion so that orderings living in
-        different-sized supercells share a single linear system (the energies are
-        per magnetic ion too, see RelaxedOrdering.energy_per_magnetic_ion).
-
-        n orderings constrain at most E0 and n - 1 J_ij; any longer-ranged interactions are
-        left out of the fit with a UserWarning.
+        Keeps at most (n - 1) J columns for n orderings, dropping those with the longest bond length
+        (self.dists) with a UserWarning.
         """
         # J columns ordered by increasing interaction length, so truncation drops the longest.
         j_columns = sorted(self.dists, key=self.dists.get)
@@ -730,10 +575,10 @@ class HeisenbergMapper:
 
             row = dict.fromkeys(columns, 0.0)
             for i in range(len(coupling_graph.graph.nodes)):
-                s_i = magmoms[i]
-                for conn_site in coupling_graph.get_connected_sites(i):
-                    col = self._interaction_label(sub_ids[i], sub_ids[conn_site[2]], conn_site[-1])
-                    row[col] -= s_i * magmoms[conn_site[2]]
+                m_i = magmoms[i]
+                for neighbor in coupling_graph.get_connected_sites(i):
+                    col = self._interaction_label(sub_ids[i], sub_ids[neighbor.index], neighbor.dist)
+                    row[col] -= m_i * magmoms[neighbor.index]
 
             # Extensive sums -> normalised per magnetic ion, with the 1/2 Heisenberg factor for double counting.
             for c in j_columns:
@@ -749,7 +594,7 @@ class HeisenbergMapper:
         # truncating so they do not use up a slot.
         j_columns = [c for c in j_columns if not (ex_mat[c] == 0).all()]
 
-        # Keep at most n - 1 J_ij for n orderings (E0 is the nth parameter).
+        # Keep at most (n - 1) J_ij for n orderings (E0 is the nth parameter).
         n_j_max = len(self.orderings) - 1
         if len(j_columns) > n_j_max:
             dropped = j_columns[n_j_max:]
@@ -763,56 +608,26 @@ class HeisenbergMapper:
                 stacklevel=3,
             )
 
-        # Every ordering is kept: get_exchange fits the parameters by least squares, so
-        # surplus orderings average out the noise on the energies instead of being
-        # discarded to square the system. That includes orderings whose rows coincide while
-        # their energies do not - HeisenbergScreener has already dropped the ones that
-        # agree on both, so what is left is the Heisenberg model failing to tell two
-        # orderings apart, which is precisely what the residual is there to report.
         self.ex_mat = ex_mat[["E", "E0", *j_columns]].reset_index(drop=True)
 
     def get_exchange(self):
-        """
-        Take Heisenberg Hamiltonian and corresponding energy for each row and
-        solve for the exchange parameters in the least-squares sense.
+        """Fit E0 and the J_ij to the energies of all orderings by least squares.
 
-        With exactly as many orderings as parameters this reproduces the solution of the
-        square linear system of equations; with more it is a fit over all of them compensating
-        for the noise in the DFT-energies.
-
-        The rows of ex_mat multiply the raw magnetic moments in muB rather than normalized
-        spins, so the fitted J_ij come out in meV/muB^2: it takes J_ij * m_i * m_j to get
-        the energy of a bond. Leaving the moments unnormalized is deliberate: orderings
-        relax to different moment magnitudes, and it is the bond energy that should follow
-        the product m_i * m_j, while the interaction strength itself stays the same.
-        Normalizing every moment to 1 would fold that ordering-to-ordering variation into
-        the fitted J_ij as noise. Codes and papers working with
-        normalized spins (VAMPIRE, UppASD, TB2J) instead report J in meV for
-        E = -sum_<ij> J_ij e_i.e_j with |e| = 1; get_interaction_graph does that conversion.
+        The J_ij multiply the raw moments, so they are in meV/muB^2 (bond energy
+        J_ij * m_i * m_j); this keeps moment magnitudes that differ between orderings out
+        of the fitted J_ij. get_interaction_graph converts to meV for normalized spins.
 
         Returns:
-            ex_params (dict[str, float]): Exchange parameters. The J_ij are in meV/muB^2;
-                the included 'E0' offset is in eV per magnetic ion (its column in ex_mat
-                is 1.0 and the fitted energies are per magnetic ion, so it comes out
-                intensive, which is what lets orderings of different size share one fit).
-            residual (float): Root-mean-square residual of the least-squares fit, in meV
-                per magnetic ion. It is a residual on the fitted energies, so unlike the
-                J_ij it keeps the per-magnetic-ion normalisation, and averaging over the
-                orderings instead of summing makes it independent of how many orderings
-                went into the fit. Both normalisations together make it an intensive
-                measure of how well the Heisenberg model describes the energies, i.e.
-                one that is comparable between materials.
+            ex_params (dict[str, float]): J_ij in meV/muB^2 and 'E0' in eV per magnetic ion.
+            residual (float): RMS fit residual in meV per magnetic ion.
 
         Raises:
-            ValueError: If the orderings constrain fewer than two exchange interactions,
-                leaving nothing for the fit to solve.
+            ValueError: If fewer than two exchange interactions are left to fit.
         """
         ex_mat = self.ex_mat
         E = ex_mat[["E"]]
         col_names = [c for c in ex_mat.columns if c != "E"]
 
-        # E0 and a single J cannot be fitted from the energies alone, so there is nothing
-        # to solve here.
         if len(col_names) < 3:
             raise ValueError(
                 f"Exchange matrix holds {len(col_names) - 1} interaction(s) besides E0; a least-squares "
@@ -820,16 +635,9 @@ class HeisenbergMapper:
                 "fit, otherwise set a cutoff so that further shells are included."
             )
 
-        # Fit E0 and the J_ij to the energies of every ordering
         H = np.array(ex_mat.loc[:, ex_mat.columns != "E"].values).astype(float)
 
-        # Warn when the fit is ill-conditioned: near-degenerate orderings or an
-        # over-parameterized model make H nearly singular, so tiny energy
-        # differences blow up into unphysical exchange parameters. Judge that on
-        # column-normalized H - the E0 column is exactly 1 while the J columns are sums of
-        # m_i * m_j, so the condition number of H itself tracks the moment magnitudes as
-        # much as the degeneracy of the orderings, and a fixed threshold on it would fire
-        # or not depending on the species involved.
+        # Column-normalized, so the threshold does not depend on the moment magnitudes.
         cond = np.linalg.cond(H / np.linalg.norm(H, axis=0))
         if cond > 1e5:
             warnings.warn(
@@ -843,22 +651,12 @@ class HeisenbergMapper:
 
         j_ij, residuals, rank, _singular = np.linalg.lstsq(H, E, rcond=None)
 
-        # lstsq only fills residuals for an overdetermined full-rank fit; for a square,
-        # underdetermined or rank-deficient one it returns an empty array, so compute the
-        # sum of squared residuals here. It sits on the energy side of the system, not the
-        # J_ij side, so it is a squared energy in (eV per magnetic ion)^2.
+        # lstsq leaves residuals empty unless the fit is overdetermined and full rank.
         ssr = float(residuals[0]) if residuals.size else float(np.sum((H @ j_ij - np.asarray(E)) ** 2))
-
-        # Take the root mean square over the orderings rather than the raw sum: the sum
-        # grows with the number of orderings, while the RMS stays a typical per-ordering
-        # energy error and can be compared between materials fitted from different numbers
-        # of orderings. Divided by the row count, not by the degrees of freedom, so that a
-        # square system (as many orderings as parameters) does not divide by zero.
+        # Divided by the row count, not the degrees of freedom, so a square system works.
         residual = float(np.sqrt(ssr / H.shape[0]))
 
-        # A least-squares fit does not fail on a system it cannot determine,
-        # it silently returns the minimum-norm solution. cond above cannot see this case:
-        # with fewer rows than parameters it stays finite.
+        # lstsq returns a minimum-norm solution here rather than failing.
         if rank < H.shape[1]:
             warnings.warn(
                 f"Exchange matrix is rank deficient (rank {rank} for {H.shape[1]} parameters); "
@@ -869,8 +667,6 @@ class HeisenbergMapper:
             )
 
         residual *= 1000  # convert to meV per magnetic ion
-        # Keyed by column name rather than by position, so that reordering ex_mat's columns
-        # cannot silently convert the offset and leave a J_ij in eV.
         ex_params = {
             name: value[0] if name == "E0" else value[0] * 1000  # J_ij in meV/muB^2, E0 in eV per ion
             for name, value in zip(col_names, j_ij.tolist(), strict=True)
@@ -880,8 +676,91 @@ class HeisenbergMapper:
         self.residual = residual
         return self.ex_params, self.residual
 
+    def get_interaction_graph(self, filename=None, ordering_index=0):
+        """Get a StructureGraph with edges and weights that correspond to exchange
+        interactions and J_ij values, respectively.
+
+        Edge weights are in meV for normalized spins, E = -sum_<ij> J_ij e_i.e_j, as used
+        by VAMPIRE, UppASD and TB2J.
+
+        Args:
+            filename (str): if not None, save interaction graph to filename.
+            ordering_index (int): Which ordering (and its supercell) to build the
+                graph for. Site indices and the J_ij lookup use this ordering's
+                sublattice labels. Defaults to 0 (the lowest-energy ordering).
+
+        Returns:
+            StructureGraph: Exchange interaction graph.
+        """
+        if self.ex_params is None:
+            self.get_exchange()
+
+        ordering = self.orderings[ordering_index]
+        structure = ordering.ideal_magnetic_structure.copy()  # the returned graph must not share it
+        magmoms = structure.site_properties["magmom"]
+        coupling_graph = ordering.coupling_graph
+        sub_ids = ordering.sublattice_ids
+
+        igraph = StructureGraph.from_empty_graph(
+            structure, edge_weight_name="exchange_constant", edge_weight_units="meV"
+        )
+
+        # J_ij exchange interaction matrix
+        for i in range(len(coupling_graph.graph.nodes)):
+            for neighbor in coupling_graph.get_connected_sites(i):
+                j = neighbor.index
+                j_exc = self.ex_params.get(self._interaction_label(sub_ids[i], sub_ids[j], neighbor.dist), 0)
+                j_exc *= abs(magmoms[i] * magmoms[j])  # meV/muB^2 -> meV
+                # Interactions left out of the fit; add_edge would store them with weight None.
+                if not j_exc:
+                    continue
+                igraph.add_edge(i, j, to_jimage=neighbor.jimage, weight=j_exc, warn_duplicates=False)
+
+        if filename:
+            if not filename.endswith(".json"):
+                filename += ".json"
+            dumpfn(igraph, filename)
+
+        return igraph
+
+    def get_heisenberg_model(self):
+        """Save results of mapping to a HeisenbergModel object.
+
+        Returns:
+            HeisenbergModel: MSONable object.
+        """
+        ex_params, residual = self.get_exchange()
+        return HeisenbergModel(
+            formula=str(self.ordered_structures_[0].reduced_formula),
+            structures=self.structures,
+            magnetic_structures=self.magnetic_structures,
+            energies=self.energies,
+            energies_per_magnetic_ion=self.energies_per_magnetic_ion,
+            cutoff=self.cutoff,
+            tol=self.tol,
+            symprec=self.symprec,
+            coupling_graphs=self.coupling_graphs,
+            sublattice_ids=self.sublattice_ids,
+            sublattice_wyckoff_symbols=self.sublattice_wyckoff_symbols,
+            interactions=self.interactions,
+            dists=self.dists,
+            ex_mat=self.ex_mat,
+            ex_params=ex_params,
+            residual=residual,
+            igraph=self.get_interaction_graph(),
+        )
+
+    @deprecated(
+        get_exchange,
+        message="It only serves the deprecated estimate_exchange.",
+        category=DeprecationWarning,
+        deadline=(2027, 8, 1),
+    )
     def get_low_energy_orderings(self):
         """Find lowest energy FM and AFM orderings to compute E_AFM - E_FM.
+
+        .. deprecated::
+            Only used by the deprecated :meth:`estimate_exchange`.
 
         Returns:
             fm_struct (Structure): fm structure with 'magmom' site property
@@ -889,10 +768,14 @@ class HeisenbergMapper:
             fm_e (float): fm energy
             afm_e (float): afm energy
         """
-        fm_struct, afm_struct = None, None
+        fm_struct = None
+        afm_struct = None
         mag_min = np.inf
         mag_max = 0.001
-        fm_e = afm_e = fm_e_min = afm_e_min = 0
+        fm_e = 0
+        afm_e = 0
+        fm_e_min = 0
+        afm_e_min = 0
 
         for magnetic_ordering in self.orderings:
             s = magnetic_ordering.magnetic_structure
@@ -1039,110 +922,6 @@ class HeisenbergMapper:
 
         return mft_t
 
-    def get_interaction_graph(self, filename=None, ordering_index=0):
-        """Get a StructureGraph with edges and weights that correspond to exchange
-        interactions and J_ij values, respectively.
-
-        Edge weights are in meV, for the normalized-spin Hamiltonian
-        E = -sum_<ij> J_ij e_i.e_j, i.e. this ordering's moments are folded into the
-        fitted meV/muB^2 parameters (see get_exchange). That is the convention VAMPIRE,
-        UppASD and TB2J use, so the weights can go straight into a ucf file.
-
-        Args:
-            filename (str): if not None, save interaction graph to filename.
-            ordering_index (int): Which ordering (and its supercell) to build the
-                graph for. Site indices and the J_ij lookup use this ordering's
-                sublattice labels. Defaults to 0 (the lowest-energy ordering).
-
-        Returns:
-            StructureGraph: Exchange interaction graph.
-        """
-        if self.ex_params is None:
-            self.get_exchange()
-
-        ordering = self.orderings[ordering_index]
-        # The ideal cell: the edges come from it, and it keeps the ucf geometry consistent
-        # with the fit rather than with one ordering's relaxation.
-        structure = ordering.ideal_magnetic_structure.copy()  # the returned graph must not share it
-        magmoms = structure.site_properties["magmom"]
-        coupling_graph = ordering.coupling_graph
-        sub_ids = ordering.sublattice_ids
-
-        igraph = StructureGraph.from_empty_graph(
-            structure, edge_weight_name="exchange_constant", edge_weight_units="meV"
-        )
-
-        # J_ij exchange interaction matrix
-        for i in range(len(coupling_graph.graph.nodes)):
-            for c in coupling_graph.get_connected_sites(i):
-                jimage = c[1]  # relative integer coordinates of atom j
-                j = c[2]  # index of neighbor
-                j_exc = self._get_j_exc(sub_ids[i], sub_ids[j], c[-1])
-                # Weights are in meV, so fold this ordering's moments into the fitted
-                # meV/muB^2 parameters. Only the magnitudes enter: the relative orientation
-                # of the two sites belongs to the spin vectors, not to J_ij.
-                j_exc *= abs(magmoms[i] * magmoms[j])
-                # Only add interactions the fit actually parameterized. Unparameterized
-                # interactions (no matching sublattice-pair/shell in ex_params, exactly
-                # the interactions _build_exchange_mat also ignores) get j_exc == 0, which
-                # StructureGraph.add_edge silently drops via its falsy-weight
-                # guard, leaving an edge with weight=None that breaks downstream
-                # per-interaction consumers.
-                if not j_exc:
-                    continue
-                igraph.add_edge(i, j, to_jimage=jimage, weight=j_exc, warn_duplicates=False)
-
-        if filename:
-            if not filename.endswith(".json"):
-                filename += ".json"
-            dumpfn(igraph, filename)
-
-        return igraph
-
-    def _get_j_exc(self, i_id, j_id, dist):
-        """Look up the exchange parameter between two sublattices at a distance.
-
-        Args:
-            i_id (int): sublattice id of the ith site
-            j_id (int): sublattice id of the jth site
-            dist (float): distance (Angstrom) between sites
-
-        Returns:
-            float: Exchange parameter J_exc in meV/muB^2 (0 if the interaction was left
-                out of the fit).
-                Multiply by the two moments to get meV, as get_interaction_graph does.
-        """
-        label = self._interaction_label(i_id, j_id, dist)
-
-        return self.ex_params.get(label, 0)
-
-    def get_heisenberg_model(self):
-        """Save results of mapping to a HeisenbergModel object.
-
-        Returns:
-            HeisenbergModel: MSONable object.
-        """
-        ex_params, residual = self.get_exchange()
-        return HeisenbergModel(
-            formula=str(self.ordered_structures_[0].reduced_formula),
-            structures=self.structures,
-            magnetic_structures=self.magnetic_structures,
-            energies=self.energies,
-            energies_per_magnetic_ion=self.energies_per_magnetic_ion,
-            cutoff=self.cutoff,
-            tol=self.tol,
-            symprec=self.symprec,
-            coupling_graphs=self.coupling_graphs,
-            sublattice_ids=self.sublattice_ids,
-            sublattice_wyckoff_symbols=self.sublattice_wyckoff_symbols,
-            interactions=self.interactions,
-            dists=self.dists,
-            ex_mat=self.ex_mat,
-            ex_params=ex_params,
-            residual=residual,
-            igraph=self.get_interaction_graph(),
-        )
-
 
 class HeisenbergScreener:
     """Clean and screen magnetic orderings."""
@@ -1272,9 +1051,8 @@ class HeisenbergModel(MSONable):
             ex_params (dict): Exchange parameter values. The J_ij are in meV/muB^2 (they
                 multiply the raw moments, see HeisenbergMapper.get_exchange); the included
                 'E0' offset is in eV per magnetic ion.
-            residual (float): Root-mean-square residual of the fit that produced ex_params,
-                in meV per magnetic ion. Intensive in both the cell size and the number of
-                orderings, so it is comparable between materials.
+            residual (float): RMS residual of the fit that produced ex_params, in meV per
+                magnetic ion.
             igraph (StructureGraph): Exchange interaction graph, edge weights in meV.
         """
         self.formula = formula
@@ -1343,10 +1121,7 @@ class HeisenbergModel(MSONable):
         coupling_graphs = [StructureGraph.from_dict(v) for v in dct["coupling_graphs"]]
         igraph = StructureGraph.from_dict(dct["igraph"])
 
-        # Reconstitute the exchange matrix DataFrame. as_dict() calls .to_dict() on it,
-        # but serializations written before that did (and by #4664, which jsanitized the
-        # DataFrame directly) may store a (JSON/repr) string instead. Accept both forms
-        # and fall back to an empty matrix when ex_mat is empty.
+        # Older serializations store ex_mat as a string.
         ex_mat = dct["ex_mat"]
         if isinstance(ex_mat, str):
             try:
