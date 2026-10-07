@@ -222,6 +222,25 @@ class TestPourbaixDiagram:
         with pytest.raises(ValueError, match="non-H/O element"):
             PourbaixDiagram(self.test_data["Ag-Te"], comp_dict={"H": 1, "O": 1})
 
+    def test_entry_with_comp_dict_composition(self):
+        # Regression test for #4709: a single entry with the same composition as
+        # comp_dict must become a MultiEntry, so it can be a stable domain
+        cu3p = PourbaixEntry(ComputedEntry("Cu3P", -1.0))
+        multi_entry = PourbaixDiagram.process_multientry([cu3p], Composition("Cu3P"))
+        assert multi_entry is not None
+        assert multi_entry.weights == approx([1])
+
+        entries = [
+            cu3p,
+            PourbaixEntry(ComputedEntry("Cu", 0.0)),
+            PourbaixEntry(ComputedEntry("P", 0.0)),
+            PourbaixEntry(IonEntry(Ion.from_formula("Cu[2+]"), 65.49 / 96.485)),
+            PourbaixEntry(IonEntry(Ion.from_formula("H2PO4[-]"), -1130.28 / 96.485)),
+        ]
+        pbx = PourbaixDiagram(entries, comp_dict={"Cu": 3, "P": 1})
+        assert "Cu3P(s)" in [entry.name for entry in pbx.stable_entries]
+        assert pbx.get_decomposition_energy(cu3p, 7, -1) == approx(0)
+
     def test_get_pourbaix_domains(self):
         domains = PourbaixDiagram.get_pourbaix_domains(self.test_data["Zn"])
         assert len(domains[0]) == 7
