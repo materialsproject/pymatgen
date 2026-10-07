@@ -1009,6 +1009,32 @@ class TestMaterialsProjectCompatibility2020:
         # SiO2; only corrections should be oxide
         assert self.compat.process_entry(entry2).correction == approx(-0.687 * 4)
 
+    def test_oxidation_states_element_keys(self):
+        # oxidation_states keyed by Element (as stored in the MP database) must give the
+        # same anion corrections as symbol keys
+        corrections = []
+        for oxidation_states in (
+            {"Nb": 5.0, "Cl": -1.0, "O": -2.0},
+            {Element("Nb"): 5.0, Element("Cl"): -1.0, Element("O"): -2.0},
+        ):
+            entry = ComputedEntry(
+                "NbOCl3",
+                -30,
+                parameters={
+                    "run_type": "GGA",
+                    "hubbards": {},
+                    "potcar_symbols": ["PBE Nb_pv", "PBE O", "PBE Cl"],
+                },
+                data={"oxidation_states": oxidation_states},
+            )
+            adjustments = self.compat.get_adjustments(entry)
+            assert {adj.name for adj in adjustments} == {
+                "MP2020 anion correction (oxide)",
+                "MP2020 anion correction (Cl)",
+            }
+            corrections.append(sum(adj.value for adj in adjustments))
+        assert corrections[1] == approx(corrections[0])
+
     def test_u_values(self):
         # Wrong U value
         entry = ComputedEntry(

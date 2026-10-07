@@ -1198,10 +1198,14 @@ class MaterialsProject2020Compatibility(Compatibility):
                 stacklevel=2,
             )
 
+        # oxidation_states may be keyed by Element (e.g. entries from the Materials Project
+        # database) or by element symbol, so look the anions up by symbol either way
+        oxidation_states = {str(el): oxi for el, oxi in entry.data["oxidation_states"].items()}
+
         for anion in ("Br", "I", "Se", "Si", "Sb", "Te", "H", "N", "F", "Cl"):
             if Element(anion) in comp and anion in self.comp_correction:
                 apply_correction = False
-                oxidation_state = entry.data["oxidation_states"].get(anion, 0)
+                oxidation_state = oxidation_states.get(anion, 0)
                 # if the oxidation_states key is not populated, only apply the correction if the anion
                 # is the most electronegative element
                 if oxidation_state < 0:
