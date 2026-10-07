@@ -229,6 +229,10 @@ class TestPourbaixDiagram:
         multi_entry = PourbaixDiagram.process_multientry([cu3p], Composition("Cu3P"))
         assert multi_entry is not None
         assert multi_entry.weights == approx([1])
+        # with another entry, that entry would need a coefficient of 0, so no MultiEntry
+        cu = PourbaixEntry(ComputedEntry("Cu", 0.0))
+        assert PourbaixDiagram.process_multientry([cu3p, cu], Composition("Cu3P")) is None
+        assert PourbaixDiagram.process_multientry([cu, cu3p], Composition("Cu3P")) is None
 
         entries = [
             cu3p,
