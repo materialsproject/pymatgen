@@ -1198,9 +1198,9 @@ class MaterialsProject2020Compatibility(Compatibility):
                 stacklevel=2,
             )
 
-        # oxidation_states may be keyed by Element (e.g. entries from the Materials Project
-        # database) or by element symbol, so look the anions up by symbol either way
-        oxidation_states = {str(el): oxi for el, oxi in entry.data["oxidation_states"].items()}
+        # oxidation_states may be keyed by Element or Species (e.g. entries from the Materials
+        # Project database) or by element symbol, so look the anions up by symbol either way
+        oxidation_states = {getattr(el, "symbol", el): oxi for el, oxi in entry.data["oxidation_states"].items()}
 
         for anion in ("Br", "I", "Se", "Si", "Sb", "Te", "H", "N", "F", "Cl"):
             if Element(anion) in comp and anion in self.comp_correction:
