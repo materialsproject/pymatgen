@@ -12,7 +12,11 @@ import pandas as pd
 import plotly.graph_objects as go
 import scipy.constants as sc
 
-from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator
+from pymatgen.analysis.diffraction.core import (
+    AbstractDiffractionPatternCalculator,
+    get_anisotropic_debye_waller_factors,
+    get_ustar,
+)
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.string import latexify_spacegroup, unicodeify_spacegroup
 
@@ -238,7 +242,15 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Calculates the scattering factor for the whole cell.
 
         Args:
-            structure (Structure): The input structure.
+            structure (Structure): The input structure. If it has the site
+                properties U11_cif, ..., U12_cif in angstrom^2 (see
+                ThermalDisplacementMatrices.to_structure_with_site_properties_Ucif),
+                the scattering of each site is multiplied by the anisotropic
+                Debye-Waller factor exp(-2 pi^2 h^T U* h), where h is the
+                vector of Miller indices. The U_cif values must refer to the
+                lattice of this structure. Methods that change the lattice
+                vectors, such as get_reduced_structure, copy the site
+                properties unchanged.
             bragg_angles (dict of 3-tuple to float): The Bragg angles for each hkl plane.
 
         Returns:
@@ -246,13 +258,17 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         cell_scattering_factors = {}
         electron_scattering_factors = self.electron_scattering_factors(structure, bragg_angles)
+        ustar = get_ustar(structure)
         scattering_factor_curr = 0
         for plane in bragg_angles:
-            for site in structure:
+            dw_factors = np.ones(len(structure))
+            if ustar is not None:
+                dw_factors = get_anisotropic_debye_waller_factors(np.array([plane]), ustar)[0]
+            for site, dw_factor in zip(structure, dw_factors, strict=True):
                 for sp in site.species:
                     g_dot_r = np.dot(np.array(plane), np.transpose(site.frac_coords))
-                    scattering_factor_curr += electron_scattering_factors[sp.symbol][plane] * np.exp(
-                        2j * np.pi * g_dot_r
+                    scattering_factor_curr += (
+                        electron_scattering_factors[sp.symbol][plane] * np.exp(2j * np.pi * g_dot_r) * dw_factor
                     )
             cell_scattering_factors[plane] = scattering_factor_curr
             scattering_factor_curr = 0
@@ -285,7 +301,9 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """Get all relevant TEM DP info in a pandas dataframe.
 
         Args:
-            structure (Structure): The input structure.
+            structure (Structure): The input structure. See cell_scattering_factors
+                for the U11_cif, ..., U12_cif site properties. They cannot be
+                used with symprec.
             scaled (bool): Required value for inheritance, does nothing in TEM pattern
             two_theta_range (tuple[float, float]): Required value for inheritance, does nothing in TEM pattern
 
@@ -293,6 +311,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             pd.DataFrame
         """
         if self.symprec:
+            if "U11_cif" in structure.site_properties:
+                raise ValueError("symprec cannot be used with the U11_cif, ..., U12_cif site properties.")
             finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
             structure = finder.get_refined_structure()
         points = self.generate_points(-10, 11)
@@ -545,12 +565,16 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """Generate the 2D diffraction pattern of the input structure.
 
         Args:
-            structure (Structure): The input structure.
+            structure (Structure): The input structure. See cell_scattering_factors
+                for the U11_cif, ..., U12_cif site properties. They cannot be
+                used with symprec.
 
         Returns:
             Figure
         """
         if self.symprec:
+            if "U11_cif" in structure.site_properties:
+                raise ValueError("symprec cannot be used with the U11_cif, ..., U12_cif site properties.")
             finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
             structure = finder.get_refined_structure()
         points = self.generate_points(-10, 11)
@@ -623,12 +647,16 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Does not display.
 
         Args:
-            structure (Structure): The input structure.
+            structure (Structure): The input structure. See cell_scattering_factors
+                for the U11_cif, ..., U12_cif site properties. They cannot be
+                used with symprec.
 
         Returns:
             Figure
         """
         if self.symprec:
+            if "U11_cif" in structure.site_properties:
+                raise ValueError("symprec cannot be used with the U11_cif, ..., U12_cif site properties.")
             finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
             structure = finder.get_refined_structure()
         points = self.generate_points(-10, 11)

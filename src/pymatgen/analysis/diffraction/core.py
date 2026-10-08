@@ -10,10 +10,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from pymatgen.core.spectrum import Spectrum
+from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import add_fig_kwargs, pretty_plot
 
 if TYPE_CHECKING:
     from matplotlib.axes import Axes
+    from numpy.typing import NDArray
 
     from pymatgen.core import Structure
 
@@ -237,3 +239,49 @@ def get_unique_families(hkls):
         pretty_unique[max(val)] = len(val)
 
     return pretty_unique
+
+
+def get_ustar(structure: Structure) -> NDArray[np.float64] | None:
+    """Get the thermal displacement matrices U* of the sites.
+
+    They are computed from the site properties U11_cif, ..., U12_cif in angstrom^2, as
+    written by ThermalDisplacementMatrices.to_structure_with_site_properties_Ucif.
+    U* is ThermalDisplacementMatrices.Ustar, which is dimensionless.
+
+    Args:
+        structure (Structure): Input structure.
+
+    Returns:
+        NDArray[np.float64] | None: U* of shape (len(structure), 3, 3), or None if
+            the structure has no U11_cif site property.
+
+    Raises:
+        ValueError: If a site has no U11_cif, ..., U12_cif values.
+    """
+    props = structure.site_properties
+    if "U11_cif" not in props:
+        return None
+    # imported here, since importing pymatgen.phonon takes over a second
+    from pymatgen.phonon.thermal_displacements import ThermalDisplacementMatrices
+
+    # sites without the properties get None here, which becomes NaN
+    ucif = np.array([props[f"U{idx}_cif"] for idx in (11, 22, 33, 23, 13, 12)], dtype=float).T
+    if np.isnan(ucif).any():
+        missing_sites = np.flatnonzero(np.isnan(ucif).any(axis=1)).tolist()
+        raise ValueError(f"U11_cif, ..., U12_cif must be set on every site, {missing_sites=}")
+    return ThermalDisplacementMatrices.from_Ucif(ucif, structure).Ustar
+
+
+@due.dcite(Doi("10.1107/S0108767396005697"), description="Atomic displacement parameter nomenclature")
+def get_anisotropic_debye_waller_factors(hkls: NDArray, ustar: NDArray[np.float64]) -> NDArray[np.float64]:
+    """Get the anisotropic Debye-Waller factors exp(-2 pi^2 h^T U* h).
+
+    Args:
+        hkls (NDArray): Miller indices, shape (n_hkls, 3).
+        ustar (NDArray): Thermal displacement matrices U* of the sites,
+            shape (n_sites, 3, 3).
+
+    Returns:
+        NDArray[np.float64]: Factors of shape (n_hkls, n_sites).
+    """
+    return np.exp(-2 * np.pi**2 * np.einsum("mi,nij,mj->mn", hkls, ustar, hkls))

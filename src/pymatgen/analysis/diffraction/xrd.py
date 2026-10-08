@@ -12,7 +12,9 @@ import orjson
 from pymatgen.analysis.diffraction.core import (
     AbstractDiffractionPatternCalculator,
     DiffractionPattern,
+    get_anisotropic_debye_waller_factors,
     get_unique_families,
+    get_ustar,
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -62,9 +64,10 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
     Crystallography of Materials. The formalism for this code is based on
     that given in Chapters 11 and 12 of Structure of Materials by Marc De
     Graef and Michael E. McHenry. This takes into account the atomic
-    scattering factors and the Lorentz polarization factor, but not
-    the Debye-Waller (temperature) factor (for which data is typically not
-    available). Note that the multiplicity correction is not needed since
+    scattering factors and the Lorentz polarization factor. The Debye-Waller
+    (temperature) factor is applied if debye_waller_factors are given, or if
+    the structure has the site properties U11_cif, ..., U12_cif (see
+    get_pattern). Note that the multiplicity correction is not needed since
     this code simply goes through all reciprocal points within the limiting
     sphere, which includes all symmetrically equivalent facets. The algorithm
     is as follows
@@ -139,7 +142,16 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         Calculates the diffraction pattern for a structure.
 
         Args:
-            structure (Structure): Input structure
+            structure (Structure): Input structure. If it has the site
+                properties U11_cif, ..., U12_cif in angstrom^2 (see
+                ThermalDisplacementMatrices.to_structure_with_site_properties_Ucif),
+                the scattering of each site is multiplied by the anisotropic
+                Debye-Waller factor exp(-2 pi^2 h^T U* h), where h is the
+                vector of Miller indices. They cannot be used with symprec or
+                debye_waller_factors. The U_cif values must refer to the
+                lattice of this structure. Methods that change the lattice
+                vectors, such as get_reduced_structure, copy the site
+                properties unchanged.
             scaled (bool): Whether to return scaled intensities. The maximum
                 peak is set to a value of 100. Defaults to True. Use False if
                 you need the absolute values to combine XRD plots.
@@ -151,6 +163,11 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         Returns:
             DiffractionPattern: XRD pattern
         """
+        ustar = get_ustar(structure)
+        if ustar is not None and (self.symprec or self.debye_waller_factors):
+            raise ValueError(
+                "Neither symprec nor debye_waller_factors can be used with the U11_cif, ..., U12_cif site properties."
+            )
         if self.symprec:
             finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
             structure = finder.get_refined_structure()
@@ -171,11 +188,11 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
             recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
 
         # --- Group sites by element ---
-        # The scattering coefficients, atomic number and Debye-Waller factor
+        # The scattering coefficients, atomic number and debye_waller_factors
         # depend only on the element, so the form factor is computed once per
         # element over all hkl instead of once per atom.
         species_groups: dict[str, dict] = {}
-        for site in structure:
+        for site_idx, site in enumerate(structure):
             for sp, occu in site.species.items():
                 try:
                     coeff = ATOMIC_SCATTERING_PARAMS[sp.symbol]
@@ -191,10 +208,12 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                         "dw_factor": self.debye_waller_factors.get(sp.symbol, 0),
                         "frac_coords": [],
                         "occus": [],
+                        "site_indices": [],
                     },
                 )
                 grp["frac_coords"].append(site.frac_coords)
                 grp["occus"].append(occu)
+                grp["site_indices"].append(site_idx)
 
         # --- Unpack reciprocal points, keep one Friedel half-space ---
         # The atomic scattering factors are real (anomalous dispersion is
@@ -202,7 +221,8 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         # F(-g) = F*(g). Only the half-space with (h, k, l) lexicographically
         # positive is computed; intensities are doubled and the -g Miller
         # indices are restored when collecting hkl families. This also
-        # excludes the (000) point and halves the sort.
+        # excludes the (000) point and halves the sort. The Debye-Waller
+        # factors are real and even in g, so they keep F(-g) = F*(g).
         hkls_int = np.round([pt[0] for pt in recip_pts]).astype(int)  # (M, 3)
         g_hkls = np.array([pt[1] for pt in recip_pts])  # (M,)
 
@@ -225,7 +245,8 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         hkls_float = hkls_int.astype(float)  # (M, 3)
 
         # Structure factors accumulated element by element: (M,)
-        #   F(g) = sum_e f_e(g) DW_e(g) sum_{j in e} occu_j exp(2 pi i g.r_j)
+        #   F(g) = sum_e f_e(g) DW_e(g) sum_{j in e} occu_j DW_j(g) exp(2 pi i g.r_j)
+        # DW_e comes from debye_waller_factors and DW_j from U*. At most one of them is set.
         f_hkl = np.zeros(len(g_hkls), dtype=np.complex128)
         for grp in species_groups.values():
             coeff = grp["coeff"]  # (n_coeff, 2)
@@ -242,10 +263,15 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
             occus = np.asarray(grp["occus"])  # (m,)
             n_sites = fcoords_t.shape[1]
             chunk_rows = max(1, self.PHASE_CHUNK_ENTRIES // n_sites)
+            grp_ustar = None if ustar is None else ustar[grp["site_indices"]]  # (m, 3, 3)
             for start in range(0, len(g_hkls), chunk_rows):
                 rows = slice(start, start + chunk_rows)
                 g_dot_r = hkls_float[rows] @ fcoords_t  # (chunk, m)
-                f_hkl[rows] += fs[rows] * (np.exp(2j * math.pi * g_dot_r) @ occus)
+                phase = np.exp(2j * math.pi * g_dot_r)
+                if grp_ustar is not None:
+                    phase *= get_anisotropic_debye_waller_factors(hkls_float[rows], grp_ustar)
+                f_hkl[rows] += fs[rows] * (phase @ occus)
+                del phase
 
         i_hkl = (f_hkl * f_hkl.conjugate()).real  # (M,)
 
