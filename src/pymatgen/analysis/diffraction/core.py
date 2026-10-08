@@ -272,7 +272,9 @@ def get_ustar(structure: Structure) -> NDArray[np.float64] | None:
     return ThermalDisplacementMatrices.from_Ucif(ucif, structure).Ustar
 
 
-@due.dcite(Doi("10.1107/S0108767396005697"), description="Atomic displacement parameter nomenclature")
+@due.dcite(
+    Doi("10.1107/S0108767396005697"), description="Trueblood et al. (1996), Atomic displacement parameter nomenclature"
+)
 def get_anisotropic_debye_waller_factors(hkls: NDArray, ustar: NDArray[np.float64]) -> NDArray[np.float64]:
     """Get the anisotropic Debye-Waller factors exp(-2 pi^2 h^T U* h).
 

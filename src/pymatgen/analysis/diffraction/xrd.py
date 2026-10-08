@@ -271,6 +271,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 if grp_ustar is not None:
                     phase *= get_anisotropic_debye_waller_factors(hkls_float[rows], grp_ustar)
                 f_hkl[rows] += fs[rows] * (phase @ occus)
+                # free this chunk before the next one is allocated
                 del phase
 
         i_hkl = (f_hkl * f_hkl.conjugate()).real  # (M,)

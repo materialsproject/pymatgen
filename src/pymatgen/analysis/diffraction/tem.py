@@ -250,7 +250,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 vector of Miller indices. The U_cif values must refer to the
                 lattice of this structure. Methods that change the lattice
                 vectors, such as get_reduced_structure, copy the site
-                properties unchanged.
+                properties unchanged. Site occupancies are not used, so each
+                species of a site counts as fully occupied.
             bragg_angles (dict of 3-tuple to float): The Bragg angles for each hkl plane.
 
         Returns:
