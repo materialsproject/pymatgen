@@ -70,7 +70,7 @@ from abc import ABC, abstractmethod
 from ast import literal_eval
 from collections import defaultdict
 from functools import cached_property
-from itertools import pairwise
+from itertools import combinations_with_replacement, pairwise
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -576,6 +576,18 @@ class HeisenbergMapper:
                     labels.append(label)
                 previous = dist
             self.interactions[sub_id_pair] = labels
+
+        all_pairs = combinations_with_replacement(sorted(set(sub_ids)), 2)
+        uncoupled_pairs = [pair for pair in all_pairs if pair not in self.interactions]
+        if uncoupled_pairs:
+            warnings.warn(
+                f"The sublattice pairs {uncoupled_pairs} have no neighbor within "
+                f"{max(self.cutoff, MAX_SEARCH_DIST)} Angstrom, so the model has no exchange "
+                "constant between them.",
+                UserWarning,
+                # _set_interactions <- __init__ <- caller
+                stacklevel=3,
+            )
 
     def _interaction_label(self, i_id, j_id, dist):
         """Look up the J label of a bond from the sublattices at its ends and its length.

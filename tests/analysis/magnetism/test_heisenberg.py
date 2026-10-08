@@ -336,6 +336,19 @@ class TestHeisenbergMapperKnownHamiltonian:
         # With a cutoff, B keeps everything within it and A, with nothing within it, its nearest shell.
         assert neighbor_dists(cutoff=1.1, tol=0.05) == {0: [1.6, 1.6], 1: [0.96, 1.04]}
 
+    def test_sublattice_pair_beyond_search_distance_warns(self):
+        # A and B layers 12.5 Angstrom apart, beyond the 10 Angstrom neighbor search.
+        layer_spacing = 12.5
+        lattice = Lattice.from_parameters(1, 1, 2 * layer_spacing, 90, 90, 90)
+
+        def ordering(magmoms):
+            return Structure(lattice, [self.A, self.B], [[0, 0, 0], [0, 0, 0.5]], site_properties={"magmom": magmoms})
+
+        structures = [ordering([1.0, 1.0]), ordering([1.0, -1.0])]
+        with pytest.warns(UserWarning, match=r"pairs \[\(0, 1\)\] have no neighbor within 10"):
+            hm = HeisenbergMapper(structures, [-10.0, -9.0], parent=structures[0])
+        assert set(hm.interactions) == {(0, 0), (1, 1)}
+
     def test_shells_split_at_gaps_wider_than_tol(self):
         # B at x=0.45 gives A-B bonds of 0.90, 1.10, 1.84, 1.94, 2.90, 3.10, then 3.312,
         # 3.324 and 3.384 Angstrom. The last three are 0.012 and 0.060 apart, both within
