@@ -12,7 +12,9 @@ import orjson
 from pymatgen.analysis.diffraction.core import (
     AbstractDiffractionPatternCalculator,
     DiffractionPattern,
+    get_anisotropic_debye_waller_factors,
     get_unique_families,
+    get_ustar,
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -77,7 +79,16 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         Calculates the powder neutron diffraction pattern for a structure.
 
         Args:
-            structure (Structure): Input structure
+            structure (Structure): Input structure. If it has the site
+                properties U11_cif, ..., U12_cif in angstrom^2 (see
+                ThermalDisplacementMatrices.to_structure_with_site_properties_Ucif),
+                the scattering of each site is multiplied by the anisotropic
+                Debye-Waller factor exp(-2 pi^2 h^T U* h), where h is the
+                vector of Miller indices. They cannot be used with symprec or
+                debye_waller_factors. The U_cif values must refer to the
+                lattice of this structure. Methods that change the lattice
+                vectors, such as get_reduced_structure, copy the site
+                properties unchanged.
             scaled (bool): Whether to return scaled intensities. The maximum
                 peak is set to a value of 100. Defaults to True. Use False if
                 you need the absolute values to combine ND plots.
@@ -89,6 +100,11 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         Returns:
             DiffractionPattern: ND pattern
         """
+        ustar = get_ustar(structure)
+        if ustar is not None and (self.symprec or self.debye_waller_factors):
+            raise ValueError(
+                "Neither symprec nor debye_waller_factors can be used with the U11_cif, ..., U12_cif site properties."
+            )
         if self.symprec:
             finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
             structure = finder.get_refined_structure()
@@ -130,6 +146,8 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         fcoords = np.asarray(_frac_coords)  # (N,3)
         occus = np.asarray(_occus)  # (N,)
         dwfactors = np.asarray(_dw_factors)  # (N,)
+        if ustar is not None:
+            ustar = np.repeat(ustar, [len(site.species) for site in structure], axis=0)  # (N, 3, 3)
 
         # --- Unpack reciprocal points, keep one Friedel half-space ---
         # The neutron scattering lengths are real (bound coherent values;
@@ -138,6 +156,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         # with (h, k, l) lexicographically positive is computed; intensities
         # are doubled and the -g Miller indices are restored when collecting
         # hkl families. This also excludes the (000) point and halves the sort.
+        # The Debye-Waller factors are real and even in g, so they keep F(-g) = F*(g).
         hkls_int = np.round([pt[0] for pt in recip_pts]).astype(int)  # (M, 3)
         g_hkls = np.array([pt[1] for pt in recip_pts])  # (M,)
 
@@ -171,6 +190,8 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
             phase = np.exp(2j * np.pi * (hkls_float[rows] @ fcoords.T))  # (chunk, N)
             if has_dw:
                 phase *= np.exp(-dwfactors[None, :] * s2[rows, None])
+            if ustar is not None:
+                phase *= get_anisotropic_debye_waller_factors(hkls_float[rows], ustar)
             f_hkl[rows] = phase @ b_occus
 
         i_hkl = (f_hkl * f_hkl.conjugate()).real
