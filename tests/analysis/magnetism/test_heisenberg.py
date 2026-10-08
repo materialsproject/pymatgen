@@ -595,14 +595,15 @@ class TestHeisenbergMeanFieldTemperature:
         tc_expected = 2 * abs(self.Z * j_nn * 1000) / 3 / K_BOLTZMANN
         assert mft_t == approx(tc_expected, abs=1e-3)  # ~309.5 K
 
-    def test_single_interaction_cannot_be_fitted(self):
-        # One interaction cannot constrain E0 and a J at once, so there is nothing for
-        # the least-squares fit to solve and the mapper must say so rather than guess.
-        hm = self._mapper(0.010)
+    def test_single_interaction_is_fitted(self):
+        # FM and AFM give the one J opposite coefficients, so they fix E0 and J together.
+        j_nn = 0.010  # eV
+        hm = self._mapper(j_nn)
         assert len(hm.interactions) == 1
 
-        with pytest.raises(ValueError, match="needs at least 2"):
-            hm.get_exchange()
+        ex_params, residual = hm.get_exchange()
+        assert ex_params == approx({"E0": self.E0, "0-0-nn": j_nn * 1000})
+        assert residual == approx(0, abs=1e-9)
 
     @pytest.mark.parametrize(("j_nn", "fm_ground_state"), [(0.010, True), (-0.010, False)])
     def test_exchange_sign_follows_ground_state(self, j_nn, fm_ground_state):

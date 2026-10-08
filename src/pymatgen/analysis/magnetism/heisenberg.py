@@ -35,12 +35,12 @@ different supercells can be fitted together. This changed the public surface:
   inputs are still ``ordered_structures_``/``energies_``.
 * ``get_exchange`` now returns ``(ex_params, residual)`` rather than
   ``ex_params`` alone. It is a least-squares fit over all orderings instead of
-  an exactly-determined solve, and the ``{"<J>": ...}`` fallback for
-  under-determined systems is gone. ``residual`` is the RMS fit residual in meV
-  per magnetic ion and is also stored on ``mapper.residual`` and on
-  :class:`HeisenbergModel`. It is only meaningful with substantially more
-  orderings than fitted parameters; otherwise the extra parameters overfit,
-  lowering the residual without improving the fit.
+  an exactly-determined solve. The ``{"<J>": ...}`` fallback for a single
+  interaction is gone: that J is now fitted together with E0. ``residual`` is
+  the RMS fit residual in meV per magnetic ion and is also stored on
+  ``mapper.residual`` and on :class:`HeisenbergModel`. It is only meaningful
+  with substantially more orderings than fitted parameters; otherwise the extra
+  parameters overfit, lowering the residual without improving the fit.
   ``get_exchange`` reports an ill-conditioned or rank-deficient fit as a
   ``UserWarning`` rather than through the module logger, so the two signals that
   the returned parameters are untrustworthy can be filtered or turned into errors
@@ -694,17 +694,16 @@ class HeisenbergMapper:
             residual (float): RMS fit residual in meV per magnetic ion.
 
         Raises:
-            ValueError: If fewer than two exchange interactions are left to fit.
+            ValueError: If no exchange interaction is left to fit.
         """
         ex_mat = self.ex_mat
         E = ex_mat[["E"]]
         col_names = [c for c in ex_mat.columns if c != "E"]
 
-        if len(col_names) < 3:
+        if col_names == ["E0"]:
             raise ValueError(
-                f"Exchange matrix holds {len(col_names) - 1} interaction(s) besides E0; a least-squares "
-                "fit needs at least 2. Supply more orderings if interactions were left out of the "
-                "fit, otherwise set a cutoff so that further shells are included."
+                "Exchange matrix holds no interaction besides E0: the moment products of every "
+                "shell cancel in all orderings, so the energies constrain no J."
             )
 
         H = np.array(ex_mat.loc[:, ex_mat.columns != "E"].values).astype(float)
