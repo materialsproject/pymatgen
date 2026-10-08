@@ -305,12 +305,23 @@ class RelaxedOrdering(MagneticOrdering):
         structure: Structure,
         energy: float,
         parent_ordering: ParentOrdering,
+        matcher: StructureMatcher,
         cutoff: float = 0,
         tol: float = DEFAULT_TOL,
     ):
+        settings = matcher.as_dict()
+        matches_as_supercell = not settings["primitive_cell"] and settings["attempt_supercell"]
+        if not matches_as_supercell:
+            raise ValueError(
+                "The `matcher` must be a StructureMatcher with primitive_cell=False and "
+                "attempt_supercell=True, so it can match each ordering as a supercell of the "
+                "parent cell."
+            )
+
         super().__init__(structure, parent_ordering.magn_species, cutoff, tol)
         self.energy = energy  # total energy, as supplied by the caller
         self.parent_ordering = parent_ordering
+        self.matcher = matcher
         self._set_sublattice_ids()
 
     @property
@@ -319,15 +330,14 @@ class RelaxedOrdering(MagneticOrdering):
         return self.energy / len(self.magnetic_structure)
 
     def _set_sublattice_ids(self):
-        matcher = StructureMatcher(primitive_cell=False, attempt_supercell=True)
-
         # matched_parent[i] is the parent site, with its 'sublattice_id', that site i sits on.
-        matched_parent = matcher.get_s2_like_s1(self._nonmagnetic(self.structure), self.parent_ordering.structure)
+        matched_parent = self.matcher.get_s2_like_s1(self._nonmagnetic(self.structure), self.parent_ordering.structure)
         if matched_parent is None:
             raise ValueError(
                 "This ordering is not a supercell of the parent cell; it cannot be mapped "
                 "onto the parent sublattices. Pass an explicit `parent` cell that all "
-                "orderings share."
+                "orderings share, or, if relaxation distorted the ordering, a `matcher` "
+                "with looser tolerances."
             )
 
         # A partial or wrong match would silently shift every label.
@@ -340,7 +350,8 @@ class RelaxedOrdering(MagneticOrdering):
                 "The parent cell was matched onto this ordering, but the matched sites do "
                 "not line up with the ordering's species site by site, so the sublattice "
                 "labels would land on the wrong sites. Pass an explicit `parent` cell that "
-                "all orderings share."
+                "all orderings share, or, if you loosened the `matcher` tolerances, tighten "
+                "them."
             )
 
         ideal = Structure.from_sites([site for site in matched_parent if site.specie.symbol in self.magn_species])
@@ -382,6 +393,7 @@ class HeisenbergMapper:
         cutoff=0,
         tol: float = DEFAULT_TOL,
         symprec: float = DEFAULT_SYMPREC,
+        matcher: StructureMatcher | None = None,
     ):
         """Map collinear orderings, possibly in different supercells of a common parent
         cell, onto a classical Heisenberg model.
@@ -401,6 +413,12 @@ class HeisenbergMapper:
             symprec (float): Symmetry tolerance (Angstrom) for finding the parent's
                 sublattices. Raise it, or pass a symmetrized parent, if sublattices that
                 should be equivalent come out split. Defaults to 0.01.
+            matcher (StructureMatcher): Maps each ordering onto the parent cell. If
+                relaxation distorted an ordering beyond the defaults, loosen its ltol, stol
+                or angle_tol as far as needed and keep its other settings. It must have
+                primitive_cell=False and attempt_supercell=True, so each ordering is matched
+                as a supercell of the parent. Defaults to
+                StructureMatcher(primitive_cell=False, attempt_supercell=True).
         """
         if parent is not None and not isinstance(parent, Structure):
             raise TypeError(
@@ -408,6 +426,9 @@ class HeisenbergMapper:
                 "Note the constructor signature changed: parent now comes third, "
                 "before cutoff/tol - see the module docstring's migration guide."
             )
+
+        if matcher is None:
+            matcher = StructureMatcher(primitive_cell=False, attempt_supercell=True)
 
         # Save original copies of inputs
         self.ordered_structures_ = ordered_structures
@@ -417,6 +438,7 @@ class HeisenbergMapper:
         self.cutoff = cutoff
         self.tol = tol
         self.symprec = symprec
+        self.matcher = matcher
 
         # These attributes are set by internal methods, listed here for clarity.
         # Set by _initialize_orderings.
@@ -516,7 +538,7 @@ class HeisenbergMapper:
         )
 
         orderings = [
-            RelaxedOrdering(struct, energy, self.parent, cutoff=self.cutoff, tol=self.tol)
+            RelaxedOrdering(struct, energy, self.parent, self.matcher, cutoff=self.cutoff, tol=self.tol)
             for struct, energy in zip(ordered_structures, energies, strict=True)
         ]
 

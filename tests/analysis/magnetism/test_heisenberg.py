@@ -10,6 +10,7 @@ from pytest import approx
 from scipy.constants import physical_constants
 
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper, HeisenbergModel, SublatticeMinimumDistanceNN
+from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice
 from pymatgen.core.structure import Structure
 
@@ -417,6 +418,48 @@ class TestHeisenbergMapperKnownHamiltonian:
         energies = [self._energy(*self.ORDERINGS[0]), self._energy(*self.ORDERINGS[1]), -5.0]
         with pytest.raises(ValueError, match="parent cell"):
             HeisenbergMapper(structures, energies)
+
+    def test_looser_matcher_maps_a_distorted_ordering(self):
+        # Relaxed in its own magnetic state, an ordering can shear away from the parent
+        # further than the default angle_tol of 5 degrees; a looser matcher still maps it.
+        sheared_gamma = 97
+        parent = self._structure(*self.ORDERINGS[0])
+        structures = [self._structure(*spins) for spins in self.ORDERINGS]
+        energies = [self._energy(*spins) for spins in self.ORDERINGS]
+        sheared = structures[-1]
+        structures[-1] = Structure(
+            Lattice.from_parameters(*sheared.lattice.abc, 90, 90, sheared_gamma),
+            sheared.species,
+            sheared.frac_coords,
+            site_properties=sheared.site_properties,
+        )
+
+        with pytest.raises(ValueError, match="looser tolerances"):
+            HeisenbergMapper(structures, energies, parent=parent)
+
+        loose_matcher = StructureMatcher(primitive_cell=False, attempt_supercell=True, angle_tol=10)
+        hm = HeisenbergMapper(structures, energies, parent=parent, matcher=loose_matcher)
+
+        # Couplings are read off the parent geometry, so the shear does not change the fit.
+        ex_params, _residual = hm.get_exchange()
+        aa, bb, ab = self._labels(hm)
+        assert ex_params[ab] == approx(self.J_AB * 1000, abs=1e-6)
+        assert ex_params[aa] == approx(self.J_AA * 1000, abs=1e-6)
+        assert ex_params[bb] == approx(self.J_BB * 1000, abs=1e-6)
+
+    @pytest.mark.parametrize(
+        "matcher",
+        [
+            StructureMatcher(primitive_cell=True, attempt_supercell=True),
+            StructureMatcher(primitive_cell=False, attempt_supercell=False),
+        ],
+        ids=["primitive_cell", "no_attempt_supercell"],
+    )
+    def test_matcher_not_matching_supercells_raises(self, matcher):
+        structures = [self._structure(*spins) for spins in self.ORDERINGS]
+        energies = [self._energy(*spins) for spins in self.ORDERINGS]
+        with pytest.raises(ValueError, match="primitive_cell=False and attempt_supercell=True"):
+            HeisenbergMapper(structures, energies, parent=structures[0], matcher=matcher)
 
     def test_too_few_orderings_raises_value_error(self):
         # ValueError, not SystemExit: an unusable input must not tear down the
