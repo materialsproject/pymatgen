@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import numpy as np
 import pytest
 from pytest import approx
 
 from pymatgen.analysis.diffraction.neutron import NDCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+from pymatgen.phonon.thermal_displacements import ThermalDisplacementMatrices
 from pymatgen.util.testing import MatSciTest
 
 """
@@ -159,3 +161,31 @@ class TestNDCalculator(MatSciTest):
         struct = self.get_structure("Graphite")
         c = NDCalculator(wavelength=1.54184, debye_waller_factors={"C": 1})
         c.get_plot(struct, two_theta_range=(0, 90))
+
+    def test_get_pattern_isotropic_thermal_displacements(self, monkeypatch):
+        """An isotropic U gives the same pattern as debye_waller_factors with B = 8 pi^2 U."""
+        struct = self.get_structure("LiFePO4")
+        struct.replace_species({"Li": {"Li": 0.5, "Na": 0.5}})
+        u_iso = {"Li": 0.02, "Na": 0.02, "Fe": 0.005, "P": 0.004, "O": 0.008}
+        b_factors = {el: 8 * np.pi**2 * u for el, u in u_iso.items()}
+        ref = NDCalculator(debye_waller_factors=b_factors).get_pattern(struct, scaled=False)
+        u_red = ThermalDisplacementMatrices.get_reduced_matrix(
+            [u_iso[site.species.elements[0].symbol] * np.eye(3) for site in struct]
+        )
+        struct = ThermalDisplacementMatrices(u_red, struct, temperature=None).to_structure_with_site_properties_Ucif()
+        assert NDCalculator().get_pattern(struct, scaled=False).y == approx(ref.y)
+        # one hkl row per chunk, so the factors are also checked across chunks
+        monkeypatch.setattr(NDCalculator, "PHASE_CHUNK_ENTRIES", 1)
+        pattern = NDCalculator().get_pattern(struct, scaled=False)
+        assert pattern.x == approx(ref.x)
+        assert pattern.y == approx(ref.y)
+
+    @pytest.mark.parametrize("kwargs", [{"symprec": 0.1}, {"debye_waller_factors": {"Cs": 0.1}}])
+    def test_get_pattern_thermal_displacements_conflicts(self, kwargs):
+        struct = self.get_structure("CsCl")
+        struct.add_site_property("magmom", [0, 0])
+        NDCalculator(**kwargs).get_pattern(struct)
+        u_red = ThermalDisplacementMatrices.get_reduced_matrix([0.01 * np.eye(3)] * len(struct))
+        struct = ThermalDisplacementMatrices(u_red, struct, temperature=None).to_structure_with_site_properties_Ucif()
+        with pytest.raises(ValueError, match="Neither symprec nor debye_waller_factors can be used with the U11_cif"):
+            NDCalculator(**kwargs).get_pattern(struct)
