@@ -1,5 +1,5 @@
 # Run the complete test suite incl. many external command line dependencies (like Openbabel)
-# as well as the pymatgen.ext package. Coverage used to be computed based on this workflow.
+# as well as the pymatgen.ext package. Coverage is uploaded to codecov from the ubuntu job.
 name: test
 
 on:
@@ -26,6 +26,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write  # required for the codecov OIDC upload below
 
 jobs:
   test:
@@ -132,7 +133,17 @@ jobs:
           PMG_TEST_FILES_DIR: "${{ github.workspace }}/test-files"
           PYTHONWARNDEFAULTENCODING: "true" # PEP 597: Enable optional EncodingWarning
         run: |
-          pytest tests
+          pytest --cov=pymatgen --cov-report=xml tests --color=yes
+      - name: Codecov
+        # Upload from the ubuntu job that installs `extras: optional` so codecov
+        # reflects the full test surface. Files installed from pymatgen-core are
+        # not in this repo's tree and are dropped by codecov's path fixing.
+        # Uses GitHub OIDC (no shared secret); requires "Tokenless Upload"
+        # to be enabled at https://app.codecov.io/gh/materialsproject/pymatgen
+        if: github.ref == 'refs/heads/main' && matrix.config.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v6
+        with:
+          use_oidc: true
 
   trigger_atomate2_ci:
     needs: test

@@ -13,6 +13,9 @@ permissions:
 jobs:
   test:
     # run test.yml first to ensure that the test suite is passing
+    permissions:
+      contents: read
+      id-token: write  # test.yml uses OIDC for the codecov upload
     uses: ./.github/workflows/test.yml
 
   build_sdist:
