@@ -640,6 +640,14 @@ class TestHeisenbergMapperFullCellSymmetry:
         assert len(hm.sublattice_wyckoff_symbols) == 2
         assert all(len(set(sub_ids)) == 2 for sub_ids in hm.sublattice_ids)
 
+    def test_nonmagnetic_ions_do_not_trigger_missing_property_warnings(self):
+        structures = [self._ordering([3, 3]), self._ordering([3, -3])]
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            HeisenbergMapper(structures, [-10.0, -9.0])
+
+        assert not [w for w in caught if "Not all sites have property sublattice_id" in str(w.message)]
+
     def test_equivalent_sites_share_a_sublattice(self):
         # Control for the test above: with the Zn gone the two Fe genuinely are
         # equivalent and belong to one sublattice. Stripping the nonmagnetic ions

@@ -110,6 +110,9 @@ DIST_EPSILON = 1e-6
 # Symmetry tolerance (Angstrom) for finding the parent's sublattices, as in SpacegroupAnalyzer.
 DEFAULT_SYMPREC = 0.01
 
+# 'sublattice_id' of nonmagnetic parent sites. Not None, which Structure.from_sites warns about.
+NONMAGNETIC_SUBLATTICE_ID = -1
+
 
 def _analyzer(structure: Structure, **kwargs) -> CollinearMagneticStructureAnalyzer:
     """CollinearMagneticStructureAnalyzer factory with the settings used throughout this module.
@@ -279,8 +282,9 @@ class ParentOrdering(MagneticOrdering):
     def _set_sublattice_ids(self):
         symmetrized_parent = SpacegroupAnalyzer(self.structure, symprec=self.symprec).get_symmetrized_structure()
 
-        # Full-cell ids, None on nonmagnetic sites; RelaxedOrdering reads them via structure matching.
-        full_ids: list[int | None] = [None] * len(self.structure)
+        # Full-cell ids, NONMAGNETIC_SUBLATTICE_ID on nonmagnetic sites; RelaxedOrdering reads
+        # them via structure matching.
+        full_ids = [NONMAGNETIC_SUBLATTICE_ID] * len(self.structure)
         for indices, wyckoff_symbol in zip(
             symmetrized_parent.equivalent_indices, symmetrized_parent.wyckoff_symbols, strict=True
         ):
@@ -293,7 +297,7 @@ class ParentOrdering(MagneticOrdering):
 
         self.structure.add_site_property("sublattice_id", full_ids)
 
-        self.sublattice_ids = [sub_id for sub_id in full_ids if sub_id is not None]
+        self.sublattice_ids = [sub_id for sub_id in full_ids if sub_id != NONMAGNETIC_SUBLATTICE_ID]
         self.ideal_magnetic_structure = self.magnetic_structure  # the parent is its own ideal cell
 
 
