@@ -113,6 +113,10 @@ DEFAULT_SYMPREC = 0.01
 # 'sublattice_id' of nonmagnetic parent sites. Not None, which Structure.from_sites warns about.
 NONMAGNETIC_SUBLATTICE_ID = -1
 
+# Moment (muB) above which zeroing a species outside default_magmoms warns; induced moments on
+# anions typically stay below it.
+ZEROED_MOMENT_WARNING_THRESHOLD = 0.5
+
 
 def _analyzer(structure: Structure, **kwargs) -> CollinearMagneticStructureAnalyzer:
     """CollinearMagneticStructureAnalyzer factory with the settings used throughout this module.
@@ -215,8 +219,9 @@ class MagneticOrdering(ABC):
         magn_species: set[str],
         cutoff: float = 0,
         tol: float = DEFAULT_TOL,
+        default_magmoms: dict | None = None,
     ):
-        self.analyzer = _analyzer(structure)
+        self.analyzer = _analyzer(structure, default_magmoms=default_magmoms)
         # The analyzer works on a copy, so the caller's structure is never mutated. On
         # this copy every site carries a float 'magmom' site property, whether the input
         # supplied moments as site properties or as species spins, and induced moments on
@@ -312,6 +317,7 @@ class RelaxedOrdering(MagneticOrdering):
         matcher: StructureMatcher,
         cutoff: float = 0,
         tol: float = DEFAULT_TOL,
+        default_magmoms: dict | None = None,
     ):
         settings = matcher.as_dict()
         matches_as_supercell = not settings["primitive_cell"] and settings["attempt_supercell"]
@@ -322,7 +328,7 @@ class RelaxedOrdering(MagneticOrdering):
                 "parent cell."
             )
 
-        super().__init__(structure, parent_ordering.magn_species, cutoff, tol)
+        super().__init__(structure, parent_ordering.magn_species, cutoff, tol, default_magmoms)
         self.energy = energy  # total energy, as supplied by the caller
         self.parent_ordering = parent_ordering
         self.matcher = matcher
@@ -398,6 +404,7 @@ class HeisenbergMapper:
         tol: float = DEFAULT_TOL,
         symprec: float = DEFAULT_SYMPREC,
         matcher: StructureMatcher | None = None,
+        default_magmoms: dict | None = None,
     ):
         """Map collinear orderings, possibly in different supercells of a common parent
         cell, onto a classical Heisenberg model.
@@ -423,6 +430,11 @@ class HeisenbergMapper:
                 primitive_cell=False and attempt_supercell=True, so each ordering is matched
                 as a supercell of the parent. Defaults to
                 StructureMatcher(primitive_cell=False, attempt_supercell=True).
+            default_magmoms (dict): Its keys are the species that can carry a moment, as
+                in CollinearMagneticStructureAnalyzer; moments on any other species are
+                zeroed, and those sites drop out of the fit. The values are not used. It
+                replaces default_magmoms.yaml rather than extending it, so list every
+                magnetic species. Defaults to None, which uses default_magmoms.yaml.
         """
         if parent is not None and not isinstance(parent, Structure):
             raise TypeError(
@@ -443,6 +455,7 @@ class HeisenbergMapper:
         self.tol = tol
         self.symprec = symprec
         self.matcher = matcher
+        self.default_magmoms = default_magmoms
 
         # These attributes are set by internal methods, listed here for clarity.
         # Set by _initialize_orderings.
@@ -460,6 +473,7 @@ class HeisenbergMapper:
         self.ex_params = None
         self.residual = None
 
+        self._warn_on_zeroed_moments(ordered_structures)
         self._initialize_orderings(ordered_structures, energies, parent)
         self._set_interactions()
         self._build_exchange_mat()
@@ -501,6 +515,33 @@ class HeisenbergMapper:
         """dict[int, str]: Maps each sublattice id to its wyckoff symbol."""
         return self.parent.sublattice_wyckoff_symbols
 
+    def _warn_on_zeroed_moments(self, ordered_structures):
+        """Warn if a species outside default_magmoms carries a moment above
+        ZEROED_MOMENT_WARNING_THRESHOLD in any ordering, since that moment is zeroed.
+        """
+        largest_zeroed_moment: dict[str, float] = {}
+        for struct in ordered_structures:
+            # threshold_nonmag=0.0 keeps the moments that the fit's analyzer zeroes.
+            analyzer = _analyzer(struct, default_magmoms=self.default_magmoms, threshold_nonmag=0.0)
+            for site in analyzer.structure:
+                species = site.species_string
+                moment = abs(site.properties["magmom"])
+                if species not in analyzer.default_magmoms and moment > ZEROED_MOMENT_WARNING_THRESHOLD:
+                    largest_zeroed_moment[species] = max(largest_zeroed_moment.get(species, 0.0), moment)
+
+        if largest_zeroed_moment:
+            listed = ", ".join(
+                f"{species} (up to {moment:.2f} muB)" for species, moment in sorted(largest_zeroed_moment.items())
+            )
+            warnings.warn(
+                f"Moments on {listed} are zeroed because these species are not in `default_magmoms`, "
+                "so their sites drop out of the fit. Pass a `default_magmoms` that includes them if "
+                "they are magnetic.",
+                UserWarning,
+                # _warn_on_zeroed_moments <- __init__ <- caller
+                stacklevel=3,
+            )
+
     def _initialize_orderings(self, ordered_structures, energies, parent):
         """Set self.parent and self.orderings (screened and sorted by energy per magnetic ion).
 
@@ -510,7 +551,7 @@ class HeisenbergMapper:
         # Pooled, so an ion whose moment relaxed to zero in one ordering stays on its lattice.
         magn_species = set()
         for struct in ordered_structures:
-            for site in _analyzer(struct).structure:
+            for site in _analyzer(struct, default_magmoms=self.default_magmoms).structure:
                 if site.properties["magmom"] != 0:
                     magn_species.add(site.specie.symbol)
 
@@ -542,7 +583,15 @@ class HeisenbergMapper:
         )
 
         orderings = [
-            RelaxedOrdering(struct, energy, self.parent, self.matcher, cutoff=self.cutoff, tol=self.tol)
+            RelaxedOrdering(
+                struct,
+                energy,
+                self.parent,
+                self.matcher,
+                cutoff=self.cutoff,
+                tol=self.tol,
+                default_magmoms=self.default_magmoms,
+            )
             for struct, energy in zip(ordered_structures, energies, strict=True)
         ]
 
@@ -855,7 +904,7 @@ class HeisenbergMapper:
         for magnetic_ordering in self.orderings:
             s = magnetic_ordering.magnetic_structure
             e = magnetic_ordering.energy_per_magnetic_ion
-            ordering = _analyzer(s).ordering
+            ordering = _analyzer(s, default_magmoms=self.default_magmoms).ordering
             magmoms = s.site_properties["magmom"]
 
             # Try to find matching orderings first

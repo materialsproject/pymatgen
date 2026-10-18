@@ -712,3 +712,37 @@ class TestHeisenbergMapperZeroMomentIon:
         assert [len(sub_ids) for sub_ids in hm.sublattice_ids] == [4, 4]
         assert hm.energies == [-20.0, -19.0]
         assert hm.energies_per_magnetic_ion == [-5.0, -4.75]
+
+
+class TestHeisenbergMapperDefaultMagmoms:
+    """Species outside default_magmoms are zeroed. U is not in default_magmoms.yaml."""
+
+    lattice = Lattice.from_parameters(2, 2, 10, 90, 90, 90)
+    species = ("Fe", "U", "Fe", "U")
+    coords = ((0, 0, 0.5), (0.5, 0, 0.5), (0, 0.5, 0.5), (0.5, 0.5, 0.5))
+
+    def _orderings(self):
+        return [
+            Structure(
+                self.lattice,
+                list(self.species),
+                [list(coord) for coord in self.coords],
+                site_properties={"magmom": magmoms},
+            )
+            for magmoms in ([3, 2, 3, 2], [3, 2, -3, -2])
+        ]
+
+    def test_zeroed_moment_warns(self):
+        with pytest.warns(UserWarning, match=r"Moments on U \(up to 2\.00 muB\) are zeroed"):
+            hm = HeisenbergMapper(self._orderings(), [-20.0, -19.0])
+
+        assert hm.parent.magn_species == {"Fe"}
+
+    def test_default_magmoms_keeps_species_magnetic(self):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            hm = HeisenbergMapper(self._orderings(), [-20.0, -19.0], default_magmoms={"Fe": 5, "U": 2})
+
+        assert hm.parent.magn_species == {"Fe", "U"}
+        assert [len(struct) for struct in hm.magnetic_structures] == [4, 4]
+        assert not [w for w in caught if "are zeroed" in str(w.message)]
