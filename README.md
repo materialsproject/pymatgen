@@ -118,7 +118,7 @@ Haoyu Yang, et al. pymatgen: 15 years of community growth, new functionality, an
 arXiv, 2026, arXiv:2610.23538. doi:10.48550/arXiv.2610.23538
 ```
 
-The original `pymatgen` paper is also available for citation [here](https://doi.org/10.1016/j.commatsci.2012.10.028):
+Please also consider citing the [original `pymatgen` paper](https://doi.org/10.1016/j.commatsci.2012.10.028):
 
 ```txt
 Shyue Ping Ong, William Davidson Richards, Anubhav Jain, Geoffroy Hautier, Michael Kocher, Shreyas Cholia, Dan
