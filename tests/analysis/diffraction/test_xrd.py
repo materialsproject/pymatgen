@@ -148,6 +148,56 @@ class TestXRDCalculator(MatSciTest):
             [{"hkl": (1, 0, -1, 2), "multiplicity": 12}],
         ]
 
+    def test_hkl_families_respect_laue_group(self):
+        """Reflections that share d but not a Laue orbit must stay separate.
+
+        Previously all permutations of |hkl| were merged, which over-counted
+        multiplicities for non-cubic crystals and kept systematically absent
+        reflections in the reported family.
+        """
+
+        def families_at_d(struct, hkl):
+            pattern = XRDCalculator().get_pattern(struct)
+            recip_lattice = struct.lattice.reciprocal_lattice_crystallographic
+            d_hkl = 1.0 / np.linalg.norm(recip_lattice.get_cartesian_coords(hkl))
+            idx = int(np.argmin([abs(d - d_hkl) for d in pattern.d_hkls]))
+            return pattern.hkls[idx]
+
+        # Quartz: (101) and (011) have the same d but belong to different
+        # Laue orbits, so the peak must contain two families of multiplicity 6.
+        quartz = Structure.from_spacegroup(
+            154,
+            Lattice.hexagonal(4.913, 5.405),
+            ["Si", "O"],
+            [[0.4697, 0, 0], [0.4135, 0.2669, 0.1191]],
+        )
+        families = families_at_d(quartz, (1, 0, 1))
+        assert sorted(family["multiplicity"] for family in families) == [6, 6]
+        assert len({family["hkl"] for family in families}) == 2
+
+        # Corundum: the (102) orbit is systematically absent, so only the
+        # (012) orbit (multiplicity 6) may be reported for this d.
+        corundum = Structure.from_spacegroup(
+            167,
+            Lattice.hexagonal(4.759, 12.991),
+            ["Al", "O"],
+            [[0, 0, 0.3523], [0.3064, 0, 0.25]],
+        )
+        families = families_at_d(corundum, (0, 1, 2))
+        assert len(families) == 1
+        assert families[0]["multiplicity"] == 6
+        assert families[0]["hkl"] != (1, 0, -1, 2)
+
+        # Pyrite: the (201) orbit is systematically absent, so only (210)
+        # with multiplicity 12 remains.
+        pyrite = Structure.from_spacegroup(
+            205,
+            Lattice.cubic(5.417),
+            ["Fe", "S"],
+            [[0, 0, 0], [0.385, 0.385, 0.385]],
+        )
+        assert families_at_d(pyrite, (2, 1, 0)) == [{"hkl": (2, 1, 0), "multiplicity": 12}]
+
     def test_get_pattern_chunked_matches_unchunked(self, monkeypatch):
         """Structure factors are accumulated in memory-bounded chunks of hkl
         rows; the result must not depend on the chunk size. Force one hkl row
