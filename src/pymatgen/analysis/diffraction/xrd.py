@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 import os
+import warnings
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -56,11 +57,49 @@ with open(
     ATOMIC_SCATTERING_PARAMS = orjson.loads(file.read())
 
 
-def _get_laue_rotations(structure: Structure) -> list[np.ndarray]:
-    """Get Cartesian rotation matrices of the structure's Laue group."""
+def _strip_magnetic_info(structure: Structure) -> Structure:
+    """Return a copy without magnetic moments or species spins."""
+    from pymatgen.core import Species, Structure
+
+    has_spin = any(getattr(species, "spin", None) is not None for species in structure.types_of_species)
+    if "magmom" not in structure.site_properties and not has_spin:
+        return structure
+
+    def spin_free(species):
+        if getattr(species, "spin", None) is None:
+            return species
+        return Species(species.symbol, oxidation_state=getattr(species, "oxi_state", None))
+
+    species = []
+    for site in structure:
+        if site.is_ordered:
+            species.append(spin_free(site.specie))
+        else:
+            species.append({spin_free(sp): occ for sp, occ in site.species.items()})
+    site_properties = {key: value for key, value in structure.site_properties.items() if key != "magmom"}
+    return Structure(
+        structure.lattice,
+        species,
+        structure.frac_coords,
+        charge=structure.charge,
+        site_properties=site_properties or None,
+        labels=getattr(structure, "labels", None),
+        properties=structure.properties,
+    )
+
+
+def _get_laue_rotations(structure: Structure, symprec: float | None = None) -> list[np.ndarray]:
+    """Get Cartesian rotation matrices of the structure's Laue group.
+
+    Magnetic moments and species spins are removed before the symmetry
+    analysis: they describe magnetic order, not the nuclear XRD pattern.
+    """
+    if not symprec:
+        symprec = 0.01
+    analyzer = SpacegroupAnalyzer(_strip_magnetic_info(structure), symprec=symprec)
     rotations: list[np.ndarray] = []
     seen: set[tuple[float, ...]] = set()
-    for op in SpacegroupAnalyzer(structure).get_point_group_operations(cartesian=True):
+    for op in analyzer.get_point_group_operations(cartesian=True):
         for sign in (1.0, -1.0):
             rotation = sign * op.rotation_matrix
             key = tuple(np.round(rotation, 8).ravel())
@@ -77,6 +116,8 @@ def _get_laue_orbit(
 ) -> frozenset[tuple[int, int, int]]:
     """Get the Laue orbit of a Miller index in reciprocal space."""
     vector = recip_lattice.get_cartesian_coords(hkl)
+    # Symmetry is applied within `symprec`, so transformed indices are
+    # integral up to the tolerance; round them back to Miller indices.
     return frozenset(
         tuple(int(value) for value in np.round(recip_lattice.get_fractional_coords(rotation @ vector)))
         for rotation in rotations
@@ -103,18 +144,20 @@ def _get_hkl_families(
         return [{"hkl": hkl, "multiplicity": mult} for hkl, mult in get_unique_families(hkls).items()]
 
     max_structure_factor = max(structure_factor for _, _, structure_factor in reflections)
+    # Relative to the strongest reflection in this peak: this filters exact
+    # systematic extinctions, not weak but real reflections.
     tolerance = max_structure_factor * 1e-8
     families: dict[frozenset[tuple[int, int, int]], dict] = {}
     for hkl, neg_hkl, structure_factor in reflections:
-        is_present = structure_factor > tolerance
+        if structure_factor <= tolerance:
+            continue
         # The Laue group contains inversion, so the Friedel partner belongs to
         # the same orbit. Count both partners without recomputing the orbit.
         orbit = _get_laue_orbit(hkl, rotations, recip_lattice)
         family = families.setdefault(orbit, {"hkls": [], "multiplicity": 0})
         for equivalent_hkl in (hkl, neg_hkl):
             family["hkls"].append(to_display(equivalent_hkl))
-            if is_present:
-                family["multiplicity"] += 1
+            family["multiplicity"] += 1
 
     return [
         {
@@ -124,7 +167,6 @@ def _get_hkl_families(
             "multiplicity": family["multiplicity"],
         }
         for family in families.values()
-        if family["multiplicity"] > 0
     ]
 
 
@@ -191,9 +233,11 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 variable, which provides useful commonly used wavelengths.
                 If it is a float, it is interpreted as a wavelength in
                 angstroms. Defaults to "CuKa", i.e, Cu K_alpha radiation.
-            symprec (float): Symmetry precision for structure refinement. If
-                set to 0, no refinement is done. Otherwise, refinement is
-                performed using spglib with provided precision.
+            symprec (float): Symmetry precision for structure refinement and
+                for determining the Laue group used to group hkl families. If
+                set to 0, no refinement is done and the default spglib
+                tolerance (0.01 Å) is used for the Laue analysis. Otherwise,
+                both use the provided precision.
             debye_waller_factors ({element symbol: float}): Allows the
                 specification of Debye-Waller factors. Note that these
                 factors are temperature dependent.
@@ -256,10 +300,16 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
 
         recip_lattice = lattice.reciprocal_lattice_crystallographic
         try:
-            laue_rotations = _get_laue_rotations(structure)
-        except Exception:
+            laue_rotations = _get_laue_rotations(structure, self.symprec)
+        except Exception as exc:
             # Keep the permutation-based fallback for structures that cannot
-            # be symmetrized (e.g. invalid partial occupancies).
+            # be symmetrized (e.g. invalid partial occupancies), but make the
+            # degraded grouping visible instead of silently restoring it.
+            warnings.warn(
+                f"Could not determine the Laue group; falling back to permutation-based hkl families: {exc}",
+                RuntimeWarning,
+                stacklevel=2,
+            )
             laue_rotations = None
         recip_pts = recip_lattice.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], max_r)
         if min_r:

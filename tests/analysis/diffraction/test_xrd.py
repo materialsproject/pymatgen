@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 from pytest import approx
 
+import pymatgen.analysis.diffraction.xrd as xrd_mod
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Species
@@ -197,6 +198,56 @@ class TestXRDCalculator(MatSciTest):
             [[0, 0, 0], [0.385, 0.385, 0.385]],
         )
         assert families_at_d(pyrite, (2, 1, 0)) == [{"hkl": (2, 1, 0), "multiplicity": 12}]
+
+    def test_laue_analysis_strips_magnetic_info(self, monkeypatch):
+        """Magnetic moments and species spins must not lower the Laue group."""
+        struct = Structure(
+            Lattice.cubic(2.87),
+            [Species("Fe", 2, spin=2.2), Species("Fe", 2, spin=-2.2)],
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
+            site_properties={"magmom": [2.2, -2.2]},
+        )
+        captured = {}
+
+        class FakeAnalyzer:
+            def __init__(self, structure, symprec=0.01):
+                captured["structure"] = structure
+                captured["symprec"] = symprec
+
+            def get_point_group_operations(self, cartesian=True):
+                return []
+
+        monkeypatch.setattr(xrd_mod, "SpacegroupAnalyzer", FakeAnalyzer)
+        xrd_mod._get_laue_rotations(struct, 0.05)
+
+        assert "magmom" not in captured["structure"].site_properties
+        assert captured["symprec"] == 0.05
+        assert all(getattr(species, "spin", None) is None for species in captured["structure"].types_of_species)
+
+    def test_laue_uses_calculator_symprec(self, monkeypatch):
+        struct = self.get_structure("CsCl")
+        captured = {}
+
+        def fake_laue(structure, symprec=None):
+            captured["symprec"] = symprec
+            return []
+
+        monkeypatch.setattr(xrd_mod, "_get_laue_rotations", fake_laue)
+        XRDCalculator(symprec=0.05).get_pattern(struct)
+
+        assert captured["symprec"] == 0.05
+
+    def test_laue_failure_falls_back_with_warning(self, monkeypatch):
+        struct = self.get_structure("CsCl")
+
+        def fail(*args, **kwargs):
+            raise ValueError("symmetry unavailable")
+
+        monkeypatch.setattr(xrd_mod, "_get_laue_rotations", fail)
+        with pytest.warns(RuntimeWarning, match="falling back"):
+            xrd = XRDCalculator().get_pattern(struct)
+
+        assert xrd.hkls
 
     def test_get_pattern_chunked_matches_unchunked(self, monkeypatch):
         """Structure factors are accumulated in memory-bounded chunks of hkl
