@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import re
+
+import numpy as np
 import pytest
 from pytest import approx
 
@@ -7,6 +10,7 @@ from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Structure
+from pymatgen.phonon.thermal_displacements import ThermalDisplacementMatrices
 from pymatgen.util.testing import MatSciTest
 
 __author__ = "Shyue Ping Ong"
@@ -204,3 +208,63 @@ class TestXRDCalculator(MatSciTest):
             [{"hkl": (2, 1, 1), "multiplicity": 16}],
             [{"hkl": (2, 0, 2), "multiplicity": 8}],
         ]
+
+    def test_get_pattern_isotropic_thermal_displacements(self, monkeypatch):
+        """An isotropic U gives the same pattern as debye_waller_factors with B = 8 pi^2 U."""
+        struct = self.get_structure("LiFePO4")
+        struct.replace_species({"Li": {"Li": 0.5, "Na": 0.5}})
+        u_iso = {"Li": 0.02, "Na": 0.02, "Fe": 0.005, "P": 0.004, "O": 0.008}
+        b_factors = {el: 8 * np.pi**2 * u for el, u in u_iso.items()}
+        ref = XRDCalculator(debye_waller_factors=b_factors).get_pattern(struct, scaled=False)
+        u_red = ThermalDisplacementMatrices.get_reduced_matrix(
+            [u_iso[site.species.elements[0].symbol] * np.eye(3) for site in struct]
+        )
+        struct = ThermalDisplacementMatrices(u_red, struct, temperature=None).to_structure_with_site_properties_Ucif()
+        assert XRDCalculator().get_pattern(struct, scaled=False).y == approx(ref.y)
+        # one hkl row per chunk, so the factors are also checked across chunks
+        monkeypatch.setattr(XRDCalculator, "PHASE_CHUNK_ENTRIES", 1)
+        pattern = XRDCalculator().get_pattern(struct, scaled=False)
+        assert pattern.x == approx(ref.x)
+        assert pattern.y == approx(ref.y)
+
+    @pytest.mark.parametrize("kwargs", [{"symprec": 0.1}, {"debye_waller_factors": {"Cs": 0.1}}])
+    def test_get_pattern_thermal_displacements_conflicts(self, kwargs):
+        struct = self.get_structure("CsCl")
+        struct.add_site_property("magmom", [0, 0])
+        XRDCalculator(**kwargs).get_pattern(struct)
+        u_red = ThermalDisplacementMatrices.get_reduced_matrix([0.01 * np.eye(3)] * len(struct))
+        struct = ThermalDisplacementMatrices(u_red, struct, temperature=None).to_structure_with_site_properties_Ucif()
+        with pytest.raises(ValueError, match="Neither symprec nor debye_waller_factors can be used with the U11_cif"):
+            XRDCalculator(**kwargs).get_pattern(struct)
+
+    def test_get_pattern_anisotropic_thermal_displacements(self):
+        """Each site of a triclinic cell is damped by exp(-2 pi^2 g^T U g), with g and U Cartesian."""
+        lattice = Lattice.from_parameters(4.1, 5.3, 6.2, 81, 97, 112)
+        struct = Structure(lattice, ["Cs"] * 3, [[0, 0, 0], [0.31, 0.17, 0.42], [0.58, 0.73, 0.12]])
+        ref = XRDCalculator().get_pattern(struct, scaled=False)
+        u_cart = np.array(
+            [
+                [[0.02, 0.004, -0.003], [0.004, 0.015, 0.002], [-0.003, 0.002, 0.03]],
+                [[0.01, -0.002, 0.001], [-0.002, 0.025, 0], [0.001, 0, 0.012]],
+                [[0.005, 0, 0], [0, 0.005, 0], [0, 0, 0.04]],
+            ]
+        )
+        u_red = ThermalDisplacementMatrices.get_reduced_matrix(u_cart)
+        struct = ThermalDisplacementMatrices(u_red, struct, temperature=None).to_structure_with_site_properties_Ucif()
+        xrd = XRDCalculator().get_pattern(struct, scaled=False)
+        assert xrd.x == approx(ref.x)
+        hkls = np.array([pk[0]["hkl"] for pk in xrd.hkls])
+        g_cart = hkls @ lattice.reciprocal_lattice_crystallographic.matrix
+        phase = np.exp(2j * np.pi * hkls @ struct.frac_coords.T)
+        dw = np.exp(-2 * np.pi**2 * np.einsum("ma,nab,mb->mn", g_cart, u_cart, g_cart))
+        expected = np.abs((phase * dw).sum(axis=1)) ** 2 / np.abs(phase.sum(axis=1)) ** 2
+        assert xrd.y / ref.y == approx(expected)
+
+    def test_get_pattern_thermal_displacements_missing_site(self):
+        struct = self.get_structure("CsCl")
+        u_red = ThermalDisplacementMatrices.get_reduced_matrix([0.01 * np.eye(3)] * len(struct))
+        struct = ThermalDisplacementMatrices(u_red, struct, temperature=None).to_structure_with_site_properties_Ucif()
+        struct.append("Na", [0.25, 0.25, 0.25])
+        msg = "U11_cif, ..., U12_cif must be set on every site, missing_sites=[2]"
+        with pytest.raises(ValueError, match=re.escape(msg)):
+            XRDCalculator().get_pattern(struct)

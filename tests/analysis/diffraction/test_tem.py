@@ -5,12 +5,14 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.diffraction.tem import TEMCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+from pymatgen.phonon.thermal_displacements import ThermalDisplacementMatrices
 from pymatgen.util.testing import MatSciTest
 
 __author__ = "Frank Wan, Jason Liang"
@@ -160,6 +162,31 @@ class TestTEMCalculator(MatSciTest):
         angles = tem_calc.bragg_angles(spacings)
         cell_scatt = tem_calc.cell_scattering_factors(nacl, angles)
         assert cell_scatt[2, 1, 0] == approx(0)
+
+    def test_cell_scattering_factors_thermal_displacements(self):
+        # In a cubic cell U* = U / a^2, so each atomic scattering factor is multiplied by exp(-2 pi^2 h^T U h / a^2).
+        tem_calc = TEMCalculator()
+        cscl = Structure(Lattice.cubic(4.209), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        planes = [(1, 1, 0), (1, -1, 0), (0, 1, 1), (2, 0, 0)]
+        angles = tem_calc.bragg_angles(tem_calc.get_interplanar_spacings(cscl, planes))
+        el_scatt = tem_calc.electron_scattering_factors(cscl, angles)
+        u_cart = {"Cs": np.array([[0.01, 0.002, 0], [0.002, 0.015, 0], [0, 0, 0.03]]), "Cl": 0.02 * np.eye(3)}
+        u_red = ThermalDisplacementMatrices.get_reduced_matrix([u_cart[site.specie.symbol] for site in cscl])
+        cscl = ThermalDisplacementMatrices(u_red, cscl, temperature=None).to_structure_with_site_properties_Ucif()
+        cell_scatt = tem_calc.cell_scattering_factors(cscl, angles)
+        # h + k + l is even for all planes, so the phase of both sites is 1
+        for hkl in planes:
+            dw = {el: np.exp(-2 * np.pi**2 * np.dot(hkl, u @ hkl) / 4.209**2) for el, u in u_cart.items()}
+            assert cell_scatt[hkl] == approx(sum(el_scatt[el][hkl] * dw[el] for el in u_cart))
+
+    @pytest.mark.parametrize("method", ["get_pattern", "get_plot_2d", "get_plot_2d_concise"])
+    def test_thermal_displacements_symprec(self, method):
+        cscl = Structure(Lattice.cubic(4.209), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        u_red = ThermalDisplacementMatrices.get_reduced_matrix([0.01 * np.eye(3)] * len(cscl))
+        cscl = ThermalDisplacementMatrices(u_red, cscl, temperature=None).to_structure_with_site_properties_Ucif()
+        getattr(TEMCalculator(), method)(cscl)
+        with pytest.raises(ValueError, match="symprec cannot be used with the U11_cif"):
+            getattr(TEMCalculator(symprec=0.1), method)(cscl)
 
     def test_cell_intensity(self):
         # Test that bcc structure gives lower intensity for h + k + l != even.
