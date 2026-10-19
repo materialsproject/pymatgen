@@ -33,7 +33,7 @@ authors:
 - family-names: Ceder
   given-names: Gerbrand
   orcid: https://orcid.org/0000-0001-9275-3605
-title: Python Materials Genomics (pymatgen)
+title: 'pymatgen: 15 years of community growth, new functionality, and future prospects'
 url: https://github.com/materialsproject/pymatgen
 preferred-citation:
   type: article
