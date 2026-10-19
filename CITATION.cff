@@ -1,11 +1,13 @@
-
 cff-version: 1.2.0
 message: |
-  If you use pymatgen in your research, please consider citing the following:
+  If you use pymatgen in your research, please cite the paper in the
+  preferred-citation field below. The original pymatgen paper is also
+  listed in the README.
 
-  In addition, some of pymatgen's functionality is based on scientific advances
-  / principles developed by the computational materials scientists in our team.
-  Please refer to pymatgen's docs at https://pymatgen.org on how to cite them.
+  Some of pymatgen's functionality is based on scientific advances /
+  principles developed by the computational materials scientists in our
+  team. Please refer to https://pymatgen.org on how to cite them.
+type: software
 authors:
 - family-names: Ong
   given-names: Shyue Ping
@@ -31,13 +33,346 @@ authors:
 - family-names: Ceder
   given-names: Gerbrand
   orcid: https://orcid.org/0000-0001-9275-3605
-title: 'Python Materials Genomics (pymatgen): A robust, open-source python library for materials analysis'
-version: 2022.1.24 # replace with whatever version you use
-doi: 10.1016/j.commatsci.2012.10.028
-date-released: 2013-06-04
+title: Python Materials Genomics (pymatgen)
 url: https://github.com/materialsproject/pymatgen
-issn: 09270256
-journal: Computational Materials Science
-pages: 314-319
-volume: 68
-year: 2013
+preferred-citation:
+  type: article
+  authors:
+  - family-names: George
+    given-names: Janine
+  - family-names: Horton
+    given-names: Matthew K.
+  - family-names: Kaplan
+    given-names: Aaron D.
+  - family-names: Kavanagh
+    given-names: Seán R.
+  - family-names: Riebesell
+    given-names: Janosh
+  - family-names: Rosen
+    given-names: Andrew S.
+  - family-names: Yang
+    given-names: Haoyu
+  - family-names: Adams
+    given-names: Felix
+  - family-names: Amachraa
+    given-names: Mahdi
+  - family-names: Andriuc
+    given-names: Oxana
+  - family-names: Ashour
+    given-names: Omar A.
+  - family-names: Bajaj
+    given-names: Saurabh
+  - family-names: Banyas
+    given-names: Ella
+  - family-names: Barroso-Luque
+    given-names: Luis
+  - family-names: Berket
+    given-names: Karlo
+  - family-names: Bernstein
+    given-names: Noam
+  - family-names: Bhardwaj
+    given-names: Arpit
+  - family-names: Bhatti
+    given-names: Ali Hussain Umar
+  - family-names: Blau
+    given-names: Samuel M.
+  - family-names: Bocklund
+    given-names: Brandon
+  - family-names: Bonkowski
+    given-names: Alexander
+  - family-names: Broberg
+    given-names: Danny
+  - family-names: Brunin
+    given-names: Guillaume
+  - family-names: Bystrom
+    given-names: Kyle
+  - family-names: Cardot
+    given-names: Charles A.
+  - family-names: Chang
+    given-names: Rees
+  - family-names: Chen
+    given-names: Chi
+  - family-names: Chen
+    given-names: Wei
+  - family-names: Chen
+    given-names: Xin
+  - family-names: Chiang
+    given-names: Yuan
+  - family-names: Choudhary
+    given-names: Kamal
+  - family-names: Cohen
+    given-names: Orion A.
+  - family-names: Costa
+    given-names: Miguel D.
+  - family-names: Dacek III
+    given-names: Stephen T.
+  - family-names: de Jong
+    given-names: Maarten
+  - family-names: Demeyere
+    given-names: Tom
+  - family-names: Dozier
+    given-names: Alan K.
+  - family-names: Dunn
+    given-names: Alexander
+  - family-names: Dwaraknath
+    given-names: Shyam
+  - family-names: Dylla
+    given-names: Maxwell T.
+  - family-names: Eimre
+    given-names: Kristjan
+  - family-names: Epstein
+    given-names: Alexander R.
+  - family-names: Ertural
+    given-names: Christina
+  - family-names: Esters
+    given-names: Marco
+  - family-names: Evans
+    given-names: Matthew L.
+  - family-names: Falke
+    given-names: Johannes
+  - family-names: Fekete
+    given-names: Adam
+  - family-names: Field
+    given-names: Bernard
+  - family-names: Fonari
+    given-names: Alexandr
+  - family-names: Frey
+    given-names: Nathan C.
+  - family-names: Gaines II
+    given-names: Dale W.
+  - family-names: Ganose
+    given-names: Alex M.
+  - family-names: Giantomassi
+    given-names: Matteo
+  - family-names: Goodall
+    given-names: Rhys E. A.
+  - family-names: Gostin
+    given-names: Petre-Flaviu
+  - family-names: Gupta
+    given-names: Aayush
+  - family-names: Ha
+    given-names: Viet-Anh
+  - family-names: Hautier
+    given-names: Geoffroy
+  - family-names: Heinsdorf
+    given-names: Niclas
+  - family-names: Herbst
+    given-names: Michael F.
+  - family-names: Hou
+    given-names: Tingzheng
+  - family-names: Huck
+    given-names: Patrick
+  - family-names: Ikeda
+    given-names: Yuji
+  - family-names: Jackson
+    given-names: Adam J.
+  - family-names: Jayaraman
+    given-names: Saivenkataraman
+  - family-names: Kearns
+    given-names: Finn R.
+  - family-names: Kim
+    given-names: Sunghyun
+  - family-names: Kingsbury
+    given-names: Ryan S.
+  - family-names: Krajewski
+    given-names: Adam M.
+  - family-names: Kumagai
+    given-names: Yu
+  - family-names: Kuner
+    given-names: Matthew C.
+  - family-names: Laderer
+    given-names: William T.
+  - family-names: Li
+    given-names: Weitang
+  - family-names: Li
+    given-names: Xiang-Guo
+  - family-names: Liang
+    given-names: Yu Hsuan
+  - family-names: Liu
+    given-names: Hanyu
+  - family-names: Liu
+    given-names: Ke
+  - family-names: Liu
+    given-names: Miao
+  - family-names: Lutfi
+    given-names: Ahmad
+  - family-names: Marchand
+    given-names: Olivier
+  - family-names: McDermott
+    given-names: Matthew J.
+  - family-names: Medasani
+    given-names: Bharat K.
+  - family-names: Meng
+    given-names: Fanchen
+  - family-names: Miller
+    given-names: Kyle D.
+  - family-names: Miranda
+    given-names: Henrique
+  - family-names: Mohanakrishnan
+    given-names: Rohith Srinivaas
+  - family-names: Montoya
+    given-names: Joseph H.
+  - family-names: Moore
+    given-names: Guy C.
+  - family-names: Morgan
+    given-names: Benjamin J.
+  - family-names: Munro
+    given-names: Jason M.
+  - family-names: Muraoka
+    given-names: Koki
+  - family-names: Naik
+    given-names: Aakash A.
+  - family-names: O'Leary
+    given-names: Willis
+  - family-names: Onwuli
+    given-names: Anthony
+  - family-names: Park
+    given-names: Jaesuk
+  - family-names: Parsons
+    given-names: Drew F.
+  - family-names: Pei
+    given-names: Kai
+  - family-names: Petretto
+    given-names: Guido
+  - family-names: Purcell
+    given-names: Thomas A. R.
+  - family-names: Qi
+    given-names: Ji
+  - family-names: Qu
+    given-names: Xiaohui
+  - family-names: Radchenko
+    given-names: Ihor
+  - family-names: Rajput
+    given-names: Nav Nidhi
+  - family-names: Ricci
+    given-names: Francesco
+  - family-names: Rich
+    given-names: Benjamin S.
+  - family-names: Richards
+    given-names: William D.
+  - family-names: Rignanese
+    given-names: Gian-Marco
+  - family-names: Ruan
+    given-names: Xiaoxu
+  - family-names: Vallverdu
+    given-names: Germain Salvato
+  - family-names: Schmidt
+    given-names: Jonathan
+  - family-names: Shen
+    given-names: Jimmy-Xuan
+  - family-names: Shimogawa
+    given-names: Ryuichi
+  - family-names: Shinohara
+    given-names: Kohei
+  - family-names: Singh
+    given-names: Arunima K.
+  - family-names: Sivonxay
+    given-names: Eric
+  - family-names: Smeets
+    given-names: Stef
+  - family-names: Smidt
+    given-names: Tess E.
+  - family-names: Sobolev
+    given-names: Andrei
+  - family-names: Spotte-Smith
+    given-names: Evan Walter Clark
+  - family-names: Stihl
+    given-names: Christopher
+  - family-names: Sun
+    given-names: Wenhao
+  - family-names: Sundberg
+    given-names: Jack D.
+  - family-names: Suzuki
+    given-names: Yuta
+  - family-names: Talirz
+    given-names: Leopold
+  - family-names: Tang
+    given-names: Hanmei
+  - family-names: Taw
+    given-names: Eric
+  - family-names: Tezak
+    given-names: Cooper
+  - family-names: Therrien
+    given-names: Félix
+  - family-names: Thiel
+    given-names: Scott D.
+  - family-names: Torrisi
+    given-names: Steven B.
+  - family-names: Turiansky
+    given-names: Mark E.
+  - family-names: Ueltzen
+    given-names: Katharina
+  - family-names: van Setten
+    given-names: Michiel J.
+  - family-names: Vieten
+    given-names: Josua
+  - family-names: Vijay
+    given-names: Sudarshan
+  - family-names: Wagner
+    given-names: Nicholas
+  - family-names: Wan
+    given-names: Frank
+  - family-names: Wang
+    given-names: Amanda
+  - family-names: Wang
+    given-names: Jingyang
+  - family-names: Wang
+    given-names: Zhenbin
+  - family-names: Ward
+    given-names: Logan
+  - family-names: Warford
+    given-names: Thomas
+  - family-names: Waroquiers
+    given-names: David
+  - family-names: Wen
+    given-names: Mingjian
+  - family-names: Weser
+    given-names: Oskar
+  - family-names: Winner
+    given-names: Nicholas
+  - family-names: Winston
+    given-names: Donald
+  - family-names: Wolloch
+    given-names: Michael
+  - family-names: Wood
+    given-names: Brandon M.
+  - family-names: Woods-Robinson
+    given-names: Rachel
+  - family-names: Xiao
+    given-names: Yihan
+  - family-names: Xie
+    given-names: Yaoshu
+  - family-names: Yalcin
+    given-names: Firat
+  - family-names: Yang
+    given-names: Ruo Xi
+  - family-names: Ye
+    given-names: Weike
+  - family-names: Zarabadi-Poor
+    given-names: Pezhman
+  - family-names: Zeng
+    given-names: Jinzhe
+  - family-names: Zhao
+    given-names: Hongsheng
+  - family-names: Zheng
+    given-names: Kaifeng
+  - family-names: Zhu
+    given-names: He
+  - family-names: Zhu
+    given-names: Zhuoying
+  - family-names: Zimmermann
+    given-names: Nils E. R.
+  - family-names: Zügner
+    given-names: Daniel
+  - family-names: Persson
+    given-names: Kristin A.
+  - family-names: Jain
+    given-names: Anubhav
+  - family-names: Ong
+    given-names: Shyue Ping
+  title: 'pymatgen: 15 years of community growth, new functionality, and future prospects'
+  journal: arXiv
+  year: 2026
+  date-published: '2026-10-16'
+  doi: 10.48550/arXiv.2610.23538
+  url: https://arxiv.org/abs/2610.23538

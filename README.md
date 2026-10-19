@@ -110,7 +110,15 @@ a series of [tutorials](https://github.com/computron/pymatgen_tutorials) and [Yo
 
 ## How to cite pymatgen
 
-If you use `pymatgen` in your research, please consider citing the following [work](https://doi.org/10.1016/j.commatsci.2012.10.028):
+If you use `pymatgen` in your research, please cite the following [work](https://arxiv.org/abs/2610.23538):
+
+```txt
+Janine George, Matthew K. Horton, Aaron D. Kaplan, Seán R. Kavanagh, Janosh Riebesell, Andrew S. Rosen,
+Haoyu Yang, et al. pymatgen: 15 years of community growth, new functionality, and future prospects.
+arXiv, 2026, arXiv:2610.23538. doi:10.48550/arXiv.2610.23538
+```
+
+The original `pymatgen` paper is also available for citation [here](https://doi.org/10.1016/j.commatsci.2012.10.028):
 
 ```txt
 Shyue Ping Ong, William Davidson Richards, Anubhav Jain, Geoffroy Hautier, Michael Kocher, Shreyas Cholia, Dan
