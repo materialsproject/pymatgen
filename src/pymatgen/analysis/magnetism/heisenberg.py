@@ -111,25 +111,42 @@ DIST_EPSILON = 1e-6
 DEFAULT_SYMPREC = 0.01
 
 # 'sublattice_id' of nonmagnetic parent sites. Not None, which Structure.from_sites warns about.
-NONMAGNETIC_SUBLATTICE_ID = -1
+_NONMAGNETIC_SUBLATTICE_ID = -1
 
 # Moment (muB) above which zeroing a species outside default_magmoms warns; induced moments on
 # anions typically stay below it.
-ZEROED_MOMENT_WARNING_THRESHOLD = 0.5
+_ZEROED_MOMENT_WARNING_THRESHOLD = 0.5
+
+
+def _without_oxidation_states(structure: Structure) -> Structure:
+    """Return a copy of structure without oxidation states.
+
+    Species spins would be dropped with the oxidation states, so they are moved to the
+    'magmom' site property first, unless that property is already set.
+    """
+    structure = structure.copy()
+    spins = [getattr(specie, "spin", None) for specie in structure.species]
+    if any(spins) and "magmom" not in structure.site_properties:
+        structure.add_site_property("magmom", [spin or 0 for spin in spins])
+    return structure.remove_oxidation_states()
 
 
 def _analyzer(structure: Structure, **kwargs) -> CollinearMagneticStructureAnalyzer:
     """CollinearMagneticStructureAnalyzer factory with the settings used throughout this module.
 
-    ``make_primitive=False`` keeps the cell as given, ``threshold=0.0`` retains any nonzero
-    moment, and ``threshold_nonmag=100.0`` always zeroes out nonmagnetic ions, so induced
-    magnetic moments don't change the number of magnetic sites per unit cell between orderings.
+    Oxidation states are removed first: the analyzer matches each site's species string
+    against default_magmoms, so 'Fe2+' would not match the key 'Fe' and its moment would be
+    zeroed. ``make_primitive=False`` keeps the cell as given, ``threshold=0.0`` retains any
+    nonzero moment, and ``threshold_nonmag=100.0`` always zeroes out nonmagnetic ions, so
+    induced magnetic moments don't change the number of magnetic sites per unit cell between
+    orderings.
 
     Extra keyword arguments are passed through to the analyzer.
     """
     # Last value wins on conflicting keys, so the defaults above are overridden by kwargs.
     return CollinearMagneticStructureAnalyzer(
-        structure, **{"make_primitive": False, "threshold": 0.0, "threshold_nonmag": 100.0, **kwargs}
+        _without_oxidation_states(structure),
+        **{"make_primitive": False, "threshold": 0.0, "threshold_nonmag": 100.0, **kwargs},
     )
 
 
@@ -287,9 +304,9 @@ class ParentOrdering(MagneticOrdering):
     def _set_sublattice_ids(self):
         symmetrized_parent = SpacegroupAnalyzer(self.structure, symprec=self.symprec).get_symmetrized_structure()
 
-        # Full-cell ids, NONMAGNETIC_SUBLATTICE_ID on nonmagnetic sites; RelaxedOrdering reads
+        # Full-cell ids, _NONMAGNETIC_SUBLATTICE_ID on nonmagnetic sites; RelaxedOrdering reads
         # them via structure matching.
-        full_ids = [NONMAGNETIC_SUBLATTICE_ID] * len(self.structure)
+        full_ids = [_NONMAGNETIC_SUBLATTICE_ID] * len(self.structure)
         for indices, wyckoff_symbol in zip(
             symmetrized_parent.equivalent_indices, symmetrized_parent.wyckoff_symbols, strict=True
         ):
@@ -302,7 +319,7 @@ class ParentOrdering(MagneticOrdering):
 
         self.structure.add_site_property("sublattice_id", full_ids)
 
-        self.sublattice_ids = [sub_id for sub_id in full_ids if sub_id != NONMAGNETIC_SUBLATTICE_ID]
+        self.sublattice_ids = [sub_id for sub_id in full_ids if sub_id != _NONMAGNETIC_SUBLATTICE_ID]
         self.ideal_magnetic_structure = self.magnetic_structure  # the parent is its own ideal cell
 
 
@@ -430,11 +447,13 @@ class HeisenbergMapper:
                 primitive_cell=False and attempt_supercell=True, so each ordering is matched
                 as a supercell of the parent. Defaults to
                 StructureMatcher(primitive_cell=False, attempt_supercell=True).
-            default_magmoms (dict): Its keys are the species that can carry a moment, as
-                in CollinearMagneticStructureAnalyzer; moments on any other species are
-                zeroed, and those sites drop out of the fit. The values are not used. It
-                replaces default_magmoms.yaml rather than extending it, so list every
-                magnetic species. Defaults to None, which uses default_magmoms.yaml.
+            default_magmoms (dict): Its keys are the elements that can carry a moment, as
+                in CollinearMagneticStructureAnalyzer; oxidation states are ignored, so key
+                by element ("Fe", not "Fe2+"). Moments on any other element are zeroed, and
+                those sites drop out of the fit. The values are only used as moments for a
+                structure that carries no moments at all. It replaces default_magmoms.yaml
+                rather than extending it, so list every magnetic element. Defaults to None,
+                which uses default_magmoms.yaml.
         """
         if parent is not None and not isinstance(parent, Structure):
             raise TypeError(
@@ -517,7 +536,7 @@ class HeisenbergMapper:
 
     def _warn_on_zeroed_moments(self, ordered_structures):
         """Warn if a species outside default_magmoms carries a moment above
-        ZEROED_MOMENT_WARNING_THRESHOLD in any ordering, since that moment is zeroed.
+        _ZEROED_MOMENT_WARNING_THRESHOLD in any ordering, since that moment is zeroed.
         """
         largest_zeroed_moment: dict[str, float] = {}
         for struct in ordered_structures:
@@ -526,7 +545,7 @@ class HeisenbergMapper:
             for site in analyzer.structure:
                 species = site.species_string
                 moment = abs(site.properties["magmom"])
-                if species not in analyzer.default_magmoms and moment > ZEROED_MOMENT_WARNING_THRESHOLD:
+                if species not in analyzer.default_magmoms and moment > _ZEROED_MOMENT_WARNING_THRESHOLD:
                     largest_zeroed_moment[species] = max(largest_zeroed_moment.get(species, 0.0), moment)
 
         if largest_zeroed_moment:

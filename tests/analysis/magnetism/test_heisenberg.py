@@ -11,7 +11,7 @@ from scipy.constants import physical_constants
 
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper, HeisenbergModel, SublatticeMinimumDistanceNN
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core import Lattice
+from pymatgen.core import Lattice, Species
 from pymatgen.core.structure import Structure
 
 # Taken from scipy rather than copied out of HeisenbergMapper.get_mft_temperature, so a
@@ -746,3 +746,37 @@ class TestHeisenbergMapperDefaultMagmoms:
         assert hm.parent.magn_species == {"Fe", "U"}
         assert [len(struct) for struct in hm.magnetic_structures] == [4, 4]
         assert not [w for w in caught if "are zeroed" in str(w.message)]
+
+    def test_oxidation_states_match_element_keys(self):
+        orderings = self._orderings()
+        for struct in orderings:
+            struct.add_oxidation_state_by_element({"Fe": 2, "U": 4})
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            hm = HeisenbergMapper(orderings, [-20.0, -19.0], default_magmoms={"Fe": 5, "U": 2})
+
+        assert hm.parent.magn_species == {"Fe", "U"}
+        assert [len(struct) for struct in hm.magnetic_structures] == [4, 4]
+        assert not [w for w in caught if "are zeroed" in str(w.message)]
+
+    def test_species_spins_survive_oxidation_state_removal(self):
+        orderings = [
+            Structure(
+                self.lattice,
+                [
+                    Species(element, oxidation_state, spin=spin)
+                    for element, oxidation_state, spin in zip(self.species, (2, 4, 2, 4), spins, strict=True)
+                ],
+                [list(coord) for coord in self.coords],
+            )
+            for spins in ([3, 2, 3, 2], [3, 2, -3, -2])
+        ]
+
+        hm = HeisenbergMapper(orderings, [-20.0, -19.0], default_magmoms={"Fe": 5, "U": 2})
+
+        assert hm.parent.magn_species == {"Fe", "U"}
+        assert [struct.site_properties["magmom"] for struct in hm.magnetic_structures] == [
+            [3, 2, 3, 2],
+            [3, 2, -3, -2],
+        ]
