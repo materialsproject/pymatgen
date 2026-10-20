@@ -2,3 +2,17 @@
 tests/files/**/* linguist-vendored
 docs/**/* linguist-generated
 dev_scripts/**/* linguist-vendored
+
+# Enforce LF line endings for source, config and docs, regardless of the committer's platform or core.autocrlf.
+*.py    text eol=lf
+*.pyx   text eol=lf
+*.pyi   text eol=lf
+*.toml  text eol=lf
+*.md    text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.json  text eol=lf
+*.sh    text eol=lf
+
+# Test fixtures are parsed byte-for-byte and some intentionally use CRLF line endings; never normalize them.
+test-files/** -text
