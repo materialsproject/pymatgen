@@ -2404,7 +2404,6 @@ class TestMaterialsProjectAqueousCompatibility:
 
     def test_h2_adjustment_requires_h2_energy(self):
         """H2 referencing needs the H2 energy, which is only set by process_entries."""
-        # unique args: the class is a cached_class, so identical args would share h2_energy state
         compat = MaterialsProjectAqueousCompatibility(
             o2_energy=-4.95, h2o_energy=-5.1, h2o_adjustments=-0.25, solid_compat=None
         )
@@ -2417,10 +2416,6 @@ class TestMaterialsProjectAqueousCompatibility:
         assert compat.h2_energy == approx(-3.4)
         assert processed.energy_per_atom == approx(compat.fit_h2_energy)
 
-    @pytest.mark.xfail(
-        reason="cached_class shares O2/H2O reference energies between instances built with the same args",
-        strict=True,
-    )
     def test_reference_energies_not_shared_between_instances(self):
         first = MaterialsProjectAqueousCompatibility(solid_compat=None)
         first.process_entries([ComputedEntry("O2", -10), ComputedEntry("H2O", -15), ComputedEntry("Fe", -1)])
@@ -2430,6 +2425,15 @@ class TestMaterialsProjectAqueousCompatibility:
         second.process_entries([ComputedEntry("O2", -20), ComputedEntry("H2O", -30), ComputedEntry("Fe", -1)])
         assert second.o2_energy == approx(-10)
         assert second.h2o_energy == approx(-10)
+
+    def test_reprocessing_does_not_repeat_adjustments(self):
+        # a new instance infers different O2/H2O energies from the adjusted entries, but must still recognize the
+        # adjustments as already applied
+        entries = [ComputedEntry(Composition("O2"), -4.9276 * 2), ComputedEntry(Composition("H2O"), -15)]
+        MaterialsProjectAqueousCompatibility(solid_compat=None).process_entries(entries)
+        MaterialsProjectAqueousCompatibility(solid_compat=None).process_entries(entries)
+        for entry in entries:
+            assert [adj.name for adj in entry.energy_adjustments] == ["Compound entropy at room temperature"]
 
 
 class TestAqueousCorrection:
