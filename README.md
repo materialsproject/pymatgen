@@ -110,7 +110,41 @@ a series of [tutorials](https://github.com/computron/pymatgen_tutorials) and [Yo
 
 ## How to cite pymatgen
 
-If you use `pymatgen` in your research, please consider citing the following [work](https://doi.org/10.1016/j.commatsci.2012.10.028):
+If you use `pymatgen` in your research, please cite the following [work](https://arxiv.org/abs/2610.23538):
+
+```txt
+Janine George, Matthew K. Horton, Aaron D. Kaplan, Seán R. Kavanagh, Janosh Riebesell, Andrew S. Rosen,
+Haoyu Yang, Felix Adams, Mahdi Amachraa, Oxana Andriuc, Omar A. Ashour, Saurabh Bajaj, Ella Banyas, Luis
+Barroso-Luque, Karlo Berket, Noam Bernstein, Arpit Bhardwaj, Ali Hussain Umar Bhatti, Samuel M. Blau,
+Brandon Bocklund, Alexander Bonkowski, Danny Broberg, Guillaume Brunin, Kyle Bystrom, Charles A. Cardot,
+Rees Chang, Chi Chen, Wei Chen, Xin Chen, Yuan Chiang, Kamal Choudhary, Orion A. Cohen, Miguel D. Costa,
+Stephen T. Dacek III, Maarten de Jong, Tom Demeyere, Alan K. Dozier, Alexander Dunn, Shyam Dwaraknath,
+Maxwell T. Dylla, Kristjan Eimre, Alexander R. Epstein, Christina Ertural, Marco Esters, Matthew L.
+Evans, Johannes Falke, Adam Fekete, Bernard Field, Alexandr Fonari, Nathan C. Frey, Dale W. Gaines II,
+Alex M. Ganose, Matteo Giantomassi, Rhys E. A. Goodall, Petre-Flaviu Gostin, Aayush Gupta, Viet-Anh Ha,
+Geoffroy Hautier, Niclas Heinsdorf, Michael F. Herbst, Tingzheng Hou, Patrick Huck, Yuji Ikeda, Adam J.
+Jackson, Saivenkataraman Jayaraman, Finn R. Kearns, Sunghyun Kim, Ryan S. Kingsbury, Adam M. Krajewski,
+Yu Kumagai, Matthew C. Kuner, William T. Laderer, Weitang Li, Xiang-Guo Li, Yu Hsuan Liang, Hanyu Liu, Ke
+Liu, Miao Liu, Ahmad Lutfi, Olivier Marchand, Matthew J. McDermott, Bharat K. Medasani, Fanchen Meng,
+Kyle D. Miller, Henrique Miranda, Rohith Srinivaas Mohanakrishnan, Joseph H. Montoya, Guy C. Moore,
+Benjamin J. Morgan, Jason M. Munro, Koki Muraoka, Aakash A. Naik, Willis O'Leary, Anthony Onwuli, Jaesuk
+Park, Drew F. Parsons, Kai Pei, Guido Petretto, Thomas A. R. Purcell, Ji Qi, Xiaohui Qu, Ihor Radchenko,
+Nav Nidhi Rajput, Francesco Ricci, Benjamin S. Rich, William D. Richards, Gian-Marco Rignanese, Xiaoxu
+Ruan, Germain Salvato Vallverdu, Jonathan Schmidt, Jimmy-Xuan Shen, Ryuichi Shimogawa, Kohei Shinohara,
+Arunima K. Singh, Eric Sivonxay, Stef Smeets, Tess E. Smidt, Andrei Sobolev, Evan Walter Clark
+Spotte-Smith, Christopher Stihl, Wenhao Sun, Jack D. Sundberg, Yuta Suzuki, Leopold Talirz, Hanmei Tang,
+Eric Taw, Cooper Tezak, Félix Therrien, Scott D. Thiel, Steven B. Torrisi, Mark E. Turiansky, Katharina
+Ueltzen, Michiel J. van Setten, Josua Vieten, Sudarshan Vijay, Nicholas Wagner, Frank Wan, Amanda Wang,
+Jingyang Wang, Zhenbin Wang, Logan Ward, Thomas Warford, David Waroquiers, Mingjian Wen, Oskar Weser,
+Nicholas Winner, Donald Winston, Michael Wolloch, Brandon M. Wood, Rachel Woods-Robinson, Yihan Xiao,
+Yaoshu Xie, Firat Yalcin, Ruo Xi Yang, Weike Ye, Pezhman Zarabadi-Poor, Jinzhe Zeng, Hongsheng Zhao,
+Kaifeng Zheng, He Zhu, Zhuoying Zhu, Nils E. R. Zimmermann, Daniel Zügner, Kristin A. Persson, Anubhav
+Jain, Shyue Ping Ong.
+pymatgen: 15 years of community growth, new functionality, and future prospects.
+arXiv, 2026, arXiv:2610.23538. doi:10.48550/arXiv.2610.23538
+```
+
+Please also consider citing the [original `pymatgen` paper](https://doi.org/10.1016/j.commatsci.2012.10.028):
 
 ```txt
 Shyue Ping Ong, William Davidson Richards, Anubhav Jain, Geoffroy Hautier, Michael Kocher, Shreyas Cholia, Dan
