@@ -9,7 +9,7 @@ import pytest
 from pytest import approx
 from scipy.constants import physical_constants
 
-from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper, HeisenbergModel, SublatticeMinimumDistanceNN
+from pymatgen.analysis.magnetism.heisenberg import Bond, HeisenbergMapper, HeisenbergModel, ParentCell
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, Species
 from pymatgen.core.structure import Structure
@@ -104,17 +104,32 @@ class TestHeisenbergMapperKnownHamiltonian:
 
     @staticmethod
     def _labels(hm):
-        """J labels of the A-A, B-B and A-B interactions, keyed off species.
+        """J labels of the nearest A-A, B-B and A-B interactions, keyed off species.
 
-        Which orbit is labelled 0 and which 1 is an artifact of the symmetry analysis,
-        so the assertions below never assume an order.
+        Which orbit gets sublattice id 0 and which 1 is an artifact of the symmetry
+        analysis, so the assertions below never assume an order.
         """
         sub_ids = {
             site.specie.symbol: sub_id
             for site, sub_id in zip(hm.parent.magnetic_structure, hm.parent.sublattice_ids, strict=True)
         }
         a, b = sub_ids[TestHeisenbergMapperKnownHamiltonian.A], sub_ids[TestHeisenbergMapperKnownHamiltonian.B]
-        return f"{a}-{a}-nn", f"{b}-{b}-nn", f"{min(a, b)}-{max(a, b)}-nn"
+
+        def nearest(i, j):
+            # parent.interactions is sorted by length, so the first one of a pair is its nearest.
+            return next(it.label for it in hm.parent.interactions if it.sublattices == (min(i, j), max(i, j)))
+
+        return nearest(a, a), nearest(b, b), nearest(a, b)
+
+    def test_labels_number_interactions_by_length_and_name_the_pair(self):
+        hm = self._mapper()
+        # A-B at 1.0, then A-A and B-B tied at 1.6: the tie goes by name, Fe before Mn.
+        assert [interaction.label for interaction in hm.parent.interactions] == [
+            "J1(Fe1-Mn1)",
+            "J2(Fe1-Fe1)",
+            "J3(Mn1-Mn1)",
+        ]
+        assert sorted(hm.sublattice_names.values()) == ["Fe1", "Mn1"]
 
     def test_physical_exchange_recovery(self):
         hm = self._mapper()
@@ -183,7 +198,7 @@ class TestHeisenbergMapperKnownHamiltonian:
         orderings = self.ORDERINGS[:3]
         structures = [self._structure(*spins) for spins in orderings]
         energies = [self._energy(*spins) for spins in orderings]
-        with pytest.warns(UserWarning, match="orderings constrain only"):
+        with pytest.warns(UserWarning, match="orderings cannot separate"):
             hm = HeisenbergMapper(structures, energies)
 
         aa, bb, ab = self._labels(hm)
@@ -276,31 +291,24 @@ class TestHeisenbergMapperKnownHamiltonian:
         with pytest.raises(ValueError, match="HeisenbergModel"):
             HeisenbergModel.from_dict(dct)
 
-    def test_shells_are_counted_within_a_sublattice_pair(self):
+    def test_every_sublattice_pair_couples_through_its_nearest_bonds(self):
         hm = self._mapper()
         aa, bb, ab = self._labels(hm)
 
-        # The A-A and B-B chain bonds are the 'nn' of their own pair even though they
-        # are longer than the A-B bond, which is the 'nn' of its pair.
+        # The A-A and B-B chain bonds couple although they are longer than the A-B bond:
+        # without a cutoff, each pair keeps its own shortest bonds.
         assert hm.dists[ab] == approx(self.D_AB, abs=0.01)
         assert hm.dists[aa] == hm.dists[bb] == approx(self.D_AA, abs=0.01)
 
-    def test_without_cutoff_nearest_shell_is_one_interaction(self):
-        # Moving B off-center splits the A-B bond into 0.96 and 1.04 Angstrom. They differ
-        # by more than tol, so without a cutoff only the 0.96 bond is the nearest shell.
+    def test_without_cutoff_only_the_shortest_bonds_couple(self):
+        # Moving B off-center splits the A-B bond into 0.96 and 1.04 Angstrom. Without a
+        # cutoff only the 0.96 bond couples.
         structures = [self._structure(*spins, b_x=0.48) for spins in self.ORDERINGS]
         energies = [self._energy(*spins) for spins in self.ORDERINGS]
-        hm = HeisenbergMapper(structures, energies, tol=0.05)
+        hm = HeisenbergMapper(structures, energies)
 
-        _aa, _bb, ab = self._labels(hm)
-        assert hm.interactions[tuple(int(i) for i in ab.split("-")[:2])] == [ab]
-        assert hm.dists[ab] == approx(0.96, abs=1e-6)
-        a_b_dists = {
-            round(bond.dist, 6)
-            for bond in hm.parent.coupling_graph.get_connected_sites(0)
-            if bond.site.specie.symbol != hm.parent.magnetic_structure[0].specie.symbol
-        }
-        assert a_b_dists == {0.96}
+        a_b_lengths = [it.length for it in hm.parent.interactions if it.sublattices[0] != it.sublattices[1]]
+        assert a_b_lengths == approx([0.96], abs=1e-6)
 
     def test_cutoff_keeps_nearest_shell_of_pairs_beyond_it(self):
         # A cutoff of 1.2 Angstrom covers the A-B bond (1.0) but not the A-A and B-B chain
@@ -318,23 +326,21 @@ class TestHeisenbergMapperKnownHamiltonian:
         assert ex_params[aa] == approx(self.J_AA * 1000, abs=1e-6)
         assert ex_params[bb] == approx(self.J_BB * 1000, abs=1e-6)
 
-    def test_sublattice_strategy_keeps_cutoff_or_nearest_shell(self):
-        # Site 0 is A; its B neighbors sit at 0.96 and 1.04, its A neighbors at 1.6.
-        struct = self._structure([[1]], [[1]], b_x=0.48)
-        sublattice_ids = [0, 1]
+    def test_parent_keeps_cutoff_or_shortest_bonds(self):
+        # A-B bonds of 0.96 and 1.04, A-A and B-B chains at 1.6.
+        def a_b_lengths(**kwargs):
+            parent = ParentCell(self._structure([[1]], [[1]], b_x=0.48), {self.A, self.B}, **kwargs)
+            return [it.length for it in parent.interactions if it.sublattices[0] != it.sublattices[1]]
 
-        def neighbor_dists(**kwargs):
-            strategy = SublatticeMinimumDistanceNN(sublattice_ids, **kwargs)
-            by_sub: dict[int, list[float]] = {}
-            for info in strategy.get_nn_info(struct, 0):
-                by_sub.setdefault(sublattice_ids[info["site_index"]], []).append(round(info["site"].nn_distance, 6))
-            return {sub: sorted(dists) for sub, dists in by_sub.items()}
+        assert a_b_lengths() == approx([0.96], abs=1e-6)
+        # With a cutoff, every A-B bond within it couples, each orbit its own J.
+        assert a_b_lengths(cutoff=1.1) == approx([0.96, 1.04], abs=1e-6)
 
-        # Without a cutoff, the nearest shell ends at the first gap larger than tol.
-        assert neighbor_dists(tol=0.05) == {0: [1.6, 1.6], 1: [0.96]}
-        assert neighbor_dists(tol=0.1) == {0: [1.6, 1.6], 1: [0.96, 1.04]}
-        # With a cutoff, B keeps everything within it and A, with nothing within it, its nearest shell.
-        assert neighbor_dists(cutoff=1.1, tol=0.05) == {0: [1.6, 1.6], 1: [0.96, 1.04]}
+    def test_tol_is_deprecated(self):
+        structures = [self._structure(*spins) for spins in self.ORDERINGS]
+        energies = [self._energy(*spins) for spins in self.ORDERINGS]
+        with pytest.warns(DeprecationWarning, match="`tol` is deprecated"):
+            HeisenbergMapper(structures, energies, tol=0.05)
 
     def test_sublattice_pair_beyond_search_distance_warns(self):
         # A and B layers 12.5 Angstrom apart, beyond the 10 Angstrom neighbor search.
@@ -348,28 +354,6 @@ class TestHeisenbergMapperKnownHamiltonian:
         with pytest.warns(UserWarning, match=r"pairs \[\(0, 1\)\] have no neighbor within 10"):
             hm = HeisenbergMapper(structures, [-10.0, -9.0], parent=structures[0])
         assert set(hm.interactions) == {(0, 0), (1, 1)}
-
-    def test_shells_split_at_gaps_wider_than_tol(self):
-        # B at x=0.45 gives A-B bonds of 0.90, 1.10, 1.84, 1.94, 2.90, 3.10, then 3.312,
-        # 3.324 and 3.384 Angstrom. The last three are 0.012 and 0.060 apart, both within
-        # tol=0.065, so they form one shell although it spans 0.072 > tol. Grouping by
-        # distance to the shell's shortest bond would split 3.384 off on its own.
-        parent = self._structure([[1]], [[1]], b_x=0.45)
-        structures = [self._structure(*spins, b_x=0.45) for spins in self.ORDERINGS]
-        energies = [self._energy(*spins) for spins in self.ORDERINGS]
-        with pytest.warns(UserWarning, match="orderings constrain only"):
-            hm = HeisenbergMapper(structures, energies, parent=parent, cutoff=3.45, tol=0.065)
-
-        _aa, _bb, ab = self._labels(hm)
-        i_id, j_id = map(int, ab.split("-")[:2])
-        labels = hm.interactions[i_id, j_id]
-        assert len(labels) == 7
-        first, middle, last = np.hypot(2.9, self.D_AA), np.hypot(0.9, 2 * self.D_AA), np.hypot(1.1, 2 * self.D_AA)
-        assert hm.dists[labels[-1]] == approx(first, abs=1e-6)
-        # Every bond is labelled with the shell it was grouped into.
-        for dist in (first, middle, last):
-            assert hm._interaction_label(i_id, j_id, dist) == labels[-1]
-        assert hm._interaction_label(i_id, j_id, np.hypot(1.1, self.D_AA)) == labels[3]
 
     def test_relaxation_does_not_change_the_couplings(self):
         # Every ordering relaxes B off-center, splitting the A-B coupling into 0.9 and
@@ -389,23 +373,19 @@ class TestHeisenbergMapperKnownHamiltonian:
         assert ex_params[bb] == approx(self.J_BB * 1000, abs=1e-6)
         assert residual == approx(0, abs=1e-9)
 
-    def test_cutoff_groups_bonds_into_shells_by_tol(self):
+    def test_cutoff_adds_the_longer_orbits_of_each_pair(self):
         # Up to 2.1 Angstrom each pair has two bond lengths: A-B at 1.0 and 1.89, A-A and
-        # B-B at 1.6 (chains) and 2.0 (along x). tol decides whether those are two shells.
+        # B-B at 1.6 (chains) and 2.0 (along x).
         structures = [self._structure(*spins) for spins in self.ORDERINGS]
         energies = [self._energy(*spins) for spins in self.ORDERINGS]
+        with pytest.warns(UserWarning, match="orderings cannot separate"):
+            hm = HeisenbergMapper(structures, energies, cutoff=2.1)
 
-        hm = HeisenbergMapper(structures, energies, cutoff=2.1, tol=0.05)
-        aa, _bb, ab = self._labels(hm)
-        aa_nnn, ab_nnn = aa.replace("-nn", "-nnn"), ab.replace("-nn", "-nnn")
-        assert hm.dists[ab_nnn] == approx(np.hypot(self.D_AB, self.D_AA), abs=1e-6)
-        assert hm.dists[aa_nnn] == approx(2 * self.D_AB, abs=1e-6)
-
-        # 2.0 - 1.6 = 0.4 is within tol=0.5, so the A-A bonds merge into one shell; the
-        # A-B bonds are 0.89 apart and stay separate.
-        hm = HeisenbergMapper(structures, energies, cutoff=2.1, tol=0.5)
-        assert aa_nnn not in hm.dists
-        assert ab_nnn in hm.dists
+        aa, bb, ab = self._labels(hm)
+        lengths = {pair: [hm.dists[label] for label in labels] for pair, labels in hm.interactions.items()}
+        pair_of = {label: pair for pair, labels in hm.interactions.items() for label in labels}
+        assert lengths[pair_of[ab]] == approx([self.D_AB, np.hypot(self.D_AB, self.D_AA)], abs=1e-6)
+        assert lengths[pair_of[aa]] == lengths[pair_of[bb]] == approx([self.D_AA, 2 * self.D_AB], abs=1e-6)
 
     def test_interaction_graph_consistent_across_orderings(self):
         # The fitted J_ij must be recoverable from the interaction graph of any
@@ -491,16 +471,14 @@ class TestHeisenbergMapperKnownHamiltonian:
         with pytest.raises(TypeError, match="parent must be a Structure"):
             HeisenbergMapper(structures, energies, 5.0)
 
-    def test_coupling_off_the_parent_geometry_raises(self):
-        # A coupling shorter than any parent shell of its pair, or of a pair the parent does
-        # not have, cannot be labelled; that must say so rather than leak a StopIteration.
+    def test_bonds_couple_only_through_the_parent(self):
         hm = self._mapper()
-        _aa, _bb, ab = self._labels(hm)
-        i_id, j_id = map(int, ab.split("-")[:2])
-        with pytest.raises(ValueError, match="No interaction of sublattices"):
-            hm._interaction_label(i_id, j_id, hm.dists[ab] / 2)
-        with pytest.raises(ValueError, match="No interaction of sublattices"):
-            hm._interaction_label(i_id, 99, hm.dists[ab])
+        # A bond five cells long is no interaction of the parent.
+        assert all(Bond(0, 0, (5, 0, 0)) not in interaction.bonds for interaction in hm.parent.interactions)
+
+        # Every coupled bond of every ordering is a parent bond of a known interaction.
+        for ordering in hm.orderings:
+            assert {interaction.label for *_, interaction in ordering.coupled_bonds()} == set(hm.dists)
 
         # The coupling graphs carry each ordering's own moments.
         for ordering, graph in zip(hm.orderings, hm.coupling_graphs, strict=True):
@@ -602,7 +580,7 @@ class TestHeisenbergMeanFieldTemperature:
         assert len(hm.interactions) == 1
 
         ex_params, residual = hm.get_exchange()
-        assert ex_params == approx({"E0": self.E0, "0-0-nn": j_nn * 1000})
+        assert ex_params == approx({"E0": self.E0, "J1(Fe1-Fe1)": j_nn * 1000})
         assert residual == approx(0, abs=1e-9)
 
     @pytest.mark.parametrize(("j_nn", "fm_ground_state"), [(0.010, True), (-0.010, False)])
@@ -705,7 +683,7 @@ class TestHeisenbergMapperZeroMomentIon:
         structures = [self._ordering([3, 2, 3, 2]), self._ordering([3, 0, -3, 0])]
         hm = HeisenbergMapper(structures, [-20.0, -19.0])
 
-        assert hm.parent.magn_species == {"Fe", "Mn"}
+        assert hm.parent.magnetic_species == {"Fe", "Mn"}
         # Without pooling, the second cell would carry two magnetic sites instead of
         # four and its energy per magnetic ion would be off by a factor of two.
         assert [len(struct) for struct in hm.magnetic_structures] == [4, 4]
@@ -736,14 +714,14 @@ class TestHeisenbergMapperDefaultMagmoms:
         with pytest.warns(UserWarning, match=r"Moments on U \(up to 2\.00 muB\) are zeroed"):
             hm = HeisenbergMapper(self._orderings(), [-20.0, -19.0])
 
-        assert hm.parent.magn_species == {"Fe"}
+        assert hm.parent.magnetic_species == {"Fe"}
 
     def test_default_magmoms_keeps_species_magnetic(self):
         with warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter("always")
             hm = HeisenbergMapper(self._orderings(), [-20.0, -19.0], default_magmoms={"Fe": 5, "U": 2})
 
-        assert hm.parent.magn_species == {"Fe", "U"}
+        assert hm.parent.magnetic_species == {"Fe", "U"}
         assert [len(struct) for struct in hm.magnetic_structures] == [4, 4]
         assert not [w for w in caught if "are zeroed" in str(w.message)]
 
@@ -756,7 +734,7 @@ class TestHeisenbergMapperDefaultMagmoms:
             warnings.simplefilter("always")
             hm = HeisenbergMapper(orderings, [-20.0, -19.0], default_magmoms={"Fe": 5, "U": 2})
 
-        assert hm.parent.magn_species == {"Fe", "U"}
+        assert hm.parent.magnetic_species == {"Fe", "U"}
         assert [len(struct) for struct in hm.magnetic_structures] == [4, 4]
         assert not [w for w in caught if "are zeroed" in str(w.message)]
 
@@ -775,8 +753,78 @@ class TestHeisenbergMapperDefaultMagmoms:
 
         hm = HeisenbergMapper(orderings, [-20.0, -19.0], default_magmoms={"Fe": 5, "U": 2})
 
-        assert hm.parent.magn_species == {"Fe", "U"}
+        assert hm.parent.magnetic_species == {"Fe", "U"}
         assert [struct.site_properties["magmom"] for struct in hm.magnetic_structures] == [
             [3, 2, 3, 2],
             [3, 2, -3, -2],
         ]
+
+
+class TestHeisenbergMapperInequivalentBonds:
+    """Kagome lattice with nearest-neighbor distance 1: all sites are equivalent (one
+    sublattice), and the six bonds of length 2 from a site fall into two symmetry orbits.
+    Two cross an empty hexagon, four run along a chain through a middle site. They must
+    get separate exchange constants although they share a sublattice pair and a length.
+
+    Energies come from an explicit lattice sum that tells the two J3 bonds apart by
+    whether a site sits at the bond midpoint, not from the mapper's symmetry analysis.
+    """
+
+    E0 = -5.0  # eV per magnetic ion
+    J1, J2, J3_ACROSS, J3_ALONG = 0.010, -0.002, 0.004, -0.001  # eV, all distinct
+    CUTOFF = 2.05  # Angstrom, just beyond the J3 bonds
+
+    @staticmethod
+    def _parent():
+        return Structure(Lattice.hexagonal(2.0, 6.0), ["Fe"] * 3, [[0.5, 0, 0], [0, 0.5, 0], [0.5, 0.5, 0]])
+
+    def _ordering(self, supercell, seed):
+        struct = self._parent()
+        struct.make_supercell(supercell)
+        moments = np.random.default_rng(seed).choice([-1.0, 1.0], len(struct))
+        struct.add_site_property("magmom", list(moments))
+        return struct
+
+    def _energy(self, struct):
+        moments = struct.site_properties["magmom"]
+        e_ex = 0.0
+        for i, j, image, length in zip(*struct.get_neighbor_list(self.CUTOFF), strict=True):
+            if length < 1.5:
+                j_ij = self.J1
+            elif length < 1.9:
+                j_ij = self.J2
+            else:
+                midpoint = (struct[i].coords + struct.lattice.get_cartesian_coords(struct[j].frac_coords + image)) / 2
+                j_ij = self.J3_ALONG if struct.get_sites_in_sphere(midpoint, 0.01) else self.J3_ACROSS
+            e_ex -= 0.5 * j_ij * moments[i] * moments[j]  # 1/2: bonds counted from both ends
+        return len(struct) * self.E0 + e_ex
+
+    def test_equal_length_orbits_get_separate_labels(self):
+        parent = ParentCell(self._parent(), {"Fe"}, cutoff=self.CUTOFF)
+
+        labels = [interaction.label for interaction in parent.interactions]
+        assert labels == ["J1(Fe1-Fe1)", "J2(Fe1-Fe1)", "J3(Fe1-Fe1)", "J4(Fe1-Fe1)"]
+        # Bonds per site, both directions counted: 4, 4, then 2 across and 4 along.
+        n_sites = len(parent.magnetic_structure)
+        assert [len(interaction.bonds) / n_sites for interaction in parent.interactions] == [4, 4, 2, 4]
+        assert [interaction.length for interaction in parent.interactions] == approx([1, np.sqrt(3), 2, 2])
+
+    def test_recovers_both_j3(self):
+        supercells = [[[2, 0, 0], [0, 2, 0], [0, 0, 1]], [[1, 1, 0], [-1, 1, 0], [0, 0, 1]]]
+        structures = [self._ordering(supercell, seed) for supercell in supercells for seed in range(6)]
+        energies = [self._energy(struct) for struct in structures]
+
+        hm = HeisenbergMapper(structures, energies, parent=self._parent(), cutoff=self.CUTOFF)
+        ex_params, residual = hm.get_exchange()
+
+        assert ex_params == approx(
+            {
+                "E0": self.E0,
+                "J1(Fe1-Fe1)": self.J1 * 1000,
+                "J2(Fe1-Fe1)": self.J2 * 1000,
+                "J3(Fe1-Fe1)": self.J3_ACROSS * 1000,
+                "J4(Fe1-Fe1)": self.J3_ALONG * 1000,
+            },
+            abs=1e-6,
+        )
+        assert residual == approx(0, abs=1e-9)
