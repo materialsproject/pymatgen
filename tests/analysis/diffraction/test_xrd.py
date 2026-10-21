@@ -224,6 +224,29 @@ class TestXRDCalculator(MatSciTest):
         assert captured["symprec"] == 0.05
         assert all(getattr(species, "spin", None) is None for species in captured["structure"].types_of_species)
 
+    def test_magnetic_structure_matches_nonmagnetic_pattern(self):
+        """AFM bcc Fe must give the same cubic (110) family as non-magnetic bcc Fe."""
+        magnetic = Structure(
+            Lattice.cubic(2.87),
+            [Species("Fe", 2, spin=2.2), Species("Fe", 2, spin=-2.2)],
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
+            site_properties={"magmom": [2.2, -2.2]},
+        )
+        nonmagnetic = Structure(
+            Lattice.cubic(2.87),
+            [Species("Fe", 2), Species("Fe", 2)],
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
+        )
+
+        magnetic_pattern = XRDCalculator().get_pattern(magnetic)
+        nonmagnetic_pattern = XRDCalculator().get_pattern(nonmagnetic)
+
+        assert magnetic_pattern.d_hkls == approx(nonmagnetic_pattern.d_hkls)
+        assert magnetic_pattern.hkls == nonmagnetic_pattern.hkls
+
+        strongest = int(np.argmax(magnetic_pattern.y))
+        assert magnetic_pattern.hkls[strongest] == [{"hkl": (1, 1, 0), "multiplicity": 12}]
+
     def test_laue_uses_calculator_symprec(self, monkeypatch):
         struct = self.get_structure("CsCl")
         captured = {}

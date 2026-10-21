@@ -58,7 +58,13 @@ with open(
 
 
 def _strip_magnetic_info(structure: Structure) -> Structure:
-    """Return a copy without magnetic moments or species spins."""
+    """Return a copy without magnetic moments or species spins.
+
+    Sites whose species carry a spin are rebuilt from the element symbol and
+    oxidation state, so any other species properties (such as ``spin``) are
+    dropped. That is sufficient for the nuclear XRD pattern, which depends
+    only on the element and occupancy.
+    """
     from pymatgen.core import Species, Structure
 
     has_spin = any(getattr(species, "spin", None) is not None for species in structure.types_of_species)
