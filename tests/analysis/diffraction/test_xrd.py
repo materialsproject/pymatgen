@@ -243,6 +243,7 @@ class TestXRDCalculator(MatSciTest):
 
         assert magnetic_pattern.d_hkls == approx(nonmagnetic_pattern.d_hkls)
         assert magnetic_pattern.hkls == nonmagnetic_pattern.hkls
+        assert magnetic_pattern.y == approx(nonmagnetic_pattern.y)
 
         strongest = int(np.argmax(magnetic_pattern.y))
         assert magnetic_pattern.hkls[strongest] == [{"hkl": (1, 1, 0), "multiplicity": 12}]
