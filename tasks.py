@@ -26,12 +26,6 @@ from monty.os import cd
 if TYPE_CHECKING:
     from invoke import Context
 
-CHANGELOG_PROMPT = """
-Provide a concise summary of the following pull requests as a change log for the pymatgen package. Format the summary
-as a markdown bulleted list. Make sure to include the GitHub ids of all the authors. Do not include any code
-blocks and timing outputs. Do not include any dependabot and pre-commit PRs.
-"""
-
 
 @task
 def make_doc(ctx: Context) -> None:
@@ -177,22 +171,6 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
             ignored_commits += [line]
 
     body = "\n".join(lines)
-    try:
-        # Use OpenAI to improve changelog. Requires openai to be installed and an OPENAPI_KEY env variable.
-        from openai import OpenAI
-
-        client = OpenAI(api_key=os.environ["OPENAPI_KEY"])
-
-        messages = [{"role": "user", "content": CHANGELOG_PROMPT + f": '{body}'"}]
-        chat = client.chat.completions.create(model="gpt-5", messages=messages)
-
-        reply = chat.choices[0].message.content
-        body = "\n".join(reply.split("\n")[1:-1])
-        body = body.strip().strip("`")
-        print(f"ChatGPT Summary of Changes:\n{body}")
-
-    except BaseException as ex:
-        print(f"Unable to use openai due to {ex}")
     with open("docs/CHANGES.md", encoding="utf-8") as file:
         contents = file.read()
     delim = "##"
