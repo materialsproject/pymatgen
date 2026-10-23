@@ -115,6 +115,9 @@ include-package-data = false
 tag_regex = '^v(?P<version>\d{4}\.\d{1,2}\.\d{1,2})$'
 version_scheme = "no-guess-dev"
 
+[tool.setuptools_scm.scm.git]
+describe_command = "git describe --dirty --tags --long --match 'v*'"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["pymatgen", "pymatgen.*"]
