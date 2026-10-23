@@ -10,6 +10,27 @@ Releases tagged `(pymatgen-core)` originate from the
 [pymatgen-core](https://github.com/materialsproject/pymatgen-core) repo (PR numbers refer
 to that repo) and are pulled in automatically.
 
+## v2026.10.24
+
+Requires `pymatgen-core>=2026.9.23`; the latest `pymatgen-core` changes (v2026.10.2, v2026.10.16) are listed in the `(pymatgen-core)` entries below.
+
+- PR #4715 `XRDCalculator`, `NDCalculator` and `TEMCalculator` apply the anisotropic Debye-Waller factor `exp(-2π² hᵀU*h)` per site when the structure carries the `U11_cif` ... `U12_cif` site properties (as written by `ThermalDisplacementMatrices.to_structure_with_site_properties_Ucif`, e.g. from phonopy). **Behavior change:** structures that already carry these properties now get the factor; structures without them are unchanged. Combining them with `symprec` (all three calculators) or with `debye_waller_factors` (XRD/ND) raises a `ValueError`. Physics and first implementation by @rkeesey. (by @hrushikesh-s)
+
+## v2026.10.16 (pymatgen-core)
+
+- PR #162 `EwaldSummation` raises a `ValueError` for structures whose lattice is not 3D periodic. `_calc_real_and_point` uses `Lattice.get_points_in_sphere`, which honours `Lattice.pbc` and drops images along non-periodic axes, while `_calc_recip` always uses the 3D-periodic reciprocal lattice, so the real- and reciprocal-space terms described different systems and the total energy depended on `eta`. Results for 3D-periodic structures are unchanged. Fixes materialsproject/pymatgen#4718. (by @shyuep)
+- PR #164 `EwaldSummation` derives the charged-cell background correction from the summed per-site charges actually used in the Ewald sums, rather than `Structure.charge`, which ignores the `charge` site property. Structures charged via site-property charges previously got no background correction and an `eta`-dependent energy. A `UserWarning` is emitted when the summed site charges differ from an explicitly set charge or the oxidation-state total by more than 1e-8. Oxidation-state-decorated structures are unaffected. Fixes materialsproject/pymatgen#4719. (by @shyuep)
+- PR #165 `BandStructure.get_direct_band_gap_dict` (and hence `get_direct_band_gap`) no longer crashes with `ValueError: zero-size array to reduction operation` when a spin channel has no occupied or no unoccupied bands. Such channels are skipped and are absent from the returned dict; a descriptive `ValueError` is raised if no channel defines a direct gap. Fixes #163. (by @shyuep)
+- PR #166 `chempot_diagram.simple_pca` uses `np.linalg.eigh` instead of `np.linalg.eig` on the (symmetric) covariance matrix. With numpy >= 2.5, `eig` always returns complex arrays, which propagated into 3D `ChemicalPotentialDiagram` annotation coordinates and broke JSON serialization of the plotly figure (`TypeError: Type is not JSON serializable: complex`). (by @minhsueh)
+- PR #167 Add a `.pyi` type stub for the `pymatgen.optimization.neighbors` Cython extension declaring the signature of `find_points_in_spheres`, so type checkers (e.g. `ty`, mypy, pyright) can resolve the import. No runtime change. (by @ktns)
+
+## v2026.10.2 (pymatgen-core)
+
+- PR #151 `Structure.get_all_neighbors_old` gains a `numerical_tol` argument (default `1e-8`) and filters on `numerical_tol < d <= r + numerical_tol`, matching `get_all_neighbors`, `get_all_neighbors_py`, `get_neighbor_list` and `get_neighbors`. Previously neighbors lying exactly at the cutoff were kept or dropped depending on floating-point rounding (e.g. cubic SrTiO3 at `r = a` returned only 3 of the 6 Ti images, not even inversion-symmetric). Fixes materialsproject/pymatgen#4708. (by @shyuep)
+- PR #157 `GrainBoundaryGenerator` fixes three traps. Triclinic structures were mapped to `"t"` and silently treated as tetragonal; the lattice type is now mapped explicitly, and triclinic and monoclinic structures raise a `ValueError` at construction. The `Sigma >1000` `RuntimeError` from `get_trans_mat`, usually caused by an angle not given to full precision (e.g. 109.47° for Σ3 [110] in Si), now reports the computed sigma, angle and axis and points to `get_rotation_angle_from_sigma` / `enum_sigma_*` for the exact angle. `get_rotation_angle_from_sigma`'s fallback warning for an impossible sigma now names the requested and returned sigma; behavior is unchanged. (by @shyuep)
+- PR #152 Fix the `pyright` CI step taking 80–100 min: with numpy 2.5 stubs, loop type inference for the metric tensor in `Lattice.get_niggli_reduced_lattice` effectively never terminated. Declaring `G: np.ndarray` brings `pyright src` to ~27 s; the lint job is also capped at 15 min. No runtime change. (by @shyuep)
+- PR #155 `Structure.remove_sites` accepts any `Iterable` of indices (previously typed as `Sequence`), so numpy arrays type-check and one-shot generators work correctly. Indices are collected into a set once, making the membership check O(1) per site; `None` and negative values are ignored as before. (by @Sanftperlig)
+
 ## v2026.9.24
 
 Re-release of v2026.9.23 (no code changes). The v2026.9.23 sdist exceeded PyPI's size limit because `setuptools-scm` pulled every tracked file (test files, docs) into it, so v2026.9.23 is available on PyPI as a wheel only. A `MANIFEST.in` now restricts the sdist to `src/` and metadata.
