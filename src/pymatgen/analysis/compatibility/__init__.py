@@ -301,7 +301,6 @@ class AnionCorrection(Correction):
             if entry.data.get("sulfide_type"):
                 sf_type = entry.data["sulfide_type"]
             elif hasattr(entry, "structure"):
-                warnings.warn(sf_type, stacklevel=2)
                 sf_type = sulfide_type(entry.structure)
 
             # use the same correction for polysulfides and sulfides

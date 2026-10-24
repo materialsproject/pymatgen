@@ -5,6 +5,7 @@ import json
 import math
 import os
 import sys
+import warnings
 from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -17,6 +18,7 @@ from pymatgen.analysis.compatibility import (
     MP2020_COMPAT_CONFIG,
     MP_COMPAT_CONFIG,
     MU_H2O,
+    AnionCorrection,
     AqueousCorrection,
     Compatibility,
     CompatibilityError,
@@ -2296,6 +2298,24 @@ class TestAqueousCorrection:
         entry = ComputedEntry(Composition("Cl"), -24, parameters={"run_type": "GGA"})
         entry = self.corr.correct_entry(entry)
         assert entry.energy == approx(-24.344373)
+
+
+class TestLegacyCorrections:
+    """Edge cases of the Correction classes used by the legacy CorrectionsList schemes."""
+
+    mp_config = f"{PMG_ENTRIES_DIR}/MPCompatibility.yaml"
+    mit_config = f"{PMG_ENTRIES_DIR}/MITCompatibility.yaml"
+
+    def test_anion_correction_sulfide_from_structure(self):
+        """Classifying the sulfide from the structure must not emit a spurious warning."""
+        struct = Structure.from_spacegroup(
+            "F-43m", Lattice.cubic(5.41), ["Zn", "S"], [[0, 0, 0], [0.25, 0.25, 0.25]]
+        )  # zincblende ZnS, 4 formula units
+        entry = ComputedStructureEntry(struct, -20, parameters={"run_type": "GGA"})
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            corr = AnionCorrection(self.mp_config).get_correction(entry)
+        assert corr.nominal_value == approx(-0.66346 * 4)
 
 
 class TestMITAqueousCompatibility:
