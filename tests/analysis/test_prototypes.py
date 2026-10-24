@@ -658,8 +658,11 @@ def test_get_protostructure_label_invalid_method():
 
 # spglib's own deprecation of OLD_ERROR_HANDLING, triggered via SpacegroupAnalyzer on failure
 @pytest.mark.filterwarnings("ignore:Set OLD_ERROR_HANDLING to false:DeprecationWarning")
-def test_get_protostructure_label_from_spglib_undetermined_symmetry():
+def test_get_protostructure_label_from_spglib_undetermined_symmetry(monkeypatch):
     """Coincident atoms make spglib fail; the error is annotated unless raise_errors."""
+    # ase's spglib wrapper sets SPGLIB_OLD_ERROR_HANDLING=false and does not unset it, so after any
+    # test that goes through ase symmetry code spglib raises its own message instead of returning None.
+    monkeypatch.delenv("SPGLIB_OLD_ERROR_HANDLING", raising=False)
     struct = Structure(Lattice.cubic(4), ["Na", "Na"], [[0, 0, 0], [0, 0, 0]], validate_proximity=False)
 
     assert get_protostructure_label_from_spglib(struct) == "Unable to determine symmetry"
