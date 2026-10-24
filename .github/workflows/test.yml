@@ -133,7 +133,7 @@ jobs:
           PMG_TEST_FILES_DIR: "${{ github.workspace }}/test-files"
           PYTHONWARNDEFAULTENCODING: "true" # PEP 597: Enable optional EncodingWarning
         run: |
-          pytest --cov=pymatgen --cov-report=xml tests --color=yes
+          pytest -n auto --cov=pymatgen --cov-report=xml tests --color=yes
       - name: Codecov
         # Upload from the ubuntu job that installs `extras: optional` so codecov
         # reflects the full test surface. Files installed from pymatgen-core are
