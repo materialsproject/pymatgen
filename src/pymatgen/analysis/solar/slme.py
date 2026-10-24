@@ -176,7 +176,7 @@ def slme(
     solar_spectrum_data_file = str(os.path.join(os.path.dirname(__file__), "am1.5G.dat"))
 
     solar_spectra_wavelength, solar_spectra_irradiance = np.loadtxt(
-        solar_spectrum_data_file, usecols=[0, 1], unpack=True, skiprows=2
+        solar_spectrum_data_file, usecols=[0, 1], unpack=True, skiprows=2, encoding="utf-8"
     )
 
     solar_spectra_wavelength_meters = solar_spectra_wavelength * 1e-9

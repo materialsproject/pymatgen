@@ -202,7 +202,7 @@ TEST_PROTOSTRUCTURES = [
 ]
 
 
-@pytest.mark.parametrize(("structure", "expected"), zip(TEST_STRUCTS, TEST_PROTOSTRUCTURES, strict=False))
+@pytest.mark.parametrize(("structure", "expected"), list(zip(TEST_STRUCTS, TEST_PROTOSTRUCTURES, strict=True)))
 def test_get_protostructure_label_from_spglib(structure, expected):
     """Check that spglib gives correct protostructure label simple cases."""
     assert get_protostructure_label_from_spglib(structure) == expected
@@ -401,13 +401,13 @@ def test_count_distinct_wyckoff_letters(protostructure_label, expected):
 
 
 @pytest.mark.skipif(which("aflow") is None, reason="AFLOW CLI not installed")
-@pytest.mark.parametrize(("structure", "expected"), zip(TEST_STRUCTS, TEST_PROTOSTRUCTURES, strict=False))
+@pytest.mark.parametrize(("structure", "expected"), list(zip(TEST_STRUCTS, TEST_PROTOSTRUCTURES, strict=True)))
 def test_get_protostructure_label_from_aflow(structure, expected):
     """Check that AFLOW CLI gives correct protostructure label simple cases."""
     assert get_protostructure_label_from_aflow(structure, aflow_executable=which("aflow")) == expected
 
 
-@pytest.mark.parametrize(("structure", "expected"), zip(TEST_STRUCTS, TEST_PROTOSTRUCTURES, strict=False))
+@pytest.mark.parametrize(("structure", "expected"), list(zip(TEST_STRUCTS, TEST_PROTOSTRUCTURES, strict=True)))
 def test_get_protostructure_label_from_moyopy(structure, expected):
     pytest.importorskip("moyopy", reason="moyopy not installed")
 

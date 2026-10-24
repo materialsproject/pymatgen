@@ -17,7 +17,7 @@
                 "uncertainty": 0.0,
                 "name": "MP GGA(+U)/R2SCAN mixing adjustment",
                 "cls": {
-                    "@module": "pymatgen.entries.mixing_scheme",
+                    "@module": "pymatgen.analysis.compatibility.mixing_scheme",
                     "@class": "MaterialsProjectDFTMixingScheme",
                     "@version": null,
                     "structure_matcher": {
@@ -398,7 +398,7 @@
                 "uncertainty": 0.0,
                 "name": "MP GGA(+U)/R2SCAN mixing adjustment",
                 "cls": {
-                    "@module": "pymatgen.entries.mixing_scheme",
+                    "@module": "pymatgen.analysis.compatibility.mixing_scheme",
                     "@class": "MaterialsProjectDFTMixingScheme",
                     "@version": null,
                     "structure_matcher": {

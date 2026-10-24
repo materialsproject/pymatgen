@@ -328,7 +328,8 @@ def power2_inverse_decreasing(xx, edges=None, prefactor=None):
     """
     if edges is None:
         aa = 1.0 / np.power(-1.0, 2) if prefactor is None else prefactor
-        return np.where(np.isclose(xx, 0.0), aa * float("inf"), aa * np.power(xx - 1.0, 2) / xx)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return np.where(np.isclose(xx, 0.0), aa * float("inf"), aa * np.power(xx - 1.0, 2) / xx)
         # return aa * np.power(xx-1.0, 2) / xx if xx != 0 else aa * float("inf")
     xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
     return power2_inverse_decreasing(xx_scaled_and_clamped, prefactor=prefactor)
@@ -343,11 +344,12 @@ def power2_inverse_power2_decreasing(xx, edges=None, prefactor=None):
     """
     if edges is None:
         aa = 1.0 / np.power(-1.0, 2) if prefactor is None else prefactor
-        return np.where(
-            np.isclose(xx, 0.0),
-            aa * float("inf"),
-            aa * np.power(xx - 1.0, 2) / xx**2.0,
-        )
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return np.where(
+                np.isclose(xx, 0.0),
+                aa * float("inf"),
+                aa * np.power(xx - 1.0, 2) / xx**2.0,
+            )
     xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
     return power2_inverse_power2_decreasing(xx_scaled_and_clamped, prefactor=prefactor)
 

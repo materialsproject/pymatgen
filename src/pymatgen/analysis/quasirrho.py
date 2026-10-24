@@ -240,8 +240,9 @@ class QuasiRRHO:
         ev = sv_quasiRRHO = sv = 0
 
         for vt in vib_temps:
-            ev += vt * (1 / 2 + 1 / (np.exp(vt / self.temp) - 1))
-            sv_temp = vt / (self.temp * (np.exp(vt / self.temp) - 1)) - np.log(1 - np.exp(-vt / self.temp))
+            with np.errstate(over="ignore"):
+                ev += vt * (1 / 2 + 1 / (np.exp(vt / self.temp) - 1))
+                sv_temp = vt / (self.temp * (np.exp(vt / self.temp) - 1)) - np.log(1 - np.exp(-vt / self.temp))
             sv += sv_temp
 
             mu = h_plank / (8 * np.pi**2 * vt * light_speed)
