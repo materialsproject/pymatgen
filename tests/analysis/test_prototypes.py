@@ -1,14 +1,18 @@
 from __future__ import annotations
 
 import inspect
+import json
 import math
 import re
+import subprocess
 from itertools import permutations, product
 from shutil import which
+from types import SimpleNamespace
 
 import pandas as pd
 import pytest
 
+import pymatgen.analysis.prototypes as prototypes_module
 from pymatgen.analysis.prototypes import (
     WYCKOFF_POSITION_RELAB_DICT,
     AflowPrototypeMatcher,
@@ -405,6 +409,82 @@ def test_count_distinct_wyckoff_letters(protostructure_label, expected):
 def test_get_protostructure_label_from_aflow(structure, expected):
     """Check that AFLOW CLI gives correct protostructure label simple cases."""
     assert get_protostructure_label_from_aflow(structure, aflow_executable=which("aflow")) == expected
+
+
+@pytest.fixture
+def mock_aflow(monkeypatch):
+    """Replace the AFLOW CLI with a stub reporting a given AFLOW label.
+
+    Returns a function that installs the stub for ``aflow_label`` and returns the
+    list in which each ``subprocess.run`` call is recorded as ``(cmd, kwargs)``.
+    """
+    calls: list[tuple[list[str], dict]] = []
+
+    def install(aflow_label: str) -> list[tuple[list[str], dict]]:
+        def fake_run(cmd, **kwargs):
+            calls.append((cmd, kwargs))
+            stdout = json.dumps({"aflow_prototype_label": aflow_label})
+            return subprocess.CompletedProcess(cmd, 0, stdout=stdout, stderr="")
+
+        monkeypatch.setattr(prototypes_module, "which", lambda cmd: cmd or None)
+        monkeypatch.setattr(prototypes_module, "subprocess", SimpleNamespace(run=fake_run))
+        return calls
+
+    return install
+
+
+@pytest.mark.parametrize(
+    ("structure", "aflow_label", "expected"),
+    [
+        (TEST_STRUCTS[0], "AB_cF8_225_a_b", "AB_cF8_225_a_b:Cl-Na"),  # rocksalt
+        # equivalent origin choice must be canonicalized
+        (TEST_STRUCTS[0], "AB_cF8_225_b_a", "AB_cF8_225_a_b:Cl-Na"),
+        (TEST_STRUCTS[4], "A3BC_cP5_221_c_a_b", "A3BC_cP5_221_c_a_b:O-Sr-Ti"),  # perovskite
+        (TEST_STRUCTS[4], "A3BC_cP5_221_d_b_a", "A3BC_cP5_221_c_a_b:O-Sr-Ti"),
+        (TEST_STRUCTS[5], "AB3_tP4_115_a_cg", "AB3_tP4_115_a_cg:Al-Fe"),
+        (TEST_STRUCTS[6], "ABC6D2_mC40_15_e_e_3f_f", "ABC6D2_mC40_15_e_e_3f_f:Ca-Fe-O-Si"),  # esseneite
+    ],
+)
+def test_get_protostructure_label_from_aflow_mocked(mock_aflow, structure, aflow_label, expected):
+    """Parse (mocked) AFLOW CLI output without needing the aflow binary."""
+    calls = mock_aflow(aflow_label)
+
+    assert get_protostructure_label_from_aflow(structure) == expected
+
+    (cmd, kwargs), *_ = calls
+    assert len(calls) == 1
+    assert cmd == ["aflow", "--prototype", "--print=json", "cat"]
+    assert kwargs["input"] == structure.to(fmt="poscar")
+    assert kwargs["check"] is True
+
+
+def test_get_protostructure_label_from_aflow_executable(mock_aflow):
+    calls = mock_aflow("AB_cF8_225_a_b")
+    label = get_protostructure_label(TEST_STRUCTS[0], method="aflow", aflow_executable="my-aflow")
+
+    assert label == "AB_cF8_225_a_b:Cl-Na"
+    assert calls[0][0][0] == "my-aflow"
+
+
+def test_get_protostructure_label_from_aflow_invalid_multiplicities(mock_aflow):
+    # Na on 8c and Cl on 4a of Fm-3m is inconsistent with NaCl
+    mock_aflow("AB_cF8_225_a_c")
+    err_msg = "Invalid WP multiplicities - AB_cF8_225_a_c:Cl-Na, expected Na2Cl to be NaCl"
+
+    assert get_protostructure_label_from_aflow(TEST_STRUCTS[0]) == err_msg
+    with pytest.raises(ValueError, match=re.escape(err_msg)):
+        get_protostructure_label_from_aflow(TEST_STRUCTS[0], raise_errors=True)
+
+
+def test_get_protostructure_label_from_aflow_missing_binary(monkeypatch, tmp_path):
+    monkeypatch.setattr(prototypes_module, "which", lambda _cmd: None)
+    with pytest.raises(FileNotFoundError, match="AFLOW could not be found"):
+        get_protostructure_label_from_aflow(TEST_STRUCTS[0])
+
+    monkeypatch.undo()
+    missing = str(tmp_path / "no-such-aflow")
+    with pytest.raises(FileNotFoundError, match="AFLOW could not be found"):
+        get_protostructure_label_from_aflow(TEST_STRUCTS[0], aflow_executable=missing)
 
 
 @pytest.mark.parametrize(("structure", "expected"), list(zip(TEST_STRUCTS, TEST_PROTOSTRUCTURES, strict=True)))

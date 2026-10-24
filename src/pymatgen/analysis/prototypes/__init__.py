@@ -224,7 +224,10 @@ def get_protostructure_label_from_aflow(
             WYCKOFF_MULTIPLICITY_DICT,
         )
 
-    element_wyckoffs = "_".join(element_wyckoffs)
+    # canonicalize_element_wyckoffs expects explicit counts (e.g. "1a" not "a")
+    element_wyckoffs = "_".join(
+        re.sub(RE_WYCKOFF_NO_PREFIX, RE_SUBST_ONE_PREFIX, wyk_letters) for wyk_letters in element_wyckoffs
+    )
     element_wyckoffs = canonicalize_element_wyckoffs(element_wyckoffs, spg_num)
 
     protostructure_label = f"{prototype_form}_{pearson_symbol}_{spg_num}_{element_wyckoffs}:{chemsys}"
