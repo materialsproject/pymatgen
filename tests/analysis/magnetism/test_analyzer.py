@@ -18,6 +18,7 @@ from pymatgen.analysis.magnetism import (
 )
 from pymatgen.core import Element, Lattice, Species, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.transformations.advanced_transformations import MagOrderingTransformation
 from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
@@ -510,7 +511,10 @@ class TestMagneticStructureEnumeratorMotifFlip:
     # orderings directly, it never shells out to enum.x.
     @staticmethod
     def run_generate_transformations(
-        structure, strategies=("ferromagnetic", "antiferromagnetic", "ferrimagnetic_by_motif")
+        structure,
+        strategies=("ferromagnetic", "antiferromagnetic", "ferrimagnetic_by_motif"),
+        automatic=False,
+        max_unique_sites=8,
     ):
         """Run _generate_transformations on a manually-built enumerator, bypassing
         __init__ (and enumlib) since only what it generates is under test. Returns the
@@ -520,9 +524,9 @@ class TestMagneticStructureEnumeratorMotifFlip:
         enumerator.logger = logging.getLogger("test")
         enumerator.default_magmoms = None
         enumerator.strategies = list(strategies)
-        enumerator.automatic = False
+        enumerator.automatic = automatic
         enumerator.transformation_kwargs = {"check_ordered_symmetry": False, "timeout": 5}
-        enumerator.max_unique_sites = 8
+        enumerator.max_unique_sites = max_unique_sites
         enumerator.ordered_structures = []
         enumerator.ordered_structure_origins = []
         sanitized = enumerator._sanitize_input_structure(structure)
@@ -615,6 +619,211 @@ class TestMagneticStructureEnumeratorMotifFlip:
 
         assert "afm" not in enumerator.transformations
         assert enumerator.ordered_structure_origins == ["ferri_by_motif_2b_flip"]
+
+
+class TestCollinearMagneticStructureAnalyzerBranches:
+    @pytest.fixture
+    def lfp(self):
+        return Structure.from_file(f"{TEST_FILES_DIR}/cif/LiFePO4.cif", primitive=True)
+
+    @pytest.fixture
+    def nio_afm(self):
+        lattice = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
+        coords = [[0.5, 0.5, 0.5], [0, 0, 0], [0, 0.5, 0], [0.5, 0, 0.5]]
+        return Structure(lattice, ["Ni", "Ni", "O", "O"], coords, site_properties={"magmom": [-5, 5, 0, 0]})
+
+    def test_default_magmoms(self, lfp):
+        msa = CollinearMagneticStructureAnalyzer(lfp, default_magmoms={"Fe": 4.0}, overwrite_magmom_mode="replace_all")
+        assert msa.magnetic_species_and_magmoms == {"Fe": 4.0}
+        assert msa.number_of_magnetic_sites == 4
+        # deprecated alias
+        assert msa.types_of_magnetic_specie == msa.types_of_magnetic_species == (Element.Fe,)
+
+    def test_detect_valences(self, lfp):
+        msa = CollinearMagneticStructureAnalyzer(lfp, detect_valences=True, overwrite_magmom_mode="replace_all")
+        assert {str(sp) for sp in msa.structure.species} == {"Li+", "Fe2+", "P5+", "O2-"}
+        # species-specific default magmom for Fe2+ is picked up
+        assert msa.magnetic_species_and_magmoms == {"Fe2+": 5}
+
+    def test_detect_valences_failure(self):
+        fe = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe.cif", primitive=True)
+        with pytest.warns(UserWarning, match="Could not assign valences for Fe"):
+            CollinearMagneticStructureAnalyzer(fe, detect_valences=True)
+
+    def test_magmom_and_spin_is_ambiguous(self, nio_afm):
+        struct = nio_afm.copy()
+        struct.add_spin_by_site([5, -5, 0, 0])
+        with pytest.raises(ValueError, match="magnetic moments on both magmom site properties and spin"):
+            CollinearMagneticStructureAnalyzer(struct)
+
+    def test_none_magmoms(self, nio_afm):
+        struct = nio_afm.copy(site_properties={"magmom": [5, None, 0, 0]})
+        with pytest.warns(UserWarning, match="Any 'None' magmoms have been replaced with zero"):
+            msa = CollinearMagneticStructureAnalyzer(struct, make_primitive=False)
+        assert msa.magmoms.tolist() == [5, 0, 0, 0]
+        assert msa.ordering == Ordering.FM
+
+    def test_round_magmoms_decimals(self, nio_afm):
+        struct = nio_afm.copy(site_properties={"magmom": [1.234, -1.236, 0, 0]})
+        msa = CollinearMagneticStructureAnalyzer(struct, round_magmoms=2, make_primitive=False)
+        # rounded to 2 decimals, then flipped so the net moment is positive
+        assert_allclose(msa.magmoms, [-1.23, 1.24, 0, 0])
+
+    def test_round_magmoms_fallback(self):
+        # identical moments give a singular KDE, so simple rounding is used
+        with pytest.warns(UserWarning, match="Failed to round magmoms intelligently"):
+            magmoms = CollinearMagneticStructureAnalyzer._round_magmoms([2.00041] * 3, 0.001)
+        assert_allclose(magmoms, [2.0004] * 3)
+
+    @pytest.mark.xfail(
+        reason="the KDE grid is symmetric about zero with an even number of points, so a peak at "
+        "exactly zero is a two-point plateau that argrelextrema(np.greater) misses and zero "
+        "moments are snapped to the nearest nonzero peak",
+        strict=True,
+    )
+    def test_round_magmoms_keeps_zeros(self):
+        magmoms = CollinearMagneticStructureAnalyzer._round_magmoms([2.0, 2.0, 0.0, 0.0], 0.1)
+        assert_allclose(magmoms, [2.0, 2.0, 0.0, 0.0])
+
+    def test_nonmagnetic(self, lfp):
+        msa = CollinearMagneticStructureAnalyzer(lfp)
+        assert not msa.is_magnetic
+        assert msa.types_of_magnetic_species == ()
+        assert msa.ordering == Ordering.NM
+
+    def test_non_collinear_ordering(self):
+        with pytest.warns(UserWarning, match="not designed to be used with non-collinear"):
+            msa = CollinearMagneticStructureAnalyzer(
+                Structure.from_file(f"{TEST_FILES_DIR}/mcif/magnetic.ncl.example.GdB4.mcif", primitive=True)
+            )
+        with pytest.warns(UserWarning, match="Detecting ordering in non-collinear structures not yet implemented"):
+            assert msa.ordering == Ordering.Unknown
+
+
+class TestMagneticStructureEnumeratorWithoutEnumlib:
+    """MagneticStructureEnumerator paths that never shell out to enumlib."""
+
+    @pytest.fixture
+    def nio(self):
+        return Structure.from_spacegroup(225, Lattice.cubic(4.17), ["Ni", "O"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+
+    @pytest.fixture
+    def nio_afm_111(self):
+        lattice = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
+        coords = [[0.5, 0, 0.5], [0, 0, 0], [0.25, 0.5, 0.25], [0.75, 0.5, 0.75]]
+        return Structure(lattice, ["Ni", "Ni", "O", "O"], coords, site_properties={"magmom": [-5, 5, 0, 0]})
+
+    def test_disordered_input(self, nio):
+        nio[0] = {"Ni": 0.5, "Co": 0.5}
+        with pytest.raises(ValueError, match="Please obtain an ordered approximation"):
+            MagneticStructureEnumerator(nio)
+
+    def test_non_collinear_input(self):
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/mcif/magnetic.ncl.example.GdB4.mcif", primitive=True)
+        with (
+            pytest.warns(UserWarning, match="non-collinear"),
+            pytest.raises(ValueError, match=r"Input structure \(GdB4\) is non-collinear"),
+        ):
+            MagneticStructureEnumerator(structure)
+
+    def test_nonmagnetic_input(self):
+        mgo = Structure.from_spacegroup(225, Lattice.cubic(4.21), ["Mg", "O"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        with pytest.raises(ValueError, match="Not detected as magnetic"):
+            MagneticStructureEnumerator(mgo)
+
+    def test_too_many_unique_sites(self):
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif", primitive=True)
+        with pytest.raises(ValueError, match="Too many magnetic sites"):
+            TestMagneticStructureEnumeratorMotifFlip.run_generate_transformations(structure, max_unique_sites=1)
+
+    def test_automatic_ferrimagnetic_by_species(self):
+        structure = Structure.from_file(f"{TEST_DIR}/Cr2NiO4.json")
+        with pytest.warns(UserWarning, match="non-standard order parameter"):
+            enumerator = TestMagneticStructureEnumeratorMotifFlip.run_generate_transformations(
+                structure, strategies=("ferromagnetic", "antiferromagnetic"), automatic=True
+            )
+
+        assert enumerator.strategies == ["ferromagnetic", "antiferromagnetic", "ferrimagnetic_by_species"]
+        assert sorted(enumerator.transformations) == [
+            "afm",
+            "afm_by_Cr",
+            "afm_by_Ni",
+            "ferri_by_Cr",
+            "ferri_by_Cr_afm",
+            "ferri_by_Ni",
+            "ferri_by_Ni_afm",
+        ]
+        # global order parameter is the fraction of magnetic sites of that species
+        assert enumerator.transformations["ferri_by_Cr"].order_parameter[0]["order_parameter"] == approx(2 / 3)
+        assert enumerator.transformations["ferri_by_Ni"].order_parameter[0]["order_parameter"] == approx(1 / 3)
+        # 6 magnetic sites in the primitive cell, so no supercells are enumerated
+        assert enumerator.transformation_kwargs["max_cell_size"] == 1
+        assert enumerator.ordered_structure_origins == ["fm"]
+
+    def test_automatic_by_motif(self):
+        structure = Structure.from_file(f"{TEST_DIR}/Ca3Co2O6.json")
+        with pytest.warns(UserWarning, match="non-standard order parameter"):
+            enumerator = TestMagneticStructureEnumeratorMotifFlip.run_generate_transformations(
+                structure, strategies=("ferromagnetic", "antiferromagnetic"), automatic=True
+            )
+
+        assert enumerator.strategies == [
+            "ferromagnetic",
+            "antiferromagnetic",
+            "ferrimagnetic_by_motif",
+            "antiferromagnetic_by_motif",
+        ]
+        assert sorted(enumerator.transformations) == [
+            "afm",
+            "afm_by_motif_2a",
+            "afm_by_motif_2b",
+            "ferri_by_motif_2a",
+            "ferri_by_motif_2b",
+        ]
+        assert enumerator.ordered_structure_origins == ["fm", "ferri_by_motif_2b_flip"]
+
+    @pytest.mark.parametrize(
+        ("ni_magmom", "expected_input_origin"),
+        [
+            (5, "fm"),  # FM input is found among the orderings
+            (0, None),  # NM input is not looked for
+        ],
+    )
+    def test_ferromagnetic_only(self, nio, ni_magmom, expected_input_origin):
+        nio.add_site_property("magmom", [ni_magmom if site.specie.symbol == "Ni" else 0 for site in nio])
+        enumerator = MagneticStructureEnumerator(nio, strategies=("ferromagnetic",), automatic=False)
+        assert enumerator.transformations == {}
+        assert enumerator.ordered_structure_origins == ["fm"]
+        assert enumerator.input_origin == expected_input_origin
+        assert [s[0].specie.spin for s in enumerator.ordered_structures] == [5]
+
+    def test_input_not_enumerated_is_appended(self, nio_afm_111):
+        enumerator = MagneticStructureEnumerator(nio_afm_111, strategies=("ferromagnetic",), automatic=False)
+        assert enumerator.ordered_structure_origins == ["fm", "input"]
+        assert enumerator.input_index is None
+        assert CollinearMagneticStructureAnalyzer(enumerator.ordered_structures[1]).ordering == Ordering.AFM
+
+    @pytest.mark.parametrize("return_type", ["dicts", "structures", "structure"])
+    def test_transformation_outputs_are_collected(self, monkeypatch, nio, nio_afm_111, return_type):
+        # stand in for enumlib: the afm transformation yields the NiO AFM-II ordering,
+        # in each of the forms a ranked-list transformation may return
+        afm_structure = CollinearMagneticStructureAnalyzer(nio_afm_111).get_structure_with_spin()
+        outputs = {
+            "dicts": [{"structure": afm_structure}],
+            "structures": [afm_structure],
+            "structure": afm_structure,
+        }
+        monkeypatch.setattr(
+            MagOrderingTransformation, "apply_transformation", lambda self, *args, **kwargs: outputs[return_type]
+        )
+
+        enumerator = MagneticStructureEnumerator(
+            nio_afm_111, strategies=("ferromagnetic", "antiferromagnetic"), automatic=False
+        )
+        assert list(enumerator.transformations) == ["afm"]
+        assert enumerator.ordered_structure_origins == ["fm", "afm"]
+        assert enumerator.input_index == 1
+        assert enumerator.input_origin == "afm"
 
 
 class TestMagneticDeformation:
