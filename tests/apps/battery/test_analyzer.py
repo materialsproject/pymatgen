@@ -4,6 +4,7 @@ import pytest
 from pytest import approx
 
 from pymatgen.apps.battery.analyzer import BatteryAnalyzer
+from pymatgen.core import Element
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import MatSciTest
 from tests.testing import TEST_FILES_DIR
@@ -32,6 +33,17 @@ class TestBatteryAnalyzer(MatSciTest):
         )
         self.li3v2p3o12 = self.load_from_internal("Li3V2(PO4)3", {"Li": 1, "V": 3, "O": -2, "P": 5})
         self.mgnif6 = self.load_from_cif("MgNiF6.cif", {"Mg": 2, "Ni": 4, "F": -1}, working_ion="F")
+
+    def test_working_ion_as_element(self):
+        struct = self.get_structure("LiFePO4").copy()
+        struct.add_oxidation_state_by_element({"Li": 1, "Fe": 2, "P": 5, "O": -2})
+        analyzer = BatteryAnalyzer(struct, Element("Li"))
+        assert analyzer.working_ion == Element("Li")
+        assert analyzer.working_ion_charge == 1
+        assert analyzer.get_max_capgrav() == approx(self.li_fe_p_o4.get_max_capgrav())
+
+        analyzer = BatteryAnalyzer(struct, "Li", oxi_override={"Li": 2})
+        assert analyzer.working_ion_charge == 2
 
     def test_oxide_check(self):
         struct = self.get_structure("LiFePO4")

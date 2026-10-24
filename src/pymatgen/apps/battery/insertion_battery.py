@@ -130,7 +130,7 @@ class InsertionElectrode(AbstractElectrode):
             working ion.
         """
         list_copy = list(self.stable_entries)
-        return list_copy if charge_to_discharge else list_copy.reverse()
+        return list_copy if charge_to_discharge else list_copy[::-1]
 
     def get_unstable_entries(self, charge_to_discharge=True):
         """Get the unstable entries for the electrode.
@@ -144,7 +144,7 @@ class InsertionElectrode(AbstractElectrode):
             the working ion.
         """
         list_copy = list(self.unstable_entries)
-        return list_copy if charge_to_discharge else list_copy.reverse()
+        return list_copy if charge_to_discharge else list_copy[::-1]
 
     def get_all_entries(self, charge_to_discharge=True):
         """Return all entries input for the electrode.
@@ -165,7 +165,7 @@ class InsertionElectrode(AbstractElectrode):
             all_entries,
             key=lambda e: e.composition.get_atomic_fraction(self.working_ion),
         )
-        return all_entries if charge_to_discharge else all_entries.reverse()
+        return all_entries if charge_to_discharge else all_entries[::-1]
 
     @property
     def fully_charged_entry(self):
@@ -365,7 +365,7 @@ class InsertionElectrode(AbstractElectrode):
         Returns:
             InsertionElectrode
         """
-        return InsertionElectrode(  # type:ignore[return-value,call-arg]
+        return cls.from_entries(
             MontyDecoder().process_decoded(dct["entries"]),
             MontyDecoder().process_decoded(dct["working_ion_entry"]),
         )
