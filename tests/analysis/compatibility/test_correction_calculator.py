@@ -1,8 +1,14 @@
 from __future__ import annotations
 
+import warnings
+
+import numpy as np
 import pytest
+from monty.serialization import loadfn
 
 from pymatgen.analysis.compatibility.correction_calculator import CorrectionCalculator
+from pymatgen.core import Composition
+from pymatgen.entries.computed_entries import ComputedEntry
 from tests.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/entries/correction_calculator"
@@ -137,3 +143,194 @@ class TestCorrectionCalculator:
         calculator = CorrectionCalculator(exclude_polyanions=self.exclude_polyanions)
         with pytest.raises(ValueError, match="Computed entries missing O"):
             calculator.compute_from_files(exp_path, calc_path)
+
+
+# Exact corrections (eV per S / F atom) baked into the synthetic dataset below.
+SYNTH_CORRECTIONS = {"S": -0.6, "F": -0.4}
+
+
+def _synthetic_data() -> tuple[list[dict], dict[str, ComputedEntry]]:
+    """Build a small dataset whose exp - calc errors are exactly SYNTH_CORRECTIONS.
+
+    Elemental references have zero energy, so the reaction energy equals the compound energy.
+    LiS is flagged as a polysulfide and must receive no S correction.
+    """
+    calc = {
+        "Li": ComputedEntry("Li", 0),
+        "S": ComputedEntry("S", 0),
+        "F2": ComputedEntry("F2", 0),
+        "Li2S": ComputedEntry("Li2S", -4.0, data={"e_above_hull": 0}),
+        "LiF": ComputedEntry("LiF", -6.0, data={"e_above_hull": 0}),
+        "LiS": ComputedEntry("LiS", -2.0, data={"e_above_hull": 0, "sulfide_type": "polysulfide"}),
+        "Li3SF": ComputedEntry("Li3SF", -10.0, data={"e_above_hull": 0.05, "sulfide_type": "sulfide"}),
+    }
+    exp = [
+        {"formula": "Li2S", "exp energy": -4.6, "uncertainty": 0.01},
+        {"formula": "LiF", "exp energy": -6.4, "uncertainty": 0.02},
+        {"formula": "LiS", "exp energy": -2.0, "uncertainty": 0.01},
+        {"formula": "Li3SF", "exp energy": -11.0, "uncertainty": 0.03},
+    ]
+    return exp, calc
+
+
+@pytest.fixture(scope="module")
+def fitted_calculator() -> CorrectionCalculator:
+    calculator = CorrectionCalculator(exclude_polyanions="SO4 CO3 NO3 OCl3 SiO4 SeO3 TiO3 TiO4".split())
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        calculator.compute_from_files(
+            f"{TEST_DIR}/exp_compounds_norm.json.gz", f"{TEST_DIR}/calc_compounds_norm.json.gz"
+        )
+    return calculator
+
+
+@pytest.mark.parametrize(("allow_unstable", "expected"), [(False, 0.1), (True, True), (0.5, 0.5)])
+def test_allow_unstable_init(allow_unstable, expected):
+    assert CorrectionCalculator(allow_unstable=allow_unstable).allow_unstable == expected
+
+
+def test_synthetic_corrections_exact():
+    exp, calc = _synthetic_data()
+    calculator = CorrectionCalculator(species=["S", "F"], exclude_polyanions=[])
+    corrections = calculator.compute_corrections(exp, calc)
+
+    assert calculator.names == ["Li2S", "LiF", "LiS", "Li3SF"]
+    assert calculator.corrections == pytest.approx([SYNTH_CORRECTIONS["S"], SYNTH_CORRECTIONS["F"]], abs=1e-8)
+    assert corrections["S"][0] == SYNTH_CORRECTIONS["S"]
+    assert corrections["F"][0] == SYNTH_CORRECTIONS["F"]
+    assert corrections["ozonide"] == (0, 0)
+    # polysulfide LiS gets no S coefficient; Li2S (default) and Li3SF (explicit) are sulfides
+    assert calculator.sulfides == ["Li2S", "Li3SF"]
+    assert calculator.coeff_mat[2] == [0, 0]
+    # residuals vanish for an exactly consistent dataset
+    fig = calculator.graph_residual_error()
+    assert np.allclose(fig.data[0].y, 0, atol=1e-8)
+
+
+@pytest.mark.parametrize(
+    ("case", "excluded", "match"),
+    [
+        ("missing", "LiF", "Compound LiF is not found in provided computed entries"),
+        ("uncertainty", "LiF", "Compound LiF is excluded from the fit due to high experimental uncertainty"),
+        ("polyanion", "Li3SF", "Compound Li3SF contains the poly"),
+        ("unstable", "Li3SF", r"Compound Li3SF is unstable and excluded from the fit \(e_above_hull = 0.05\)"),
+    ],
+)
+def test_synthetic_exclusions(case, excluded, match):
+    exp, calc = _synthetic_data()
+    kwargs: dict = {"species": ["S", "F"], "exclude_polyanions": []}
+    if case == "missing":
+        del calc[excluded]
+    elif case == "uncertainty":
+        exp[1]["uncertainty"] = 1.0
+    elif case == "polyanion":
+        kwargs["exclude_polyanions"] = ["SF"]
+    else:
+        kwargs["allow_unstable"] = 0.01
+
+    calculator = CorrectionCalculator(**kwargs)
+    with pytest.warns(UserWarning, match=match):
+        calculator.compute_corrections(exp, calc)
+
+    assert excluded not in calculator.names
+    assert len(calculator.names) == 3
+    # remaining compounds still determine the corrections exactly
+    assert calculator.corrections == pytest.approx([SYNTH_CORRECTIONS["S"], SYNTH_CORRECTIONS["F"]], abs=1e-8)
+
+
+def test_missing_e_above_hull():
+    exp, calc = _synthetic_data()
+    calc["LiF"].data.pop("e_above_hull")
+    calculator = CorrectionCalculator(species=["S", "F"], exclude_polyanions=[])
+    with pytest.raises(ValueError, match="Missing e above hull data"):
+        calculator.compute_corrections(exp, calc)
+
+
+def test_undetectable_specie():
+    exp, calc = _synthetic_data()
+    calculator = CorrectionCalculator(species=["S", "foo"], exclude_polyanions=[])
+    with pytest.raises(ValueError, match="We can't detect this specie='foo' in name='Li2S'"):
+        calculator.compute_corrections(exp, calc)
+
+
+@pytest.mark.parametrize(
+    "call",
+    [
+        lambda calc: calc.graph_residual_error(),
+        lambda calc: calc.graph_residual_error_per_species("F"),
+        lambda calc: calc.make_yaml(),
+    ],
+    ids=["graph_residual_error", "graph_residual_error_per_species", "make_yaml"],
+)
+def test_requires_corrections(call):
+    with pytest.raises(RuntimeError, match="Please call compute_corrections or compute_from_files"):
+        call(CorrectionCalculator())
+
+
+def test_graph_residual_error(fitted_calculator):
+    calc = fitted_calculator
+    fig = calc.graph_residual_error()
+    expected = np.abs(np.array(calc.diffs) - np.dot(calc.coeff_mat, calc.corrections))
+
+    assert fig.layout.title.text == "Residual Errors"
+    assert fig.layout.yaxis.title.text == "Residual Error (eV/atom)"
+    trace = fig.data[0]
+    assert len(trace.y) == len(calc.names) == 205
+    assert list(trace.x) == list(range(1, 206))
+    assert np.allclose(trace.y, np.sort(expected))
+    assert sorted(trace.text) == sorted(calc.names)
+
+
+@pytest.mark.parametrize("specie", ["oxide", "peroxide", "superoxide", "S", "Fe", "H"])
+def test_graph_residual_error_per_species(fitted_calculator, specie):
+    calc = fitted_calculator
+    fig = calc.graph_residual_error_per_species(specie)
+
+    groups = {"oxide": calc.oxides, "peroxide": calc.peroxides, "superoxide": calc.superoxides, "S": calc.sulfides}
+    expected = groups.get(specie) or [name for name in calc.names if Composition(name)[specie]]
+    assert fig.layout.title.text == f"Residual Errors for {specie}"
+    trace = fig.data[0]
+    assert sorted(trace.text) == sorted(expected)
+    assert len(trace.y) == len(expected) > 0
+    assert list(trace.y) == sorted(trace.y)
+
+
+def test_graph_residual_error_per_species_superoxide(fitted_calculator):
+    """Regression: 'superoxide' used to fall through to the sulfide list."""
+    fig = fitted_calculator.graph_residual_error_per_species("superoxide")
+    assert sorted(fig.data[0].text) == ["CsO2", "KO2", "NaO2"]
+
+
+def test_graph_residual_error_per_species_invalid(fitted_calculator):
+    with pytest.raises(ValueError, match="not a valid specie"):
+        fitted_calculator.graph_residual_error_per_species("Xe")
+
+
+@pytest.mark.parametrize("use_dir", [True, False])
+def test_make_yaml(fitted_calculator, tmp_path, monkeypatch, use_dir):
+    calc = fitted_calculator
+    if use_dir:
+        calc.make_yaml(name="Test", dir=str(tmp_path))
+    else:
+        monkeypatch.chdir(tmp_path)
+        calc.make_yaml(name="Test")
+
+    path = tmp_path / "TestCompatibility.yaml"
+    assert "# Energy corrections in eV/atom" in path.read_text(encoding="utf-8")
+    contents = loadfn(path)
+
+    assert contents["Name"] == "Test"
+    corr, uncer = contents["Corrections"], contents["Uncertainties"]
+    ggau = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
+    for anion in ("O", "F"):
+        assert list(corr["GGAUMixingCorrections"][anion]) == ggau
+        for el in ggau:
+            assert corr["GGAUMixingCorrections"][anion][el] == calc.corrections_dict[el][0]
+            assert uncer["GGAUMixingCorrections"][anion][el] == calc.corrections_dict[el][1]
+    comp_species = [sp for sp in [*calc.species, "ozonide"] if sp not in ggau]
+    assert list(corr["CompositionCorrections"]) == comp_species
+    for sp in comp_species:
+        assert corr["CompositionCorrections"][sp] == calc.corrections_dict[sp][0]
+        assert uncer["CompositionCorrections"][sp] == calc.corrections_dict[sp][1]
+    assert corr["CompositionCorrections"]["oxide"] == -0.74
+    assert corr["CompositionCorrections"]["ozonide"] == 0
