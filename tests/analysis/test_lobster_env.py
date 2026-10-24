@@ -2,15 +2,16 @@ from __future__ import annotations
 
 import warnings
 
+import matplotlib.pyplot as plt
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.analysis.lobster_env import LobsterNeighbors
-from pymatgen.core import Element
+from pymatgen.analysis.lobster_env import LobsterLightStructureEnvironments, LobsterNeighbors, check_ICOHPs
+from pymatgen.core import Element, PeriodicSite
 from pymatgen.core.structure import Structure
-from pymatgen.electronic_structure.cohp import Cohp, CompleteCohp
+from pymatgen.electronic_structure.cohp import Cohp, CompleteCohp, IcohpValue
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lobster import Charge, Icohplist
 from tests.testing import TEST_FILES_DIR
@@ -1019,3 +1020,285 @@ class TestLobsterNeighbors:
 
         assert lse.coordination_environments[0][0]["ce_symbol"] == "18"
         assert warnings_record == []
+
+
+# The tests below use module-level helpers and fixtures (instead of the expensive
+# `setup_method` above) to cover remaining options and error branches.
+
+
+def _neighbors_mp190(**kwargs) -> LobsterNeighbors:
+    return LobsterNeighbors.from_files(
+        icoxxlist_path=f"{TEST_DIR}/ICOHPLIST.lobster.mp-190.gz",
+        structure_path=f"{TEST_DIR}/CONTCAR.mp-190.gz",
+        **kwargs,
+    )
+
+
+def _neighbors_without_valences(additional_condition: int = 0) -> LobsterNeighbors:
+    # Fe16 cell for which the bond valence analysis cannot assign valences
+    with pytest.warns(UserWarning, match="Please consider using a newer LOBSTER version"):
+        return LobsterNeighbors.from_files(
+            icoxxlist_path=f"{TEST_DIR}/ICOHPLIST.lobster.gz",
+            structure_path=f"{TEST_DIR}/POSCAR.gz",
+            additional_condition=additional_condition,
+        )
+
+
+@pytest.fixture(scope="module")
+def ln_mp190() -> LobsterNeighbors:
+    """ReO3 (mp-190), only cation-anion bonds. Only used for read-only queries."""
+    return _neighbors_mp190(additional_condition=1)
+
+
+@pytest.fixture(scope="module")
+def ln_mp353() -> LobsterNeighbors:
+    """Ag2O (mp-353) with Mulliken charges as valences. Only used for read-only queries."""
+    return LobsterNeighbors.from_files(
+        icoxxlist_path=f"{TEST_DIR}/ICOHPLIST.lobster.mp-353.gz",
+        structure_path=f"{TEST_DIR}/CONTCAR.mp-353.gz",
+        charge_path=f"{TEST_DIR}/CHARGE.lobster.mp-353.gz",
+        valences_from_charges=True,
+    )
+
+
+@pytest.mark.parametrize(
+    ("additional_condition", "expected_n_neighbors"),
+    [
+        (0, [0] * 6 + [1, 2, 1] + [0] * 7),
+        # Fe-Fe bonds only: conditions 2 and 4 exclude all of them
+        (2, [0] * 16),
+        (4, [0] * 16),
+    ],
+)
+def test_conditions_without_valences(additional_condition, expected_n_neighbors):
+    """Conditions that do not need valences must work when BVAnalyzer fails."""
+    lobster_nb = _neighbors_without_valences(additional_condition)
+    assert lobster_nb.valences is None
+    assert [len(neighbors) for neighbors in lobster_nb.list_neighisite] == expected_n_neighbors
+
+
+def test_no_valences_errors_and_queries():
+    lobster_nb = _neighbors_without_valences()
+
+    with pytest.raises(ValueError, match="No cations and anions defined"):
+        _ = lobster_nb.anion_types
+    with pytest.raises(ValueError, match="No valences are provided"):
+        lobster_nb.get_info_icohps_to_neighbors()
+    with pytest.raises(ValueError, match="No valences are provided"):
+        lobster_nb.get_info_icohps_between_neighbors()
+    with pytest.raises(ValueError, match=r"self\.valences=None"):
+        lobster_nb.get_light_structure_environment(only_cation_environments=True)
+
+    # all sites are used if onlycation_isites=False
+    info = lobster_nb.get_info_icohps_to_neighbors(onlycation_isites=False)
+    assert info.total_icohp == approx(-2.33366)
+    assert info.n_bonds == 4
+    assert sorted(info.central_isites) == [6, 7, 7, 8]
+    assert sum(info.list_icohps) == approx(info.total_icohp)
+
+    info_between = lobster_nb.get_info_icohps_between_neighbors(onlycation_isites=False)
+    assert info_between.central_isites is None
+    assert info_between.n_bonds == len(info_between.labels) == len(info_between.atoms)
+
+
+def test_get_info_icohps_between_neighbors_all_sites():
+    lobster_nb = _neighbors_mp190(additional_condition=1)
+    only_cations = lobster_nb.get_info_icohps_between_neighbors()
+    all_sites = lobster_nb.get_info_icohps_between_neighbors(onlycation_isites=False)
+
+    # 12 O-O interactions in the ReO6 octahedron, plus 3 Re-Re interactions across the O sites
+    assert only_cations.n_bonds == 12
+    assert only_cations.total_icohp == approx(-1.59574)
+    assert all_sites.n_bonds == 15
+    assert all_sites.total_icohp == approx(-1.73182)
+    assert all_sites.list_icohps[-3:] == approx([-0.04535, -0.04535, -0.04538])
+    assert all(len(atoms) == 2 for atoms in all_sites.atoms)
+
+
+def test_get_nn_info_errors(ln_mp190):
+    with pytest.raises(ValueError, match="LobsterEnv cannot use weights"):
+        ln_mp190.get_nn_info(ln_mp190.structure, n=0, use_weights=True)
+
+    supercell = ln_mp190.structure * (2, 1, 1)
+    with pytest.raises(ValueError, match=r"Length of structure \(8\) and LobsterNeighbors \(4\) differ"):
+        ln_mp190.get_nn_info(supercell, n=0)
+
+
+def test_only_one_limit_given():
+    with pytest.raises(ValueError, match="Please give two limits or leave them both at None"):
+        _neighbors_mp190(limits=(-100.0, None))
+
+
+def test_from_files_default_bonding_list_ids():
+    """id_blist_sg1="icoop" and id_blist_sg2="icobi" (the defaults)."""
+    lobster_nb = LobsterNeighbors.from_files(
+        icoxxlist_path=f"{TEST_DIR}/ICOHPLIST.lobster.NaCl.gz",
+        structure_path=f"{TEST_DIR}/CONTCAR.NaCl.gz",
+        valences_from_charges=True,
+        charge_path=f"{TEST_DIR}/CHARGE.lobster.NaCl.gz",
+        blist_sg1_path=f"{TEST_DIR}/ICOOPLIST.lobster.NaCl.gz",
+        blist_sg2_path=f"{TEST_DIR}/ICOBILIST.lobster.NaCl.gz",
+        add_additional_data_sg=True,
+        additional_condition=1,
+    )
+    assert lobster_nb.bonding_list_1.are_coops
+    assert lobster_nb.bonding_list_2.are_cobis
+    edge = next(nb for nb in lobster_nb.get_nn_info(lobster_nb.structure, n=0) if nb["site_index"] == 1)
+    assert edge["edge_properties"]["ICOOP"] == approx(0.03007)
+    assert edge["edge_properties"]["ICOBI"] == approx(0.08682)
+
+
+def test_light_structure_environment_without_neighbors():
+    # ReO3 has no cation-cation bonds, hence no neighbors for any site
+    lobster_nb = _neighbors_mp190(additional_condition=6)
+    assert lobster_nb.valences == [6, -2, -2, -2]
+    assert all(neighbors == [] for neighbors in lobster_nb.list_neighisite)
+
+    lse = lobster_nb.get_light_structure_environment()
+    for ce in lse.coordination_environments:
+        assert ce[0]["ce_symbol"] is None
+        assert ce[0]["csm"] is None
+        assert ce[0]["permutation"] is None
+
+
+def test_light_structure_environment_only_cations(ln_mp190):
+    lse = ln_mp190.get_light_structure_environment(only_cation_environments=True)
+    assert [ce[0]["ce_symbol"] for ce in lse.coordination_environments] == ["O:6", None, None, None]
+    assert [len(nb_sets[0]) for nb_sets in lse.neighbors_sets] == [6, 0, 0, 0]
+    assert lse.coordination_environments[1][0]["permutation"] == []
+    assert lse.valences == [6, -2, -2, -2]
+
+
+def test_light_structure_environment_only_indices(ln_mp190):
+    lse = ln_mp190.get_light_structure_environment(only_indices=[1])
+    assert [ce[0]["ce_symbol"] for ce in lse.coordination_environments] == [None, "L:2", None, None]
+    assert [len(nb_sets[0]) for nb_sets in lse.neighbors_sets] == [0, 2, 0, 0]
+
+    dct = lse.as_dict()
+    assert dct["@class"] == "LobsterLightStructureEnvironments"
+    assert dct["valences"] == [6, -2, -2, -2]
+    # only the two Re neighbors of O2 are stored
+    assert [nb["index"] for nb in dct["all_nbs_sites"]] == [0, 0]
+
+
+def test_from_lobster_without_ce_and_neighbors(ln_mp190):
+    structure = ln_mp190.structure
+    n_sites = len(structure)
+    lse = LobsterLightStructureEnvironments.from_Lobster(
+        list_ce_symbol=None,
+        list_csm=[None] * n_sites,
+        list_permutation=[None] * n_sites,
+        list_neighsite=[None] * n_sites,
+        list_neighisite=[None] * n_sites,
+        structure=structure,
+    )
+    assert lse.coordination_environments == [[None]] * n_sites
+    assert all(len(nb_sets[0]) == 0 for nb_sets in lse.neighbors_sets)
+    assert lse.valences is None
+
+
+def test_from_lobster_non_integer_image(ln_mp190):
+    structure = ln_mp190.structure
+    shifted = PeriodicSite(structure[1].species, structure[1].frac_coords + 0.25, structure.lattice)
+    with pytest.raises(ValueError, match="differences between one site in a periodic image cell is not integer"):
+        LobsterLightStructureEnvironments.from_Lobster(
+            list_ce_symbol=["S:1", None, None, None],
+            list_csm=[0.0, None, None, None],
+            list_permutation=[[0], None, None, None],
+            list_neighsite=[[shifted], [], [], []],
+            list_neighisite=[[1], [], [], []],
+            structure=structure,
+        )
+
+
+@pytest.mark.parametrize(
+    ("atom1", "expected_conditions"),
+    [
+        # O5-Ag1: anion-cation bond between different elements involving O
+        ("O5", {0, 1, 2, 3, 4}),
+        # Ag2-Ag1: cation-cation bond between the same element
+        ("Ag2", {0, 5, 6}),
+    ],
+)
+def test_find_relevant_atoms_site_as_second_atom(ln_mp353, atom1, expected_conditions):
+    """The central site (Ag1, index 0) can also be the second atom of a bond."""
+    icohp = IcohpValue(
+        label="1",
+        atom1=atom1,
+        atom2="Ag1",
+        length=2.5,
+        translation=(0, 0, 1),
+        num=1,
+        icohp={Spin.up: -0.5},
+    )
+    expected_neighbor = LobsterNeighbors._get_atomnumber(atom1)
+    for additional_condition in range(7):
+        result = ln_mp353._find_relevant_atoms_additional_condition(
+            site_idx=0, icohps={"1": icohp}, additional_condition=additional_condition
+        )
+        if additional_condition in expected_conditions:
+            assert result == (["1"], [2.5], [expected_neighbor], [-0.5], [(0, 0, 1)])
+        else:
+            assert result == ([], [], [], [], [])
+
+
+def test_determine_unit_cell(ln_mp190):
+    site = PeriodicSite("Re", [-0.00001, 1.2, 2.99999], ln_mp190.structure.lattice)
+    # coordinates are rounded to 4 decimals before flooring
+    assert LobsterNeighbors._determine_unit_cell(site) == [0, 1, 3]
+
+
+def test_check_icohps_warns():
+    with pytest.warns(UserWarning, match="Our neighbor detection might fail"):
+        check_ICOHPs(
+            lengths_from_ICOHPs=[2.0, 2.005],
+            selected_ICOHPs=[-1.0, -0.5],
+            translation=[(1, 0, 0), (-1, 0, 0)],
+        )
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        # same ICOHPs, or translations that are not opposite: no warning
+        check_ICOHPs([2.0, 2.005], [-1.0, -1.0], [(1, 0, 0), (-1, 0, 0)])
+        check_ICOHPs([2.0, 2.005], [-1.0, -0.5], [(1, 0, 0), (1, 0, 0)])
+
+
+def test_get_info_cohps_to_neighbors_errors():
+    lobster_nb = _neighbors_mp190(additional_condition=1)
+    with pytest.raises(ValueError, match="Please provide either path_to_cohpcar or coxxcar_obj"):
+        lobster_nb.get_info_cohps_to_neighbors(path_to_cohpcar=None, isites=[0])
+
+    # NaSi COHPCAR has a different number of bonds than the ReO3 ICOHPLIST
+    nasi_cohp = CompleteCohp.from_file(
+        filename=f"{TEST_DIR}/COHPCAR.lobster.NaSi.gz",
+        fmt="LOBSTER",
+        structure_file=f"{TEST_DIR}/CONTCAR.NaSi.gz",
+    )
+    with pytest.raises(ValueError, match="COHPCAR and ICOHPLIST do not fit together"):
+        lobster_nb.get_info_cohps_to_neighbors(coxxcar_obj=nasi_cohp, isites=[0])
+
+
+def test_plot_cohps_of_neighbors_per_bond_integrated():
+    lobster_nb = _neighbors_mp190(additional_condition=1)
+    ax = lobster_nb.plot_cohps_of_neighbors(
+        path_to_cohpcar=f"{TEST_DIR}/COHPCAR.lobster.mp-190.gz",
+        isites=[0],
+        per_bond=True,
+        integrated=True,
+        xlim=(-5, 5),
+    )
+    try:
+        assert ax.get_xlim() == approx((-5, 5))
+        assert ax.get_ylim() == approx((-10, 6))
+        labels = [line.get_label() for line in ax.get_lines()]
+        assert "6 x O-Re (per bond)" in labels
+        # the COHPCAR is cached and the per-bond integrated COHP equals the mean ICOHP at E_F
+        _label, summed = lobster_nb.get_info_cohps_to_neighbors(path_to_cohpcar=None, isites=[0], per_bond=True)
+        per_bond_icohp = lobster_nb.get_info_icohps_to_neighbors(isites=[0]).total_icohp / 6
+        assert summed.icohp[Spin.up][700] == approx(per_bond_icohp)
+        assert per_bond_icohp == approx(-5.64575, abs=1e-5)
+        # CohpPlotter plots -ICOHP on the x axis
+        line = ax.get_lines()[labels.index("6 x O-Re (per bond)")]
+        assert line.get_xdata()[700] == approx(-per_bond_icohp)
+    finally:
+        plt.close("all")

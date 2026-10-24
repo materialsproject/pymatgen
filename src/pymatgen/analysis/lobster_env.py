@@ -173,7 +173,7 @@ class LobsterNeighbors(NearNeighbors):
                             "Valences cannot be assigned, additional_conditions 1, 3, 5 and 6 will not work"
                         ) from exc
 
-        if np.allclose(self.valences or [], np.zeros_like(self.valences)) and additional_condition in {1, 3, 5, 6}:
+        if self.valences is not None and np.allclose(self.valences, 0.0) and additional_condition in {1, 3, 5, 6}:
             raise ValueError("All valences are equal to 0, additional_conditions 1, 3, 5 and 6 will not work")
 
         if limits is None:
@@ -1148,9 +1148,9 @@ class LobsterNeighbors(NearNeighbors):
 
             # Check additional conditions
             val1 = val2 = None
-            if self.valences is None:
-                raise ValueError(f"{self.valences=}")
             if additional_condition in {1, 3, 5, 6}:
+                if self.valences is None:
+                    raise ValueError(f"{self.valences=}")
                 val1 = self.valences[atomnr1]
                 val2 = self.valences[atomnr2]
 
@@ -1388,7 +1388,7 @@ class LobsterNeighbors(NearNeighbors):
         """
         extremum_based = None
 
-        if self.valences is None:
+        if self.valences is None and adapt_extremum_to_add_cond and additional_condition in {1, 3, 5, 6}:
             raise ValueError(f"{self.valences=}")
 
         if not adapt_extremum_to_add_cond or additional_condition == 0:
