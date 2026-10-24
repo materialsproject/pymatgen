@@ -164,13 +164,9 @@ class VaspToComputedEntryDrone(AbstractDrone):
         parent, subdirs, _files = path
         if "relax1" in subdirs and "relax2" in subdirs:
             return [parent]
-        if (
-            (not parent.endswith("/relax1"))
-            and (not parent.endswith("/relax2"))
-            and (
-                len(glob(f"{parent}/vasprun.xml*")) > 0
-                or (len(glob(f"{parent}/POSCAR*")) > 0 and len(glob(f"{parent}/OSZICAR*")) > 0)
-            )
+        if os.path.basename(os.path.normpath(parent)) not in {"relax1", "relax2"} and (
+            len(glob(f"{parent}/vasprun.xml*")) > 0
+            or (len(glob(f"{parent}/POSCAR*")) > 0 and len(glob(f"{parent}/OSZICAR*")) > 0)
         ):
             return [parent]
         return []
