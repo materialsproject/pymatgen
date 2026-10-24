@@ -512,7 +512,7 @@ class CoordinationGeometry:
                     neighbors set could be found from a "cap hint".
             """
             if hints_type not in self.ALLOWED_HINTS_TYPES:
-                raise ValueError(f"Type {type!r} for NeighborsSetsHints is not allowed")
+                raise ValueError(f"Type {hints_type!r} for NeighborsSetsHints is not allowed")
             self.hints_type = hints_type
             self.options = options
 
@@ -897,9 +897,11 @@ class CoordinationGeometry:
         """The number of permutations of this coordination geometry."""
         if self.permutations_safe_override:
             return factorial(self.coordination)
-        if self.permutations is None:
+        # CoordinationGeometry no longer sets a "permutations" attribute; only use it if set externally
+        permutations = getattr(self, "permutations", None)
+        if permutations is None:
             return factorial(self.coordination)
-        return len(self.permutations)
+        return len(permutations)
 
     def ref_permutation(self, permutation):
         """Return canonical representative among equivalent permutations."""

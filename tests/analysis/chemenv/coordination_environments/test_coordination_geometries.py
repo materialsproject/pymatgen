@@ -8,6 +8,9 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    EXPLICIT_PERMUTATIONS,
+    SEPARATION_PLANE,
+    AbstractChemenvAlgorithm,
     AllCoordinationGeometries,
     CoordinationGeometry,
     ExplicitPermutationsAlgorithm,
@@ -464,3 +467,260 @@ class TestCoordinationGeometries(MatSciTest):
             13: {(0, 6, 7): ["SH:13"]},
             20: {(5, 10, 5): ["DD:20"]},
         }
+
+
+class FakeNeighborsSet:
+    """Minimal stand-in for StructureEnvironments.NeighborsSet used by the hints."""
+
+    def __init__(self, site_voronoi_indices):
+        self.site_voronoi_indices = site_voronoi_indices
+
+    def get_neighb_voronoi_indices(self, permutation):
+        return [self.site_voronoi_indices[ii] for ii in permutation]
+
+
+class TestAlgorithms:
+    def test_abstract_str(self):
+        algo = ExplicitPermutationsAlgorithm(permutations=[[0, 1]])
+        assert str(algo) == EXPLICIT_PERMUTATIONS
+        assert AbstractChemenvAlgorithm.__str__(algo) == ""
+
+    def test_separation_plane_invalid_point_groups(self):
+        with pytest.raises(RuntimeError, match="The number of points in the first group should be"):
+            SeparationPlane(plane_points=[0, 1, 2], point_groups=[[3, 4], [5]], minimum_number_of_points=2)
+
+    def test_separation_plane_properties(self):
+        sep_plane = SeparationPlane(
+            plane_points=[0, 1, 2, 3], point_groups=[[4], [5, 6, 7]], ordered_plane=True, minimum_number_of_points=2
+        )
+        assert sep_plane.algorithm_type == SEPARATION_PLANE
+        assert sep_plane.permutations is None
+        assert sep_plane.ordered_point_groups == [False, False]
+        assert sep_plane.separation == (1, 4, 3)
+        assert sep_plane.maximum_number_of_points == 4
+        assert sep_plane.ref_separation_perm == [4, 0, 1, 2, 3, 5, 6, 7]
+        assert sep_plane.argsorted_ref_separation_perm == [1, 2, 3, 4, 0, 5, 6, 7]
+        round_trip = SeparationPlane.from_dict(sep_plane.as_dict())
+        assert round_trip.permutations is None
+        assert round_trip.separation == (1, 4, 3)
+
+    @pytest.mark.parametrize(
+        ("ordered_plane", "ordered_point_groups", "add_opposite", "expected"),
+        [
+            (False, None, False, 1 * 24 * 6),
+            # cyclic orderings of the 4 plane points, both directions: 8 instead of 4! = 24
+            (True, None, False, 1 * 8 * 6),
+            (True, [False, True], False, 1 * 8 * 6),
+            (True, [True, True], True, 2 * 1 * 8 * 6),
+        ],
+    )
+    def test_safe_separation_permutations(self, ordered_plane, ordered_point_groups, add_opposite, expected):
+        sep_plane = SeparationPlane(
+            plane_points=[0, 1, 2, 3],
+            point_groups=[[4], [5, 6, 7]],
+            ordered_plane=True,
+            ordered_point_groups=[True, True],
+            minimum_number_of_points=2,
+        )
+        perms = sep_plane.safe_separation_permutations(
+            ordered_plane=ordered_plane, ordered_point_groups=ordered_point_groups, add_opposite=add_opposite
+        )
+        assert len(perms) == expected
+        assert all(sorted(perm) == list(range(8)) for perm in perms)
+        # results are cached for identical arguments
+        assert (
+            sep_plane.safe_separation_permutations(
+                ordered_plane=ordered_plane, ordered_point_groups=ordered_point_groups, add_opposite=add_opposite
+            )
+            is perms
+        )
+        if ordered_plane:
+            assert [0, 4, 3, 2, 1, 5, 6, 7] in perms
+            assert [0, 2, 1, 3, 4, 5, 6, 7] not in perms
+        if add_opposite:
+            assert [5, 6, 7, 1, 2, 3, 4, 0] in perms
+
+
+class TestNeighborsSetsHints:
+    def test_invalid_type(self):
+        with pytest.raises(ValueError, match="Type 'quadruple_cap' for NeighborsSetsHints is not allowed"):
+            CoordinationGeometry.NeighborsSetsHints(hints_type="quadruple_cap", options={})
+
+    @pytest.mark.parametrize(
+        ("hints_type", "options", "expected"),
+        [
+            ("single_cap", {"cap_index": 1}, [[10, 11, 12, 14]]),
+            (
+                "double_cap",
+                {"first_cap_index": 0, "second_cap_index": 2},
+                [[10, 11, 12, 13], [10, 11, 13, 14], [10, 11, 13]],
+            ),
+            (
+                "triple_cap",
+                {"first_cap_index": 0, "second_cap_index": 2, "third_cap_index": 4},
+                [
+                    [10, 11, 12, 13],
+                    [10, 11, 13, 14],
+                    [11, 12, 13, 14],
+                    [11, 13, 14],
+                    [11, 12, 13],
+                    [10, 11, 13],
+                    [11, 13],
+                ],
+            ),
+        ],
+    )
+    def test_hints(self, hints_type, options, expected):
+        hints = CoordinationGeometry.NeighborsSetsHints(hints_type=hints_type, options={"csm_max": 8.0, **options})
+        hints_info = {"csm": 2.0, "nb_set": FakeNeighborsSet([10, 11, 12, 13, 14]), "permutation": [4, 3, 2, 1, 0]}
+        assert [list(hint) for hint in hints.hints(hints_info)] == expected
+        # no hint beyond the maximum csm
+        assert hints.hints({**hints_info, "csm": 8.5}) == []
+
+
+class TestCoordinationGeometry:
+    @pytest.mark.parametrize(
+        ("mp_symbol", "expected"),
+        [
+            ("S:1", 0.0),
+            ("L:2", 0.0),
+            ("T:4", np.sqrt(1.5) - 1),
+            ("O:6", np.sqrt(2) - 1),
+            ("C:8", np.sqrt(3) - 1),
+            # cuboctahedron: anion-anion and cation-anion distances are equal (close packing)
+            ("C:12", 1.0),
+        ],
+    )
+    def test_pauling_stability_ratio(self, mp_symbol, expected):
+        cg = AllCoordinationGeometries(only_symbols=[mp_symbol])[mp_symbol]
+        assert cg.pauling_stability_ratio == approx(expected)
+        # cached value
+        assert cg.pauling_stability_ratio == approx(expected)
+
+    @pytest.mark.parametrize(
+        ("IUPAC_symbol", "IUCr_symbol", "expected_symbol"),
+        [
+            ("OC-6", "[6o]", " (IUPAC: OC-6 || IUCr: [6o])"),
+            ("OC-6", None, " (IUPAC: OC-6)"),
+            (None, "[6o]", " (IUCr: [6o])"),
+            (None, None, ""),
+        ],
+    )
+    def test_str_repr(self, IUPAC_symbol, IUCr_symbol, expected_symbol):
+        cg = CoordinationGeometry(
+            "X:6", "Some geometry", IUPAC_symbol=IUPAC_symbol, IUCr_symbol=IUCr_symbol, coordination=6
+        )
+        assert not cg.is_implemented()
+        header = f"Coordination geometry type : Some geometry{expected_symbol}\n\n  - coordination number : 6\n"
+        assert repr(cg) == f"{header}------------------------------------------------------------\n"
+        assert (
+            str(cg)
+            == f"{header}... not yet implemented\n------------------------------------------------------------\n"
+        )
+
+    def test_number_of_permutations(self):
+        assert CoordinationGeometry("X:5", "Some geometry", coordination=5).number_of_permutations == 120
+        assert AllCoordinationGeometries(only_symbols=["O:6"])["O:6"].number_of_permutations == 720
+        cg = CoordinationGeometry("X:3", "Some geometry", coordination=3)
+        cg.permutations = [[0, 1, 2], [2, 1, 0]]
+        assert cg.number_of_permutations == 2
+
+    def test_edges_and_solid_angles(self):
+        cg = all_cg["T:4"]
+        coords = [np.array(pt) for pt in cg.points]
+        perm = [3, 2, 1, 0]
+        edges_from_coords = cg.edges(coords, permutation=perm, input="coords")
+        edges_from_sites = cg.edges([FakeSite(coords=pt) for pt in coords], permutation=perm)
+        assert len(edges_from_coords) == 6
+        assert_allclose(edges_from_coords, edges_from_sites)
+        with pytest.raises(RuntimeError, match="Invalid input for edges"):
+            cg.edges(coords, input="points")
+
+        cg = all_cg["SS:4"]
+        solid_angles = cg.solid_angles()
+        assert cg.solid_angles(permutation=[3, 2, 1, 0]) == solid_angles[::-1]
+
+    def test_get_pmeshes_polygonal_faces(self):
+        # The pentagonal prism has two pentagonal faces, which are split in 5 quadrangles each
+        cg = all_cg["PP:10"]
+        sites = [FakeSite(coords=np.array(pt)) for pt in cg.points]
+        lines = cg.get_pmeshes(sites=sites)[0]["pmesh_string"].splitlines()
+        n_faces = len(cg._faces)
+        assert n_faces == 7
+        assert int(lines[0]) == 10 + n_faces
+        assert int(lines[1 + 10 + n_faces]) == 5 + 5 + 5
+        # the face centres are the centroids of the faces
+        face_centres = np.array([[float(xx) for xx in line.split()] for line in lines[11 : 11 + n_faces]])
+        assert_allclose(
+            face_centres, [np.mean([cg.points[ii] for ii in face], axis=0) for face in cg._faces], atol=1e-8
+        )
+
+
+class TestAllCoordinationGeometries:
+    def test_contains_and_mappings(self):
+        assert "O:6" in all_cg
+        assert "O:7" not in all_cg
+        mapping = all_cg.get_symbol_name_mapping()
+        assert len(mapping) == len(all_cg.cg_list) == 68
+        assert mapping["O:6"] == "Octahedron"
+
+    def test_only_symbols(self):
+        allcg = AllCoordinationGeometries(only_symbols=["O:6", "T:4"])
+        assert sorted(allcg.get_implemented_geometries(returned="mp_symbol")) == ["O:6", "T:4"]
+        assert allcg.separations_cg == {6: {(0, 3, 3): ["O:6"], (1, 4, 1): ["O:6"]}}
+        assert allcg.minpoints == {6: 2}
+        assert allcg.maxpoints == {6: 4}
+        assert allcg.maxpoints_inplane == {6: 4}
+
+    def test_repr(self):
+        string = repr(all_cg)
+        assert string.startswith("\n#=================================#\n# List of coordination geometries #\n")
+        assert string.count("Coordination geometry type :") == 68
+        assert "Coordination geometry type : Octahedron (IUPAC: OC-6 || IUCr: [6o])\n" in string
+
+    @pytest.mark.parametrize(
+        ("kwargs", "expected"),
+        [
+            ({"mp_symbol": "O:6"}, True),
+            ({"mp_symbol": "O:7"}, False),
+            ({"mp_symbol": "O:6", "IUPAC_symbol": "OC-6", "IUCr_symbol": "[6o]", "cn": "6"}, True),
+            ({"mp_symbol": "O:6", "IUPAC_symbol": "TPR-6"}, False),
+            ({"mp_symbol": "O:6", "IUCr_symbol": "[6p]"}, False),
+            ({"mp_symbol": "O:6", "cn": 5}, False),
+            ({"IUPAC_symbol": "OC-6"}, True),
+            ({"IUPAC_symbol": "OC-7"}, False),
+            ({"IUPAC_symbol": "OC-6", "IUCr_symbol": "[6p]"}, False),
+            ({"IUPAC_symbol": "OC-6", "cn": 6}, True),
+            ({"IUPAC_symbol": "OC-6", "cn": 5}, False),
+            ({"IUCr_symbol": "[6o]"}, True),
+            ({"IUCr_symbol": "[6o]", "cn": 6}, True),
+            ({"IUCr_symbol": "[6o]", "cn": 5}, False),
+            # legacy behavior: an unknown IUCr symbol is considered valid
+            ({"IUCr_symbol": "[99x]"}, True),
+        ],
+    )
+    def test_is_a_valid_coordination_geometry(self, kwargs, expected):
+        assert all_cg.is_a_valid_coordination_geometry(**kwargs) is expected
+
+    def test_is_a_valid_coordination_geometry_errors(self):
+        with pytest.raises(NotImplementedError, match="not implemented for the name"):
+            all_cg.is_a_valid_coordination_geometry(name="Octahedron")
+        with pytest.raises(SyntaxError, match="at least one of mp_symbol, IUPAC_symbol and IUCr_symbol"):
+            all_cg.is_a_valid_coordination_geometry(cn=6)
+
+    def test_pretty_print(self):
+        # geometries with neighbors sets hints are marked with a star
+        out = all_cg.pretty_print(type="implemented_geometries", maxcn=13, additional_info={"nb_hints": True})
+        assert " - SH:13 : Square-face capped hexagonal prism *\n" in out
+        assert " - O:6 : Octahedron\n" in out
+        assert out.count(" *\n") == sum(cg.neighbors_sets_hints is not None for cg in all_cg.cg_list)
+        out = all_cg.pretty_print(type="all_geometries", maxcn=10)
+        # geometries that are not implemented are also listed
+        assert " - S:10 : " in out
+        assert " - H:10 : " in out
+        assert sum(line.startswith(" - ") for line in out.splitlines()) == sum(
+            cg.coordination_number is not None and cg.coordination_number <= 10 for cg in all_cg.cg_list
+        )
+        out = all_cg.pretty_print(type="all_geometries_latex", maxcn=10)
+        assert "\\item S:10 $\\rightarrow$" in out
+        assert all_cg.pretty_print(type="all_geometries_latex_images", maxcn=0) == "\n"
