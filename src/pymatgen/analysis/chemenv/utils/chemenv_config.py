@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import os
 from typing import TYPE_CHECKING
 
@@ -94,7 +95,7 @@ class ChemEnvConfig:
 
     def setup_package_options(self):
         """Setup the package options."""
-        self.package_options = self.DEFAULT_PACKAGE_OPTIONS
+        self.package_options = copy.deepcopy(self.DEFAULT_PACKAGE_OPTIONS)
         print("Choose between the following strategies : ")
         strategies = list(strategies_class_lookup)
         for idx, strategy in enumerate(strategies, start=1):
@@ -142,7 +143,7 @@ class ChemEnvConfig:
             root_dir:
         """
         if root_dir is None:
-            home = os.expanduser("~")
+            home = os.path.expanduser("~")
             root_dir = f"{home}/.chemenv"
         if not os.path.exists(root_dir):
             os.makedirs(root_dir)
@@ -153,8 +154,15 @@ class ChemEnvConfig:
             if test != "Y":
                 print("Configuration not saved")
                 return config_file
+
+        def _float_subclass_default(obj):
+            # orjson does not serialize float subclasses (e.g. DistanceCutoffFloat) natively
+            if isinstance(obj, float):
+                return float(obj)
+            raise TypeError(f"Type is not JSON serializable: {type(obj).__name__}")
+
         with open(config_file, "wb") as file:
-            file.write(orjson.dumps(config_dict))
+            file.write(orjson.dumps(config_dict, default=_float_subclass_default))
         print("Configuration saved")
         return config_file
 
@@ -167,7 +175,7 @@ class ChemEnvConfig:
             root_dir:
         """
         if root_dir is None:
-            home = os.expanduser("~")
+            home = os.path.expanduser("~")
             root_dir = f"{home}/.chemenv"
         config_file = f"{root_dir}/config.json"
         try:

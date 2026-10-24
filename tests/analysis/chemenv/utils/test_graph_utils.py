@@ -1,10 +1,18 @@
 from __future__ import annotations
 
+import networkx as nx
 import pytest
 from numpy.testing import assert_allclose
 
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-from pymatgen.analysis.chemenv.utils.graph_utils import MultiGraphCycle, SimpleGraphCycle, get_delta
+from pymatgen.analysis.chemenv.utils.graph_utils import (
+    MultiGraphCycle,
+    SimpleGraphCycle,
+    _c2index_isreverse,
+    get_all_elementary_cycles,
+    get_all_simple_paths_edges,
+    get_delta,
+)
 from pymatgen.util.testing import MatSciTest
 
 __author__ = "waroquiers"
@@ -721,3 +729,114 @@ class TestEnvironmentNodesGraphUtils(MatSciTest):
         assert c1 == c2
         c2 = MultiGraphCycle([e2, e3, e1], [1, 2, 0])
         assert c1 == c2
+
+
+class FakeNodeWithBrokenLt(FakeNodeWithEqMethod):
+    def __lt__(self, other):
+        raise TypeError("custom comparison failure")
+
+
+def test_get_all_simple_paths_edges_simple_graph():
+    graph = nx.Graph([(0, 1), (1, 2), (2, 0), (2, 3), (3, 0)])
+    paths = get_all_simple_paths_edges(graph, 0, 2)
+    assert sorted(paths) == sorted([[(0, 1), (1, 2)], [(0, 2)], [(0, 3), (3, 2)]])
+    assert get_all_simple_paths_edges(graph, 0, 2, cutoff=1) == [[(0, 2)]]
+
+
+def test_get_all_simple_paths_edges_multigraph():
+    graph = nx.MultiGraph()
+    graph.add_edge(0, 1, weight=1)
+    graph.add_edge(0, 1, weight=2)
+    graph.add_edge(1, 2, weight=3)
+    paths = get_all_simple_paths_edges(graph, 0, 2)
+    assert paths == [
+        [(0, 1, 0, {"weight": 1}), (1, 2, 0, {"weight": 3})],
+        [(0, 1, 1, {"weight": 2}), (1, 2, 0, {"weight": 3})],
+    ]
+    assert get_all_simple_paths_edges(graph, 0, 2, data=False) == [
+        [(0, 1, 0), (1, 2, 0)],
+        [(0, 1, 1), (1, 2, 0)],
+    ]
+
+
+def test_get_all_elementary_cycles():
+    with pytest.raises(TypeError, match="graph should be a networkx Graph object"):
+        get_all_elementary_cycles([(0, 1), (1, 2)])
+
+    # A tree has no cycle
+    assert get_all_elementary_cycles(nx.path_graph(4)) == set()
+
+    # A single cycle
+    cycles = get_all_elementary_cycles(nx.cycle_graph(4))
+    assert [cycle.nodes for cycle in cycles] == [(0, 1, 2, 3)]
+
+    # Two triangles sharing the 0-2 edge: 2 elementary cycles + the outer square
+    graph = nx.Graph([(0, 1), (1, 2), (2, 0), (2, 3), (3, 0)])
+    cycles = get_all_elementary_cycles(graph)
+    assert sorted(cycle.nodes for cycle in cycles) == [(0, 1, 2), (0, 1, 2, 3), (0, 2, 3)]
+
+    # Bowtie (two triangles sharing node 2): the combination of both is not an elementary cycle
+    graph = nx.Graph([(0, 1), (1, 2), (2, 0), (2, 3), (3, 4), (4, 2)])
+    cycles = get_all_elementary_cycles(graph)
+    assert sorted(cycle.nodes for cycle in cycles) == [(0, 1, 2), (2, 3, 4)]
+
+    # Two disjoint triangles: the combination of both cannot be made into a single cycle
+    graph = nx.Graph([(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)])
+    cycles = get_all_elementary_cycles(graph)
+    assert sorted(cycle.nodes for cycle in cycles) == [(0, 1, 2), (3, 4, 5)]
+
+
+@pytest.mark.parametrize(
+    ("c1_nodes", "expected"),
+    [
+        ((9, 1), (None, None, "First node of cycle c1 not found in cycle c2.")),
+        ((1, 9), (None, None, "Second node of cycle c1 not found in cycle c2.")),
+        ((0, 1), (0, False, "")),
+        ((0, 4), (0, True, "")),
+        ((0, 2), (None, None, "Second node of cycle c1 is not second or last in cycle c2")),
+        ((4, 0), (4, False, "")),
+        ((4, 3), (4, True, "")),
+        ((4, 1), (None, None, "Second node of cycle c1 is not first or before last in cycle c2")),
+        ((2, 3), (2, False, "")),
+        ((2, 1), (2, True, "")),
+        ((2, 4), (None, None, "Second node of cycle c1 in cycle c2 is not just after or just before")),
+    ],
+)
+def test_c2index_isreverse(c1_nodes, expected):
+    c1 = SimpleGraphCycle(c1_nodes, validate=False, ordered=False)
+    c2 = SimpleGraphCycle([0, 1, 2, 3, 4], validate=False, ordered=False)
+    index, reverse, msg = _c2index_isreverse(c1, c2)
+    assert (index, reverse) == expected[:2]
+    assert msg.startswith(expected[2])
+
+
+def test_simple_graph_cycle_comparison_and_errors():
+    cycle = SimpleGraphCycle([2, 0, 1])
+    assert cycle.nodes == (0, 1, 2)
+    assert cycle != "not a cycle"
+    unordered = SimpleGraphCycle([2, 0, 1], ordered=False)
+    with pytest.raises(RuntimeError, match="Simple cycles should be ordered in order to be compared"):
+        _ = cycle == unordered
+
+    with pytest.raises(ValueError, match="Could not construct a cycle from edges"):
+        SimpleGraphCycle.from_edges([(0, 1), (2, 3), (3, 0)])
+    with pytest.raises(ValueError, match="Could not construct a cycle from edges"):
+        SimpleGraphCycle.from_edges([(0, 1), (1, 2), (2, 3)])
+
+    # TypeErrors other than "not sortable" must propagate
+    with pytest.raises(TypeError, match="custom comparison failure"):
+        SimpleGraphCycle([FakeNodeWithBrokenLt(idx) for idx in range(3)])
+
+
+def test_multigraph_cycle_str_comparison_and_errors():
+    cycle = MultiGraphCycle([1, 2, 0], [5, 6, 7])
+    assert cycle.nodes == (0, 1, 2)
+    assert cycle.edge_indices == (7, 5, 6)
+    assert str(cycle) == "Multigraph cycle with nodes :\n0 -*7*- 1\n1 -*5*- 2\n2 -*6*- 0"
+    assert cycle != "not a cycle"
+    unordered = MultiGraphCycle([1, 2, 0], [5, 6, 7], ordered=False)
+    with pytest.raises(RuntimeError, match="Multigraph cycles should be ordered in order to be compared"):
+        _ = cycle == unordered
+
+    with pytest.raises(TypeError, match="custom comparison failure"):
+        MultiGraphCycle([FakeNodeWithBrokenLt(idx) for idx in range(3)], [0, 1, 2])
