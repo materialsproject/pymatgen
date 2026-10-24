@@ -91,11 +91,12 @@ def test_help(capsys, argv):
     assert "usage:" in capsys.readouterr().out
 
 
-def test_unknown_subcommand(capsys):
+@pytest.mark.parametrize("subcommand", ["not-a-command", "query"])
+def test_unknown_subcommand(capsys, subcommand):
     with pytest.raises(SystemExit) as exc:
-        pmg.main(["not-a-command"])
+        pmg.main([subcommand])
     assert exc.value.code == 2
-    assert "invalid choice: 'not-a-command'" in capsys.readouterr().err
+    assert f"invalid choice: '{subcommand}'" in capsys.readouterr().err
 
 
 def test_argcomplete_hook(monkeypatch):
