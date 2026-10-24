@@ -58,14 +58,18 @@ class DielectricAnalysis:
         self.eps_imag = np.asarray(eps_imag)
 
         # Wavelengths are in nm.
-        self.wavelengths = const.h / const.e * const.c / self.energies * 1e9
+        # E = 0 maps to an infinite wavelength.
+        with np.errstate(divide="ignore"):
+            self.wavelengths = const.h / const.e * const.c / self.energies * 1e9
 
         self.n = (1 / math.sqrt(2)) * ((self.eps_real**2 + self.eps_imag**2) ** 0.5 + self.eps_real) ** 0.5
 
         self.k = (1 / math.sqrt(2)) * ((self.eps_real**2 + self.eps_imag**2) ** 0.5 - self.eps_real) ** 0.5
 
         self.R = ((self.n - 1) ** 2 + self.k**2) / ((self.n + 1) ** 2 + self.k**2)  # reflectivity
-        self.L = self.eps_imag / (self.eps_real**2 + self.eps_imag**2)  # absorptivity
+        # absorptivity; undefined (NaN) where eps_real = eps_imag = 0
+        with np.errstate(divide="ignore", invalid="ignore"):
+            self.L = self.eps_imag / (self.eps_real**2 + self.eps_imag**2)
         self.T = 1 - self.R - self.L
 
     @classmethod

@@ -235,6 +235,10 @@ addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
     # NOTE: the LAST matching option would be used
     "ignore::UserWarning",
+    # CI sets PYTHONWARNDEFAULTENCODING; silence EncodingWarnings raised inside third-party code.
+    "ignore::EncodingWarning:matplotlib.*",
+    "ignore::EncodingWarning:numpy.*",
+    "ignore::EncodingWarning:plotly.*",
 ]
 
 [tool.coverage.run]

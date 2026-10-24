@@ -22,6 +22,7 @@ Physical Review Materials, 8(10), 103801. https://doi.org/10.1103/PhysRevMateria
 
 from __future__ import annotations
 
+import math
 import re
 import subprocess
 from collections import Counter, defaultdict
@@ -32,7 +33,6 @@ from string import ascii_uppercase, digits
 from typing import TYPE_CHECKING
 
 import orjson
-from monty.fractions import gcd
 
 from pymatgen.analysis.prototypes._data import (
     AFLOW_PROTOTYPE_LIBRARY,
@@ -515,7 +515,7 @@ def get_prototype_formula_from_composition(composition: Composition) -> str:
     """
     reduced = composition.element_composition
     if all(x == int(x) for x in composition.values()):
-        reduced /= gcd(*(int(amt) for amt in composition.values()))
+        reduced /= math.gcd(*(int(amt) for amt in composition.values()))
 
     amounts = [reduced[key] for key in sorted(reduced, key=str)]
 
