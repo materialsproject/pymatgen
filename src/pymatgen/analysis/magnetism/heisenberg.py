@@ -503,12 +503,8 @@ class HeisenbergMapper:
         n_sub_lattices = len(self.unique_site_ids)
         k_boltzmann = 0.0861733  # meV/K
 
-        if n_sub_lattices > 1 and self.ex_params is None:  # exchange not yet computed
-            self.get_exchange()
-
-        # Only 1 magnetic sublattice, or only <J> is available so the
-        # coupled sublattice equations cannot be set up
-        if n_sub_lattices == 1 or "<J>" in self.ex_params:
+        # Only 1 magnetic sublattice
+        if n_sub_lattices == 1:
             mft_t = 2 * abs(j_avg) / 3 / k_boltzmann
 
         else:  # multiple magnetic sublattices
@@ -549,9 +545,6 @@ class HeisenbergMapper:
         """
         structure = self.ordered_structures[0]
         sgraph = self.sgraphs[0]
-
-        if self.ex_params is None:  # exchange not yet computed
-            self.get_exchange()
 
         igraph = StructureGraph.from_empty_graph(
             structure, edge_weight_name="exchange_constant", edge_weight_units="meV"
@@ -598,9 +591,6 @@ class HeisenbergMapper:
         Returns:
             float: Exchange parameter J_exc in meV
         """
-        if self.ex_params is None:  # exchange not yet computed
-            self.get_exchange()
-
         # Get unique site identifiers
         i_index = j_index = 0
         for k, v in self.unique_site_ids.items():
