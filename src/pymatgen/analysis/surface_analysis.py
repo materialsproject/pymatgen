@@ -41,6 +41,7 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
+from monty.json import MontyDecoder
 from sympy import Symbol
 from sympy.solvers import linsolve, solve
 
@@ -275,12 +276,13 @@ class SlabEntry(ComputedStructureEntry):
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
         """Get a SlabEntry by reading in an dictionary."""
-        structure = SlabEntry.from_dict(dct["structure"])
-        energy = SlabEntry.from_dict(dct["energy"])
+        decoder = MontyDecoder()
+        structure = decoder.process_decoded(dct["structure"])
+        energy = dct["energy"]
         miller_index = dct["miller_index"]
         label = dct["label"]
-        adsorbates = dct["adsorbates"]
-        clean_entry = dct["clean_entry"]
+        adsorbates = decoder.process_decoded(dct["adsorbates"])
+        clean_entry = decoder.process_decoded(dct["clean_entry"])
 
         return cls(
             structure,
@@ -648,7 +650,7 @@ class SurfaceEnergyPlotter:
             if type(se).__name__ == "float":
                 all_eqns.append(se - Symbol("gamma"))
             else:
-                se = sub_chempots(se, delu_dict) if delu_dict else se
+                se = se.subs(delu_dict) if delu_dict else se
                 all_eqns.append(se - Symbol("gamma"))
                 all_parameters.extend([p for p in list(se.free_symbols) if p not in all_parameters])
 
@@ -945,8 +947,9 @@ class SurfaceEnergyPlotter:
             delu_dict = {}
         chempot_range = sorted(chempot_range)
 
-        plt = plt or pretty_plot(width=8, height=7)
-        axes = plt.gca()
+        ax = plt or pretty_plot(width=8, height=7)
+        # Backwards compatibility: also accept a pyplot-like object
+        ax = ax.gca() if hasattr(ax, "gca") else ax
 
         for hkl in self.all_slab_entries:
             if miller_index and hkl != tuple(miller_index):
@@ -980,8 +983,8 @@ class SurfaceEnergyPlotter:
                             label = clean_entry.label
                         if no_label:
                             label = ""
-                        plt = self.chempot_vs_gamma_plot_one(
-                            plt,
+                        ax = self.chempot_vs_gamma_plot_one(
+                            ax,
                             clean_entry,
                             ref_delu,
                             urange,
@@ -1000,8 +1003,8 @@ class SurfaceEnergyPlotter:
                                 label = ads_entry.label
                             if no_label:
                                 label = ""
-                            plt = self.chempot_vs_gamma_plot_one(
-                                plt,
+                            ax = self.chempot_vs_gamma_plot_one(
+                                ax,
                                 ads_entry,
                                 ref_delu,
                                 urange,
@@ -1012,8 +1015,8 @@ class SurfaceEnergyPlotter:
                             )
 
         # Make the figure look nice
-        (plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)"))
-        return self.chempot_plot_addons(plt, chempot_range, str(ref_delu).split("_")[1], axes, ylim=ylim)
+        ax.set_ylabel(r"Surface energy (J/$m^{2}$)" if JPERM2 else r"Surface energy (eV/$\AA^{2}$)")
+        return self.chempot_plot_addons(ax, chempot_range, str(ref_delu).split("_")[1], ylim=ylim)
 
     def monolayer_vs_BE(self, plot_eads=False):
         """
@@ -1041,9 +1044,11 @@ class SurfaceEnergyPlotter:
                         ml_be_dict[ads_entry.get_monolayer] = min(be, ml_be_dict[ads_entry.get_monolayer])
             # sort the binding energies and monolayers
             # in order to properly draw a line plot
+            if not ml_be_dict:
+                continue
             vals = sorted(ml_be_dict.items())
             monolayers, BEs = zip(*vals, strict=True)
-            ax.plot(monolayers, BEs, "-o", c=self.color_dict[clean_entry], label=hkl)
+            ax.plot(monolayers, BEs, "-o", c=self.color_dict[clean_entry], label=str(hkl))
 
         adsorbates = tuple(ads_entry.ads_entries_dict)
         ax.set_xlabel(f"{' '.join(adsorbates)} Coverage (ML)")
@@ -1122,6 +1127,7 @@ class SurfaceEnergyPlotter:
                 if self.all_slab_entries[hkl][clean_entry]:
                     clean_se = self.as_coeffs_dict[clean_entry]
                     se = sub_chempots(clean_se, all_delu_dict)
+                    se = se * EV_PER_ANG2_TO_JOULES_PER_M2 if JPERM2 else se
                     for ads_entry in self.all_slab_entries[hkl][clean_entry]:
                         ml = ads_entry.get_monolayer
                         be = ads_entry.gibbs_binding_energy(eads=plot_eads)
@@ -1134,7 +1140,7 @@ class SurfaceEnergyPlotter:
         ax.set_xlabel(r"Surface energy ($J/m^2$)" if JPERM2 else r"Surface energy ($eV/\AA^2$)")
         ax.set_ylabel("Adsorption Energy (eV)" if plot_eads else "Binding Energy (eV)")
         plt.tight_layout()
-        ax.set_xticks(rotation=60)
+        ax.tick_params(axis="x", labelrotation=60)
         return ax
 
     def surface_chempot_range_map(
@@ -1271,7 +1277,7 @@ class SurfaceEnergyPlotter:
         ax.set(xlim=range1, ylim=range2)
         ax.set_xlabel(rf"$\Delta\mu_{{{el1}}} (eV)$", fontsize=25)
         ax.set_ylabel(rf"$\Delta\mu_{{{el2}}} (eV)$", fontsize=25)
-        ax.set_xticks(rotation=60)
+        ax.tick_params(axis="x", labelrotation=60)
 
         return ax
 
@@ -1432,6 +1438,8 @@ class WorkFunctionAnalyzer:
         Returns plt of the locpot vs c axis
         """
         plt = plt or pretty_plot(width=6, height=4)
+        # Backwards compatibility: also accept a pyplot-like object
+        plt = plt.gca() if hasattr(plt, "gca") else plt
 
         # plot the raw locpot signal along c
         plt.plot(self.along_c, self.locpot_along_c, "b--")
@@ -1462,12 +1470,12 @@ class WorkFunctionAnalyzer:
         # make it look nice
         if label_energies:
             plt = self.get_labels(plt, label_fontsize=label_fontsize)
-        plt.xlim([0, 1])
-        plt.ylim([min(self.locpot_along_c), self.vacuum_locpot + self.ave_locpot * 0.2])
-        plt.xlabel(r"Fractional coordinates ($\hat{c}$)", fontsize=25)
-        plt.xticks(fontsize=15, rotation=45)
-        plt.ylabel(r"Potential (eV)", fontsize=25)
-        plt.yticks(fontsize=15)
+        plt.set_xlim([0, 1])
+        plt.set_ylim([min(self.locpot_along_c), self.vacuum_locpot + self.ave_locpot * 0.2])
+        plt.set_xlabel(r"Fractional coordinates ($\hat{c}$)", fontsize=25)
+        plt.tick_params(axis="x", labelsize=15, labelrotation=45)
+        plt.set_ylabel(r"Potential (eV)", fontsize=25)
+        plt.tick_params(axis="y", labelsize=15)
 
         return plt
 
