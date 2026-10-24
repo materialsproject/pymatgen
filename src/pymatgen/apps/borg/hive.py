@@ -130,6 +130,9 @@ class VaspToComputedEntryDrone(AbstractDrone):
             filepath = glob(f"{path}/relax2/vasprun.xml*")[0]
         else:
             vasprun_files = glob(f"{path}/vasprun.xml*")
+            if not vasprun_files:
+                logger.debug(f"no vasprun.xml* found in {path}")
+                return None
             if len(vasprun_files) == 1:
                 filepath = vasprun_files[0]
             else:
@@ -177,7 +180,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         return {
             "init_args": {
                 "inc_structure": self._inc_structure,
-                "parameters": self._parameters,
+                "parameters": sorted(self._parameters),
                 "data": self._data,
             },
             "@module": type(self).__module__,
@@ -418,9 +421,9 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         return {
             "init_args": {
                 "inc_structure": self._inc_structure,
-                "parameters": self._parameters,
-                "data": self._data,
-                "file_extensions": self._file_extensions,
+                "parameters": sorted(self._parameters),
+                "data": sorted(self._data),
+                "file_extensions": list(self._file_extensions),
             },
             "@module": type(self).__module__,
             "@class": type(self).__name__,
