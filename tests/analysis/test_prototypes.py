@@ -11,6 +11,7 @@ from types import SimpleNamespace
 
 import pandas as pd
 import pytest
+import spglib.error
 
 import pymatgen.analysis.prototypes as prototypes_module
 from pymatgen.analysis.prototypes import (
@@ -660,8 +661,10 @@ def test_get_protostructure_label_invalid_method():
 @pytest.mark.filterwarnings("ignore:Set OLD_ERROR_HANDLING to false:DeprecationWarning")
 def test_get_protostructure_label_from_spglib_undetermined_symmetry(monkeypatch):
     """Coincident atoms make spglib fail; the error is annotated unless raise_errors."""
-    # ase's spglib wrapper sets SPGLIB_OLD_ERROR_HANDLING=false and does not unset it, so after any
-    # test that goes through ase symmetry code spglib raises its own message instead of returning None.
+    # Pin spglib's legacy error handling: phonopy and symfc set spglib.error.OLD_ERROR_HANDLING = False
+    # on import, and ase leaves SPGLIB_OLD_ERROR_HANDLING=false in the environment. Either one makes
+    # spglib raise its own message ("too close distance between atoms") for the rest of the session.
+    monkeypatch.setattr(spglib.error, "OLD_ERROR_HANDLING", True)
     monkeypatch.delenv("SPGLIB_OLD_ERROR_HANDLING", raising=False)
     struct = Structure(Lattice.cubic(4), ["Na", "Na"], [[0, 0, 0], [0, 0, 0]], validate_proximity=False)
 
