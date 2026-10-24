@@ -539,3 +539,165 @@ def test_get_random_structure_for_protostructure_random(protostructure):
 
     assert s1.composition == s2.composition
     assert s1.lattice != s2.lattice
+
+
+SPINEL = Structure.from_spacegroup(  # MgAl2O4 normal spinel
+    "Fd-3m",
+    Lattice.cubic(8.08),
+    ["Al", "Mg", "O"],
+    [[0.125, 0.125, 0.125], [0.5, 0.5, 0.5], [0.3875, 0.3875, 0.3875]],
+)
+RUTILE = Structure.from_spacegroup(  # TiO2
+    "P4_2/mnm",
+    Lattice.tetragonal(4.594, 2.959),
+    ["Ti", "O"],
+    [[0, 0, 0], [0.3048, 0.3048, 0]],
+)
+ROCKSALT, PEROVSKITE = TEST_STRUCTS[0], TEST_STRUCTS[4]
+
+# (structure, protostructure label, prototype, n_sites, n_dof, formula, mineral tag in AFLOW library)
+KNOWN_PROTOTYPES = [
+    (ROCKSALT, "AB_cF8_225_a_b:Cl-Na", "AB_cF8_225_a_b", 8, 1, "ClNa", "Halite, Rock Salt"),
+    (PEROVSKITE, "A3BC_cP5_221_c_a_b:O-Sr-Ti", "ABC3_cP5_221_a_b_c", 5, 1, "O3SrTi", "(Cubic) Perovskite"),
+    (SPINEL, "A2BC4_cF56_227_c_b_e:Al-Mg-O", "AB2C4_cF56_227_a_d_e", 56, 2, "Al2MgO4", "Spinel"),
+    (RUTILE, "A2B_tP6_136_f_a:O-Ti", "AB2_tP6_136_a_f", 6, 3, "O2Ti", "Rutile"),
+]
+KNOWN_PROTOTYPE_IDS = ["rocksalt", "perovskite", "spinel", "rutile"]
+
+
+@pytest.mark.parametrize("method", ["spglib", "moyopy"])
+@pytest.mark.parametrize(
+    ("structure", "label", "prototype", "n_sites", "n_dof", "formula", "mineral"),
+    KNOWN_PROTOTYPES,
+    ids=KNOWN_PROTOTYPE_IDS,
+)
+def test_known_prototype_labels(method, structure, label, prototype, n_sites, n_dof, formula, mineral):
+    """Protostructure labels and derived quantities for textbook prototypes."""
+    if method == "moyopy":
+        pytest.importorskip("moyopy", reason="moyopy not installed")
+
+    assert get_protostructure_label(structure, method=method) == label
+    assert get_prototype_from_protostructure(label) == prototype
+    assert count_crystal_sites(label) == n_sites
+    assert count_crystal_dof(label) == n_dof
+    assert get_formula_from_protostructure_label(label) == formula
+    assert Composition(formula).reduced_formula == structure.composition.reduced_formula
+
+
+@pytest.mark.parametrize(
+    ("structure", "label", "prototype", "n_sites", "n_dof", "formula", "mineral"),
+    KNOWN_PROTOTYPES,
+    ids=KNOWN_PROTOTYPE_IDS,
+)
+def test_protostructures_from_aflow_label_round_trip(structure, label, prototype, n_sites, n_dof, formula, mineral):
+    """The anonymous prototype plus the (unreduced) cell composition regenerates the
+    protostructure label among the possible decorations.
+    """
+    protostructures = get_protostructures_from_aflow_label_and_composition(prototype, structure.composition)
+
+    assert label in protostructures
+    assert all(get_prototype_from_protostructure(proto) == prototype for proto in protostructures)
+    if structure is PEROVSKITE:  # Sr and Ti both 1 per f.u., so either may take the 1a/1b site
+        assert sorted(protostructures) == ["A3BC_cP5_221_c_a_b:O-Sr-Ti", "A3BC_cP5_221_c_b_a:O-Sr-Ti"]
+    else:
+        assert protostructures == [label]
+
+
+@pytest.fixture(scope="module")
+def aflow_library_matcher():
+    from pymatgen.analysis.prototypes._data import AFLOW_PROTOTYPE_LIBRARY
+
+    return PrototypeDatabaseMatcher(pd.DataFrame(AFLOW_PROTOTYPE_LIBRARY))
+
+
+@pytest.mark.parametrize(
+    ("structure", "label", "prototype", "n_sites", "n_dof", "formula", "mineral"),
+    KNOWN_PROTOTYPES,
+    ids=KNOWN_PROTOTYPE_IDS,
+)
+def test_prototype_database_matcher_known_prototypes(
+    aflow_library_matcher, structure, label, prototype, n_sites, n_dof, formula, mineral
+):
+    matches = aflow_library_matcher.get_prototypes(structure)
+
+    assert [match["tags"]["mineral"] for match in matches] == [mineral]
+    # the library's AFLOW label canonicalizes to the same prototype as ours
+    aflow_label = matches[0]["tags"]["aflow"]
+    assert get_prototype_from_protostructure(f"{aflow_label}:{label.split(':')[1]}") == prototype
+
+
+def test_prototype_database_matcher_no_match(aflow_library_matcher):
+    """A low-symmetry arrangement absent from the library returns None, not []."""
+    struct = Structure(
+        Lattice.cubic(5),
+        ["H", "H", "H", "Li"],
+        [[0, 0, 0], [0.1, 0.2, 0.3], [0.5, 0.6, 0.1], [0.7, 0.2, 0.9]],
+    )
+    assert aflow_library_matcher.get_prototypes(struct) is None
+
+
+def test_prototype_database_matcher_unresolvable_duplicates():
+    """Identical prototypes can't be separated by tightening tolerances; the loop must
+    terminate once ltol drops below 0.01 and return all matches.
+    """
+    prototype_db = pd.DataFrame(
+        [
+            {"snl": SimpleNamespace(structure=ROCKSALT), "name": "rocksalt-1"},
+            {"snl": SimpleNamespace(structure=ROCKSALT), "name": "rocksalt-2"},
+        ]
+    )
+    matches = PrototypeDatabaseMatcher(prototype_db).get_prototypes(ROCKSALT)
+
+    assert [match["name"] for match in matches] == ["rocksalt-1", "rocksalt-2"]
+
+
+def test_get_protostructure_label_invalid_method():
+    with pytest.raises(ValueError, match="Invalid method: foo"):
+        get_protostructure_label(ROCKSALT, method="foo")
+
+
+# spglib's own deprecation of OLD_ERROR_HANDLING, triggered via SpacegroupAnalyzer on failure
+@pytest.mark.filterwarnings("ignore:Set OLD_ERROR_HANDLING to false:DeprecationWarning")
+def test_get_protostructure_label_from_spglib_undetermined_symmetry():
+    """Coincident atoms make spglib fail; the error is annotated unless raise_errors."""
+    struct = Structure(Lattice.cubic(4), ["Na", "Na"], [[0, 0, 0], [0, 0, 0]], validate_proximity=False)
+
+    assert get_protostructure_label_from_spglib(struct) == "Unable to determine symmetry"
+    with pytest.raises(ValueError, match="Unable to determine symmetry"):
+        get_protostructure_label_from_spglib(struct, raise_errors=True)
+
+
+def test_get_protostructure_label_from_moyopy_invalid_multiplicities(monkeypatch):
+    pytest.importorskip("moyopy", reason="moyopy not installed")
+
+    # pretend moyopy put Na on 4a and Cl on 8c of Fm-3m, inconsistent with NaCl
+    fake_dataset = SimpleNamespace(number=225, pearson_symbol="cF8", orbits=[0, 1], wyckoffs=["4a", "8c"])
+    monkeypatch.setattr(prototypes_module, "moyopy", SimpleNamespace(MoyoDataset=lambda _cell, symprec: fake_dataset))
+    err_msg = "Invalid WP multiplicities - AB_cF8_225_c_a:Cl-Na, expected NaCl2 to be NaCl"
+
+    assert get_protostructure_label_from_moyopy(ROCKSALT) == err_msg
+    with pytest.raises(ValueError, match=re.escape(err_msg)):
+        get_protostructure_label_from_moyopy(ROCKSALT, raise_errors=True)
+
+
+def test_missing_optional_dependencies(monkeypatch):
+    monkeypatch.setattr(prototypes_module, "HAS_MOYOPY", False)
+    monkeypatch.setattr(prototypes_module, "HAS_PYXTAL", False)
+
+    with pytest.raises(ImportError, match="moyopy not found"):
+        get_protostructure_label(ROCKSALT, method="moyopy")
+    with pytest.raises(ImportError, match="pyxtal is required"):
+        get_random_structure_for_protostructure("AB_cF8_225_a_b:Cl-Na")
+
+
+@pytest.mark.parametrize(
+    ("composition", "expected"),
+    [
+        ("Na2Cl2", "AB"),  # reduced by gcd
+        ("Fe4O6", "A2B3"),
+        ("Fe0.5Ni0.5", "A0.5B0.5"),  # non-integer amounts are not reduced
+        ("Li0.5CoO2", "AB0.5C2"),
+    ],
+)
+def test_get_prototype_formula_from_composition_reduction(composition, expected):
+    assert get_prototype_formula_from_composition(Composition(composition)) == expected
