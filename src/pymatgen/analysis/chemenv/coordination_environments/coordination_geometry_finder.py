@@ -574,7 +574,7 @@ class LocalGeometryFinder:
             coords: The coordinates of the sites
             coords_are_cartesian: If set to True, the coordinates are given in Cartesian coordinates.
         """
-        self.setup_structure(Structure(lattice, species, coords, coords_are_cartesian))
+        self.setup_structure(Structure(lattice, species, coords, coords_are_cartesian=coords_are_cartesian))
 
     def compute_structure_environments(
         self,
