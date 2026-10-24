@@ -444,5 +444,6 @@ class TestEnergyTrendExtra:
             assert trend.smoothness() is None
             assert trend.endpoints_minima() is None
         assert caplog.text.count("Energy spline failed") == 2
-        with pytest.raises(ValueError, match="m must be > k"):
+        # Older scipy raises dfitpack.error "(m>k) failed", newer ValueError "m must be > k"
+        with pytest.raises(Exception, match=r"m must be > k|\(m>k\) failed"):
             trend.max_spline_jump()
