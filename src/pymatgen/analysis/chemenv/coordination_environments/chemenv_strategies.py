@@ -12,7 +12,7 @@ import math
 from typing import TYPE_CHECKING
 
 import numpy as np
-from monty.json import MSONable
+from monty.json import MontyDecoder, MSONable
 from scipy.stats import gmean
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
@@ -315,9 +315,8 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
             if is_same_frac(eq_frac, this_frac, tol):
                 # use identity SymmOp (downstream assumes mysym.operate exists)
                 sym_trafo = SymmOp.from_rotation_and_translation(np.eye(3), [0.0, 0.0, 0.0])
-                d = this_frac - eq_frac
-                d -= np.round(d)
-                d_this_site2 = tuple(d)
+                # Keep the lattice translation (Translation III): do not wrap it back to the unit cell
+                d_this_site2 = tuple(this_frac - eq_frac)
                 found = True
                 break
 
@@ -325,9 +324,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
                 new_frac = sym_op.operate(eq_frac)
                 if is_same_frac(new_frac, this_frac, tol):
                     sym_trafo = sym_op
-                    d = this_frac - new_frac
-                    d -= np.round(d)
-                    d_this_site2 = tuple(d)
+                    d_this_site2 = tuple(this_frac - new_frac)
                     found = True
                     break
             if found:
@@ -1495,6 +1492,8 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         self.bb = bb
 
         # fda function selection
+        if aa == 0 and bb == 0:
+            raise ValueError("Both exponents are 0.")
         if aa == 0 and bb == 1:
             self.fda = self.invdist
         elif aa == 0 and bb != 0:
@@ -2518,7 +2517,7 @@ class DistanceNbSetWeight(NbSetWeight):
 
         se = structure_environments
         voro_site = se.voronoi.voronoi_list2[isite]
-        nb_indices = nb_set.site_voronoi_indices  # assumed to be a set
+        nb_indices = set(nb_set.site_voronoi_indices)
 
         if self.nbs_source == "nb_sets":
             # collect all competing voronoi indices in one pass
@@ -2527,7 +2526,7 @@ class DistanceNbSetWeight(NbSetWeight):
                 if cn2 == cn:
                     continue
                 for nb2 in nb_sets:
-                    all_idx |= nb2.site_voronoi_indices
+                    all_idx.update(nb2.site_voronoi_indices)
         elif self.nbs_source == "voronoi":
             all_idx = set(range(len(voro_site)))
         else:
@@ -2621,7 +2620,7 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
         else:
             raise ValueError('"nbs_source" should be one of ["nb_sets", "voronoi"]')
 
-        if min_other is float("inf"):
+        if math.isinf(min_other):
             return 1
 
         if len(nb_set) == 0:
@@ -2930,7 +2929,10 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         return cls(
             additional_condition=dct["additional_condition"],
             symmetry_measure_type=dct["symmetry_measure_type"],
-            nb_set_weights=dct["nb_set_weights"],
+            nb_set_weights=[
+                MontyDecoder().process_decoded(nb_set_weight) if isinstance(nb_set_weight, dict) else nb_set_weight
+                for nb_set_weight in dct["nb_set_weights"]
+            ],
             ce_estimator=dct["ce_estimator"],
         )
 
