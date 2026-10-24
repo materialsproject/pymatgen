@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
 
 from pymatgen.analysis.chemenv.utils.math_utils import (
     _cartesian_product,
@@ -9,7 +11,11 @@ from pymatgen.analysis.chemenv.utils.math_utils import (
     divisors,
     get_center_of_arc,
     get_linearly_independent_vectors,
+    normal_cdf_step,
+    power2_inverse_powern_decreasing,
+    power2_tangent_decreasing,
     power3_step,
+    powern_decreasing,
     powern_parts_step,
     prime_factors,
     scale_and_clamp,
@@ -205,3 +211,67 @@ class TestMathUtils(MatSciTest):
                 1.0,
             ],
         )
+
+
+@pytest.mark.parametrize(("radius", "expected"), [(1.0, (0.5, -np.sqrt(0.75))), (-1.0, (0.5, np.sqrt(0.75)))])
+def test_get_center_of_arc_sign_of_radius(radius, expected):
+    assert_allclose(get_center_of_arc([0.0, 0.0], [1.0, 0.0], radius), expected)
+
+
+def test_get_center_of_arc_ill_defined():
+    with pytest.raises(ValueError, match="arc is ill-defined"):
+        get_center_of_arc([0.0, 0.0], [4.0, 0.0], 1.0)
+
+
+def test_normal_cdf_step():
+    assert normal_cdf_step(2.0, mean=2.0, scale=0.5) == approx(0.5)
+    assert normal_cdf_step(2.5, mean=2.0, scale=0.5) == approx(0.8413447460685429)
+    assert normal_cdf_step(1.5, mean=2.0, scale=0.5) == approx(1 - 0.8413447460685429)
+
+
+@pytest.mark.parametrize(
+    ("step_func", "kwargs"),
+    [
+        (smoothstep, {}),
+        (smootherstep, {}),
+        (cosinus_step, {}),
+        (powern_parts_step, {"nn": 2}),
+        (powern_parts_step, {"nn": 3}),
+    ],
+)
+def test_inverse_step_functions(step_func, kwargs):
+    vals = np.linspace(-0.5, 1.5, num=9)
+    forward = step_func(vals, **kwargs)
+    assert_allclose(step_func(vals, inverse=True, **kwargs), 1.0 - forward)
+    assert_allclose(step_func(2 * vals, edges=[0.0, 2.0], inverse=True, **kwargs), 1.0 - forward)
+    assert_allclose(forward[[0, 1, -2, -1]], [0.0, 0.0, 1.0, 1.0])
+
+
+@pytest.mark.parametrize(("nn", "expected"), [(2, 0.25), (3, 0.125), (4, 0.0625)])
+def test_powern_decreasing(nn, expected):
+    assert powern_decreasing(0.5, nn=nn) == approx(expected)
+    assert powern_decreasing(0.0, nn=nn) == approx(1.0)
+    assert powern_decreasing(1.0, nn=nn) == approx(0.0)
+    assert powern_decreasing(1.0, edges=[0.0, 2.0], nn=nn) == approx(expected)
+    assert powern_decreasing(5.0, edges=[0.0, 2.0], nn=nn) == approx(0.0)
+
+
+@pytest.mark.parametrize(("prefactor", "expected"), [(None, 0.25), (2.0, 0.5)])
+def test_power2_tangent_decreasing(prefactor, expected):
+    # -a * (0.5 - 1)^2 * tan(-pi / 4) = a / 4
+    assert power2_tangent_decreasing(0.5, prefactor=prefactor) == approx(expected)
+    assert power2_tangent_decreasing(1.0, edges=[0.0, 2.0], prefactor=prefactor) == approx(expected)
+    assert power2_tangent_decreasing(1.0, prefactor=prefactor) == approx(0.0)
+
+
+@pytest.mark.parametrize(
+    ("prefactor", "powern", "expected"),
+    [(None, 2.0, 1.0), (None, 3.0, 2.0), (2.0, 2.0, 2.0), (None, 1.0, 0.5)],
+)
+def test_power2_inverse_powern_decreasing(prefactor, powern, expected):
+    # a * (0.5 - 1)^2 / 0.5^n
+    assert power2_inverse_powern_decreasing(0.5, prefactor=prefactor, powern=powern) == approx(expected)
+    assert power2_inverse_powern_decreasing(2.0, edges=[0.0, 4.0], prefactor=prefactor, powern=powern) == approx(
+        expected
+    )
+    assert power2_inverse_powern_decreasing(1.0, prefactor=prefactor, powern=powern) == approx(0.0)
