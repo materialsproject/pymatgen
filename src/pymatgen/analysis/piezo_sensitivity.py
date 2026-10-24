@@ -48,7 +48,7 @@ class BornEffectiveCharge:
         self.bec = bec
         self.pointops = pointops
         self.BEC_operations = None
-        if np.sum(self.bec) >= tol:
+        if np.any(np.abs(np.sum(self.bec, axis=0)) >= tol):
             warnings.warn("Input born effective charge tensor does not satisfy charge neutrality", stacklevel=2)
 
     def get_BEC_operations(self, eigtol=1e-5, opstol=1e-3):
@@ -413,7 +413,7 @@ class ForceConstantMatrix:
         operations = self.FCM_operations
         for op in operations:
             same = transpose = 0
-            if op[0] == op[1] and op[0] == operations[2] and op[0] == op[3]:
+            if op[0] == op[1] and op[0] == op[2] and op[0] == op[3]:
                 same = 1
             if op[0] == op[3] and op[1] == op[2]:
                 transpose = 1
