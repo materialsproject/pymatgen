@@ -220,8 +220,8 @@ class Polarization:
             units = 1 / np.array(volumes)
             units *= e_to_muC * cm2_to_A2
 
-            p_elecs = np.matmul(units, p_elecs)
-            p_ions = np.matmul(units, p_ions)
+            p_elecs = units * p_elecs  # scale each structure (column) by its own volume
+            p_ions = units * p_ions
 
             p_elecs, p_ions = p_elecs.T, p_ions.T
 
@@ -419,9 +419,12 @@ class Polarization:
         except Exception:
             logger.exception("Something went wrong.")
             return None
-        sp_latt = [sp[i](range(L)) for i in range(3)]
-        diff = [sp_latt[i] - tot[:, i].ravel() for i in range(3)]
-        return [np.sqrt(np.sum(np.square(diff[i])) / L) for i in range(3)]
+        # A component whose spline fit failed (e.g. too few points) has no smoothness,
+        # consistent with max_spline_jumps.
+        return [
+            None if spline is None else np.sqrt(np.sum(np.square(spline(range(L)) - tot[:, idx].ravel())) / L)
+            for idx, spline in enumerate(sp)
+        ]
 
 
 class EnergyTrend:
