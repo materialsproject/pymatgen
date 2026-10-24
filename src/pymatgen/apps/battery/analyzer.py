@@ -41,8 +41,7 @@ class BatteryAnalyzer:
         self.oxi_override = oxi_override or {}
         self.comp = self.struct_oxid.composition  # shortcut for later
 
-        if not isinstance(working_ion, Element):
-            self.working_ion = Element(working_ion)
+        self.working_ion = working_ion if isinstance(working_ion, Element) else Element(working_ion)
         if self.working_ion.symbol in self.oxi_override:
             self.working_ion_charge = self.oxi_override[self.working_ion.symbol]
         elif self.working_ion.symbol in [
