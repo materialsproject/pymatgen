@@ -451,7 +451,6 @@ class NumericalEOS(PolynomialEOS):
             min_poly_order (int): minimum order of the polynomial to be
                 considered for fitting.
         """
-        warnings.simplefilter("ignore", RankWarning)  # noqa: NPY201
 
         def get_rms(x, y):
             return np.sqrt(np.sum((np.array(x) - np.array(y)) ** 2) / len(x))
@@ -477,6 +476,8 @@ class NumericalEOS(PolynomialEOS):
         e_v = sorted(e_v, key=lambda x: x[1])
         # index of minimum energy tuple in the volume sorted list
         e_min_idx = e_v.index(e_min)
+        if e_min_idx in (0, n_data - 1):
+            raise EOSError("The minimum energy lies at the boundary of the input volumes.")
         # the volume lower than the volume corresponding to minimum energy
         v_before = e_v[e_min_idx - 1][1]
         # the volume higher than the volume corresponding to minimum energy
@@ -490,7 +491,9 @@ class NumericalEOS(PolynomialEOS):
             volumes = [ei[1] for ei in e_v_work]
             # loop over polynomial order
             for idx in range(min_poly_order, max_poly_order + 1):
-                coeffs = np.polyfit(volumes, energies, idx)
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", RankWarning)  # noqa: NPY201
+                    coeffs = np.polyfit(volumes, energies, idx)
                 polyder = np.polyder(coeffs)
                 a = np.poly1d(polyder)(v_before)
                 b = np.poly1d(polyder)(v_after)
@@ -507,6 +510,8 @@ class NumericalEOS(PolynomialEOS):
             n_data_fit = len(e_v_work)
 
         logger.info(f"total number of polynomials: {len(all_coeffs)}")
+        if not all_coeffs:
+            raise EOSError("No polynomial fit with a minimum bracketed by the data. Provide more data points.")
 
         norm = 0.0
         fit_poly_order = n_data
