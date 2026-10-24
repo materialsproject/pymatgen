@@ -456,7 +456,9 @@ class StructureEnvironments(MSONable):
 
         if additional_conditions is None:
             additional_conditions = self.AC.ALL
-        if (self.AC.ONLY_ACB in additional_conditions or self.AC.ONLY_ACB_AND_NO_E2SEB) and valences is None:
+        if (
+            self.AC.ONLY_ACB in additional_conditions or self.AC.ONLY_ACB_AND_NO_E2SEB in additional_conditions
+        ) and valences is None:
             raise ChemenvError(
                 "StructureEnvironments",
                 "init_neighbors_sets",
@@ -1772,9 +1774,9 @@ class LightStructureEnvironments(MSONable):
         element = specie.symbol
         oxi_state = specie.oxi_state
         for site_idx, site in enumerate(self.structure):
-            if (
-                element in [sp.symbol for sp in site.species] and self.valences == "undefined"
-            ) or oxi_state == self.valences[site_idx]:
+            if element in [sp.symbol for sp in site.species] and (
+                self.valences == "undefined" or oxi_state == self.valences[site_idx]
+            ):
                 if self.coordination_environments[site_idx] is None:
                     continue
                 for ce_dict in self.coordination_environments[site_idx]:
@@ -1866,7 +1868,7 @@ class LightStructureEnvironments(MSONable):
                 if ce[target] > condition["maxvalue"]:
                     return False
             elif target == "number_of_ces":
-                if ce[target] > condition["maxnumber"]:
+                if len(self.coordination_environments[isite]) > condition["maxnumber"]:
                     return False
             else:
                 raise ValueError(f"Target {target!r} for condition of clear environment is not allowed")
