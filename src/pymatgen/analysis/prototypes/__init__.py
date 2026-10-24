@@ -224,7 +224,10 @@ def get_protostructure_label_from_aflow(
             WYCKOFF_MULTIPLICITY_DICT,
         )
 
-    element_wyckoffs = "_".join(element_wyckoffs)
+    # canonicalize_element_wyckoffs expects explicit counts (e.g. "1a" not "a")
+    element_wyckoffs = "_".join(
+        re.sub(RE_WYCKOFF_NO_PREFIX, RE_SUBST_ONE_PREFIX, wyk_letters) for wyk_letters in element_wyckoffs
+    )
     element_wyckoffs = canonicalize_element_wyckoffs(element_wyckoffs, spg_num)
 
     protostructure_label = f"{prototype_form}_{pearson_symbol}_{spg_num}_{element_wyckoffs}:{chemsys}"
@@ -771,7 +774,8 @@ def get_protostructures_from_aflow_label_and_composition(aflow_label: str, compo
     """
     anonymous_formula, pearson_symbol, spg_num, *element_wyckoffs = aflow_label.split("_")
 
-    ele_amt_dict = composition.get_el_amt_dict()
+    # compare in reduced form, as anonymous formulas of AFLOW labels are reduced
+    ele_amt_dict = composition.element_composition.reduced_composition.get_el_amt_dict()
     proto_formula = get_prototype_formula_from_composition(composition)
     anom_amt_dict = _get_anonymous_formula_dict(anonymous_formula)
 
