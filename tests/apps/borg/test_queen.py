@@ -31,7 +31,7 @@ def run_tree(tmp_path):
         (tmp_path / sub).mkdir(parents=True)
         shutil.copy(src, tmp_path / sub / "vasprun.xml.gz")
     (tmp_path / "bad").mkdir()
-    with gzip.open(tmp_path / "bad" / "vasprun.xml.gz", "wt") as file:
+    with gzip.open(tmp_path / "bad" / "vasprun.xml.gz", "wt", encoding="utf-8") as file:
         file.write("<modeling><not valid xml")
     return tmp_path
 
@@ -70,7 +70,7 @@ class TestBorgQueen:
         path = tmp_path / filename
         queen.save_data(path)
         if filename.endswith(".gz"):
-            with gzip.open(path, "rt") as file:
+            with gzip.open(path, "rt", encoding="utf-8") as file:
                 assert "ComputedEntry" in file.read()
 
         new_queen = BorgQueen(VaspToComputedEntryDrone())
