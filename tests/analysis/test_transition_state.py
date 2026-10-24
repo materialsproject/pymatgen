@@ -159,16 +159,12 @@ class TestNEBAnalysisExtra:
         with pytest.raises(ValueError, match="# of Outcars must be same as # of Structures"):
             NEBAnalysis.from_outcars(outcars, neb1.structures[:-1])
 
-    def test_spline_options_deprecated(self, neb1):
-        with pytest.warns(DeprecationWarning, match="spline_options"):
-            neb = NEBAnalysis(
-                neb1.r, neb1.energies, neb1.forces, neb1.structures, spline_options={"saddle_point": "zero_slope"}
-            )
+    def test_setup_spline_toggles_saddle_mode(self, neb1):
+        neb = NEBAnalysis(neb1.r, neb1.energies, neb1.forces, neb1.structures, zero_slope_saddle=True)
         assert neb.zero_slope_saddle
         assert_allclose(neb.get_extrema()[1][0], (0.50023335723480078, 325.20003984140203))
 
-        with pytest.warns(DeprecationWarning, match="spline_options"):
-            neb.setup_spline(spline_options={})
+        neb.setup_spline()
         assert neb.zero_slope_saddle is False
         assert_allclose(neb.get_extrema()[1][0], (0.50023335723480078, 325.20043063935128))
 
