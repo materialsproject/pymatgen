@@ -127,7 +127,7 @@ def group_entries_by_structure(
     if ncpus:
         symm_entries = defaultdict(list)
         for entry, host in entries_host:
-            symm_entries[comparator.get_structure_hash(host)].append((entry, host))
+            symm_entries[comparator.get_hash(host.composition)].append((entry, host))
 
         logger.info(f"Using {ncpus} cpus")
         manager = mp.Manager()

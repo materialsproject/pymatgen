@@ -223,7 +223,7 @@ class CorrectionCalculator:
                     else:
                         try:
                             coeff.append(comp[specie])
-                        except ValueError:
+                        except (KeyError, ValueError):
                             raise ValueError(f"We can't detect this {specie=} in {name=}")
 
                 self.names.append(name)
@@ -331,7 +331,7 @@ class CorrectionCalculator:
                 compounds = self.oxides
             elif specie == "peroxide":
                 compounds = self.peroxides
-            elif specie == "superoxides":
+            elif specie == "superoxide":
                 compounds = self.superoxides
             else:
                 compounds = self.sulfides

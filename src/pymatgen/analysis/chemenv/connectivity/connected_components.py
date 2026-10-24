@@ -38,18 +38,18 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
     for n in env_graph:
         c = Circle(pos[n], radius=0.02, alpha=0.5)
         ax.add_patch(c)
-        env_graph.node[n]["patch"] = c
+        env_graph.nodes[n]["patch"] = c
         _x, _y = pos[n]
         ax.annotate(str(n), pos[n], ha="center", va="center", xycoords="data")
     seen = {}
     e = None
     for u, v, d in env_graph.edges(data=True):
-        n1 = env_graph.node[u]["patch"]
-        n2 = env_graph.node[v]["patch"]
+        n1 = env_graph.nodes[u]["patch"]
+        n2 = env_graph.nodes[v]["patch"]
         rad = 0.1
         if (u, v) in seen:
             rad = seen.get((u, v))
-            rad = (rad + np.sign(rad) * 0.1) * -1
+            rad = float((rad + np.sign(rad) * 0.1) * -1)
         alpha = 0.5
         color = "k"
         periodic_color = "r"
@@ -173,28 +173,28 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
                 other_edges.append((n1, n2, key, data))
 
         for imult in range(mult - 1):
-            for n1, n2, key, data in other_edges:
+            for n1, n2, _key, data in other_edges:
                 new_data = dict(data)
                 new_data["start"] = (imult * len(nodes)) + indices_nodes[n1]
                 new_data["end"] = (imult * len(nodes)) + indices_nodes[n2]
-                super_graph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
-            for n1, n2, key, data in connecting_edges:
+                super_graph.add_edge(new_data["start"], new_data["end"], **new_data)
+            for n1, n2, _key, data in connecting_edges:
                 new_data = dict(data)
                 new_data["start"] = (imult * len(nodes)) + indices_nodes[n1]
                 new_data["end"] = np.mod(((imult + 1) * len(nodes)) + indices_nodes[n2], len(nodes) * mult)
                 new_data["delta"] = (0, 0, 0)
-                super_graph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
+                super_graph.add_edge(new_data["start"], new_data["end"], **new_data)
         imult = mult - 1
-        for n1, n2, key, data in other_edges:
+        for n1, n2, _key, data in other_edges:
             new_data = dict(data)
             new_data["start"] = (imult * len(nodes)) + indices_nodes[n1]
             new_data["end"] = (imult * len(nodes)) + indices_nodes[n2]
-            super_graph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
-        for n1, n2, key, data in connecting_edges:
+            super_graph.add_edge(new_data["start"], new_data["end"], **new_data)
+        for n1, n2, _key, data in connecting_edges:
             new_data = dict(data)
             new_data["start"] = (imult * len(nodes)) + indices_nodes[n1]
             new_data["end"] = indices_nodes[n2]
-            super_graph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
+            super_graph.add_edge(new_data["start"], new_data["end"], **new_data)
         return super_graph
 
     raise NotImplementedError("make_supergraph not yet implemented for 2- and 3-periodic graphs")
@@ -491,6 +491,7 @@ class ConnectedComponent(MSONable):
             all_deltas.extend(this_cycle_deltas)
             all_deltas = get_linearly_independent_vectors(all_deltas)
             if len(all_deltas) == 3:
+                self._periodicity_vectors = all_deltas
                 return
         # One has to consider pairs of nodes with parallel edges (these are not considered in the simple graph cycles)
         edges = simple_graph.edges()

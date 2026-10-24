@@ -50,7 +50,7 @@ class ConnectivityFinder:
         structure_connectivity.add_sites()
         for site_idx, _site in enumerate(light_structure_environments.structure):
             site_neighbors_sets = light_structure_environments.neighbors_sets[site_idx]
-            if site_neighbors_sets is None:
+            if not site_neighbors_sets:
                 continue
             if len(site_neighbors_sets) > 1:
                 if self.multiple_environments_choice is None:

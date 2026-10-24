@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import copy
 
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import orjson
@@ -17,6 +19,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
     LightStructureEnvironments,
     StructureEnvironments,
 )
+from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
@@ -24,6 +27,8 @@ from pymatgen.util.testing import MatSciTest
 from tests.testing import TEST_FILES_DIR
 
 __author__ = "waroquiers"
+
+mpl.use("Agg")
 
 
 class TestConnectedComponent(MatSciTest):
@@ -891,3 +896,258 @@ Node #3 Li (O:6), connected to :
             3: {"O:6": 128, "C:12": 170},
             4: {"O:6": 248, "C:12": 306},
         }
+
+
+SE_DIR = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments"
+
+
+def _structure_connectivity(fname: str):
+    with open(f"{SE_DIR}/{fname}", "rb") as file:
+        struct_envs = StructureEnvironments.from_dict(orjson.loads(file.read()))
+    lse = LightStructureEnvironments.from_structure_environments(
+        strategy=SimplestChemenvStrategy(), structure_environments=struct_envs
+    )
+    return ConnectivityFinder().get_structure_connectivity(light_structure_environments=lse)
+
+
+@pytest.fixture(scope="module")
+def BaTiO3_sc():
+    return _structure_connectivity("se_mp-5020.json")
+
+
+@pytest.fixture(scope="module")
+def K2NaNb2Fe7Si8H4O31_sc():
+    return _structure_connectivity("se_mp-743972.json")
+
+
+def _chain_graph():
+    """Infinite 1D chain A-B-A-B... along a: A-B in the cell, B-A across the cell boundary."""
+    lattice = Lattice.cubic(4.0)
+    node_a = EnvironmentNode(PeriodicSite("Si", [0.0, 0.0, 0.0], lattice), i_central_site=0, ce_symbol="T:4")
+    node_b = EnvironmentNode(PeriodicSite("Si", [0.5, 0.0, 0.0], lattice), i_central_site=1, ce_symbol="T:4")
+    graph = nx.MultiGraph()
+    graph.add_nodes_from([node_a, node_b])
+    graph.add_edge(node_a, node_b, start=0, end=1, delta=(0, 0, 0), ligands=[])
+    graph.add_edge(node_a, node_b, start=1, end=0, delta=(1, 0, 0), ligands=[])
+    return graph, node_a, node_b
+
+
+class TestConnectedComponentMethods(MatSciTest):
+    def test_init_errors_and_links_data(self):
+        with pytest.raises(ChemenvError, match="Trying to add edge with some unexistent node"):
+            ConnectedComponent(environments=["a", "b"], links=[("a", "z")])
+
+        cc = ConnectedComponent(
+            environments=["a", "b", "c"],
+            links=[("a", "b", 0), ("b", "c", 0), ("a", "c")],
+            links_data={("b", "a", 0): {"info": 1}, ("c", "b"): {"info": 2}},
+        )
+        assert sorted(cc.graph.nodes()) == ["a", "b", "c"]
+        assert cc.graph["a"]["b"][0] == {"info": 1}
+        assert cc.graph["b"]["c"][0] == {"info": 2}
+        assert cc.graph["a"]["c"][0] == {}
+
+    def test_edgedictkey_to_edgekey(self):
+        assert ConnectedComponent._edgedictkey_to_edgekey(4) == 4
+        assert ConnectedComponent._edgedictkey_to_edgekey("4") == 4
+        assert ConnectedComponent._edgedictkey_to_edgekey("some-key") == "some-key"
+        with pytest.raises(TypeError, match="Edge key in a dict of dicts representation"):
+            ConnectedComponent._edgedictkey_to_edgekey(0.5)
+
+    def test_order_periodicity_vectors(self):
+        vectors = [np.array([1, 1, 0]), np.array([0, -1, 1]), np.array([0, 1, 1])]
+        ordered = ConnectedComponent._order_vectors(vectors)
+        assert [vec.tolist() for vec in ordered] == [[0, 1, -1], [0, 1, 1], [1, 1, 0]]
+
+        cc = ConnectedComponent(graph=_chain_graph()[0])
+        cc._periodicity_vectors = [np.array(vec) for vec in np.eye(4, 3, dtype=int)]
+        with pytest.raises(ValueError, match="Number of periodicity vectors is larger than 3"):
+            cc._order_periodicity_vectors()
+
+    def test_coordination_sequence_errors(self):
+        graph, node_a, _node_b = _chain_graph()
+        cc = ConnectedComponent(graph=graph)
+        # Infinite chain: always 2 new neighbors per shell
+        assert cc.coordination_sequence(node_a, path_size=3) == {1: 2, 2: 2, 3: 2}
+        assert cc.coordination_sequence(node_a, path_size=2, coordination="env:number", include_source=True) == {
+            0: {"T:4": 1},
+            1: {"T:4": 2},
+            2: {"T:4": 2},
+        }
+        other_node = EnvironmentNode(central_site="Fe", i_central_site=7, ce_symbol="O:6")
+        with pytest.raises(ValueError, match="Node not in Connected Component"):
+            cc.coordination_sequence(other_node)
+        for include_source in (True, False):
+            with pytest.raises(ValueError, match="Coordination type 'wrong' is not valid"):
+                cc.coordination_sequence(node_a, coordination="wrong", include_source=include_source)
+
+    def test_compute_periodicity_invalid_algorithm(self):
+        cc = ConnectedComponent(graph=_chain_graph()[0])
+        with pytest.raises(ValueError, match="algorithm='wrong' is not allowed to compute periodicity"):
+            cc.compute_periodicity(algorithm="wrong")
+
+    @pytest.mark.parametrize(
+        ("fname", "envs", "periodicity", "pvecs_simple_paths", "pvecs_cycle_basis"),
+        [
+            ("se_mp-5020.json", ["O:6"], "3D", [[0, 0, 1], [0, 1, 0], [1, 0, 0]], [[0, 0, 1], [0, 1, 0], [1, 0, 0]]),
+            (
+                "se_mp-5020.json",
+                ["O:6", "C:12"],
+                "3D",
+                [[0, 0, 1], [0, 1, 0], [1, 0, 0]],
+                [[0, 0, 1], [0, 1, 0], [1, 0, 0]],
+            ),
+            (
+                "se_mp-7000.json",
+                ["T:4"],
+                "3D",
+                [[0, 0, 1], [0, 1, -1], [1, 0, 0]],
+                [[0, 1, -1], [1, 0, 1], [1, 1, -1]],
+            ),
+            ("se_mp-743972.json", ["BS_1:10"], "1D", [[1, 0, 0]], [[1, 0, 0]]),
+            ("se_mp-743972.json", ["T:4"], "1D", [[1, 0, 0]], [[1, 0, 0]]),
+        ],
+    )
+    def test_compute_periodicity_algorithms(self, fname, envs, periodicity, pvecs_simple_paths, pvecs_cycle_basis):
+        sc = _structure_connectivity(fname)
+        ccs = sc.get_connected_components(environments_symbols=envs)
+        for cc in ccs:
+            cc.compute_periodicity(algorithm="all_simple_paths")
+            assert cc.periodicity == periodicity
+            assert [vec.tolist() for vec in cc.periodicity_vectors] == pvecs_simple_paths
+            cc_cb = ConnectedComponent(graph=cc.graph)
+            cc_cb.compute_periodicity(algorithm="cycle_basis")
+            assert cc_cb.periodicity == periodicity
+            assert [vec.tolist() for vec in cc_cb.periodicity_vectors] == pvecs_cycle_basis
+
+    def test_compute_periodicity_cycle_basis_parallel_edges(self):
+        # Two nodes linked by parallel edges only (no cycle in the simple graph)
+        graph, node_a, node_b = _chain_graph()
+        cc = ConnectedComponent(graph=graph)
+        cc.compute_periodicity(algorithm="cycle_basis")
+        assert cc.periodicity == "1D"
+        assert [vec.tolist() for vec in cc.periodicity_vectors] == [[1, 0, 0]]
+
+        # Add more parallel edges along b and c to get a 3D net
+        graph.add_edge(node_a, node_b, start=0, end=1, delta=(0, 1, 0), ligands=[])
+        graph.add_edge(node_a, node_b, start=0, end=1, delta=(0, 0, 1), ligands=[])
+        cc = ConnectedComponent(graph=graph)
+        cc.compute_periodicity(algorithm="cycle_basis")
+        assert cc.is_3d
+        assert [vec.tolist() for vec in cc.periodicity_vectors] == [[0, 0, 1], [0, 1, 0], [1, 0, 0]]
+
+    def test_elastic_centered_graph(self, K2NaNb2Fe7Si8H4O31_sc):
+        ccs = K2NaNb2Fe7Si8H4O31_sc.get_connected_components(environments_symbols=["T:4"])
+        assert len(ccs) == 2
+        for cc in ccs:
+            original_deltas = sorted(tuple(data["delta"]) for *_, data in cc.graph.edges(data=True))
+            centered = cc.elastic_centered_graph()
+            assert set(centered.nodes()) == set(cc.graph.nodes())
+            assert centered.number_of_edges() == cc.graph.number_of_edges() == 4
+            deltas = sorted(tuple(int(abs(dd)) for dd in data["delta"]) for *_, data in centered.edges(data=True))
+            # 4 tetrahedra forming a chain: 3 links inside the cell and one link to the next cell along a
+            assert deltas == [(0, 0, 0), (0, 0, 0), (0, 0, 0), (1, 0, 0)]
+            # The original graph is not modified
+            assert sorted(tuple(data["delta"]) for *_, data in cc.graph.edges(data=True)) == original_deltas
+            # In the input graph, more than one link crosses the cell boundary
+            assert sum(delta != (0, 0, 0) for delta in original_deltas) > 1
+
+    def test_elastic_centered_graph_errors(self):
+        graph, node_a, node_b = _chain_graph()
+        graph.add_edge(node_a, node_b, start=0, end=1, delta=(0, 0, 0), ligands=[])
+        with pytest.raises(ValueError, match="Should not have more than one 000 delta"):
+            ConnectedComponent(graph=graph).elastic_centered_graph()
+
+        graph = nx.MultiGraph()
+        graph.add_nodes_from([node_a, node_b])
+        with pytest.raises(RuntimeError, match="Could not find a centered graph"):
+            ConnectedComponent(graph=graph).elastic_centered_graph()
+
+    @pytest.mark.parametrize(
+        ("multiplicity", "expected_edges"),
+        [
+            (1, [(0, 0, (1, 0, 0))]),
+            (2, [(0, 1, (0, 0, 0)), (1, 0, (1, 0, 0))]),
+            (3, [(0, 1, (0, 0, 0)), (1, 2, (0, 0, 0)), (2, 0, (1, 0, 0))]),
+            ([3], [(0, 1, (0, 0, 0)), (1, 2, (0, 0, 0)), (2, 0, (1, 0, 0))]),
+        ],
+    )
+    def test_make_supergraph(self, K2NaNb2Fe7Si8H4O31_sc, multiplicity, expected_edges):
+        # Single BS_1:10 environment linked to its own image along a (1D chain)
+        ccs = K2NaNb2Fe7Si8H4O31_sc.get_connected_components(environments_symbols=["BS_1:10"])
+        assert len(ccs) == 1
+        cc = ccs[0]
+        assert cc.periodicity == "1D"
+        super_graph = cc.make_supergraph(multiplicity)
+        mult = multiplicity if isinstance(multiplicity, int) else multiplicity[0]
+        assert super_graph.number_of_nodes() == mult
+        edges = sorted(
+            (int(data["start"]), int(data["end"]), tuple(int(dd) for dd in data["delta"]))
+            for *_, data in super_graph.edges(data=True)
+        )
+        assert edges == expected_edges
+        for *_, data in super_graph.edges(data=True):
+            assert len(data["ligands"]) == 1
+
+    @pytest.mark.parametrize("sign", [1, -1])
+    @pytest.mark.parametrize("multiplicity", [2, 3])
+    def test_make_supergraph_chain(self, sign, multiplicity):
+        # A-B chain: the periodic link may be stored with either orientation of its delta image
+        graph, node_a, node_b = _chain_graph()
+        graph.remove_edge(node_a, node_b, key=1)
+        graph.add_edge(node_a, node_b, start=0, end=1, delta=(-sign, 0, 0), ligands=[])
+        cc = ConnectedComponent(graph=graph)
+        assert [vec.tolist() for vec in cc.periodicity_vectors] == [[1, 0, 0]]
+        super_graph = cc.make_supergraph(multiplicity)
+        # The supergraph is a closed ring of 2 * multiplicity environments
+        assert super_graph.number_of_nodes() == 2 * multiplicity
+        assert super_graph.number_of_edges() == 2 * multiplicity
+        assert nx.is_connected(super_graph)
+        assert all(degree == 2 for _, degree in super_graph.degree())
+        n_periodic = sum(any(data["delta"]) for *_, data in super_graph.edges(data=True))
+        assert n_periodic == 1
+
+    @pytest.mark.parametrize("prop", ["is_0d", "is_1d", "is_2d", "is_3d", "periodicity_vectors", "periodicity"])
+    def test_lazy_periodicity(self, prop):
+        cc = ConnectedComponent(graph=_chain_graph()[0])
+        assert cc._periodicity_vectors is None
+        expected = {
+            "is_0d": False,
+            "is_1d": True,
+            "is_2d": False,
+            "is_3d": False,
+            "periodicity": "1D",
+        }
+        value = getattr(cc, prop)
+        if prop == "periodicity_vectors":
+            assert [vec.tolist() for vec in value] == [[1, 0, 0]]
+        else:
+            assert value == expected[prop]
+        assert cc._periodicity_vectors is not None
+
+    def test_make_supergraph_not_implemented(self, BaTiO3_sc):
+        cc = BaTiO3_sc.get_connected_components(environments_symbols=["O:6"])[0]
+        with pytest.raises(NotImplementedError, match="make_supergraph not yet implemented"):
+            cc.make_supergraph([2, 2])
+
+    @pytest.mark.parametrize(
+        ("fname", "envs"),
+        [("se_mp-5020.json", ["O:6", "C:12"]), ("se_mp-743972.json", ["T:4"]), ("se_mp-743972.json", ["BS_1:10"])],
+    )
+    def test_show_graph(self, fname, envs, tmp_path):
+        cc = _structure_connectivity(fname).get_connected_components(environments_symbols=envs)[0]
+        _ = cc.periodicity  # Periodicity vectors are used to highlight periodic links in 1D components
+        graph = copy.deepcopy(cc.graph)
+        save_file = tmp_path / "graph.png"
+        with np.errstate(invalid="ignore"):  # Self-loops have zero-length arcs
+            cc.show_graph(graph=graph, save_file=str(save_file))
+        assert save_file.is_file()
+        ax = plt.gca()
+        # One circle per node and one arrow per edge
+        assert len(ax.patches) == graph.number_of_nodes() + graph.number_of_edges()
+        assert all("patch" in data for _, data in graph.nodes(data=True))
+        plt.close("all")
+
+        cc.show_graph(graph=nx.MultiGraph(cc.graph), drawing_type="draw_random")
+        assert len(plt.gca().collections) > 0
+        plt.close("all")
