@@ -1,10 +1,25 @@
 from __future__ import annotations
 
+import warnings
+
+import matplotlib.pyplot as plt
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
-from pymatgen.analysis.eos import EOS, NumericalEOS
+from pymatgen.analysis.eos import (
+    EOS,
+    Birch,
+    BirchMurnaghan,
+    EOSBase,
+    EOSError,
+    Murnaghan,
+    NumericalEOS,
+    PolynomialEOS,
+    PourierTarantola,
+    Vinet,
+)
 from pymatgen.util.testing import MatSciTest
 
 
@@ -462,3 +477,202 @@ class TestEOS(MatSciTest):
             "b1": self.num_eos_fit.b1,
             "v0": self.num_eos_fit.v0,
         }
+
+
+# Reference parameters (e0 [eV], b0 [eV/Ang^3], b1, v0 [Ang^3]) used to generate synthetic E(V) data.
+REF_PARAMS = (-10.0, 0.6, 4.5, 40.0)
+REF_RESULTS = dict(zip(("e0", "b0", "b1", "v0"), REF_PARAMS, strict=True))
+REF_VOLUMES = np.linspace(34, 47, 21)
+
+# deltafactor is a cubic in V^(-2/3), i.e. exactly a 3rd order Birch-Murnaghan EOS.
+EXACT_MODELS = {
+    "murnaghan": Murnaghan,
+    "birch": Birch,
+    "birch_murnaghan": BirchMurnaghan,
+    "pourier_tarantola": PourierTarantola,
+    "vinet": Vinet,
+    "deltafactor": BirchMurnaghan,
+}
+
+
+def _synthetic_energies(model: type[EOSBase], volumes=REF_VOLUMES, params=REF_PARAMS) -> np.ndarray:
+    volumes = np.asarray(volumes)
+    return model(volumes, volumes)._func(volumes, params)
+
+
+@pytest.mark.parametrize(("eos_name", "generator"), EXACT_MODELS.items())
+def test_fit_recovers_known_parameters(eos_name, generator):
+    energies = _synthetic_energies(generator)
+    fit = EOS(eos_name=eos_name).fit(REF_VOLUMES, energies)
+
+    assert isinstance(fit, EOS.MODELS[eos_name])
+    assert fit.results == approx(REF_RESULTS, rel=1e-6)
+    # 1 eV/Ang^3 = 160.21766208 GPa
+    assert float(fit.b0_GPa) == approx(REF_PARAMS[1] * 160.21766208, rel=1e-6)
+    assert str(fit.b0_GPa.unit) == "GPa"
+    assert_allclose(fit(REF_VOLUMES), energies, atol=1e-8)
+    assert fit.func(REF_PARAMS[3]) == approx(REF_PARAMS[0], abs=1e-8)
+
+
+def test_numerical_eos_recovers_known_parameters():
+    energies = _synthetic_energies(BirchMurnaghan)
+    fit = EOS(eos_name="numerical_eos").fit(REF_VOLUMES, energies)
+    assert isinstance(fit, NumericalEOS)
+    # the weighted-average polynomial is padded to n_data coefficients
+    assert len(fit.eos_params) == len(REF_VOLUMES)
+    assert fit.results == approx(REF_RESULTS, rel=1e-3)
+    assert_allclose(fit(REF_VOLUMES), energies, atol=1e-6)
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"min_ndata_factor": 1},
+        {"min_ndata_factor": 6, "max_poly_order_factor": 8},
+        {"max_poly_order_factor": 2},
+        {"min_poly_order": 3},
+    ],
+)
+def test_numerical_eos_fit_options(kwargs):
+    fit = NumericalEOS(REF_VOLUMES, _synthetic_energies(BirchMurnaghan))
+    fit.fit(**kwargs)
+    assert fit.results == approx(REF_RESULTS, rel=1e-3)
+
+
+def test_numerical_eos_quadratic_only():
+    # 7 points with the default factors: only quadratic polynomials are candidates,
+    # for which b1 = -V0 * dB/dV / B0 = -1 exactly.
+    volumes = np.linspace(36, 44, 7)
+    fit = NumericalEOS(volumes, _synthetic_energies(BirchMurnaghan, volumes))
+    fit.fit()
+    assert fit.b1 == approx(-1)
+    assert fit.v0 == approx(40, abs=0.5)
+
+
+def test_numerical_eos_does_not_leak_warning_filters():
+    filters_before = list(warnings.filters)
+    NumericalEOS(REF_VOLUMES, _synthetic_energies(BirchMurnaghan)).fit()
+    assert warnings.filters == filters_before
+
+
+@pytest.mark.parametrize(
+    ("volumes", "match"),
+    [
+        (np.linspace(36, 44, 5), "No polynomial fit"),
+        (np.linspace(36, 44, 6), "No polynomial fit"),
+        (np.linspace(40, 50, 11), "boundary"),
+        (np.linspace(30, 40, 11), "boundary"),
+    ],
+)
+def test_numerical_eos_errors(volumes, match):
+    fit = NumericalEOS(volumes, _synthetic_energies(BirchMurnaghan, volumes))
+    with pytest.raises(EOSError, match=match):
+        fit.fit()
+
+
+def test_polynomial_eos_fit():
+    energies = 0.01 * (REF_VOLUMES - 40.0) ** 2 - 5.0
+    fit = PolynomialEOS(REF_VOLUMES, energies)
+    fit.fit(order=2)
+    assert_allclose(fit.eos_params, [0.01, -0.8, 11.0], atol=1e-10)
+    # B0 = V0 * d2E/dV2 = 40 * 0.02; b1 of a parabola is exactly -1
+    assert fit.results == approx({"e0": -5.0, "b0": 0.8, "b1": -1.0, "v0": 40.0}, rel=1e-6)
+
+
+def test_deltafactor_no_minimum():
+    x = REF_VOLUMES ** (-2 / 3)
+    x_mid = x.mean()
+    # E(x) = -(x^3 - 3 x_mid^2 x) has its maximum at x_mid and its minimum at -x_mid < 0
+    with pytest.raises(EOSError, match="No minimum could be found"):
+        EOS(eos_name="deltafactor").fit(REF_VOLUMES, -(x**3 - 3 * x_mid**2 * x))
+
+
+def test_initial_guess_minimum_below_volume_range():
+    volumes = np.linspace(42, 50, 9)
+    with pytest.raises(EOSError, match="minimum volume of a fitted parabola"):
+        EOS(eos_name="vinet").fit(volumes, _synthetic_energies(Vinet, volumes))
+
+
+def test_initial_guess_minimum_above_volume_range():
+    volumes = np.linspace(30, 38, 9)
+    with pytest.raises(EOSError, match="minimum volume of a fitted parabola"):
+        EOS(eos_name="vinet").fit(volumes, _synthetic_energies(Vinet, volumes))
+
+
+def test_leastsq_failure(monkeypatch):
+    energies = _synthetic_energies(Vinet)
+    # ier=5: maximum number of function evaluations exceeded
+    monkeypatch.setattr("pymatgen.analysis.eos.leastsq", lambda *args, **kwargs: (np.array(REF_PARAMS), 5))
+    with pytest.raises(EOSError, match="Optimal parameters not found"):
+        EOS(eos_name="vinet").fit(REF_VOLUMES, energies)
+
+
+@pytest.mark.parametrize("attr", ["e0", "b0", "b0_GPa"])
+def test_params_before_fit(attr):
+    eos = Vinet(REF_VOLUMES, _synthetic_energies(Vinet))
+    with pytest.raises(RuntimeError, match="params have not be initialized"):
+        getattr(eos, attr)
+
+
+def test_invalid_eos_name():
+    with pytest.raises(EOSError, match="'foo' is not supported"):
+        EOS(eos_name="foo")
+
+
+@pytest.fixture
+def vinet_fit():
+    return EOS(eos_name="vinet").fit(REF_VOLUMES, _synthetic_energies(Vinet))
+
+
+def test_plot(vinet_fit):
+    ax = vinet_fit.plot(width=6, height=4, dpi=50)
+    try:
+        assert ax.get_xlabel() == "Volume $\\AA^3$"
+        assert ax.get_ylabel() == "Energy (eV)"
+        data_line, fit_line = ax.get_lines()
+        assert_allclose(data_line.get_xdata(), REF_VOLUMES)
+        assert_allclose(data_line.get_ydata(), vinet_fit.energies)
+        assert data_line.get_marker() == "o"
+        assert fit_line.get_label() == "Vinet fit"
+        assert fit_line.get_linestyle() == "--"
+        assert fit_line.get_color() == "r"
+        v_fit = fit_line.get_xdata()
+        assert len(v_fit) == 100
+        assert v_fit[0] == approx(34 * 0.99)
+        assert v_fit[-1] == approx(47 * 1.01)
+        assert_allclose(fit_line.get_ydata(), vinet_fit.func(v_fit))
+        text = ax.texts[0].get_text()
+        assert "Equation of State: Vinet" in text
+        assert "Minimum energy = -10.00 eV" in text
+        assert "Minimum or reference volume = 40.00 Ang^3" in text
+        assert "Bulk modulus = 0.60 eV/Ang^3 = 96.13 GPa" in text
+        assert "Derivative of bulk modulus w.r.t. pressure = 4.50" in text
+    finally:
+        plt.close(ax.figure)
+
+
+def test_plot_custom_kwargs(vinet_fit):
+    fig, ax = plt.subplots()
+    try:
+        assert vinet_fit.plot(ax=ax, color="b", label="my fit", text="custom text") is ax
+        assert [line.get_color() for line in ax.get_lines()] == ["b", "b"]
+        assert ax.get_lines()[1].get_label() == "my fit"
+        assert ax.texts[0].get_text() == "custom text"
+    finally:
+        plt.close(fig)
+
+
+def test_plot_ax(vinet_fit):
+    fig_in, ax = plt.subplots()
+    try:
+        fig = vinet_fit.plot_ax(ax=ax, fontsize=9, show=False, color="g", label="vinet")
+        assert fig is fig_in
+        data_line, fit_line = ax.get_lines()
+        assert_allclose(data_line.get_xdata(), REF_VOLUMES)
+        assert fit_line.get_label() == "vinet"
+        assert fit_line.get_color() == "g"
+        assert_allclose(fit_line.get_ydata(), vinet_fit.func(fit_line.get_xdata()))
+        assert ax.texts[0].get_fontsize() == 9
+        assert "Bulk modulus = 0.60 eV/Ang^3" in ax.texts[0].get_text()
+    finally:
+        plt.close(fig_in)
