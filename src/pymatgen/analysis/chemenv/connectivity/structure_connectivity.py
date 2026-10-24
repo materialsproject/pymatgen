@@ -193,7 +193,7 @@ class StructureConnectivity(MSONable):
                     # TODO add the possibility of a "constraint" on the minimum percentage
                     # of the atoms on the site
                     this_site_elements = [
-                        sp.symbol for sp in self.light_structure_environments.structure[site_idx].species_and_occu
+                        sp.symbol for sp in self.light_structure_environments.structure[site_idx].species
                     ]
                     for elem_symbol in this_site_elements:
                         if elem_symbol in only_atoms:
