@@ -20,7 +20,7 @@ from scipy.constants import physical_constants
 from scipy.integrate import quad
 from scipy.optimize import minimize
 
-from pymatgen.analysis.eos import EOS, PolynomialEOS
+from pymatgen.analysis.eos import EOS, DeltaFactor, PolynomialEOS
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.due import Doi, due
 
@@ -286,8 +286,9 @@ class QuasiHarmonicDebyeApprox:
         Returns:
             float: unitless
         """
-        if isinstance(self.eos, PolynomialEOS):
-            p = np.poly1d(self.eos.eos_params)
+        # DeltaFactor polynomials are in V^(-2/3), not V, so they take the finite-difference path
+        if isinstance(self.ev_eos_fit, PolynomialEOS) and not isinstance(self.ev_eos_fit, DeltaFactor):
+            p = np.poly1d(self.ev_eos_fit.eos_params)
             # first derivative of energy at 0K w.r.t. volume evaluated at the
             # given volume, in eV/Ang^3
             dEdV = np.polyder(p, 1)(volume)

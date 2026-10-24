@@ -593,11 +593,6 @@ def test_initial_guess_minimum_below_volume_range():
         EOS(eos_name="vinet").fit(volumes, _synthetic_energies(Vinet, volumes))
 
 
-@pytest.mark.xfail(
-    reason="EOSBase._initial_guess checks `not vmin < v0 and v0 < vmax`, which never raises when the "
-    "parabola minimum lies above the largest input volume.",
-    strict=True,
-)
 def test_initial_guess_minimum_above_volume_range():
     volumes = np.linspace(30, 38, 9)
     with pytest.raises(EOSError, match="minimum volume of a fitted parabola"):

@@ -89,7 +89,7 @@ class EOSBase(ABC):
 
         vol_min, vol_max = min(self.volumes), max(self.volumes)
 
-        if not vol_min < v0 and v0 < vol_max:
+        if not vol_min < v0 < vol_max:
             raise EOSError("The minimum volume of a fitted parabola is not in the input volumes.")
 
         return e0, b0, b1, v0

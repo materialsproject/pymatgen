@@ -354,12 +354,6 @@ def test_eos_options(eos, generator):
     assert v0 < qhda.optimum_volumes[0] < 1.01 * v0
 
 
-@pytest.mark.xfail(
-    reason="gruneisen_parameter checks isinstance(self.eos, PolynomialEOS), but self.eos is the EOS wrapper, "
-    "so the analytic polynomial branch is dead and NumericalEOS fits go through finite differences "
-    "(dx=1e-3) of a high-order polynomial, which is dominated by round-off.",
-    strict=True,
-)
 def test_gruneisen_numerical_eos():
     energies = _energies(BirchMurnaghan)
     qhda_num = _qhda(energies, eos="numerical_eos")
