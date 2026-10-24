@@ -652,11 +652,11 @@ class Plane:
         # Initializes the normal vector
         self.normal_vector = np.array([coefficients[0], coefficients[1], coefficients[2]], float)
         norm_v = np.linalg.norm(self.normal_vector)
+        if norm_v == 0.0:
+            raise ValueError("Normal vector is equal to 0.0")
         self.normal_vector /= norm_v
         non_zeros = np.argwhere(~np.isclose(self.normal_vector, 0.0)).flatten()
         zeros = list(set(range(3)) - set(non_zeros))
-        if len(non_zeros) == 0:
-            raise ValueError("Normal vector is equal to 0.0")
         if self.normal_vector[non_zeros[0]] < 0.0:
             self.normal_vector = -self.normal_vector
             dd = -np.float64(coefficients[3]) / norm_v
