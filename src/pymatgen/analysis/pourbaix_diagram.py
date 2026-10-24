@@ -906,7 +906,8 @@ class PourbaixDiagram(MSONable):
         Returns:
             np.array: minimum Pourbaix energy at conditions
         """
-        all_gs = np.array([entry.normalized_energy_at_conditions(pH, V) for entry in self.stable_entries])
+        pH_arr, V_arr = np.asarray(pH), np.asarray(V)
+        all_gs = np.array([entry.normalized_energy_at_conditions(pH_arr, V_arr) for entry in self.stable_entries])
         return np.min(all_gs, axis=0)
 
     def get_stable_entry(self, pH: float, V: float) -> PourbaixEntry | MultiEntry:
@@ -1008,7 +1009,9 @@ class PourbaixPlotter:
             *args: args to get_pourbaix_plot
             **kwargs: kwargs to get_pourbaix_plot
         """
-        plt = self.get_pourbaix_plot(*args, **kwargs)
+        import matplotlib.pyplot as plt
+
+        self.get_pourbaix_plot(*args, **kwargs)
         plt.show()
 
     def get_pourbaix_plot(
