@@ -808,10 +808,6 @@ class DetailedVoronoiContainer(MSONable):
             if len(voronoi_site) != len(other_site):
                 return False
 
-            # Build an index -> neighbor dict for O(1) lookup on the "other" side.
-            # Index should be unique per site; it is compared below anyway.
-            other_by_index = {nb2["index"]: nb2 for nb2 in other_site}
-
             for nb in voronoi_site:
                 if nb is None:
                     # Mirror None handling (shouldn't normally happen once list is non-None)
@@ -819,14 +815,13 @@ class DetailedVoronoiContainer(MSONable):
                         return False
                     continue
 
-                idx = nb["index"]
-                nb_other = other_by_index.get(idx)
-                if nb_other is None:
+                # Match neighbors by site: "index" is not unique, as several periodic images
+                # of the same structure site can be neighbors of a given site.
+                nb_other = next((nb2 for nb2 in other_site if nb2 is not None and nb2["site"] == nb["site"]), None)
+                if nb_other is None or nb_other["index"] != nb["index"]:
                     return False
 
-                # Compare sites and numeric fields with tolerances
-                if nb["site"] != nb_other["site"]:
-                    return False
+                # Compare numeric fields with tolerances
 
                 if not np.isclose(nb["distance"], nb_other["distance"], rtol=rtol, atol=atol):
                     return False
