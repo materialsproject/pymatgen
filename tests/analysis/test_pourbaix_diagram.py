@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import multiprocessing
+from copy import deepcopy
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -103,6 +104,80 @@ class TestPourbaixEntry(MatSciTest):
         pb_entry = PourbaixEntry(entry)
         assert pb_entry.get_element_fraction("Fe") == approx(0.6)
         assert pb_entry.get_element_fraction("Mn") == approx(0.4)
+
+    def test_energy_terms(self):
+        # Solids have unit activity, so no concentration term
+        assert self.px_sol.concentration == 1
+        assert self.px_sol.conc_term == 0
+        # E = E0 + conc_term - MU_H2O * nH2O with MU_H2O = -2.4583 eV, PREFAC = 0.0591
+        assert self.px_sol.energy == approx(49 + 3 * 2.4583)
+        assert self.px_ion.conc_term == approx(0.0591 * -4)
+        assert self.px_ion.energy == approx(25 - 0.0591 * 4 + 4 * 2.4583)
+        # Normalized by the number of non-H/O atoms (2 Mn in Mn2O3, 1 Mn in MnO4-)
+        assert self.px_sol.normalization_factor == approx(0.5)
+        assert self.px_sol.normalized_energy == approx(self.px_sol.energy / 2)
+        assert self.px_ion.normalized_energy == approx(self.px_ion.energy)
+        assert self.px_sol.energy_per_atom == approx(self.px_sol.energy / 5)
+        assert self.px_sol.num_atoms == 5
+
+    @pytest.mark.parametrize(
+        ("pH", "V"),
+        [(10, 0.5), (np.array([0, 7, 14]), 0.5), (7, np.array([-1, 0, 1])), (np.arange(3), np.arange(3))],
+    )
+    def test_energy_at_conditions(self, pH, V):
+        # Mn2O3: npH = nPhi = -6
+        expected = self.px_sol.energy - 6 * 0.0591 * np.asarray(pH) - 6 * np.asarray(V)
+        assert self.px_sol.energy_at_conditions(pH, V) == approx(expected)
+        assert self.px_sol.normalized_energy_at_conditions(pH, V) == approx(expected / 2)
+
+    def test_names_and_repr(self):
+        assert self.px_sol.name == self.px_sol.to_pretty_string() == "Mn2O3(s)"
+        assert self.px_ion.name == self.px_ion.to_pretty_string() == "MnO4[-1]"
+        assert self.px_sol.phase_type == "Solid"
+        assert self.px_ion.phase_type == "Ion"
+        assert self.px_ion.charge == -1
+        assert {el.symbol for el in self.px_ion.elements} == {"Mn", "O"}
+        assert repr(self.px_sol) == (
+            "PourbaixEntry(Mn2 O3 with energy=56.3749, npH=-6.0, nPhi=-6.0, nH2O=3.0, entry_id=None)"
+        )
+        assert repr(self.ion_entry) == "IonEntry : Mn1 O4 with energy = 25.0000"
+
+    def test_entry_id(self):
+        # entry_id falls back to that of the wrapped entry, unless explicitly given
+        entry = ComputedEntry("Mn2O3", 49, entry_id="mp-1172")
+        assert PourbaixEntry(entry).entry_id == "mp-1172"
+        assert PourbaixEntry(entry, entry_id="custom").entry_id == "custom"
+        assert self.px_sol.entry_id is None
+
+    def test_ion_entry_round_trip(self):
+        ion_entry = IonEntry(Ion.from_formula("Mn[2+]"), -2.4, name="manganous")
+        new = IonEntry.from_dict(ion_entry.as_dict())
+        assert new.name == "manganous"
+        assert new.energy == approx(-2.4)
+        assert new.ion == Ion.from_formula("Mn[2+]")
+        assert IonEntry(Ion.from_formula("Mn[2+]"), -2.4).name == "Mn[+2]"
+
+        # Ion PourbaixEntry keeps its concentration through serialization
+        pbx_entry = PourbaixEntry(ion_entry, entry_id="ion-mn", concentration=1e-3)
+        new_pbx = PourbaixEntry.from_dict(pbx_entry.as_dict())
+        assert pbx_entry.as_dict()["entry_type"] == "Ion"
+        assert new_pbx.concentration == approx(1e-3)
+        assert new_pbx.entry_id == "ion-mn"
+        assert new_pbx.energy == approx(pbx_entry.energy)
+
+    def test_multi_entry_weights(self):
+        m_entry = MultiEntry([self.px_sol, self.px_ion], weights=[0.5, 2])
+        assert m_entry.energy == approx(0.5 * self.px_sol.energy + 2 * self.px_ion.energy)
+        assert m_entry.npH == approx(0.5 * -6 + 2 * -8)
+        assert m_entry.nH2O == approx(0.5 * 3 + 2 * 4)
+        assert m_entry.composition == Composition("Mn3O9.5")
+        assert m_entry.phase_type == ["Solid", "Ion"]
+        assert m_entry.name == "Mn2O3(s) + MnO4[-1]"
+
+        new = MultiEntry.from_dict(m_entry.as_dict())
+        assert new.weights == [0.5, 2]
+        assert new.energy == approx(m_entry.energy)
+        assert [entry.name for entry in new.entry_list] == ["Mn2O3(s)", "MnO4[-1]"]
 
 
 class TestPourbaixDiagram:
@@ -266,6 +341,99 @@ class TestPourbaixDiagram:
         entry = self.pbx.get_stable_entry(0, 0)
         assert entry.entry_id == "ion-0"
 
+    @pytest.mark.parametrize(
+        ("pH", "V", "name", "hull_energy"),
+        [
+            (0, 0, "Zn[2+]", -1.835004511978826),
+            (7, -1.5, "Zn(s)", 0),
+            (14, 0, "ZnO2[2-]", -2.687444511978826),
+        ],
+    )
+    def test_stable_entry_and_hull_energy(self, pH, V, name, hull_energy):
+        assert self.pbx.get_stable_entry(pH, V).name == name
+        assert self.pbx.find_stable_entry(pH, V).name == name
+        assert self.pbx.get_hull_energy(pH, V) == approx(hull_energy)
+        # The stable entry sits on the hull, i.e. has zero decomposition energy
+        stable = self.pbx.get_stable_entry(pH, V)
+        assert stable.normalized_energy_at_conditions(pH, V) == approx(hull_energy)
+        assert self.pbx.get_decomposition_energy(stable, pH, V) == approx(0, abs=1e-10)
+
+    def test_get_hull_energy_vectorized(self):
+        expected = [-1.835004511978826, 0, -2.687444511978826]
+        assert self.pbx.get_hull_energy(np.array([0, 7, 14]), np.array([0, -1.5, 0])) == approx(expected)
+        # Plain lists are accepted as documented
+        assert self.pbx.get_hull_energy([0, 7, 14], [0, -1.5, 0]) == approx(expected)
+        # Scalar broadcasting against an array
+        assert self.pbx.get_hull_energy(0, np.array([0, 0])) == approx([expected[0]] * 2)
+
+    def test_get_decomposition_energy_arrays(self):
+        entry = self.test_data["Zn"][11]
+        assert entry.name == "ZnO2(s)"
+        ph_grid, v_grid = np.meshgrid(np.linspace(0, 14, 4), np.linspace(-2, 2, 3))
+        result = self.pbx_no_filter.get_decomposition_energy(entry, ph_grid, v_grid)
+        assert result.shape == (3, 4)
+        expected = [
+            self.pbx_no_filter.get_decomposition_energy(entry, ph, v)
+            for ph, v in zip(ph_grid.ravel(), v_grid.ravel(), strict=True)
+        ]
+        assert result.ravel() == approx(expected)
+        # ZnO2(s) is on the unfiltered hull only at high pH and potential
+        assert (result >= -1e-10).all()
+        assert result[0, 0] == approx(expected[0])
+        assert result.min() == approx(0, abs=1e-10)
+
+        # Entry whose non-H/O composition differs from the diagram's
+        ag_entry = PourbaixEntry(ComputedEntry("Ag", 0))
+        with pytest.raises(ValueError, match="Composition of stability entry does not match"):
+            self.pbx.get_decomposition_energy(ag_entry, 7, 0)
+
+    def test_entry_lists(self):
+        # filter_solids drops the unstable ZnO2 and ZnH solids (and all but the
+        # lowest-energy polymorphs) but keeps all supplied entries as unprocessed
+        assert len(self.pbx.unprocessed_entries) == len(self.test_data["Zn"]) == 24
+        assert len(self.pbx_no_filter.unprocessed_entries) == 24
+        assert {entry.name for entry in self.pbx.all_entries} == {
+            "Zn(s)",
+            "ZnO(s)",
+            "Zn[2+]",
+            "ZnO2[2-]",
+            "ZnHO[+]",
+            "ZnHO2[-]",
+            "Zn(HO)2(aq)",
+        }
+        assert set(self.pbx.stable_entries).isdisjoint(self.pbx.unstable_entries)
+        assert len(self.pbx.stable_entries) + len(self.pbx.unstable_entries) == len(self.pbx.all_entries)
+        assert self.pbx._multi_element is False
+
+    def test_invalid_entries(self):
+        entries = deepcopy(self.test_data["Zn"])
+        entries[5].phase_type = "Gas"
+        with pytest.raises(ValueError, match='phase type of either "Solid" or "Ion"'):
+            PourbaixDiagram(entries)
+
+        # Multi-element ion without a concentration cannot be assigned one from conc_dict
+        multi_ion = PourbaixEntry(IonEntry(Ion.from_formula("AgTeO3[-]"), -2), concentration=0)
+        with pytest.raises(ValueError, match="not compatible with multi-element ions"):
+            PourbaixDiagram([*self.test_data["Ag-Te"], multi_ion])
+
+    def test_generate_multielement_entries(self):
+        # Brute-force multi-entry generation must contain every multi-entry kept by
+        # the hull-based preprocessing used in __init__
+        pbx = PourbaixDiagram(self.test_data["Ag-Te"], comp_dict={"Ag": 0.5, "Te": 0.5})
+        assert pbx._multi_element
+        generated = pbx._generate_multielement_entries(pbx._filtered_entries)
+        assert len(generated) == 153
+        assert all(isinstance(entry, MultiEntry) for entry in generated)
+        generated_ids = {frozenset(entry.entry_id) for entry in generated}
+        assert {frozenset(entry.entry_id) for entry in pbx.all_entries} <= generated_ids
+        # Each multi-entry has the target 1:1 Ag:Te composition
+        for entry in generated[:10]:
+            comp = entry.composition
+            assert comp["Ag"] == approx(comp["Te"])
+
+        generated_parallel = pbx._generate_multielement_entries(pbx._filtered_entries, nproc=2)
+        assert {frozenset(entry.entry_id) for entry in generated_parallel} == generated_ids
+
     def test_multielement_parallel(self):
         # Simple test to ensure that multiprocessing is working
         test_entries = self.test_data["Ag-Te-N"]
@@ -341,6 +509,67 @@ class TestPourbaixPlotter:
         binary_plotter = PourbaixPlotter(pd_binary)
         ax = binary_plotter.plot_entry_stability(self.test_data["Ag-Te"][53])
         assert isinstance(ax, plt.Axes)
+
+    @pytest.fixture(autouse=True)
+    def _close_figures(self):
+        yield
+        plt.close("all")
+
+    def test_pourbaix_plot_content(self):
+        ax = self.plotter.get_pourbaix_plot(title="Zn", label_fontsize=12)
+        assert ax.get_title() == "Zn"
+        assert ax.get_xlabel() == "pH"
+        assert ax.get_ylabel() == "E (V)"
+        assert ax.get_xlim() == approx((-2, 16))
+        assert ax.get_ylim() == approx((-3, 3))
+        # 2 water lines + 2 neutral axes + one closed outline per stable domain
+        n_domains = len(self.pd.stable_entries)
+        assert n_domains == 5
+        assert len(ax.lines) == 4 + n_domains
+        h_line = ax.lines[0]
+        assert h_line.get_linestyle() == "--"
+        assert h_line.get_ydata() == approx([2 * 0.0591, -16 * 0.0591])
+        assert ax.lines[1].get_ydata() == approx([2 * 0.0591 + 1.23, -16 * 0.0591 + 1.23])
+        labels = {text.get_text() for text in ax.texts}
+        assert len(labels) == n_domains
+        assert "Zn$^{2+}$" in labels
+        assert all(text.get_fontsize() == 12 for text in ax.texts)
+
+        # Domain outlines are closed polygons of the stored vertices
+        entry = self.pd.get_stable_entry(0, 0)
+        vertices = self.plotter.domain_vertices(entry)
+        assert len(vertices) >= 3
+        outline = ax.lines[4 + list(self.pd._stable_domain_vertices).index(entry)]
+        assert outline.get_xdata() == approx([*np.asarray(vertices)[:, 0], vertices[0][0]])
+
+    def test_pourbaix_plot_no_extras(self):
+        _, ax = plt.subplots()
+        out = self.plotter.get_pourbaix_plot(
+            limits=((0, 14), (-1, 1)), label_domains=False, show_water_lines=False, show_neutral_axes=False, ax=ax
+        )
+        assert out is ax
+        assert len(ax.lines) == len(self.pd.stable_entries)
+        assert len(ax.texts) == 0
+        assert ax.get_xlim() == approx((0, 14))
+
+    def test_plot_entry_stability_content(self):
+        entry = self.test_data["Zn"][11]  # ZnO2(s)
+        ax = self.plotter.plot_entry_stability(entry, pH_resolution=5, V_resolution=4, e_hull_max=2)
+        mesh = ax.collections[-1]
+        stability = np.asarray(mesh.get_array())
+        assert stability.size == 5 * 4
+        assert mesh.get_clim() == approx((0, 2))
+        pH, V = np.mgrid[-2:16:5j, -3:3:4j]
+        assert np.sort(stability.ravel()) == approx(np.sort(self.pd.get_decomposition_energy(entry, pH, V).ravel()))
+        cbar_label = ax.figure.axes[-1].get_ylabel()
+        assert cbar_label == "Stability of ZnO$_{2}$(s) (eV/atom)"
+
+    def test_show(self, monkeypatch):
+        shown = []
+        monkeypatch.setattr(plt, "show", lambda: shown.append(plt.gca()))
+        self.plotter.show(title="Zn")
+        assert len(shown) == 1
+        assert shown[0].get_title() == "Zn"
 
 
 class TestIonOrSolidCompObject:
