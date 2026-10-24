@@ -4479,6 +4479,8 @@ name = "pymatgen"
 source = { editable = "." }
 default-groups = ["dev", "docs", "lint", "test"]
 dependencies = [
+    { name = "networkx", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "networkx", version = "3.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "pymatgen-core" },
 ]
 
@@ -4579,6 +4581,8 @@ requires-dist = [
     { name = "matgl", marker = "python_full_version < '3.13' and extra == 'mlp'", specifier = ">=4.0.1" },
     { name = "moyopy", extras = ["interface"], marker = "extra == 'symmetry'", specifier = ">=0.3" },
     { name = "netcdf4", marker = "extra == 'abinit'", specifier = ">=1.7.2" },
+    { name = "networkx", marker = "python_full_version < '3.12'", specifier = ">=3.6.1" },
+    { name = "networkx", marker = "python_full_version >= '3.12'", specifier = ">=3.7" },
     { name = "numba", marker = "extra == 'numba'", specifier = ">=0.55" },
     { name = "numpy", marker = "python_full_version >= '3.13' and extra == 'numpy-v1'", specifier = ">=2.1.0,<3" },
     { name = "numpy", marker = "python_full_version < '3.13' and extra == 'numpy-v1'", specifier = ">=1.25.0,<2" },
@@ -4586,11 +4590,11 @@ requires-dist = [
     { name = "pymatgen", extras = ["abinit", "ase", "matcalc", "mlp", "tblite", "zeopp"], marker = "extra == 'optional'" },
     { name = "pymatgen", extras = ["symmetry"], marker = "extra == 'prototypes'" },
     { name = "pymatgen-analysis-alloys", marker = "extra == 'optional'" },
-    { name = "pymatgen-core", specifier = ">=2026.9.23" },
+    { name = "pymatgen-core", specifier = ">=2026.10.16" },
     { name = "pyxtal", marker = "extra == 'prototypes'", specifier = ">=1.0" },
     { name = "pyzeo", marker = "sys_platform != 'win32' and extra == 'zeopp'" },
     { name = "seekpath", marker = "extra == 'optional'", specifier = ">=2.0.1" },
-    { name = "spglib", marker = "extra == 'symmetry'", specifier = ">=2.5" },
+    { name = "spglib", marker = "extra == 'symmetry'", specifier = ">=2.8" },
     { name = "tblite", extras = ["ase"], marker = "python_full_version < '3.12' and sys_platform == 'linux' and extra == 'tblite'", specifier = ">=0.3.0" },
     { name = "vtk", marker = "extra == 'vis'", specifier = ">=9.6.0" },
 ]
