@@ -1,11 +1,16 @@
 from __future__ import annotations
 
+import runpy
+import sys
 import textwrap
+import types
 
 import pytest
 
 from pymatgen.cli import pmg
-from pymatgen.util.testing import VASP_IN_DIR
+from tests.testing import TEST_FILES_DIR
+
+VASP_IN_DIR = TEST_FILES_DIR / "io" / "vasp" / "inputs"
 
 
 def test_main(capsys):
@@ -75,9 +80,70 @@ def test_pmg_diff(capsys):
         assert exp in body_lines
 
 
-def test_pmg_query():
-    # TODO: add test
-    pass
+@pytest.mark.parametrize(
+    "argv",
+    [["--help"], ["analyze", "--help"], ["structure", "--help"], ["config", "--help"]],
+)
+def test_help(capsys, argv):
+    with pytest.raises(SystemExit) as exc:
+        pmg.main(argv)
+    assert exc.value.code == 0
+    assert "usage:" in capsys.readouterr().out
+
+
+def test_unknown_subcommand(capsys):
+    with pytest.raises(SystemExit) as exc:
+        pmg.main(["not-a-command"])
+    assert exc.value.code == 2
+    assert "invalid choice: 'not-a-command'" in capsys.readouterr().err
+
+
+def test_argcomplete_hook(monkeypatch):
+    """argcomplete is optional; when importable, the parser is registered with it."""
+    calls = []
+    monkeypatch.setitem(sys.modules, "argcomplete", types.SimpleNamespace(autocomplete=calls.append))
+    pmg.main(["diff", "--incar", str(VASP_IN_DIR / "INCAR"), str(VASP_IN_DIR / "INCAR_2")])
+    assert len(calls) == 1
+    assert calls[0].prog
+
+
+def test_dunder_main(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", ["pmg", "diff", "-i", str(VASP_IN_DIR / "INCAR"), str(VASP_IN_DIR / "INCAR")])
+    with pytest.raises(SystemExit) as exc:
+        runpy.run_path(pmg.__file__, run_name="__main__")
+    assert exc.value.code == 0
+    out = capsys.readouterr().out
+    assert "SAME PARAMS" in out
+    # Diffing a file against itself yields no different params.
+    assert out.rstrip().endswith("----------------")
+
+
+@pytest.mark.parametrize(
+    ("extra_args", "excluded"),
+    [([], []), (["-e", "Li,O"], ["Li", "O"])],
+)
+def test_pmg_view_fake_vis(monkeypatch, extra_args, excluded):
+    """Exercise `pmg view` without VTK by substituting a fake StructureVis."""
+    calls = {}
+
+    class FakeStructureVis:
+        def __init__(self, excluded_bonding_elements):
+            calls["excluded"] = excluded_bonding_elements
+
+        def set_structure(self, structure):
+            calls["structure"] = structure
+
+        def show(self):
+            calls["shown"] = True
+
+    fake_module = types.ModuleType("pymatgen.vis.structure_vtk")
+    fake_module.StructureVis = FakeStructureVis
+    monkeypatch.setitem(sys.modules, "pymatgen.vis.structure_vtk", fake_module)
+
+    assert pmg.main(["view", str(VASP_IN_DIR / "POSCAR_Li2O"), *extra_args]) == 0
+    assert calls["excluded"] == excluded
+    assert calls["structure"].reduced_formula == "Li2O"
+    assert calls["shown"]
 
 
 def test_pmg_view(monkeypatch):
