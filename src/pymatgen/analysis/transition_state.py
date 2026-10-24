@@ -334,6 +334,7 @@ class NEBAnalysis(MSONable):
             "energies": jsanitize(self.energies),
             "forces": jsanitize(self.forces),
             "structures": [struct.as_dict() for struct in self.structures],
+            "zero_slope_saddle": self.zero_slope_saddle,
         }
 
 

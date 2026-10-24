@@ -215,13 +215,19 @@ class TestNEBAnalysisExtra:
         new = NEBAnalysis.from_dict(dct)
         assert_allclose(new.get_extrema()[1], neb1.get_extrema()[1])
 
-    @pytest.mark.xfail(
-        reason="NEBAnalysis.as_dict does not serialize zero_slope_saddle, so the spline mode is lost",
-        strict=True,
-    )
-    def test_as_from_dict_zero_slope_saddle(self, neb1):
-        neb = NEBAnalysis(neb1.r, neb1.energies, neb1.forces, neb1.structures, zero_slope_saddle=True)
-        assert NEBAnalysis.from_dict(neb.as_dict()).zero_slope_saddle
+    @pytest.mark.parametrize("zero_slope_saddle", [False, True])
+    def test_as_from_dict_zero_slope_saddle(self, neb1, zero_slope_saddle):
+        neb = NEBAnalysis(neb1.r, neb1.energies, neb1.forces, neb1.structures, zero_slope_saddle=zero_slope_saddle)
+        new = NEBAnalysis.from_dict(neb.as_dict())
+        assert new.zero_slope_saddle is zero_slope_saddle
+        assert_allclose(new.spline.c, neb.spline.c)
+        assert_allclose(new.get_extrema()[1], neb.get_extrema()[1])
+
+    def test_from_dict_without_zero_slope_saddle(self, neb1):
+        """Dicts serialized before zero_slope_saddle was stored load with the default spline."""
+        dct = neb1.as_dict()
+        del dct["zero_slope_saddle"]
+        assert NEBAnalysis.from_dict(dct).zero_slope_saddle is False
 
 
 class TestCombineNEBPlots:
