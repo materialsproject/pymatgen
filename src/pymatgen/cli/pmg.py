@@ -230,42 +230,6 @@ def main(argv: Sequence[str] | None = None) -> Any:
     )
     parser_analyze.set_defaults(func=_lazy_func("pymatgen.cli.pmg_analyze", "analyze"))
 
-    # `pmg query`
-    parser_query = subparsers.add_parser("query", help="Search for structures and data from the Materials Project.")
-    parser_query.add_argument(
-        "criteria",
-        metavar="criteria",
-        help="Search criteria. Supported formats in formulas, chemical systems, Materials Project ids, etc.",
-    )
-    group_query = parser_query.add_mutually_exclusive_group(required=True)
-    group_query.add_argument(
-        "-s",
-        "--structure",
-        dest="structure",
-        metavar="format",
-        choices=["poscar", "cif", "cssr"],
-        type=str.lower,
-        help="Get structures from Materials Project and write them to a specified format.",
-    )
-    group_query.add_argument(
-        "-e",
-        "--entries",
-        dest="entries",
-        metavar="filename",
-        help="Get entries from Materials Project and write them to serialization file. JSON and YAML supported.",
-    )
-    group_query.add_argument(
-        "-d",
-        "--data",
-        dest="data",
-        metavar="fields",
-        nargs="*",
-        help="Print a summary of entries in the Materials Project satisfying "
-        "the criteria. Supply field names to include additional data. "
-        "By default, the Materials Project id, formula, spacegroup, "
-        "energy per atom, energy above hull are shown.",
-    )
-
     # `pmg plot`
     parser_plot = subparsers.add_parser("plot", help="Plotting tool for DOS, CHGCAR, XRD, etc.")
     group_plot = parser_plot.add_mutually_exclusive_group(required=True)
