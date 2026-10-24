@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import json
 
+import pytest
 from monty.json import MontyDecoder
 from pytest import approx
 
+from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.apps.battery.conversion_battery import ConversionElectrode, ConversionVoltagePair
+from pymatgen.core import Element
 from pymatgen.core.composition import Composition
 from tests.testing import TEST_FILES_DIR
 
@@ -161,3 +164,130 @@ class TestConversionElectrode:
                     # composite at each discharge step, of which entry object is simplified to reduced formula
                     entries_formula_list = [entry.reduced_formula for entry in getattr(volt_pair, attr)]
                     assert entries_formula_list == composite_dict[attr][step]
+
+
+@pytest.fixture(scope="module")
+def fef3_pd() -> PhaseDiagram:
+    with open(f"{TEST_DIR}/FeF3_batt.json", encoding="utf-8") as file:
+        return PhaseDiagram(json.load(file, cls=MontyDecoder))
+
+
+@pytest.fixture(scope="module")
+def fef3_electrode(fef3_pd) -> ConversionElectrode:
+    return ConversionElectrode.from_composition_and_pd(Composition("FeF3"), fef3_pd)
+
+
+@pytest.fixture(scope="module")
+def licoo2_electrode() -> ConversionElectrode:
+    with open(f"{TEST_DIR}/LiCoO2_batt.json", encoding="utf-8") as file:
+        entries = json.load(file, cls=MontyDecoder)
+    return ConversionElectrode.from_composition_and_entries(Composition("LiCoO2"), entries)
+
+
+class TestConversionElectrodeFromPD:
+    def test_from_composition_and_pd(self, fef3_electrode):
+        assert fef3_electrode.initial_comp == Composition("FeF3")
+        assert fef3_electrode.framework_formula == "FeF3"
+        assert fef3_electrode.working_ion.symbol == "Li"
+        assert fef3_electrode.num_steps == 2
+        assert [pair.voltage for pair in fef3_electrode] == approx([3.07574726, 3.05482526])
+        assert fef3_electrode.get_average_voltage() == approx(3.06179926)
+        assert fef3_electrode.get_capacity_grav() == approx(601.545087, abs=1e-3)
+        assert fef3_electrode.get_specific_energy() == approx(1841.810302, abs=1e-3)
+
+    @pytest.mark.parametrize(
+        ("formula", "n_steps", "avg_voltage"),
+        [("FeF2", 1, 3.05482526), ("LiF", 1, 6.36220186), ("Li3FeF6", 3, 4.71200056)],
+    )
+    def test_allow_unstable(self, fef3_pd, formula, n_steps, avg_voltage):
+        electrode = ConversionElectrode.from_composition_and_pd(Composition(formula), fef3_pd, allow_unstable=True)
+        assert electrode.num_steps == n_steps
+        assert electrode.get_average_voltage() == approx(avg_voltage)
+
+    def test_unstable_composition_raises(self, fef3_pd):
+        with pytest.raises(ValueError, match="Not stable compound found at composition"):
+            ConversionElectrode.from_composition_and_pd(Composition("Li3FeF6"), fef3_pd)
+
+    def test_single_point_profile_returns_none(self, fef3_pd):
+        # Fe cannot be lithiated, so the element profile has a single step
+        assert ConversionElectrode.from_composition_and_pd(Composition("Fe"), fef3_pd) is None
+
+    def test_sub_electrodes(self, fef3_electrode):
+        adjacent = fef3_electrode.get_sub_electrodes(adjacent_only=True)
+        assert [sub.get_average_voltage() for sub in adjacent] == approx([3.07574726, 3.05482526])
+        assert all(sub.initial_comp_formula == "FeF3" for sub in adjacent)
+
+        all_subs = fef3_electrode.get_sub_electrodes(adjacent_only=False)
+        assert [sub.num_steps for sub in all_subs] == [1, 2, 1]
+        assert all_subs[1].get_capacity_grav() == approx(fef3_electrode.get_capacity_grav())
+
+    def test_is_super_electrode(self, licoo2_electrode):
+        subs = licoo2_electrode.get_sub_electrodes(adjacent_only=False)
+        assert len(subs) == 15
+        assert all(licoo2_electrode.is_super_electrode(sub) for sub in subs)
+        assert not subs[0].is_super_electrode(licoo2_electrode)
+
+    def test_eq_and_hash(self, fef3_electrode):
+        first, second = fef3_electrode.get_sub_electrodes(adjacent_only=True)
+        assert fef3_electrode == fef3_electrode.get_sub_electrodes(adjacent_only=False)[1]
+        assert fef3_electrode != first  # different number of steps
+        assert first != second  # same number of steps, different reactions
+        assert hash(first) == hash(second)
+
+    def test_get_summary_dict(self, fef3_electrode):
+        dct = fef3_electrode.get_summary_dict(print_subelectrodes=False)
+        assert "adj_pairs" not in dct
+        assert "all_pairs" not in dct
+        assert dct["working_ion"] == "Li"
+        assert dct["nsteps"] == 2
+        assert dct["reactions"] == ["FeF3 + Li -> LiF + FeF2", "FeF2 + 2 Li -> 2 LiF + Fe"]
+        assert dct["reactant_compositions"] == [
+            {"Fe": 1.0, "F": 3.0},
+            {"Li": 1.0, "F": 1.0},
+            {"Fe": 1.0, "F": 2.0},
+            {"Fe": 1.0, "F": 2.0},
+            {"Li": 1.0, "F": 1.0},
+            {"Fe": 1.0},
+        ]
+        assert dct["fracA_charge"] == approx(0)
+        assert dct["fracA_discharge"] == approx(3 / 7)
+        assert dct["max_voltage_step"] == approx(3.07574726 - 3.05482526)
+
+        dct = fef3_electrode.get_summary_dict(print_subelectrodes=True)
+        assert len(dct["adj_pairs"]) == 2
+        assert len(dct["all_pairs"]) == 3
+        assert dct["adj_pairs"][1]["reactions"] == ["FeF2 + 2 Li -> 2 LiF + Fe"]
+
+
+class TestConversionVoltagePair:
+    def test_from_steps(self, fef3_pd, fef3_electrode):
+        profile = fef3_pd.get_element_profile(Element("Li"), Composition("FeF3"))[::-1]
+        pair = ConversionVoltagePair.from_steps(profile[1], profile[2], {Element("Fe"): 1, Element("F"): 3}, "FeF3")
+        assert str(pair.rxn) == "FeF2 + 2 Li -> 2 LiF + Fe"
+        assert pair.voltage == approx(fef3_electrode[1].voltage)
+        assert pair.voltage == approx(3.05482526)
+        assert pair.mAh == approx(53602.962291, abs=1e-3)
+        assert pair.mass_charge == approx(119.7812096)
+        assert pair.mass_discharge == approx(133.6632096)
+        assert pair.vol_charge == approx(54.81127194)
+        assert pair.vol_discharge == approx(62.61808506)
+        assert pair.frac_charge == approx(0.2)
+        assert pair.frac_discharge == approx(3 / 7)
+        assert pair.x_charge == approx(1)
+        assert pair.x_discharge == approx(3)
+        assert pair.framework == Composition("FeF3")
+        assert pair.working_ion == Element("Li")
+        assert [entry.reduced_formula for entry in pair.entries_discharge] == ["Fe", "LiF"]
+
+    def test_repr(self, fef3_electrode):
+        lines = repr(fef3_electrode[0]).splitlines()
+        assert lines[0] == "Conversion voltage pair with working ion Li"
+        assert lines[1] == "Reaction : FeF3 + Li -> LiF + FeF2"
+        assert lines[2].startswith("V = 3.07574")
+        assert len(lines) == 6
+
+    def test_electrode_sequence_protocol(self, fef3_electrode):
+        first = fef3_electrode[0]
+        assert first in fef3_electrode
+        assert list(fef3_electrode) == list(fef3_electrode.voltage_pairs)
+        assert len(fef3_electrode) == 2

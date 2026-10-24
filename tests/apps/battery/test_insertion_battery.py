@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import json
 
+import pytest
 from monty.json import MontyDecoder, MontyEncoder
 from pytest import approx
 
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode, InsertionVoltagePair
+from pymatgen.core import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from tests.testing import TEST_FILES_DIR
 
@@ -141,3 +143,91 @@ class TestInsertionElectrode:
         vols_no_struct = [ient.data["volume"] for ient in ie_LTO_no_struct.get_all_entries()]
         vols_struct = [ient.structure.volume for ient in self.ie_LTO.get_all_entries()]
         assert vols_no_struct == approx(vols_struct, rel=1e-3)
+
+    def test_entry_ordering(self):
+        def formulas(entries):
+            return [entry.reduced_formula for entry in entries]
+
+        assert formulas(self.ie_LTO.get_stable_entries()) == ["TiO2", "LiTi2O4", "LiTiO2"]
+        assert formulas(self.ie_LTO.get_stable_entries(charge_to_discharge=False)) == ["LiTiO2", "LiTi2O4", "TiO2"]
+        assert formulas(self.ie_LTO.get_unstable_entries()) == ["TiO2"] * 3
+        assert formulas(self.ie_LTO.get_unstable_entries(charge_to_discharge=False)) == ["TiO2"] * 3
+
+        all_entries = self.ie_LTO.get_all_entries()
+        assert len(all_entries) == 6
+        assert self.ie_LTO.get_all_entries(charge_to_discharge=False) == all_entries[::-1]
+        assert self.ie_LTO.fully_charged_entry.reduced_formula == "TiO2"
+        assert self.ie_LTO.fully_discharged_entry.reduced_formula == "LiTiO2"
+
+    def test_repr(self):
+        lines = repr(self.ie_LTO).splitlines()
+        assert lines[0] == "InsertionElectrode with endpoints at TiO2 and LiTiO2"
+        assert lines[1].startswith("Avg. volt. = 1.84143")
+        assert lines[2].startswith("Grav. cap. = 308.748")
+        assert lines[3].startswith("Vol. cap. = 1205.99")
+
+        lines = repr(self.ie_LTO[0]).splitlines()
+        assert lines[0] == "Insertion voltage pair with working ion Li"
+        assert lines[1].startswith("V = 2.78583")
+        assert len(lines) == 5
+
+    def test_as_from_dict_legacy(self):
+        dct = self.ie_LTO.as_dict_legacy()
+        assert dct["@class"] == "InsertionElectrode"
+        assert len(dct["entries"]) == 6
+        assert dct["working_ion_entry"]["energy"] == approx(-1.90753119)
+
+        ie = InsertionElectrode.from_dict_legacy(dct)
+        assert isinstance(ie, InsertionElectrode)
+        assert ie.num_steps == 2
+        assert ie.get_average_voltage() == approx(1.84143141)
+        assert ie.get_capacity_grav() == approx(308.74865045)
+        assert ie.framework_formula == "TiO2"
+
+    def test_sub_electrodes_exclude_myself(self):
+        subs = self.ie_LTO.get_sub_electrodes(adjacent_only=False, include_myself=False)
+        assert [sub.num_steps for sub in subs] == [1, 1]
+        assert sorted(sub.get_average_voltage() for sub in subs) == approx([0.89702381, 2.78583901])
+
+    def test_voltage_range_selection(self):
+        assert self.ie_MVO.get_max_instability(min_voltage=10) is None
+        assert self.ie_MVO.get_min_muO2(max_voltage=-1) is None
+        assert self.ie_LTO.get_capacity_grav(min_voltage=1, max_voltage=3) == approx(154.374325225)
+        assert self.ie_LTO.get_specific_energy(min_voltage=1, max_voltage=3) == approx(154.374325225 * 2.78583901)
+
+
+class TestInsertionVoltagePair:
+    def setup_method(self):
+        self.entry_Li = ComputedEntry("Li", -1.90753119)
+        self.entry_TiO2 = ComputedEntry("TiO2", -26.38402066)
+        self.entry_LiTiO2 = ComputedEntry("LiTiO2", -30.13297575)
+
+    def test_from_entries_order_independent(self):
+        pair = InsertionVoltagePair.from_entries(self.entry_TiO2, self.entry_LiTiO2, self.entry_Li)
+        swapped = InsertionVoltagePair.from_entries(self.entry_LiTiO2, self.entry_TiO2, self.entry_Li)
+        for vpair in (pair, swapped):
+            assert vpair.entry_charge is self.entry_TiO2
+            assert vpair.entry_discharge is self.entry_LiTiO2
+            # V = [E(TiO2) + E(Li) - E(LiTiO2)] / e
+            assert vpair.voltage == approx(-26.38402066 - 1.90753119 + 30.13297575)
+            assert vpair.frac_charge == approx(0)
+            assert vpair.frac_discharge == approx(0.25)
+            assert vpair.x_discharge == approx(1)
+            assert vpair.framework == Composition("TiO2")
+            assert vpair.mass_charge == approx(Composition("TiO2").weight)
+            assert vpair.mass_discharge == approx(Composition("LiTiO2").weight)
+
+    @pytest.mark.parametrize(
+        ("entry1", "entry2", "ion", "match"),
+        [
+            ("TiO2", "LiTiO2", ("LiO", -5.0), "working ion specified must be an element"),
+            ("TiO2", "Ti2O4", ("Li", -1.9), "working ion must be present in one of the entries"),
+            ("LiTiO2", "Li2Ti2O4", ("Li", -1.9), "atomic percentage cannot be the same"),
+            ("TiO2", "LiVO2", ("Li", -1.9), "must have the same compositional framework"),
+        ],
+    )
+    def test_from_entries_invalid(self, entry1, entry2, ion, match):
+        with pytest.raises(ValueError, match=match):
+            InsertionVoltagePair.from_entries(
+                ComputedEntry(entry1, -20.0), ComputedEntry(entry2, -25.0), ComputedEntry(*ion)
+            )
