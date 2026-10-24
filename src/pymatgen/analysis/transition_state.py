@@ -370,7 +370,8 @@ def combine_neb_plots(
         if neb_index == 0:
             neb1 = neb
             neb1_energies = list(neb1.energies)
-            neb1_structures = neb1.structures
+            # Copy so that in-place extension below does not mutate the input NEBAnalysis
+            neb1_structures = list(neb1.structures)
             neb1_forces = neb1.forces
             neb1_r = neb1.r
             continue
