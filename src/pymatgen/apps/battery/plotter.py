@@ -201,7 +201,8 @@ class VoltageProfilePlotter:
             width: Width of the plot. Defaults to 8 in.
             height: Height of the plot. Defaults to 6 in.
         """
-        self.get_plot(width, height).show()
+        self.get_plot(width, height)
+        plt.show()
 
     def save(self, filename: str, width: float = 8, height: float = 6) -> None:
         """Save the plot to an image file.
@@ -211,4 +212,4 @@ class VoltageProfilePlotter:
             width: Width of the plot. Defaults to 8 in.
             height: Height of the plot. Defaults to 6 in.
         """
-        self.get_plot(width, height).savefig(filename)
+        self.get_plot(width, height).figure.savefig(filename)
