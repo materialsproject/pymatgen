@@ -46,7 +46,7 @@ def get_energies(
     """
     if verbose:
         log_fmt = "%(relativeCreated)d msecs : %(message)s"
-        logger.basicConfig(level=logging.INFO, format=log_fmt)
+        logging.basicConfig(level=logging.INFO, format=log_fmt)
 
     from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, VaspToComputedEntryDrone
     from pymatgen.apps.borg.queen import BorgQueen
