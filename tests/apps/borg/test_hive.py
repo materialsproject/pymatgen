@@ -92,7 +92,7 @@ class TestVaspToComputedEntryDrone:
         # The parent of relax1/relax2 is the only valid path
         assert self.drone.get_valid_paths(walked[str(relax_dir)]) == [str(relax_dir)]
         for sub in ("relax1", "relax2"):
-            assert self.drone.get_valid_paths(walked[f"{relax_dir}/{sub}"]) == []
+            assert self.drone.get_valid_paths(walked[str(relax_dir / sub)]) == []
 
     def test_get_valid_paths_empty_dir(self, tmp_path):
         assert self.drone.get_valid_paths(_walk_tuple(tmp_path)) == []
@@ -140,7 +140,7 @@ class TestVaspToComputedEntryDrone:
         assert entry.energy == approx(-6.82078391)
 
     def test_assimilate_bad_vasprun(self, tmp_path):
-        with gzip.open(tmp_path / "vasprun.xml.gz", "wt") as file:
+        with gzip.open(tmp_path / "vasprun.xml.gz", "wt", encoding="utf-8") as file:
             file.write("<modeling><not valid xml")
         assert self.drone.assimilate(tmp_path) is None
 
@@ -242,7 +242,7 @@ class TestSimpleVaspToComputedEntryDrone:
 
     def test_assimilate_bad_file(self, simple_vasp_dir):
         """Parse errors other than missing files are swallowed and None is returned."""
-        (simple_vasp_dir / "OSZICAR").write_text("garbage\n")
+        (simple_vasp_dir / "OSZICAR").write_text("garbage\n", encoding="utf-8")
         assert self.drone.assimilate(simple_vasp_dir) is None
 
     def test_as_from_dict(self):
