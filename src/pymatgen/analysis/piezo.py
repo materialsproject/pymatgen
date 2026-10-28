@@ -29,13 +29,13 @@ class PiezoTensor(Tensor):
     def __new__(cls, input_array: ArrayLike, tol: float = 1e-3) -> Self:
         """
         Create an PiezoTensor object. The constructor throws an error if
-        the shape of the input_matrix argument is not 3x3x3, i.e. in true
+        the shape of the input_array argument is not 3x3x3, i.e. in true
         tensor notation. Note that the constructor uses __new__ rather than
         __init__ according to the standard method of subclassing numpy
         ndarrays.
 
         Args:
-            input_matrix (3x3x3 array-like): the 3x6 array-like
+            input_array (3x3x3 array-like): the 3x3x3 array-like
                 representing the piezo tensor
         """
         obj = super().__new__(cls, input_array, check_rank=3)
