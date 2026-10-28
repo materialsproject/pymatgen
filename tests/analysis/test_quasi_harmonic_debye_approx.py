@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import numpy as np
+import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
+from scipy.constants import physical_constants
 
-from pymatgen.analysis.eos import EOS
+from pymatgen.analysis.eos import EOS, BirchMurnaghan, EOSError, Vinet
 from pymatgen.analysis.quasiharmonic import QuasiHarmonicDebyeApprox
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
 __author__ = "Kiran Mathew"
@@ -203,3 +208,215 @@ direct
     def test_vibrational_free_energy(self):
         A = self.qhda.vibrational_free_energy(self.T, self.opt_vol)
         assert_allclose(A, -0.014620, atol=1e-3)
+
+
+# Synthetic, Al-like 4-atom fcc cell with E(V) generated from known EOS parameters:
+# e0 [eV], b0 [eV/Ang^3] (= 75.3 GPa), b1, v0 [Ang^3].
+KB = physical_constants["Boltzmann constant in eV/K"][0]
+GPA_TO_EV_ANG3 = 1 / 160.21766208
+SYN_PARAMS = (-14.9, 0.47, 4.6, 66.0)
+SYN_VOLUMES = np.linspace(58, 76, 13)
+SYN_STRUCT = Structure(Lattice.cubic(4.05), ["Al"] * 4, [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5]])
+SYN_NATOMS = 4
+
+
+def _energies(model=Vinet):
+    return model(SYN_VOLUMES, SYN_VOLUMES)._func(SYN_VOLUMES, SYN_PARAMS)
+
+
+def _qhda(energies=None, **kwargs):
+    kwargs = {"t_min": 300, "t_max": 300, **kwargs}
+    return QuasiHarmonicDebyeApprox(_energies() if energies is None else energies, SYN_VOLUMES, SYN_STRUCT, **kwargs)
+
+
+@pytest.fixture(scope="module")
+def qhda_vinet():
+    return _qhda()
+
+
+def test_mie_gruneisen_and_anharmonic_are_exclusive():
+    with pytest.raises(ValueError, match="cannot be used together"):
+        _qhda(use_mie_gruneisen=True, anharmonic_contribution=True)
+
+
+@pytest.mark.parametrize(
+    ("y", "expected"),
+    [
+        (1e-4, 1 - 3e-4 / 8),  # D(y) = 1 - 3y/8 + O(y^2)
+        (1.0, 0.6744155640778),
+        # beyond y=155 the integral is replaced by its limit pi^4/15
+        (155.0, np.pi**4 / 5 / 155.0**3),
+        (1000.0, np.pi**4 / 5 / 1000.0**3),
+    ],
+)
+def test_debye_integral(y, expected):
+    assert QuasiHarmonicDebyeApprox.debye_integral(y) == approx(expected, rel=1e-6)
+
+
+def test_debye_integral_continuous_at_cutoff():
+    assert QuasiHarmonicDebyeApprox.debye_integral(154.999) == approx(
+        QuasiHarmonicDebyeApprox.debye_integral(155.0), rel=1e-4
+    )
+
+
+def test_vibrational_energies_classical_limit(qhda_vinet):
+    # T >> theta_D: U_vib -> 3 n kB T and A_vib -> n kB T (3 ln(theta_D / T) - 1)
+    temp, vol = 1e5, 66.0
+    theta = qhda_vinet.debye_temperature(vol)
+    assert qhda_vinet.vibrational_internal_energy(temp, vol) == approx(3 * SYN_NATOMS * KB * temp, rel=1e-5)
+    assert qhda_vinet.vibrational_free_energy(temp, vol) == approx(
+        SYN_NATOMS * KB * temp * (3 * np.log(theta / temp) - 1), rel=1e-5
+    )
+
+
+def test_vibrational_energies_zero_point_limit(qhda_vinet):
+    # T << theta_D (theta_D / T > 155, the asymptotic branch): U_vib = A_vib = 9/8 n kB theta_D
+    vol = 66.0
+    zero_point = 9 / 8 * SYN_NATOMS * KB * qhda_vinet.debye_temperature(vol)
+    assert qhda_vinet.vibrational_internal_energy(1.0, vol) == approx(zero_point, rel=1e-8)
+    assert qhda_vinet.vibrational_free_energy(1.0, vol) == approx(zero_point, rel=1e-8)
+
+
+def test_vibrational_energies_thermodynamic_consistency(qhda_vinet):
+    # U = A - T dA/dT
+    temp, vol, dt = 300.0, 66.0, 1e-2
+    dadt = (qhda_vinet.vibrational_free_energy(temp + dt, vol) - qhda_vinet.vibrational_free_energy(temp - dt, vol)) / (
+        2 * dt
+    )
+    assert qhda_vinet.vibrational_free_energy(temp, vol) - temp * dadt == approx(
+        qhda_vinet.vibrational_internal_energy(temp, vol), rel=1e-6
+    )
+
+
+def test_debye_temperature_scaling(qhda_vinet):
+    # harmonic Debye temperature at fixed bulk modulus scales as V^(-1/6)
+    assert qhda_vinet.debye_temperature(2**6 * 66.0) == approx(qhda_vinet.debye_temperature(66.0) / 2)
+    # anharmonic: theta(V) = theta_harmonic(V) * (V0 / V)^gamma(0 K, V0)
+    qhda_anh = _qhda(anharmonic_contribution=True)
+    v0 = qhda_anh.ev_eos_fit.v0
+    gamma = qhda_anh.gruneisen_parameter(0, v0)
+    assert qhda_anh.debye_temperature(70.0) == approx(qhda_vinet.debye_temperature(70.0) * (v0 / 70.0) ** gamma)
+    assert qhda_anh.optimum_volumes[0] > qhda_vinet.optimum_volumes[0]
+
+
+def test_thermal_expansion():
+    qhda = _qhda(t_min=100, t_max=900, t_step=200)
+    assert qhda.temperatures == approx([100, 300, 500, 700, 900])
+    assert np.all(np.diff(qhda.optimum_volumes) > 0)
+    assert np.all(np.diff(qhda.gibbs_free_energy) < 0)
+    # zero-point expansion pushes V_opt above V0 even at low T
+    assert qhda.optimum_volumes[0] > SYN_PARAMS[3]
+
+
+def test_pressure(qhda_vinet):
+    qhda = _qhda(pressure=1.0)
+    v_0, v_p = qhda_vinet.optimum_volumes[0], qhda.optimum_volumes[0]
+    # dV/V ~ -P/B for small P
+    assert (v_p - v_0) / v_0 == approx(-1.0 / float(qhda.bulk_modulus), rel=0.1)
+    # G includes the PV term
+    assert qhda.gibbs_free_energy[0] > qhda_vinet.gibbs_free_energy[0]
+
+
+def test_failed_gibbs_minimization():
+    # at 10 GPa the G(V) minimum is below the sampled volumes and the EOS fit fails
+    with pytest.raises(EOSError, match="minimum volume of a fitted parabola"):
+        _qhda(pressure=10.0)
+    # with several temperatures, failures are skipped and stored as None
+    qhda = _qhda(pressure=10.0, t_min=300, t_max=500, t_step=200)
+    assert qhda.temperatures == approx([300, 500])
+    assert qhda.gibbs_free_energy == [None, None]
+    assert qhda.optimum_volumes == [None, None]
+
+
+@pytest.mark.parametrize(
+    ("eos", "generator"),
+    [
+        ("murnaghan", None),
+        ("birch", None),
+        ("birch_murnaghan", None),
+        ("pourier_tarantola", None),
+        ("vinet", None),
+        ("deltafactor", BirchMurnaghan),
+    ],
+)
+def test_eos_options(eos, generator):
+    generator = generator or EOS.MODELS[eos]
+    qhda = _qhda(_energies(generator), eos=eos)
+    _e0, b0, b1, v0 = SYN_PARAMS
+    assert float(qhda.bulk_modulus) == approx(b0 / GPA_TO_EV_ANG3, rel=1e-6)
+    assert qhda.ev_eos_fit.v0 == approx(v0)
+    # Slater gamma at V0: -(1/6 + V0/(2 B0) dB/dV) = B1/2 - 1/6. The third derivative is
+    # taken by finite differences with dx=1e-3 Ang^3, which carries ~2% round-off noise.
+    assert qhda.gruneisen_parameter(300, v0) == approx(b1 / 2 - 1 / 6, rel=0.05)
+    # Slater gamma does not depend on T
+    assert qhda.gruneisen_parameter(1000, v0) == qhda.gruneisen_parameter(300, v0)
+    # zero-point + thermal expansion at 300 K: V0 < V_opt < 1.01 V0
+    assert v0 < qhda.optimum_volumes[0] < 1.01 * v0
+
+
+def test_gruneisen_numerical_eos():
+    energies = _energies(BirchMurnaghan)
+    qhda_num = _qhda(energies, eos="numerical_eos")
+    qhda_bm = _qhda(energies, eos="birch_murnaghan")
+    volumes = [62.0, 64.0, 66.0, 68.0, 70.0]
+    assert [qhda_num.gruneisen_parameter(300, v) for v in volumes] == approx(
+        [qhda_bm.gruneisen_parameter(300, v) for v in volumes], rel=0.05
+    )
+
+
+def _vinet_pressure(volume):
+    # analytic Vinet P(V) = -dE/dV in eV/Ang^3
+    _e0, b0, b1, v0 = SYN_PARAMS
+    eta = (volume / v0) ** (1 / 3)
+    return 3 * b0 * (1 - eta) / eta**2 * np.exp(1.5 * (b1 - 1) * (1 - eta))
+
+
+@pytest.mark.parametrize("pressure", [0.0, 1.0])
+def test_mie_gruneisen(pressure):
+    qhda = _qhda(use_mie_gruneisen=True, pressure=pressure)
+    temp, vol = 300.0, 67.0
+    # gamma = V (P + dE/dV) / U_vib
+    expected = vol * (pressure * GPA_TO_EV_ANG3 - _vinet_pressure(vol)) / qhda.vibrational_internal_energy(temp, vol)
+    assert qhda.gruneisen_parameter(temp, vol) == approx(expected, rel=1e-5)
+    # unlike the Slater gamma, the Mie-Gruneisen gamma is temperature dependent
+    assert qhda.gruneisen_parameter(600.0, vol) != approx(qhda.gruneisen_parameter(temp, vol))
+
+
+def test_thermal_conductivity(qhda_vinet):
+    vol = 66.0
+    gamma = qhda_vinet.gruneisen_parameter(300, vol)
+    theta_a = qhda_vinet.debye_temperature(vol) / SYN_NATOMS ** (1 / 3)
+    # Slack-type scaling: kappa ~ theta_a^2 V^(1/3) / (gamma^2 - 0.514 gamma + 0.228)
+    ratio = qhda_vinet.thermal_conductivity(300, vol) * (gamma**2 - 0.514 * gamma + 0.228) / theta_a**2 / vol ** (1 / 3)
+    # gamma comes from dx=1e-3 finite differences, whose round-off varies by platform
+    # (12.2-12.6 seen across CI runners), so pin loosely
+    assert qhda_vinet.thermal_conductivity(300, vol) == approx(12.2145, rel=0.05)
+    gamma_2 = qhda_vinet.gruneisen_parameter(300, 68.0)
+    theta_a_2 = qhda_vinet.debye_temperature(68.0) / SYN_NATOMS ** (1 / 3)
+    assert qhda_vinet.thermal_conductivity(300, 68.0) == approx(
+        ratio * theta_a_2**2 * 68.0 ** (1 / 3) / (gamma_2**2 - 0.514 * gamma_2 + 0.228)
+    )
+    # with the Slater gamma kappa(V) does not depend on T
+    assert qhda_vinet.thermal_conductivity(900, vol) == qhda_vinet.thermal_conductivity(300, vol)
+
+
+def test_get_summary_dict():
+    qhda = _qhda(t_min=300, t_max=500, t_step=200, pressure=0.5, poisson=0.3)
+    summary = qhda.get_summary_dict()
+    assert summary["pressure"] == 0.5
+    assert summary["poisson"] == 0.3
+    assert summary["mass"] == approx(4 * 26.9815385, rel=1e-6)
+    assert summary["natoms"] == 4
+    assert isinstance(summary["natoms"], int)
+    assert summary["bulk_modulus"] == qhda.bulk_modulus
+    assert summary["temperatures"] == approx([300, 500])
+    assert summary["gibbs_free_energy"] == qhda.gibbs_free_energy
+    assert summary["optimum_volumes"] == qhda.optimum_volumes
+    vols, temps = qhda.optimum_volumes, qhda.temperatures
+    assert summary["debye_temperature"] == approx([qhda.debye_temperature(v) for v in vols])
+    assert summary["gruneisen_parameter"] == approx(
+        [qhda.gruneisen_parameter(t, v) for t, v in zip(temps, vols, strict=True)]
+    )
+    assert summary["thermal_conductivity"] == approx(
+        [qhda.thermal_conductivity(t, v) for t, v in zip(temps, vols, strict=True)]
+    )

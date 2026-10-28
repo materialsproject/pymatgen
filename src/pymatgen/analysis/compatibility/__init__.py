@@ -301,7 +301,6 @@ class AnionCorrection(Correction):
             if entry.data.get("sulfide_type"):
                 sf_type = entry.data["sulfide_type"]
             elif hasattr(entry, "structure"):
-                warnings.warn(sf_type, stacklevel=2)
                 sf_type = sulfide_type(entry.structure)
 
             # use the same correction for polysulfides and sulfides
@@ -1350,7 +1349,6 @@ class MITAqueousCompatibility(CorrectionsList):
         )
 
 
-@cached_class
 @due.dcite(
     Doi(
         "10.1103/PhysRevB.85.235438",
@@ -1474,6 +1472,11 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 "the ground state of O2 and H2O."
             )
 
+        # record the module and class only: as_dict() also holds solid_compat, which may not serialize, and O2/H2O
+        # energies which can differ between instances, so process_entries would not recognize these adjustments as
+        # already applied:
+        adj_cls = {"@module": type(self).__module__, "@class": type(self).__name__, "@version": None}
+
         # compute the free energies of H2 and H2O (eV/atom) to guarantee that the
         # formation-free energy of H2O is equal to -2.4583 eV/H2O from experiments
         # (MU_H2O from Pourbaix module)
@@ -1504,7 +1507,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                     (self.fit_h2_energy - self.h2_energy) * comp.num_atoms,
                     uncertainty=np.nan,
                     name="MP Aqueous H2 / H2O referencing",
-                    cls=self.as_dict(),
+                    cls=adj_cls,
                     description="Adjusts the H2 energy to reproduce the experimental "
                     "Gibbs formation free energy of H2O, based on the DFT energy "
                     "of Oxygen and H2O",
@@ -1521,7 +1524,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                     comp.num_atoms,
                     uncertainty_per_deg=np.nan,
                     name="Compound entropy at room temperature",
-                    cls=self.as_dict(),
+                    cls=adj_cls,
                     description="Adds the entropy (T delta S) to energies of compounds that "
                     "are gaseous or liquid at standard state",
                 )
@@ -1562,7 +1565,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                         nH2O,
                         uncertainty_per_atom=np.nan,
                         name="MP Aqueous hydrate",
-                        cls=self.as_dict(),
+                        cls=adj_cls,
                         description="Adjust the energy of solid hydrate compounds (compounds "
                         "containing H2O molecules in their structure) so that the "
                         "free energies of embedded H2O molecules match the experimental"

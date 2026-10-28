@@ -101,6 +101,7 @@ from __future__ import annotations
 
 import copy
 import json
+import logging
 from pathlib import Path
 
 import numpy as np
@@ -108,6 +109,7 @@ import pandas as pd
 import pytest
 from monty.json import MontyDecoder
 from numpy.testing import assert_allclose
+from pytest import approx
 
 from pymatgen.analysis.compatibility import Compatibility, CompatibilityError
 from pymatgen.analysis.compatibility.mixing_scheme import MaterialsProjectDFTMixingScheme, _entry_sort_key
@@ -115,7 +117,12 @@ from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.entries.computed_entries import CompositionEnergyAdjustment, ComputedEntry, ComputedStructureEntry
+from pymatgen.entries.computed_entries import (
+    CompositionEnergyAdjustment,
+    ComputedEntry,
+    ComputedStructureEntry,
+    ConstantEnergyAdjustment,
+)
 from tests.testing import TEST_FILES_DIR
 
 __author__ = "Ryan Kingsbury"
@@ -2161,6 +2168,124 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         # process_entries should raise a CompatibilityError
         with pytest.raises(KeyError, match="potcar_symbols"):
             MaterialsProjectDFTMixingScheme(check_potcar=True).process_entries(ms_complete.all_entries)
+
+    def test_entry_id_none(self, mixing_scheme_no_compat, ms_complete):
+        """Entries without an entry_id are skipped with a warning; the rest are mixed as usual."""
+        orphan = ComputedStructureEntry(
+            Structure(lattice3, ["Sn", "Br", "Br"], [[0, 0, 0], [0.7, 0.8, 0.9], [0.4, 0.4, 0.4]]),
+            -6,
+            parameters={"run_type": "GGA"},
+            entry_id=None,
+        )
+        with pytest.warns(UserWarning, match="entry_id=None for formula='SnBr2'"):
+            entries = mixing_scheme_no_compat.process_entries([*ms_complete.all_entries, orphan])
+        assert orphan not in entries
+        assert sorted(entry.entry_id for entry in entries) == [f"r2scan-{idx}" for idx in range(1, 8)]
+
+    def test_spacegroup_failure(self, mixing_scheme_no_compat, ms_complete, monkeypatch):
+        """If spacegroup detection fails, the material is grouped under spacegroup -1."""
+
+        def fail(*args, **kwargs):
+            raise RuntimeError("symmetry detection failed")
+
+        monkeypatch.setattr(Structure, "get_space_group_info", fail)
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_complete.all_entries)
+        assert set(state_data["spacegroup"]) == {-1}
+        # grouping falls back to structure matching alone, so the materials are still paired
+        expected = ms_complete.state_data
+        pd.testing.assert_frame_equal(
+            state_data.drop(columns="spacegroup").sort_values("entry_id_1", ignore_index=True),
+            expected.drop(columns="spacegroup").sort_values("entry_id_1", ignore_index=True),
+        )
+
+    def test_reprocess_without_clean(self, ms_complete):
+        """Reprocessing mixed entries with clean=False keeps identical adjustments and
+        discards entries whose existing mixing adjustment conflicts with the recomputed one.
+        """
+        compat = MaterialsProjectDFTMixingScheme(compat_1=None, structure_matcher=StructureMatcher(scale=False))
+        state_data = compat.get_mixing_state_data(ms_complete.all_entries)
+        entries = compat.process_entries(ms_complete.all_entries, mixing_state_data=state_data)
+        (gga_6,) = (entry for entry in entries if entry.entry_id == "gga-6")
+        assert gga_6.correction == approx(-6)
+
+        # The adjustment of gga-6 depends only on the hull energies, so it is recomputed identically.
+        state_data.loc[state_data["entry_id_1"] == "gga-6", "energy_1"] = gga_6.energy_per_atom
+        reprocessed = compat.process_entries(entries, clean=False, mixing_state_data=state_data)
+        assert gga_6 in reprocessed
+        assert len(gga_6.energy_adjustments) == 1
+        assert gga_6.correction == approx(-6)
+
+        # A pre-existing mixing adjustment with a different value is a conflict: discard the entry.
+        gga_6.energy_adjustments[0] = ConstantEnergyAdjustment(
+            -3, name=gga_6.energy_adjustments[0].name, cls=gga_6.energy_adjustments[0].cls
+        )
+        state_data.loc[state_data["entry_id_1"] == "gga-6", "energy_1"] = gga_6.energy_per_atom
+        with pytest.warns(UserWarning, match="Entry gga-6 already has an energy adjustment called MP GGA"):
+            reprocessed = compat.process_entries(entries, clean=False, mixing_state_data=state_data)
+        assert gga_6 not in reprocessed
+        assert len(reprocessed) == len(entries) - 1
+
+    @pytest.mark.parametrize(
+        ("state", "scale_msg", "counts_msg"),
+        [
+            (
+                "ms_complete",
+                "GGA(+U) energies will be adjusted to the r2SCAN scale",
+                "contain 0 GGA(+U) and 7 r2SCAN",
+            ),
+            (
+                "ms_gga_1_scan",
+                "r2SCAN energies will be adjusted to the GGA(+U) scale",
+                "contain 6 GGA(+U) and 1 r2SCAN",
+            ),
+        ],
+        ids=["all_hull_in_r2scan", "partial_hull_in_r2scan"],
+    )
+    def test_verbose(self, state, scale_msg, counts_msg, request, caplog):
+        mixing_state = request.getfixturevalue(state)
+        compat = MaterialsProjectDFTMixingScheme(compat_1=DummyCompatibility(), compat_2=DummyCompatibility())
+        caplog.set_level(logging.INFO, logger="pymatgen.analysis.compatibility.mixing_scheme")
+        entries = compat.process_entries(mixing_state.all_entries, verbose=True)
+        assert len(entries) == 7
+
+        log = caplog.text
+        n_gga, n_scan = len(mixing_state.gga_entries), len(mixing_state.scan_entries)
+        assert f"Processing {n_gga} GGA(+U) and {n_scan} r2SCAN entries..." in log
+        assert f"Processed {n_gga} compatible GGA(+U) entries with DummyCompatibility" in log
+        assert f"Processed {n_scan} compatible r2SCAN entries with DummyCompatibility" in log
+        (chemsys_msg,) = (msg for msg in caplog.messages if msg.startswith("Entries belong to the"))
+        assert "'Br'" in chemsys_msg
+        assert "'Sn'" in chemsys_msg
+        assert "Generating mixing state data from provided entries." in log
+        assert scale_msg in log
+        assert "will be preserved" in log
+        # discarded GGA entries are logged with their traceback
+        assert "error get adjustments" in log
+        assert counts_msg in log
+        # display_entries ends the log with a header and one row per processed entry
+        header_idx = next(idx for idx, msg in enumerate(caplog.messages) if msg.startswith("entry_id"))
+        rows = caplog.messages[header_idx + 1 :]
+        assert sorted(row.split()[0] for row in rows) == sorted(entry.entry_id for entry in entries)
+
+    def test_display_entries(self, mixing_scheme_no_compat, ms_gga_only, caplog):
+        caplog.set_level(logging.INFO, logger="pymatgen.analysis.compatibility.mixing_scheme")
+        mixing_scheme_no_compat.display_entries(ms_gga_only.gga_entries)
+        lines = caplog.messages
+        header = ["entry_id", "formula", "spacegroup", "run_type", "eV/atom", "corr/atom", "e_above_hull"]
+        assert lines[0].split() == header
+        # sorted by formula then energy; gga-6 sits 2 eV/atom above the SnBr2 ground state
+        assert [line.split()[0] for line in lines[1:]] == [f"gga-{idx}" for idx in (3, 2, 1, 4, 5, 6, 7)]
+        gga_6_row = lines[1:][5].split()
+        assert gga_6_row[1] == "SnBr2"
+        assert gga_6_row[3] == "GGA"
+        assert float(gga_6_row[4]) == approx(-4)
+        assert float(gga_6_row[-1]) == approx(2)
+
+    def test_display_entries_incomplete_phase_diagram(self, mixing_scheme_no_compat, ms_gga_only, caplog):
+        caplog.set_level(logging.INFO, logger="pymatgen.analysis.compatibility.mixing_scheme")
+        snbr2_only = [entry for entry in ms_gga_only.gga_entries if entry.reduced_formula == "SnBr2"]
+        assert mixing_scheme_no_compat.display_entries(snbr2_only) is None
+        assert caplog.messages == []
 
 
 class TestMaterialsProjectDFTMixingSchemeStates:

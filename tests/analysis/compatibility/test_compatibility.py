@@ -5,27 +5,36 @@ import json
 import math
 import os
 import sys
+import warnings
 from collections import defaultdict
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 import pytest
 from monty.json import MontyDecoder
+from monty.serialization import dumpfn
 from pytest import approx
+from uncertainties import ufloat
 
 from pymatgen.analysis.compatibility import (
     MP2020_COMPAT_CONFIG,
     MP_COMPAT_CONFIG,
     MU_H2O,
+    AnionCorrection,
     AqueousCorrection,
     Compatibility,
     CompatibilityError,
+    Correction,
+    CorrectionsList,
+    GasCorrection,
     MaterialsProject2020Compatibility,
     MaterialsProjectAqueousCompatibility,
     MaterialsProjectCompatibility,
     MITAqueousCompatibility,
     MITCompatibility,
+    PotcarCorrection,
     SmoothPESCompatibility,
+    UCorrection,
     needs_u_correction,
 )
 from pymatgen.core import Element, Species
@@ -33,6 +42,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.entries import ComputedEntry, ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.sets import MITRelaxSet
 from tests.testing import TEST_FILES_DIR
 
 if TYPE_CHECKING:
@@ -202,6 +212,42 @@ def test_overlapping_adjustments():
         processed = compat.process_entries(entry, clean=False)
 
     assert len(processed) == 0
+
+
+def test_identical_adjustment_not_reapplied_without_clean():
+    """With clean=False, an identical adjustment already on the entry is kept, not duplicated."""
+    entry = ComputedEntry("Fe2O3", -2)
+    compat = DummyCompatibility()
+    compat.process_entries(entry)
+    processed = compat.process_entries(entry, clean=False)
+
+    assert processed == [entry]
+    assert len(entry.energy_adjustments) == 1
+    assert entry.correction == -10
+
+
+def test_process_entries_on_error_warn():
+    compat = MaterialsProject2020Compatibility(check_potcar=False)
+    entry = ComputedEntry("Fe2O3", -2, parameters={"run_type": "R2SCAN"})
+    with pytest.warns(UserWarning, match="has invalid run type R2SCAN"):
+        assert compat.process_entries(entry, on_error="warn") == []
+    with pytest.raises(CompatibilityError, match="has invalid run type R2SCAN"):
+        compat.process_entries(entry, on_error="raise")
+
+
+def test_explain(capsys):
+    compat = DummyCompatibility()
+    entry = compat.process_entry(ComputedEntry("Fe2O3", -2))
+    compat.explain(entry)
+    out = capsys.readouterr().out
+    assert "The uncorrected energy of Fe2 O3 is -2.000 eV (-0.400 eV/atom)." in out
+    assert "Dummy adjustment: -10.000 eV (-2.000 eV/atom)" in out
+    assert "The final energy after adjustments is -12.000 eV (-2.400 eV/atom)." in out
+
+    compat.explain(ComputedEntry("Fe", -2))
+    out = capsys.readouterr().out
+    assert "No energy adjustments have been applied to this entry." in out
+    assert "The final energy after adjustments is -2.000 eV (-2.000 eV/atom)." in out
 
 
 @pytest.mark.filterwarnings("ignore:MaterialsProjectCompatibility is deprecated")
@@ -1226,6 +1272,88 @@ class TestMaterialsProjectCompatibility2020:
         for ea in entry.energy_adjustments:
             if ea.name == "MP2020 GGA/GGA+U mixing correction (Fe)":
                 assert ea.value == approx(-0.224 * 2)
+
+    def test_missing_config_file(self, tmp_path):
+        with pytest.raises(ValueError, match="does not exist"):
+            MaterialsProject2020Compatibility(config_file=str(tmp_path / "missing.yaml"))
+
+    def test_invalid_compat_type(self):
+        with pytest.raises(CompatibilityError, match="Invalid compat_type='PBE'"):
+            MaterialsProject2020Compatibility(compat_type="PBE")
+
+    @staticmethod
+    def _adjustments_by_name(compat, entry) -> dict[str, float]:
+        return {ea.name: ea.value for ea in compat.get_adjustments(entry)}
+
+    @pytest.mark.parametrize(
+        ("sulfide_type", "expected"),
+        [
+            ("sulfide", {"MP2020 anion correction (S)": -0.503 * 2}),
+            ("polysulfide", {"MP2020 anion correction (S)": -0.503 * 2}),  # same correction as sulfide
+            ("elemental", {}),
+        ],
+    )
+    def test_sulfide_type_from_data(self, sulfide_type, expected):
+        entry = ComputedEntry(
+            "FeS2", -10, parameters={"run_type": "GGA"}, data={"sulfide_type": sulfide_type, "oxidation_states": {}}
+        )
+        compat = MaterialsProject2020Compatibility(check_potcar=False)
+        with pytest.warns(UserWarning, match="Failed to guess oxidation states"):
+            assert self._adjustments_by_name(compat, entry) == approx(expected)
+
+    @pytest.mark.parametrize(
+        ("formula", "ox_type", "n_oxygen"),
+        [("Li2O2", "peroxide", 2), ("LiO2", "superoxide", 2), ("LiO3", "ozonide", 3), ("Li2O", "oxide", 1)],
+    )
+    def test_oxide_type_from_formula(self, formula, ox_type, n_oxygen):
+        entry = ComputedEntry(formula, -10, parameters={"run_type": "GGA"})
+        compat = MaterialsProject2020Compatibility(check_potcar=False)
+        with pytest.warns(UserWarning, match="No structure or oxide_type parameter present"):
+            adjustments = self._adjustments_by_name(compat, entry)
+        per_atom = MP2020_COMPAT_CONFIG["Corrections"]["CompositionCorrections"][ox_type]
+        assert adjustments == approx({f"MP2020 anion correction ({ox_type})": per_atom * n_oxygen})
+
+    @pytest.mark.parametrize(
+        ("kwargs", "data"),
+        [({"correct_peroxide": False}, {}), ({}, {"oxide_type": "hydroxide"})],
+    )
+    def test_plain_oxide_correction(self, kwargs, data):
+        """Peroxide detection disabled, or a hydroxide, both fall back to the oxide correction."""
+        entry = ComputedEntry("Li2O2", -10, parameters={"run_type": "GGA"}, data=data)
+        compat = MaterialsProject2020Compatibility(check_potcar=False, **kwargs)
+        assert self._adjustments_by_name(compat, entry) == approx({"MP2020 anion correction (oxide)": -0.687 * 2})
+
+    def test_oxi_state_guess_too_many_sites(self):
+        """Compositions too large for oxi_state_guesses fall back to the most electronegative anion."""
+        entry = ComputedEntry("Li20Mg10O27Cl3", -100, parameters={"run_type": "GGA"}, data={"oxide_type": "oxide"})
+        compat = MaterialsProject2020Compatibility(check_potcar=False)
+        with pytest.warns(UserWarning, match="Failed to guess oxidation states"):
+            adjustments = self._adjustments_by_name(compat, entry)
+        assert entry.data["oxidation_states"] == {}
+        # Cl is not the most electronegative element (O is), so it gets no anion correction
+        assert adjustments == approx({"MP2020 anion correction (oxide)": -0.687 * 27})
+
+    @pytest.mark.parametrize(
+        ("oxidation_states", "expected"),
+        [
+            ({"Li": 3, "N": -3}, {"MP2020 anion correction (N)": -0.361}),
+            ({"Li": 1, "N": -1}, {}),  # outside the fitted N oxidation state range
+        ],
+    )
+    def test_strict_anions_require_exact(self, oxidation_states, expected):
+        entry = ComputedEntry("LiN", -10, parameters={"run_type": "GGA"}, data={"oxidation_states": oxidation_states})
+        compat = MaterialsProject2020Compatibility(check_potcar=False, strict_anions="require_exact")
+        assert self._adjustments_by_name(compat, entry) == approx(expected)
+
+    def test_explain(self, capsys):
+        compat = MaterialsProject2020Compatibility(check_potcar=False)
+        entry = compat.process_entry(self.entry1)
+        compat.explain(entry)
+        out = capsys.readouterr().out
+        assert "The uncorrected energy of Fe2 O3 is -1.000 eV (-0.200 eV/atom)." in out
+        assert "MP2020 anion correction (oxide): -2.061 eV (-0.412 eV/atom)" in out
+        assert "MP2020 GGA/GGA+U mixing correction (Fe): -4.512 eV (-0.902 eV/atom)" in out
+        assert "The final energy after adjustments is -7.573 eV (-1.515 eV/atom)." in out
 
     def test_msonable(self):
         compat_dict = self.compat.as_dict()
@@ -2270,6 +2398,43 @@ class TestMaterialsProjectAqueousCompatibility:
         entries = compat.process_entries(entry_list, inplace=False, n_workers=2, on_error="raise")
         assert len(entries) == 2
 
+    def test_invalid_solid_compat(self):
+        with pytest.raises(ValueError, match="Expected a Compatibility class"):
+            MaterialsProjectAqueousCompatibility(solid_compat="MP2020")
+
+    def test_h2_adjustment_requires_h2_energy(self):
+        """H2 referencing needs the H2 energy, which is only set by process_entries."""
+        compat = MaterialsProjectAqueousCompatibility(
+            o2_energy=-4.95, h2o_energy=-5.1, h2o_adjustments=-0.25, solid_compat=None
+        )
+        h2_entry = ComputedEntry("H2", -6.8)
+        with pytest.raises(ValueError, match="H2 energy not set"):
+            compat.get_adjustments(h2_entry)
+
+        with pytest.warns(UserWarning, match="Processing single H2 entries"):
+            (processed,) = compat.process_entries([h2_entry])
+        assert compat.h2_energy == approx(-3.4)
+        assert processed.energy_per_atom == approx(compat.fit_h2_energy)
+
+    def test_reference_energies_not_shared_between_instances(self):
+        first = MaterialsProjectAqueousCompatibility(solid_compat=None)
+        first.process_entries([ComputedEntry("O2", -10), ComputedEntry("H2O", -15), ComputedEntry("Fe", -1)])
+        assert first.o2_energy == approx(-5)
+
+        second = MaterialsProjectAqueousCompatibility(solid_compat=None)
+        second.process_entries([ComputedEntry("O2", -20), ComputedEntry("H2O", -30), ComputedEntry("Fe", -1)])
+        assert second.o2_energy == approx(-10)
+        assert second.h2o_energy == approx(-10)
+
+    def test_reprocessing_does_not_repeat_adjustments(self):
+        # a new instance infers different O2/H2O energies from the adjusted entries, but must still recognize the
+        # adjustments as already applied
+        entries = [ComputedEntry(Composition("O2"), -4.9276 * 2), ComputedEntry(Composition("H2O"), -15)]
+        MaterialsProjectAqueousCompatibility(solid_compat=None).process_entries(entries)
+        MaterialsProjectAqueousCompatibility(solid_compat=None).process_entries(entries)
+        for entry in entries:
+            assert [adj.name for adj in entry.energy_adjustments] == ["Compound entropy at room temperature"]
+
 
 class TestAqueousCorrection:
     def setup_method(self):
@@ -2296,6 +2461,147 @@ class TestAqueousCorrection:
         entry = ComputedEntry(Composition("Cl"), -24, parameters={"run_type": "GGA"})
         entry = self.corr.correct_entry(entry)
         assert entry.energy == approx(-24.344373)
+
+
+class TestLegacyCorrections:
+    """Edge cases of the Correction classes used by the legacy CorrectionsList schemes."""
+
+    mp_config = f"{PMG_ENTRIES_DIR}/MPCompatibility.yaml"
+    mit_config = f"{PMG_ENTRIES_DIR}/MITCompatibility.yaml"
+
+    def test_anion_correction_sulfide_from_structure(self):
+        """Classifying the sulfide from the structure must not emit a spurious warning."""
+        struct = Structure.from_spacegroup(
+            "F-43m", Lattice.cubic(5.41), ["Zn", "S"], [[0, 0, 0], [0.25, 0.25, 0.25]]
+        )  # zincblende ZnS, 4 formula units
+        entry = ComputedStructureEntry(struct, -20, parameters={"run_type": "GGA"})
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            corr = AnionCorrection(self.mp_config).get_correction(entry)
+        assert corr.nominal_value == approx(-0.66346 * 4)
+
+    @pytest.mark.parametrize(
+        ("sulfide_type", "expected"),
+        [("sulfide", -0.66346 * 2), ("polysulfide", -0.66346 * 2), ("elemental", 0.0)],
+    )
+    def test_anion_correction_sulfide_type_from_data(self, sulfide_type, expected):
+        entry = ComputedEntry("FeS2", -10, data={"sulfide_type": sulfide_type})
+        corr = AnionCorrection(self.mp_config).get_correction(entry)
+        assert corr.nominal_value == approx(expected)
+
+    def test_anion_correction_hydroxide_data(self):
+        """A 'hydroxide' oxide_type gets the plain oxide correction per O atom."""
+        entry = ComputedEntry("LiOH", -10, data={"oxide_type": "hydroxide"})
+        corr = AnionCorrection(self.mp_config).get_correction(entry)
+        assert corr.nominal_value == approx(-0.70229)
+
+    @pytest.mark.parametrize(
+        ("formula", "expected"),
+        [("Li2O2", -0.46622 * 2), ("LiO2", -0.14598 * 2), ("LiO3", 0.0), ("Li2O", -0.70229)],
+    )
+    def test_anion_correction_oxide_type_from_formula(self, formula, expected):
+        entry = ComputedEntry(formula, -10)
+        with pytest.warns(UserWarning, match="No structure or oxide_type parameter present"):
+            corr = AnionCorrection(self.mp_config).get_correction(entry)
+        assert corr.nominal_value == approx(expected)
+
+    def test_gas_correction_compound_energy(self):
+        """N2 is replaced by its fitted compound energy per atom."""
+        entry = ComputedEntry("N2", -16)
+        corr = GasCorrection(self.mit_config).get_correction(entry)
+        assert corr.nominal_value == approx(-8.00185429481 * 2 + 16)
+        assert math.isnan(corr.std_dev)
+
+    def test_potcar_correction_hash_requires_hash_config(self):
+        class SymbolOnlySet:
+            """Input set whose POTCAR config maps elements directly to symbols."""
+
+            CONFIG: ClassVar[dict] = {"POTCAR": {"Fe": "Fe_pv", "O": "O"}}
+
+        with pytest.raises(ValueError, match="Cannot check hashes of potcars"):
+            PotcarCorrection(SymbolOnlySet, check_hash=True)
+
+        corr = PotcarCorrection(SymbolOnlySet)
+        assert corr.valid_potcars == {"Fe": "Fe_pv", "O": "O"}
+        entry = ComputedEntry(
+            "Fe2O3", -10, parameters={"potcar_symbols": ["PAW_PBE Fe_pv 06Sep2000", "PAW_PBE O 08Apr2002"]}
+        )
+        assert corr.get_correction(entry).nominal_value == 0
+        entry.parameters["potcar_symbols"] = ["PAW_PBE Fe 06Sep2000", "PAW_PBE O 08Apr2002"]
+        with pytest.raises(CompatibilityError, match="Incompatible POTCAR"):
+            corr.get_correction(entry)
+
+    def test_u_correction_invalid_compat_type(self):
+        with pytest.raises(CompatibilityError, match="Invalid compat_type='PBE'"):
+            UCorrection(self.mit_config, MITRelaxSet, "PBE")
+
+    def test_u_correction_with_error_file(self, tmp_path):
+        error_file = tmp_path / "errors.yaml"
+        dumpfn({"Advanced": {"UCorrections": {"O": {"Fe": 0.01}}}}, error_file)
+        u_corr = UCorrection(self.mit_config, MITRelaxSet, "Advanced", error_file=str(error_file))
+        entry = ComputedEntry("Fe2O3", -10, parameters={"hubbards": {"Fe": 4.0, "O": 0}})
+        corr = u_corr.get_correction(entry)
+        assert corr.nominal_value == approx(-1.723 * 2)
+        assert corr.std_dev == approx(0.01 * 2)
+
+    def test_aqueous_correction_with_error_file(self, tmp_path):
+        error_file = tmp_path / "errors.yaml"
+        dumpfn({"AqueousCompoundEnergies": {"Cl2": 0.05}}, error_file)
+        aq_corr = AqueousCorrection(self.mit_config, error_file=str(error_file))
+        corr = aq_corr.get_correction(ComputedEntry("Cl2", -4))
+        assert corr.nominal_value == approx(-0.344373 * 2)
+        assert corr.std_dev == approx(0.05 * 2)
+
+
+class ConstantCorrection(Correction):
+    """Constant -1 eV correction with zero (i.e. unknown) uncertainty."""
+
+    def __init__(self, value: float = -1.0) -> None:
+        self.value = value
+
+    def __str__(self) -> str:
+        return f"Constant {self.value} Correction"
+
+    def get_correction(self, entry):
+        return ufloat(self.value, 0.0)
+
+
+class TestCorrectionsList:
+    def test_explanation_dict_unknown_uncertainty(self):
+        compat = CorrectionsList([ConstantCorrection(-1.0), ConstantCorrection(0.0)])
+        entry = ComputedEntry("Fe2O3", -10, parameters={"run_type": "GGA"})
+        dct = compat.get_explanation_dict(entry)
+        assert dct["compatibility"] == "CorrectionsList"
+        assert dct["uncorrected_energy"] == approx(-10)
+        assert dct["corrected_energy"] == approx(-11)
+        nonzero, zero = dct["corrections"]
+        assert nonzero["name"] == "Constant -1.0 Correction"
+        assert nonzero["description"] == "Constant -1 eV correction with zero (i.e. unknown) uncertainty."
+        assert nonzero["value"] == approx(-1)
+        assert math.isnan(nonzero["uncertainty"])  # zero std_dev on a nonzero correction means unknown
+        assert zero["value"] == 0
+        assert zero["uncertainty"] == 0
+
+    def test_explanation_dict_requires_docstring(self):
+        class UndocumentedCorrection(ConstantCorrection):
+            pass
+
+        UndocumentedCorrection.__doc__ = None
+        compat = CorrectionsList([UndocumentedCorrection()])
+        with pytest.raises(RuntimeError, match="__doc__ of some correction is None"):
+            compat.get_explanation_dict(ComputedEntry("Fe2O3", -10, parameters={"run_type": "GGA"}))
+
+    def test_explain(self, capsys):
+        compat = CorrectionsList([ConstantCorrection(-1.0), ConstantCorrection(0.0)])
+        compat.explain(ComputedEntry("Fe2O3", -10, parameters={"run_type": "GGA"}))
+        out = capsys.readouterr().out
+        assert "The uncorrected value of the energy of Fe2 O3 is -10.000000 eV" in out
+        assert "applied for CorrectionsList" in out
+        assert "Constant -1.0 Correction correction: Constant -1 eV correction" in out
+        assert "this correction has the value -1.000000 eV" in out
+        assert "This correction has an uncertainty value of nan eV" in out
+        assert "This correction has an uncertainty value of 0.000000 eV" in out
+        assert "The final energy after corrections is -11.000000" in out
 
 
 class TestMITAqueousCompatibility:

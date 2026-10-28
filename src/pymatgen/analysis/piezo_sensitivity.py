@@ -41,14 +41,14 @@ class BornEffectiveCharge:
         according to the standard method of subclassing numpy ndarrays.
 
         Args:
-            input_matrix (Nx3x3 array-like): the Nx3x3 array-like
+            bec (Nx3x3 array-like): the Nx3x3 array-like
                 representing the born effective charge tensor
         """
         self.structure = structure
         self.bec = bec
         self.pointops = pointops
         self.BEC_operations = None
-        if np.sum(self.bec) >= tol:
+        if np.any(np.abs(np.sum(self.bec, axis=0)) >= tol):
             warnings.warn("Input born effective charge tensor does not satisfy charge neutrality", stacklevel=2)
 
     def get_BEC_operations(self, eigtol=1e-5, opstol=1e-3):
@@ -172,7 +172,7 @@ class InternalStrainTensor:
         Create an InternalStrainTensor object.
 
         Args:
-            input_matrix (Nx3x3x3 array-like): the Nx3x3x3 array-like
+            ist (Nx3x3x3 array-like): the Nx3x3x3 array-like
                 representing the internal strain tensor
         """
         self.structure = structure
@@ -263,7 +263,7 @@ class ForceConstantMatrix:
         Create an ForceConstantMatrix object.
 
         Args:
-            input_matrix (NxNx3x3 array-like): the NxNx3x3 array-like
+            fcm (NxNx3x3 array-like): the NxNx3x3 array-like
                 representing the force constant matrix
         """
         self.structure = structure
@@ -349,7 +349,7 @@ class ForceConstantMatrix:
         """Generate an unsymmetrized force constant matrix.
 
         Args:
-            max_charge (float): maximum born effective charge value
+            max_force (float): maximum force constant value
 
         Returns:
             numpy array representing the force constant matrix
@@ -405,7 +405,7 @@ class ForceConstantMatrix:
 
         Args:
             unsymmetrized_fcm (numpy array): unsymmetrized force constant matrix
-            max_charge (float): maximum born effective charge value
+            max_force (float): maximum force constant value
 
         Returns:
             3Nx3N numpy array representing the force constant matrix
@@ -413,7 +413,7 @@ class ForceConstantMatrix:
         operations = self.FCM_operations
         for op in operations:
             same = transpose = 0
-            if op[0] == op[1] and op[0] == operations[2] and op[0] == op[3]:
+            if op[0] == op[1] and op[0] == op[2] and op[0] == op[3]:
                 same = 1
             if op[0] == op[3] and op[1] == op[2]:
                 transpose = 1
@@ -640,8 +640,8 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
     Args:
         BEC (numpy array): Nx3x3 array representing the born effective charge tensor
         IST (numpy array): Nx3x3x3 array representing the internal strain tensor
-        FCM (numpy array): NxNx3x3 array representing the born effective charge tensor
-        rcondy (float): condition for excluding eigenvalues in the pseudoinverse
+        FCM (numpy array): NxNx3x3 array representing the force constant matrix
+        rcond (float): condition for excluding eigenvalues in the pseudoinverse
 
     Returns:
         3x3x3 calculated Piezo tensor
@@ -671,7 +671,7 @@ def rand_piezo(struct, pointops, sharedops, BEC, IST, FCM, anumiter=10):
         sharedops: list of point operations shared by a pair of atomic sites
         BEC (numpy array): Nx3x3 array representing the born effective charge tensor
         IST (numpy array): Nx3x3x3 array representing the internal strain tensor
-        FCM (numpy array): NxNx3x3 array representing the born effective charge tensor
+        FCM (numpy array): NxNx3x3 array representing the force constant matrix
         anumiter (int): number of iterations for acoustic sum rule convergence
 
     Returns:

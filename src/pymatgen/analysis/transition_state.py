@@ -7,7 +7,6 @@ Henkelman's utilities will be added.
 from __future__ import annotations
 
 import os
-import warnings
 from glob import glob
 from typing import TYPE_CHECKING
 
@@ -38,7 +37,6 @@ class NEBAnalysis(MSONable):
         energies: ArrayLike,
         forces: ArrayLike,
         structures: list[Structure],
-        spline_options: dict | None = None,
         zero_slope_saddle: bool = False,
     ) -> None:
         """Initialize an NEBAnalysis from the cumulative root mean squared distances
@@ -49,18 +47,9 @@ class NEBAnalysis(MSONable):
             energies (ArrayLike): Energies of each structure along reaction coordinate.
             forces (ArrayLike): Tangent forces along the reaction coordinate.
             structures (list[Structure]): Structures along reaction coordinate.
-            spline_options (dict, optional): [Deprecated] Use `zero_slope_saddle` instead.
             zero_slope_saddle (bool): If True, enforces zero slope at saddle point.
         """
         self.zero_slope_saddle = zero_slope_saddle
-        if spline_options is not None:
-            warnings.warn(
-                "`spline_options` is deprecated and will be removed in 2026-08-01. "
-                "Use `zero_slope_saddle=True` instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            self.zero_slope_saddle = spline_options.get("saddle_point") == "zero_slope"
 
         self.r = np.asarray(r)
         self.energies = np.asarray(energies)
@@ -74,29 +63,14 @@ class NEBAnalysis(MSONable):
         # the energy at each pair of points.
         self.setup_spline(zero_slope_saddle=self.zero_slope_saddle)
 
-    def setup_spline(
-        self,
-        spline_options: dict | None = None,
-        zero_slope_saddle: bool = False,
-    ) -> None:
+    def setup_spline(self, zero_slope_saddle: bool = False) -> None:
         """
         Set up the cubic spline interpolation of the MEP.
 
         Args:
-            spline_options (dict, optional): [Deprecated] Dictionary of options.
-                Set to {"saddle_point": "zero_slope"} to enforce zero slope at saddle.
-            zero_slope_saddle (bool): New preferred argument.
-                If True, enforces zero slope at the saddle point.
+            zero_slope_saddle (bool): If True, enforces zero slope at the saddle point.
         """
         self.zero_slope_saddle: bool = zero_slope_saddle
-        if spline_options is not None:
-            warnings.warn(
-                "`spline_options` is deprecated and will be removed in 2026-08-01. "
-                "Use `zero_slope_saddle=True` instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            self.zero_slope_saddle = spline_options.get("saddle_point") == "zero_slope"
 
         if self.zero_slope_saddle:
             idx_max: int = np.argmax(self.relative_energies)
@@ -334,6 +308,7 @@ class NEBAnalysis(MSONable):
             "energies": jsanitize(self.energies),
             "forces": jsanitize(self.forces),
             "structures": [struct.as_dict() for struct in self.structures],
+            "zero_slope_saddle": self.zero_slope_saddle,
         }
 
 
@@ -370,7 +345,8 @@ def combine_neb_plots(
         if neb_index == 0:
             neb1 = neb
             neb1_energies = list(neb1.energies)
-            neb1_structures = neb1.structures
+            # Copy so that in-place extension below does not mutate the input NEBAnalysis
+            neb1_structures = list(neb1.structures)
             neb1_forces = neb1.forces
             neb1_r = neb1.r
             continue
