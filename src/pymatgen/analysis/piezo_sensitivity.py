@@ -349,7 +349,7 @@ class ForceConstantMatrix:
         """Generate an unsymmetrized force constant matrix.
 
         Args:
-            max_force (float): maximum born effective charge value
+            max_force (float): maximum force constant value
 
         Returns:
             numpy array representing the force constant matrix
@@ -405,7 +405,7 @@ class ForceConstantMatrix:
 
         Args:
             unsymmetrized_fcm (numpy array): unsymmetrized force constant matrix
-            max_force (float): maximum born effective charge value
+            max_force (float): maximum force constant value
 
         Returns:
             3Nx3N numpy array representing the force constant matrix
@@ -640,7 +640,7 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
     Args:
         BEC (numpy array): Nx3x3 array representing the born effective charge tensor
         IST (numpy array): Nx3x3x3 array representing the internal strain tensor
-        FCM (numpy array): NxNx3x3 array representing the born effective charge tensor
+        FCM (numpy array): NxNx3x3 array representing the force constant matrix
         rcond (float): condition for excluding eigenvalues in the pseudoinverse
 
     Returns:
@@ -671,7 +671,7 @@ def rand_piezo(struct, pointops, sharedops, BEC, IST, FCM, anumiter=10):
         sharedops: list of point operations shared by a pair of atomic sites
         BEC (numpy array): Nx3x3 array representing the born effective charge tensor
         IST (numpy array): Nx3x3x3 array representing the internal strain tensor
-        FCM (numpy array): NxNx3x3 array representing the born effective charge tensor
+        FCM (numpy array): NxNx3x3 array representing the force constant matrix
         anumiter (int): number of iterations for acoustic sum rule convergence
 
     Returns:

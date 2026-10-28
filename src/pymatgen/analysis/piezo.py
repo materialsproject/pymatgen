@@ -35,7 +35,7 @@ class PiezoTensor(Tensor):
         ndarrays.
 
         Args:
-            input_array (3x3x3 array-like): the 3x6 array-like
+            input_array (3x3x3 array-like): the 3x3x3 array-like
                 representing the piezo tensor
         """
         obj = super().__new__(cls, input_array, check_rank=3)
