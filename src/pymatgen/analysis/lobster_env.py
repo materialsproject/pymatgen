@@ -1360,6 +1360,8 @@ class LobsterNeighbors(NearNeighbors):
         Returns:
             float: Min value of ICOHPs, or max value of ICOOPs/ICOBIs.
         """
+        if len(list_icohps) == 0:
+            raise ValueError("No ICOHPs/ICOOPs/ICOBIs found for the given additional condition")
 
         which_extr = min if not self.are_coops and not self.are_cobis else max
         return which_extr(list_icohps) * percentage
@@ -1388,7 +1390,7 @@ class LobsterNeighbors(NearNeighbors):
         """
         extremum_based = None
 
-        if self.valences is None and adapt_extremum_to_add_cond and additional_condition in {1, 3, 5, 6}:
+        if self.valences is None and additional_condition in {1, 3, 5, 6}:
             raise ValueError(f"{self.valences=}")
 
         if not adapt_extremum_to_add_cond or additional_condition == 0:
@@ -1479,6 +1481,7 @@ class LobsterNeighbors(NearNeighbors):
             return min_here, float("inf")
 
         return None
+    
 
 
 class LobsterLightStructureEnvironments(LightStructureEnvironments):
