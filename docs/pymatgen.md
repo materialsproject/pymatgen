@@ -5858,8 +5858,6 @@ nav_order: 6
       * [`SpectrumPlotter.get_plot()`](pymatgen.vis.md#pymatgen.vis.plotters.SpectrumPlotter.get_plot)
       * [`SpectrumPlotter.save_plot()`](pymatgen.vis.md#pymatgen.vis.plotters.SpectrumPlotter.save_plot)
       * [`SpectrumPlotter.show()`](pymatgen.vis.md#pymatgen.vis.plotters.SpectrumPlotter.show)
-  * [pymatgen.vis.structure_chemview module](pymatgen.vis.md#module-pymatgen.vis.structure_chemview)
-    * [`quick_view()`](pymatgen.vis.md#pymatgen.vis.structure_chemview.quick_view)
   * [pymatgen.vis.structure_vtk module](pymatgen.vis.md#module-pymatgen.vis.structure_vtk)
     * [`MultiStructuresInteractorStyle`](pymatgen.vis.md#pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle)
       * [`MultiStructuresInteractorStyle.keyPressEvent()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle.keyPressEvent)
