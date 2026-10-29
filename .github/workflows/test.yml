@@ -53,7 +53,7 @@ jobs:
           - os: ubuntu-latest
             python: "3.14"  # Test highest supported Python version
             resolution: highest
-            extras: prototypes,optional
+            extras: prototypes,optional,vis
 
     runs-on: ${{ matrix.config.os }}
     env:
@@ -91,6 +91,12 @@ jobs:
           micromamba install -n pmg -c conda-forge bader enumlib \
             packmol pygraphviz tblite --yes
             # openff-toolkit # TODO: doesn't support Python 3.13 yet
+
+      # VTK wheels (>= 9.4) fall back to EGL and then OSMesa when no display is
+      # available, so pymatgen.vis.structure_vtk can render offscreen in tests.
+      - name: Install OSMesa for headless VTK rendering
+        if: matrix.config.os == 'ubuntu-latest'
+        run: sudo apt-get update -q && sudo apt-get install -y -q libosmesa6
 
       - name: Install uv
         uses: astral-sh/setup-uv@v8.1.0

@@ -1,63 +1,200 @@
-"""This module contains classes to wrap Python VTK to make nice molecular plots."""
+"""This module contains classes to wrap Python VTK to make nice molecular plots.
+
+The default styling follows VESTA's ball-and-stick model: spheres drawn at 40% of
+the ionic radius of each species, bonds split into two halves colored by their
+end atoms, and translucent coordination polyhedra colored by the central atom
+with their edges outlined.
+"""
 
 from __future__ import annotations
 
 import itertools
-import math
-import os
+import shutil
 import subprocess
+import tempfile
 import time
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
 from monty.serialization import loadfn
+from scipy.spatial import ConvexHull, QhullError
 
-from pymatgen.core import PeriodicSite, Species, Structure
+from pymatgen.core import Element, PeriodicSite, Species, Structure
 from pymatgen.util.coord import in_coord_list
 
 try:
-    import vtk
-    from vtk import vtkInteractorStyleTrackballCamera as TrackballCamera
+    # Importing vtkRenderingOpenGL2, vtkRenderingFreeType and vtkInteractionStyle
+    # registers the OpenGL, text and interactor-style factory overrides.
+    import vtkmodules.vtkRenderingOpenGL2  # noqa: F401
+    from vtkmodules.vtkCommonCore import vtkPoints, vtkUnsignedCharArray
+    from vtkmodules.vtkCommonDataModel import vtkCellArray, vtkPolyData
+    from vtkmodules.vtkFiltersCore import vtkFeatureEdges, vtkTubeFilter
+    from vtkmodules.vtkFiltersHybrid import vtkRenderLargeImage
+    from vtkmodules.vtkFiltersSources import vtkLineSource, vtkSphereSource
+    from vtkmodules.vtkInteractionStyle import vtkInteractorStyleTrackballCamera as TrackballCamera
+    from vtkmodules.vtkIOImage import vtkBMPWriter, vtkJPEGWriter, vtkPNGWriter, vtkTIFFWriter
+    from vtkmodules.vtkRenderingCore import (
+        vtkActor,
+        vtkActor2D,
+        vtkCellPicker,
+        vtkFollower,
+        vtkPolyDataMapper,
+        vtkRenderer,
+        vtkRenderWindow,
+        vtkRenderWindowInteractor,
+        vtkTextMapper,
+    )
+    from vtkmodules.vtkRenderingFreeType import vtkVectorText
+
+    vtk_available = True
 except ImportError:
-    # VTK not present. The Camera is to set object to avoid errors in unittest.
-    vtk = None
+    # VTK not present. TrackballCamera is set to object so the interactor classes can still be defined.
+    vtk_available = False
     TrackballCamera = object
+    vtkPoints = vtkUnsignedCharArray = vtkCellArray = vtkPolyData = None
+    vtkFeatureEdges = vtkTubeFilter = None
+    vtkRenderLargeImage = vtkLineSource = vtkSphereSource = vtkVectorText = None
+    vtkBMPWriter = vtkJPEGWriter = vtkPNGWriter = vtkTIFFWriter = None
+    vtkActor = vtkActor2D = vtkCellPicker = vtkFollower = vtkPolyDataMapper = None
+    vtkRenderer = vtkRenderWindow = vtkRenderWindowInteractor = vtkTextMapper = None
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import ClassVar
+    from typing import Any, ClassVar
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-EL_COLORS = loadfn(f"{MODULE_DIR}/ElementColorSchemes.yaml")
+    from numpy.typing import ArrayLike
+
+    from pymatgen.core import Molecule, Site
+
+MODULE_DIR = Path(__file__).resolve().parent
+EL_COLORS = loadfn(MODULE_DIR / "ElementColorSchemes.yaml")
+
+# VESTA renders atoms in its ball-and-stick model at 40% of their radii.
+ATOM_RADIUS_SCALE = 0.4
+# Radius (Å) for species with no tabulated ionic or atomic radius.
+DEFAULT_IONIC_RADIUS = 1.0
+# Fractional-coordinate tolerance for treating a site as lying on a cell boundary.
+BOUNDARY_TOL = 1e-3
+
+
+def get_ionic_radius(specie: Species | Element, anion_symbols: set[str] | None = None) -> float:
+    """Ionic radius (Å) of a species, used to size its sphere.
+
+    Species with an oxidation state use their Shannon ionic radius. Bare elements
+    use their average anionic radius if they are listed in anion_symbols and their
+    average cationic radius otherwise. Both fall back to the average ionic radius,
+    then the atomic radius, then DEFAULT_IONIC_RADIUS.
+
+    Args:
+        specie: Element or Species.
+        anion_symbols: Symbols of elements to treat as anions when no oxidation
+            state is set. Defaults to none.
+
+    Returns:
+        float: Ionic radius in Å.
+    """
+    try:
+        if isinstance(specie, Species) and specie.oxi_state and specie.ionic_radius:
+            return float(specie.ionic_radius)
+        element = Element(specie.symbol)
+    except (AttributeError, ValueError):
+        # DummySpecies and other non-element species have no tabulated radii.
+        return DEFAULT_IONIC_RADIUS
+    is_anion = specie.symbol in (anion_symbols or set())
+    primary = element.average_anionic_radius if is_anion else element.average_cationic_radius
+    for radius in (primary, element.average_ionic_radius, element.atomic_radius):
+        if radius:
+            return float(radius)
+    return DEFAULT_IONIC_RADIUS
+
+
+def _get_anion_symbols(structure: Structure | Molecule) -> set[str]:
+    """Symbol of the most electronegative element, treated as the anion for sphere sizes."""
+    elements = {Element(el.symbol) for el in structure.elements}
+    if len(elements) < 2:
+        return set()
+    return {max(elements, key=lambda el: el.X).symbol}
+
+
+def _make_polydata(polygons: Sequence[Sequence[ArrayLike]]) -> vtkPolyData:
+    """Polydata with one polygon cell per sequence of Cartesian vertex coordinates.
+
+    Coincident vertices are merged into one point so that adjacent polygons share edges.
+    """
+    points = vtkPoints()
+    polys = vtkCellArray()
+    point_ids: dict[tuple[float, ...], int] = {}
+    for polygon in polygons:
+        polys.InsertNextCell(len(polygon))
+        for coord in polygon:
+            coord = np.asarray(coord, dtype=float)
+            key = tuple(np.round(coord, 6))
+            if key not in point_ids:
+                point_ids[key] = points.InsertNextPoint(coord)
+            polys.InsertCellPoint(point_ids[key])
+    polydata = vtkPolyData()
+    polydata.SetPoints(points)
+    polydata.SetPolys(polys)
+    return polydata
+
+
+def _get_boundary_images(site: PeriodicSite) -> list[PeriodicSite]:
+    """Periodic images of a site lying on a cell face, edge or corner that also lie on the cell boundary.
+
+    For example, a site at the origin has seven further images at the other corners.
+    """
+    shifts = []
+    for frac_coord in site.frac_coords:
+        if abs(frac_coord) < BOUNDARY_TOL:
+            shifts.append((0, 1))
+        elif abs(frac_coord - 1) < BOUNDARY_TOL:
+            shifts.append((0, -1))
+        else:
+            shifts.append((0,))
+    return [
+        PeriodicSite(
+            site.species,
+            site.frac_coords + np.array(shift),
+            site.lattice,
+            to_unit_cell=False,
+            properties=site.properties,
+        )
+        for shift in itertools.product(*shifts)
+        if any(shift)
+    ]
 
 
 class StructureVis:
     """Structure visualization using VTK."""
 
-    @requires(vtk, "Visualization requires the installation of VTK with Python bindings.")
+    @requires(vtk_available, "Visualization requires the installation of VTK with Python bindings.")
     def __init__(
         self,
-        element_color_mapping=None,
-        show_unit_cell=True,
-        show_bonds=False,
-        show_polyhedron=True,
-        poly_radii_tol_factor=0.5,
-        excluded_bonding_elements=None,
-    ):
+        element_color_mapping: dict[str, Sequence[int]] | None = None,
+        show_unit_cell: bool = True,
+        show_bonds: bool = False,
+        show_polyhedron: bool = True,
+        poly_radii_tol_factor: float = 0.5,
+        excluded_bonding_elements: Sequence[str] | None = None,
+        offscreen: bool = False,
+        atom_radius_scale: float = ATOM_RADIUS_SCALE,
+        bond_radius: float = 0.1,
+        polyhedron_opacity: float = 0.5,
+    ) -> None:
         """
         Constructs a Structure Visualization.
 
         Args:
             element_color_mapping: Optional color mapping for the elements,
                 as a dict of {symbol: rgb tuple}. For example, {"Fe": (255,
-                123,0), ....} If None is specified, a default based on
-                Jmol's color scheme is used.
+                123,0), ....} If None is specified, VESTA's color scheme is used.
             show_unit_cell: Set to False to not show the unit cell
                 boundaries. Defaults to True.
-            show_bonds: Set to True to show bonds. Defaults to True.
+            show_bonds: Set to True to show bonds. Defaults to False.
             show_polyhedron: Set to True to show polyhedrons. Defaults to
-                False.
+                True.
             poly_radii_tol_factor: The polyhedron and bonding code uses the
                 ionic radii of the elements or species to determine if two
                 atoms are bonded. This specifies a tolerance scaling factor
@@ -67,6 +204,13 @@ class StructureVis:
                 bonding determination. Defaults to an empty list. Useful
                 when trying to visualize a certain atom type in the
                 framework (e.g., Li in a Li-ion battery cathode material).
+            offscreen: Render without opening a window, e.g., to write images
+                in scripts or on headless machines. show() is unavailable when
+                True. Defaults to False.
+            atom_radius_scale: Spheres are drawn with radius atom_radius_scale *
+                ionic radius. Defaults to 0.4, as in VESTA's ball-and-stick model.
+            bond_radius: Radius of bond cylinders in Å. Defaults to 0.1.
+            polyhedron_opacity: Opacity of coordination polyhedra. Defaults to 0.5.
 
         Useful keyboard shortcuts implemented.
             h : Show help
@@ -84,40 +228,48 @@ class StructureVis:
             clock/anticlockwise
         """
         # create a rendering window and renderer
-        self.ren = vtk.vtkRenderer()
-        self.ren_win = vtk.vtkRenderWindow()
-        self.ren_win.AddRenderer(self.ren)
+        self.offscreen = offscreen
+        self.ren = vtkRenderer()
         self.ren.SetBackground(1, 1, 1)
+        self.ren.UseFXAAOn()
+        self.ren_win = vtkRenderWindow()
+        self.ren_win.SetOffScreenRendering(offscreen)
+        self.ren_win.SetSize(800, 800)
+        self.ren_win.AddRenderer(self.ren)
         self.title = "Structure Visualizer"
-        self.iren = vtk.vtkRenderWindowInteractor()
+        self.iren = vtkRenderWindowInteractor()
         self.iren.SetRenderWindow(self.ren_win)
         self.mapper_map: dict = {}
-        self.structure = None
+        self.structure: Structure | Molecule | None = None
+        self._anion_symbols: set[str] = set()
 
-        if element_color_mapping:
-            self.el_color_mapping = element_color_mapping
-        else:
-            self.el_color_mapping = EL_COLORS["VESTA"]
+        self.el_color_mapping = element_color_mapping or EL_COLORS["VESTA"]
         self.show_unit_cell = show_unit_cell
         self.show_bonds = show_bonds
         self.show_polyhedron = show_polyhedron
         self.poly_radii_tol_factor = poly_radii_tol_factor
-        self.excluded_bonding_elements = excluded_bonding_elements or []
+        self.excluded_bonding_elements = list(excluded_bonding_elements or [])
+        self.atom_radius_scale = atom_radius_scale
+        self.bond_radius = bond_radius
+        self.polyhedron_opacity = polyhedron_opacity
         self.show_help = True
         self.supercell = np.eye(3)
         self.redraw()
 
-        style = StructureInteractorStyle(self)
-        self.iren.SetInteractorStyle(style)
+        # Keep a reference: re-wrapping via iren.GetInteractorStyle() loses the Python attributes.
+        self.interactor_style = StructureInteractorStyle(self)
+        self.iren.SetInteractorStyle(self.interactor_style)
         self.ren.parent = self
 
-    def rotate_view(self, axis_ind=0, angle=0):
+    def rotate_view(self, axis_ind: int = 0, angle: float = 0) -> None:
         """
         Rotate the camera view.
 
         Args:
-            axis_ind: Index of axis to rotate. Defaults to 0, i.e., a-axis.
-            angle: Angle to rotate by. Defaults to 0.
+            axis_ind: 0 rolls the camera about the view direction, 1 rotates it
+                about the view-up vector (azimuth) and 2 about the horizontal
+                screen axis (pitch). Defaults to 0.
+            angle: Angle to rotate by in degrees. Defaults to 0.
         """
         camera = self.ren.GetActiveCamera()
         if axis_ind == 0:
@@ -128,31 +280,48 @@ class StructureVis:
             camera.Pitch(angle)
         self.ren_win.Render()
 
-    def write_image(self, filename="image.png", magnification=1, image_format="png"):
+    def write_image(
+        self,
+        filename: str | Path = "image.png",
+        magnification: int = 1,
+        image_format: str | None = None,
+    ) -> None:
         """Save render window to an image.
 
-        Arguments:
+        Args:
             filename: file to save to. Defaults to image.png.
             magnification: Use it to render high res images.
-            image_format: choose between jpeg, png. Defaults to 'png'.
+            image_format: One of png, jpeg (jpg), tiff (tif) or bmp. Defaults to
+                None, which infers the format from the extension of filename
+                and falls back to png.
+
+        Raises:
+            ValueError: If the image format is not supported.
         """
-        render_large = vtk.vtkRenderLargeImage()
+        writers = {
+            "png": vtkPNGWriter,
+            "jpg": vtkJPEGWriter,
+            "jpeg": vtkJPEGWriter,
+            "tif": vtkTIFFWriter,
+            "tiff": vtkTIFFWriter,
+            "bmp": vtkBMPWriter,
+        }
+        fmt = (image_format or Path(filename).suffix.lstrip(".") or "png").lower()
+        if fmt not in writers:
+            raise ValueError(f"Unsupported image format {fmt!r}. Choose from {sorted(writers)}.")
+        writer = writers[fmt]()
+        if fmt in {"jpg", "jpeg"}:
+            writer.SetQuality(95)
+
+        render_large = vtkRenderLargeImage()
         render_large.SetInput(self.ren)
-        if image_format == "jpeg":
-            writer = vtk.vtkJPEGWriter()
-            writer.SetQuality(80)
-        else:
-            writer = vtk.vtkPNGWriter()
-
         render_large.SetMagnification(magnification)
-        writer.SetFileName(filename)
-
+        writer.SetFileName(str(filename))
         writer.SetInputConnection(render_large.GetOutputPort())
         self.ren_win.Render()
         writer.Write()
-        del render_large
 
-    def redraw(self, reset_camera=False):
+    def redraw(self, reset_camera: bool = False) -> None:
         """
         Redraw the render window.
 
@@ -163,24 +332,28 @@ class StructureVis:
         self.ren.RemoveAllViewProps()
         self.picker = None
         self.add_picker_fixed()
-        self.helptxt_mapper = vtk.vtkTextMapper()
+        self.helptxt_mapper = vtkTextMapper()
         tprops = self.helptxt_mapper.GetTextProperty()
         tprops.SetFontSize(14)
-        tprops.SetFontFamilyToTimes()
+        tprops.SetFontFamilyToArial()
         tprops.SetColor(0, 0, 0)
+        self.helptxt_actor = vtkActor2D()
+        self.helptxt_actor.SetMapper(self.helptxt_mapper)
+        self.helptxt_actor.SetPosition(10, 10)
+        self.helptxt_actor.VisibilityOff()
 
         if self.structure is not None:
             self.set_structure(self.structure, reset_camera)
 
         self.ren_win.Render()
 
-    def orthogonalize_structure(self):
+    def orthogonalize_structure(self) -> None:
         """Orthogonalize the structure."""
         if self.structure is not None:
             self.set_structure(self.structure.copy(sanitize=True))
         self.ren_win.Render()
 
-    def display_help(self):
+    def display_help(self) -> None:
         """Display the help for various keyboard shortcuts."""
         help_text = [
             "h : Toggle help",
@@ -198,7 +371,12 @@ class StructureVis:
         self.helptxt_actor.SetPosition(10, 10)
         self.helptxt_actor.VisibilityOn()
 
-    def set_structure(self, structure: Structure, reset_camera=True, to_unit_cell=True):
+    def set_structure(
+        self,
+        structure: Structure | Molecule,
+        reset_camera: bool = True,
+        to_unit_cell: bool = True,
+    ) -> None:
         """
         Add a structure to the visualizer.
 
@@ -217,28 +395,31 @@ class StructureVis:
             struct.make_supercell(self.supercell, to_unit_cell=to_unit_cell)
         else:
             struct = structure
+        self._anion_symbols = _get_anion_symbols(struct)
 
         inc_coords = []
         for site in struct:
-            self.add_site(site)
-            inc_coords.append(site.coords)
+            # As in VESTA, sites on cell faces, edges and corners are drawn at all equivalent boundary positions.
+            images = _get_boundary_images(site) if has_lattice else []
+            for image in [site, *images]:
+                self.add_site(image)
+                inc_coords.append(image.coords)
 
-        count = 0
         labels = ["a", "b", "c"]
-        colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
+        colors = [(1, 0, 0), (0, 0.6, 0), (0, 0, 1)]
+        cell_color = (0.1, 0.1, 0.1)
 
         matrix = struct.lattice.matrix if has_lattice else None
 
         if self.show_unit_cell and has_lattice and matrix is not None:
             self.add_text([0, 0, 0], "o")
-            for vec in matrix:
-                self.add_line((0, 0, 0), vec, colors[count])
-                self.add_text(vec, labels[count], colors[count])
-                count += 1
+            for vec, label, color in zip(matrix, labels, colors, strict=True):
+                self.add_line((0, 0, 0), vec, cell_color)
+                self.add_text(vec, label, color)
             for vec1, vec2 in itertools.permutations(matrix, 2):
-                self.add_line(vec1, vec1 + vec2)
+                self.add_line(vec1, vec1 + vec2, cell_color)
             for vec1, vec2, vec3 in itertools.permutations(matrix, 3):
-                self.add_line(vec1 + vec2, vec1 + vec2 + vec3)
+                self.add_line(vec1 + vec2, vec1 + vec2 + vec3, cell_color)
 
         if self.show_bonds or self.show_polyhedron:
             elements = sorted(struct.elements, key=lambda a: a.X)
@@ -251,9 +432,10 @@ class StructureVis:
             for site in struct:
                 exclude = False
                 max_radius = 0
-                color = np.array([0, 0, 0])
+                color = np.zeros(3)
                 for sp, occu in site.species.items():
-                    if sp.symbol in self.excluded_bonding_elements or sp == anion:
+                    # Compare symbols so that oxidation-state-decorated anions are excluded too.
+                    if sp.symbol in self.excluded_bonding_elements or sp.symbol == anion.symbol:
                         exclude = True
                         break
                     max_radius = max(max_radius, sp.average_ionic_radius)  # type:ignore[type-var,assignment]
@@ -269,17 +451,23 @@ class StructureVis:
                             if not in_coord_list(inc_coords, neighbor.coords):
                                 self.add_site(neighbor)
                     if self.show_bonds:
-                        self.add_bonds(nn_sites, site)
+                        self.add_bonds(nn_sites, site, radius=self.bond_radius)
                     if self.show_polyhedron:
-                        color = np.array([i / 255 for i in color])
-                        self.add_polyhedron(nn_sites, site, color)
+                        self.add_polyhedron(
+                            nn_sites,
+                            site,
+                            color / 255,
+                            opacity=self.polyhedron_opacity,
+                            draw_edges=True,
+                            edges_color=(0.25, 0.25, 0.25),
+                            edges_linewidth=1.5,
+                        )
 
+        self.ren.AddActor(self.helptxt_actor)
         if self.show_help:
-            self.helptxt_actor = vtk.vtkActor2D()
-            self.helptxt_actor.VisibilityOn()
-            self.helptxt_actor.SetMapper(self.helptxt_mapper)
-            self.ren.AddActor(self.helptxt_actor)
             self.display_help()
+        else:
+            self.helptxt_actor.VisibilityOff()
 
         camera = self.ren.GetActiveCamera()
         if reset_camera:
@@ -295,45 +483,70 @@ class StructureVis:
                 max_site = max(struct, key=lambda site: site.distance_from_point(origin))
                 camera.SetPosition(origin + 5 * (max_site.coords - origin))
                 camera.SetFocalPoint(struct.center_of_mass)
+            # Keep the viewing direction set above, but move the camera so everything fits in view.
+            self.ren.ResetCamera()
 
         self.structure = structure
         self.title = struct.formula
 
-    def zoom(self, factor):
+    def zoom(self, factor: float) -> None:
         """Zoom the camera view by a factor."""
         camera = self.ren.GetActiveCamera()
         camera.Zoom(factor)
         self.ren_win.Render()
 
-    def show(self):
-        """Display the visualizer."""
+    def show(self) -> None:
+        """Display the visualizer.
+
+        Raises:
+            RuntimeError: If the visualizer was created with offscreen=True.
+        """
+        if self.offscreen:
+            raise RuntimeError("show() is unavailable for an offscreen visualizer. Use write_image() instead.")
         self.iren.Initialize()
-        self.ren_win.SetSize(800, 800)
         self.ren_win.SetWindowName(self.title)
         self.ren_win.Render()
         self.iren.Start()
 
-    def add_site(self, site):
+    def get_site_radius(self, site: Site, anion_symbols: set[str] | None = None) -> float:
+        """Radius (Å) of the sphere drawn for a site.
+
+        The occupancy-weighted mean ionic radius of the species on the site,
+        scaled by atom_radius_scale.
+
+        Args:
+            site: Site to size.
+            anion_symbols: Symbols of elements treated as anions when they carry
+                no oxidation state. Defaults to the most electronegative element
+                of the last structure passed to set_structure.
+
+        Returns:
+            float: Sphere radius in Å.
         """
-        Add a site to the render window. The site is displayed as a sphere, the
-        color of which is determined based on the element. Partially occupied
-        sites are displayed as a single element color, though the site info
-        still shows the partial occupancy.
+        anion_symbols = self._anion_symbols if anion_symbols is None else anion_symbols
+        total_occu = sum(site.species.values())
+        if total_occu == 0:
+            return self.atom_radius_scale * DEFAULT_IONIC_RADIUS
+        radius = sum(occu * get_ionic_radius(sp, anion_symbols) for sp, occu in site.species.items()) / total_occu
+        return self.atom_radius_scale * radius
+
+    def get_site_color(self, site: Site) -> list[float]:
+        """RGB color (0-1) of the species with the highest occupancy on a site."""
+        specie = max(site.species.items(), key=lambda item: item[1])[0]
+        return [c / 255 for c in self.el_color_mapping.get(specie.symbol, (255, 255, 255))]
+
+    def add_site(self, site: Site) -> None:
+        """
+        Add a site to the render window. The site is displayed as a sphere
+        sized by the ionic radii of its species (see get_site_radius). Partially
+        occupied sites are drawn as wedges of each species' color in proportion
+        to its occupancy, with any vacancy fraction in white.
 
         Args:
             site: Site to add.
         """
-        start_angle = radius = total_occu = 0
-
-        for specie, occu in site.species.items():
-            radius += occu * (
-                specie.ionic_radius
-                if isinstance(specie, Species) and specie.ionic_radius
-                else specie.average_ionic_radius
-            )
-            total_occu += occu
-
-        vis_radius = 0.2 + 0.002 * radius
+        vis_radius = self.get_site_radius(site)
+        start_angle = total_occu = 0
 
         for specie, occu in site.species.items():
             color = [i / 255 for i in self.el_color_mapping.get(specie.symbol, (255, 255, 255))]
@@ -341,6 +554,7 @@ class StructureVis:
             mapper = self.add_partial_sphere(site.coords, vis_radius, color, start_angle, start_angle + 360 * occu)
             self.mapper_map[mapper] = [site]
             start_angle += 360 * occu
+            total_occu += occu
 
         if total_occu < 1:
             mapper = self.add_partial_sphere(
@@ -352,7 +566,39 @@ class StructureVis:
             )
             self.mapper_map[mapper] = [site]
 
-    def add_partial_sphere(self, coords, radius, color, start=0, end=360, opacity=1.0):
+    def _add_actor(
+        self,
+        mapper: vtkPolyDataMapper,
+        color: Sequence[float] | None = None,
+        opacity: float | None = None,
+        shiny: bool = True,
+    ) -> vtkActor:
+        """Add an actor for mapper with VESTA-like glossy shading."""
+        actor = vtkActor()
+        actor.SetMapper(mapper)
+        prop = actor.GetProperty()
+        if color is not None:
+            prop.SetColor(color)
+        if opacity is not None:
+            prop.SetOpacity(opacity)
+        if shiny:
+            prop.SetInterpolationToPhong()
+            prop.SetAmbient(0.15)
+            prop.SetDiffuse(0.8)
+            prop.SetSpecular(0.4)
+            prop.SetSpecularPower(40)
+        self.ren.AddActor(actor)
+        return actor
+
+    def add_partial_sphere(
+        self,
+        coords: ArrayLike,
+        radius: float,
+        color: Sequence[float],
+        start: float = 0,
+        end: float = 360,
+        opacity: float = 1.0,
+    ) -> vtkPolyDataMapper:
         """
         Adding a partial sphere (to display partial occupancies.
 
@@ -363,25 +609,24 @@ class StructureVis:
             start (float): Starting angle.
             end (float): Ending angle.
             opacity (float): Opacity.
+
+        Returns:
+            vtkPolyDataMapper: The mapper of the sphere.
         """
-        sphere = vtk.vtkSphereSource()
+        sphere = vtkSphereSource()
         sphere.SetCenter(coords)
         sphere.SetRadius(radius)
-        sphere.SetThetaResolution(18)
-        sphere.SetPhiResolution(18)
+        sphere.SetThetaResolution(24)
+        sphere.SetPhiResolution(24)
         sphere.SetStartTheta(start)
         sphere.SetEndTheta(end)
 
-        mapper = vtk.vtkPolyDataMapper()
+        mapper = vtkPolyDataMapper()
         mapper.SetInputConnection(sphere.GetOutputPort())
-        actor = vtk.vtkActor()
-        actor.SetMapper(mapper)
-        actor.GetProperty().SetColor(color)
-        actor.GetProperty().SetOpacity(opacity)
-        self.ren.AddActor(actor)
+        self._add_actor(mapper, color, opacity)
         return mapper
 
-    def add_text(self, coords, text, color=(0, 0, 0)):
+    def add_text(self, coords: ArrayLike, text: str, color: Sequence[float] = (0, 0, 0)) -> None:
         """
         Add text at a coordinate.
 
@@ -390,11 +635,11 @@ class StructureVis:
             text: Text to place.
             color: Color for text as RGB. Defaults to black.
         """
-        source = vtk.vtkVectorText()
+        source = vtkVectorText()
         source.SetText(text)
-        mapper = vtk.vtkPolyDataMapper()
+        mapper = vtkPolyDataMapper()
         mapper.SetInputConnection(source.GetOutputPort())
-        follower = vtk.vtkFollower()
+        follower = vtkFollower()
         follower.SetMapper(mapper)
         follower.GetProperty().SetColor(color)
         follower.SetPosition(coords)
@@ -402,7 +647,13 @@ class StructureVis:
         self.ren.AddActor(follower)
         follower.SetCamera(self.ren.GetActiveCamera())
 
-    def add_line(self, start, end, color=(0.5, 0.5, 0.5), width=1):
+    def add_line(
+        self,
+        start: ArrayLike,
+        end: ArrayLike,
+        color: Sequence[float] = (0.5, 0.5, 0.5),
+        width: float = 1,
+    ) -> None:
         """
         Adds a line.
 
@@ -412,221 +663,160 @@ class StructureVis:
             color: Color for text as RGB. Defaults to grey.
             width: Width of line. Defaults to 1.
         """
-        source = vtk.vtkLineSource()
+        source = vtkLineSource()
         source.SetPoint1(start)
         source.SetPoint2(end)
 
-        vertex_ids = vtk.vtkStringArray()
-        vertex_ids.SetNumberOfComponents(1)
-        vertex_ids.SetName("VertexIDs")
-        # Set the vertex labels
-        vertex_ids.InsertNextValue("a")
-        vertex_ids.InsertNextValue("b")
-        source.GetOutput().GetPointData().AddArray(vertex_ids)
-
-        mapper = vtk.vtkPolyDataMapper()
+        mapper = vtkPolyDataMapper()
         mapper.SetInputConnection(source.GetOutputPort())
-        actor = vtk.vtkActor()
-        actor.SetMapper(mapper)
-        actor.GetProperty().SetColor(color)
+        actor = self._add_actor(mapper, color, shiny=False)
         actor.GetProperty().SetLineWidth(width)
-        self.ren.AddActor(actor)
 
     def add_polyhedron(
         self,
-        neighbors,
-        center,
-        color,
-        opacity=1.0,
-        draw_edges=False,
-        edges_color=(0.0, 0.0, 0.0),
-        edges_linewidth=2,
-    ):
+        neighbors: Sequence[Site],
+        center: Site,
+        color: Sequence[float] | str,
+        opacity: float = 1.0,
+        draw_edges: bool = False,
+        edges_color: Sequence[float] = (0.0, 0.0, 0.0),
+        edges_linewidth: float = 2,
+    ) -> None:
         """
-        Adds a polyhedron.
+        Adds a polyhedron, drawn as the convex hull of its vertices. Coplanar
+        vertices are drawn as a flat polygon. Fewer than three non-collinear
+        vertices draw nothing.
 
         Args:
             neighbors: Neighbors of the polyhedron (the vertices).
             center: The atom in the center of the polyhedron.
-            color: Color for text as RGB.
+            color: Color for the polyhedron as RGB, or "element" to use the color
+                of the species with the highest occupancy on the central atom.
             opacity: Opacity of the polyhedron
-            draw_edges: If set to True, the a line will be drawn at each edge
+            draw_edges: If set to True, a line will be drawn at each edge
             edges_color: Color of the line for the edges
             edges_linewidth: Width of the line drawn for the edges
         """
-        points = vtk.vtkPoints()
-        conv = vtk.vtkConvexPointSet()
-        for idx, neighbor in enumerate(neighbors):
-            x, y, z = neighbor.coords
-            points.InsertPoint(idx, x, y, z)
-            conv.GetPointIds().InsertId(idx, idx)
-        grid = vtk.vtkUnstructuredGrid()
-        grid.Allocate(1, 1)
-        grid.InsertNextCell(conv.GetCellType(), conv.GetPointIds())
-        grid.SetPoints(points)
+        coords = np.array([neighbor.coords for neighbor in neighbors], dtype=float).reshape(-1, 3)
+        if len(coords) < 3:
+            return
+        centroid = coords.mean(axis=0)
+        _, singular_values, vt = np.linalg.svd(coords - centroid)
+        rank = int(np.sum(singular_values > 1e-3))
+        if rank < 2:
+            return
+        try:
+            if rank == 3:
+                polygons = []
+                for simplex in ConvexHull(coords).simplices:
+                    triangle = coords[simplex]
+                    # Orient every face outwards so that coplanar neighbors share a normal.
+                    normal = np.cross(triangle[1] - triangle[0], triangle[2] - triangle[0])
+                    if np.dot(normal, triangle.mean(axis=0) - centroid) < 0:
+                        triangle = triangle[::-1]
+                    polygons.append(triangle)
+            else:
+                # Coplanar vertices: order them around their 2D convex hull in the best-fit plane.
+                polygons = [coords[ConvexHull((coords - centroid) @ vt[:2].T).vertices]]
+        except QhullError:
+            return
 
-        dsm = vtk.vtkDataSetMapper()
-        poly_sites = [center]
-        poly_sites.extend(neighbors)
-        self.mapper_map[dsm] = poly_sites
-        if vtk.VTK_MAJOR_VERSION <= 5:
-            dsm.SetInputConnection(grid.GetProducerPort())
-        else:
-            dsm.SetInputData(grid)
-        ac = vtk.vtkActor()
-        # ac.SetMapper(mapHull)
-        ac.SetMapper(dsm)
-        ac.GetProperty().SetOpacity(opacity)
+        polydata = _make_polydata(polygons)
+        mapper = vtkPolyDataMapper()
+        mapper.SetInputData(polydata)
+        self.mapper_map[mapper] = [center, *neighbors]
         if isinstance(color, str) and color == "element":
-            # If partial occupations are involved, the color of the specie with
-            # the highest occupation is used
-            max_occu = 0.0
-            max_species = next(iter(center.species), None)
-            for species, occu in center.species.items():
-                if occu > max_occu:
-                    max_species = species
-                    max_occu = occu
-            color = [i / 255 for i in self.el_color_mapping[max_species.symbol]]
-            ac.GetProperty().SetColor(color)
-        else:
-            ac.GetProperty().SetColor(color)
+            color = self.get_site_color(center)
+        self._add_actor(mapper, color, opacity)
 
         if draw_edges:
-            ac.GetProperty().SetEdgeColor(edges_color)
-            ac.GetProperty().SetLineWidth(edges_linewidth)
-            ac.GetProperty().EdgeVisibilityOn()
-        self.ren.AddActor(ac)
+            # Feature edges skip the diagonals that split coplanar faces into triangles.
+            edges = vtkFeatureEdges()
+            edges.SetInputData(polydata)
+            edges.BoundaryEdgesOn()
+            edges.FeatureEdgesOn()
+            edges.SetFeatureAngle(10)
+            edges.ManifoldEdgesOff()
+            edges.NonManifoldEdgesOff()
+            edges.ColoringOff()
+            edges_mapper = vtkPolyDataMapper()
+            edges_mapper.SetInputConnection(edges.GetOutputPort())
+            actor = self._add_actor(edges_mapper, edges_color, shiny=False)
+            actor.GetProperty().SetLineWidth(edges_linewidth)
+
+    def _add_triangles(
+        self,
+        triangles: Sequence[Sequence[ArrayLike]],
+        color: Sequence[float],
+        opacity: float,
+    ) -> vtkActor:
+        """Add a set of triangles, each given as three Cartesian coordinates, as one actor."""
+        mapper = vtkPolyDataMapper()
+        mapper.SetInputData(_make_polydata(triangles))
+        return self._add_actor(mapper, color, opacity)
 
     def add_triangle(
         self,
-        neighbors,
-        color,
-        center=None,
-        opacity=0.4,
-        draw_edges=False,
-        edges_color=(0.0, 0.0, 0.0),
-        edges_linewidth=2,
-    ):
+        neighbors: Sequence[Site],
+        color: Sequence[float] | str,
+        center: Site | None = None,
+        opacity: float = 0.4,
+        draw_edges: bool = False,
+        edges_color: Sequence[float] = (0.0, 0.0, 0.0),
+        edges_linewidth: float = 2,
+    ) -> None:
         """
         Adds a triangular surface between three atoms.
 
         Args:
             neighbors: Atoms between which a triangle will be drawn.
-            color: Color for triangle as RGB.
+            color: Color for triangle as RGB, or "element" to use the color of
+                the central atom.
             center: The "central atom" of the triangle
             opacity: opacity of the triangle
             draw_edges: If set to True, the a line will be drawn at each edge
             edges_color: Color of the line for the edges
             edges_linewidth: Width of the line drawn for the edges
+
+        Raises:
+            ValueError: If color is "element" and center is not provided.
         """
-        points = vtk.vtkPoints()
-        triangle = vtk.vtkTriangle()
-        for ii in range(3):
-            points.InsertNextPoint(neighbors[ii].x, neighbors[ii].y, neighbors[ii].z)
-            triangle.GetPointIds().SetId(ii, ii)
-        triangles = vtk.vtkCellArray()
-        triangles.InsertNextCell(triangle)
-
-        # vtkPolyData object
-        trianglePolyData = vtk.vtkPolyData()
-        trianglePolyData.SetPoints(points)
-        trianglePolyData.SetPolys(triangles)
-
-        # mapper
-        mapper = vtk.vtkPolyDataMapper()
-        mapper.SetInput(trianglePolyData)
-
-        ac = vtk.vtkActor()
-        ac.SetMapper(mapper)
-        ac.GetProperty().SetOpacity(opacity)
-
         if isinstance(color, str) and color == "element":
             if center is None:
                 raise ValueError(
                     "Color should be chosen according to the central atom, and central atom is not provided"
                 )
-            # If partial occupations are involved, the color of the specie with
-            # the highest occupation is used
-            max_occu = 0.0
-            max_species = next(iter(center.species), None)
-            for species, occu in center.species.items():
-                if occu > max_occu:
-                    max_species = species
-                    max_occu = occu
-            color = [i / 255 for i in self.el_color_mapping[max_species.symbol]]
-            ac.GetProperty().SetColor(color)
-        else:
-            ac.GetProperty().SetColor(color)
+            color = self.get_site_color(center)
+        actor = self._add_triangles([[neighbor.coords for neighbor in neighbors[:3]]], color, opacity)
         if draw_edges:
-            ac.GetProperty().SetEdgeColor(edges_color)
-            ac.GetProperty().SetLineWidth(edges_linewidth)
-            ac.GetProperty().EdgeVisibilityOn()
-        self.ren.AddActor(ac)
+            actor.GetProperty().SetEdgeColor(edges_color)
+            actor.GetProperty().SetLineWidth(edges_linewidth)
+            actor.GetProperty().EdgeVisibilityOn()
 
-    def add_faces(self, faces, color, opacity=0.35):
+    def add_faces(self, faces: Sequence[Sequence[ArrayLike]], color: Sequence[float], opacity: float = 0.35) -> None:
         """
-        Adding face of polygon.
+        Adding face of polygon. Faces with more than three vertices are drawn as
+        a fan of triangles around their centroid.
 
         Args:
             faces (list): Coordinates of the faces.
             color (tuple): RGB color.
             opacity (float): Opacity
+
+        Raises:
+            ValueError: If a face has fewer than three vertices.
         """
+        triangles = []
         for face in faces:
-            if len(face) == 3:
-                points = vtk.vtkPoints()
-                triangle = vtk.vtkTriangle()
-                for ii in range(3):
-                    points.InsertNextPoint(face[ii][0], face[ii][1], face[ii][2])
-                    triangle.GetPointIds().SetId(ii, ii)
-                triangles = vtk.vtkCellArray()
-                triangles.InsertNextCell(triangle)
-                trianglePolyData = vtk.vtkPolyData()
-                trianglePolyData.SetPoints(points)
-                trianglePolyData.SetPolys(triangles)
-                mapper = vtk.vtkPolyDataMapper()
-                if vtk.VTK_MAJOR_VERSION <= 5:
-                    mapper.SetInputConnection(trianglePolyData.GetProducerPort())
-                else:
-                    mapper.SetInputData(trianglePolyData)
-                # mapper.SetInput(trianglePolyData)
-                ac = vtk.vtkActor()
-                ac.SetMapper(mapper)
-                ac.GetProperty().SetOpacity(opacity)
-                ac.GetProperty().SetColor(color)
-                self.ren.AddActor(ac)
-            elif len(face) > 3:
-                center = np.zeros(3, float)
-                for site in face:
-                    center += site
-                center /= np.float64(len(face))
-                for ii, f in enumerate(face, start=1):
-                    points = vtk.vtkPoints()
-                    triangle = vtk.vtkTriangle()
-                    points.InsertNextPoint(f[0], f[1], f[2])
-                    ii2 = np.mod(ii, len(face))
-                    points.InsertNextPoint(face[ii2][0], face[ii2][1], face[ii2][2])
-                    points.InsertNextPoint(center[0], center[1], center[2])
-                    for jj in range(3):
-                        triangle.GetPointIds().SetId(jj, jj)
-                    triangles = vtk.vtkCellArray()
-                    triangles.InsertNextCell(triangle)
-                    trianglePolyData = vtk.vtkPolyData()
-                    trianglePolyData.SetPoints(points)
-                    trianglePolyData.SetPolys(triangles)
-                    mapper = vtk.vtkPolyDataMapper()
-                    if vtk.VTK_MAJOR_VERSION <= 5:
-                        mapper.SetInputConnection(trianglePolyData.GetProducerPort())
-                    else:
-                        mapper.SetInputData(trianglePolyData)
-                    # mapper.SetInput(trianglePolyData)
-                    ac = vtk.vtkActor()
-                    ac.SetMapper(mapper)
-                    ac.GetProperty().SetOpacity(opacity)
-                    ac.GetProperty().SetColor(color)
-                    self.ren.AddActor(ac)
-            else:
+            if len(face) < 3:
                 raise ValueError("Number of points for a face should be >= 3")
+            if len(face) == 3:
+                triangles.append(face)
+                continue
+            center = np.mean(np.asarray(face, dtype=float), axis=0)
+            triangles.extend([face[idx], face[(idx + 1) % len(face)], center] for idx in range(len(face)))
+        if triangles:
+            self._add_triangles(triangles, color, opacity)
 
     def add_edges(
         self,
@@ -642,73 +832,92 @@ class StructureVis:
             linewidth (float): Width of the line.
             color (tuple[float, float, float]): RGB color.
         """
-        points = vtk.vtkPoints()
-        lines = vtk.vtkCellArray()
+        points = vtkPoints()
+        lines = vtkCellArray()
         for iedge, edge in enumerate(edges):
             points.InsertPoint(2 * iedge, edge[0])
             points.InsertPoint(2 * iedge + 1, edge[1])
             lines.InsertNextCell(2)
             lines.InsertCellPoint(2 * iedge)
             lines.InsertCellPoint(2 * iedge + 1)
-        polydata = vtk.vtkPolyData()
+        polydata = vtkPolyData()
         polydata.SetPoints(points)
         polydata.SetLines(lines)
-        mapper = vtk.vtkPolyDataMapper()
-        if vtk.VTK_MAJOR_VERSION <= 5:
-            mapper.SetInputConnection(polydata.GetProducerPort())
-        else:
-            mapper.SetInputData(polydata)
-        # mapper.SetInput(polydata)
-        ac = vtk.vtkActor()
-        ac.SetMapper(mapper)
-        ac.GetProperty().SetColor(color)
-        ac.GetProperty().SetLineWidth(linewidth)
-        self.ren.AddActor(ac)
+        mapper = vtkPolyDataMapper()
+        mapper.SetInputData(polydata)
+        actor = self._add_actor(mapper, color, shiny=False)
+        actor.GetProperty().SetLineWidth(linewidth)
 
-    def add_bonds(self, neighbors, center, color=None, opacity=None, radius=0.1):
+    def add_bonds(
+        self,
+        neighbors: Sequence[Site],
+        center: Site,
+        color: Sequence[float] | None = None,
+        opacity: float | None = None,
+        radius: float = 0.1,
+    ) -> None:
         """
         Adds bonds for a site.
 
         Args:
             neighbors: Neighbors of the site.
             center: The site in the center for all bonds.
-            color: Color of the tubes representing the bonds
+            color: Color of the tubes representing the bonds. Defaults to None,
+                which colors each half of a bond by the atom at that end, as in
+                VESTA.
             opacity: Opacity of the tubes representing the bonds
             radius: Radius of tube s representing the bonds
         """
-        points = vtk.vtkPoints()
-        points.InsertPoint(0, center.x, center.y, center.z)
-        lines = vtk.vtkCellArray()
-        for idx, neighbor in enumerate(neighbors):
-            points.InsertPoint(idx + 1, neighbor.coords)
-            lines.InsertNextCell(2)
-            lines.InsertCellPoint(0)
-            lines.InsertCellPoint(idx + 1)
-        pd = vtk.vtkPolyData()
-        pd.SetPoints(points)
-        pd.SetLines(lines)
+        center_coords = np.asarray(center.coords, dtype=float)
+        center_rgb = [round(255 * c) for c in self.get_site_color(center)]
+        points = vtkPoints()
+        lines = vtkCellArray()
+        colors = vtkUnsignedCharArray()
+        colors.SetNumberOfComponents(3)
+        colors.SetName("Colors")
+        for neighbor in neighbors:
+            neighbor_coords = np.asarray(neighbor.coords, dtype=float)
+            midpoint = (center_coords + neighbor_coords) / 2
+            neighbor_rgb = [round(255 * c) for c in self.get_site_color(neighbor)]
+            for start, end, rgb in ((center_coords, midpoint, center_rgb), (midpoint, neighbor_coords, neighbor_rgb)):
+                lines.InsertNextCell(2)
+                lines.InsertCellPoint(points.InsertNextPoint(start))
+                lines.InsertCellPoint(points.InsertNextPoint(end))
+                colors.InsertNextTuple3(*rgb)
+        polydata = vtkPolyData()
+        polydata.SetPoints(points)
+        polydata.SetLines(lines)
+        polydata.GetCellData().SetScalars(colors)
 
-        tube = vtk.vtkTubeFilter()
-        if vtk.VTK_MAJOR_VERSION <= 5:
-            tube.SetInputConnection(pd.GetProducerPort())
-        else:
-            tube.SetInputData(pd)
+        tube = vtkTubeFilter()
+        tube.SetInputData(polydata)
         tube.SetRadius(radius)
+        tube.SetNumberOfSides(16)
+        tube.CappingOn()
 
-        mapper = vtk.vtkPolyDataMapper()
+        mapper = vtkPolyDataMapper()
         mapper.SetInputConnection(tube.GetOutputPort())
+        if color is None:
+            mapper.SetScalarModeToUseCellData()
+        else:
+            mapper.ScalarVisibilityOff()
+        self._add_actor(mapper, color, opacity)
 
-        actor = vtk.vtkActor()
-        actor.SetMapper(mapper)
-        if opacity is not None:
-            actor.GetProperty().SetOpacity(opacity)
-        if color is not None:
-            actor.GetProperty().SetColor(color)
-        self.ren.AddActor(actor)
+    def _format_site_info(self, mapper: vtkPolyDataMapper) -> str:
+        """Species and fractional/Cartesian coordinates of the sites drawn by mapper."""
+        output = []
+        for site in self.mapper_map[mapper]:
+            frac_coords = getattr(site, "frac_coords", None)
+            row = [f"{site.species_string} - "]
+            if frac_coords is not None:
+                row.append(", ".join(f"{c:.3f}" for c in frac_coords))
+            row.append("[" + ", ".join(f"{c:.3f}" for c in site.coords) + "]")
+            output.append("".join(row))
+        return "\n".join(output)
 
-    def add_picker_fixed(self):
-        """Create a cell picker."""
-        picker = vtk.vtkCellPicker()
+    def add_picker_fixed(self) -> None:
+        """Create a cell picker that shows information on picked sites in the corner of the window."""
+        picker = vtkCellPicker()
 
         # Create a Python function to create the text for the text mapper used
         # to display the results of picking.
@@ -719,15 +928,7 @@ class StructureVis:
             else:
                 mapper = picker.GetMapper()
                 if mapper in self.mapper_map:
-                    output = []
-                    for site in self.mapper_map[mapper]:
-                        row = [
-                            f"{site.species_string} - ",
-                            ", ".join(f"{c:.3f}" for c in site.frac_coords),
-                            "[" + ", ".join(f"{c:.3f}" for c in site.coords) + "]",
-                        ]
-                        output.append("".join(row))
-                    self.helptxt_mapper.SetInput("\n".join(output))
+                    self.helptxt_mapper.SetInput(self._format_site_info(mapper))
                     self.helptxt_actor.SetPosition(10, 10)
                     self.helptxt_actor.VisibilityOn()
                     self.show_help = False
@@ -736,15 +937,15 @@ class StructureVis:
         picker.AddObserver("EndPickEvent", annotate_pick)
         self.iren.SetPicker(picker)
 
-    def add_picker(self):
-        """Create a cell picker."""
-        picker = vtk.vtkCellPicker()
+    def add_picker(self) -> None:
+        """Create a cell picker that shows information on picked sites next to them."""
+        picker = vtkCellPicker()
         # Create a Python function to create the text for the text mapper used
         # to display the results of picking.
-        source = vtk.vtkVectorText()
-        mapper = vtk.vtkPolyDataMapper()
+        source = vtkVectorText()
+        mapper = vtkPolyDataMapper()
         mapper.SetInputConnection(source.GetOutputPort())
-        follower = vtk.vtkFollower()
+        follower = vtkFollower()
         follower.SetMapper(mapper)
         follower.GetProperty().SetColor((0, 0, 0))
         follower.SetScale(0.2)
@@ -759,12 +960,7 @@ class StructureVis:
                 pick_pos = picker.GetPickPosition()
                 mapper = picker.GetMapper()
                 if mapper in self.mapper_map:
-                    site = self.mapper_map[mapper]
-                    output = [
-                        site.species_string,
-                        "Frac. coords: " + " ".join(f"{c:.4f}" for c in site.frac_coords),
-                    ]
-                    source.SetText("\n".join(output))
+                    source.SetText(self._format_site_info(mapper))
                     follower.SetPosition(pick_pos)
                     follower.VisibilityOn()
 
@@ -776,9 +972,10 @@ class StructureVis:
 class StructureInteractorStyle(TrackballCamera):
     """A custom interactor style for visualizing structures."""
 
-    def __init__(self, parent):
+    def __init__(self, parent: StructureVis) -> None:
         """Initialize StructureInteractorStyle."""
         self.parent = parent
+        self.mouse_motion = 0
         self.AddObserver("LeftButtonPressEvent", self.leftButtonPressEvent)
         self.AddObserver("MouseMoveEvent", self.mouseMoveEvent)
         self.AddObserver("LeftButtonReleaseEvent", self.leftButtonReleaseEvent)
@@ -796,31 +993,24 @@ class StructureInteractorStyle(TrackballCamera):
 
     def leftButtonReleaseEvent(self, obj, event):
         """Left mouse button release event."""
-        ren = obj.GetCurrentRenderer()
-        iren = ren.GetRenderWindow().GetInteractor()
         if self.mouse_motion == 0:
+            iren = self.parent.iren
             pos = iren.GetEventPosition()
-            iren.GetPicker().Pick(pos[0], pos[1], 0, ren)
+            iren.GetPicker().Pick(pos[0], pos[1], 0, self.parent.ren)
         self.OnLeftButtonUp()
 
     def keyPressEvent(self, obj, _event):
         """Key press event."""
-        parent = obj.GetCurrentRenderer().parent
+        parent = self.parent
         sym = parent.iren.GetKeySym()
 
-        if sym in "ABCabc":
-            if sym == "A":
-                parent.supercell[0][0] += 1
-            elif sym == "B":
-                parent.supercell[1][1] += 1
-            elif sym == "C":
-                parent.supercell[2][2] += 1
-            elif sym == "a":
-                parent.supercell[0][0] = max(parent.supercell[0][0] - 1, 1)
-            elif sym == "b":
-                parent.supercell[1][1] = max(parent.supercell[1][1] - 1, 1)
-            elif sym == "c":
-                parent.supercell[2][2] = max(parent.supercell[2][2] - 1, 1)
+        if sym in {"A", "B", "C"}:
+            axis = "ABC".index(sym)
+            parent.supercell[axis][axis] += 1
+            parent.redraw()
+        elif sym in {"a", "b", "c"}:
+            axis = "abc".index(sym)
+            parent.supercell[axis][axis] = max(parent.supercell[axis][axis] - 1, 1)
             parent.redraw()
         elif sym == "numbersign":
             parent.show_polyhedron = not parent.show_polyhedron
@@ -838,7 +1028,7 @@ class StructureInteractorStyle(TrackballCamera):
             parent.show_help = not parent.show_help
             parent.redraw()
         elif sym == "r":
-            parent.redraw(True)  # noqa: FBT003
+            parent.redraw(reset_camera=True)
         elif sym == "s":
             parent.write_image("image.png")
         elif sym == "Up":
@@ -857,16 +1047,19 @@ class StructureInteractorStyle(TrackballCamera):
 
 
 def make_movie(
-    structures,
-    output_filename="movie.mp4",
-    zoom=1.0,
-    fps=20,
-    bitrate="10000k",
-    quality=1,
-    **kwargs,
-):
+    structures: Sequence[Structure],
+    output_filename: str | Path = "movie.mp4",
+    zoom: float = 1.0,
+    fps: int = 20,
+    bitrate: str = "10000k",
+    quality: int = 1,
+    **kwargs: Any,
+) -> None:
     """
     Generate a movie from a sequence of structures using vtk and ffmpeg.
+
+    Frames are rendered offscreen into a temporary directory. The camera is set
+    from the first structure and kept fixed for the rest.
 
     Args:
         structures ([Structure]): sequence of structures
@@ -879,32 +1072,37 @@ def make_movie(
         quality (int): A quality scale. Defaults to 1.
         kwargs: Any kwargs supported by StructureVis to modify the images
             generated.
+
+    Raises:
+        RuntimeError: If ffmpeg is not on the PATH.
     """
+    if shutil.which("ffmpeg") is None:
+        raise RuntimeError("make_movie requires ffmpeg on the PATH.")
+    kwargs.setdefault("offscreen", True)
     vis = StructureVis(**kwargs)
     vis.show_help = False
     vis.redraw()
-    vis.zoom(zoom)
-    sig_fig = math.floor(math.log10(len(structures))) + 1
-    filename = f"image{{0:0{sig_fig}d}}.png"
-    for idx, site in enumerate(structures):
-        vis.set_structure(site)
-        vis.write_image(filename.format(idx), 3)
-    filename = f"image%0{sig_fig}d.png"
-    args = [
-        "ffmpeg",
-        "-y",
-        "-i",
-        filename,
-        "-q:v",
-        str(quality),
-        "-r",
-        str(fps),
-        "-b:v",
-        str(bitrate),
-        output_filename,
-    ]
-    with subprocess.Popen(args) as process:
-        process.communicate()
+    n_digits = len(str(len(structures)))
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        for idx, struct in enumerate(structures):
+            vis.set_structure(struct, reset_camera=idx == 0)
+            if idx == 0:
+                vis.zoom(zoom)
+            vis.write_image(Path(tmp_dir) / f"image{idx:0{n_digits}d}.png", 3)
+        args = [
+            "ffmpeg",
+            "-y",
+            "-framerate",
+            str(fps),
+            "-i",
+            str(Path(tmp_dir) / f"image%0{n_digits}d.png"),
+            "-q:v",
+            str(quality),
+            "-b:v",
+            str(bitrate),
+            str(output_filename),
+        ]
+        subprocess.run(args, check=True)
 
 
 class MultiStructuresVis(StructureVis):
@@ -919,23 +1117,23 @@ class MultiStructuresVis(StructureVis):
 
     def __init__(
         self,
-        element_color_mapping=None,
-        show_unit_cell=True,
-        show_bonds=False,
-        show_polyhedron=False,
-        poly_radii_tol_factor=0.5,
-        excluded_bonding_elements=None,
-        animated_movie_options=DEFAULT_ANIMATED_MOVIE_OPTIONS,
-    ):
+        element_color_mapping: dict[str, Sequence[int]] | None = None,
+        show_unit_cell: bool = True,
+        show_bonds: bool = False,
+        show_polyhedron: bool = False,
+        poly_radii_tol_factor: float = 0.5,
+        excluded_bonding_elements: Sequence[str] | None = None,
+        animated_movie_options: dict[str, str | float] | None = None,
+        **kwargs: Any,
+    ) -> None:
         """
         Args:
             element_color_mapping: Optional color mapping for the elements,
                 as a dict of {symbol: rgb tuple}. For example, {"Fe": (255,
-                123,0), ....} If None is specified, a default based on
-                Jmol's color scheme is used.
+                123,0), ....} If None is specified, VESTA's color scheme is used.
             show_unit_cell: Set to False to not show the unit cell
                 boundaries. Defaults to True.
-            show_bonds: Set to True to show bonds. Defaults to True.
+            show_bonds: Set to True to show bonds. Defaults to False.
             show_polyhedron: Set to True to show polyhedrons. Defaults to
                 False.
             poly_radii_tol_factor: The polyhedron and bonding code uses the
@@ -947,8 +1145,16 @@ class MultiStructuresVis(StructureVis):
                 bonding determination. Defaults to an empty list. Useful
                 when trying to visualize a certain atom type in the
                 framework (e.g., Li in a Li-ion battery cathode material).
-            animated_movie_options (dict): Options for animated movie.
+            animated_movie_options (dict): Options for animated movie. Defaults
+                to DEFAULT_ANIMATED_MOVIE_OPTIONS.
+            kwargs: Other kwargs supported by StructureVis, e.g., offscreen.
         """
+        self.structures: Sequence[Structure] = []
+        self.tags: list[dict] = []
+        self.all_radii: list[list[float]] = []
+        self.all_vis_radii: list[list[float]] = []
+        self.istruct = 0
+        self.current_structure: Structure | None = None
         super().__init__(
             element_color_mapping=element_color_mapping,
             show_unit_cell=show_unit_cell,
@@ -956,17 +1162,15 @@ class MultiStructuresVis(StructureVis):
             show_polyhedron=show_polyhedron,
             poly_radii_tol_factor=poly_radii_tol_factor,
             excluded_bonding_elements=excluded_bonding_elements,
+            **kwargs,
         )
-        self.warning_txt_actor = vtk.vtkActor2D()
-        self.info_txt_actor = vtk.vtkActor2D()
-        self.structures = None
-        style = MultiStructuresInteractorStyle(self)
-        self.iren.SetInteractorStyle(style)
-        self.istruct = 0
-        self.current_structure = None
+        self.warning_txt_actor = vtkActor2D()
+        self.info_txt_actor = vtkActor2D()
+        self.interactor_style = MultiStructuresInteractorStyle(self)
+        self.iren.SetInteractorStyle(self.interactor_style)
         self.set_animated_movie_options(animated_movie_options=animated_movie_options)
 
-    def set_structures(self, structures: Sequence[Structure], tags=None):
+    def set_structures(self, structures: Sequence[Structure], tags: list[dict] | None = None) -> None:
         """Add list of structures to the visualizer.
 
         Args:
@@ -980,28 +1184,19 @@ class MultiStructuresVis(StructureVis):
         self.all_radii = []
         self.all_vis_radii = []
         for struct in self.structures:
-            struct_radii = []
-            struct_vis_radii = []
-            for site in struct:
-                radius = 0.0
-                vis_radius = 0.2
-                for species, occu in site.species.items():
-                    radius += occu * (
-                        species.ionic_radius
-                        if isinstance(species, Species) and species.ionic_radius
-                        else species.average_ionic_radius
-                    )
-                    vis_radius = 0.2 + 0.002 * radius
-
-                struct_radii.append(radius)
-                struct_vis_radii.append(vis_radius)
-
-            self.all_radii.append(struct_radii)
+            anion_symbols = _get_anion_symbols(struct)
+            struct_vis_radii = [self.get_site_radius(site, anion_symbols) for site in struct]
             self.all_vis_radii.append(struct_vis_radii)
+            self.all_radii.append([radius / self.atom_radius_scale for radius in struct_vis_radii])
 
         self.set_structure(self.current_structure, reset_camera=True, to_unit_cell=False)
 
-    def set_structure(self, structure: Structure, reset_camera=True, to_unit_cell=False):
+    def set_structure(
+        self,
+        structure: Structure | Molecule,
+        reset_camera: bool = True,
+        to_unit_cell: bool = False,
+    ) -> None:
         """
         Add a structure to the visualizer.
 
@@ -1014,7 +1209,7 @@ class MultiStructuresVis(StructureVis):
         super().set_structure(structure=structure, reset_camera=reset_camera, to_unit_cell=to_unit_cell)
         self.apply_tags()
 
-    def apply_tags(self):
+    def apply_tags(self) -> None:
         """Apply tags."""
         tags = {}
         for tag in self.tags:
@@ -1075,21 +1270,23 @@ class MultiStructuresVis(StructureVis):
                 opacity=opacity,
             )
 
-    def set_animated_movie_options(self, animated_movie_options=None):
+    def set_animated_movie_options(self, animated_movie_options: dict[str, str | float] | None = None) -> None:
         """
         Args:
             animated_movie_options (dict): Options for animated movie.
-        """
-        if animated_movie_options is None:
-            self.animated_movie_options = self.DEFAULT_ANIMATED_MOVIE_OPTIONS.copy()
-        else:
-            self.animated_movie_options = self.DEFAULT_ANIMATED_MOVIE_OPTIONS.copy()
-            for key in animated_movie_options:
-                if key not in self.DEFAULT_ANIMATED_MOVIE_OPTIONS:
-                    raise ValueError("Wrong option for animated movie")
-            self.animated_movie_options.update(animated_movie_options)
 
-    def display_help(self):
+        Raises:
+            ValueError: If an option is not one of DEFAULT_ANIMATED_MOVIE_OPTIONS.
+        """
+        self.animated_movie_options = self.DEFAULT_ANIMATED_MOVIE_OPTIONS.copy()
+        if animated_movie_options is None:
+            return
+        for key in animated_movie_options:
+            if key not in self.DEFAULT_ANIMATED_MOVIE_OPTIONS:
+                raise ValueError("Wrong option for animated movie")
+        self.animated_movie_options.update(animated_movie_options)
+
+    def display_help(self) -> None:
         """Display the help for various keyboard shortcuts."""
         helptxt = [
             "h : Toggle help",
@@ -1110,20 +1307,20 @@ class MultiStructuresVis(StructureVis):
         self.helptxt_actor.SetPosition(10, 10)
         self.helptxt_actor.VisibilityOn()
 
-    def display_warning(self, warning):
+    def display_warning(self, warning: str) -> None:
         """
         Args:
             warning (str): Warning.
         """
-        self.warning_txt_mapper = vtk.vtkTextMapper()
+        self.warning_txt_mapper = vtkTextMapper()
         text_props = self.warning_txt_mapper.GetTextProperty()
         text_props.SetFontSize(14)
-        text_props.SetFontFamilyToTimes()
+        text_props.SetFontFamilyToArial()
         text_props.SetColor(1, 0, 0)
         text_props.BoldOn()
         text_props.SetJustificationToRight()
         self.warning_txt = f"WARNING : {warning}"
-        self.warning_txt_actor = vtk.vtkActor2D()
+        self.warning_txt_actor = vtkActor2D()
         self.warning_txt_actor.VisibilityOn()
         self.warning_txt_actor.SetMapper(self.warning_txt_mapper)
         self.ren.AddActor(self.warning_txt_actor)
@@ -1132,24 +1329,24 @@ class MultiStructuresVis(StructureVis):
         self.warning_txt_actor.SetPosition(win_size[0] - 10, 10)
         self.warning_txt_actor.VisibilityOn()
 
-    def erase_warning(self):
+    def erase_warning(self) -> None:
         """Remove warnings."""
         self.warning_txt_actor.VisibilityOff()
 
-    def display_info(self, info):
+    def display_info(self, info: str) -> None:
         """
         Args:
             info (str): Information.
         """
-        self.info_txt_mapper = vtk.vtkTextMapper()
+        self.info_txt_mapper = vtkTextMapper()
         t_prop = self.info_txt_mapper.GetTextProperty()
         t_prop.SetFontSize(14)
-        t_prop.SetFontFamilyToTimes()
+        t_prop.SetFontFamilyToArial()
         t_prop.SetColor(0, 0, 1)
         t_prop.BoldOn()
         t_prop.SetVerticalJustificationToTop()
         self.info_txt = f"INFO : {info}"
-        self.info_txt_actor = vtk.vtkActor2D()
+        self.info_txt_actor = vtkActor2D()
         self.info_txt_actor.VisibilityOn()
         self.info_txt_actor.SetMapper(self.info_txt_mapper)
         self.ren.AddActor(self.info_txt_actor)
@@ -1158,7 +1355,7 @@ class MultiStructuresVis(StructureVis):
         self.info_txt_actor.SetPosition(10, win_size[1] - 10)
         self.info_txt_actor.VisibilityOn()
 
-    def erase_info(self):
+    def erase_info(self) -> None:
         """Erase all info."""
         self.info_txt_actor.VisibilityOff()
 
@@ -1166,58 +1363,56 @@ class MultiStructuresVis(StructureVis):
 class MultiStructuresInteractorStyle(StructureInteractorStyle):
     """Interactor for MultiStructureVis."""
 
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: MultiStructuresVis) -> None:
         """Initialize MultiStructuresInteractorStyle."""
         StructureInteractorStyle.__init__(self, parent=parent)
 
+    def _show_structure(self, istruct: int) -> None:
+        parent = self.parent
+        parent.istruct = istruct
+        parent.current_structure = parent.structures[istruct]
+        parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
+
     def keyPressEvent(self, obj, event):
         """Key press event."""
-        parent = obj.GetCurrentRenderer().parent
+        parent = self.parent
         sym = parent.iren.GetKeySym()
 
         if sym == "n":
             if parent.istruct == len(parent.structures) - 1:
                 parent.display_warning("LAST STRUCTURE")
-                parent.ren_win.Render()
             else:
-                parent.istruct += 1
-                parent.current_structure = parent.structures[parent.istruct]
-                parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
+                self._show_structure(parent.istruct + 1)
                 parent.erase_warning()
-                parent.ren_win.Render()
+            parent.ren_win.Render()
         elif sym == "p":
             if parent.istruct == 0:
                 parent.display_warning("FIRST STRUCTURE")
-                parent.ren_win.Render()
             else:
-                parent.istruct -= 1
-                parent.current_structure = parent.structures[parent.istruct]
-                parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
+                self._show_structure(parent.istruct - 1)
                 parent.erase_warning()
-                parent.ren_win.Render()
+            parent.ren_win.Render()
         elif sym == "m":
-            parent.istruct = 0
-            parent.current_structure = parent.structures[parent.istruct]
-            parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
+            n_structs = len(parent.structures)
+            looping_type = parent.animated_movie_options["looping_type"]
+            if looping_type == "restart":
+                loop_istructs = list(range(n_structs))
+            elif looping_type == "palindrome":
+                loop_istructs = list(range(n_structs)) + list(range(n_structs - 2, -1, -1))
+            else:
+                raise ValueError('"looping_type" should be "restart" or "palindrome"')
+            self._show_structure(0)
             parent.erase_warning()
             parent.ren_win.Render()
             nloops = parent.animated_movie_options["number_of_loops"]
             tstep = parent.animated_movie_options["time_between_frames"]
             tloops = parent.animated_movie_options["time_between_loops"]
-            if parent.animated_movie_options["looping_type"] == "restart":
-                loop_istructs = range(len(parent.structures))
-            elif parent.animated_movie_options["looping_type"] == "palindrome":
-                loop_istructs = range(len(parent.structures)) + range(len(parent.structures) - 2, -1, -1)
-            else:
-                raise ValueError('"looping_type" should be "restart" or "palindrome"')
             for iloop in range(nloops):
                 for istruct in loop_istructs:
                     time.sleep(tstep)
-                    parent.istruct = istruct
-                    parent.current_structure = parent.structures[parent.istruct]
-                    parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
+                    self._show_structure(istruct)
                     parent.display_info(
-                        f"Animated movie : structure {istruct + 1}/{len(parent.structures)} (loop {iloop + 1}/{nloops})"
+                        f"Animated movie : structure {istruct + 1}/{n_structs} (loop {iloop + 1}/{nloops})"
                     )
                     parent.ren_win.Render()
                 time.sleep(tloops)

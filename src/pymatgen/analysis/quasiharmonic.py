@@ -402,9 +402,12 @@ class QuasiHarmonicDebyeApprox:
                 return val / np.prod((dx,) * n, axis=0)
 
             func = self.ev_eos_fit.func
-            dEdV = derivative(func, volume, dx=1e-3, n=1)
-            d2EdV2 = derivative(func, volume, dx=1e-3, n=2, order=5)
-            d3EdV3 = derivative(func, volume, dx=1e-3, n=3, order=7)
+            # Step scales with volume: a fixed dx=1e-3 Ang^3 leaves ~5% round-off in d3E/dV3
+            # (eps * |E| / dx^3), which made gamma platform-dependent.
+            dx = 1e-3 * volume
+            dEdV = derivative(func, volume, dx=dx, n=1, order=5)
+            d2EdV2 = derivative(func, volume, dx=dx, n=2, order=5)
+            d3EdV3 = derivative(func, volume, dx=dx, n=3, order=7)
 
         # Mie-gruneisen formulation
         if self.use_mie_gruneisen:
