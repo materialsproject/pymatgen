@@ -1481,7 +1481,6 @@ class LobsterNeighbors(NearNeighbors):
             return min_here, float("inf")
 
         return None
-    
 
 
 class LobsterLightStructureEnvironments(LightStructureEnvironments):
