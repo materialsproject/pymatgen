@@ -345,9 +345,8 @@ def test_eos_options(eos, generator):
     _e0, b0, b1, v0 = SYN_PARAMS
     assert float(qhda.bulk_modulus) == approx(b0 / GPA_TO_EV_ANG3, rel=1e-6)
     assert qhda.ev_eos_fit.v0 == approx(v0)
-    # Slater gamma at V0: -(1/6 + V0/(2 B0) dB/dV) = B1/2 - 1/6. The third derivative is
-    # taken by finite differences with dx=1e-3 Ang^3, which carries ~2% round-off noise.
-    assert qhda.gruneisen_parameter(300, v0) == approx(b1 / 2 - 1 / 6, rel=0.05)
+    # Slater gamma at V0: -(1/6 + V0/(2 B0) dB/dV) = B1/2 - 1/6
+    assert qhda.gruneisen_parameter(300, v0) == approx(b1 / 2 - 1 / 6, rel=1e-5)
     # Slater gamma does not depend on T
     assert qhda.gruneisen_parameter(1000, v0) == qhda.gruneisen_parameter(300, v0)
     # zero-point + thermal expansion at 300 K: V0 < V_opt < 1.01 V0
@@ -388,9 +387,7 @@ def test_thermal_conductivity(qhda_vinet):
     theta_a = qhda_vinet.debye_temperature(vol) / SYN_NATOMS ** (1 / 3)
     # Slack-type scaling: kappa ~ theta_a^2 V^(1/3) / (gamma^2 - 0.514 gamma + 0.228)
     ratio = qhda_vinet.thermal_conductivity(300, vol) * (gamma**2 - 0.514 * gamma + 0.228) / theta_a**2 / vol ** (1 / 3)
-    # gamma comes from dx=1e-3 finite differences, whose round-off varies by platform
-    # (12.2-12.6 seen across CI runners), so pin loosely
-    assert qhda_vinet.thermal_conductivity(300, vol) == approx(12.2145, rel=0.05)
+    assert qhda_vinet.thermal_conductivity(300, vol) == approx(12.3535, rel=1e-4)
     gamma_2 = qhda_vinet.gruneisen_parameter(300, 68.0)
     theta_a_2 = qhda_vinet.debye_temperature(68.0) / SYN_NATOMS ** (1 / 3)
     assert qhda_vinet.thermal_conductivity(300, 68.0) == approx(
