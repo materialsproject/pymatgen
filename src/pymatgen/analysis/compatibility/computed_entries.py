@@ -148,7 +148,8 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):  # type: ignore[name-
                 g_interp = interp1d([int(t) for t in data], list(data.values()))
                 energy = g_interp(self.temp)
             else:
-                energy = data[str(self.temp)]
+                # Table keys are integer strings ("300", ...); a float temp such as 1000.0 must map to "1000"
+                energy = data[str(int(self.temp))]
 
             gibbs_energy = energy * factor
         else:
