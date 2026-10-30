@@ -510,6 +510,13 @@ class TestGibbsComputedStructureEntry:
         assert co2_entry.energy == approx(-16.406560223724014)
         assert co2_entry.energy_per_atom == approx(-1.3672133519770011)
 
+    def test_expt_gas_entry_float_temp(self):
+        # A float temperature on the 100 K grid must read the same tabulated value as the int
+        # (materialsproject/pymatgen-core#264)
+        co2_entry = GibbsComputedStructureEntry(self.co2_struct, 0, temp=900.0)
+        assert not co2_entry.interpolated
+        assert co2_entry.energy == approx(-16.406560223724014)
+
     def test_from_entries(self):
         gibbs_entries = GibbsComputedStructureEntry.from_entries(self.mp_entries)
         assert isinstance(gibbs_entries, list)
