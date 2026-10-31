@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 from pytest import approx
 
+import pymatgen.analysis.diffraction.xrd as xrd_mod
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Species
@@ -147,6 +148,130 @@ class TestXRDCalculator(MatSciTest):
             [{"hkl": (1, 0, -1, 1), "multiplicity": 12}],
             [{"hkl": (1, 0, -1, 2), "multiplicity": 12}],
         ]
+
+    def test_hkl_families_respect_laue_group(self):
+        """Reflections that share d but not a Laue orbit must stay separate.
+
+        Previously all permutations of |hkl| were merged, which over-counted
+        multiplicities for non-cubic crystals and kept systematically absent
+        reflections in the reported family.
+        """
+
+        def families_at_d(struct, hkl):
+            pattern = XRDCalculator().get_pattern(struct)
+            recip_lattice = struct.lattice.reciprocal_lattice_crystallographic
+            d_hkl = 1.0 / np.linalg.norm(recip_lattice.get_cartesian_coords(hkl))
+            idx = int(np.argmin([abs(d - d_hkl) for d in pattern.d_hkls]))
+            return pattern.hkls[idx]
+
+        # Quartz: (101) and (011) have the same d but belong to different
+        # Laue orbits, so the peak must contain two families of multiplicity 6.
+        quartz = Structure.from_spacegroup(
+            154,
+            Lattice.hexagonal(4.913, 5.405),
+            ["Si", "O"],
+            [[0.4697, 0, 0], [0.4135, 0.2669, 0.1191]],
+        )
+        families = families_at_d(quartz, (1, 0, 1))
+        assert sorted(family["multiplicity"] for family in families) == [6, 6]
+        assert len({family["hkl"] for family in families}) == 2
+
+        # Corundum: the (102) orbit is systematically absent, so only the
+        # (012) orbit (multiplicity 6) may be reported for this d.
+        corundum = Structure.from_spacegroup(
+            167,
+            Lattice.hexagonal(4.759, 12.991),
+            ["Al", "O"],
+            [[0, 0, 0.3523], [0.3064, 0, 0.25]],
+        )
+        families = families_at_d(corundum, (0, 1, 2))
+        assert len(families) == 1
+        assert families[0]["multiplicity"] == 6
+        assert families[0]["hkl"] != (1, 0, -1, 2)
+
+        # Pyrite: the (201) orbit is systematically absent, so only (210)
+        # with multiplicity 12 remains.
+        pyrite = Structure.from_spacegroup(
+            205,
+            Lattice.cubic(5.417),
+            ["Fe", "S"],
+            [[0, 0, 0], [0.385, 0.385, 0.385]],
+        )
+        assert families_at_d(pyrite, (2, 1, 0)) == [{"hkl": (2, 1, 0), "multiplicity": 12}]
+
+    def test_laue_analysis_strips_magnetic_info(self, monkeypatch):
+        """Magnetic moments and species spins must not lower the Laue group."""
+        struct = Structure(
+            Lattice.cubic(2.87),
+            [Species("Fe", 2, spin=2.2), Species("Fe", 2, spin=-2.2)],
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
+            site_properties={"magmom": [2.2, -2.2]},
+        )
+        captured = {}
+
+        class FakeAnalyzer:
+            def __init__(self, structure, symprec=0.01):
+                captured["structure"] = structure
+                captured["symprec"] = symprec
+
+            def get_point_group_operations(self, cartesian=True):
+                return []
+
+        monkeypatch.setattr(xrd_mod, "SpacegroupAnalyzer", FakeAnalyzer)
+        xrd_mod._get_laue_rotations(struct, 0.05)
+
+        assert "magmom" not in captured["structure"].site_properties
+        assert captured["symprec"] == 0.05
+        assert all(getattr(species, "spin", None) is None for species in captured["structure"].types_of_species)
+
+    def test_magnetic_structure_matches_nonmagnetic_pattern(self):
+        """AFM bcc Fe must give the same cubic (110) family as non-magnetic bcc Fe."""
+        magnetic = Structure(
+            Lattice.cubic(2.87),
+            [Species("Fe", 2, spin=2.2), Species("Fe", 2, spin=-2.2)],
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
+            site_properties={"magmom": [2.2, -2.2]},
+        )
+        nonmagnetic = Structure(
+            Lattice.cubic(2.87),
+            [Species("Fe", 2), Species("Fe", 2)],
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
+        )
+
+        magnetic_pattern = XRDCalculator().get_pattern(magnetic)
+        nonmagnetic_pattern = XRDCalculator().get_pattern(nonmagnetic)
+
+        assert magnetic_pattern.d_hkls == approx(nonmagnetic_pattern.d_hkls)
+        assert magnetic_pattern.hkls == nonmagnetic_pattern.hkls
+        assert magnetic_pattern.y == approx(nonmagnetic_pattern.y)
+
+        strongest = int(np.argmax(magnetic_pattern.y))
+        assert magnetic_pattern.hkls[strongest] == [{"hkl": (1, 1, 0), "multiplicity": 12}]
+
+    def test_laue_uses_calculator_symprec(self, monkeypatch):
+        struct = self.get_structure("CsCl")
+        captured = {}
+
+        def fake_laue(structure, symprec=None):
+            captured["symprec"] = symprec
+            return []
+
+        monkeypatch.setattr(xrd_mod, "_get_laue_rotations", fake_laue)
+        XRDCalculator(symprec=0.05).get_pattern(struct)
+
+        assert captured["symprec"] == 0.05
+
+    def test_laue_failure_falls_back_with_warning(self, monkeypatch):
+        struct = self.get_structure("CsCl")
+
+        def fail(*args, **kwargs):
+            raise ValueError("symmetry unavailable")
+
+        monkeypatch.setattr(xrd_mod, "_get_laue_rotations", fail)
+        with pytest.warns(RuntimeWarning, match="falling back"):
+            xrd = XRDCalculator().get_pattern(struct)
+
+        assert xrd.hkls
 
     def test_get_pattern_chunked_matches_unchunked(self, monkeypatch):
         """Structure factors are accumulated in memory-bounded chunks of hkl
