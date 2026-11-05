@@ -299,20 +299,38 @@ class TestJahnTellerMagnitude:
             ("tet", {"e": 0, "t_2": 0}, "none"),
             ("tet", {"e": 1, "t_2": 0}, "weak"),
             ("tet", {"e": 3, "t_2": 3}, "weak"),
+            ("tet", {"e": 2, "t_2": 3}, "none"),
+            ("tet", {"e": 4, "t_2": 6}, "none"),
             ("square_planar", {}, "none"),
         ],
     )
     def test_from_spin_config(self, motif, spin_config, expected):
         assert JahnTellerAnalyzer.get_magnitude_of_effect_from_spin_config(motif, spin_config) == expected
 
-    @pytest.mark.xfail(
-        reason="tetrahedral rule tests e % 3 and t_2 % 2 instead of e % 2 and t_2 % 3, "
-        "so filled/half-filled shells (d5 high spin, d10) are reported as 'weak'",
-        strict=True,
-    )
-    @pytest.mark.parametrize("species", ["Mn2+", "Zn2+"])
-    def test_from_species_tet_closed_shell(self, jt, species):
+    @pytest.mark.parametrize("species", ["V3+", "Mn2+", "Fe3+", "Co2+", "Zn2+", "Cu+"])
+    def test_from_species_tet_inactive(self, jt, species):
+        # d2, d5 and d7 high spin and d10 have non-degenerate tetrahedral ground states
         assert jt.get_magnitude_of_effect_from_species(species, "", "tet") == "none"
+
+    @pytest.mark.parametrize(
+        ("n_d", "expected"),
+        [
+            (0, "none"),
+            (1, "weak"),
+            (2, "none"),
+            (3, "weak"),
+            (4, "weak"),
+            (5, "none"),
+            (6, "weak"),
+            (7, "none"),
+            (8, "weak"),
+            (9, "weak"),
+            (10, "none"),
+        ],
+    )
+    def test_from_spin_config_tet_all_d_counts(self, jt, n_d, expected):
+        spin_config = jt.spin_configs["tet"][n_d]["high"]
+        assert JahnTellerAnalyzer.get_magnitude_of_effect_from_spin_config("tet", spin_config) == expected
 
 
 class TestEstimateSpinState:
