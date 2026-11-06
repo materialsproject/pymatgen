@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from decimal import Decimal
+
 import numpy as np
 import pytest
 from pytest import approx
 
+from pymatgen.analysis.diffraction.core import DiffractionPattern
 from pymatgen.analysis.diffraction.neutron import NDCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -23,6 +26,124 @@ __date__ = "4/19/18"
 
 
 class TestNDCalculator(MatSciTest):
+    @pytest.mark.parametrize("two_theta_range", [(0, 5), (1, 5)])
+    @pytest.mark.parametrize("scaled", [False, True])
+    def test_get_pattern_empty_range(self, two_theta_range, scaled):
+        # The first reflection is (100), at 2 theta = 25.45 degrees.
+        structure = Structure(Lattice.cubic(3.5), ["Si"], [[0, 0, 0]])
+        pattern = NDCalculator().get_pattern(structure, two_theta_range=two_theta_range, scaled=scaled)
+        assert isinstance(pattern, DiffractionPattern)
+        assert pattern.x.size == pattern.y.size == 0
+        assert pattern.hkls == []
+        assert pattern.d_hkls == []
+
+    @pytest.mark.parametrize("two_theta_range", [(0, 5), (1, 5)])
+    def test_empty_range_missing_scattering_coefficients(self, two_theta_range):
+        structure = Structure(Lattice.cubic(3.5), ["Cm"], [[0, 0, 0]])
+        with pytest.raises(ValueError, match="no scattering coefficients for Cm"):
+            NDCalculator().get_pattern(structure, two_theta_range=two_theta_range)
+
+    @pytest.mark.parametrize(
+        "two_theta_range",
+        [
+            (5, 1),
+            (-1, 5),
+            (0, 181),
+            (0, float("nan")),
+            (0, float("inf")),
+            (),
+            (0,),
+            (0, 5, 10),
+            5,
+            "05",
+            ("0", 5),
+            (None, 5),
+            (0, 5j),
+        ],
+    )
+    def test_get_pattern_invalid_range(self, two_theta_range):
+        structure = Structure(Lattice.cubic(3.5), ["Si"], [[0, 0, 0]])
+        with pytest.raises(
+            ValueError, match="^two_theta_range must contain two finite real numbers satisfying 0 <= min <= max <= 180$"
+        ):
+            NDCalculator().get_pattern(structure, two_theta_range=two_theta_range)
+
+    @pytest.mark.parametrize("two_theta_range", [None, (0, 90), [0, 90], np.array([0.0, 90.0])])
+    def test_get_pattern_valid_range(self, two_theta_range):
+        structure = Structure(Lattice.cubic(3.5), ["Si"], [[0, 0, 0]])
+        pattern = NDCalculator().get_pattern(structure, two_theta_range=two_theta_range)
+        assert len(pattern.x) > 0
+        if two_theta_range is not None:
+            assert len(pattern.x) == 9
+
+    @pytest.mark.parametrize("range_factory", [lambda: (Decimal(0), Decimal(90)), lambda: iter([0, 90])])
+    @pytest.mark.parametrize("scaled", [False, True])
+    def test_get_pattern_compatible_range_types(self, range_factory, scaled):
+        structure = Structure(Lattice.cubic(3.5), ["Si"], [[0, 0, 0]])
+        calculator = NDCalculator()
+        expected = calculator.get_pattern(structure, two_theta_range=(0, 90), scaled=scaled)
+        pattern = calculator.get_pattern(structure, two_theta_range=range_factory(), scaled=scaled)
+        np.testing.assert_array_equal(pattern.x, expected.x)
+        np.testing.assert_array_equal(pattern.y, expected.y)
+        assert pattern.hkls == expected.hkls
+        assert pattern.d_hkls == expected.d_hkls
+
+    @pytest.mark.parametrize("wavelength", [0, -1, float("inf"), float("nan")])
+    def test_empty_range_invalid_wavelength(self, wavelength):
+        structure = Structure(Lattice.cubic(3.5), ["Si"], [[0, 0, 0]])
+        with pytest.raises(ValueError, match="wavelength must be finite and positive"):
+            NDCalculator(wavelength=wavelength).get_pattern(structure, two_theta_range=(0, 5))
+
+    def test_empty_structure(self):
+        with pytest.raises(ValueError, match="structure must contain at least one site"):
+            NDCalculator().get_pattern(Structure(Lattice.cubic(3.5), [], []), two_theta_range=(0, 5))
+
+    @pytest.mark.parametrize("two_theta_range", [(0, 5), (1, 5)])
+    def test_get_plot_empty_range(self, two_theta_range):
+        import matplotlib.pyplot as plt
+
+        structure = Structure(Lattice.cubic(3.5), ["Si"], [[0, 0, 0]])
+        fig, ax = plt.subplots()
+        try:
+            assert NDCalculator().get_plot(structure, two_theta_range=two_theta_range, ax=ax) is ax
+            assert len(ax.lines) == 0
+            assert ax.get_xlabel()
+            assert ax.get_ylabel()
+        finally:
+            plt.close(fig)
+
+    @pytest.mark.parametrize("two_theta_range", [(179, 180), (0, 180), None])
+    @pytest.mark.parametrize("scaled", [False, True])
+    def test_get_pattern_backscattering_boundary(self, two_theta_range, scaled):
+        # With a = 1 and wavelength = 2, the first shell is exactly at 180 degrees.
+        structure = Structure(Lattice.cubic(1), ["Si"], [[0, 0, 0]])
+        pattern = NDCalculator(wavelength=2).get_pattern(structure, two_theta_range=two_theta_range, scaled=scaled)
+        assert pattern.x.size == pattern.y.size == 0
+        assert pattern.hkls == []
+        assert pattern.d_hkls == []
+
+    @pytest.mark.parametrize("two_theta_range", [(0, 180), None])
+    @pytest.mark.parametrize("scaled", [False, True])
+    def test_backscattering_boundary_preserves_other_peaks(self, two_theta_range, scaled):
+        structure = Structure(Lattice.tetragonal(1, 2), ["Si"], [[0, 0, 0]])
+        calculator = NDCalculator(wavelength=2)
+        expected = calculator.get_pattern(structure, two_theta_range=(0, 179), scaled=scaled)
+        pattern = calculator.get_pattern(structure, two_theta_range=two_theta_range, scaled=scaled)
+        assert len(expected.x) == 1
+        np.testing.assert_array_equal(pattern.x, expected.x)
+        np.testing.assert_array_equal(pattern.y, expected.y)
+        assert pattern.hkls == expected.hkls
+        assert pattern.d_hkls == expected.d_hkls
+
+    @pytest.mark.parametrize("scaled", [False, True])
+    def test_near_backscattering_peak_retained(self, scaled):
+        structure = Structure(Lattice.cubic(1), ["Si"], [[0, 0, 0]])
+        pattern = NDCalculator(wavelength=1.99999).get_pattern(structure, two_theta_range=(179, 180), scaled=scaled)
+        assert len(pattern.x) == 1
+        assert 179 < pattern.x[0] < 180
+        assert np.isfinite(pattern.y[0])
+        assert pattern.y[0] > 0
+
     def test_get_pattern(self):
         struct = self.get_structure("CsCl")
         c = NDCalculator(wavelength=1.54184)  # CuKa radiation
