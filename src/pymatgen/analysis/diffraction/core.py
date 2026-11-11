@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import abc
+import math
 from collections import defaultdict
+from decimal import Decimal
+from numbers import Real
 from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
@@ -18,6 +21,29 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from pymatgen.core import Structure
+
+
+def _validate_two_theta_range(two_theta_range):
+    """Validate and materialize an angular window, or allow None for the limiting sphere."""
+    if two_theta_range is None:
+        return None
+    valid = False
+    try:
+        two_theta_range = tuple(two_theta_range)
+        if len(two_theta_range) == 2:
+            lower, upper = two_theta_range
+            valid = (
+                isinstance(lower, (Real, Decimal))
+                and isinstance(upper, (Real, Decimal))
+                and math.isfinite(lower)
+                and math.isfinite(upper)
+                and 0 <= lower <= upper <= 180
+            )
+    except (TypeError, ValueError, OverflowError):
+        pass
+    if not valid:
+        raise ValueError("two_theta_range must contain two finite real numbers satisfying 0 <= min <= max <= 180")
+    return two_theta_range
 
 
 class DiffractionPattern(Spectrum):
@@ -107,7 +133,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         ax = ax or pretty_plot(16, 10)
 
         xrd = self.get_pattern(structure, two_theta_range=two_theta_range)
-        imax = max(xrd.y)
+        imax = max(xrd.y, default=0)
 
         for two_theta, i, hkls in zip(xrd.x, xrd.y, xrd.hkls, strict=True):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:
