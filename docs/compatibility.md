@@ -24,7 +24,7 @@ An even more conservative approach is to pin the `Pymatgen` dependency to a fixe
 
 ## Minimum Python Version
 
-As a rule of thumb, `pymatgen` will support whatever versions of Python the latest version of `numpy` supports (at the time of writing, this is Python 3.10+). You can also check what versions of Python are being tested automatically as part of our [continuous integration pipeline](https://github.com/materialsproject/pymatgen/blob/master/.github/workflows/test.yml) on GitHub. We currently test `pymatgen` on macOS, Windows and Linux.
+As a rule of thumb, `pymatgen` will support whatever versions of Python the latest version of `numpy` supports (at the time of writing, this is Python 3.12+). You can also check what versions of Python are being tested automatically as part of our [continuous integration pipeline](https://github.com/materialsproject/pymatgen/blob/master/.github/workflows/test.yml) on GitHub. We currently test `pymatgen` on macOS, Windows and Linux.
 
 ## Recent Breaking Changes
 

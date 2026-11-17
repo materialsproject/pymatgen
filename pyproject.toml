@@ -18,7 +18,7 @@ maintainers = [
 ]
 description = "Python Materials Genomics is a robust materials analysis code that defines core object representations for structures and molecules with support for many electronic structure codes. It is currently the core analysis code powering the Materials Project (https://materialsproject.org)."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 keywords = [
     "abinit",
     "analysis",
@@ -42,7 +42,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -149,6 +148,10 @@ output-format = "concise"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
+    # PEP 695 syntax (py312) changes runtime semantics of public aliases/generics; migrate deliberately.
+    "UP040", # non-pep695-type-alias
+    "UP046", # non-pep695-generic-class
+    "UP047", # non-pep695-generic-function
     # Rule families
     "ANN", # flake8-annotations (not ready, require types for ALL args)
     "ARG", # Check for unused function arguments
