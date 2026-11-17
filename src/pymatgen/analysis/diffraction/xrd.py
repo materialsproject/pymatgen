@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 import os
+import warnings
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -19,7 +20,7 @@ from pymatgen.analysis.diffraction.core import (
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
-    from pymatgen.core import Structure
+    from pymatgen.core import Lattice, Structure
 
 # XRD wavelengths in angstroms
 WAVELENGTHS = {
@@ -54,6 +55,125 @@ with open(
     "rb",
 ) as file:
     ATOMIC_SCATTERING_PARAMS = orjson.loads(file.read())
+
+
+def _strip_magnetic_info(structure: Structure) -> Structure:
+    """Return a copy without magnetic moments or species spins.
+
+    Sites whose species carry a spin are rebuilt from the element symbol and
+    oxidation state, so other species properties (e.g. custom ``properties``)
+    are dropped. That is sufficient for the nuclear XRD pattern, which depends
+    only on the element and occupancy.
+    """
+    from pymatgen.core import Species, Structure
+
+    has_spin = any(getattr(species, "spin", None) is not None for species in structure.types_of_species)
+    if "magmom" not in structure.site_properties and not has_spin:
+        return structure
+
+    def spin_free(species):
+        if getattr(species, "spin", None) is None:
+            return species
+        return Species(species.symbol, oxidation_state=getattr(species, "oxi_state", None))
+
+    species = []
+    for site in structure:
+        if site.is_ordered:
+            species.append(spin_free(site.specie))
+        else:
+            species.append({spin_free(sp): occ for sp, occ in site.species.items()})
+    site_properties = {key: value for key, value in structure.site_properties.items() if key != "magmom"}
+    return Structure(
+        structure.lattice,
+        species,
+        structure.frac_coords,
+        charge=structure.charge,
+        site_properties=site_properties or None,
+        labels=getattr(structure, "labels", None),
+        properties=structure.properties,
+    )
+
+
+def _get_laue_rotations(structure: Structure, symprec: float | None = None) -> list[np.ndarray]:
+    """Get Cartesian rotation matrices of the structure's Laue group.
+
+    Magnetic moments and species spins are removed before the symmetry
+    analysis: they describe magnetic order, not the nuclear XRD pattern.
+    """
+    if not symprec:
+        symprec = 0.01
+    analyzer = SpacegroupAnalyzer(_strip_magnetic_info(structure), symprec=symprec)
+    rotations: list[np.ndarray] = []
+    seen: set[tuple[float, ...]] = set()
+    for op in analyzer.get_point_group_operations(cartesian=True):
+        for sign in (1.0, -1.0):
+            rotation = sign * op.rotation_matrix
+            key = tuple(np.round(rotation, 8).ravel())
+            if key not in seen:
+                seen.add(key)
+                rotations.append(rotation)
+    return rotations
+
+
+def _get_laue_orbit(
+    hkl: tuple[int, int, int],
+    rotations: list[np.ndarray],
+    recip_lattice: Lattice,
+) -> frozenset[tuple[int, int, int]]:
+    """Get the Laue orbit of a Miller index in reciprocal space."""
+    vector = recip_lattice.get_cartesian_coords(hkl)
+    # Symmetry is applied within `symprec`, so transformed indices are
+    # integral up to the tolerance; round them back to Miller indices.
+    return frozenset(
+        tuple(int(value) for value in np.round(recip_lattice.get_fractional_coords(rotation @ vector)))
+        for rotation in rotations
+    )
+
+
+def _get_hkl_families(
+    reflections: list[tuple[tuple[int, ...], tuple[int, ...], float]],
+    rotations: list[np.ndarray] | None,
+    recip_lattice: Lattice,
+    is_hex: bool,
+) -> list[dict]:
+    """Group the reflections at one peak into symmetry-equivalent families."""
+
+    def to_display(hkl: tuple[int, ...]) -> tuple[int, ...]:
+        if is_hex:
+            return (hkl[0], hkl[1], -hkl[0] - hkl[1], hkl[2])
+        return hkl
+
+    if rotations is None:
+        # Fall back to permutation families when the space group cannot be
+        # determined (e.g. spglib rejects the structure).
+        hkls = [to_display(hkl) for hkl, neg_hkl, _ in reflections for hkl in (hkl, neg_hkl)]
+        return [{"hkl": hkl, "multiplicity": mult} for hkl, mult in get_unique_families(hkls).items()]
+
+    max_structure_factor = max(structure_factor for _, _, structure_factor in reflections)
+    # Relative to the strongest reflection in this peak: this filters exact
+    # systematic extinctions, not weak but real reflections.
+    tolerance = max_structure_factor * 1e-8
+    families: dict[frozenset[tuple[int, int, int]], dict] = {}
+    for hkl, neg_hkl, structure_factor in reflections:
+        if structure_factor <= tolerance:
+            continue
+        # The Laue group contains inversion, so the Friedel partner belongs to
+        # the same orbit. Count both partners without recomputing the orbit.
+        orbit = _get_laue_orbit(hkl, rotations, recip_lattice)
+        family = families.setdefault(orbit, {"hkls": [], "multiplicity": 0})
+        for equivalent_hkl in (hkl, neg_hkl):
+            family["hkls"].append(to_display(equivalent_hkl))
+            family["multiplicity"] += 1
+
+    return [
+        {
+            # Match the previous representative choice: the lexicographically
+            # largest observed member of the family.
+            "hkl": max(family["hkls"]),
+            "multiplicity": family["multiplicity"],
+        }
+        for family in families.values()
+    ]
 
 
 class XRDCalculator(AbstractDiffractionPatternCalculator):
@@ -119,9 +239,11 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 variable, which provides useful commonly used wavelengths.
                 If it is a float, it is interpreted as a wavelength in
                 angstroms. Defaults to "CuKa", i.e, Cu K_alpha radiation.
-            symprec (float): Symmetry precision for structure refinement. If
-                set to 0, no refinement is done. Otherwise, refinement is
-                performed using spglib with provided precision.
+            symprec (float): Symmetry precision for structure refinement and
+                for determining the Laue group used to group hkl families. If
+                set to 0, no refinement is done and the default spglib
+                tolerance (0.01 Å) is used for the Laue analysis. Otherwise,
+                both use the provided precision.
             debye_waller_factors ({element symbol: float}): Allows the
                 specification of Debye-Waller factors. Note that these
                 factors are temperature dependent.
@@ -183,6 +305,18 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         )
 
         recip_lattice = lattice.reciprocal_lattice_crystallographic
+        try:
+            laue_rotations = _get_laue_rotations(structure, self.symprec)
+        except Exception as exc:
+            # Keep the permutation-based fallback for structures that cannot
+            # be symmetrized (e.g. invalid partial occupancies), but make the
+            # degraded grouping visible instead of silently restoring it.
+            warnings.warn(
+                f"Could not determine the Laue group; falling back to permutation-based hkl families: {exc}",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            laue_rotations = None
         recip_pts = recip_lattice.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], max_r)
         if min_r:
             recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
@@ -297,16 +431,14 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
             # Restore the -g reflection dropped by the Friedel halving so
             # hkl families and multiplicities are reported as before.
             neg_hkl = tuple(-v for v in hkl)
-            if is_hex:
-                hkl = (hkl[0], hkl[1], -hkl[0] - hkl[1], hkl[2])
-                neg_hkl = (neg_hkl[0], neg_hkl[1], -neg_hkl[0] - neg_hkl[1], neg_hkl[2])
             key = bin_keys[m]
             d_hkl = 1.0 / g_hkls[m]
+            reflection = (hkl, neg_hkl, float(i_hkl[m]))
             if key in peaks:
                 peaks[key][0] += float(intensities[m])  # np.float64 -> float
-                peaks[key][1] += (hkl, neg_hkl)
+                peaks[key][1].append(reflection)
             else:
-                peaks[key] = [float(intensities[m]), [hkl, neg_hkl], float(two_thetas_arr[m]), float(d_hkl)]
+                peaks[key] = [float(intensities[m]), [reflection], float(two_thetas_arr[m]), float(d_hkl)]
 
         # --- Build output ---
         max_intensity = max(v[0] for v in peaks.values())
@@ -315,11 +447,10 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
 
         for key in sorted(peaks):
             v = peaks[key]
-            fam = get_unique_families(v[1])
             if v[0] / max_intensity * 100 > tol_scaled:
                 x.append(float(v[2]))
                 y.append(float(v[0]))
-                hkls_out.append([{"hkl": hkl, "multiplicity": mult} for hkl, mult in fam.items()])
+                hkls_out.append(_get_hkl_families(v[1], laue_rotations, recip_lattice, is_hex))
                 d_hkls_out.append(float(v[3]))
 
         xrd = DiffractionPattern(x, y, hkls_out, d_hkls_out)
