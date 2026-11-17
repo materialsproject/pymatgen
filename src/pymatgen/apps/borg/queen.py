@@ -63,19 +63,22 @@ class BorgQueen:
         valid_paths = []
         for parent, subdirs, files in os.walk(rootpath):
             valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
-        manager = Manager()
-        data = manager.list()
-        status = manager.dict()
-        status["count"] = 0
-        status["total"] = len(valid_paths)
         logger.info(f"{len(valid_paths)} valid paths found.")
-        with Pool(self._num_drones) as pool:
-            pool.map(
-                order_assimilation,
-                ((path, self._drone, data, status) for path in valid_paths),
-            )
-            for string in data:
-                self._data.append(json.loads(string, cls=MontyDecoder))
+        # Shut down the manager and join the workers before returning: lingering child
+        # processes keep handles on the cwd, which breaks temp-dir cleanup on Windows.
+        with Manager() as manager:
+            data = manager.list()
+            status = manager.dict()
+            status["count"] = 0
+            status["total"] = len(valid_paths)
+            with Pool(self._num_drones) as pool:
+                pool.map(
+                    order_assimilation,
+                    ((path, self._drone, data, status) for path in valid_paths),
+                )
+                pool.close()
+                pool.join()
+            self._data.extend(json.loads(string, cls=MontyDecoder) for string in data)
 
     def serial_assimilate(self, root: PathLike) -> None:
         """Assimilate the entire subdirectory structure in rootpath serially."""
