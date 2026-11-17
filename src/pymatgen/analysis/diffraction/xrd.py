@@ -12,6 +12,7 @@ import orjson
 from pymatgen.analysis.diffraction.core import (
     AbstractDiffractionPatternCalculator,
     DiffractionPattern,
+    _validate_two_theta_range,
     get_anisotropic_debye_waller_factors,
     get_unique_families,
     get_ustar,
@@ -158,11 +159,21 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
             two_theta_range ([float of length 2]): Tuple for range of
                 two_thetas to calculate in degrees. Defaults to (0, 90). Set to
                 None if you want all diffracted beams within the limiting
-                sphere of radius 2 / wavelength.
+                sphere of radius 2 / wavelength. Reflections at exactly 180 degrees
+                are excluded because the Lorentz factor is singular there; this
+                also applies when the range is None.
 
         Returns:
-            DiffractionPattern: XRD pattern
+            DiffractionPattern: XRD pattern. Empty if the requested range contains no nonzero
+                reciprocal lattice vectors below 180 degrees. This does not guarantee an empty pattern
+                for a window containing only systematically absent reflections.
         """
+        if len(structure) == 0:
+            raise ValueError("structure must contain at least one site")
+        if not math.isfinite(self.wavelength) or self.wavelength <= 0:
+            raise ValueError("wavelength must be finite and positive")
+        two_theta_range = _validate_two_theta_range(two_theta_range)
+
         ustar = get_ustar(structure)
         if ustar is not None and (self.symprec or self.debye_waller_factors):
             raise ValueError(
@@ -186,6 +197,9 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         recip_pts = recip_lattice.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], max_r)
         if min_r:
             recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
+        # Exclude the singular backscattering boundary, including points just
+        # outside the limiting sphere admitted by the sphere search tolerance.
+        recip_pts = [pt for pt in recip_pts if wavelength * pt[1] / 2 < 1]
 
         # --- Group sites by element ---
         # The scattering coefficients, atomic number and debye_waller_factors
@@ -215,6 +229,10 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 grp["occus"].append(occu)
                 grp["site_indices"].append(site_idx)
 
+        # Check after site validation so missing scattering data still raises.
+        if len(recip_pts) == 0:
+            return DiffractionPattern([], [], [], [])
+
         # --- Unpack reciprocal points, keep one Friedel half-space ---
         # The atomic scattering factors are real (anomalous dispersion is
         # not modeled), so Friedel's law I(g) = I(-g) holds exactly:
@@ -230,6 +248,8 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         half = (h > 0) | ((h == 0) & (k > 0)) | ((h == 0) & (k == 0) & (ell > 0))
         hkls_int = hkls_int[half]  # (M/2, 3)
         g_hkls = g_hkls[half]
+        if len(g_hkls) == 0:  # Only the (000) point was in range.
+            return DiffractionPattern([], [], [], [])
 
         # Same ordering as the previous sorted(key=(g, -h, -k, -l)):
         # np.lexsort is stable and takes keys in reverse priority order.
