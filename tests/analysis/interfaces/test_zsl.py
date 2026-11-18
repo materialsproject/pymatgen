@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from itertools import product
+
 import numpy as np
 from numpy.testing import assert_array_equal
 from pytest import approx
@@ -71,3 +73,39 @@ class TestZSLGen(MatSciTest):
         for match in matches:
             assert match is not None
             assert isinstance(match.match_area, float)
+
+    def test_get_equiv_transformations_matches_pairwise_check(self):
+        film_vectors = self.film.lattice.matrix[:2]
+        substrate_vectors = self.substrate.lattice.matrix[:2]
+        for bidirectional in (False, True):
+            z = ZSLGenerator(
+                max_area_ratio_tol=0.05, max_angle_tol=0.05, max_length_tol=0.05, bidirectional=bidirectional
+            )
+            film_area, substrate_area = vec_area(*film_vectors), vec_area(*substrate_vectors)
+
+            # Reference: reduce every super lattice and check each film/substrate pair one by one
+            expected = []
+            for film_trans, substrate_trans in z.generate_sl_transformation_sets(film_area, substrate_area):
+                films = [reduce_vectors(*v) for v in np.dot(film_trans, film_vectors)]
+                substrates = [reduce_vectors(*v) for v in np.dot(substrate_trans, substrate_vectors)]
+                for (f_trans, s_trans), (f, s) in zip(
+                    product(film_trans, substrate_trans), product(films, substrates), strict=True
+                ):
+                    if is_same_vectors(
+                        np.array(f),
+                        np.array(s),
+                        bidirectional=bidirectional,
+                        max_length_tol=z.max_length_tol,
+                        max_angle_tol=z.max_angle_tol,
+                    ):
+                        expected.append([f, s, f_trans, s_trans])
+
+            for _ in range(2):  # second pass reuses cached reductions
+                transformation_sets = z.generate_sl_transformation_sets(film_area, substrate_area)
+                matches = list(z.get_equiv_transformations(transformation_sets, film_vectors, substrate_vectors))
+                assert len(matches) == len(expected) > 0
+                for match, ref in zip(matches, expected, strict=True):
+                    for arr, ref_arr in zip(match, ref, strict=True):
+                        assert_array_equal(arr, ref_arr)
+                # Yielded vectors must not share memory with cached reductions
+                matches[0][0] *= 2

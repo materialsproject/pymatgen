@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from itertools import product
+from functools import lru_cache
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -160,32 +160,44 @@ class ZSLGenerator(MSONable):
             substrate_vectors(array): substrate vectors to generate super
                 lattices
         """
+        film_vectors_bytes = np.asarray(film_vectors, dtype=float).tobytes()
+        substrate_vectors_bytes = np.asarray(substrate_vectors, dtype=float).tobytes()
         for film_transformations, substrate_transformations in transformation_sets:
             # Apply transformations and reduce using Zur reduce methodology
-            films = np.array(
-                [reduce_vectors(*v) for v in np.dot(film_transformations, film_vectors)],
-                dtype=float,
+            films, film_lengths, film_angles = _get_reduced_vector_sets(
+                np.asarray(film_transformations, dtype=float).tobytes(), film_vectors_bytes
+            )
+            substrates, substrate_lengths, substrate_angles = _get_reduced_vector_sets(
+                np.asarray(substrate_transformations, dtype=float).tobytes(), substrate_vectors_bytes
             )
 
-            substrates = np.array(
-                [reduce_vectors(*v) for v in np.dot(substrate_transformations, substrate_vectors)],
-                dtype=float,
+            # Check if equivalent super lattices, comparing all film/substrate pairs together
+            is_same = _unidirectional_is_same_vectors_mask(
+                film_lengths,
+                film_angles,
+                substrate_lengths,
+                substrate_angles,
+                max_length_tol=self.max_length_tol,
+                max_angle_tol=self.max_angle_tol,
             )
-
-            # Check if equivalent super lattices
-            for (f_trans, s_trans), (f, s) in zip(
-                product(film_transformations, substrate_transformations),
-                product(films, substrates),
-                strict=True,
-            ):
-                if is_same_vectors(
-                    f,
-                    s,
-                    bidirectional=self.bidirectional,
+            if self.bidirectional:
+                is_same |= _unidirectional_is_same_vectors_mask(
+                    substrate_lengths,
+                    substrate_angles,
+                    film_lengths,
+                    film_angles,
                     max_length_tol=self.max_length_tol,
                     max_angle_tol=self.max_angle_tol,
-                ):
-                    yield [f, s, f_trans, s_trans]
+                ).T
+
+            # np.nonzero returns indices in the same (row-major) order as product(films, substrates)
+            for film_idx, substrate_idx in zip(*np.nonzero(is_same), strict=True):
+                yield [
+                    films[film_idx].copy(),
+                    substrates[substrate_idx].copy(),
+                    film_transformations[film_idx],
+                    substrate_transformations[substrate_idx],
+                ]
 
     def __call__(self, film_vectors, substrate_vectors, lowest=False) -> Iterator[ZSLMatch]:
         """Runs the ZSL algorithm to generate all possible matching."""
@@ -332,6 +344,68 @@ def _unidirectional_is_same_vectors(vec_set1, vec_set2, max_length_tol, max_angl
     if np.absolute(rel_strain(vec_set1[1], vec_set2[1])) > max_length_tol:
         return False
     return np.absolute(rel_angle(vec_set1, vec_set2)) <= max_angle_tol
+
+
+@lru_cache(maxsize=1024)
+def _get_reduced_vector_sets(transformations: bytes, vectors: bytes) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Apply the super lattice transformations of one area multiple to a pair of vectors and reduce
+    the results with reduce_vectors.
+
+    Cached because the same transformations are applied to the same vectors many times, both across
+    the area multiple pairs of one search and across the Miller index pairs in SubstrateAnalyzer.
+
+    Args:
+        transformations (bytes): float64 bytes of the (N, 2, 2) transformation matrices
+        vectors (bytes): float64 bytes of the (2, 3) lattice vectors
+
+    Returns:
+        tuple: (N, 2, 3) reduced super lattice vectors, (N, 2) their lengths and (N,) their angles.
+            The arrays are read-only since they are shared between calls.
+    """
+    transformation_matrices = np.frombuffer(transformations).reshape(-1, 2, 2)
+    lattice_vectors = np.frombuffer(vectors).reshape(2, -1)
+    reduced = np.array(
+        [reduce_vectors(*v) for v in np.dot(transformation_matrices, lattice_vectors)],
+        dtype=float,
+    )
+    lengths, angles = _get_lengths_and_angles(reduced)
+    for arr in (reduced, lengths, angles):
+        arr.flags.writeable = False
+    return reduced, lengths, angles
+
+
+def _get_lengths_and_angles(vector_sets):
+    """Lengths of both vectors and the angle between them for each set of two vectors.
+
+    Uses fast_norm and vec_angle so the values are the same as in _unidirectional_is_same_vectors.
+    """
+    lengths = np.array([[fast_norm(vecs[0]), fast_norm(vecs[1])] for vecs in vector_sets], dtype=float)
+    angles = np.array([vec_angle(vecs[0], vecs[1]) for vecs in vector_sets], dtype=float)
+    return lengths, angles
+
+
+def _unidirectional_is_same_vectors_mask(lengths1, angles1, lengths2, angles2, max_length_tol, max_angle_tol):
+    """Vectorized _unidirectional_is_same_vectors over all pairs of vector sets.
+
+    Args:
+        lengths1 (np.ndarray): (N, 2) vector lengths of the first sets
+        angles1 (np.ndarray): (N,) angles of the first sets
+        lengths2 (np.ndarray): (M, 2) vector lengths of the second sets
+        angles2 (np.ndarray): (M,) angles of the second sets
+        max_length_tol (float): maximum relative length tolerance
+        max_angle_tol (float): maximum relative angle tolerance
+
+    Returns:
+        np.ndarray: (N, M) bool array, True where set i of the first and set j of the second match.
+    """
+    strain = lengths2[None, :, :] / lengths1[:, None, :] - 1
+    rel_angles = angles2[None, :] / angles1[:, None] - 1
+    # Written as "not greater than" to match the scalar version for NaN values
+    return (
+        ~(np.absolute(strain[..., 0]) > max_length_tol)
+        & ~(np.absolute(strain[..., 1]) > max_length_tol)
+        & (np.absolute(rel_angles) <= max_angle_tol)
+    )
 
 
 @njit
