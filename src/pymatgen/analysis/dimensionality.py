@@ -342,7 +342,9 @@ def get_dimensionality_cheon(
         structure.make_supercell(np.eye(3) * 3)
         connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
         max3, min3, _clusters3 = find_clusters(structure, connected_list3)
-        if min3 == min1:
+        if min3 == 1:
+            dim = "intercalated ion"
+        elif min3 == min1:
             dim = "0D" if max3 == max1 else "intercalated molecule"
         else:
             dim = np.log2(float(max3) / max1) / np.log2(3)

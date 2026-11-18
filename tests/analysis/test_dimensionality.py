@@ -119,9 +119,11 @@ class TestCheonDimensionality(MatSciTest):
     def test_get_dimensionality(self):
         struct = self.get_structure("LiFePO4")
         assert get_dimensionality_cheon(struct) == "intercalated ion"
+        assert get_dimensionality_cheon(struct, larger_cell=True) == "intercalated ion"
 
         struct = self.get_structure("Graphite")
         assert get_dimensionality_cheon(struct) == "2D"
+        assert get_dimensionality_cheon(struct, larger_cell=True) == "2D"
 
     def test_get_dimensionality_with_bonds(self):
         struct = self.get_structure("CsCl")
