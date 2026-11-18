@@ -101,6 +101,10 @@ class TestXAS(MatSciTest):
         assert len(xafs.x) == 500
         assert min(xafs.x) == approx(min(self.k_xanes.x), abs=1e-2)
         assert max(xafs.y) == approx(max(self.k_xanes.y), abs=1e-2)
+        # result must not depend on whether the XANES or the EXAFS spectrum is the caller
+        xafs_rev = XAS.stitch(self.k_exafs, self.k_xanes, mode="XAFS")
+        assert_allclose(xafs_rev.x, xafs.x)
+        assert_allclose(xafs_rev.y, xafs.y)
         assert xafs.x[np.argmax(np.gradient(xafs.y) / np.gradient(xafs.x))] == approx(self.k_xanes.e0, abs=1e-2)
         with pytest.raises(ValueError, match="The input structures for spectra mismatch"):
             XAS.stitch(self.k_xanes, self.l2_xanes, mode="XAFS")

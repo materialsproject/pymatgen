@@ -142,7 +142,7 @@ class XAS(Spectrum):
             # for k <= 3
             wavenumber: list[float] = []
             mu: list[float] = []
-            idx = xanes.k.index(min(self.k, key=lambda x: (abs(x - 3), x)))
+            idx = xanes.k.index(min(xanes.k, key=lambda x: (abs(x - 3), x)))
             mu.extend(xanes.y[:idx])
             wavenumber.extend(xanes.k[:idx])
 
