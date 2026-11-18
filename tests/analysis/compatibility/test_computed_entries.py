@@ -544,6 +544,12 @@ class TestGibbsComputedStructureEntry:
             assert entry.energy == approx(test_entry.energy)
             assert len(entry.energy_adjustments) == 1
 
+        legacy_dict = test_entry.as_dict() | {"energy_adjustments": []}
+        entry = GibbsComputedStructureEntry.from_dict(legacy_dict)
+        assert entry.correction == approx(-0.5)
+        assert entry.energy == approx(test_entry.energy)
+        assert len(entry.energy_adjustments) == 1
+
     def test_repr(self):
         assert str(self.entries_with_temps[300]).startswith(
             "GibbsComputedStructureEntry test - Li1 Fe4 P4 O16\nGibbs Free Energy (Formation) = -56.2127"
