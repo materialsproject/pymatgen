@@ -600,6 +600,7 @@ class MagneticStructureEnumerator:
     """Combines MagneticStructureAnalyzer and MagOrderingTransformation to
     automatically generate a set of transformations for a given structure
     and produce a list of plausible magnetic orderings.
+    ordered_structures[0] is the ferromagnetic structure only when the ferromagnetic strategy is requested.
     """
 
     available_strategies: ClassVar[tuple[str, ...]] = (
