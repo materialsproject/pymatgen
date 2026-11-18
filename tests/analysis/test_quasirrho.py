@@ -29,22 +29,26 @@ class TestQuasiRRHO:
         qrrho = QuasiRRHO.from_gaussian_output(self.gout)
         # tight tolerances: mixing up vibrational temperatures [K] and wavenumbers [cm^-1] in the
         # free-rotor interpolation gave S = 141.297 cal/mol/K and G = -884.776745 Ha
-        assert qrrho.entropy_quasiRRHO == approx(correct_stot, abs=0.01), "Incorrect total entropy"
-        assert qrrho.free_energy_quasiRRHO == approx(correct_g, abs=1e-5), "Incorrect Quasi-RRHO free energy"
+        assert qrrho.entropy_quasiRRHO == approx(correct_stot, rel=0, abs=0.01), "Incorrect total entropy"
+        assert qrrho.free_energy_quasiRRHO == approx(correct_g, rel=0, abs=1e-5), "Incorrect Quasi-RRHO free energy"
 
     def test_qrrho_qchem(self):
         """
-        Testing from a QChem output file. "Correct" values are from
-        the version of QuasiRRHO that worked for Gaussian.
-        initial run.
+        Test a QChem output against independently calculated partition functions.
         """
-        correct_g = -428.60768184222934
-        correct_stot = 103.41012732045324
+        # Independent SI calculation from the fixture's 17 coordinates, 45 frequencies and doublet
+        # multiplicity, using natural-abundance masses, T=298.15 K, p=101317 Pa and sigma_r=1:
+        # sum ideal-gas translational/rotational/electronic and vibrational partition functions;
+        # Grimme (2012), doi:10.1002/chem.201200497, interpolates S_HO with S_rotor using
+        # mu=h/(8*pi**2*c*freq), mean principal inertia, and w=1/(1+(100/freq)**4), freq in cm^-1.
+        # G=E_SCF+H_thermal-T*S, including zero-point energy and pV in H_thermal.
+        correct_g = -428.6076869155551
+        correct_stot = 103.42339168569977
         # HO total entropy from QChem = 106.521
 
         qrrho = QuasiRRHO.from_qc_output(self.qout)
-        assert correct_stot == approx(qrrho.entropy_quasiRRHO, rel=0.1), "Incorrect total entropy"
-        assert correct_g == approx(qrrho.free_energy_quasiRRHO), "Incorrect Quasi-RRHO free energy"
+        assert qrrho.entropy_quasiRRHO == approx(correct_stot, rel=0, abs=0.01), "Incorrect total entropy"
+        assert qrrho.free_energy_quasiRRHO == approx(correct_g, rel=0, abs=1e-5), "Incorrect Quasi-RRHO free energy"
 
     def test_rrho_manual(self):
         """
