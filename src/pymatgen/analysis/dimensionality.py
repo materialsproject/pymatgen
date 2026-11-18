@@ -22,7 +22,6 @@ get_dimensionality_gorai:
 
 from __future__ import annotations
 
-import copy
 import itertools
 from collections import defaultdict
 
@@ -334,8 +333,9 @@ def get_dimensionality_cheon(
     if standardize:
         structure = SpacegroupAnalyzer(structure_raw).get_conventional_standard_structure()
     else:
-        structure = structure_raw
-    structure_save = copy.copy(structure_raw)
+        # copy so that make_supercell below does not modify the input structure in place
+        structure = structure_raw.copy()
+    structure_save = structure_raw.copy()
     connected_list1 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
     max1, min1, _clusters1 = find_clusters(structure, connected_list1)
     if larger_cell:
@@ -363,7 +363,7 @@ def get_dimensionality_cheon(
             if dim == int(dim):
                 dim = f"{int(dim)}D"
             else:
-                structure = copy.copy(structure_save)
+                structure = structure_save.copy()
                 structure.make_supercell(np.eye(3) * 3)
                 connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
                 max3, min3, _clusters3 = find_clusters(structure, connected_list3)

@@ -128,6 +128,13 @@ class TestCheonDimensionality(MatSciTest):
         assert get_dimensionality_cheon(struct) == "intercalated ion"
         assert get_dimensionality_cheon(struct, ldict={"Cs": 3.7, "Cl": 3}) == "3D"
 
+    def test_input_structure_not_modified(self):
+        struct = self.get_structure("Graphite")
+        orig = struct.copy()
+        for larger_cell in (False, True):
+            assert get_dimensionality_cheon(struct, standardize=False, larger_cell=larger_cell) == "2D"
+            assert struct == orig
+
     def test_tricky_structure(self):
         tricky_structure = Structure(
             [5.79, 0.0, 0.0, 0, 5.79, 0.0, 0.0, 0.0, 5.79],
