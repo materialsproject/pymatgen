@@ -825,6 +825,18 @@ class TestMagneticStructureEnumeratorWithoutEnumlib:
         assert enumerator.input_index == 1
         assert enumerator.input_origin == "afm"
 
+    def test_without_ferromagnetic_strategy(self, monkeypatch, nio, nio_afm_111):
+        # truncate_by_symmetry (on by default) used to unconditionally move the "fm"
+        # ordering to the front, raising ValueError when it was never generated
+        afm_structure = CollinearMagneticStructureAnalyzer(nio_afm_111).get_structure_with_spin()
+        monkeypatch.setattr(
+            MagOrderingTransformation, "apply_transformation", lambda self, *args, **kwargs: [afm_structure]
+        )
+
+        enumerator = MagneticStructureEnumerator(nio, strategies=("antiferromagnetic",), automatic=False)
+        assert enumerator.ordered_structure_origins == ["afm"]
+        assert CollinearMagneticStructureAnalyzer(enumerator.ordered_structures[0]).ordering == Ordering.AFM
+
 
 class TestMagneticDeformation:
     def test_magnetic_deformation(self):

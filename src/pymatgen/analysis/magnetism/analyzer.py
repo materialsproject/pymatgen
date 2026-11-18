@@ -1106,10 +1106,11 @@ class MagneticStructureEnumerator:
             ordered_structures = [ordered_structures[idx] for idx, _struct in structs_to_keep]
             ordered_structures_origins = [ordered_structures_origins[idx] for idx, _struct in structs_to_keep]
 
-            # and ensure fm is always at index 0
-            fm_index = ordered_structures_origins.index("fm")
-            ordered_structures.insert(0, ordered_structures.pop(fm_index))
-            ordered_structures_origins.insert(0, ordered_structures_origins.pop(fm_index))
+            # and ensure fm is always at index 0 (if the "ferromagnetic" strategy was used)
+            if "fm" in ordered_structures_origins:
+                fm_index = ordered_structures_origins.index("fm")
+                ordered_structures.insert(0, ordered_structures.pop(fm_index))
+                ordered_structures_origins.insert(0, ordered_structures_origins.pop(fm_index))
 
         # if our input structure isn't in our generated structures,
         # let's add it manually and also keep a note of which structure
