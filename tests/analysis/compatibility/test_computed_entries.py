@@ -535,6 +535,15 @@ class TestGibbsComputedStructureEntry:
         assert test_entry == entry
         assert entry.energy == approx(test_entry.energy)
 
+    def test_as_from_dict_with_correction(self):
+        # entries with a correction (e.g. after process_entries) must round-trip without an argument conflict
+        for kwargs in ({"correction": -0.5}, {"energy_adjustments": [ConstantEnergyAdjustment(-0.5)]}):
+            test_entry = GibbsComputedStructureEntry(self.struct, -2.436, temp=300, **kwargs)
+            entry = GibbsComputedStructureEntry.from_dict(test_entry.as_dict())
+            assert entry.correction == approx(-0.5)
+            assert entry.energy == approx(test_entry.energy)
+            assert len(entry.energy_adjustments) == 1
+
     def test_repr(self):
         assert str(self.entries_with_temps[300]).startswith(
             "GibbsComputedStructureEntry test - Li1 Fe4 P4 O16\nGibbs Free Energy (Formation) = -56.2127"

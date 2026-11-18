@@ -319,14 +319,16 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):  # type: ignore[name-
             GibbsComputedStructureEntry
         """
         dec = MontyDecoder()
+        energy_adjustments = [dec.process_decoded(e) for e in dct.get("energy_adjustments", [])]
         return cls(
             dec.process_decoded(dct["structure"]),
             dct["formation_enthalpy_per_atom"],
             dct["temp"],
             dct["gibbs_model"],
             composition=dct.get("composition"),
-            correction=dct["correction"],
-            energy_adjustments=[dec.process_decoded(e) for e in dct.get("energy_adjustments", {})],
+            # correction is derived from energy_adjustments; only pass it for legacy dicts without them
+            correction=0 if energy_adjustments else dct["correction"],
+            energy_adjustments=energy_adjustments,
             parameters={k: dec.process_decoded(v) for k, v in dct.get("parameters", {}).items()},
             data={k: dec.process_decoded(v) for k, v in dct.get("data", {}).items()},
             entry_id=dct.get("entry_id"),
