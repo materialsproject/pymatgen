@@ -110,7 +110,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         imax = max(xrd.y)
 
         for two_theta, i, hkls in zip(xrd.x, xrd.y, xrd.hkls, strict=True):
-            if two_theta_range[0] <= two_theta <= two_theta_range[1]:
+            if two_theta_range is None or two_theta_range[0] <= two_theta <= two_theta_range[1]:
                 hkl_tuples = [hkl["hkl"] for hkl in hkls]
                 label = ", ".join(map(str, hkl_tuples))  # 'full' label
                 ax.plot([two_theta, two_theta], [0, i], color="k", linewidth=3, label=label)

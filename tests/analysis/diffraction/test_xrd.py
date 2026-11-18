@@ -209,6 +209,19 @@ class TestXRDCalculator(MatSciTest):
             [{"hkl": (2, 0, 2), "multiplicity": 8}],
         ]
 
+    def test_get_plot_full_range(self):
+        """two_theta_range=None plots all diffracted beams within the limiting sphere."""
+        struct = self.get_structure("CsCl")
+        xrd_calc = XRDCalculator()
+        n_peaks = len(xrd_calc.get_pattern(struct, two_theta_range=None).x)
+        assert n_peaks > len(xrd_calc.get_pattern(struct).x)
+
+        ax = xrd_calc.get_plot(struct, two_theta_range=None, annotate_peaks=None)
+        assert len(ax.lines) == n_peaks
+
+        fig = xrd_calc.plot_structures([struct], two_theta_range=None, annotate_peaks=None, show=False)
+        assert len(fig.axes[0].lines) == n_peaks
+
     def test_get_pattern_isotropic_thermal_displacements(self, monkeypatch):
         """An isotropic U gives the same pattern as debye_waller_factors with B = 8 pi^2 U."""
         struct = self.get_structure("LiFePO4")
