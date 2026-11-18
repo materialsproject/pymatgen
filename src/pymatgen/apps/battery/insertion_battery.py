@@ -49,7 +49,8 @@ class InsertionElectrode(AbstractElectrode):
         Args:
             entries: A list of ComputedEntries, ComputedStructureEntries, or
                 subclasses representing the different topotactic states
-                of the battery, e.g. TiO2 and LiTiO2.
+                of the battery, e.g. TiO2 and LiTiO2. For entries without structures,
+                data["volume"] must be the volume of the whole entry, matching entry.composition.
             working_ion_entry: A single ComputedEntry or PDEntry
                 representing the element that carries charge across the
                 battery, e.g. Li.
@@ -57,7 +58,8 @@ class InsertionElectrode(AbstractElectrode):
                 electrode object significantly leaner by dropping the structure data.
                 If this parameter is set to True, the ComputedStructureEntry will be
                 replaced with a ComputedEntry and the volume will be stored in
-                ComputedEntry.data['volume']. If entries provided are ComputedEntries,
+                ComputedEntry.data['volume']. This is the volume of the whole entry,
+                matching entry.composition. If entries provided are ComputedEntries,
                 must set strip_structures=False.
         """
         if strip_structures:
