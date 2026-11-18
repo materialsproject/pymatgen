@@ -201,8 +201,9 @@ class QuasiRRHO:
             mass += site.specie.atomic_mass
         mass *= amu_to_kg
 
-        # Calculate vibrational temperatures
-        vib_temps = [freq * light_speed * h_plank / kb for freq in frequencies if freq > 0]
+        # Keep real (positive) frequencies [cm^-1] and calculate vibrational temperatures [K]
+        real_freqs = [freq for freq in frequencies if freq > 0]
+        vib_temps = [freq * light_speed * h_plank / kb for freq in real_freqs]
 
         # Translational component of entropy and energy
         qt = (2 * np.pi * mass * kb * self.temp / (h_plank * h_plank)) ** (3 / 2) * kb * self.temp / self.press
@@ -239,16 +240,18 @@ class QuasiRRHO:
         # Vibrational component of Entropy and Energy
         ev = sv_quasiRRHO = sv = 0
 
-        for vt in vib_temps:
+        for freq, vt in zip(real_freqs, vib_temps, strict=True):
             with np.errstate(over="ignore"):
                 ev += vt * (1 / 2 + 1 / (np.exp(vt / self.temp) - 1))
                 sv_temp = vt / (self.temp * (np.exp(vt / self.temp) - 1)) - np.log(1 - np.exp(-vt / self.temp))
             sv += sv_temp
 
-            mu = h_plank / (8 * np.pi**2 * vt * light_speed)
+            # Grimme's free-rotor moment and damping weight use the frequency itself
+            # (nu [s^-1] = freq [cm^-1] * c [cm/s]), not the vibrational temperature
+            mu = h_plank / (8 * np.pi**2 * freq * light_speed)
             mu_prime = mu * Bav / (mu + Bav)
             s_rotor = 1 / 2 + np.log(np.sqrt(8 * np.pi**3 * mu_prime * kb * self.temp / h_plank**2))
-            weight = 1 / (1 + (self.v0 / vt) ** 4)
+            weight = 1 / (1 + (self.v0 / freq) ** 4)
             sv_quasiRRHO += weight * sv_temp + (1 - weight) * s_rotor
 
         sv_quasiRRHO *= ideal_gas_const

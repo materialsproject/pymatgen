@@ -27,8 +27,10 @@ class TestQuasiRRHO:
         correct_g = -884.776886
         correct_stot = 141.584080
         qrrho = QuasiRRHO.from_gaussian_output(self.gout)
-        assert correct_stot == approx(qrrho.entropy_quasiRRHO, rel=0.1), "Incorrect total entropy"
-        assert correct_g == approx(qrrho.free_energy_quasiRRHO), "Incorrect Quasi-RRHO free energy"
+        # tight tolerances: mixing up vibrational temperatures [K] and wavenumbers [cm^-1] in the
+        # free-rotor interpolation gave S = 141.297 cal/mol/K and G = -884.776745 Ha
+        assert qrrho.entropy_quasiRRHO == approx(correct_stot, abs=0.01), "Incorrect total entropy"
+        assert qrrho.free_energy_quasiRRHO == approx(correct_g, abs=1e-5), "Incorrect Quasi-RRHO free energy"
 
     def test_qrrho_qchem(self):
         """
