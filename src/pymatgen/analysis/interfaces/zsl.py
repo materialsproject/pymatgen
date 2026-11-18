@@ -107,6 +107,8 @@ class ZSLGenerator(MSONable):
         self.max_length_tol = max_length_tol
         self.max_angle_tol = max_angle_tol
         self.bidirectional = bidirectional
+        # Keep reductions local to this generator, including repeated Miller index pairs.
+        self._get_reduced_vector_sets = lru_cache(maxsize=1024)(_get_reduced_vector_sets)
 
     def generate_sl_transformation_sets(self, film_area: int, substrate_area: int) -> Iterator[tuple]:
         """Generate transformation sets for film/substrate pair given the
@@ -160,14 +162,18 @@ class ZSLGenerator(MSONable):
             substrate_vectors(array): substrate vectors to generate super
                 lattices
         """
-        film_vectors_bytes = np.asarray(film_vectors, dtype=float).tobytes()
-        substrate_vectors_bytes = np.asarray(substrate_vectors, dtype=float).tobytes()
+        film_vectors = np.asarray(film_vectors, dtype=float)
+        substrate_vectors = np.asarray(substrate_vectors, dtype=float)
+        if film_vectors.shape != (2, 3) or substrate_vectors.shape != (2, 3):
+            raise ValueError("Film and substrate vectors must each have shape (2, 3)")
+        film_vectors_bytes = film_vectors.tobytes()
+        substrate_vectors_bytes = substrate_vectors.tobytes()
         for film_transformations, substrate_transformations in transformation_sets:
             # Apply transformations and reduce using Zur reduce methodology
-            films, film_lengths, film_angles = _get_reduced_vector_sets(
+            films, film_lengths, film_angles = self._get_reduced_vector_sets(
                 np.asarray(film_transformations, dtype=float).tobytes(), film_vectors_bytes
             )
-            substrates, substrate_lengths, substrate_angles = _get_reduced_vector_sets(
+            substrates, substrate_lengths, substrate_angles = self._get_reduced_vector_sets(
                 np.asarray(substrate_transformations, dtype=float).tobytes(), substrate_vectors_bytes
             )
 
@@ -209,7 +215,6 @@ class ZSLGenerator(MSONable):
         # and had to be re-written as a staticmethod if using numba, so was left unchanged)
         transformation_sets = self.generate_sl_transformation_sets(film_area, substrate_area)
 
-        # Optimization note: could not use njit here due to use of itertools.product
         equiv_transformations = self.get_equiv_transformations(transformation_sets, film_vectors, substrate_vectors)
 
         # Check each super-lattice pair to see if they match
@@ -346,13 +351,12 @@ def _unidirectional_is_same_vectors(vec_set1, vec_set2, max_length_tol, max_angl
     return np.absolute(rel_angle(vec_set1, vec_set2)) <= max_angle_tol
 
 
-@lru_cache(maxsize=1024)
 def _get_reduced_vector_sets(transformations: bytes, vectors: bytes) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Apply the super lattice transformations of one area multiple to a pair of vectors and reduce
     the results with reduce_vectors.
 
-    Cached because the same transformations are applied to the same vectors many times, both across
-    the area multiple pairs of one search and across the Miller index pairs in SubstrateAnalyzer.
+    Cached per ZSLGenerator instance because the same transformations are applied to the same vectors
+    across the area multiple pairs of one search and the Miller index pairs in SubstrateAnalyzer.
 
     Args:
         transformations (bytes): float64 bytes of the (N, 2, 2) transformation matrices
@@ -363,7 +367,7 @@ def _get_reduced_vector_sets(transformations: bytes, vectors: bytes) -> tuple[np
             The arrays are read-only since they are shared between calls.
     """
     transformation_matrices = np.frombuffer(transformations).reshape(-1, 2, 2)
-    lattice_vectors = np.frombuffer(vectors).reshape(2, -1)
+    lattice_vectors = np.frombuffer(vectors).reshape(2, 3)
     reduced = np.array(
         [reduce_vectors(*v) for v in np.dot(transformation_matrices, lattice_vectors)],
         dtype=float,

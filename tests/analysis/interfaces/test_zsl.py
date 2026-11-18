@@ -3,6 +3,7 @@ from __future__ import annotations
 from itertools import product
 
 import numpy as np
+import pytest
 from numpy.testing import assert_array_equal
 from pytest import approx
 
@@ -109,3 +110,19 @@ class TestZSLGen(MatSciTest):
                         assert_array_equal(arr, ref_arr)
                 # Yielded vectors must not share memory with cached reductions
                 matches[0][0] *= 2
+
+    def test_reduction_cache_is_local_to_generator(self):
+        z = ZSLGenerator()
+        other = ZSLGenerator()
+        film_vectors = self.film.lattice.matrix[:2]
+        substrate_vectors = self.substrate.lattice.matrix[:2]
+        list(z(film_vectors, substrate_vectors))
+        assert z._get_reduced_vector_sets.cache_info().currsize > 0
+        assert other._get_reduced_vector_sets.cache_info().currsize == 0
+
+    def test_vector_shape(self):
+        z = ZSLGenerator()
+        vectors = self.film.lattice.matrix[:2]
+        for film, substrate in ((vectors.reshape(3, 2), vectors), (vectors, vectors.reshape(3, 2))):
+            with pytest.raises(ValueError, match=r"shape \(2, 3\)"):
+                list(z.get_equiv_transformations([], film, substrate))
