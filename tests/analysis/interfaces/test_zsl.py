@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pickle
 from itertools import product
 
 import numpy as np
@@ -117,8 +118,12 @@ class TestZSLGen(MatSciTest):
         film_vectors = self.film.lattice.matrix[:2]
         substrate_vectors = self.substrate.lattice.matrix[:2]
         list(z(film_vectors, substrate_vectors))
-        assert z._get_reduced_vector_sets.cache_info().currsize > 0
-        assert other._get_reduced_vector_sets.cache_info().currsize == 0
+        assert len(z._reduced_vector_sets) > 0
+        assert len(other._reduced_vector_sets) == 0
+        # the cache is not pickled, so generators still pickle (e.g. for multiprocessing)
+        restored = pickle.loads(pickle.dumps(z))
+        assert restored._reduced_vector_sets == {}
+        assert restored.as_dict() == z.as_dict()
 
     def test_vector_shape(self):
         z = ZSLGenerator()

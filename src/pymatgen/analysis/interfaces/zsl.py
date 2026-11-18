@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import lru_cache
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -108,7 +107,21 @@ class ZSLGenerator(MSONable):
         self.max_angle_tol = max_angle_tol
         self.bidirectional = bidirectional
         # Keep reductions local to this generator, including repeated Miller index pairs.
-        self._get_reduced_vector_sets = lru_cache(maxsize=1024)(_get_reduced_vector_sets)
+        self._reduced_vector_sets: dict[tuple[bytes, bytes], tuple[np.ndarray, np.ndarray, np.ndarray]] = {}
+
+    def __getstate__(self):
+        # The reduction cache is only a speedup; do not pickle it.
+        state = self.__dict__.copy()
+        state["_reduced_vector_sets"] = {}
+        return state
+
+    def _cached_reduced_vector_sets(
+        self, transformations: bytes, vectors: bytes
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        key = (transformations, vectors)
+        if key not in self._reduced_vector_sets:
+            self._reduced_vector_sets[key] = _get_reduced_vector_sets(transformations, vectors)
+        return self._reduced_vector_sets[key]
 
     def generate_sl_transformation_sets(self, film_area: int, substrate_area: int) -> Iterator[tuple]:
         """Generate transformation sets for film/substrate pair given the
@@ -170,10 +183,10 @@ class ZSLGenerator(MSONable):
         substrate_vectors_bytes = substrate_vectors.tobytes()
         for film_transformations, substrate_transformations in transformation_sets:
             # Apply transformations and reduce using Zur reduce methodology
-            films, film_lengths, film_angles = self._get_reduced_vector_sets(
+            films, film_lengths, film_angles = self._cached_reduced_vector_sets(
                 np.asarray(film_transformations, dtype=float).tobytes(), film_vectors_bytes
             )
-            substrates, substrate_lengths, substrate_angles = self._get_reduced_vector_sets(
+            substrates, substrate_lengths, substrate_angles = self._cached_reduced_vector_sets(
                 np.asarray(substrate_transformations, dtype=float).tobytes(), substrate_vectors_bytes
             )
 
