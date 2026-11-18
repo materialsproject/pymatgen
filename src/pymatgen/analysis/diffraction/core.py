@@ -79,7 +79,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
     def get_plot(
         self,
         structure: Structure,
-        two_theta_range: tuple[float, float] = (0, 90),
+        two_theta_range: tuple[float, float] | None = (0, 90),
         annotate_peaks="compact",
         ax: Axes = None,
         with_labels=True,
@@ -89,7 +89,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
 
         Args:
             structure: Input structure
-            two_theta_range (tuple[float, float]): Range of two_thetas to calculate in degrees.
+            two_theta_range (tuple[float, float] | None): Range of two_thetas to calculate in degrees.
                 Defaults to (0, 90). Set to None if you want all diffracted beams within the limiting
                 sphere of radius 2 / wavelength.
             annotate_peaks (str | None): Whether and how to annotate the peaks
@@ -161,7 +161,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
 
         Args:
             structure (Structure): Input structure
-            two_theta_range ([float of length 2]): Tuple for range of
+            two_theta_range (tuple[float, float] | None): Tuple for range of
                 two_thetas to calculate in degrees. Defaults to (0, 90). Set to
                 None if you want all diffracted beams within the limiting
                 sphere of radius 2 / wavelength.
@@ -179,7 +179,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
 
         Args:
             structures (Structure): List of structures
-            two_theta_range ([float of length 2]): Tuple for range of
+            two_theta_range (tuple[float, float] | None): Tuple for range of
                 two_thetas to calculate in degrees. Defaults to (0, 90). Set to
                 None if you want all diffracted beams within the limiting
                 sphere of radius 2 / wavelength.
