@@ -443,16 +443,17 @@ class InsertionVoltagePair(AbstractVoltagePair):
         framework, norm_charge = frame_charge_comp.get_reduced_composition_and_factor()
         norm_discharge = frame_discharge_comp.get_reduced_composition_and_factor()[1]
 
-        # Initialize normalized properties
+        # Initialize normalized properties. data["volume"] (e.g. from strip_structures=True) holds the
+        # volume of the whole entry, so it must be normalized like the structure volume
         if hasattr(entry_charge, "structure"):
             _vol_charge = entry_charge.structure.volume / norm_charge
-        else:
-            _vol_charge = entry_charge.data.get("volume")
+        elif (_vol_charge := entry_charge.data.get("volume")) is not None:
+            _vol_charge /= norm_charge
 
         if hasattr(entry_discharge, "structure"):
             _vol_discharge = entry_discharge.structure.volume / norm_discharge
-        else:
-            _vol_discharge = entry_discharge.data.get("volume")
+        elif (_vol_discharge := entry_discharge.data.get("volume")) is not None:
+            _vol_discharge /= norm_discharge
 
         comp_charge = entry_charge.composition
         comp_discharge = entry_discharge.composition

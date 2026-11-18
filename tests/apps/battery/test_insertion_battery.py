@@ -144,6 +144,14 @@ class TestInsertionElectrode:
         vols_struct = [ient.structure.volume for ient in self.ie_LTO.get_all_entries()]
         assert vols_no_struct == approx(vols_struct, rel=1e-3)
 
+        # volume-based quantities must not depend on whether structures were stripped
+        for pair, pair_struct in zip(ie_LTO_no_struct.voltage_pairs, self.ie_LTO.voltage_pairs, strict=True):
+            assert pair.vol_charge == approx(pair_struct.vol_charge)
+            assert pair.vol_discharge == approx(pair_struct.vol_discharge)
+        assert ie_LTO_no_struct.get_capacity_vol() == approx(self.ie_LTO.get_capacity_vol())
+        assert ie_LTO_no_struct.get_capacity_vol() == approx(1205.99391136)
+        assert ie_CMO_no_struct.get_capacity_vol() == approx(self.ie_CMO.get_capacity_vol())
+
     def test_entry_ordering(self):
         def formulas(entries):
             return [entry.reduced_formula for entry in entries]
