@@ -746,7 +746,10 @@ class PourbaixDiagram(MSONable):
             entry_comps = [entry.composition for entry in entry_list]
             rxn = Reaction(entry_comps + dummy_oh, [prod_comp])
             react_coeffs = [-coeff for coeff in rxn.coeffs[: len(entry_list)]]
-            all_coeffs = [*react_coeffs, rxn.get_coeff(prod_comp)]
+            # The product is the last composition in the reaction. Don't look it up with
+            # rxn.get_coeff(prod_comp): if an entry has the same composition as the product,
+            # that would return the reactant coefficient instead.
+            all_coeffs = [*react_coeffs, rxn.coeffs[-1]]
 
             # Check if reaction coeff threshold met for Pourbaix compounds
             # All reactant/product coefficients must be positive nonzero
