@@ -9,13 +9,56 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  issues: write # create the needs-review label on first use and apply it
 
 jobs:
   check-contributor:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Check Contributor Report
+      - name: Check Contributor Quality
         uses: jdiegosierra/contributor-report@e92e3ab844443019fbe7a2d51e07773ddacc6269 # v1.3.3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+          # Individual thresholds
+          threshold-pr-merge-rate: "0.3" # Require 30% merge rate
+          threshold-account-age: "30" # Require 30+ day old accounts
+          threshold-positive-reactions: "1" # Require at least 1 positive reaction
+          threshold-negative-reactions: "5" # Allow max 5 negative reactions
+          threshold-merger-diversity: "2" # Require 2+ unique maintainers who merged PRs
+          threshold-repo-history-merge-rate: "0.3" # Require 30% merge rate in this repo
+          threshold-repo-history-min-prs: "1" # Require at least 1 previous PR in repo
+          threshold-profile-completeness: "20" # Require profile completeness score >= 20
+
+          # Spam detection
+          enable-spam-detection: "true"
+
+          # Metrics that must pass (comma-separated)
+          required-metrics: "prMergeRate,accountAge"
+
+          # Minimum stars for "quality" repos
+          minimum-stars: "50"
+
+          # Analysis window in months
+          analysis-window: "12"
+
+          # Trusted users (always pass). Replaces the action's default list, so its bots are repeated here.
+          trusted-users: "dependabot[bot],renovate[bot],github-actions[bot],codecov[bot],sonarcloud[bot],pre-commit-ci[bot]"
+
+          # Trusted organizations (members skip the check)
+          trusted-orgs: "materialsproject,materialyzeai"
+
+          # Action on fail: comment, label, fail, comment-and-label, none
+          on-fail: "comment-and-label"
+          label-name: "needs-review"
+
+          # Test mode - log but don't act
+          dry-run: "false"
+
+          # Show detailed evidence: none, failed, all
+          verbose-details: "failed"
+
+          # New account handling: neutral, require-review, block
+          new-account-action: "require-review"
+          new-account-threshold-days: "14"
