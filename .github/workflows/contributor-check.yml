@@ -1,0 +1,21 @@
+name: PR Contributor Check
+
+# pull_request_target (not pull_request) so the token can comment/label on PRs from forks.
+# Safe because no PR code is checked out or run: only the pinned third-party action executes.
+on:
+  pull_request_target:
+    types: [opened, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check-contributor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check Contributor Report
+        uses: jdiegosierra/contributor-report@e92e3ab844443019fbe7a2d51e07773ddacc6269 # v1.3.3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
