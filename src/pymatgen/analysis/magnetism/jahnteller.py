@@ -411,7 +411,8 @@ class JahnTellerAnalyzer:
         elif motif == "tet":
             e = spin_config["e"]
             t_2 = spin_config["t_2"]
-            if (e % 3 != 0) or (t_2 % 2 != 0):
+            # e holds 2 orbitals and t_2 holds 3, as e_g and t_2g in the octahedral case
+            if (e % 2 != 0) or (t_2 % 3 != 0):
                 magnitude = "weak"
         return magnitude
 
