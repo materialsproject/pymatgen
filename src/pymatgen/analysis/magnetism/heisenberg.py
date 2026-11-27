@@ -179,6 +179,22 @@ def _as_image(cells) -> tuple[int, int, int]:
     return tuple(int(cell) for cell in cells)
 
 
+def _leave_one_out_rms_error(design_matrix: np.ndarray, energies: np.ndarray) -> float:
+    """RMS error of predicting each row's energy from a least-squares fit to all the other rows.
+
+    Infinity if the other rows cannot fix every parameter for some left-out row.
+    """
+    n_rows, n_params = design_matrix.shape
+    prediction_errors = []
+    for left_out in range(n_rows):
+        others = np.arange(n_rows) != left_out
+        if np.linalg.matrix_rank(design_matrix[others]) < n_params:
+            return float("inf")
+        params = np.linalg.lstsq(design_matrix[others], energies[others], rcond=None)[0]
+        prediction_errors.append(design_matrix[left_out] @ params - energies[left_out])
+    return float(np.sqrt(np.mean(np.square(prediction_errors))))
+
+
 class Bond(NamedTuple):
     """Bond from parent site start to parent site end, image parent cells away."""
 
@@ -611,6 +627,7 @@ class HeisenbergMapper:
         # Set by get_exchange.
         self.ex_params = None
         self.residual = None
+        self.leave_one_out_error = None
 
         # The magnetic species: the elements that carry a moment in any ordering.
         magnetic_species = self._magnetic_species(ordered_structures, default_magmoms)
@@ -790,7 +807,10 @@ class HeisenbergMapper:
 
         The residual is only meaningful with substantially more orderings than fitted
         parameters; otherwise the extra parameters overfit, lowering the residual without
-        improving the fit.
+        improving the fit. The leave-one-out error, stored on ``self.leave_one_out_error``,
+        does not drop this way: it is the RMS error in meV per magnetic ion of predicting
+        each ordering's energy from a fit to all the others, and infinity if some ordering
+        alone fixes a parameter.
 
         Returns:
             ex_params (dict[str, float]): J_ij in meV/muB^2 and 'E0' in eV per magnetic ion.
@@ -825,6 +845,7 @@ class HeisenbergMapper:
 
         # Averaged over the orderings, not the degrees of freedom, so a square system works.
         residual = _MEV_PER_EV * float(np.sqrt(np.mean((design_matrix @ params - energies) ** 2)))  # meV per ion
+        self.leave_one_out_error = _MEV_PER_EV * _leave_one_out_rms_error(design_matrix, energies)
         ex_params = {
             name: value if name == "E0" else _MEV_PER_EV * value  # J_ij in meV/muB^2, E0 in eV per ion
             for name, value in zip(col_names, params.tolist(), strict=True)
@@ -900,6 +921,7 @@ class HeisenbergMapper:
             ex_mat=self.ex_mat,
             ex_params=ex_params,
             residual=residual,
+            leave_one_out_error=self.leave_one_out_error,
             igraph=self.get_interaction_graph(),
         )
 
@@ -1169,6 +1191,7 @@ class HeisenbergModel(MSONable):
         ex_mat=None,
         ex_params=None,
         residual=None,
+        leave_one_out_error=None,
         igraph=None,
     ):
         """
@@ -1199,6 +1222,8 @@ class HeisenbergModel(MSONable):
                 'E0' offset is in eV per magnetic ion.
             residual (float): RMS residual of the fit that produced ex_params, in meV per
                 magnetic ion.
+            leave_one_out_error (float): RMS error of predicting each ordering's energy from a
+                fit to all the others, in meV per magnetic ion.
             igraph (StructureGraph): Exchange interaction graph, edge weights in meV.
         """
         self.formula = formula
@@ -1217,6 +1242,7 @@ class HeisenbergModel(MSONable):
         self.ex_mat = ex_mat
         self.ex_params = ex_params
         self.residual = residual
+        self.leave_one_out_error = leave_one_out_error
         self.igraph = igraph
 
     def as_dict(self):
@@ -1237,6 +1263,7 @@ class HeisenbergModel(MSONable):
             "dists": self.dists,
             "ex_params": self.ex_params,
             "residual": self.residual,
+            "leave_one_out_error": self.leave_one_out_error,
             "igraph": self.igraph.as_dict(),
             # Sanitize int keys / DataFrame
             "ex_mat": jsanitize(self.ex_mat.to_dict()),
@@ -1294,5 +1321,6 @@ class HeisenbergModel(MSONable):
             ex_mat=ex_mat,
             ex_params=dct["ex_params"],
             residual=dct["residual"],
+            leave_one_out_error=dct["leave_one_out_error"],
             igraph=igraph,
         )
