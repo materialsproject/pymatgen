@@ -174,6 +174,44 @@ class TestHeisenbergMapperKnownHamiltonian:
         params = np.array([ex_params["E0"], *(ex_params[col] / 1000 for col in j_columns[1:])])
         assert residual == approx(np.sqrt(np.mean((H @ params - E) ** 2)) * 1000, rel=1e-9)
 
+    def test_leave_one_out_error_matches_closed_form(self):
+        # Six orderings for four parameters. In the four of ORDERINGS plus a B stripe, the A-B
+        # spin product is always the sum of the A-A and B-B ones; only the A up / B down
+        # ordering breaks that, so it alone would fix J_AB. The A stripe/B down ordering
+        # breaks it too, so no single ordering fixes a parameter and every left-out fit predicts.
+        orderings = [
+            *self.ORDERINGS,
+            ([[1, 1], [1, 1]], [[1, 1], [1, -1]]),  # A FM/B stripe, 2x2
+            ([[1, 1], [1, -1]], [[-1, -1], [-1, -1]]),  # A stripe/B down, 2x2
+        ]
+        structures = [self._structure(*spins) for spins in orderings]
+        energies = [self._energy(*spins) for spins in orderings]
+        energies[0] += 0.05  # eV of non-Heisenberg energy, on the 2-ion FM cell
+        hm = HeisenbergMapper(structures, energies)
+        _ex_params, residual = hm.get_exchange()
+
+        # Least squares has a closed form for this (the PRESS residual): P = H (H^T H)^-1 H^T maps
+        # the energies onto the fitted ones, and leaving ordering i out divides its fit residual
+        # by 1 - P_ii. All in eV per ion.
+        H = hm.ex_mat.drop(columns="E").to_numpy(dtype=float)
+        E = hm.ex_mat["E"].to_numpy(dtype=float)
+        P = H @ np.linalg.inv(H.T @ H) @ H.T
+        leave_one_out_residuals = (P @ E - E) / (1 - np.diag(P))
+        assert hm.leave_one_out_error == approx(np.sqrt(np.mean(leave_one_out_residuals**2)) * 1000, rel=1e-9)
+
+        # A left-out ordering is always predicted worse than the fit to all of them reproduces it.
+        assert hm.leave_one_out_error > residual
+
+    def test_leave_one_out_error_is_infinite_when_an_ordering_alone_fixes_a_parameter(self):
+        # Four orderings for four parameters: the fit reproduces any energies exactly, so the
+        # residual is zero without telling anything. With one ordering left out, the other
+        # three cannot fix all four parameters, so no left-out energy can be predicted.
+        hm = self._mapper()
+        _ex_params, residual = hm.get_exchange()
+
+        assert residual == approx(0, abs=1e-9)
+        assert hm.leave_one_out_error == np.inf
+
     def test_repeated_hamiltonian_rows_are_kept(self):
         # Reversing every moment leaves each product s_i.s_j untouched, so this ordering
         # repeats an earlier row of the Hamiltonian while its energy sits somewhere else.
@@ -272,6 +310,7 @@ class TestHeisenbergMapperKnownHamiltonian:
         assert model_rt.structures == model.structures
         assert model_rt.magnetic_structures == model.magnetic_structures
         assert model_rt.residual == model.residual
+        assert model_rt.leave_one_out_error == model.leave_one_out_error
         assert model_rt.energies == model.energies
         assert model_rt.energies_per_magnetic_ion == model.energies_per_magnetic_ion
 
@@ -279,6 +318,12 @@ class TestHeisenbergMapperKnownHamiltonian:
         model_rt2 = HeisenbergModel.from_dict(model_rt.as_dict())
         assert isinstance(model_rt2.ex_mat, pd.DataFrame)
         pd.testing.assert_frame_equal(model_rt.ex_mat, model_rt2.ex_mat)
+
+    def test_from_dict_loads_model_without_leave_one_out_error(self):
+        # Models serialized before the leave-one-out error was added still load, without it.
+        dct = self._mapper().get_heisenberg_model().as_dict()
+        del dct["leave_one_out_error"]
+        assert HeisenbergModel.from_dict(dct).leave_one_out_error is None
 
     def test_from_dict_rejects_legacy_serialization(self):
         # A dict serialized with HeisenbergModel <0.2 (pre parent-cell-sublattice
