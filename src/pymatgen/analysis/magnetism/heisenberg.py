@@ -1321,7 +1321,6 @@ class HeisenbergModel(MSONable):
             ex_mat=ex_mat,
             ex_params=dct["ex_params"],
             residual=dct["residual"],
-            # Absent from dicts serialized before it was added.
-            leave_one_out_error=dct.get("leave_one_out_error"),
+            leave_one_out_error=dct["leave_one_out_error"],
             igraph=igraph,
         )

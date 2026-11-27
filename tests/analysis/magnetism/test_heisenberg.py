@@ -319,12 +319,6 @@ class TestHeisenbergMapperKnownHamiltonian:
         assert isinstance(model_rt2.ex_mat, pd.DataFrame)
         pd.testing.assert_frame_equal(model_rt.ex_mat, model_rt2.ex_mat)
 
-    def test_from_dict_loads_model_without_leave_one_out_error(self):
-        # Models serialized before the leave-one-out error was added still load, without it.
-        dct = self._mapper().get_heisenberg_model().as_dict()
-        del dct["leave_one_out_error"]
-        assert HeisenbergModel.from_dict(dct).leave_one_out_error is None
-
     def test_from_dict_rejects_legacy_serialization(self):
         # A dict serialized with HeisenbergModel <0.2 (pre parent-cell-sublattice
         # refactor) has `unique_site_ids`/`wyckoff_ids`/`sgraphs` instead of
